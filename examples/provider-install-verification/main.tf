@@ -1,11 +1,22 @@
 terraform {
   required_providers {
-    hashicups = {
+    pingdirectory = {
       source = "pingidentity.com/terraform/pingdirectory"
     }
   }
 }
 
-provider "pingdirectory" {}
+provider "pingdirectory" {
+  username = "cn=Directory Manager"
+  password = "2FederateM0re"
+  host     = "ldap://localhost:1389"
+}
 
-data "pingdirectory_users" "example" {}
+resource "pingdirectory_user" "myuser" {
+  dn = "uid=myuser,ou=people,dc=example,dc=com"
+  description = "myterraformuser"
+}
+
+output "myuser_user" {
+  value = pingdirectory_user.myuser
+}

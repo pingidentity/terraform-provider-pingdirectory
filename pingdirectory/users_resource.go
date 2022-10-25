@@ -26,7 +26,7 @@ func NewUsersResource() resource.Resource {
 // usersResource is the resource implementation.
 type usersResource struct {
 	//TODO find appropriate client type
-	client *ldapclient
+	client string //*ldapclient
 }
 
 // usersResourceModel maps the resource schema data.
@@ -72,7 +72,7 @@ func (r *usersResource) Configure(_ context.Context, req resource.ConfigureReque
 	}
 
 	//TODO find appropriate client type
-	r.client = req.ProviderData.(*ldapclient)
+	r.client = req.ProviderData.(string) //.(*ldapclient)
 }
 
 // Create a new resource
@@ -129,7 +129,7 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	// }
 
 	// Overwrite items with refreshed state
-	state.Description = types.String{Value: "read"}
+	// state.SomeComputedValue = types.String{Value: "computed"}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -162,7 +162,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	// TODO fetch updated user (if necessary?)
 
 	// Update resource state with updated items and timestamp
-	plan.Description = types.String{Value: "updated"}
+	// plan.SomeComputedValue = types.String{Value: "computed"}
 	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
 
 	diags = resp.State.Set(ctx, plan)
