@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/go-ldap/ldap/v3"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -26,12 +28,12 @@ func NewUsersResource() resource.Resource {
 // usersResource is the resource implementation.
 type usersResource struct {
 	//TODO find appropriate client type
-	client string //*ldapclient
+	client pingdirectoryProviderModel
 }
 
 // usersResourceModel maps the resource schema data.
 type usersResourceModel struct {
-	Dn          types.String `tfsdk:"dn"`
+	Uid         types.String `tfsdk:"uid"`
 	Description types.String `tfsdk:"description"`
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
@@ -46,8 +48,8 @@ func (r *usersResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 	return tfsdk.Schema{
 		Description: "Manages a user.",
 		Attributes: map[string]tfsdk.Attribute{
-			"dn": {
-				Description: "Distinguished name of the user.",
+			"uid": {
+				Description: "User ID of the user.",
 				Type:        types.StringType,
 				Required:    true,
 			},
@@ -71,8 +73,7 @@ func (r *usersResource) Configure(_ context.Context, req resource.ConfigureReque
 		return
 	}
 
-	//TODO find appropriate client type
-	r.client = req.ProviderData.(string) //.(*ldapclient)
+	r.client = req.ProviderData.(pingdirectoryProviderModel)
 }
 
 // Create a new resource
@@ -85,17 +86,36 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	// TODO make the LDAP call to create
-	// plan.Dn
-	// plan.Description
+	l, err := ldap.DialURL(r.client.Host.Value)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while connecting to the PingDirectory server", err.Error())
+		return
+	}
+	defer l.Close()
 
-	// if err != nil {
-	// 	resp.Diagnostics.AddError(
-	// 		"Error creating user",
-	// 		"Could not create user, unexpected error: "+err.Error(),
-	// 	)
-	// 	return
-	// }
+	err = l.Bind(r.client.Username.Value, r.client.Password.Value)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while binding to the PingDirectory server", err.Error())
+		return
+	}
+
+	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
+	//TODO let these other attribute values come from the resource definition
+	addRequest := ldap.NewAddRequest("uid="+plan.Uid.Value+",ou=people,dc=example,dc=com", nil)
+	addRequest.Attribute("description", []string{plan.Description.Value})
+	addRequest.Attribute("objectClass", []string{"person", "organizationalPerson", "inetOrgPerson"})
+	addRequest.Attribute("sn", []string{"Mahomes"})
+	addRequest.Attribute("cn", []string{"Patrick Mahomes"})
+	addRequest.Attribute("givenName", []string{"Patrick"})
+	addRequest.Attribute("uid", []string{plan.Uid.Value})
+	addRequest.Attribute("mail", []string{plan.Uid.Value + "@example.com"})
+	addRequest.Attribute("userPassword", []string{"2FederateM0re"})
+
+	err = l.Add(addRequest)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while adding the user", err.Error())
+		return
+	}
 
 	// Populate Computed attribute values
 	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
@@ -119,11 +139,11 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	//TODO read current user from PD
-	// state.Dn
+	// state.Uid
 	// if err != nil {
 	// 	resp.Diagnostics.AddError(
 	// 		"Error Reading PingDirectory user",
-	// 		"Could not read PingDirectory user DN "+state.Dn.Value+": "+err.Error(),
+	// 		"Could not read PingDirectory user with ID "+state.Uid.Value+": "+err.Error(),
 	// 	)
 	// 	return
 	// }
@@ -149,7 +169,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	// TODO update existing user entry
-	// plan.Dn
+	// plan.Uid
 	// plan.Description
 	//if err != nil {
 	//	resp.Diagnostics.AddError(
@@ -183,7 +203,7 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	// TODO delete entry from PD
-	// state.Dn
+	// state.Uid
 	//if err != nil {
 	//	resp.Diagnostics.AddError(
 	//		"Error Deleting PingDirectory user",
@@ -194,7 +214,7 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 }
 
 func (r *usersResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to DN attribute
+	// Retrieve import ID and save to Uid attribute
 	//TODO verify this works
-	resource.ImportStatePassthroughID(ctx, path.Root("dn"), req, resp)
+	resource.ImportStatePassthroughID(ctx, path.Root("uid"), req, resp)
 }

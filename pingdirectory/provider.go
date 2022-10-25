@@ -150,21 +150,10 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		return
 	}
 
-	// Create a new PingDirectory client using the configuration values
-	client := "fakeclient"
-	// TODO create some kind of LDAP client
-	//if err != nil {
-	//	resp.Diagnostics.AddError(
-	//		"Unable to Create PingDirectory Client",
-	//		"An unexpected error occurred when creating the PingDirectory client: "+err.Error(),
-	//	)
-	//	return
-	//}
-
-	// Make the PingDirectory client available during DataSource and Resource
+	// Make the PingDirectory config info available during DataSource and Resource
 	// type Configure methods.
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	resp.DataSourceData = config
+	resp.ResourceData = config
 
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
 }

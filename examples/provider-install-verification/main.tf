@@ -7,13 +7,13 @@ terraform {
 }
 
 provider "pingdirectory" {
-  username = "cn=Directory Manager"
+  username = "cn=administrator"
   password = "2FederateM0re"
   host     = "ldap://localhost:1389"
 }
 
 resource "pingdirectory_user" "myuser" {
-  dn = "uid=myuser,ou=people,dc=example,dc=com"
+  uid = "myuser"
   description = "myterraformuser"
 }
 
