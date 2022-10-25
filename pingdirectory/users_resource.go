@@ -38,6 +38,27 @@ type usersResourceModel struct {
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
 
+// Helper function to get the DN for a user with a given ID
+func UserDn(uid string) string {
+	return "uid=" + uid + ",ou=people,dc=example,dc=com"
+}
+
+// Helper method to create an authenticated connection to the directory server
+func Bind(url string, username string, password string) (*ldap.Conn, error) {
+	l, err := ldap.DialURL(url)
+	if err != nil {
+		return nil, err
+	}
+
+	err = l.Bind(username, password)
+	if err != nil {
+		l.Close()
+		return nil, err
+	}
+
+	return l, nil
+}
+
 // Metadata returns the resource type name.
 func (r *usersResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_user"
@@ -86,22 +107,16 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	l, err := ldap.DialURL(r.client.Host.Value)
+	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
 	if err != nil {
-		resp.Diagnostics.AddError("An error occurred while connecting to the PingDirectory server", err.Error())
+		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
 	}
 	defer l.Close()
 
-	err = l.Bind(r.client.Username.Value, r.client.Password.Value)
-	if err != nil {
-		resp.Diagnostics.AddError("An error occurred while binding to the PingDirectory server", err.Error())
-		return
-	}
-
 	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
 	//TODO let these other attribute values come from the resource definition
-	addRequest := ldap.NewAddRequest("uid="+plan.Uid.Value+",ou=people,dc=example,dc=com", nil)
+	addRequest := ldap.NewAddRequest(UserDn(plan.Uid.Value), nil)
 	addRequest.Attribute("description", []string{plan.Description.Value})
 	addRequest.Attribute("objectClass", []string{"person", "organizationalPerson", "inetOrgPerson"})
 	addRequest.Attribute("sn", []string{"Mahomes"})
@@ -138,6 +153,13 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
+	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
+		return
+	}
+	defer l.Close()
+
 	//TODO read current user from PD
 	// state.Uid
 	// if err != nil {
@@ -167,6 +189,13 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
+		return
+	}
+	defer l.Close()
 
 	// TODO update existing user entry
 	// plan.Uid
@@ -202,15 +231,20 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	// TODO delete entry from PD
-	// state.Uid
-	//if err != nil {
-	//	resp.Diagnostics.AddError(
-	//		"Error Deleting PingDirectory user",
-	//		"Could not delete user, unexpected error: "+err.Error(),
-	//	)
-	//	return
-	//}
+	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
+		return
+	}
+	defer l.Close()
+
+	deleteRequest := ldap.NewDelRequest(UserDn(state.Uid.Value), nil)
+
+	err = l.Del(deleteRequest)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while deleting the user in the PingDirectory server", err.Error())
+		return
+	}
 }
 
 func (r *usersResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
