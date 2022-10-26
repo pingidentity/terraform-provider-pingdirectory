@@ -1,5 +1,5 @@
-# pingdirectory-terraform-poc
-This repository contains a POC provider that manages users in PingDirectory (or any other LDAP server). This isn't really a use case that makes sense for Terraform but it's just for getting familiar with writing a provider.
+# PingDirectory Terraform provider POC
+This repository contains a POC Terraform provider that manages users in PingDirectory (or any other LDAP server). This isn't really a use case that makes sense for Terraform but it's just for getting familiar with writing a provider.
 
 It's built with [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework).
 
@@ -14,11 +14,14 @@ To run the example in this repository, you will also need
 
 ### Installing required Go modules
 Run the following commands to install the required Go modules locally
-- `go get github.com/hashicorp/terraform-plugin-framework@latest`
-- `go get github.com/go-ldap/ldap/v3@latest`
-- `go get github.com/hashicorp/terraform-plugin-log@latest`
+```
+go get github.com/hashicorp/terraform-plugin-framework@latest
+go get github.com/go-ldap/ldap/v3@latest
+go get github.com/hashicorp/terraform-plugin-log@latest
+```
 
 Then tidy the modules from the root of the repository:
+
 `go mod tidy`
 
 ## Preparing your Terraform environment for running locally-built providers
@@ -30,7 +33,7 @@ $ go env GOBIN
 /Users/<Username>/go/bin
 ```
 
-If the GOBIN go environment variable is not set, use the default path, /Users/<Username>/go/bin. Create a `~/.terraformrc` file with the following contentes. Change the <PATH> value to the value returned from `go env GOBIN`.
+If the GOBIN go environment variable is not set, use the default path, /Users/\<Username\>/go/bin. Create a `~/.terraformrc` file with the following contents. Change the \<PATH\> value to the value returned from `go env GOBIN`.
 
 ```
 provider_installation {
