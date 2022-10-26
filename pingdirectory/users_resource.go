@@ -2,6 +2,7 @@ package pingdirectory
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -20,6 +21,8 @@ var (
 	_ resource.ResourceWithImportState = &usersResource{}
 )
 
+const baseDN = "ou=people,dc=example,dc=com"
+
 // NewUsersResource is a helper function to simplify the provider implementation.
 func NewUsersResource() resource.Resource {
 	return &usersResource{}
@@ -27,8 +30,7 @@ func NewUsersResource() resource.Resource {
 
 // usersResource is the resource implementation.
 type usersResource struct {
-	//TODO find appropriate client type
-	client pingdirectoryProviderModel
+	ldapConnectionInfo pingdirectoryProviderModel
 }
 
 // usersResourceModel maps the resource schema data.
@@ -40,7 +42,7 @@ type usersResourceModel struct {
 
 // Helper function to get the DN for a user with a given ID
 func UserDn(uid string) string {
-	return "uid=" + uid + ",ou=people,dc=example,dc=com"
+	return "uid=" + uid + "," + baseDN
 }
 
 // Helper method to create an authenticated connection to the directory server
@@ -73,6 +75,9 @@ func (r *usersResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 				Description: "User ID of the user.",
 				Type:        types.StringType,
 				Required:    true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					resource.RequiresReplace(),
+				},
 			},
 			"description": {
 				Description: "Description of the user.",
@@ -94,7 +99,7 @@ func (r *usersResource) Configure(_ context.Context, req resource.ConfigureReque
 		return
 	}
 
-	r.client = req.ProviderData.(pingdirectoryProviderModel)
+	r.ldapConnectionInfo = req.ProviderData.(pingdirectoryProviderModel)
 }
 
 // Create a new resource
@@ -107,7 +112,7 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -145,6 +150,9 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 // Read resource information
 func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	//TODO how to gracefully handle if the user on the remote server gets deleted (outside of terraform's control)?
+	// Kind of a general question for best practice for a provider.
+
 	// Get current state
 	var state usersResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -153,25 +161,40 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
 	}
 	defer l.Close()
 
-	//TODO read current user from PD
-	// state.Uid
-	// if err != nil {
-	// 	resp.Diagnostics.AddError(
-	// 		"Error Reading PingDirectory user",
-	// 		"Could not read PingDirectory user with ID "+state.Uid.Value+": "+err.Error(),
-	// 	)
-	// 	return
-	// }
+	//TODO appropriate parameters here - just following one of the package's examples
+	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
+	//TODO add more attributes to the search if more are supported in the schema
+	searchRequest := ldap.NewSearchRequest(baseDN, ldap.ScopeSingleLevel, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(uid="+state.Uid.Value+")(objectClass=person))", []string{"dn", "description"}, nil)
+	searchResult, err := l.Search(searchRequest)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while searching the PingDirectory server", err.Error())
+		return
+	}
 
-	// Overwrite items with refreshed state
-	// state.SomeComputedValue = types.String{Value: "computed"}
+	if len(searchResult.Entries) == 0 {
+		resp.Diagnostics.AddError("No entries found matching the search in the PingDirectory Server", "")
+		return
+	}
+	if len(searchResult.Entries) > 1 {
+		var sb strings.Builder
+		for _, entry := range searchResult.Entries {
+			sb.WriteString(entry.DN + " ")
+		}
+		resp.Diagnostics.AddError("More than one entry found matching the search in the PingDirectory Server", "Entries found: "+sb.String())
+		return
+	}
+
+	// Update state from the search
+	//TODO if more attributes are supported add here
+	state.Description = types.String{Value: searchResult.Entries[0].GetAttributeValue("description")}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -190,28 +213,25 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
 	}
 	defer l.Close()
 
-	// TODO update existing user entry
-	// plan.Uid
-	// plan.Description
-	//if err != nil {
-	//	resp.Diagnostics.AddError(
-	//		"Error Updating PingDirectory user",
-	//		"Could not update user, unexpected error: "+err.Error(),
-	//	)
-	//	return
-	//}
+	// The UID can't change here because it's set to RequiresReplace above
+	modifyRequest := ldap.NewModifyRequest(UserDn(plan.Uid.Value), nil)
+	modifyRequest.Replace("description", []string{plan.Description.Value})
 
-	// TODO fetch updated user (if necessary?)
+	err = l.Modify(modifyRequest)
+	if err != nil {
+		resp.Diagnostics.AddError("An error occurred while updating the entry", err.Error())
+		return
+	}
 
 	// Update resource state with updated items and timestamp
-	// plan.SomeComputedValue = types.String{Value: "computed"}
+	//TODO update any future computed values here
 	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
 
 	diags = resp.State.Set(ctx, plan)
@@ -231,7 +251,7 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	l, err := Bind(r.client.Host.Value, r.client.Username.Value, r.client.Password.Value)
+	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -249,6 +269,5 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 
 func (r *usersResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to Uid attribute
-	//TODO verify this works
 	resource.ImportStatePassthroughID(ctx, path.Root("uid"), req, resp)
 }

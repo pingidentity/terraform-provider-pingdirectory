@@ -1,0 +1,12 @@
+dn: uid=newuseroutsideterraform,ou=People,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+sn: Reid
+cn: Andy Reid
+givenName: Andy
+uid: newuseroutsideterraform
+mail: newuseroutsideterraform@example.com
+userPassword: 2FederateM0re
+description: This user was made outside terraform

@@ -13,7 +13,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_user" "myuser" {
-  uid = "myuser"
+  uid = "myuid"
   description = "myterraformuser"
 }
 
