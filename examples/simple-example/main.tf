@@ -10,6 +10,7 @@ provider "pingdirectory" {
   username = "cn=administrator"
   password = "2FederateM0re"
   host     = "ldap://localhost:1389"
+  default_user_password = "2FederateM0re"
 }
 
 resource "pingdirectory_user" "mahomes" {

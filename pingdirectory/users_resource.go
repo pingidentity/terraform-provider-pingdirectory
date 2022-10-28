@@ -31,7 +31,7 @@ func NewUsersResource() resource.Resource {
 
 // usersResource is the resource implementation.
 type usersResource struct {
-	ldapConnectionInfo pingdirectoryProviderModel
+	providerConfig pingdirectoryProviderModel
 }
 
 // usersResourceModel maps the resource schema data.
@@ -129,7 +129,7 @@ func (r *usersResource) Configure(_ context.Context, req resource.ConfigureReque
 		return
 	}
 
-	r.ldapConnectionInfo = req.ProviderData.(pingdirectoryProviderModel)
+	r.providerConfig = req.ProviderData.(pingdirectoryProviderModel)
 }
 
 // Create a new resource
@@ -142,7 +142,7 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
+	l, err := Bind(r.providerConfig.Host.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -161,7 +161,7 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	// I'm not sure if a provider can manage password like this - because the value saved in the state
 	// will be an encrypted version of the password, and the directory server doesn't allow changing a password
 	// to the same value as the current value.
-	addRequest.Attribute("userPassword", []string{"2FederateM0re"})
+	addRequest.Attribute("userPassword", []string{r.providerConfig.DefaultUserPassword.Value})
 	if !plan.Description.IsUnknown() && !plan.Description.IsNull() {
 		addRequest.Attribute("description", []string{plan.Description.Value})
 	}
@@ -197,7 +197,7 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
+	l, err := Bind(r.providerConfig.Host.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -256,7 +256,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
+	l, err := Bind(r.providerConfig.Host.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -329,7 +329,7 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	l, err := Bind(r.ldapConnectionInfo.Host.Value, r.ldapConnectionInfo.Username.Value, r.ldapConnectionInfo.Password.Value)
+	l, err := Bind(r.providerConfig.Host.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return

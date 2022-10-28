@@ -16,9 +16,10 @@ import (
 // pingdirectoryProviderModel maps provider schema data to a Go type.
 //TODO add default user password to model
 type pingdirectoryProviderModel struct {
-	Host     types.String `tfsdk:"host"`
-	Username types.String `tfsdk:"username"`
-	Password types.String `tfsdk:"password"`
+	Host                types.String `tfsdk:"host"`
+	Username            types.String `tfsdk:"username"`
+	Password            types.String `tfsdk:"password"`
+	DefaultUserPassword types.String `tfsdk:"default_user_password"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -47,17 +48,23 @@ func (p *pingdirectoryProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag
 			"host": {
 				Description: "URI for PingDirectory LDAP port.",
 				Type:        types.StringType,
-				Optional:    true,
+				Required:    true,
 			},
 			"username": {
 				Description: "Username for PingDirectory admin user.",
 				Type:        types.StringType,
-				Optional:    true,
+				Required:    true,
 			},
 			"password": {
 				Description: "Password for PingDirectory admin user.",
 				Type:        types.StringType,
-				Optional:    true,
+				Required:    true,
+				Sensitive:   true,
+			},
+			"default_user_password": {
+				Description: "Default user password for created PingDirectory users.",
+				Type:        types.StringType,
+				Required:    true,
 				Sensitive:   true,
 			},
 		},
@@ -106,6 +113,15 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		)
 	}
 
+	if config.DefaultUserPassword.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("default_user_password"),
+			"Unknown default PingDirectory user password",
+			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the default PingDirectory user password. "+
+				"Either target apply the source of the value first or set the value statically in the configuration.",
+		)
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -113,6 +129,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	var host = config.Host.Value
 	var username = config.Username.Value
 	var password = config.Password.Value
+	var defaultUserPassword = config.DefaultUserPassword.Value
 
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
@@ -143,6 +160,16 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 			"Missing PingDirectory Password",
 			"The provider cannot create the PingDirectory client as there is a missing or empty value for the PingDirectory password. "+
 				"Set the password value in the configuration. "+
+				"If it is already set, ensure the value is not empty.",
+		)
+	}
+
+	if defaultUserPassword == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("default_user_password"),
+			"Missing default PingDirectory user password",
+			"The provider cannot create the PingDirectory client as there is a missing or empty value for the default PingDirectory user password. "+
+				"Set the default user password value in the configuration. "+
 				"If it is already set, ensure the value is not empty.",
 		)
 	}
