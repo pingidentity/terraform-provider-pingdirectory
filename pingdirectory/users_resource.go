@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -36,6 +37,10 @@ type usersResource struct {
 // usersResourceModel maps the resource schema data.
 type usersResourceModel struct {
 	Uid         types.String `tfsdk:"uid"`
+	Sn          types.String `tfsdk:"sn"`
+	Cn          types.String `tfsdk:"cn"`
+	GivenName   types.String `tfsdk:"given_name"`
+	Mail        types.String `tfsdk:"mail"`
 	Description types.String `tfsdk:"description"`
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
@@ -43,6 +48,11 @@ type usersResourceModel struct {
 // Helper function to get the DN for a user with a given ID
 func UserDn(uid string) string {
 	return "uid=" + uid + "," + baseDN
+}
+
+// Get the common name for a user
+func CommonName(sn string, givenName string) string {
+	return givenName + " " + sn
 }
 
 // Helper method to create an authenticated connection to the directory server
@@ -79,10 +89,30 @@ func (r *usersResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 					resource.RequiresReplace(),
 				},
 			},
+			"sn": {
+				Description: "Surname of the user.",
+				Type:        types.StringType,
+				Required:    true,
+			},
+			"cn": {
+				Description: "Common name of the user.",
+				Type:        types.StringType,
+				Computed:    true,
+			},
+			"given_name": {
+				Description: "Given name of the user.",
+				Type:        types.StringType,
+				Required:    true,
+			},
+			"mail": {
+				Description: "Email address of the user.",
+				Type:        types.StringType,
+				Required:    true,
+			},
 			"description": {
 				Description: "Description of the user.",
 				Type:        types.StringType,
-				Required:    true,
+				Optional:    true,
 			},
 			"last_updated": {
 				Description: "Timestamp of the last Terraform update of the user.",
@@ -119,17 +149,22 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 	defer l.Close()
 
-	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
-	//TODO let these other attribute values come from the resource definition
+	// NOTE: this does no input sanitization so it's probably HIGHLY insecure with the string concatenation and directly using input
 	addRequest := ldap.NewAddRequest(UserDn(plan.Uid.Value), nil)
-	addRequest.Attribute("description", []string{plan.Description.Value})
 	addRequest.Attribute("objectClass", []string{"person", "organizationalPerson", "inetOrgPerson"})
-	addRequest.Attribute("sn", []string{"Mahomes"})
-	addRequest.Attribute("cn", []string{"Patrick Mahomes"})
-	addRequest.Attribute("givenName", []string{"Patrick"})
+	addRequest.Attribute("sn", []string{plan.Sn.Value})
+	addRequest.Attribute("cn", []string{CommonName(plan.Sn.Value, plan.GivenName.Value)})
+	addRequest.Attribute("givenName", []string{plan.GivenName.Value})
 	addRequest.Attribute("uid", []string{plan.Uid.Value})
-	addRequest.Attribute("mail", []string{plan.Uid.Value + "@example.com"})
+	addRequest.Attribute("mail", []string{plan.Mail.Value})
+	// Just set a default password
+	// I'm not sure if a provider can manage password like this - because the value saved in the state
+	// will be an encrypted version of the password, and the directory server doesn't allow changing a password
+	// to the same value as the current value.
 	addRequest.Attribute("userPassword", []string{"2FederateM0re"})
+	if !plan.Description.IsUnknown() && !plan.Description.IsNull() {
+		addRequest.Attribute("description", []string{plan.Description.Value})
+	}
 
 	err = l.Add(addRequest)
 	if err != nil {
@@ -138,6 +173,7 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 
 	// Populate Computed attribute values
+	plan.Cn = types.String{Value: CommonName(plan.Sn.Value, plan.GivenName.Value)}
 	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
 
 	// Set state to fully populated data
@@ -170,9 +206,8 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	//TODO appropriate parameters here - just following one of the package's examples
 	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
-	//TODO add more attributes to the search if more are supported in the schema
 	searchRequest := ldap.NewSearchRequest(baseDN, ldap.ScopeSingleLevel, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(uid="+state.Uid.Value+")(objectClass=person))", []string{"dn", "description"}, nil)
+		"(&(uid="+state.Uid.Value+")(objectClass=person))", []string{"*"}, nil)
 	searchResult, err := l.Search(searchRequest)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while searching the PingDirectory server", err.Error())
@@ -193,8 +228,16 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	// Update state from the search
-	//TODO if more attributes are supported add here
-	state.Description = types.String{Value: searchResult.Entries[0].GetAttributeValue("description")}
+	state.Sn = types.String{Value: searchResult.Entries[0].GetAttributeValue("sn")}
+	state.Cn = types.String{Value: searchResult.Entries[0].GetAttributeValue("cn")}
+	state.GivenName = types.String{Value: searchResult.Entries[0].GetAttributeValue("givenName")}
+	state.Mail = types.String{Value: searchResult.Entries[0].GetAttributeValue("mail")}
+	description := searchResult.Entries[0].GetAttributeValue("description")
+	if description != "" {
+		state.Description = types.String{Value: searchResult.Entries[0].GetAttributeValue("description")}
+	} else {
+		state.Description = types.String{Null: true}
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -220,9 +263,44 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 	defer l.Close()
 
+	// Need to get the current state of the entry
+	//TODO use the state or search the directory? Could lead to issues if the directory state is updated and we form the modify request incorrectly.
+	// Kind of a provider best practice question.
+	//TODO use --permissiveModify request control?
+	var state usersResourceModel
+	req.State.Get(ctx, &state)
+
 	// The UID can't change here because it's set to RequiresReplace above
+	replaceCn := false
 	modifyRequest := ldap.NewModifyRequest(UserDn(plan.Uid.Value), nil)
-	modifyRequest.Replace("description", []string{plan.Description.Value})
+	modifyRequest.Controls = append(modifyRequest.Controls)
+	if state.Sn.Value != plan.Sn.Value {
+		tflog.Info(ctx, "Replacing sn: ("+state.Sn.Value+" -> "+plan.Sn.Value+")")
+		modifyRequest.Replace("sn", []string{plan.Sn.Value})
+		replaceCn = true
+	}
+	if state.GivenName.Value != state.GivenName.Value {
+		tflog.Info(ctx, "Replacing givenName: ("+state.GivenName.Value+" -> "+plan.GivenName.Value+")")
+		modifyRequest.Replace("givenName", []string{plan.GivenName.Value})
+		replaceCn = true
+	}
+	if replaceCn {
+		tflog.Info(ctx, "Replacing cn")
+		modifyRequest.Replace("cn", []string{CommonName(plan.Sn.Value, plan.GivenName.Value)})
+	}
+	if state.Mail.Value != plan.Mail.Value {
+		tflog.Info(ctx, "Replacing mail: ("+state.Mail.Value+" -> "+plan.Mail.Value+")")
+		modifyRequest.Replace("mail", []string{plan.Description.Value})
+	}
+	if plan.Description.Value != state.Description.Value {
+		if !plan.Description.IsUnknown() && !plan.Description.IsNull() {
+			tflog.Info(ctx, "Replacing description: ("+state.Description.Value+" -> "+plan.Description.Value+")")
+			modifyRequest.Replace("description", []string{plan.Description.Value})
+		} else {
+			tflog.Info(ctx, "Deleting description")
+			modifyRequest.Replace("description", []string{})
+		}
+	}
 
 	err = l.Modify(modifyRequest)
 	if err != nil {
@@ -231,7 +309,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	// Update resource state with updated items and timestamp
-	//TODO update any future computed values here
+	plan.Cn = types.String{Value: CommonName(plan.Sn.Value, plan.GivenName.Value)}
 	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
 
 	diags = resp.State.Set(ctx, plan)

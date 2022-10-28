@@ -14,6 +14,7 @@ import (
 )
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
+//TODO add default user password to model
 type pingdirectoryProviderModel struct {
 	Host     types.String `tfsdk:"host"`
 	Username types.String `tfsdk:"username"`
