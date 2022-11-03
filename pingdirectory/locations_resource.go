@@ -139,7 +139,11 @@ func (r *locationsResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	// Read the updated description
-	state.Description = types.String{Value: *getResp.Description}
+	if getResp.Description != nil {
+		state.Description = types.String{Value: *getResp.Description}
+	} else {
+		state.Description = types.StringNull()
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -158,14 +162,21 @@ func (r *locationsResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	//TODO update the location with the client here
+	// Get the current state to see how the description is changing
+	var state locationsResourceModel
+	req.State.Get(ctx, &state)
+
 	updateOperation := client.NewOperation()
-	operation := "replace"
+	var operation string
+	if plan.Description.IsNull() || plan.Description.IsUnknown() || plan.Description.Value == "" {
+		operation = "remove"
+	} else {
+		operation = "replace"
+		updateOperation.Value = &plan.Description.Value
+	}
 	path := "description"
 	updateOperation.Op = &operation
 	updateOperation.Path = &path
-	//TODO this breaks when removing the description
-	updateOperation.Value = &plan.Description.Value
 	updateLocRequest := r.apiClient.LocationApi.UpdateLocation(r.BasicAuthContext(ctx), plan.Name.Value)
 	updateLocRequest = updateLocRequest.UpdateLocationRequest(*client.NewUpdateLocationRequest([]client.Operation{*updateOperation}))
 	// TODO again any reason to use the HTTP response?
@@ -195,7 +206,7 @@ func (r *locationsResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	//TODO use for HTTP response?
+	//TODO any use for HTTP response?
 	_, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(r.BasicAuthContext(ctx), state.Name.Value))
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while deleting the Location", err.Error())
