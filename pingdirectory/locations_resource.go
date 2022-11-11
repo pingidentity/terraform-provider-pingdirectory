@@ -37,6 +37,9 @@ type locationsResourceModel struct {
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
 
+//TODO this should come from the client - doesn't seem to handle the single-entry enum well right now
+const locationSchemaUrn = "urn:pingidentity:schemas:configuration:2.0:location"
+
 // Metadata returns the resource type name.
 func (r *locationsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_location"
@@ -100,11 +103,12 @@ func (r *locationsResource) Create(ctx context.Context, req resource.CreateReque
 
 	addLocRequest := client.NewAddLocationRequest(plan.Name.Value)
 	addLocRequest.Description = &plan.Description.Value
+	addLocRequest.SetSchemas([]string{locationSchemaUrn})
 	apiAddLocationRequest := r.apiClient.LocationApi.AddLocation(r.BasicAuthContext(ctx))
 	apiAddLocationRequest = apiAddLocationRequest.AddLocationRequest(*addLocRequest)
 
-	//TODO any reason to look at the http response here rather than just checking the error? Maybe for a more descriptive error?
-	_, err := r.apiClient.LocationApi.AddLocationExecute(apiAddLocationRequest)
+	// No need to look at the response contents since there are no computed values from the PD server
+	_, _, err := r.apiClient.LocationApi.AddLocationExecute(apiAddLocationRequest)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while creating the Location", err.Error())
 		return
@@ -131,7 +135,6 @@ func (r *locationsResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	// TODO again any reason to use the HTTP response?
 	getResp, _, err := r.apiClient.LocationApi.GetLocation(r.BasicAuthContext(ctx), state.Name.Value).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while getting the Location", err.Error())
@@ -166,21 +169,17 @@ func (r *locationsResource) Update(ctx context.Context, req resource.UpdateReque
 	var state locationsResourceModel
 	req.State.Get(ctx, &state)
 
-	updateOperation := client.NewOperation()
-	var operation string
+	operation := "replace"
+	value := &plan.Description.Value
 	if plan.Description.IsNull() || plan.Description.IsUnknown() || plan.Description.Value == "" {
 		operation = "remove"
-	} else {
-		operation = "replace"
-		updateOperation.Value = &plan.Description.Value
+		value = nil
 	}
-	path := "description"
-	updateOperation.Op = &operation
-	updateOperation.Path = &path
+	updateOperation := client.NewOperation(operation, "description")
+	updateOperation.Value = value
 	updateLocRequest := r.apiClient.LocationApi.UpdateLocation(r.BasicAuthContext(ctx), plan.Name.Value)
 	updateLocRequest = updateLocRequest.UpdateLocationRequest(*client.NewUpdateLocationRequest([]client.Operation{*updateOperation}))
-	// TODO again any reason to use the HTTP response?
-	_, err := r.apiClient.LocationApi.UpdateLocationExecute(updateLocRequest)
+	_, _, err := r.apiClient.LocationApi.UpdateLocationExecute(updateLocRequest)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while updating the Location", err.Error())
 		return
@@ -206,7 +205,6 @@ func (r *locationsResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	//TODO any use for HTTP response?
 	_, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(r.BasicAuthContext(ctx), state.Name.Value))
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while deleting the Location", err.Error())
