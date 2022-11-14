@@ -103,7 +103,7 @@ func (r *locationsResource) Create(ctx context.Context, req resource.CreateReque
 
 	addLocRequest := client.NewAddLocationRequest(plan.Name.Value)
 	addLocRequest.Description = &plan.Description.Value
-	addLocRequest.SetSchemas([]string{locationSchemaUrn})
+	addLocRequest.SetSchemas([]client.EnumlocationSchemaUrn{client.URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOCATION})
 	apiAddLocationRequest := r.apiClient.LocationApi.AddLocation(r.BasicAuthContext(ctx))
 	apiAddLocationRequest = apiAddLocationRequest.AddLocationRequest(*addLocRequest)
 
@@ -169,10 +169,10 @@ func (r *locationsResource) Update(ctx context.Context, req resource.UpdateReque
 	var state locationsResourceModel
 	req.State.Get(ctx, &state)
 
-	operation := "replace"
+	operation := client.REPLACE
 	value := &plan.Description.Value
 	if plan.Description.IsNull() || plan.Description.IsUnknown() || plan.Description.Value == "" {
-		operation = "remove"
+		operation = client.REMOVE
 		value = nil
 	}
 	updateOperation := client.NewOperation(operation, "description")
