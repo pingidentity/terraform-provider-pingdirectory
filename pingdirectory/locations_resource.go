@@ -103,7 +103,7 @@ func (r *locationsResource) Create(ctx context.Context, req resource.CreateReque
 
 	addLocRequest := client.NewAddLocationRequest(plan.Name.Value)
 	addLocRequest.Description = &plan.Description.Value
-	addLocRequest.SetSchemas([]client.EnumlocationSchemaUrn{client.URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOCATION})
+	addLocRequest.SetSchemas([]client.EnumlocationSchemaUrn{client.ENUMLOCATIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOCATION})
 	apiAddLocationRequest := r.apiClient.LocationApi.AddLocation(r.BasicAuthContext(ctx))
 	apiAddLocationRequest = apiAddLocationRequest.AddLocationRequest(*addLocRequest)
 
@@ -169,16 +169,16 @@ func (r *locationsResource) Update(ctx context.Context, req resource.UpdateReque
 	var state locationsResourceModel
 	req.State.Get(ctx, &state)
 
-	operation := client.REPLACE
+	operation := client.ENUMOPERATION_REPLACE
 	value := &plan.Description.Value
 	if plan.Description.IsNull() || plan.Description.IsUnknown() || plan.Description.Value == "" {
-		operation = client.REMOVE
+		operation = client.ENUMOPERATION_REMOVE
 		value = nil
 	}
 	updateOperation := client.NewOperation(operation, "description")
 	updateOperation.Value = value
 	updateLocRequest := r.apiClient.LocationApi.UpdateLocation(r.BasicAuthContext(ctx), plan.Name.Value)
-	updateLocRequest = updateLocRequest.UpdateLocationRequest(*client.NewUpdateLocationRequest([]client.Operation{*updateOperation}))
+	updateLocRequest = updateLocRequest.UpdateRequest(*client.NewUpdateRequest([]client.Operation{*updateOperation}))
 	_, _, err := r.apiClient.LocationApi.UpdateLocationExecute(updateLocRequest)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while updating the Location", err.Error())
