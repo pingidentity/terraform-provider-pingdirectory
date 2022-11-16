@@ -123,6 +123,8 @@ github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/terraform-plugin-framework v0.15.0 h1:6f4UY2yfp5UsSX9JhUA6RSptjd+ojStBGWA4jrPhB6Q=
 github.com/hashicorp/terraform-plugin-framework v0.15.0/go.mod h1:wcZdk4+Uef6Ng+BiBJjGAcIPlIs5bhlEV/TA1k6Xkq8=
+github.com/hashicorp/terraform-plugin-framework-validators v0.5.0 h1:eD79idhnJOBajkUMEbm0c8dOyOb/F49STbUEVojT6F4=
+github.com/hashicorp/terraform-plugin-framework-validators v0.5.0/go.mod h1:NfGgclDM3FZqvNVppPKE2aHI1JAyT002ypPRya7ch3I=
 github.com/hashicorp/terraform-plugin-go v0.14.0 h1:ttnSlS8bz3ZPYbMb84DpcPhY4F5DsQtcAS7cHo8uvP4=
 github.com/hashicorp/terraform-plugin-go v0.14.0/go.mod h1:2nNCBeRLaenyQEi78xrGrs9hMbulveqG/zDMQSvVJTE=
 github.com/hashicorp/terraform-plugin-log v0.7.0 h1:SDxJUyT8TwN4l5b5/VkiTIaQgY6R+Y2BQ0sRZftGKQs=

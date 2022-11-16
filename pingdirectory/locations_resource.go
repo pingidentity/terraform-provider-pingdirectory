@@ -37,9 +37,6 @@ type locationsResourceModel struct {
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
 
-//TODO this should come from the client - doesn't seem to handle the single-entry enum well right now
-const locationSchemaUrn = "urn:pingidentity:schemas:configuration:2.0:location"
-
 // Metadata returns the resource type name.
 func (r *locationsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_location"
