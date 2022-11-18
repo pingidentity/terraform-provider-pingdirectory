@@ -14,34 +14,32 @@ provider "pingdirectory" {
   default_user_password = "2FederateM0re"
 }
 
-resource "pingdirectory_user" "mahomes" {
-  uid = "pm"
-  sn = "Mahomes"
-  given_name = "Patrick"
-  mail = "pm@kcchiefs.com"
-}
-
-resource "pingdirectory_user" "knight" {
-  uid = "hk"
-  description = "the knight"
-  sn = "Knight"
-  given_name = "Hollow"
-  mail = "hk@hallownest.com"
-}
+# If these are uncommented, the "Sensitive Password Attributes" sensitive_attribute value needs to be removed from the global config below
+#resource "pingdirectory_user" "mahomes" {
+#  uid = "pm"
+#  sn = "Mahomes"
+#  given_name = "Patrick"
+#  mail = "pm@kcchiefs.com"
+#}
+#
+#resource "pingdirectory_user" "knight" {
+#  uid = "hk"
+#  description = "the knight"
+#  sn = "Knight"
+#  given_name = "Hollow"
+#  mail = "hk@hallownest.com"
+#}
 
 resource "pingdirectory_location" "drangleic" {
   name = "Drangleic"
   description = "Seek the king"
 }
 
-output "mahomes_user" {
-  value = pingdirectory_user.mahomes.cn
-}
-
-output "knight_user" {
-  value = pingdirectory_user.knight.cn
-}
-
-output "drangleic_location" {
-  value = pingdirectory_location.drangleic
+resource "pingdirectory_global_configuration" "global" {
+  location = "Docker"
+  encrypt_data = true
+  sensitive_attribute = ["Delivered One-Time Password", "TOTP Shared Secret", "Sensitive Password Attributes"]
+  tracked_application = ["Requests by Root Users"]
+  result_code_map = "Sun DS Compatible Behavior"
+  #result_code_map = ""
 }

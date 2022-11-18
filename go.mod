@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/go-ldap/ldap/v3 v3.4.4
 	github.com/hashicorp/terraform-plugin-framework v0.15.0
-	github.com/hashicorp/terraform-plugin-framework-validators v0.5.0
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/pingidentity/pingdata-config-api-go-client v0.0.0
 )

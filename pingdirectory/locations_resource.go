@@ -80,14 +80,6 @@ func (r *locationsResource) Configure(_ context.Context, req resource.ConfigureR
 	r.apiClient = providerCfg.apiClient
 }
 
-//TODO does it make sense to do this for each call?
-func (r *locationsResource) BasicAuthContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: r.providerConfig.Username.Value,
-		Password: r.providerConfig.Password.Value,
-	})
-}
-
 // Create a new resource
 func (r *locationsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -101,18 +93,18 @@ func (r *locationsResource) Create(ctx context.Context, req resource.CreateReque
 	addLocRequest := client.NewAddLocationRequest(plan.Name.Value)
 	addLocRequest.Description = &plan.Description.Value
 	addLocRequest.SetSchemas([]client.EnumlocationSchemaUrn{client.ENUMLOCATIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOCATION})
-	apiAddLocationRequest := r.apiClient.LocationApi.AddLocation(r.BasicAuthContext(ctx))
+	apiAddLocationRequest := r.apiClient.LocationApi.AddLocation(BasicAuthContext(ctx, r.providerConfig))
 	apiAddLocationRequest = apiAddLocationRequest.AddLocationRequest(*addLocRequest)
 
 	// No need to look at the response contents since there are no computed values from the PD server
-	_, _, err := r.apiClient.LocationApi.AddLocationExecute(apiAddLocationRequest)
+	_, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddLocationRequest)
 	if err != nil {
-		resp.Diagnostics.AddError("An error occurred while creating the Location", err.Error())
+		ReportHttpError(&resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
 		return
 	}
 
 	// Populate Computed attribute values
-	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
+	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -132,15 +124,15 @@ func (r *locationsResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	getResp, _, err := r.apiClient.LocationApi.GetLocation(r.BasicAuthContext(ctx), state.Name.Value).Execute()
+	getResp, httpResp, err := r.apiClient.LocationApi.GetLocation(BasicAuthContext(ctx, r.providerConfig), state.Name.Value).Execute()
 	if err != nil {
-		resp.Diagnostics.AddError("An error occurred while getting the Location", err.Error())
+		ReportHttpError(&resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
 	}
 
 	// Read the updated description
 	if getResp.Description != nil {
-		state.Description = types.String{Value: *getResp.Description}
+		state.Description = types.StringValue(*getResp.Description)
 	} else {
 		state.Description = types.StringNull()
 	}
@@ -174,16 +166,16 @@ func (r *locationsResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 	updateOperation := client.NewOperation(operation, "description")
 	updateOperation.Value = value
-	updateLocRequest := r.apiClient.LocationApi.UpdateLocation(r.BasicAuthContext(ctx), plan.Name.Value)
+	updateLocRequest := r.apiClient.LocationApi.UpdateLocation(BasicAuthContext(ctx, r.providerConfig), plan.Name.Value)
 	updateLocRequest = updateLocRequest.UpdateRequest(*client.NewUpdateRequest([]client.Operation{*updateOperation}))
-	_, _, err := r.apiClient.LocationApi.UpdateLocationExecute(updateLocRequest)
+	_, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateLocRequest)
 	if err != nil {
-		resp.Diagnostics.AddError("An error occurred while updating the Location", err.Error())
+		ReportHttpError(&resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 		return
 	}
 
 	// Update resource state with updated items and timestamp
-	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
+	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -202,9 +194,9 @@ func (r *locationsResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	_, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(r.BasicAuthContext(ctx), state.Name.Value))
+	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(BasicAuthContext(ctx, r.providerConfig), state.Name.Value))
 	if err != nil {
-		resp.Diagnostics.AddError("An error occurred while deleting the Location", err.Error())
+		ReportHttpError(&resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
 	}
 }

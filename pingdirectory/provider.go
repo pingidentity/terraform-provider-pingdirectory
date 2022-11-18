@@ -243,5 +243,6 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	return []func() resource.Resource{
 		NewUsersResource,
 		NewLocationsResource,
+		NewGlobalConfigurationResource,
 	}
 }
