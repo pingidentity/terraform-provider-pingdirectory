@@ -129,7 +129,7 @@ func (r *usersResource) Configure(_ context.Context, req resource.ConfigureReque
 		return
 	}
 
-	providerCfg := req.ProviderData.(locationsResource)
+	providerCfg := req.ProviderData.(apiClientConfig)
 	r.providerConfig = providerCfg.providerConfig
 }
 
@@ -143,7 +143,7 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	l, err := Bind(r.providerConfig.LdapHost.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
+	l, err := Bind(r.providerConfig.LdapHost.ValueString(), r.providerConfig.Username.ValueString(), r.providerConfig.Password.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -151,20 +151,20 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	defer l.Close()
 
 	// NOTE: this does no input sanitization so it's probably HIGHLY insecure with the string concatenation and directly using input
-	addRequest := ldap.NewAddRequest(UserDn(plan.Uid.Value), nil)
+	addRequest := ldap.NewAddRequest(UserDn(plan.Uid.ValueString()), nil)
 	addRequest.Attribute("objectClass", []string{"person", "organizationalPerson", "inetOrgPerson"})
-	addRequest.Attribute("sn", []string{plan.Sn.Value})
-	addRequest.Attribute("cn", []string{CommonName(plan.Sn.Value, plan.GivenName.Value)})
-	addRequest.Attribute("givenName", []string{plan.GivenName.Value})
-	addRequest.Attribute("uid", []string{plan.Uid.Value})
-	addRequest.Attribute("mail", []string{plan.Mail.Value})
+	addRequest.Attribute("sn", []string{plan.Sn.ValueString()})
+	addRequest.Attribute("cn", []string{CommonName(plan.Sn.ValueString(), plan.GivenName.ValueString())})
+	addRequest.Attribute("givenName", []string{plan.GivenName.ValueString()})
+	addRequest.Attribute("uid", []string{plan.Uid.ValueString()})
+	addRequest.Attribute("mail", []string{plan.Mail.ValueString()})
 	// Just set a default password
 	// I'm not sure if a provider can manage password like this - because the value saved in the state
 	// will be an encrypted version of the password, and the directory server doesn't allow changing a password
 	// to the same value as the current value. It's probably just an API that doesn't make sense to manage with Terraform.
-	addRequest.Attribute("userPassword", []string{r.providerConfig.DefaultUserPassword.Value})
+	addRequest.Attribute("userPassword", []string{r.providerConfig.DefaultUserPassword.ValueString()})
 	if !plan.Description.IsUnknown() && !plan.Description.IsNull() {
-		addRequest.Attribute("description", []string{plan.Description.Value})
+		addRequest.Attribute("description", []string{plan.Description.ValueString()})
 	}
 
 	err = l.Add(addRequest)
@@ -174,8 +174,8 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 
 	// Populate Computed attribute values
-	plan.Cn = types.String{Value: CommonName(plan.Sn.Value, plan.GivenName.Value)}
-	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
+	plan.Cn = types.StringValue(CommonName(plan.Sn.ValueString(), plan.GivenName.ValueString()))
+	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -198,7 +198,7 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	l, err := Bind(r.providerConfig.LdapHost.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
+	l, err := Bind(r.providerConfig.LdapHost.ValueString(), r.providerConfig.Username.ValueString(), r.providerConfig.Password.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -208,7 +208,7 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	//TODO appropriate parameters here - just following one of the package's examples
 	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
 	searchRequest := ldap.NewSearchRequest(baseDN, ldap.ScopeSingleLevel, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(uid="+state.Uid.Value+")(objectClass=person))", []string{"*"}, nil)
+		"(&(uid="+state.Uid.ValueString()+")(objectClass=person))", []string{"*"}, nil)
 	searchResult, err := l.Search(searchRequest)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while searching the PingDirectory server", err.Error())
@@ -229,15 +229,15 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	// Update state from the search
-	state.Sn = types.String{Value: searchResult.Entries[0].GetAttributeValue("sn")}
-	state.Cn = types.String{Value: searchResult.Entries[0].GetAttributeValue("cn")}
-	state.GivenName = types.String{Value: searchResult.Entries[0].GetAttributeValue("givenName")}
-	state.Mail = types.String{Value: searchResult.Entries[0].GetAttributeValue("mail")}
+	state.Sn = types.StringValue(searchResult.Entries[0].GetAttributeValue("sn"))
+	state.Cn = types.StringValue(searchResult.Entries[0].GetAttributeValue("cn"))
+	state.GivenName = types.StringValue(searchResult.Entries[0].GetAttributeValue("givenName"))
+	state.Mail = types.StringValue(searchResult.Entries[0].GetAttributeValue("mail"))
 	description := searchResult.Entries[0].GetAttributeValue("description")
 	if description != "" {
-		state.Description = types.String{Value: searchResult.Entries[0].GetAttributeValue("description")}
+		state.Description = types.StringValue(searchResult.Entries[0].GetAttributeValue("description"))
 	} else {
-		state.Description = types.String{Null: true}
+		state.Description = types.StringNull()
 	}
 
 	// Set refreshed state
@@ -257,7 +257,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	l, err := Bind(r.providerConfig.LdapHost.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
+	l, err := Bind(r.providerConfig.LdapHost.ValueString(), r.providerConfig.Username.ValueString(), r.providerConfig.Password.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -273,30 +273,30 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	// The UID can't change here because it's set to RequiresReplace above
 	replaceCn := false
-	modifyRequest := ldap.NewModifyRequest(UserDn(plan.Uid.Value), nil)
+	modifyRequest := ldap.NewModifyRequest(UserDn(plan.Uid.ValueString()), nil)
 	modifyRequest.Controls = append(modifyRequest.Controls)
-	if state.Sn.Value != plan.Sn.Value {
-		tflog.Info(ctx, "Replacing sn: ("+state.Sn.Value+" -> "+plan.Sn.Value+")")
-		modifyRequest.Replace("sn", []string{plan.Sn.Value})
+	if !state.Sn.Equal(plan.Sn) {
+		tflog.Info(ctx, "Replacing sn: ("+state.Sn.ValueString()+" -> "+plan.Sn.ValueString()+")")
+		modifyRequest.Replace("sn", []string{plan.Sn.ValueString()})
 		replaceCn = true
 	}
-	if state.GivenName.Value != state.GivenName.Value {
-		tflog.Info(ctx, "Replacing givenName: ("+state.GivenName.Value+" -> "+plan.GivenName.Value+")")
-		modifyRequest.Replace("givenName", []string{plan.GivenName.Value})
+	if !state.GivenName.Equal(state.GivenName) {
+		tflog.Info(ctx, "Replacing givenName: ("+state.GivenName.ValueString()+" -> "+plan.GivenName.ValueString()+")")
+		modifyRequest.Replace("givenName", []string{plan.GivenName.ValueString()})
 		replaceCn = true
 	}
 	if replaceCn {
 		tflog.Info(ctx, "Replacing cn")
-		modifyRequest.Replace("cn", []string{CommonName(plan.Sn.Value, plan.GivenName.Value)})
+		modifyRequest.Replace("cn", []string{CommonName(plan.Sn.ValueString(), plan.GivenName.ValueString())})
 	}
-	if state.Mail.Value != plan.Mail.Value {
-		tflog.Info(ctx, "Replacing mail: ("+state.Mail.Value+" -> "+plan.Mail.Value+")")
-		modifyRequest.Replace("mail", []string{plan.Description.Value})
+	if !state.Mail.Equal(plan.Mail) {
+		tflog.Info(ctx, "Replacing mail: ("+state.Mail.ValueString()+" -> "+plan.Mail.ValueString()+")")
+		modifyRequest.Replace("mail", []string{plan.Description.ValueString()})
 	}
-	if plan.Description.Value != state.Description.Value {
+	if !plan.Description.Equal(state.Description) {
 		if !plan.Description.IsUnknown() && !plan.Description.IsNull() {
-			tflog.Info(ctx, "Replacing description: ("+state.Description.Value+" -> "+plan.Description.Value+")")
-			modifyRequest.Replace("description", []string{plan.Description.Value})
+			tflog.Info(ctx, "Replacing description: ("+state.Description.ValueString()+" -> "+plan.Description.ValueString()+")")
+			modifyRequest.Replace("description", []string{plan.Description.ValueString()})
 		} else {
 			tflog.Info(ctx, "Deleting description")
 			modifyRequest.Replace("description", []string{})
@@ -310,8 +310,8 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	// Update resource state with updated items and timestamp
-	plan.Cn = types.String{Value: CommonName(plan.Sn.Value, plan.GivenName.Value)}
-	plan.LastUpdated = types.String{Value: string(time.Now().Format(time.RFC850))}
+	plan.Cn = types.StringValue(CommonName(plan.Sn.ValueString(), plan.GivenName.ValueString()))
+	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -330,14 +330,14 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	l, err := Bind(r.providerConfig.LdapHost.Value, r.providerConfig.Username.Value, r.providerConfig.Password.Value)
+	l, err := Bind(r.providerConfig.LdapHost.ValueString(), r.providerConfig.Username.ValueString(), r.providerConfig.Password.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
 	}
 	defer l.Close()
 
-	deleteRequest := ldap.NewDelRequest(UserDn(state.Uid.Value), nil)
+	deleteRequest := ldap.NewDelRequest(UserDn(state.Uid.ValueString()), nil)
 
 	err = l.Del(deleteRequest)
 	if err != nil {

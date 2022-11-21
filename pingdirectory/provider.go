@@ -149,11 +149,11 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		return
 	}
 
-	var ldapHost = config.LdapHost.Value
-	var httpsHost = config.HttpsHost.Value
-	var username = config.Username.Value
-	var password = config.Password.Value
-	var defaultUserPassword = config.DefaultUserPassword.Value
+	var ldapHost = config.LdapHost.ValueString()
+	var httpsHost = config.HttpsHost.ValueString()
+	var username = config.Username.ValueString()
+	var password = config.Password.ValueString()
+	var defaultUserPassword = config.DefaultUserPassword.ValueString()
 
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
@@ -220,7 +220,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	//TODO again string concatenation is probably bad
 	clientConfig.Servers = client.ServerConfigurations{
 		{
-			URL: config.HttpsHost.Value + "/config",
+			URL: config.HttpsHost.ValueString() + "/config",
 		},
 	}
 	//TODO THIS IS NOT SAFE!! Eventually need to add way to trust a specific cert/signer here rather than just trusting everything
@@ -247,7 +247,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	return []func() resource.Resource{
 		NewBlindTrustManagerProviderResource,
 		NewGlobalConfigurationResource,
-		NewLocationsResource,
+		NewLocationResource,
 		NewUsersResource,
 	}
 }

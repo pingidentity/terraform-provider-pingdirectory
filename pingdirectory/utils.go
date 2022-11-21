@@ -27,8 +27,8 @@ func ReportHttpError(diagnostics *diag.Diagnostics, errorPrefix string, err erro
 //TODO maybe cache this somehow so it doesn't need to be done so often?
 func BasicAuthContext(ctx context.Context, providerConfig pingdirectoryProviderModel) context.Context {
 	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: providerConfig.Username.Value,
-		Password: providerConfig.Password.Value,
+		UserName: providerConfig.Username.ValueString(),
+		Password: providerConfig.Password.ValueString(),
 	})
 }
 
@@ -144,11 +144,18 @@ func getSet(values []string) types.Set {
 }
 
 // Get a types.String from the given string pointer, handling if the pointer is nil
-func StringTypeOrNil(str *string) types.String {
+func StringTypeOrNil(str *string, useEmptyStringForNil bool) types.String {
 	if str == nil {
-		// Use empty string instead of null to match the plan when resetting string properties
-		//TODO should this work like this for config besides the global configuration?
-		return types.StringValue("")
+		// If a plan was provided and is using an empty string, we should use that for a nil string in the response.
+		// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
+		// just want to match whatever is in the plan when we get a nil string back.
+		if useEmptyStringForNil {
+			// Use empty string instead of null to match the plan when resetting string properties.
+			// This is useful for computed values being reset to null.
+			return types.StringValue("")
+		} else {
+			return types.StringNull()
+		}
 	}
 	return types.StringValue(*str)
 }
@@ -168,4 +175,19 @@ func Int64TypeOrNil(i *int32) types.Int64 {
 	}
 
 	return types.Int64Value(int64(*i))
+}
+
+// Return true if this types.String represents an empty (but non-null and non-unknown) string
+func isEmptyString(str types.String) bool {
+	return !str.IsNull() && !str.IsUnknown() && str.ValueString() == ""
+}
+
+// Return true if this types.String represents a non-empty, non-null, non-unknown string
+func isNonEmptyString(str types.String) bool {
+	return !str.IsNull() && !str.IsUnknown() && str.ValueString() != ""
+}
+
+// Return true if this types.Bool represents a defined (non-null and non-unknown) boolean
+func isDefined(b types.Bool) bool {
+	return !b.IsNull() && !b.IsUnknown()
 }

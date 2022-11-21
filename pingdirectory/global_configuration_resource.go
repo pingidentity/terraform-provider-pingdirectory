@@ -2,6 +2,7 @@ package pingdirectory
 
 import (
 	"context"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -119,6 +120,7 @@ type globalConfigurationResourceModel struct {
 	TrackedApplication                                             types.Set    `tfsdk:"tracked_application"`
 	JmxValueBehavior                                               types.String `tfsdk:"jmx_value_behavior"`
 	JmxUseLegacyMbeanNames                                         types.Bool   `tfsdk:"jmx_use_legacy_mbean_names"`
+	LastUpdated                                                    types.String `tfsdk:"last_updated"`
 }
 
 // Metadata returns the resource type name.
@@ -663,6 +665,11 @@ func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema
 				Optional:    true,
 				Computed:    true,
 			},
+			"last_updated": {
+				Description: "Timestamp of the last Terraform update of the global configuration.",
+				Type:        types.StringType,
+				Computed:    true,
+			},
 		},
 	}, nil
 }
@@ -715,6 +722,8 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 		// Read the response
 		ReadGlobalConfigurationResponse(globalResp, &plan)
+		// Populate Computed attribute values
+		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		// Just put the initial read into the plan
 		plan = state
@@ -787,22 +796,22 @@ func getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(values
 // Read a GlobalConfigurationRespnse object into the model struct
 func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
 	state.InstanceName = types.StringValue(r.InstanceName)
-	state.Location = StringTypeOrNil(r.Location)
-	state.ConfigurationServerGroup = StringTypeOrNil(r.ConfigurationServerGroup)
+	state.Location = StringTypeOrNil(r.Location, true)
+	state.ConfigurationServerGroup = StringTypeOrNil(r.ConfigurationServerGroup, true)
 	state.ForceAsMasterForMirroredData = BoolTypeOrNil(r.ForceAsMasterForMirroredData)
 	state.EncryptData = BoolTypeOrNil(r.EncryptData)
-	state.EncryptionSettingsCipherStreamProvider = StringTypeOrNil(r.EncryptionSettingsCipherStreamProvider)
+	state.EncryptionSettingsCipherStreamProvider = StringTypeOrNil(r.EncryptionSettingsCipherStreamProvider, true)
 	state.EncryptBackupsByDefault = BoolTypeOrNil(r.EncryptBackupsByDefault)
-	state.BackupEncryptionSettingsDefinitionID = StringTypeOrNil(r.BackupEncryptionSettingsDefinitionID)
+	state.BackupEncryptionSettingsDefinitionID = StringTypeOrNil(r.BackupEncryptionSettingsDefinitionID, true)
 	state.EncryptLDIFExportsByDefault = BoolTypeOrNil(r.EncryptLDIFExportsByDefault)
-	state.LdifExportEncryptionSettingsDefinitionID = StringTypeOrNil(r.LdifExportEncryptionSettingsDefinitionID)
+	state.LdifExportEncryptionSettingsDefinitionID = StringTypeOrNil(r.LdifExportEncryptionSettingsDefinitionID, true)
 	state.AutomaticallyCompressEncryptedLDIFExports = BoolTypeOrNil(r.AutomaticallyCompressEncryptedLDIFExports)
 	state.RedactSensitiveValuesInConfigLogs = BoolTypeOrNil(r.RedactSensitiveValuesInConfigLogs)
 	state.SensitiveAttribute = getSet(r.SensitiveAttribute)
 	state.RejectInsecureRequests = BoolTypeOrNil(r.RejectInsecureRequests)
-	state.AllowedInsecureRequestCriteria = StringTypeOrNil(r.AllowedInsecureRequestCriteria)
+	state.AllowedInsecureRequestCriteria = StringTypeOrNil(r.AllowedInsecureRequestCriteria, true)
 	state.RejectUnauthenticatedRequests = BoolTypeOrNil(r.RejectUnauthenticatedRequests)
-	state.AllowedUnauthenticatedRequestCriteria = StringTypeOrNil(r.AllowedUnauthenticatedRequestCriteria)
+	state.AllowedUnauthenticatedRequestCriteria = StringTypeOrNil(r.AllowedUnauthenticatedRequestCriteria, true)
 	state.BindWithDNRequiresPassword = BoolTypeOrNil(r.BindWithDNRequiresPassword)
 	state.DisabledPrivilege = getDisabledPrivilegeSet(r.DisabledPrivilege)
 	state.DefaultPasswordPolicy = types.StringValue(r.DefaultPasswordPolicy)
@@ -811,10 +820,10 @@ func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.VerifyEntryDigests = BoolTypeOrNil(r.VerifyEntryDigests)
 	state.AllowedInsecureTLSProtocol = getAllowedInsecureTLSProtocolSet(r.AllowedInsecureTLSProtocol)
 	state.AllowInsecureLocalJMXConnections = BoolTypeOrNil(r.AllowInsecureLocalJMXConnections)
-	state.DefaultInternalOperationClientConnectionPolicy = StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy)
+	state.DefaultInternalOperationClientConnectionPolicy = StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
 	state.SizeLimit = Int64TypeOrNil(r.SizeLimit)
-	state.TimeLimit = StringTypeOrNil(r.TimeLimit)
-	state.IdleTimeLimit = StringTypeOrNil(r.IdleTimeLimit)
+	state.TimeLimit = StringTypeOrNil(r.TimeLimit, true)
+	state.IdleTimeLimit = StringTypeOrNil(r.IdleTimeLimit, true)
 	state.LookthroughLimit = Int64TypeOrNil(r.LookthroughLimit)
 	state.LdapJoinSizeLimit = Int64TypeOrNil(r.LdapJoinSizeLimit)
 	state.MaximumConcurrentConnections = Int64TypeOrNil(r.MaximumConcurrentConnections)
@@ -838,7 +847,7 @@ func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 		state.SingleStructuralObjectclassBehavior = types.StringNull()
 	}
 	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl)
-	state.MaximumServerOutLogFileSize = StringTypeOrNil(r.MaximumServerOutLogFileSize)
+	state.MaximumServerOutLogFileSize = StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
 	state.MaximumServerOutLogFileCount = Int64TypeOrNil(r.MaximumServerOutLogFileCount)
 	if r.StartupErrorLoggerOutputLocation != nil {
 		state.StartupErrorLoggerOutputLocation = types.StringValue(string(*r.StartupErrorLoggerOutputLocation))
@@ -847,7 +856,7 @@ func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	}
 	state.ExitOnJVMError = BoolTypeOrNil(r.ExitOnJVMError)
 	state.ServerErrorResultCode = Int64TypeOrNil(r.ServerErrorResultCode)
-	state.ResultCodeMap = StringTypeOrNil(r.ResultCodeMap)
+	state.ResultCodeMap = StringTypeOrNil(r.ResultCodeMap, true)
 	state.ReturnBindErrorMessages = BoolTypeOrNil(r.ReturnBindErrorMessages)
 	state.NotifyAbandonedOperations = BoolTypeOrNil(r.NotifyAbandonedOperations)
 	state.DuplicateErrorLogLimit = types.Int64Value(int64(r.DuplicateErrorLogLimit))
@@ -865,13 +874,13 @@ func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 		state.UnrecoverableDatabaseErrorMode = types.StringNull()
 	}
 	state.DatabaseOnVirtualizedOrNetworkStorage = BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
-	state.AutoNameWithEntryUUIDConnectionCriteria = StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria)
-	state.AutoNameWithEntryUUIDRequestCriteria = StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria)
-	state.SoftDeletePolicy = StringTypeOrNil(r.SoftDeletePolicy)
-	state.SubtreeAccessibilityAlertTimeLimit = StringTypeOrNil(r.SubtreeAccessibilityAlertTimeLimit)
+	state.AutoNameWithEntryUUIDConnectionCriteria = StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria, true)
+	state.AutoNameWithEntryUUIDRequestCriteria = StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria, true)
+	state.SoftDeletePolicy = StringTypeOrNil(r.SoftDeletePolicy, true)
+	state.SubtreeAccessibilityAlertTimeLimit = StringTypeOrNil(r.SubtreeAccessibilityAlertTimeLimit, true)
 	state.WarnForBackendsWithMultipleBaseDns = BoolTypeOrNil(r.WarnForBackendsWithMultipleBaseDns)
-	state.ForcedGCPrimeDuration = StringTypeOrNil(r.ForcedGCPrimeDuration)
-	state.ReplicationSetName = StringTypeOrNil(r.ReplicationSetName)
+	state.ForcedGCPrimeDuration = StringTypeOrNil(r.ForcedGCPrimeDuration, true)
+	state.ReplicationSetName = StringTypeOrNil(r.ReplicationSetName, true)
 	state.StartupMinReplicationBacklogCount = types.Int64Value(int64(r.StartupMinReplicationBacklogCount))
 	state.ReplicationBacklogCountAlertThreshold = types.Int64Value(int64(r.ReplicationBacklogCountAlertThreshold))
 	state.ReplicationBacklogDurationAlertThreshold = types.StringValue(r.ReplicationBacklogDurationAlertThreshold)
@@ -882,12 +891,12 @@ func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.ReplicationPurgeObsoleteReplicas = BoolTypeOrNil(r.ReplicationPurgeObsoleteReplicas)
 	state.SmtpServer = getSet(r.SmtpServer)
 	state.MaxSMTPConnectionCount = Int64TypeOrNil(r.MaxSMTPConnectionCount)
-	state.MaxSMTPConnectionAge = StringTypeOrNil(r.MaxSMTPConnectionAge)
-	state.SmtpConnectionHealthCheckInterval = StringTypeOrNil(r.SmtpConnectionHealthCheckInterval)
+	state.MaxSMTPConnectionAge = StringTypeOrNil(r.MaxSMTPConnectionAge, true)
+	state.SmtpConnectionHealthCheckInterval = StringTypeOrNil(r.SmtpConnectionHealthCheckInterval, true)
 	state.AllowedTask = getSet(r.AllowedTask)
 	state.EnableSubOperationTimer = BoolTypeOrNil(r.EnableSubOperationTimer)
-	state.MaximumShutdownTime = StringTypeOrNil(r.MaximumShutdownTime)
-	state.NetworkAddressCacheTTL = StringTypeOrNil(r.NetworkAddressCacheTTL)
+	state.MaximumShutdownTime = StringTypeOrNil(r.MaximumShutdownTime, true)
+	state.NetworkAddressCacheTTL = StringTypeOrNil(r.NetworkAddressCacheTTL, true)
 	state.NetworkAddressOutageCacheEnabled = BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
 	state.TrackedApplication = getSet(r.TrackedApplication)
 	if r.JmxValueBehavior != nil {
@@ -1019,6 +1028,8 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 
 		// Read the response
 		ReadGlobalConfigurationResponse(globalResp, &plan)
+		// Populate Computed attribute values
+		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
