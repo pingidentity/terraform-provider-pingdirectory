@@ -1,9 +1,14 @@
-package pingdirectory
+package provider
 
 import (
 	"context"
 	"crypto/tls"
 	"net/http"
+
+	"terraform-provider-pingdirectory/internal/resource/config"
+	"terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"terraform-provider-pingdirectory/internal/resource/ldap"
+	"terraform-provider-pingdirectory/internal/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -24,11 +29,6 @@ type pingdirectoryProviderModel struct {
 	Username            types.String `tfsdk:"username"`
 	Password            types.String `tfsdk:"password"`
 	DefaultUserPassword types.String `tfsdk:"default_user_password"`
-}
-
-type apiClientConfig struct {
-	providerConfig pingdirectoryProviderModel
-	apiClient      *client.APIClient
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -214,8 +214,15 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 
 	// Make the PingDirectory config and API client info available during DataSource and Resource
 	// type Configure methods.
-	var apiClientConfig apiClientConfig
-	apiClientConfig.providerConfig = config
+	var resourceConfig utils.ResourceConfiguration
+	providerConfig := utils.ProviderConfiguration{
+		HttpsHost:           config.HttpsHost.ValueString(),
+		LdapHost:            config.LdapHost.ValueString(),
+		Username:            config.Username.ValueString(),
+		Password:            config.Password.ValueString(),
+		DefaultUserPassword: config.DefaultUserPassword.ValueString(),
+	}
+	resourceConfig.ProviderConfig = providerConfig
 	clientConfig := client.NewConfiguration()
 	//TODO again string concatenation is probably bad
 	clientConfig.Servers = client.ServerConfigurations{
@@ -230,8 +237,8 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	}
 	httpClient := &http.Client{Transport: tr}
 	clientConfig.HTTPClient = httpClient
-	apiClientConfig.apiClient = client.NewAPIClient(clientConfig)
-	resp.ResourceData = apiClientConfig
+	resourceConfig.ApiClient = client.NewAPIClient(clientConfig)
+	resp.ResourceData = resourceConfig
 	//TODO if data sources are added and need client stuff, add DataSourceData to the resp here
 
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
@@ -245,9 +252,9 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 // Resources defines the resources implemented in the provider.
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewBlindTrustManagerProviderResource,
-		NewGlobalConfigurationResource,
-		NewLocationResource,
-		NewUsersResource,
+		trustmanagerprovider.NewBlindTrustManagerProviderResource,
+		config.NewGlobalConfigurationResource,
+		config.NewLocationResource,
+		ldap.NewUsersResource,
 	}
 }

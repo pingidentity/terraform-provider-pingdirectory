@@ -1,7 +1,8 @@
-package pingdirectory
+package config
 
 import (
 	"context"
+	"terraform-provider-pingdirectory/internal/utils"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -21,14 +22,14 @@ var (
 	_ resource.ResourceWithImportState = &globalConfigurationResource{}
 )
 
-// NewGlobalConfigurationResource is a helper function to simplify the provider implementation.
+// Create a Global Configuration resource
 func NewGlobalConfigurationResource() resource.Resource {
 	return &globalConfigurationResource{}
 }
 
 // globalConfigurationResource is the resource implementation.
 type globalConfigurationResource struct {
-	providerConfig pingdirectoryProviderModel
+	providerConfig utils.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
@@ -680,9 +681,9 @@ func (r *globalConfigurationResource) Configure(_ context.Context, req resource.
 		return
 	}
 
-	providerCfg := req.ProviderData.(apiClientConfig)
-	r.providerConfig = providerCfg.providerConfig
-	r.apiClient = providerCfg.apiClient
+	providerCfg := req.ProviderData.(utils.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
 }
 
 // Create a new resource
@@ -698,30 +699,30 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig)).Execute()
+	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(utils.BasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
-		ReportHttpError(&resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
+		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
 	}
 
 	// Read existing global config
 	var state globalConfigurationResourceModel
-	ReadGlobalConfigurationResponse(getResp, &state)
+	readGlobalConfigurationResponse(getResp, &state)
 
 	// Determine what changes need to be made to match the plan
-	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig))
-	ops := CreateGlobalConfigurationOperations(plan, state)
+	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(utils.BasicAuthContext(ctx, r.providerConfig))
+	ops := createGlobalConfigurationOperations(plan, state)
 
 	if len(ops) > 0 {
 		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
 		if err != nil {
-			ReportHttpError(&resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
+			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
 			return
 		}
 
 		// Read the response
-		ReadGlobalConfigurationResponse(globalResp, &plan)
+		readGlobalConfigurationResponse(globalResp, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -747,14 +748,14 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig)).Execute()
+	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(utils.BasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
-		ReportHttpError(&resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
+		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
 	}
 
 	// Read the response into the state
-	ReadGlobalConfigurationResponse(getResp, &state)
+	readGlobalConfigurationResponse(getResp, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -794,71 +795,71 @@ func getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(values
 }
 
 // Read a GlobalConfigurationRespnse object into the model struct
-func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
+func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
 	state.InstanceName = types.StringValue(r.InstanceName)
-	state.Location = StringTypeOrNil(r.Location, true)
-	state.ConfigurationServerGroup = StringTypeOrNil(r.ConfigurationServerGroup, true)
-	state.ForceAsMasterForMirroredData = BoolTypeOrNil(r.ForceAsMasterForMirroredData)
-	state.EncryptData = BoolTypeOrNil(r.EncryptData)
-	state.EncryptionSettingsCipherStreamProvider = StringTypeOrNil(r.EncryptionSettingsCipherStreamProvider, true)
-	state.EncryptBackupsByDefault = BoolTypeOrNil(r.EncryptBackupsByDefault)
-	state.BackupEncryptionSettingsDefinitionID = StringTypeOrNil(r.BackupEncryptionSettingsDefinitionID, true)
-	state.EncryptLDIFExportsByDefault = BoolTypeOrNil(r.EncryptLDIFExportsByDefault)
-	state.LdifExportEncryptionSettingsDefinitionID = StringTypeOrNil(r.LdifExportEncryptionSettingsDefinitionID, true)
-	state.AutomaticallyCompressEncryptedLDIFExports = BoolTypeOrNil(r.AutomaticallyCompressEncryptedLDIFExports)
-	state.RedactSensitiveValuesInConfigLogs = BoolTypeOrNil(r.RedactSensitiveValuesInConfigLogs)
-	state.SensitiveAttribute = getSet(r.SensitiveAttribute)
-	state.RejectInsecureRequests = BoolTypeOrNil(r.RejectInsecureRequests)
-	state.AllowedInsecureRequestCriteria = StringTypeOrNil(r.AllowedInsecureRequestCriteria, true)
-	state.RejectUnauthenticatedRequests = BoolTypeOrNil(r.RejectUnauthenticatedRequests)
-	state.AllowedUnauthenticatedRequestCriteria = StringTypeOrNil(r.AllowedUnauthenticatedRequestCriteria, true)
-	state.BindWithDNRequiresPassword = BoolTypeOrNil(r.BindWithDNRequiresPassword)
+	state.Location = utils.StringTypeOrNil(r.Location, true)
+	state.ConfigurationServerGroup = utils.StringTypeOrNil(r.ConfigurationServerGroup, true)
+	state.ForceAsMasterForMirroredData = utils.BoolTypeOrNil(r.ForceAsMasterForMirroredData)
+	state.EncryptData = utils.BoolTypeOrNil(r.EncryptData)
+	state.EncryptionSettingsCipherStreamProvider = utils.StringTypeOrNil(r.EncryptionSettingsCipherStreamProvider, true)
+	state.EncryptBackupsByDefault = utils.BoolTypeOrNil(r.EncryptBackupsByDefault)
+	state.BackupEncryptionSettingsDefinitionID = utils.StringTypeOrNil(r.BackupEncryptionSettingsDefinitionID, true)
+	state.EncryptLDIFExportsByDefault = utils.BoolTypeOrNil(r.EncryptLDIFExportsByDefault)
+	state.LdifExportEncryptionSettingsDefinitionID = utils.StringTypeOrNil(r.LdifExportEncryptionSettingsDefinitionID, true)
+	state.AutomaticallyCompressEncryptedLDIFExports = utils.BoolTypeOrNil(r.AutomaticallyCompressEncryptedLDIFExports)
+	state.RedactSensitiveValuesInConfigLogs = utils.BoolTypeOrNil(r.RedactSensitiveValuesInConfigLogs)
+	state.SensitiveAttribute = utils.GetSet(r.SensitiveAttribute)
+	state.RejectInsecureRequests = utils.BoolTypeOrNil(r.RejectInsecureRequests)
+	state.AllowedInsecureRequestCriteria = utils.StringTypeOrNil(r.AllowedInsecureRequestCriteria, true)
+	state.RejectUnauthenticatedRequests = utils.BoolTypeOrNil(r.RejectUnauthenticatedRequests)
+	state.AllowedUnauthenticatedRequestCriteria = utils.StringTypeOrNil(r.AllowedUnauthenticatedRequestCriteria, true)
+	state.BindWithDNRequiresPassword = utils.BoolTypeOrNil(r.BindWithDNRequiresPassword)
 	state.DisabledPrivilege = getDisabledPrivilegeSet(r.DisabledPrivilege)
 	state.DefaultPasswordPolicy = types.StringValue(r.DefaultPasswordPolicy)
-	state.MaximumUserDataPasswordPoliciesToCache = Int64TypeOrNil(r.MaximumUserDataPasswordPoliciesToCache)
+	state.MaximumUserDataPasswordPoliciesToCache = utils.Int64TypeOrNil(r.MaximumUserDataPasswordPoliciesToCache)
 	state.ProxiedAuthorizationIdentityMapper = types.StringValue(r.ProxiedAuthorizationIdentityMapper)
-	state.VerifyEntryDigests = BoolTypeOrNil(r.VerifyEntryDigests)
+	state.VerifyEntryDigests = utils.BoolTypeOrNil(r.VerifyEntryDigests)
 	state.AllowedInsecureTLSProtocol = getAllowedInsecureTLSProtocolSet(r.AllowedInsecureTLSProtocol)
-	state.AllowInsecureLocalJMXConnections = BoolTypeOrNil(r.AllowInsecureLocalJMXConnections)
-	state.DefaultInternalOperationClientConnectionPolicy = StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
-	state.SizeLimit = Int64TypeOrNil(r.SizeLimit)
-	state.TimeLimit = StringTypeOrNil(r.TimeLimit, true)
-	state.IdleTimeLimit = StringTypeOrNil(r.IdleTimeLimit, true)
-	state.LookthroughLimit = Int64TypeOrNil(r.LookthroughLimit)
-	state.LdapJoinSizeLimit = Int64TypeOrNil(r.LdapJoinSizeLimit)
-	state.MaximumConcurrentConnections = Int64TypeOrNil(r.MaximumConcurrentConnections)
-	state.MaximumConcurrentConnectionsPerIPAddress = Int64TypeOrNil(r.MaximumConcurrentConnectionsPerIPAddress)
-	state.MaximumConcurrentConnectionsPerBindDN = Int64TypeOrNil(r.MaximumConcurrentConnectionsPerBindDN)
-	state.MaximumConcurrentUnindexedSearches = Int64TypeOrNil(r.MaximumConcurrentUnindexedSearches)
-	state.MaximumAttributesPerAddRequest = Int64TypeOrNil(r.MaximumAttributesPerAddRequest)
-	state.MaximumModificationsPerModifyRequest = Int64TypeOrNil(r.MaximumModificationsPerModifyRequest)
-	state.BackgroundThreadForEachPersistentSearch = BoolTypeOrNil(r.BackgroundThreadForEachPersistentSearch)
-	state.AllowAttributeNameExceptions = BoolTypeOrNil(r.AllowAttributeNameExceptions)
+	state.AllowInsecureLocalJMXConnections = utils.BoolTypeOrNil(r.AllowInsecureLocalJMXConnections)
+	state.DefaultInternalOperationClientConnectionPolicy = utils.StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
+	state.SizeLimit = utils.Int64TypeOrNil(r.SizeLimit)
+	state.TimeLimit = utils.StringTypeOrNil(r.TimeLimit, true)
+	state.IdleTimeLimit = utils.StringTypeOrNil(r.IdleTimeLimit, true)
+	state.LookthroughLimit = utils.Int64TypeOrNil(r.LookthroughLimit)
+	state.LdapJoinSizeLimit = utils.Int64TypeOrNil(r.LdapJoinSizeLimit)
+	state.MaximumConcurrentConnections = utils.Int64TypeOrNil(r.MaximumConcurrentConnections)
+	state.MaximumConcurrentConnectionsPerIPAddress = utils.Int64TypeOrNil(r.MaximumConcurrentConnectionsPerIPAddress)
+	state.MaximumConcurrentConnectionsPerBindDN = utils.Int64TypeOrNil(r.MaximumConcurrentConnectionsPerBindDN)
+	state.MaximumConcurrentUnindexedSearches = utils.Int64TypeOrNil(r.MaximumConcurrentUnindexedSearches)
+	state.MaximumAttributesPerAddRequest = utils.Int64TypeOrNil(r.MaximumAttributesPerAddRequest)
+	state.MaximumModificationsPerModifyRequest = utils.Int64TypeOrNil(r.MaximumModificationsPerModifyRequest)
+	state.BackgroundThreadForEachPersistentSearch = utils.BoolTypeOrNil(r.BackgroundThreadForEachPersistentSearch)
+	state.AllowAttributeNameExceptions = utils.BoolTypeOrNil(r.AllowAttributeNameExceptions)
 	//TODO probably a better way to do this with enums? Generics maybe?
 	if r.InvalidAttributeSyntaxBehavior != nil {
 		state.InvalidAttributeSyntaxBehavior = types.StringValue(string(*r.InvalidAttributeSyntaxBehavior))
 	} else {
 		state.InvalidAttributeSyntaxBehavior = types.StringNull()
 	}
-	state.PermitSyntaxViolationsForAttribute = getSet(r.PermitSyntaxViolationsForAttribute)
+	state.PermitSyntaxViolationsForAttribute = utils.GetSet(r.PermitSyntaxViolationsForAttribute)
 	if r.SingleStructuralObjectclassBehavior != nil {
 		state.SingleStructuralObjectclassBehavior = types.StringValue(string(*r.SingleStructuralObjectclassBehavior))
 	} else {
 		state.SingleStructuralObjectclassBehavior = types.StringNull()
 	}
 	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl)
-	state.MaximumServerOutLogFileSize = StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
-	state.MaximumServerOutLogFileCount = Int64TypeOrNil(r.MaximumServerOutLogFileCount)
+	state.MaximumServerOutLogFileSize = utils.StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
+	state.MaximumServerOutLogFileCount = utils.Int64TypeOrNil(r.MaximumServerOutLogFileCount)
 	if r.StartupErrorLoggerOutputLocation != nil {
 		state.StartupErrorLoggerOutputLocation = types.StringValue(string(*r.StartupErrorLoggerOutputLocation))
 	} else {
 		state.StartupErrorLoggerOutputLocation = types.StringNull()
 	}
-	state.ExitOnJVMError = BoolTypeOrNil(r.ExitOnJVMError)
-	state.ServerErrorResultCode = Int64TypeOrNil(r.ServerErrorResultCode)
-	state.ResultCodeMap = StringTypeOrNil(r.ResultCodeMap, true)
-	state.ReturnBindErrorMessages = BoolTypeOrNil(r.ReturnBindErrorMessages)
-	state.NotifyAbandonedOperations = BoolTypeOrNil(r.NotifyAbandonedOperations)
+	state.ExitOnJVMError = utils.BoolTypeOrNil(r.ExitOnJVMError)
+	state.ServerErrorResultCode = utils.Int64TypeOrNil(r.ServerErrorResultCode)
+	state.ResultCodeMap = utils.StringTypeOrNil(r.ResultCodeMap, true)
+	state.ReturnBindErrorMessages = utils.BoolTypeOrNil(r.ReturnBindErrorMessages)
+	state.NotifyAbandonedOperations = utils.BoolTypeOrNil(r.NotifyAbandonedOperations)
 	state.DuplicateErrorLogLimit = types.Int64Value(int64(r.DuplicateErrorLogLimit))
 	state.DuplicateErrorLogTimeLimit = types.StringValue(r.DuplicateErrorLogTimeLimit)
 	state.DuplicateAlertLimit = types.Int64Value(int64(r.DuplicateAlertLimit))
@@ -873,129 +874,129 @@ func ReadGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	} else {
 		state.UnrecoverableDatabaseErrorMode = types.StringNull()
 	}
-	state.DatabaseOnVirtualizedOrNetworkStorage = BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
-	state.AutoNameWithEntryUUIDConnectionCriteria = StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria, true)
-	state.AutoNameWithEntryUUIDRequestCriteria = StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria, true)
-	state.SoftDeletePolicy = StringTypeOrNil(r.SoftDeletePolicy, true)
-	state.SubtreeAccessibilityAlertTimeLimit = StringTypeOrNil(r.SubtreeAccessibilityAlertTimeLimit, true)
-	state.WarnForBackendsWithMultipleBaseDns = BoolTypeOrNil(r.WarnForBackendsWithMultipleBaseDns)
-	state.ForcedGCPrimeDuration = StringTypeOrNil(r.ForcedGCPrimeDuration, true)
-	state.ReplicationSetName = StringTypeOrNil(r.ReplicationSetName, true)
+	state.DatabaseOnVirtualizedOrNetworkStorage = utils.BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
+	state.AutoNameWithEntryUUIDConnectionCriteria = utils.StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria, true)
+	state.AutoNameWithEntryUUIDRequestCriteria = utils.StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria, true)
+	state.SoftDeletePolicy = utils.StringTypeOrNil(r.SoftDeletePolicy, true)
+	state.SubtreeAccessibilityAlertTimeLimit = utils.StringTypeOrNil(r.SubtreeAccessibilityAlertTimeLimit, true)
+	state.WarnForBackendsWithMultipleBaseDns = utils.BoolTypeOrNil(r.WarnForBackendsWithMultipleBaseDns)
+	state.ForcedGCPrimeDuration = utils.StringTypeOrNil(r.ForcedGCPrimeDuration, true)
+	state.ReplicationSetName = utils.StringTypeOrNil(r.ReplicationSetName, true)
 	state.StartupMinReplicationBacklogCount = types.Int64Value(int64(r.StartupMinReplicationBacklogCount))
 	state.ReplicationBacklogCountAlertThreshold = types.Int64Value(int64(r.ReplicationBacklogCountAlertThreshold))
 	state.ReplicationBacklogDurationAlertThreshold = types.StringValue(r.ReplicationBacklogDurationAlertThreshold)
 	state.ReplicationAssuranceSourceTimeoutSuspendDuration = types.StringValue(r.ReplicationAssuranceSourceTimeoutSuspendDuration)
 	state.ReplicationAssuranceSourceBacklogFastStartThreshold = types.Int64Value(int64(r.ReplicationAssuranceSourceBacklogFastStartThreshold))
-	state.ReplicationHistoryLimit = Int64TypeOrNil(r.ReplicationHistoryLimit)
+	state.ReplicationHistoryLimit = utils.Int64TypeOrNil(r.ReplicationHistoryLimit)
 	state.AllowInheritedReplicationOfSubordinateBackends = types.BoolValue(r.AllowInheritedReplicationOfSubordinateBackends)
-	state.ReplicationPurgeObsoleteReplicas = BoolTypeOrNil(r.ReplicationPurgeObsoleteReplicas)
-	state.SmtpServer = getSet(r.SmtpServer)
-	state.MaxSMTPConnectionCount = Int64TypeOrNil(r.MaxSMTPConnectionCount)
-	state.MaxSMTPConnectionAge = StringTypeOrNil(r.MaxSMTPConnectionAge, true)
-	state.SmtpConnectionHealthCheckInterval = StringTypeOrNil(r.SmtpConnectionHealthCheckInterval, true)
-	state.AllowedTask = getSet(r.AllowedTask)
-	state.EnableSubOperationTimer = BoolTypeOrNil(r.EnableSubOperationTimer)
-	state.MaximumShutdownTime = StringTypeOrNil(r.MaximumShutdownTime, true)
-	state.NetworkAddressCacheTTL = StringTypeOrNil(r.NetworkAddressCacheTTL, true)
-	state.NetworkAddressOutageCacheEnabled = BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
-	state.TrackedApplication = getSet(r.TrackedApplication)
+	state.ReplicationPurgeObsoleteReplicas = utils.BoolTypeOrNil(r.ReplicationPurgeObsoleteReplicas)
+	state.SmtpServer = utils.GetSet(r.SmtpServer)
+	state.MaxSMTPConnectionCount = utils.Int64TypeOrNil(r.MaxSMTPConnectionCount)
+	state.MaxSMTPConnectionAge = utils.StringTypeOrNil(r.MaxSMTPConnectionAge, true)
+	state.SmtpConnectionHealthCheckInterval = utils.StringTypeOrNil(r.SmtpConnectionHealthCheckInterval, true)
+	state.AllowedTask = utils.GetSet(r.AllowedTask)
+	state.EnableSubOperationTimer = utils.BoolTypeOrNil(r.EnableSubOperationTimer)
+	state.MaximumShutdownTime = utils.StringTypeOrNil(r.MaximumShutdownTime, true)
+	state.NetworkAddressCacheTTL = utils.StringTypeOrNil(r.NetworkAddressCacheTTL, true)
+	state.NetworkAddressOutageCacheEnabled = utils.BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
+	state.TrackedApplication = utils.GetSet(r.TrackedApplication)
 	if r.JmxValueBehavior != nil {
 		state.JmxValueBehavior = types.StringValue(string(*r.JmxValueBehavior))
 	} else {
 		state.JmxValueBehavior = types.StringNull()
 	}
-	state.JmxUseLegacyMbeanNames = BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
+	state.JmxUseLegacyMbeanNames = utils.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
 }
 
 // Create any update operations necessary to make the state match the plan
-func CreateGlobalConfigurationOperations(plan globalConfigurationResourceModel, state globalConfigurationResourceModel) []client.Operation {
+func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, state globalConfigurationResourceModel) []client.Operation {
 	var ops []client.Operation
 
-	AddStringOperationIfNecessary(&ops, plan.Location, state.Location, "location")
-	AddStringOperationIfNecessary(&ops, plan.ConfigurationServerGroup, state.ConfigurationServerGroup, "configuration-server-group")
-	AddBoolOperationIfNecessary(&ops, plan.ForceAsMasterForMirroredData, state.ForceAsMasterForMirroredData, "force-as-master-for-mirrored-data")
-	AddBoolOperationIfNecessary(&ops, plan.EncryptData, state.EncryptData, "encrypt-data")
-	AddStringOperationIfNecessary(&ops, plan.EncryptionSettingsCipherStreamProvider, state.EncryptionSettingsCipherStreamProvider, "encryption-settings-cipher-stream-provider")
-	AddBoolOperationIfNecessary(&ops, plan.EncryptBackupsByDefault, state.EncryptBackupsByDefault, "encrypt-backups-by-default")
-	AddStringOperationIfNecessary(&ops, plan.BackupEncryptionSettingsDefinitionID, state.BackupEncryptionSettingsDefinitionID, "backup-encryption-settings-definition-id")
-	AddBoolOperationIfNecessary(&ops, plan.EncryptLDIFExportsByDefault, state.EncryptLDIFExportsByDefault, "encrypt-ldif-exports-by-default")
-	AddStringOperationIfNecessary(&ops, plan.LdifExportEncryptionSettingsDefinitionID, state.LdifExportEncryptionSettingsDefinitionID, "ldif-export-encryption-settings-definition-id")
-	AddBoolOperationIfNecessary(&ops, plan.AutomaticallyCompressEncryptedLDIFExports, state.AutomaticallyCompressEncryptedLDIFExports, "automatically-compress-encrypted-ldif-exports")
-	AddBoolOperationIfNecessary(&ops, plan.RedactSensitiveValuesInConfigLogs, state.RedactSensitiveValuesInConfigLogs, "redact-sensitive-values-in-config-logs")
-	AddBoolOperationIfNecessary(&ops, plan.RejectInsecureRequests, state.RejectInsecureRequests, "reject-insecure-requests")
-	AddStringOperationIfNecessary(&ops, plan.AllowedInsecureRequestCriteria, state.AllowedInsecureRequestCriteria, "allowed-insecure-request-criteria")
-	AddBoolOperationIfNecessary(&ops, plan.RejectUnauthenticatedRequests, state.RejectUnauthenticatedRequests, "reject-unauthenticated-requests")
-	AddStringOperationIfNecessary(&ops, plan.AllowedUnauthenticatedRequestCriteria, state.AllowedUnauthenticatedRequestCriteria, "allowed-unauthenticated-request-criteria")
-	AddBoolOperationIfNecessary(&ops, plan.BindWithDNRequiresPassword, state.BindWithDNRequiresPassword, "bind-with-dn-requires-password")
-	AddStringOperationIfNecessary(&ops, plan.DefaultPasswordPolicy, state.DefaultPasswordPolicy, "default-password-policy")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumUserDataPasswordPoliciesToCache, state.MaximumUserDataPasswordPoliciesToCache, "maximum-user-data-password-policies-cache")
-	AddStringOperationIfNecessary(&ops, plan.ProxiedAuthorizationIdentityMapper, state.ProxiedAuthorizationIdentityMapper, "proxied-authorization-identity-mapper")
-	AddBoolOperationIfNecessary(&ops, plan.VerifyEntryDigests, state.VerifyEntryDigests, "verify-entry-digests")
-	AddBoolOperationIfNecessary(&ops, plan.AllowInsecureLocalJMXConnections, state.AllowInsecureLocalJMXConnections, "allow-insecure-local-jmx-connections")
-	AddStringOperationIfNecessary(&ops, plan.DefaultInternalOperationClientConnectionPolicy, state.DefaultInternalOperationClientConnectionPolicy, "default-internal-operation-client-connection-policy")
-	AddInt64OperationIfNecessary(&ops, plan.SizeLimit, state.SizeLimit, "size-limit")
-	AddStringOperationIfNecessary(&ops, plan.TimeLimit, state.TimeLimit, "time-limit")
-	AddStringOperationIfNecessary(&ops, plan.IdleTimeLimit, state.IdleTimeLimit, "idle-time-limit")
-	AddInt64OperationIfNecessary(&ops, plan.LookthroughLimit, state.LookthroughLimit, "lookthrough-limit")
-	AddInt64OperationIfNecessary(&ops, plan.LdapJoinSizeLimit, state.LdapJoinSizeLimit, "ldap-join-size-limit")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnections, state.MaximumConcurrentConnections, "maximum-concurrent-connections")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnectionsPerIPAddress, state.MaximumConcurrentConnectionsPerIPAddress, "maximum-concurrent-connections-per-ip-address")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnectionsPerBindDN, state.MaximumConcurrentConnectionsPerBindDN, "maximum-concurrent-connections-per-bind-dn")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentUnindexedSearches, state.MaximumConcurrentUnindexedSearches, "maximum-concurrent-unindexed-searches")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumAttributesPerAddRequest, state.MaximumAttributesPerAddRequest, "maximum-attributes-per-add-request")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumModificationsPerModifyRequest, state.MaximumModificationsPerModifyRequest, "maximum-modifications-per-modify-request")
-	AddBoolOperationIfNecessary(&ops, plan.BackgroundThreadForEachPersistentSearch, state.BackgroundThreadForEachPersistentSearch, "background-thread-for-each-persistent-search")
-	AddBoolOperationIfNecessary(&ops, plan.AllowAttributeNameExceptions, state.AllowAttributeNameExceptions, "allow-attribute-name-exceptions")
-	AddStringOperationIfNecessary(&ops, plan.InvalidAttributeSyntaxBehavior, state.InvalidAttributeSyntaxBehavior, "invalid-attribute-syntax-behavior")
-	AddStringOperationIfNecessary(&ops, plan.SingleStructuralObjectclassBehavior, state.SingleStructuralObjectclassBehavior, "single-structural-objectclass-behavior")
-	AddStringOperationIfNecessary(&ops, plan.MaximumServerOutLogFileSize, state.MaximumServerOutLogFileSize, "maximum-server-out-log-file-size")
-	AddInt64OperationIfNecessary(&ops, plan.MaximumServerOutLogFileCount, state.MaximumServerOutLogFileCount, "maximum-server-out-log-file-count")
-	AddStringOperationIfNecessary(&ops, plan.StartupErrorLoggerOutputLocation, state.StartupErrorLoggerOutputLocation, "startup-error-logger-output-location")
-	AddBoolOperationIfNecessary(&ops, plan.ExitOnJVMError, state.ExitOnJVMError, "exit-on-jvm-error")
-	AddStringOperationIfNecessary(&ops, plan.ResultCodeMap, state.ResultCodeMap, "result-code-map")
-	AddBoolOperationIfNecessary(&ops, plan.ReturnBindErrorMessages, state.ReturnBindErrorMessages, "return-bind-error-messages")
-	AddBoolOperationIfNecessary(&ops, plan.NotifyAbandonedOperations, state.NotifyAbandonedOperations, "notify-abandoned-operations")
-	AddInt64OperationIfNecessary(&ops, plan.DuplicateErrorLogLimit, state.DuplicateErrorLogLimit, "duplicate-error-log-limit")
-	AddStringOperationIfNecessary(&ops, plan.DuplicateErrorLogTimeLimit, state.DuplicateErrorLogTimeLimit, "duplicate-error-log-time-limit")
-	AddInt64OperationIfNecessary(&ops, plan.DuplicateAlertLimit, state.DuplicateAlertLimit, "duplicate-alert-limit")
-	AddStringOperationIfNecessary(&ops, plan.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, "duplicate-alert-time-limit")
-	AddStringOperationIfNecessary(&ops, plan.WritabilityMode, state.WritabilityMode, "writability-mode")
-	AddStringOperationIfNecessary(&ops, plan.UnrecoverableDatabaseErrorMode, state.UnrecoverableDatabaseErrorMode, "unrecoverable-database-error")
-	AddBoolOperationIfNecessary(&ops, plan.DatabaseOnVirtualizedOrNetworkStorage, state.DatabaseOnVirtualizedOrNetworkStorage, "database-on-virtualized-or-network-storage")
-	AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDConnectionCriteria, state.AutoNameWithEntryUUIDConnectionCriteria, "auto-name-with-entry-uuid-connection-criteria")
-	AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDRequestCriteria, state.AutoNameWithEntryUUIDRequestCriteria, "auto-name-with-entry-uuid-request-criteria")
-	AddStringOperationIfNecessary(&ops, plan.SoftDeletePolicy, state.SoftDeletePolicy, "soft-delete-policy")
-	AddStringOperationIfNecessary(&ops, plan.SubtreeAccessibilityAlertTimeLimit, state.SubtreeAccessibilityAlertTimeLimit, "subtree-accessibility-alert-time-limit")
-	AddBoolOperationIfNecessary(&ops, plan.WarnForBackendsWithMultipleBaseDns, state.WarnForBackendsWithMultipleBaseDns, "warn-for-backends-with-multiple-base-dns")
-	AddStringOperationIfNecessary(&ops, plan.ForcedGCPrimeDuration, state.ForcedGCPrimeDuration, "forced-gc-prime-duration")
-	AddStringOperationIfNecessary(&ops, plan.ReplicationSetName, state.ReplicationSetName, "replication-set-name")
-	AddInt64OperationIfNecessary(&ops, plan.StartupMinReplicationBacklogCount, state.StartupMinReplicationBacklogCount, "startup-min-replication-backlog-count")
-	AddInt64OperationIfNecessary(&ops, plan.ReplicationBacklogCountAlertThreshold, state.ReplicationBacklogCountAlertThreshold, "replication-backlog-count-alert-threshold")
-	AddStringOperationIfNecessary(&ops, plan.ReplicationBacklogDurationAlertThreshold, state.ReplicationBacklogDurationAlertThreshold, "replication-backlog-duration-alert-threshold")
-	AddStringOperationIfNecessary(&ops, plan.ReplicationAssuranceSourceTimeoutSuspendDuration, state.ReplicationAssuranceSourceTimeoutSuspendDuration, "replication-assurance-source-timeout-suspend-duration")
-	AddInt64OperationIfNecessary(&ops, plan.ReplicationAssuranceSourceBacklogFastStartThreshold, state.ReplicationAssuranceSourceBacklogFastStartThreshold, "replication-assurance-source-backlog-fast-start-threshold")
-	AddInt64OperationIfNecessary(&ops, plan.ReplicationHistoryLimit, state.ReplicationHistoryLimit, "replication-history-limit")
-	AddBoolOperationIfNecessary(&ops, plan.AllowInheritedReplicationOfSubordinateBackends, state.AllowInheritedReplicationOfSubordinateBackends, "allow-inherited-replication-of-subordinate-backends")
-	AddBoolOperationIfNecessary(&ops, plan.ReplicationPurgeObsoleteReplicas, state.ReplicationPurgeObsoleteReplicas, "replication-purge-obsolete-replicas")
-	AddInt64OperationIfNecessary(&ops, plan.MaxSMTPConnectionCount, state.MaxSMTPConnectionCount, "max-smtp-connection-count")
-	AddStringOperationIfNecessary(&ops, plan.MaxSMTPConnectionAge, state.MaxSMTPConnectionAge, "max-smtp-connection-age")
-	AddStringOperationIfNecessary(&ops, plan.SmtpConnectionHealthCheckInterval, state.SmtpConnectionHealthCheckInterval, "smtp-connection-health-check-interval")
-	AddBoolOperationIfNecessary(&ops, plan.EnableSubOperationTimer, state.EnableSubOperationTimer, "enable-sub-operation-timer")
-	AddStringOperationIfNecessary(&ops, plan.MaximumShutdownTime, state.MaximumShutdownTime, "maximum-shutdown-time")
-	AddStringOperationIfNecessary(&ops, plan.NetworkAddressCacheTTL, state.NetworkAddressCacheTTL, "network-address-cache-ttl")
-	AddBoolOperationIfNecessary(&ops, plan.NetworkAddressOutageCacheEnabled, state.NetworkAddressOutageCacheEnabled, "network-address-outage-cache-enabled")
-	AddStringOperationIfNecessary(&ops, plan.JmxValueBehavior, state.JmxValueBehavior, "jmx-value-behavior")
-	AddBoolOperationIfNecessary(&ops, plan.JmxUseLegacyMbeanNames, state.JmxUseLegacyMbeanNames, "jmx-use-legacy-mbean-names")
+	utils.AddStringOperationIfNecessary(&ops, plan.Location, state.Location, "location")
+	utils.AddStringOperationIfNecessary(&ops, plan.ConfigurationServerGroup, state.ConfigurationServerGroup, "configuration-server-group")
+	utils.AddBoolOperationIfNecessary(&ops, plan.ForceAsMasterForMirroredData, state.ForceAsMasterForMirroredData, "force-as-master-for-mirrored-data")
+	utils.AddBoolOperationIfNecessary(&ops, plan.EncryptData, state.EncryptData, "encrypt-data")
+	utils.AddStringOperationIfNecessary(&ops, plan.EncryptionSettingsCipherStreamProvider, state.EncryptionSettingsCipherStreamProvider, "encryption-settings-cipher-stream-provider")
+	utils.AddBoolOperationIfNecessary(&ops, plan.EncryptBackupsByDefault, state.EncryptBackupsByDefault, "encrypt-backups-by-default")
+	utils.AddStringOperationIfNecessary(&ops, plan.BackupEncryptionSettingsDefinitionID, state.BackupEncryptionSettingsDefinitionID, "backup-encryption-settings-definition-id")
+	utils.AddBoolOperationIfNecessary(&ops, plan.EncryptLDIFExportsByDefault, state.EncryptLDIFExportsByDefault, "encrypt-ldif-exports-by-default")
+	utils.AddStringOperationIfNecessary(&ops, plan.LdifExportEncryptionSettingsDefinitionID, state.LdifExportEncryptionSettingsDefinitionID, "ldif-export-encryption-settings-definition-id")
+	utils.AddBoolOperationIfNecessary(&ops, plan.AutomaticallyCompressEncryptedLDIFExports, state.AutomaticallyCompressEncryptedLDIFExports, "automatically-compress-encrypted-ldif-exports")
+	utils.AddBoolOperationIfNecessary(&ops, plan.RedactSensitiveValuesInConfigLogs, state.RedactSensitiveValuesInConfigLogs, "redact-sensitive-values-in-config-logs")
+	utils.AddBoolOperationIfNecessary(&ops, plan.RejectInsecureRequests, state.RejectInsecureRequests, "reject-insecure-requests")
+	utils.AddStringOperationIfNecessary(&ops, plan.AllowedInsecureRequestCriteria, state.AllowedInsecureRequestCriteria, "allowed-insecure-request-criteria")
+	utils.AddBoolOperationIfNecessary(&ops, plan.RejectUnauthenticatedRequests, state.RejectUnauthenticatedRequests, "reject-unauthenticated-requests")
+	utils.AddStringOperationIfNecessary(&ops, plan.AllowedUnauthenticatedRequestCriteria, state.AllowedUnauthenticatedRequestCriteria, "allowed-unauthenticated-request-criteria")
+	utils.AddBoolOperationIfNecessary(&ops, plan.BindWithDNRequiresPassword, state.BindWithDNRequiresPassword, "bind-with-dn-requires-password")
+	utils.AddStringOperationIfNecessary(&ops, plan.DefaultPasswordPolicy, state.DefaultPasswordPolicy, "default-password-policy")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumUserDataPasswordPoliciesToCache, state.MaximumUserDataPasswordPoliciesToCache, "maximum-user-data-password-policies-cache")
+	utils.AddStringOperationIfNecessary(&ops, plan.ProxiedAuthorizationIdentityMapper, state.ProxiedAuthorizationIdentityMapper, "proxied-authorization-identity-mapper")
+	utils.AddBoolOperationIfNecessary(&ops, plan.VerifyEntryDigests, state.VerifyEntryDigests, "verify-entry-digests")
+	utils.AddBoolOperationIfNecessary(&ops, plan.AllowInsecureLocalJMXConnections, state.AllowInsecureLocalJMXConnections, "allow-insecure-local-jmx-connections")
+	utils.AddStringOperationIfNecessary(&ops, plan.DefaultInternalOperationClientConnectionPolicy, state.DefaultInternalOperationClientConnectionPolicy, "default-internal-operation-client-connection-policy")
+	utils.AddInt64OperationIfNecessary(&ops, plan.SizeLimit, state.SizeLimit, "size-limit")
+	utils.AddStringOperationIfNecessary(&ops, plan.TimeLimit, state.TimeLimit, "time-limit")
+	utils.AddStringOperationIfNecessary(&ops, plan.IdleTimeLimit, state.IdleTimeLimit, "idle-time-limit")
+	utils.AddInt64OperationIfNecessary(&ops, plan.LookthroughLimit, state.LookthroughLimit, "lookthrough-limit")
+	utils.AddInt64OperationIfNecessary(&ops, plan.LdapJoinSizeLimit, state.LdapJoinSizeLimit, "ldap-join-size-limit")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnections, state.MaximumConcurrentConnections, "maximum-concurrent-connections")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnectionsPerIPAddress, state.MaximumConcurrentConnectionsPerIPAddress, "maximum-concurrent-connections-per-ip-address")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnectionsPerBindDN, state.MaximumConcurrentConnectionsPerBindDN, "maximum-concurrent-connections-per-bind-dn")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentUnindexedSearches, state.MaximumConcurrentUnindexedSearches, "maximum-concurrent-unindexed-searches")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumAttributesPerAddRequest, state.MaximumAttributesPerAddRequest, "maximum-attributes-per-add-request")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumModificationsPerModifyRequest, state.MaximumModificationsPerModifyRequest, "maximum-modifications-per-modify-request")
+	utils.AddBoolOperationIfNecessary(&ops, plan.BackgroundThreadForEachPersistentSearch, state.BackgroundThreadForEachPersistentSearch, "background-thread-for-each-persistent-search")
+	utils.AddBoolOperationIfNecessary(&ops, plan.AllowAttributeNameExceptions, state.AllowAttributeNameExceptions, "allow-attribute-name-exceptions")
+	utils.AddStringOperationIfNecessary(&ops, plan.InvalidAttributeSyntaxBehavior, state.InvalidAttributeSyntaxBehavior, "invalid-attribute-syntax-behavior")
+	utils.AddStringOperationIfNecessary(&ops, plan.SingleStructuralObjectclassBehavior, state.SingleStructuralObjectclassBehavior, "single-structural-objectclass-behavior")
+	utils.AddStringOperationIfNecessary(&ops, plan.MaximumServerOutLogFileSize, state.MaximumServerOutLogFileSize, "maximum-server-out-log-file-size")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaximumServerOutLogFileCount, state.MaximumServerOutLogFileCount, "maximum-server-out-log-file-count")
+	utils.AddStringOperationIfNecessary(&ops, plan.StartupErrorLoggerOutputLocation, state.StartupErrorLoggerOutputLocation, "startup-error-logger-output-location")
+	utils.AddBoolOperationIfNecessary(&ops, plan.ExitOnJVMError, state.ExitOnJVMError, "exit-on-jvm-error")
+	utils.AddStringOperationIfNecessary(&ops, plan.ResultCodeMap, state.ResultCodeMap, "result-code-map")
+	utils.AddBoolOperationIfNecessary(&ops, plan.ReturnBindErrorMessages, state.ReturnBindErrorMessages, "return-bind-error-messages")
+	utils.AddBoolOperationIfNecessary(&ops, plan.NotifyAbandonedOperations, state.NotifyAbandonedOperations, "notify-abandoned-operations")
+	utils.AddInt64OperationIfNecessary(&ops, plan.DuplicateErrorLogLimit, state.DuplicateErrorLogLimit, "duplicate-error-log-limit")
+	utils.AddStringOperationIfNecessary(&ops, plan.DuplicateErrorLogTimeLimit, state.DuplicateErrorLogTimeLimit, "duplicate-error-log-time-limit")
+	utils.AddInt64OperationIfNecessary(&ops, plan.DuplicateAlertLimit, state.DuplicateAlertLimit, "duplicate-alert-limit")
+	utils.AddStringOperationIfNecessary(&ops, plan.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, "duplicate-alert-time-limit")
+	utils.AddStringOperationIfNecessary(&ops, plan.WritabilityMode, state.WritabilityMode, "writability-mode")
+	utils.AddStringOperationIfNecessary(&ops, plan.UnrecoverableDatabaseErrorMode, state.UnrecoverableDatabaseErrorMode, "unrecoverable-database-error")
+	utils.AddBoolOperationIfNecessary(&ops, plan.DatabaseOnVirtualizedOrNetworkStorage, state.DatabaseOnVirtualizedOrNetworkStorage, "database-on-virtualized-or-network-storage")
+	utils.AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDConnectionCriteria, state.AutoNameWithEntryUUIDConnectionCriteria, "auto-name-with-entry-uuid-connection-criteria")
+	utils.AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDRequestCriteria, state.AutoNameWithEntryUUIDRequestCriteria, "auto-name-with-entry-uuid-request-criteria")
+	utils.AddStringOperationIfNecessary(&ops, plan.SoftDeletePolicy, state.SoftDeletePolicy, "soft-delete-policy")
+	utils.AddStringOperationIfNecessary(&ops, plan.SubtreeAccessibilityAlertTimeLimit, state.SubtreeAccessibilityAlertTimeLimit, "subtree-accessibility-alert-time-limit")
+	utils.AddBoolOperationIfNecessary(&ops, plan.WarnForBackendsWithMultipleBaseDns, state.WarnForBackendsWithMultipleBaseDns, "warn-for-backends-with-multiple-base-dns")
+	utils.AddStringOperationIfNecessary(&ops, plan.ForcedGCPrimeDuration, state.ForcedGCPrimeDuration, "forced-gc-prime-duration")
+	utils.AddStringOperationIfNecessary(&ops, plan.ReplicationSetName, state.ReplicationSetName, "replication-set-name")
+	utils.AddInt64OperationIfNecessary(&ops, plan.StartupMinReplicationBacklogCount, state.StartupMinReplicationBacklogCount, "startup-min-replication-backlog-count")
+	utils.AddInt64OperationIfNecessary(&ops, plan.ReplicationBacklogCountAlertThreshold, state.ReplicationBacklogCountAlertThreshold, "replication-backlog-count-alert-threshold")
+	utils.AddStringOperationIfNecessary(&ops, plan.ReplicationBacklogDurationAlertThreshold, state.ReplicationBacklogDurationAlertThreshold, "replication-backlog-duration-alert-threshold")
+	utils.AddStringOperationIfNecessary(&ops, plan.ReplicationAssuranceSourceTimeoutSuspendDuration, state.ReplicationAssuranceSourceTimeoutSuspendDuration, "replication-assurance-source-timeout-suspend-duration")
+	utils.AddInt64OperationIfNecessary(&ops, plan.ReplicationAssuranceSourceBacklogFastStartThreshold, state.ReplicationAssuranceSourceBacklogFastStartThreshold, "replication-assurance-source-backlog-fast-start-threshold")
+	utils.AddInt64OperationIfNecessary(&ops, plan.ReplicationHistoryLimit, state.ReplicationHistoryLimit, "replication-history-limit")
+	utils.AddBoolOperationIfNecessary(&ops, plan.AllowInheritedReplicationOfSubordinateBackends, state.AllowInheritedReplicationOfSubordinateBackends, "allow-inherited-replication-of-subordinate-backends")
+	utils.AddBoolOperationIfNecessary(&ops, plan.ReplicationPurgeObsoleteReplicas, state.ReplicationPurgeObsoleteReplicas, "replication-purge-obsolete-replicas")
+	utils.AddInt64OperationIfNecessary(&ops, plan.MaxSMTPConnectionCount, state.MaxSMTPConnectionCount, "max-smtp-connection-count")
+	utils.AddStringOperationIfNecessary(&ops, plan.MaxSMTPConnectionAge, state.MaxSMTPConnectionAge, "max-smtp-connection-age")
+	utils.AddStringOperationIfNecessary(&ops, plan.SmtpConnectionHealthCheckInterval, state.SmtpConnectionHealthCheckInterval, "smtp-connection-health-check-interval")
+	utils.AddBoolOperationIfNecessary(&ops, plan.EnableSubOperationTimer, state.EnableSubOperationTimer, "enable-sub-operation-timer")
+	utils.AddStringOperationIfNecessary(&ops, plan.MaximumShutdownTime, state.MaximumShutdownTime, "maximum-shutdown-time")
+	utils.AddStringOperationIfNecessary(&ops, plan.NetworkAddressCacheTTL, state.NetworkAddressCacheTTL, "network-address-cache-ttl")
+	utils.AddBoolOperationIfNecessary(&ops, plan.NetworkAddressOutageCacheEnabled, state.NetworkAddressOutageCacheEnabled, "network-address-outage-cache-enabled")
+	utils.AddStringOperationIfNecessary(&ops, plan.JmxValueBehavior, state.JmxValueBehavior, "jmx-value-behavior")
+	utils.AddBoolOperationIfNecessary(&ops, plan.JmxUseLegacyMbeanNames, state.JmxUseLegacyMbeanNames, "jmx-use-legacy-mbean-names")
 
 	// Multi-valued attributes
-	AddSetOperationsIfNecessary(&ops, plan.SensitiveAttribute, state.SensitiveAttribute, "sensitive-attribute")
-	AddSetOperationsIfNecessary(&ops, plan.DisabledPrivilege, state.DisabledPrivilege, "disabled-privilege")
-	AddSetOperationsIfNecessary(&ops, plan.AllowedInsecureTLSProtocol, state.AllowedInsecureTLSProtocol, "allowed-insecure-tls-protocol")
-	AddSetOperationsIfNecessary(&ops, plan.PermitSyntaxViolationsForAttribute, state.PermitSyntaxViolationsForAttribute, "permit-syntax-violations-for-attribute")
-	AddSetOperationsIfNecessary(&ops, plan.AttributesModifiableWithIgnoreNoUserModificationRequestControl, state.AttributesModifiableWithIgnoreNoUserModificationRequestControl, "attributes-modifiable-with-ignore-no-user-modification-request-control")
-	AddSetOperationsIfNecessary(&ops, plan.SmtpServer, state.SmtpServer, "smtp-server")
-	AddSetOperationsIfNecessary(&ops, plan.AllowedTask, state.AllowedTask, "allowed-task")
-	AddSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
+	utils.AddSetOperationsIfNecessary(&ops, plan.SensitiveAttribute, state.SensitiveAttribute, "sensitive-attribute")
+	utils.AddSetOperationsIfNecessary(&ops, plan.DisabledPrivilege, state.DisabledPrivilege, "disabled-privilege")
+	utils.AddSetOperationsIfNecessary(&ops, plan.AllowedInsecureTLSProtocol, state.AllowedInsecureTLSProtocol, "allowed-insecure-tls-protocol")
+	utils.AddSetOperationsIfNecessary(&ops, plan.PermitSyntaxViolationsForAttribute, state.PermitSyntaxViolationsForAttribute, "permit-syntax-violations-for-attribute")
+	utils.AddSetOperationsIfNecessary(&ops, plan.AttributesModifiableWithIgnoreNoUserModificationRequestControl, state.AttributesModifiableWithIgnoreNoUserModificationRequestControl, "attributes-modifiable-with-ignore-no-user-modification-request-control")
+	utils.AddSetOperationsIfNecessary(&ops, plan.SmtpServer, state.SmtpServer, "smtp-server")
+	utils.AddSetOperationsIfNecessary(&ops, plan.AllowedTask, state.AllowedTask, "allowed-task")
+	utils.AddSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
 
 	return ops
 }
@@ -1013,21 +1014,21 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 	// Get the current state
 	var state globalConfigurationResourceModel
 	req.State.Get(ctx, &state)
-	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig))
+	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(utils.BasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
-	ops := CreateGlobalConfigurationOperations(plan, state)
+	ops := createGlobalConfigurationOperations(plan, state)
 	if len(ops) > 0 {
 		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 
 		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
 		if err != nil {
-			ReportHttpError(&resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
+			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
 			return
 		}
 
 		// Read the response
-		ReadGlobalConfigurationResponse(globalResp, &plan)
+		readGlobalConfigurationResponse(globalResp, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

@@ -1,4 +1,4 @@
-package pingdirectory
+package utils
 
 import (
 	"context"
@@ -25,10 +25,10 @@ func ReportHttpError(diagnostics *diag.Diagnostics, errorPrefix string, err erro
 
 // Get BasicAuth context with a username and password
 //TODO maybe cache this somehow so it doesn't need to be done so often?
-func BasicAuthContext(ctx context.Context, providerConfig pingdirectoryProviderModel) context.Context {
+func BasicAuthContext(ctx context.Context, providerConfig ProviderConfiguration) context.Context {
 	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: providerConfig.Username.ValueString(),
-		Password: providerConfig.Password.ValueString(),
+		UserName: providerConfig.Username,
+		Password: providerConfig.Password,
 	})
 }
 
@@ -134,7 +134,7 @@ func contains(slice []attr.Value, value types.String) bool {
 }
 
 // Get a types.Set from a slice of strings
-func getSet(values []string) types.Set {
+func GetSet(values []string) types.Set {
 	setValues := make([]attr.Value, len(values))
 	for i := 0; i < len(values); i++ {
 		setValues[i] = types.StringValue(values[i])
@@ -178,16 +178,16 @@ func Int64TypeOrNil(i *int32) types.Int64 {
 }
 
 // Return true if this types.String represents an empty (but non-null and non-unknown) string
-func isEmptyString(str types.String) bool {
+func IsEmptyString(str types.String) bool {
 	return !str.IsNull() && !str.IsUnknown() && str.ValueString() == ""
 }
 
 // Return true if this types.String represents a non-empty, non-null, non-unknown string
-func isNonEmptyString(str types.String) bool {
+func IsNonEmptyString(str types.String) bool {
 	return !str.IsNull() && !str.IsUnknown() && str.ValueString() != ""
 }
 
 // Return true if this types.Bool represents a defined (non-null and non-unknown) boolean
-func isDefined(b types.Bool) bool {
+func IsDefined(b types.Bool) bool {
 	return !b.IsNull() && !b.IsUnknown()
 }

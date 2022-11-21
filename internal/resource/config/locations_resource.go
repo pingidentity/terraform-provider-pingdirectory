@@ -1,7 +1,8 @@
-package pingdirectory
+package config
 
 import (
 	"context"
+	"terraform-provider-pingdirectory/internal/utils"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -20,14 +21,14 @@ var (
 	_ resource.ResourceWithImportState = &locationResource{}
 )
 
-// NewLocationsResource is a helper function to simplify the provider implementation.
+// Create a Location resource
 func NewLocationResource() resource.Resource {
 	return &locationResource{}
 }
 
 // locationResource is the resource implementation.
 type locationResource struct {
-	providerConfig pingdirectoryProviderModel
+	providerConfig utils.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
@@ -76,9 +77,9 @@ func (r *locationResource) Configure(_ context.Context, req resource.ConfigureRe
 		return
 	}
 
-	providerCfg := req.ProviderData.(apiClientConfig)
-	r.providerConfig = providerCfg.providerConfig
-	r.apiClient = providerCfg.apiClient
+	providerCfg := req.ProviderData.(utils.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
 }
 
 // Create a new resource
@@ -93,22 +94,22 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 	addRequest := client.NewAddLocationRequest(plan.Name.ValueString())
 	// Empty strings are treated as equivalent to null
-	if isNonEmptyString(plan.Description) {
+	if utils.IsNonEmptyString(plan.Description) {
 		stringVal := plan.Description.ValueString()
 		addRequest.Description = &stringVal
 	}
-	apiAddRequest := r.apiClient.LocationApi.AddLocation(BasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.LocationApi.AddLocation(utils.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocationRequest(*addRequest)
 
 	locationResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
 	if err != nil {
-		ReportHttpError(&resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
+		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
 		return
 	}
 
 	// Read the response into the state
 	var state locationResourceModel
-	ReadLocationResponse(locationResponse, &state, &plan)
+	readLocationResponse(locationResponse, &state, &plan)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -122,12 +123,12 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 }
 
 // Read a LocationResponse object into the model struct
-func ReadLocationResponse(r *client.LocationResponse, state *locationResourceModel, plan *locationResourceModel) {
+func readLocationResponse(r *client.LocationResponse, state *locationResourceModel, plan *locationResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
-	state.Description = StringTypeOrNil(r.Description, plan != nil && isEmptyString(plan.Description))
+	state.Description = utils.StringTypeOrNil(r.Description, plan != nil && utils.IsEmptyString(plan.Description))
 }
 
 // Read resource information
@@ -140,14 +141,14 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		ReportHttpError(&resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
+		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
 	}
 
 	// Read the response into the state
-	ReadLocationResponse(locationResponse, &state, nil)
+	readLocationResponse(locationResponse, &state, nil)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -158,10 +159,10 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 }
 
 // Create any update operations necessary to make the state match the plan
-func CreateLocationOperations(plan locationResourceModel, state locationResourceModel) []client.Operation {
+func createLocationOperations(plan locationResourceModel, state locationResourceModel) []client.Operation {
 	var ops []client.Operation
 
-	AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	utils.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	return ops
 }
 
@@ -178,21 +179,21 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state locationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocationApi.UpdateLocation(BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LocationApi.UpdateLocation(utils.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
-	ops := CreateLocationOperations(plan, state)
+	ops := createLocationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 
 		locationResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
 		if err != nil {
-			ReportHttpError(&resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
+			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 			return
 		}
 
 		// Read the response
-		ReadLocationResponse(locationResponse, &state, &plan)
+		readLocationResponse(locationResponse, &state, &plan)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -216,9 +217,9 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
-		ReportHttpError(&resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
+		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
 	}
 }
