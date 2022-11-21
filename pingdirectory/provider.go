@@ -26,6 +26,11 @@ type pingdirectoryProviderModel struct {
 	DefaultUserPassword types.String `tfsdk:"default_user_password"`
 }
 
+type apiClientConfig struct {
+	providerConfig pingdirectoryProviderModel
+	apiClient      *client.APIClient
+}
+
 // Ensure the implementation satisfies the expected interfaces
 var (
 	_ provider.Provider = &pingdirectoryProvider{}
@@ -207,11 +212,10 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		return
 	}
 
-	// Make the PingDirectory config info available during DataSource and Resource
+	// Make the PingDirectory config and API client info available during DataSource and Resource
 	// type Configure methods.
-	//TODO probably shouldn't use this struct for this
-	var resourceData locationsResource
-	resourceData.providerConfig = config
+	var apiClientConfig apiClientConfig
+	apiClientConfig.providerConfig = config
 	clientConfig := client.NewConfiguration()
 	//TODO again string concatenation is probably bad
 	clientConfig.Servers = client.ServerConfigurations{
@@ -226,8 +230,8 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	}
 	httpClient := &http.Client{Transport: tr}
 	clientConfig.HTTPClient = httpClient
-	resourceData.apiClient = client.NewAPIClient(clientConfig)
-	resp.ResourceData = resourceData
+	apiClientConfig.apiClient = client.NewAPIClient(clientConfig)
+	resp.ResourceData = apiClientConfig
 	//TODO if data sources are added and need client stuff, add DataSourceData to the resp here
 
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
@@ -241,8 +245,9 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 // Resources defines the resources implemented in the provider.
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewUsersResource,
-		NewLocationsResource,
+		NewBlindTrustManagerProviderResource,
 		NewGlobalConfigurationResource,
+		NewLocationsResource,
+		NewUsersResource,
 	}
 }

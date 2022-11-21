@@ -75,7 +75,7 @@ func (r *locationsResource) Configure(_ context.Context, req resource.ConfigureR
 		return
 	}
 
-	providerCfg := req.ProviderData.(locationsResource)
+	providerCfg := req.ProviderData.(apiClientConfig)
 	r.providerConfig = providerCfg.providerConfig
 	r.apiClient = providerCfg.apiClient
 }

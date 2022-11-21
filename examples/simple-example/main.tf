@@ -43,3 +43,9 @@ resource "pingdirectory_global_configuration" "global" {
   result_code_map = "Sun DS Compatible Behavior"
   #result_code_map = ""
 }
+
+resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
+  name = "Blind Test"
+  enabled = true
+  include_jvm_default_issuers = true
+}
