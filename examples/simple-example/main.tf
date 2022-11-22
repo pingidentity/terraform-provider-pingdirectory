@@ -56,3 +56,8 @@ resource "pingdirectory_file_based_trust_manager_provider" "filetest" {
   trust_store_type = "pkcs12"
   include_jvm_default_issuers = true
 }
+
+resource "pingdirectory_jvm_default_trust_manager_provider" "jvmtest" {
+  name = "jvmtest"
+  enabled = false
+}

@@ -252,10 +252,11 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 // Resources defines the resources implemented in the provider.
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		trustmanagerprovider.NewBlindTrustManagerProviderResource,
-		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		ldap.NewUsersResource,
+		trustmanagerprovider.NewBlindTrustManagerProviderResource,
+		trustmanagerprovider.NewJVMDefaultTrustManagerProviderResource,
+		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 	}
 }
