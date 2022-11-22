@@ -99,6 +99,8 @@ func (r *usersResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 				Description: "Common name of the user.",
 				Type:        types.StringType,
 				Computed:    true,
+				Required:    false,
+				Optional:    false,
 			},
 			"given_name": {
 				Description: "Given name of the user.",
@@ -119,6 +121,8 @@ func (r *usersResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 				Description: "Timestamp of the last Terraform update of the user.",
 				Type:        types.StringType,
 				Computed:    true,
+				Required:    false,
+				Optional:    false,
 			},
 		},
 	}, nil

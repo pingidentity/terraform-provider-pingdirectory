@@ -94,6 +94,7 @@ func (r *fileBasedTrustManagerProviderResource) GetSchema(_ context.Context) (tf
 				Type:        types.BoolType,
 				Required:    true,
 			},
+			// Optional boolean fields must be Computed because PD gives them a default value
 			"include_jvm_default_issuers": {
 				Description: "Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.",
 				Type:        types.BoolType,
@@ -190,16 +191,16 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
 func readFileBasedTrustManagerProviderResponse(r *client.FileBasedTrustManagerProviderResponse,
-	state *fileBasedTrustManagerProviderResourceModel, plan *fileBasedTrustManagerProviderResourceModel) {
+	state *fileBasedTrustManagerProviderResourceModel, expectedValues *fileBasedTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
-	state.TrustStoreType = utils.StringTypeOrNil(r.TrustStoreType, plan != nil && utils.IsEmptyString(plan.TrustStoreType))
-	state.TrustStorePin = utils.StringTypeOrNil(r.TrustStorePin, plan != nil && utils.IsEmptyString(plan.TrustStorePin))
-	state.TrustStorePinFile = utils.StringTypeOrNil(r.TrustStorePinFile, plan != nil && utils.IsEmptyString(plan.TrustStorePinFile))
-	state.TrustStorePinPassphraseProvider = utils.StringTypeOrNil(r.TrustStorePinPassphraseProvider, plan != nil && utils.IsEmptyString(plan.TrustStorePinPassphraseProvider))
+	state.TrustStoreType = utils.StringTypeOrNil(r.TrustStoreType, utils.IsEmptyString(expectedValues.TrustStoreType))
+	state.TrustStorePin = utils.StringTypeOrNil(r.TrustStorePin, utils.IsEmptyString(expectedValues.TrustStorePin))
+	state.TrustStorePinFile = utils.StringTypeOrNil(r.TrustStorePinFile, utils.IsEmptyString(expectedValues.TrustStorePinFile))
+	state.TrustStorePinPassphraseProvider = utils.StringTypeOrNil(r.TrustStorePinPassphraseProvider, utils.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = utils.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
@@ -223,7 +224,7 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 	}
 
 	// Read the response into the state
-	readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, nil)
+	readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)

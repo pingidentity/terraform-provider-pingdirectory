@@ -63,6 +63,7 @@ func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.
 				Type:        types.BoolType,
 				Required:    true,
 			},
+			// Optional boolean fields must be Computed because PD gives them a default value
 			"include_jvm_default_issuers": {
 				Description: "Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.",
 				Type:        types.BoolType,

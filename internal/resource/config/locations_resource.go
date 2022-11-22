@@ -128,12 +128,12 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 }
 
 // Read a LocationResponse object into the model struct
-func readLocationResponse(r *client.LocationResponse, state *locationResourceModel, plan *locationResourceModel) {
+func readLocationResponse(r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
-	state.Description = utils.StringTypeOrNil(r.Description, plan != nil && utils.IsEmptyString(plan.Description))
+	state.Description = utils.StringTypeOrNil(r.Description, utils.IsEmptyString(expectedValues.Description))
 }
 
 // Read resource information
@@ -153,7 +153,7 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	// Read the response into the state
-	readLocationResponse(locationResponse, &state, nil)
+	readLocationResponse(locationResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
