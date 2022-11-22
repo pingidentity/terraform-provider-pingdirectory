@@ -91,6 +91,15 @@ func (r *blindTrustManagerProviderResource) Configure(_ context.Context, req res
 	r.apiClient = providerCfg.ApiClient
 }
 
+// Add optional fields to create request
+func addOptionalBlindTrustManagerProviderFields(addRequest *client.AddBlindTrustManagerProviderRequest, plan blindTrustManagerProviderResourceModel) {
+	// Non string values just have to be defined
+	if utils.IsDefined(plan.IncludeJVMDefaultIssuers) {
+		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
+		addRequest.IncludeJVMDefaultIssuers = &boolVal
+	}
+}
+
 // Create a new resource
 func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -104,10 +113,7 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 	addRequest := client.NewAddBlindTrustManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumblindTrustManagerProviderSchemaUrn{client.ENUMBLINDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERBLIND},
 		plan.Enabled.ValueBool())
-	if utils.IsDefined(plan.IncludeJVMDefaultIssuers) {
-		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
-		addRequest.IncludeJVMDefaultIssuers = &boolVal
-	}
+	addOptionalBlindTrustManagerProviderFields(addRequest, plan)
 	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddBlindTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))

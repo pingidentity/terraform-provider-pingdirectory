@@ -253,6 +253,7 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
+		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		ldap.NewUsersResource,

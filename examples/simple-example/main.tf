@@ -48,3 +48,10 @@ resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
   enabled = true
   include_jvm_default_issuers = true
 }
+
+resource "pingdirectory_file_based_trust_manager_provider" "filetest" {
+  name = "FileTest"
+  enabled = true
+  trust_store_file = "config/keystore"
+  #trust_store_type = ""
+}

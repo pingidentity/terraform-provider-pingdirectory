@@ -82,6 +82,15 @@ func (r *locationResource) Configure(_ context.Context, req resource.ConfigureRe
 	r.apiClient = providerCfg.ApiClient
 }
 
+// Add optional fields to create request
+func addOptionalLocationFields(addRequest *client.AddLocationRequest, plan locationResourceModel) {
+	// Empty strings are treated as equivalent to null
+	if utils.IsNonEmptyString(plan.Description) {
+		stringVal := plan.Description.ValueString()
+		addRequest.Description = &stringVal
+	}
+}
+
 // Create a new resource
 func (r *locationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -93,11 +102,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	addRequest := client.NewAddLocationRequest(plan.Name.ValueString())
-	// Empty strings are treated as equivalent to null
-	if utils.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
-	}
+	addOptionalLocationFields(addRequest, plan)
 	apiAddRequest := r.apiClient.LocationApi.AddLocation(utils.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocationRequest(*addRequest)
 
