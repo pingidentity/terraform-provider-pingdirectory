@@ -170,7 +170,7 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -219,7 +219,7 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
 		utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -269,7 +269,7 @@ func (r *fileBasedTrustManagerProviderResource) Update(ctx context.Context, req 
 
 		trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
-			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
+			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
 		}
 
@@ -301,7 +301,7 @@ func (r *fileBasedTrustManagerProviderResource) Delete(ctx context.Context, req 
 	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(
 		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
 		return
 	}
 }

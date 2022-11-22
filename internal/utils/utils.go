@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
@@ -9,17 +10,38 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdata-config-api-go-client"
 )
 
+//TODO split out utils into more fine-grained packages with more descriptive names
+// Error returned from PingDirectory config API
+type pingDirectoryError struct {
+	Schemas []string `json:"schemas"`
+	Status  string   `json:"status"`
+	Detail  string   `json:"detail"`
+}
+
 // Report an HTTP error
-func ReportHttpError(diagnostics *diag.Diagnostics, errorPrefix string, err error, httpResp *http.Response) {
-	diagnostics.AddError(errorPrefix, err.Error())
+func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSummary string, err error, httpResp *http.Response) {
+	httpErrorPrinted := false
+	var internalError error
 	if httpResp != nil {
-		body, err := io.ReadAll(httpResp.Body)
-		if err == nil {
-			diagnostics.AddError("Response body: ", string(body))
+		body, internalError := io.ReadAll(httpResp.Body)
+		if internalError == nil {
+			var pdError pingDirectoryError
+			internalError = json.Unmarshal(body, &pdError)
+			if internalError == nil {
+				diagnostics.AddError(errorSummary, err.Error()+" - Detail: "+pdError.Detail)
+				httpErrorPrinted = true
+			}
 		}
+	}
+	if !httpErrorPrinted {
+		if internalError != nil {
+			tflog.Warn(ctx, "Failed to unmarshal HTTP response body: "+internalError.Error())
+		}
+		diagnostics.AddError(errorSummary, err.Error())
 	}
 }
 

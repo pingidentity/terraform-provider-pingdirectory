@@ -136,6 +136,9 @@ func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema
 		// All are considered computed, since we are importing the existing global
 		// configuration from a server, rather than "creating" the global configuration
 		// like a typical Terraform resource.
+		//TODO consider being more explicit here with removing existing values - could
+		// define defaults for all these attributes, and reset the global config to those
+		// defaults when terraform adopts it via the Create method.
 		Attributes: map[string]tfsdk.Attribute{
 			"instance_name": {
 				Description: "A name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
@@ -701,7 +704,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(utils.BasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
 	}
 
@@ -717,7 +720,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
 		if err != nil {
-			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
+			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
 			return
 		}
 
@@ -750,7 +753,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 
 	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(utils.BasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
 	}
 
@@ -1023,7 +1026,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 
 		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
 		if err != nil {
-			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
+			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
 			return
 		}
 

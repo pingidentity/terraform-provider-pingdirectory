@@ -108,7 +108,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 	locationResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
 		return
 	}
 
@@ -148,7 +148,7 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
 	}
 
@@ -193,7 +193,7 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 
 		locationResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
 		if err != nil {
-			utils.ReportHttpError(&resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
+			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 			return
 		}
 
@@ -224,7 +224,7 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
-		utils.ReportHttpError(&resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
+		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
 	}
 }
