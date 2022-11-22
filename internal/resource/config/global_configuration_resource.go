@@ -708,6 +708,12 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
+	// Log response JSON
+	responseJson, err := getResp.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
 	// Read existing global config
 	var state globalConfigurationResourceModel
 	readGlobalConfigurationResponse(getResp, &state)
@@ -718,10 +724,18 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	if len(ops) > 0 {
 		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		utils.LogUpdateOperations(ctx, ops)
 		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
 		if err != nil {
 			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
 			return
+		}
+
+		// Log response JSON
+		responseJson, err := globalResp.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response
@@ -755,6 +769,12 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 	if err != nil {
 		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
+	}
+
+	// Log response JSON
+	responseJson, err := getResp.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
 	}
 
 	// Read the response into the state
@@ -1023,11 +1043,19 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 	ops := createGlobalConfigurationOperations(plan, state)
 	if len(ops) > 0 {
 		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		utils.LogUpdateOperations(ctx, ops)
 
 		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
 		if err != nil {
 			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
 			return
+		}
+
+		// Log response JSON
+		responseJson, err := globalResp.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response

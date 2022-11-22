@@ -137,6 +137,11 @@ func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
 	addOptionalThirdPartyTrustManagerProviderFields(ctx, addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
 	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddThirdPartyTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
@@ -145,6 +150,12 @@ func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req
 	if err != nil {
 		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return
+	}
+
+	// Log response JSON
+	responseJson, err := trustManagerResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
 	}
 
 	// Read the response into the state
@@ -185,6 +196,12 @@ func (r *thirdPartyTrustManagerProviderResource) Read(ctx context.Context, req r
 	if err != nil {
 		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
+	}
+
+	// Log response JSON
+	responseJson, err := trustManagerResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
 	}
 
 	// Read the response into the state
@@ -228,11 +245,19 @@ func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req
 	ops := createThirdPartyTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		utils.LogUpdateOperations(ctx, ops)
 
 		trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
 			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
+		}
+
+		// Log response JSON
+		responseJson, err := trustManagerResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response

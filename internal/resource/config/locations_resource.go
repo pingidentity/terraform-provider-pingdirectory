@@ -103,6 +103,11 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 	addRequest := client.NewAddLocationRequest(plan.Name.ValueString())
 	addOptionalLocationFields(addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
 	apiAddRequest := r.apiClient.LocationApi.AddLocation(utils.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocationRequest(*addRequest)
 
@@ -110,6 +115,12 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 	if err != nil {
 		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
 		return
+	}
+
+	// Log response JSON
+	responseJson, err := locationResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
 	}
 
 	// Read the response into the state
@@ -152,6 +163,12 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
+	// Log response JSON
+	responseJson, err := locationResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
 	// Read the response into the state
 	readLocationResponse(locationResponse, &state, &state)
 
@@ -190,11 +207,19 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 	ops := createLocationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		utils.LogUpdateOperations(ctx, ops)
 
 		locationResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
 		if err != nil {
 			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 			return
+		}
+
+		// Log response JSON
+		responseJson, err := locationResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response

@@ -45,6 +45,21 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 	}
 }
 
+// Log operations used during an update
+func LogUpdateOperations(ctx context.Context, ops []client.Operation) {
+	if len(ops) == 0 {
+		return
+	}
+
+	tflog.Debug(ctx, "Update using the following operations:")
+	for _, op := range ops {
+		opJson, err := op.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update operation: "+string(opJson))
+		}
+	}
+}
+
 // Get BasicAuth context with a username and password
 //TODO maybe cache this somehow so it doesn't need to be done so often?
 func BasicAuthContext(ctx context.Context, providerConfig ProviderConfiguration) context.Context {
