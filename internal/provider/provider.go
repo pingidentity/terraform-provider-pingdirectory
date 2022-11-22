@@ -258,5 +258,6 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewJVMDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
+		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
 	}
 }

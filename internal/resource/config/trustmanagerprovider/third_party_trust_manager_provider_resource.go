@@ -16,39 +16,41 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &blindTrustManagerProviderResource{}
-	_ resource.ResourceWithConfigure   = &blindTrustManagerProviderResource{}
-	_ resource.ResourceWithImportState = &blindTrustManagerProviderResource{}
+	_ resource.Resource                = &thirdPartyTrustManagerProviderResource{}
+	_ resource.ResourceWithConfigure   = &thirdPartyTrustManagerProviderResource{}
+	_ resource.ResourceWithImportState = &thirdPartyTrustManagerProviderResource{}
 )
 
-// Create a Blind Trust Manager Provider resource
-func NewBlindTrustManagerProviderResource() resource.Resource {
-	return &blindTrustManagerProviderResource{}
+// Create a Third Party Trust Manager Provider resource
+func NewThirdPartyTrustManagerProviderResource() resource.Resource {
+	return &thirdPartyTrustManagerProviderResource{}
 }
 
-// blindTrustManagerProviderResource is the resource implementation.
-type blindTrustManagerProviderResource struct {
+// thirdPartyTrustManagerProviderResource is the resource implementation.
+type thirdPartyTrustManagerProviderResource struct {
 	providerConfig utils.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
-// blindTrustManagerProviderResourceModel maps the resource schema data.
-type blindTrustManagerProviderResourceModel struct {
+// thirdPartyTrustManagerProviderResourceModel maps the resource schema data.
+type thirdPartyTrustManagerProviderResourceModel struct {
 	Name                     types.String `tfsdk:"name"`
+	ExtensionClass           types.String `tfsdk:"extension_class"`
+	ExtensionArgument        types.Set    `tfsdk:"extension_argument"`
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	IncludeJVMDefaultIssuers types.Bool   `tfsdk:"include_jvm_default_issuers"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 }
 
 // Metadata returns the resource type name.
-func (r *blindTrustManagerProviderResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_blind_trust_manager_provider"
+func (r *thirdPartyTrustManagerProviderResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_third_party_trust_manager_provider"
 }
 
 // GetSchema defines the schema for the resource.
-func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *thirdPartyTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Manages a Blind Trust Manager Provider.",
+		Description: "Manages a Third Party Trust Manager Provider.",
 		Attributes: map[string]tfsdk.Attribute{
 			"name": {
 				Description: "Name of the Trust Manager Provider.",
@@ -57,6 +59,20 @@ func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					resource.RequiresReplace(),
 				},
+			},
+			"extension_class": {
+				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Trust Manager Provider.",
+				Type:        types.StringType,
+				Required:    true,
+			},
+			// Optional set fields must be Computed because PD gives them a default value of an empty set
+			"extension_argument": {
+				Description: "The set of arguments used to customize the behavior for the Third Party Trust Manager Provider. Each configuration property should be given in the form 'name=value'.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Optional: true,
+				Computed: true,
 			},
 			"enabled": {
 				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
@@ -82,7 +98,7 @@ func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.
 }
 
 // Configure adds the provider configured client to the resource.
-func (r *blindTrustManagerProviderResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *thirdPartyTrustManagerProviderResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -93,8 +109,13 @@ func (r *blindTrustManagerProviderResource) Configure(_ context.Context, req res
 }
 
 // Add optional fields to create request
-func addOptionalBlindTrustManagerProviderFields(addRequest *client.AddBlindTrustManagerProviderRequest, plan blindTrustManagerProviderResourceModel) {
+func addOptionalThirdPartyTrustManagerProviderFields(ctx context.Context, addRequest *client.AddThirdPartyTrustManagerProviderRequest, plan thirdPartyTrustManagerProviderResourceModel) {
 	// Non string values just have to be defined
+	if utils.IsDefinedSet(plan.ExtensionArgument) {
+		var slice []string
+		plan.ExtensionArgument.ElementsAs(ctx, &slice, false)
+		addRequest.ExtensionArgument = slice
+	}
 	if utils.IsDefinedBool(plan.IncludeJVMDefaultIssuers) {
 		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
 		addRequest.IncludeJVMDefaultIssuers = &boolVal
@@ -102,22 +123,23 @@ func addOptionalBlindTrustManagerProviderFields(addRequest *client.AddBlindTrust
 }
 
 // Create a new resource
-func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan blindTrustManagerProviderResourceModel
+	var plan thirdPartyTrustManagerProviderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	addRequest := client.NewAddBlindTrustManagerProviderRequest(plan.Name.ValueString(),
-		[]client.EnumblindTrustManagerProviderSchemaUrn{client.ENUMBLINDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERBLIND},
+	addRequest := client.NewAddThirdPartyTrustManagerProviderRequest(plan.Name.ValueString(),
+		[]client.EnumthirdPartyTrustManagerProviderSchemaUrn{client.ENUMTHIRDPARTYTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
-	addOptionalBlindTrustManagerProviderFields(addRequest, plan)
+	addOptionalThirdPartyTrustManagerProviderFields(ctx, addRequest, plan)
 	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
-		client.AddBlindTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
+		client.AddThirdPartyTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
@@ -126,7 +148,7 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
+	readThirdPartyTrustManagerProviderResponse(trustManagerResponse.ThirdPartyTrustManagerProviderResponse, &plan)
 
 	// Populate Computed attribute values
 	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -139,17 +161,19 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 	}
 }
 
-// Read a BlindTrustManagerProviderResponse object into the model struct
-func readBlindTrustManagerProviderResponse(r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel) {
+// Read a ThirdPartyTrustManagerProviderResponse object into the model struct
+func readThirdPartyTrustManagerProviderResponse(r *client.ThirdPartyTrustManagerProviderResponse, state *thirdPartyTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
+	state.ExtensionClass = types.StringValue(r.ExtensionClass)
+	state.ExtensionArgument = utils.GetSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = utils.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 }
 
 // Read resource information
-func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *thirdPartyTrustManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state blindTrustManagerProviderResourceModel
+	var state thirdPartyTrustManagerProviderResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -164,7 +188,7 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &state)
+	readThirdPartyTrustManagerProviderResponse(trustManagerResponse.ThirdPartyTrustManagerProviderResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -175,18 +199,20 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 }
 
 // Create any update operations necessary to make the state match the plan
-func createBlindTrustManagerProviderOperations(plan blindTrustManagerProviderResourceModel, state blindTrustManagerProviderResourceModel) []client.Operation {
+func createThirdPartyTrustManagerProviderOperations(plan thirdPartyTrustManagerProviderResourceModel, state thirdPartyTrustManagerProviderResourceModel) []client.Operation {
 	var ops []client.Operation
 
+	utils.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
+	utils.AddSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
 	utils.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	utils.AddBoolOperationIfNecessary(&ops, plan.IncludeJVMDefaultIssuers, state.IncludeJVMDefaultIssuers, "include-jvm-default-issuers")
 	return ops
 }
 
 // Update a resource
-func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan blindTrustManagerProviderResourceModel
+	var plan thirdPartyTrustManagerProviderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -194,12 +220,12 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state blindTrustManagerProviderResourceModel
+	var state thirdPartyTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createBlindTrustManagerProviderOperations(plan, state)
+	ops := createThirdPartyTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 
@@ -210,7 +236,7 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
+		readThirdPartyTrustManagerProviderResponse(trustManagerResponse.ThirdPartyTrustManagerProviderResponse, &plan)
 		// Update computed values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -225,9 +251,9 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *blindTrustManagerProviderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *thirdPartyTrustManagerProviderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state blindTrustManagerProviderResourceModel
+	var state thirdPartyTrustManagerProviderResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -242,7 +268,7 @@ func (r *blindTrustManagerProviderResource) Delete(ctx context.Context, req reso
 	}
 }
 
-func (r *blindTrustManagerProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *thirdPartyTrustManagerProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to Name attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

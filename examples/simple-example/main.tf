@@ -61,3 +61,10 @@ resource "pingdirectory_jvm_default_trust_manager_provider" "jvmtest" {
   name = "jvmtest"
   enabled = false
 }
+
+resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
+  name = "tptest"
+  enabled = false
+  extension_class = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
+  extension_argument = ["val1=one", "val2=two"]
+}

@@ -210,6 +210,11 @@ func IsNonEmptyString(str types.String) bool {
 }
 
 // Return true if this types.Bool represents a defined (non-null and non-unknown) boolean
-func IsDefined(b types.Bool) bool {
+func IsDefinedBool(b types.Bool) bool {
 	return !b.IsNull() && !b.IsUnknown()
+}
+
+// Return true if this types.Set represents a defined (non-null and non-unknown) set
+func IsDefinedSet(s types.Set) bool {
+	return !s.IsNull() && !s.IsUnknown()
 }
