@@ -831,7 +831,7 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.LdifExportEncryptionSettingsDefinitionID = utils.StringTypeOrNil(r.LdifExportEncryptionSettingsDefinitionID, true)
 	state.AutomaticallyCompressEncryptedLDIFExports = utils.BoolTypeOrNil(r.AutomaticallyCompressEncryptedLDIFExports)
 	state.RedactSensitiveValuesInConfigLogs = utils.BoolTypeOrNil(r.RedactSensitiveValuesInConfigLogs)
-	state.SensitiveAttribute = utils.GetSet(r.SensitiveAttribute)
+	state.SensitiveAttribute = utils.GetStringSet(r.SensitiveAttribute)
 	state.RejectInsecureRequests = utils.BoolTypeOrNil(r.RejectInsecureRequests)
 	state.AllowedInsecureRequestCriteria = utils.StringTypeOrNil(r.AllowedInsecureRequestCriteria, true)
 	state.RejectUnauthenticatedRequests = utils.BoolTypeOrNil(r.RejectUnauthenticatedRequests)
@@ -862,13 +862,13 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	if r.InvalidAttributeSyntaxBehavior != nil {
 		state.InvalidAttributeSyntaxBehavior = types.StringValue(string(*r.InvalidAttributeSyntaxBehavior))
 	} else {
-		state.InvalidAttributeSyntaxBehavior = types.StringNull()
+		state.InvalidAttributeSyntaxBehavior = types.StringValue("")
 	}
-	state.PermitSyntaxViolationsForAttribute = utils.GetSet(r.PermitSyntaxViolationsForAttribute)
+	state.PermitSyntaxViolationsForAttribute = utils.GetStringSet(r.PermitSyntaxViolationsForAttribute)
 	if r.SingleStructuralObjectclassBehavior != nil {
 		state.SingleStructuralObjectclassBehavior = types.StringValue(string(*r.SingleStructuralObjectclassBehavior))
 	} else {
-		state.SingleStructuralObjectclassBehavior = types.StringNull()
+		state.SingleStructuralObjectclassBehavior = types.StringValue("")
 	}
 	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl)
 	state.MaximumServerOutLogFileSize = utils.StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
@@ -876,7 +876,7 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	if r.StartupErrorLoggerOutputLocation != nil {
 		state.StartupErrorLoggerOutputLocation = types.StringValue(string(*r.StartupErrorLoggerOutputLocation))
 	} else {
-		state.StartupErrorLoggerOutputLocation = types.StringNull()
+		state.StartupErrorLoggerOutputLocation = types.StringValue("")
 	}
 	state.ExitOnJVMError = utils.BoolTypeOrNil(r.ExitOnJVMError)
 	state.ServerErrorResultCode = utils.Int64TypeOrNil(r.ServerErrorResultCode)
@@ -890,12 +890,12 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	if r.WritabilityMode != nil {
 		state.WritabilityMode = types.StringValue(string(*r.WritabilityMode))
 	} else {
-		state.WritabilityMode = types.StringNull()
+		state.WritabilityMode = types.StringValue("")
 	}
 	if r.UnrecoverableDatabaseErrorMode != nil {
 		state.UnrecoverableDatabaseErrorMode = types.StringValue(string(*r.UnrecoverableDatabaseErrorMode))
 	} else {
-		state.UnrecoverableDatabaseErrorMode = types.StringNull()
+		state.UnrecoverableDatabaseErrorMode = types.StringValue("")
 	}
 	state.DatabaseOnVirtualizedOrNetworkStorage = utils.BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
 	state.AutoNameWithEntryUUIDConnectionCriteria = utils.StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria, true)
@@ -913,20 +913,20 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.ReplicationHistoryLimit = utils.Int64TypeOrNil(r.ReplicationHistoryLimit)
 	state.AllowInheritedReplicationOfSubordinateBackends = types.BoolValue(r.AllowInheritedReplicationOfSubordinateBackends)
 	state.ReplicationPurgeObsoleteReplicas = utils.BoolTypeOrNil(r.ReplicationPurgeObsoleteReplicas)
-	state.SmtpServer = utils.GetSet(r.SmtpServer)
+	state.SmtpServer = utils.GetStringSet(r.SmtpServer)
 	state.MaxSMTPConnectionCount = utils.Int64TypeOrNil(r.MaxSMTPConnectionCount)
 	state.MaxSMTPConnectionAge = utils.StringTypeOrNil(r.MaxSMTPConnectionAge, true)
 	state.SmtpConnectionHealthCheckInterval = utils.StringTypeOrNil(r.SmtpConnectionHealthCheckInterval, true)
-	state.AllowedTask = utils.GetSet(r.AllowedTask)
+	state.AllowedTask = utils.GetStringSet(r.AllowedTask)
 	state.EnableSubOperationTimer = utils.BoolTypeOrNil(r.EnableSubOperationTimer)
 	state.MaximumShutdownTime = utils.StringTypeOrNil(r.MaximumShutdownTime, true)
 	state.NetworkAddressCacheTTL = utils.StringTypeOrNil(r.NetworkAddressCacheTTL, true)
 	state.NetworkAddressOutageCacheEnabled = utils.BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
-	state.TrackedApplication = utils.GetSet(r.TrackedApplication)
+	state.TrackedApplication = utils.GetStringSet(r.TrackedApplication)
 	if r.JmxValueBehavior != nil {
 		state.JmxValueBehavior = types.StringValue(string(*r.JmxValueBehavior))
 	} else {
-		state.JmxValueBehavior = types.StringNull()
+		state.JmxValueBehavior = types.StringValue("")
 	}
 	state.JmxUseLegacyMbeanNames = utils.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
 }
@@ -1012,14 +1012,14 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	utils.AddBoolOperationIfNecessary(&ops, plan.JmxUseLegacyMbeanNames, state.JmxUseLegacyMbeanNames, "jmx-use-legacy-mbean-names")
 
 	// Multi-valued attributes
-	utils.AddSetOperationsIfNecessary(&ops, plan.SensitiveAttribute, state.SensitiveAttribute, "sensitive-attribute")
-	utils.AddSetOperationsIfNecessary(&ops, plan.DisabledPrivilege, state.DisabledPrivilege, "disabled-privilege")
-	utils.AddSetOperationsIfNecessary(&ops, plan.AllowedInsecureTLSProtocol, state.AllowedInsecureTLSProtocol, "allowed-insecure-tls-protocol")
-	utils.AddSetOperationsIfNecessary(&ops, plan.PermitSyntaxViolationsForAttribute, state.PermitSyntaxViolationsForAttribute, "permit-syntax-violations-for-attribute")
-	utils.AddSetOperationsIfNecessary(&ops, plan.AttributesModifiableWithIgnoreNoUserModificationRequestControl, state.AttributesModifiableWithIgnoreNoUserModificationRequestControl, "attributes-modifiable-with-ignore-no-user-modification-request-control")
-	utils.AddSetOperationsIfNecessary(&ops, plan.SmtpServer, state.SmtpServer, "smtp-server")
-	utils.AddSetOperationsIfNecessary(&ops, plan.AllowedTask, state.AllowedTask, "allowed-task")
-	utils.AddSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.SensitiveAttribute, state.SensitiveAttribute, "sensitive-attribute")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.DisabledPrivilege, state.DisabledPrivilege, "disabled-privilege")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.AllowedInsecureTLSProtocol, state.AllowedInsecureTLSProtocol, "allowed-insecure-tls-protocol")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.PermitSyntaxViolationsForAttribute, state.PermitSyntaxViolationsForAttribute, "permit-syntax-violations-for-attribute")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.AttributesModifiableWithIgnoreNoUserModificationRequestControl, state.AttributesModifiableWithIgnoreNoUserModificationRequestControl, "attributes-modifiable-with-ignore-no-user-modification-request-control")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.SmtpServer, state.SmtpServer, "smtp-server")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.AllowedTask, state.AllowedTask, "allowed-task")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
 
 	return ops
 }

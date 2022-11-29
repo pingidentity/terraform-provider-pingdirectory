@@ -176,7 +176,7 @@ func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req
 func readThirdPartyTrustManagerProviderResponse(r *client.ThirdPartyTrustManagerProviderResponse, state *thirdPartyTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = utils.GetSet(r.ExtensionArgument)
+	state.ExtensionArgument = utils.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = utils.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 }
@@ -220,7 +220,7 @@ func createThirdPartyTrustManagerProviderOperations(plan thirdPartyTrustManagerP
 	var ops []client.Operation
 
 	utils.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	utils.AddSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
+	utils.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
 	utils.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	utils.AddBoolOperationIfNecessary(&ops, plan.IncludeJVMDefaultIssuers, state.IncludeJVMDefaultIssuers, "include-jvm-default-issuers")
 	return ops

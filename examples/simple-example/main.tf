@@ -14,7 +14,7 @@ provider "pingdirectory" {
   default_user_password = "2FederateM0re"
 }
 
-resource "pingdirectory_user" "mahomes" {
+/*resource "pingdirectory_user" "mahomes" {
   uid = "pm"
   sn = "Mahomes"
   given_name = "Patrick"
@@ -67,4 +67,10 @@ resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
   enabled = false
   extension_class = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
   extension_argument = ["val1=one", "val2=two"]
+}*/
+
+resource "pingdirectory_directory_server_instance" "mine" {
+  server_instance_name = "46494028a111"
+  jmx_port = 1112
+  start_tls_enabled = true
 }

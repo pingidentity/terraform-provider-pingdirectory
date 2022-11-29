@@ -29,6 +29,7 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 	if httpResp != nil {
 		body, internalError := io.ReadAll(httpResp.Body)
 		if internalError == nil {
+			tflog.Debug(ctx, "Error HTTP response body: "+string(body))
 			var pdError pingDirectoryError
 			internalError = json.Unmarshal(body, &pdError)
 			if internalError == nil {
@@ -129,7 +130,7 @@ func AddStringOperationIfNecessary(ops *[]client.Operation, plan types.String, s
 }
 
 // Add set operation if the plan doesn't match the state
-func AddSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state types.Set, path string) {
+func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state types.Set, path string) {
 	// If plan is unknown, then just take whatever's in the state - no operation needed
 	if plan.IsUnknown() {
 		return
@@ -141,7 +142,7 @@ func AddSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state 
 
 		// Adds
 		for _, planEl := range planElements {
-			if !contains(stateElements, planEl.(types.String)) {
+			if !containsString(stateElements, planEl.(types.String)) {
 				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
 				op.SetValue(planEl.(types.String).ValueString())
 				*ops = append(*ops, *op)
@@ -150,7 +151,7 @@ func AddSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state 
 
 		// Removes
 		for _, stateEl := range stateElements {
-			if !contains(planElements, stateEl.(types.String)) {
+			if !containsString(planElements, stateEl.(types.String)) {
 				// Remove paths for multivalued attributes are formatted like this:
 				// "[additional-tags eq \"five\"]"
 				op := client.NewOperation(client.ENUMOPERATION_REMOVE, "["+path+" eq \""+stateEl.(types.String).ValueString()+"\"]")
@@ -160,8 +161,44 @@ func AddSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state 
 	}
 }
 
-// Check if a slice contains a value
-func contains(slice []attr.Value, value types.String) bool {
+// Add int64 set operation if the plan doesn't match the state
+func AddInt64SetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state types.Set, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+
+	if !plan.Equal(state) {
+		planElements := plan.Elements()
+		stateElements := state.Elements()
+
+		// Adds
+		for _, planEl := range planElements {
+			if !containsInt64(stateElements, planEl.(types.Int64)) {
+				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
+				op.SetValue(int64ToString(planEl.(types.Int64)))
+				*ops = append(*ops, *op)
+			}
+		}
+
+		// Removes
+		for _, stateEl := range stateElements {
+			if !containsInt64(planElements, stateEl.(types.Int64)) {
+				// Remove paths for multivalued attributes are formatted like this:
+				// "[additional-tags eq \"five\"]"
+				op := client.NewOperation(client.ENUMOPERATION_REMOVE, "["+path+" eq \""+int64ToString(stateEl.(types.Int64))+"\"]")
+				*ops = append(*ops, *op)
+			}
+		}
+	}
+}
+
+func int64ToString(value types.Int64) string {
+	return strconv.FormatInt(value.ValueInt64(), 10)
+}
+
+// Check if a slice contains a string value
+func containsString(slice []attr.Value, value types.String) bool {
 	for _, element := range slice {
 		if element.(types.String).ValueString() == value.ValueString() {
 			return true
@@ -170,13 +207,33 @@ func contains(slice []attr.Value, value types.String) bool {
 	return false
 }
 
+// Check if a slice contains an int64 value
+func containsInt64(slice []attr.Value, value types.Int64) bool {
+	for _, element := range slice {
+		if element.(types.Int64).ValueInt64() == value.ValueInt64() {
+			return true
+		}
+	}
+	return false
+}
+
 // Get a types.Set from a slice of strings
-func GetSet(values []string) types.Set {
+func GetStringSet(values []string) types.Set {
 	setValues := make([]attr.Value, len(values))
 	for i := 0; i < len(values); i++ {
 		setValues[i] = types.StringValue(values[i])
 	}
 	set, _ := types.SetValue(types.StringType, setValues)
+	return set
+}
+
+// Get a types.Set from a slice of int32
+func GetInt64Set(values []int32) types.Set {
+	setValues := make([]attr.Value, len(values))
+	for i := 0; i < len(values); i++ {
+		setValues[i] = types.Int64Value(int64(values[i]))
+	}
+	set, _ := types.SetValue(types.Int64Type, setValues)
 	return set
 }
 

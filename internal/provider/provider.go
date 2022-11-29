@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"terraform-provider-pingdirectory/internal/resource/config"
+	"terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"terraform-provider-pingdirectory/internal/resource/ldap"
 	"terraform-provider-pingdirectory/internal/utils"
@@ -255,6 +256,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		ldap.NewUsersResource,
+		serverinstance.NewAuthorizeServerInstanceResource,
+		serverinstance.NewDirectoryServerInstanceResource,
+		serverinstance.NewProxyServerInstanceResource,
+		serverinstance.NewSyncServerInstanceResource,
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewJVMDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
