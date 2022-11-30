@@ -1,5 +1,5 @@
-# PingDirectory Terraform provider POC
-This repository contains a POC Terraform provider that manages users in PingDirectory (or any other LDAP server). This isn't really a use case that makes sense for Terraform but it's just for getting familiar with writing a provider.
+# PingDirectory Terraform provider
+This repository contains a Terraform provider that manages PingDirectory configuration.
 
 It's built with [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework).
 
@@ -11,6 +11,17 @@ The following must be installed locally to run the provider
 
 To run the example in this repository, you will also need
 - Docker and Docker Compose
+
+### Installing the PingDirectory Go client
+The PingDirectory provider relies on the [PingDirectory Go Client](https://gitlab.corp.pingidentity.com/henryrecker/pingdata-config-api-go-client), which is generated from an OpenAPI specification YAML file.
+
+The `go.mod` file lists this module as `github.com/pingidentity/pingdata-config-api-go-client`, but uses `replace` to point it to a local path rather than an actual downloaded module.
+
+```
+replace github.com/pingidentity/pingdata-config-api-go-client v0.0.0 => ../pingdata-config-api-go-client
+```
+
+Because this `replace` path points to `../pingdata-config-api-go-client`, you will need to clone the client repo and place it alongside this repo in your filesystem.
 
 ### Installing required Go modules
 Run the following commands to install the required Go modules locally
@@ -25,7 +36,7 @@ Then tidy the modules from the root of the repository:
 `go mod tidy`
 
 ## Preparing your Terraform environment for running locally-built providers
-By default Terraform will attempt to pull providers from remote registries. Update the `~/.terraformrc` file to allow using this POC provider locally.
+By default Terraform will attempt to pull providers from remote registries. Update the `~/.terraformrc` file to allow using this provider locally.
 
 First, find the GOBIN path where Go installs your binaries. Your path may vary depending on how your Go environment variables are configured.
 ```
@@ -48,7 +59,7 @@ provider_installation {
 ```
 
 ## Install the provider
-Run `go install .` or `make install` to install the provider locally.
+Run `go install .` to install the provider locally.
 
 ## Running an example
 ### Starting the PingDirectory server
@@ -60,16 +71,35 @@ docker-compose-pingdirectory-1  | Setting Server to Available
 in the terminal, the server is ready to receive requests.
 
 ### Running Terraform
-Change to the `examples/simple-example` directory. The `main.tf` file in this directory defines the Terraform configuration.
+Change to the `examples/location-example` directory. The `main.tf` file in this directory defines the Terraform configuration.
 
 Run `terraform plan` to view what changes will be made by Terraform. Run `terraform apply` to apply them.
 
-You can verify the user is created on the PingDirectory server:
+You can verify the location is created on the PingDirectory server:
 ```
-docker exec -ti docker-compose-pingdirectory-1 ldapsearch --baseDN ou=people,dc=example,dc=com --searchscope sub "(objectClass=person)" dn description
+docker exec -ti docker-compose-pingdirectory-1 dsconfig list-locations
+docker exec -ti docker-compose-pingdirectory-1 dsconfig get-location-prop --location-name Drangleic --property description
 ```
 
-You can make changes to the user and use `terraform apply` to apply them, and use the above command to view those changes in PingDirectory.
+You can make changes to the location and use `terraform apply` to apply them, and use the above command to view those changes in PingDirectory.
 
-Run `terraform destroy` to destroy any users managed by Terraform.
+Run `terraform destroy` to destroy any objects managed by Terraform.
 
+## Debugging with VSCode
+You can attach a debugger to the provider with VSCode. The `.vscode/launch.json` file defines the debug configuration.
+
+To debug the provider, go to Run->Start Debugging. Then, open the Debug Console and wait for a message like this:
+
+```
+Provider started. To attach Terraform CLI, set the TF_REATTACH_PROVIDERS environment variable with the following:
+
+	TF_REATTACH_PROVIDERS='{"pingidentity.com/terraform/pingdirectory":{"Protocol":"grpc","ProtocolVersion":6,"Pid":53173,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/m8/hpzxbdws7rdgj3cc21vrb1jw0000gn/T/plugin3225934397"}}}'
+```
+
+You can then use this to attach the debugger to command-line terraform commands by pasting this line before each command.
+
+```
+$ TF_REATTACH_PROVIDERS='{"pingidentity.com/terraform/pingdirectory":{"Protocol":"grpc","ProtocolVersion":6,"Pid":53173,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/m8/hpzxbdws7rdgj3cc21vrb1jw0000gn/T/plugin3225934397"}}}' terraform apply
+```
+
+Note that the `TF_REATTACH_PROVIDERS` variable changes each time you run the debugger. You will need to copy it each time you start a new debugger.
