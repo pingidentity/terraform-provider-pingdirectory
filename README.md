@@ -76,12 +76,16 @@ Change to the `examples/location-example` directory. The `main.tf` file in this 
 Run `terraform plan` to view what changes will be made by Terraform. Run `terraform apply` to apply them.
 
 You can verify the location is created on the PingDirectory server:
+
 ```
 docker exec -ti docker-compose-pingdirectory-1 dsconfig list-locations
+```
+
+```
 docker exec -ti docker-compose-pingdirectory-1 dsconfig get-location-prop --location-name Drangleic --property description
 ```
 
-You can make changes to the location and use `terraform apply` to apply them, and use the above command to view those changes in PingDirectory.
+You can make changes to the location and use `terraform apply` to apply them, and use the above commands to view those changes in PingDirectory.
 
 Run `terraform destroy` to destroy any objects managed by Terraform.
 
