@@ -148,7 +148,7 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	l, err := bind(r.providerConfig.LdapHost, r.providerConfig.Username, r.providerConfig.Password)
+	l, err := bind( /*r.providerConfig.LdapHost*/ "placeholder", r.providerConfig.Username, r.providerConfig.Password)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -205,7 +205,7 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	l, err := bind(r.providerConfig.LdapHost, r.providerConfig.Username, r.providerConfig.Password)
+	l, err := bind( /*r.providerConfig.LdapHost*/ "placeholder", r.providerConfig.Username, r.providerConfig.Password)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -264,7 +264,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		return
 	}
 
-	l, err := bind(r.providerConfig.LdapHost, r.providerConfig.Username, r.providerConfig.Password)
+	l, err := bind( /*r.providerConfig.LdapHost*/ "placeholder", r.providerConfig.Username, r.providerConfig.Password)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return
@@ -337,7 +337,7 @@ func (r *usersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	l, err := bind(r.providerConfig.LdapHost, r.providerConfig.Username, r.providerConfig.Password)
+	l, err := bind( /*r.providerConfig.LdapHost*/ "placeholder", r.providerConfig.Username, r.providerConfig.Password)
 	if err != nil {
 		resp.Diagnostics.AddError("An error occurred while authenticating to the PingDirectory server", err.Error())
 		return

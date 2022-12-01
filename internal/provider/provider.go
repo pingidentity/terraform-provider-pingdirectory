@@ -24,7 +24,7 @@ import (
 // pingdirectoryProviderModel maps provider schema data to a Go type.
 //TODO add default user password to model
 type pingdirectoryProviderModel struct {
-	LdapHost  types.String `tfsdk:"ldap_host"`
+	//LdapHost  types.String `tfsdk:"ldap_host"`
 	HttpsHost types.String `tfsdk:"https_host"`
 	Username  types.String `tfsdk:"username"`
 	Password  types.String `tfsdk:"password"`
@@ -55,11 +55,11 @@ func (p *pingdirectoryProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag
 	return tfsdk.Schema{
 		Description: "PingDirectory POC Provider.",
 		Attributes: map[string]tfsdk.Attribute{
-			"ldap_host": {
+			/*"ldap_host": {
 				Description: "URI for PingDirectory LDAP port.",
 				Type:        types.StringType,
 				Required:    true,
-			},
+			},*/
 			"https_host": {
 				Description: "URI for PingDirectory HTTPS port.",
 				Type:        types.StringType,
@@ -101,14 +101,14 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// If practitioner provided a configuration value for any of the
 	// attributes, it must be a known value.
 
-	if config.LdapHost.IsUnknown() {
+	/*if config.LdapHost.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("ldap_host"),
 			"Unknown PingDirectory LDAP Host",
 			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the PingDirectory LDAP host. "+
 				"Either target apply the source of the value first or set the value statically in the configuration.",
 		)
-	}
+	}*/
 
 	if config.HttpsHost.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
@@ -141,7 +141,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		return
 	}
 
-	var ldapHost = config.LdapHost.ValueString()
+	//var ldapHost = config.LdapHost.ValueString()
 	var httpsHost = config.HttpsHost.ValueString()
 	var username = config.Username.ValueString()
 	var password = config.Password.ValueString()
@@ -149,7 +149,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
 
-	if ldapHost == "" {
+	/*if ldapHost == "" {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("ldap_host"),
 			"Missing PingDirectory LDAP Host",
@@ -157,7 +157,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 				"Set the host value in the configuration. "+
 				"If it is already set, ensure the value is not empty.",
 		)
-	}
+	}*/
 
 	if httpsHost == "" {
 		resp.Diagnostics.AddAttributeError(
@@ -198,9 +198,9 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	var resourceConfig utils.ResourceConfiguration
 	providerConfig := utils.ProviderConfiguration{
 		HttpsHost: config.HttpsHost.ValueString(),
-		LdapHost:  config.LdapHost.ValueString(),
-		Username:  config.Username.ValueString(),
-		Password:  config.Password.ValueString(),
+		//LdapHost:  config.LdapHost.ValueString(),
+		Username: config.Username.ValueString(),
+		Password: config.Password.ValueString(),
 		//DefaultUserPassword: config.DefaultUserPassword.ValueString(),
 	}
 	resourceConfig.ProviderConfig = providerConfig
