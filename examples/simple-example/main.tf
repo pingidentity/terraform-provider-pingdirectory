@@ -11,22 +11,6 @@ provider "pingdirectory" {
   password = "2FederateM0re"
   ldap_host = "ldap://localhost:1389"
   https_host = "https://localhost:1443"
-  default_user_password = "2FederateM0re"
-}
-
-/*resource "pingdirectory_user" "mahomes" {
-  uid = "pm"
-  sn = "Mahomes"
-  given_name = "Patrick"
-  mail = "pm@kcchiefs.com"
-}
-
-resource "pingdirectory_user" "knight" {
-  uid = "hk"
-  description = "the knight"
-  sn = "Knight"
-  given_name = "Hollow"
-  mail = "hk@hallownest.com"
 }
 
 resource "pingdirectory_location" "drangleic" {
@@ -43,7 +27,7 @@ resource "pingdirectory_global_configuration" "global" {
   #result_code_map = ""
 }
 
-resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
+/*resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
   name = "Blind Test"
   enabled = true
   include_jvm_default_issuers = true
@@ -67,10 +51,11 @@ resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
   enabled = false
   extension_class = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
   extension_argument = ["val1=one", "val2=two"]
-}*/
+}
 
 resource "pingdirectory_directory_server_instance" "mine" {
+  // This instance name needs to match the instance name generated for the running instance
   server_instance_name = "46494028a111"
   jmx_port = 1112
   start_tls_enabled = true
-}
+}*/

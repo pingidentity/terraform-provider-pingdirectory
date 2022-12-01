@@ -8,7 +8,6 @@ import (
 	"terraform-provider-pingdirectory/internal/resource/config"
 	"terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
-	"terraform-provider-pingdirectory/internal/resource/ldap"
 	"terraform-provider-pingdirectory/internal/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -25,11 +24,12 @@ import (
 // pingdirectoryProviderModel maps provider schema data to a Go type.
 //TODO add default user password to model
 type pingdirectoryProviderModel struct {
-	LdapHost            types.String `tfsdk:"ldap_host"`
-	HttpsHost           types.String `tfsdk:"https_host"`
-	Username            types.String `tfsdk:"username"`
-	Password            types.String `tfsdk:"password"`
-	DefaultUserPassword types.String `tfsdk:"default_user_password"`
+	LdapHost  types.String `tfsdk:"ldap_host"`
+	HttpsHost types.String `tfsdk:"https_host"`
+	Username  types.String `tfsdk:"username"`
+	Password  types.String `tfsdk:"password"`
+	// Uncomment if user management needs to be supported
+	//DefaultUserPassword types.String `tfsdk:"default_user_password"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -76,12 +76,12 @@ func (p *pingdirectoryProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				Required:    true,
 				Sensitive:   true,
 			},
-			"default_user_password": {
+			/*"default_user_password": {
 				Description: "Default user password for created PingDirectory users.",
 				Type:        types.StringType,
-				Required:    true,
+				Optional:    true,
 				Sensitive:   true,
-			},
+			},*/
 		},
 	}, nil
 }
@@ -137,15 +137,6 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		)
 	}
 
-	if config.DefaultUserPassword.IsUnknown() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("default_user_password"),
-			"Unknown default PingDirectory user password",
-			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the default PingDirectory user password. "+
-				"Either target apply the source of the value first or set the value statically in the configuration.",
-		)
-	}
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -154,7 +145,6 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	var httpsHost = config.HttpsHost.ValueString()
 	var username = config.Username.ValueString()
 	var password = config.Password.ValueString()
-	var defaultUserPassword = config.DefaultUserPassword.ValueString()
 
 	// If any of the expected configurations are missing, return
 	// errors with provider-specific guidance.
@@ -199,16 +189,6 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		)
 	}
 
-	if defaultUserPassword == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("default_user_password"),
-			"Missing default PingDirectory user password",
-			"The provider cannot create the PingDirectory client as there is a missing or empty value for the default PingDirectory user password. "+
-				"Set the default user password value in the configuration. "+
-				"If it is already set, ensure the value is not empty.",
-		)
-	}
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -217,11 +197,11 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// type Configure methods.
 	var resourceConfig utils.ResourceConfiguration
 	providerConfig := utils.ProviderConfiguration{
-		HttpsHost:           config.HttpsHost.ValueString(),
-		LdapHost:            config.LdapHost.ValueString(),
-		Username:            config.Username.ValueString(),
-		Password:            config.Password.ValueString(),
-		DefaultUserPassword: config.DefaultUserPassword.ValueString(),
+		HttpsHost: config.HttpsHost.ValueString(),
+		LdapHost:  config.LdapHost.ValueString(),
+		Username:  config.Username.ValueString(),
+		Password:  config.Password.ValueString(),
+		//DefaultUserPassword: config.DefaultUserPassword.ValueString(),
 	}
 	resourceConfig.ProviderConfig = providerConfig
 	clientConfig := client.NewConfiguration()
@@ -255,7 +235,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	return []func() resource.Resource{
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
-		ldap.NewUsersResource,
+		// Disable the users resource in its current state
+		//ldap.NewUsersResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,

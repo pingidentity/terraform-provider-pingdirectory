@@ -167,7 +167,9 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	// I'm not sure if a provider can manage password like this - because the value saved in the state
 	// will be an encrypted version of the password, and the directory server doesn't allow changing a password
 	// to the same value as the current value. It's probably just an API that doesn't make sense to manage with Terraform.
-	addRequest.Attribute("userPassword", []string{r.providerConfig.DefaultUserPassword})
+
+	// Uncomment if user management is supported
+	//addRequest.Attribute("userPassword", []string{r.providerConfig.DefaultUserPassword})
 	if !plan.Description.IsUnknown() && !plan.Description.IsNull() {
 		addRequest.Attribute("description", []string{plan.Description.ValueString()})
 	}
