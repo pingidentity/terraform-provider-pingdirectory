@@ -3,7 +3,7 @@ package ldap
 import (
 	"context"
 	"strings"
-	"terraform-provider-pingdirectory/internal/utils"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -32,7 +32,7 @@ func NewUsersResource() resource.Resource {
 
 // usersResource is the resource implementation.
 type usersResource struct {
-	providerConfig utils.ProviderConfiguration
+	providerConfig internaltypes.ProviderConfiguration
 }
 
 // usersResourceModel maps the resource schema data.

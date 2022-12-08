@@ -1,4 +1,4 @@
-package utils
+package types
 
 import client "github.com/pingidentity/pingdata-config-api-go-client"
 

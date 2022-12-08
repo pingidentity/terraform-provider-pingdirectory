@@ -1,0 +1,166 @@
+package operations
+
+import (
+	"context"
+	"strconv"
+	"unicode"
+
+	internaltypes "terraform-provider-pingdirectory/internal/types"
+
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	client "github.com/pingidentity/pingdata-config-api-go-client"
+)
+
+// Log operations used during an update
+func LogUpdateOperations(ctx context.Context, ops []client.Operation) {
+	if len(ops) == 0 {
+		return
+	}
+
+	tflog.Debug(ctx, "Update using the following operations:")
+	for _, op := range ops {
+		opJson, err := op.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update operation: "+string(opJson))
+		}
+	}
+}
+
+// Validate that the path for a given operation is valid
+func validateOperationPath(path string) {
+	// Paths must only contain lowercase letters and dashes
+	for _, c := range path {
+		if !unicode.IsLower(c) && c != '-' {
+			panic("Non-lowercase and non-dash character '" + string(c) + "' included in Operation path: '" + path + "'")
+		}
+	}
+}
+
+//TODO any way to reduce duplication in these methods either?
+// Add boolean operation if the plan doesn't match the state
+func AddBoolOperationIfNecessary(ops *[]client.Operation, plan types.Bool, state types.Bool, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+	validateOperationPath(path)
+
+	if !plan.Equal(state) {
+		var op *client.Operation
+		if plan.IsNull() {
+			op = client.NewOperation(client.ENUMOPERATION_REMOVE, path)
+		} else {
+			op = client.NewOperation(client.ENUMOPERATION_REPLACE, path)
+			op.SetValue(strconv.FormatBool(plan.ValueBool()))
+		}
+		*ops = append(*ops, *op)
+	}
+}
+
+// Add int64 operation if the plan doesn't match the state
+func AddInt64OperationIfNecessary(ops *[]client.Operation, plan types.Int64, state types.Int64, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+	validateOperationPath(path)
+
+	if !plan.Equal(state) {
+		var op *client.Operation
+		if plan.IsNull() {
+			op = client.NewOperation(client.ENUMOPERATION_REMOVE, path)
+		} else {
+			op = client.NewOperation(client.ENUMOPERATION_REPLACE, path)
+			op.SetValue(strconv.FormatInt(plan.ValueInt64(), 10))
+		}
+		*ops = append(*ops, *op)
+	}
+}
+
+// Add string operation if the plan doesn't match the state
+func AddStringOperationIfNecessary(ops *[]client.Operation, plan types.String, state types.String, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+	validateOperationPath(path)
+
+	if !plan.Equal(state) {
+		var op *client.Operation
+		// Consider an empty string as null - allows removing values despite everything being Computed
+		if plan.IsNull() || plan.ValueString() == "" {
+			op = client.NewOperation(client.ENUMOPERATION_REMOVE, path)
+		} else {
+			op = client.NewOperation(client.ENUMOPERATION_REPLACE, path)
+			op.SetValue(plan.ValueString())
+		}
+		*ops = append(*ops, *op)
+	}
+}
+
+// Add set operation if the plan doesn't match the state
+func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state types.Set, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+	validateOperationPath(path)
+
+	if !plan.Equal(state) {
+		planElements := plan.Elements()
+		stateElements := state.Elements()
+
+		// Adds
+		for _, planEl := range planElements {
+			if !internaltypes.ContainsString(stateElements, planEl.(types.String)) {
+				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
+				op.SetValue(planEl.(types.String).ValueString())
+				*ops = append(*ops, *op)
+			}
+		}
+
+		// Removes
+		for _, stateEl := range stateElements {
+			if !internaltypes.ContainsString(planElements, stateEl.(types.String)) {
+				// Remove paths for multivalued attributes are formatted like this:
+				// "[additional-tags eq \"five\"]"
+				op := client.NewOperation(client.ENUMOPERATION_REMOVE, "["+path+" eq \""+stateEl.(types.String).ValueString()+"\"]")
+				*ops = append(*ops, *op)
+			}
+		}
+	}
+}
+
+// Add int64 set operation if the plan doesn't match the state
+func AddInt64SetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state types.Set, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+	validateOperationPath(path)
+
+	if !plan.Equal(state) {
+		planElements := plan.Elements()
+		stateElements := state.Elements()
+
+		// Adds
+		for _, planEl := range planElements {
+			if !internaltypes.ContainsInt64(stateElements, planEl.(types.Int64)) {
+				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
+				op.SetValue(internaltypes.Int64ToString(planEl.(types.Int64)))
+				*ops = append(*ops, *op)
+			}
+		}
+
+		// Removes
+		for _, stateEl := range stateElements {
+			if !internaltypes.ContainsInt64(planElements, stateEl.(types.Int64)) {
+				// Remove paths for multivalued attributes are formatted like this:
+				// "[additional-tags eq \"five\"]"
+				op := client.NewOperation(client.ENUMOPERATION_REMOVE, "["+path+" eq \""+internaltypes.Int64ToString(stateEl.(types.Int64))+"\"]")
+				*ops = append(*ops, *op)
+			}
+		}
+	}
+}

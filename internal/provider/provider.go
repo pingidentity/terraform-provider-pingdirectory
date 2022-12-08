@@ -8,7 +8,8 @@ import (
 	"terraform-provider-pingdirectory/internal/resource/config"
 	"terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
-	"terraform-provider-pingdirectory/internal/utils"
+
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -195,8 +196,8 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 
 	// Make the PingDirectory config and API client info available during DataSource and Resource
 	// type Configure methods.
-	var resourceConfig utils.ResourceConfiguration
-	providerConfig := utils.ProviderConfiguration{
+	var resourceConfig internaltypes.ResourceConfiguration
+	providerConfig := internaltypes.ProviderConfiguration{
 		HttpsHost: config.HttpsHost.ValueString(),
 		//LdapHost:  config.LdapHost.ValueString(),
 		Username: config.Username.ValueString(),

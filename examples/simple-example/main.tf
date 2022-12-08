@@ -26,7 +26,7 @@ resource "pingdirectory_global_configuration" "global" {
   #result_code_map = ""
 }
 
-/*resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
+resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
   name = "Blind Test"
   enabled = true
   include_jvm_default_issuers = true
@@ -52,7 +52,7 @@ resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
   extension_argument = ["val1=one", "val2=two"]
 }
 
-resource "pingdirectory_directory_server_instance" "mine" {
+/*resource "pingdirectory_directory_server_instance" "mine" {
   // This instance name needs to match the instance name generated for the running instance
   server_instance_name = "46494028a111"
   jmx_port = 1112
