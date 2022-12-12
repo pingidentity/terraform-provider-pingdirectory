@@ -68,158 +68,23 @@ func (r *directoryServerInstanceResource) Metadata(_ context.Context, req resour
 
 // GetSchema defines the schema for the resource.
 func (r *directoryServerInstanceResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
-		Description: "Manages a Directory Server Instance.",
-		Attributes: map[string]tfsdk.Attribute{
-			// All are considered computed, since we are importing the existing server
-			// instance from a server, rather than "creating" a server instance
-			// like a typical Terraform resource.
-			"replication_set_name": {
-				Description: "The name of the replication set assigned to this Directory Server. Restricted domains are only replicated within instances using the same replication set name.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"load_balancing_algorithm_name": {
-				Description: "The name of the configuration object for a load-balancing algorithm that should include this server.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"server_instance_name": {
-				Description: "The name of this Server Instance. The instance name needs to be unique if this server will be part of a topology of servers that are connected to each other. Once set, it may not be changed.",
-				Type:        types.StringType,
-				Required:    true,
-			},
-			"cluster_name": {
-				Description: "The name of the cluster to which this Server Instance belongs. Server instances within the same cluster will share the same cluster-wide configuration.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"server_instance_location": {
-				Description: "Specifies the location for the Server Instance.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"hostname": {
-				Description: "The name of the host where this Server Instance is installed.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"server_root": {
-				Description: "The file system path where this Server Instance is installed.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"server_version": {
-				Description: "The version of the server.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"inter_server_certificate": {
-				Description: "The public component of the certificate used by this instance to protect inter-server communication and to perform server-specific encryption. This will generally be managed by the server and should only be altered by administrators under explicit direction from Ping Identity support personnel.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"ldap_port": {
-				Description: "The TCP port on which this server is listening for LDAP connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"ldaps_port": {
-				Description: "The TCP port on which this server is listening for LDAP secure connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"http_port": {
-				Description: "The TCP port on which this server is listening for HTTP connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"https_port": {
-				Description: "The TCP port on which this server is listening for HTTPS connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"replication_port": {
-				Description: "The replication TCP port.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"replication_server_id": {
-				Description: "Specifies a unique identifier for the replication server on this server instance.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"replication_domain_server_id": {
-				Description: "Specifies a unique identifier for the Directory Server within the replication domain.",
-				Type: types.SetType{
-					ElemType: types.Int64Type,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"jmx_port": {
-				Description: "The TCP port on which this server is listening for JMX connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"jmxs_port": {
-				Description: "The TCP port on which this server is listening for JMX secure connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"preferred_security": {
-				Description: "Specifies the preferred mechanism to use for securing connections to the server.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"start_tls_enabled": {
-				Description: "Indicates whether StartTLS is enabled on this server.",
-				Type:        types.BoolType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"base_dn": {
-				Description: "The set of base DNs under the root DSE.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"member_of_server_group": {
-				Description: "The set of groups of which this server is a member.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Server Instance.",
-				Type:        types.StringType,
-				Computed:    true,
-			},
+	// Directory instances only have a couple fields different from other instance types
+	baseSchema, _ := GetCommonServerInstanceSchema("Manages a Directory Server Instance.")
+	baseSchema.Attributes["replication_set_name"] = tfsdk.Attribute{
+		Description: "The name of the replication set assigned to this Directory Server. Restricted domains are only replicated within instances using the same replication set name.",
+		Type:        types.StringType,
+		Optional:    true,
+		Computed:    true,
+	}
+	baseSchema.Attributes["load_balancing_algorithm_name"] = tfsdk.Attribute{
+		Description: "The name of the configuration object for a load-balancing algorithm that should include this server.",
+		Type: types.SetType{
+			ElemType: types.StringType,
 		},
-	}, nil
+		Optional: true,
+		Computed: true,
+	}
+	return baseSchema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -318,12 +183,6 @@ func readDirectoryServerInstanceResponse(r *client.DirectoryServerInstanceRespon
 	state.ReplicationPort = internaltypes.Int64TypeOrNil(r.ReplicationPort)
 	state.ReplicationServerID = internaltypes.Int64TypeOrNil(r.ReplicationServerID)
 	state.ReplicationDomainServerID = internaltypes.GetInt64Set(r.ReplicationDomainServerID)
-	/*
-		if r.ReplicationDomainServerID != nil {
-			state.ReplicationDomainServerID = internaltypes.GetInt64Set(*r.ReplicationDomainServerID)
-		} else {
-			state.ReplicationDomainServerID, _ = types.SetValue(types.Int64Type, []attr.Value{})
-		}*/
 	state.JmxPort = internaltypes.Int64TypeOrNil(r.JmxPort)
 	state.JmxsPort = internaltypes.Int64TypeOrNil(r.JmxsPort)
 	if r.PreferredSecurity != nil {
