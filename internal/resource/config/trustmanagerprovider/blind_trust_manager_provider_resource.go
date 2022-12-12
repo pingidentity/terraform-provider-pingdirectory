@@ -97,7 +97,7 @@ func (r *blindTrustManagerProviderResource) Configure(_ context.Context, req res
 // Add optional fields to create request
 func addOptionalBlindTrustManagerProviderFields(addRequest *client.AddBlindTrustManagerProviderRequest, plan blindTrustManagerProviderResourceModel) {
 	// Non string values just have to be defined
-	if internaltypes.IsDefinedBool(plan.IncludeJVMDefaultIssuers) {
+	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
 		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
 		addRequest.IncludeJVMDefaultIssuers = &boolVal
 	}

@@ -1,10 +1,12 @@
 package types
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	client "github.com/pingidentity/pingdata-config-api-go-client"
 )
 
 // Convert a int64 to string
@@ -29,6 +31,24 @@ func GetInt64Set(values []int32) types.Set {
 		setValues[i] = types.Int64Value(int64(values[i]))
 	}
 	set, _ := types.SetValue(types.Int64Type, setValues)
+	return set
+}
+
+// Convert Enums from the Go client to a types.Set.
+func GetEnumSet[V client.EnumglobalConfigurationDisabledPrivilegeProp |
+	client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
+	client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp |
+	client.EnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp |
+	client.EnumglobalConfigurationJmxValueBehaviorProp |
+	client.EnumglobalConfigurationSingleStructuralObjectclassBehaviorProp |
+	client.EnumglobalConfigurationWritabilityModeProp |
+	client.EnumglobalConfigurationUnrecoverableDatabaseErrorModeProp |
+	client.EnumglobalConfigurationStartupErrorLoggerOutputLocationProp](values []V) types.Set {
+	setValues := make([]attr.Value, len(values))
+	for i := 0; i < len(values); i++ {
+		setValues[i] = types.StringValue(string(values[i]))
+	}
+	set, _ := types.SetValue(types.StringType, setValues)
 	return set
 }
 
@@ -64,4 +84,14 @@ func Int64TypeOrNil(i *int32) types.Int64 {
 	}
 
 	return types.Int64Value(int64(*i))
+}
+
+// Get a types.String from the given Stringer, handling if the pointer is nil
+func StringerStringTypeOrNil(value fmt.Stringer) types.String {
+	// Similar to the StringTypeOrNil method - use an empty string for nil values
+	if value != nil {
+		return types.StringValue(value.String())
+	} else {
+		return types.StringValue("")
+	}
 }

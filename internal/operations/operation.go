@@ -37,7 +37,6 @@ func validateOperationPath(path string) {
 	}
 }
 
-//TODO any way to reduce duplication in these methods either?
 // Add boolean operation if the plan doesn't match the state
 func AddBoolOperationIfNecessary(ops *[]client.Operation, plan types.Bool, state types.Bool, path string) {
 	// If plan is unknown, then just take whatever's in the state - no operation needed
@@ -99,6 +98,13 @@ func AddStringOperationIfNecessary(ops *[]client.Operation, plan types.String, s
 	}
 }
 
+// Get a path to remove a value from a multi-valued attribute
+func removeMultiValuedAttributePath(attributePath string, toRemove string) string {
+	// Remove paths for multivalued attributes are formatted like this:
+	// "[additional-tags eq \"five\"]"
+	return "[" + attributePath + " eq \"" + toRemove + "\"]"
+}
+
 // Add set operation if the plan doesn't match the state
 func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, state types.Set, path string) {
 	// If plan is unknown, then just take whatever's in the state - no operation needed
@@ -113,7 +119,7 @@ func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, 
 
 		// Adds
 		for _, planEl := range planElements {
-			if !internaltypes.ContainsString(stateElements, planEl.(types.String)) {
+			if !internaltypes.Contains(stateElements, planEl.(types.String)) {
 				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
 				op.SetValue(planEl.(types.String).ValueString())
 				*ops = append(*ops, *op)
@@ -122,10 +128,8 @@ func AddStringSetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, 
 
 		// Removes
 		for _, stateEl := range stateElements {
-			if !internaltypes.ContainsString(planElements, stateEl.(types.String)) {
-				// Remove paths for multivalued attributes are formatted like this:
-				// "[additional-tags eq \"five\"]"
-				op := client.NewOperation(client.ENUMOPERATION_REMOVE, "["+path+" eq \""+stateEl.(types.String).ValueString()+"\"]")
+			if !internaltypes.Contains(planElements, stateEl.(types.String)) {
+				op := client.NewOperation(client.ENUMOPERATION_REMOVE, removeMultiValuedAttributePath(path, stateEl.(types.String).ValueString()))
 				*ops = append(*ops, *op)
 			}
 		}
@@ -146,7 +150,7 @@ func AddInt64SetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, s
 
 		// Adds
 		for _, planEl := range planElements {
-			if !internaltypes.ContainsInt64(stateElements, planEl.(types.Int64)) {
+			if !internaltypes.Contains(stateElements, planEl.(types.Int64)) {
 				op := client.NewOperation(client.ENUMOPERATION_ADD, path)
 				op.SetValue(internaltypes.Int64ToString(planEl.(types.Int64)))
 				*ops = append(*ops, *op)
@@ -155,10 +159,8 @@ func AddInt64SetOperationsIfNecessary(ops *[]client.Operation, plan types.Set, s
 
 		// Removes
 		for _, stateEl := range stateElements {
-			if !internaltypes.ContainsInt64(planElements, stateEl.(types.Int64)) {
-				// Remove paths for multivalued attributes are formatted like this:
-				// "[additional-tags eq \"five\"]"
-				op := client.NewOperation(client.ENUMOPERATION_REMOVE, "["+path+" eq \""+internaltypes.Int64ToString(stateEl.(types.Int64))+"\"]")
+			if !internaltypes.Contains(planElements, stateEl.(types.Int64)) {
+				op := client.NewOperation(client.ENUMOPERATION_REMOVE, removeMultiValuedAttributePath(path, internaltypes.Int64ToString(stateEl.(types.Int64))))
 				*ops = append(*ops, *op)
 			}
 		}

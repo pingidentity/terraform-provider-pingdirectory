@@ -12,7 +12,6 @@ import (
 	client "github.com/pingidentity/pingdata-config-api-go-client"
 )
 
-//TODO split out utils into more fine-grained packages with more descriptive names
 // Error returned from PingDirectory config API
 type pingDirectoryError struct {
 	Schemas []string `json:"schemas"`

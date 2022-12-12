@@ -6,7 +6,6 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -36,7 +35,6 @@ type globalConfigurationResource struct {
 
 // globalConfigurationResourceModel maps the resource schema data.
 type globalConfigurationResourceModel struct {
-	//TODO could we be more specific on the set types to indicate that they are string sets?
 	InstanceName                                                   types.String `tfsdk:"instance_name"`
 	Location                                                       types.String `tfsdk:"location"`
 	ConfigurationServerGroup                                       types.String `tfsdk:"configuration_server_group"`
@@ -137,9 +135,6 @@ func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema
 		// All are considered computed, since we are importing the existing global
 		// configuration from a server, rather than "creating" the global configuration
 		// like a typical Terraform resource.
-		//TODO consider being more explicit here with removing existing values - could
-		// define defaults for all these attributes, and reset the global config to those
-		// defaults when terraform adopts it via the Create method.
 		Attributes: map[string]tfsdk.Attribute{
 			"instance_name": {
 				Description: "A name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
@@ -258,7 +253,6 @@ func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema
 				Type: types.SetType{
 					ElemType: types.StringType,
 				},
-				//TODO add validators for specific enum values instead of just letting the config api request fail for invalid values? Would have to keep this updated for any future api changes on the directory side. I'm not sure this is really helpful since it wouldn't appear in the doc for the provider or anything as far as I know...
 				Optional: true,
 				Computed: true,
 			},
@@ -789,35 +783,6 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 	}
 }
 
-//TODO is there some better way to do this other than having to use the unsafe package? Ideally the generator would write a helper method
-// for each enum that can convert from a given enum array to a string array.
-func getDisabledPrivilegeSet(values []client.EnumglobalConfigurationDisabledPrivilegeProp) types.Set {
-	setValues := make([]attr.Value, len(values))
-	for i := 0; i < len(values); i++ {
-		setValues[i] = types.StringValue(string(values[i]))
-	}
-	set, _ := types.SetValue(types.StringType, setValues)
-	return set
-}
-
-func getAllowedInsecureTLSProtocolSet(values []client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp) types.Set {
-	setValues := make([]attr.Value, len(values))
-	for i := 0; i < len(values); i++ {
-		setValues[i] = types.StringValue(string(values[i]))
-	}
-	set, _ := types.SetValue(types.StringType, setValues)
-	return set
-}
-
-func getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(values []client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp) types.Set {
-	setValues := make([]attr.Value, len(values))
-	for i := 0; i < len(values); i++ {
-		setValues[i] = types.StringValue(string(values[i]))
-	}
-	set, _ := types.SetValue(types.StringType, setValues)
-	return set
-}
-
 // Read a GlobalConfigurationRespnse object into the model struct
 func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
 	state.InstanceName = types.StringValue(r.InstanceName)
@@ -838,12 +803,12 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.RejectUnauthenticatedRequests = internaltypes.BoolTypeOrNil(r.RejectUnauthenticatedRequests)
 	state.AllowedUnauthenticatedRequestCriteria = internaltypes.StringTypeOrNil(r.AllowedUnauthenticatedRequestCriteria, true)
 	state.BindWithDNRequiresPassword = internaltypes.BoolTypeOrNil(r.BindWithDNRequiresPassword)
-	state.DisabledPrivilege = getDisabledPrivilegeSet(r.DisabledPrivilege)
+	state.DisabledPrivilege = internaltypes.GetEnumSet(r.DisabledPrivilege)
 	state.DefaultPasswordPolicy = types.StringValue(r.DefaultPasswordPolicy)
 	state.MaximumUserDataPasswordPoliciesToCache = internaltypes.Int64TypeOrNil(r.MaximumUserDataPasswordPoliciesToCache)
 	state.ProxiedAuthorizationIdentityMapper = types.StringValue(r.ProxiedAuthorizationIdentityMapper)
 	state.VerifyEntryDigests = internaltypes.BoolTypeOrNil(r.VerifyEntryDigests)
-	state.AllowedInsecureTLSProtocol = getAllowedInsecureTLSProtocolSet(r.AllowedInsecureTLSProtocol)
+	state.AllowedInsecureTLSProtocol = internaltypes.GetEnumSet(r.AllowedInsecureTLSProtocol)
 	state.AllowInsecureLocalJMXConnections = internaltypes.BoolTypeOrNil(r.AllowInsecureLocalJMXConnections)
 	state.DefaultInternalOperationClientConnectionPolicy = internaltypes.StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
 	state.SizeLimit = internaltypes.Int64TypeOrNil(r.SizeLimit)
@@ -859,26 +824,13 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.MaximumModificationsPerModifyRequest = internaltypes.Int64TypeOrNil(r.MaximumModificationsPerModifyRequest)
 	state.BackgroundThreadForEachPersistentSearch = internaltypes.BoolTypeOrNil(r.BackgroundThreadForEachPersistentSearch)
 	state.AllowAttributeNameExceptions = internaltypes.BoolTypeOrNil(r.AllowAttributeNameExceptions)
-	//TODO probably a better way to do this with enums? Generics maybe?
-	if r.InvalidAttributeSyntaxBehavior != nil {
-		state.InvalidAttributeSyntaxBehavior = types.StringValue(string(*r.InvalidAttributeSyntaxBehavior))
-	} else {
-		state.InvalidAttributeSyntaxBehavior = types.StringValue("")
-	}
+	state.InvalidAttributeSyntaxBehavior = internaltypes.StringerStringTypeOrNil(r.InvalidAttributeSyntaxBehavior)
 	state.PermitSyntaxViolationsForAttribute = internaltypes.GetStringSet(r.PermitSyntaxViolationsForAttribute)
-	if r.SingleStructuralObjectclassBehavior != nil {
-		state.SingleStructuralObjectclassBehavior = types.StringValue(string(*r.SingleStructuralObjectclassBehavior))
-	} else {
-		state.SingleStructuralObjectclassBehavior = types.StringValue("")
-	}
-	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = getAttributesModifiableWithIgnoreNoUserModificationRequestControlSet(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl)
+	state.SingleStructuralObjectclassBehavior = internaltypes.StringerStringTypeOrNil(r.SingleStructuralObjectclassBehavior)
+	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = internaltypes.GetEnumSet(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl)
 	state.MaximumServerOutLogFileSize = internaltypes.StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
 	state.MaximumServerOutLogFileCount = internaltypes.Int64TypeOrNil(r.MaximumServerOutLogFileCount)
-	if r.StartupErrorLoggerOutputLocation != nil {
-		state.StartupErrorLoggerOutputLocation = types.StringValue(string(*r.StartupErrorLoggerOutputLocation))
-	} else {
-		state.StartupErrorLoggerOutputLocation = types.StringValue("")
-	}
+	state.StartupErrorLoggerOutputLocation = internaltypes.StringerStringTypeOrNil(r.StartupErrorLoggerOutputLocation)
 	state.ExitOnJVMError = internaltypes.BoolTypeOrNil(r.ExitOnJVMError)
 	state.ServerErrorResultCode = internaltypes.Int64TypeOrNil(r.ServerErrorResultCode)
 	state.ResultCodeMap = internaltypes.StringTypeOrNil(r.ResultCodeMap, true)
@@ -888,16 +840,8 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.DuplicateErrorLogTimeLimit = types.StringValue(r.DuplicateErrorLogTimeLimit)
 	state.DuplicateAlertLimit = types.Int64Value(int64(r.DuplicateAlertLimit))
 	state.DuplicateAlertTimeLimit = types.StringValue(r.DuplicateAlertTimeLimit)
-	if r.WritabilityMode != nil {
-		state.WritabilityMode = types.StringValue(string(*r.WritabilityMode))
-	} else {
-		state.WritabilityMode = types.StringValue("")
-	}
-	if r.UnrecoverableDatabaseErrorMode != nil {
-		state.UnrecoverableDatabaseErrorMode = types.StringValue(string(*r.UnrecoverableDatabaseErrorMode))
-	} else {
-		state.UnrecoverableDatabaseErrorMode = types.StringValue("")
-	}
+	state.WritabilityMode = internaltypes.StringerStringTypeOrNil(r.WritabilityMode)
+	state.UnrecoverableDatabaseErrorMode = internaltypes.StringerStringTypeOrNil(r.UnrecoverableDatabaseErrorMode)
 	state.DatabaseOnVirtualizedOrNetworkStorage = internaltypes.BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
 	state.AutoNameWithEntryUUIDConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria, true)
 	state.AutoNameWithEntryUUIDRequestCriteria = internaltypes.StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria, true)
@@ -924,11 +868,7 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.NetworkAddressCacheTTL = internaltypes.StringTypeOrNil(r.NetworkAddressCacheTTL, true)
 	state.NetworkAddressOutageCacheEnabled = internaltypes.BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
 	state.TrackedApplication = internaltypes.GetStringSet(r.TrackedApplication)
-	if r.JmxValueBehavior != nil {
-		state.JmxValueBehavior = types.StringValue(string(*r.JmxValueBehavior))
-	} else {
-		state.JmxValueBehavior = types.StringValue("")
-	}
+	state.JmxValueBehavior = internaltypes.StringerStringTypeOrNil(r.JmxValueBehavior)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
 }
 

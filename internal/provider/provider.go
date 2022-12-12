@@ -23,7 +23,6 @@ import (
 )
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
-//TODO add default user password to model
 type pingdirectoryProviderModel struct {
 	//LdapHost  types.String `tfsdk:"ldap_host"`
 	HttpsHost types.String `tfsdk:"https_host"`
@@ -206,7 +205,6 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	}
 	resourceConfig.ProviderConfig = providerConfig
 	clientConfig := client.NewConfiguration()
-	//TODO again string concatenation is probably bad
 	clientConfig.Servers = client.ServerConfigurations{
 		{
 			URL: config.HttpsHost.ValueString() + "/config",
@@ -221,7 +219,6 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	clientConfig.HTTPClient = httpClient
 	resourceConfig.ApiClient = client.NewAPIClient(clientConfig)
 	resp.ResourceData = resourceConfig
-	//TODO if data sources are added and need client stuff, add DataSourceData to the resp here
 
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
 }

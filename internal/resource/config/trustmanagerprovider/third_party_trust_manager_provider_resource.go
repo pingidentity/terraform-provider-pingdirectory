@@ -113,12 +113,12 @@ func (r *thirdPartyTrustManagerProviderResource) Configure(_ context.Context, re
 // Add optional fields to create request
 func addOptionalThirdPartyTrustManagerProviderFields(ctx context.Context, addRequest *client.AddThirdPartyTrustManagerProviderRequest, plan thirdPartyTrustManagerProviderResourceModel) {
 	// Non string values just have to be defined
-	if internaltypes.IsDefinedSet(plan.ExtensionArgument) {
+	if internaltypes.IsDefined(plan.ExtensionArgument) {
 		var slice []string
 		plan.ExtensionArgument.ElementsAs(ctx, &slice, false)
 		addRequest.ExtensionArgument = slice
 	}
-	if internaltypes.IsDefinedBool(plan.IncludeJVMDefaultIssuers) {
+	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
 		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
 		addRequest.IncludeJVMDefaultIssuers = &boolVal
 	}

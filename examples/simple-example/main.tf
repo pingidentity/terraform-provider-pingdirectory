@@ -23,7 +23,7 @@ resource "pingdirectory_global_configuration" "global" {
   sensitive_attribute = ["Delivered One-Time Password", "TOTP Shared Secret"]
   tracked_application = ["Requests by Root Users"]
   result_code_map = "Sun DS Compatible Behavior"
-  #result_code_map = ""
+  disabled_privilege = ["jmx-write", "jmx-read"]
 }
 
 resource "pingdirectory_blind_trust_manager_provider" "blindtest" {

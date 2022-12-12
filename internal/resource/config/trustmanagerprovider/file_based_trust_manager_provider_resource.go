@@ -145,7 +145,7 @@ func addOptionalFileBasedTrustManagerProviderFields(addRequest *client.AddFileBa
 		addRequest.TrustStorePinPassphraseProvider = &stringVal
 	}
 	// Non string values just have to be defined
-	if internaltypes.IsDefinedBool(plan.IncludeJVMDefaultIssuers) {
+	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
 		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
 		addRequest.IncludeJVMDefaultIssuers = &boolVal
 	}
