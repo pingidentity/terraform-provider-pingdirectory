@@ -7,6 +7,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -40,6 +41,7 @@ type blindTrustManagerProviderResourceModel struct {
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	IncludeJVMDefaultIssuers types.Bool   `tfsdk:"include_jvm_default_issuers"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
+	Notifications            types.Set    `tfsdk:"notifications"`
 }
 
 // Metadata returns the resource type name.
@@ -78,6 +80,15 @@ func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.
 				Computed:    true,
 				Required:    false,
 				Optional:    false,
+			},
+			"notifications": {
+				Description: "Notifications returned by the Configuration API.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+				Required: false,
+				Optional: false,
 			},
 		},
 	}, nil
@@ -139,7 +150,7 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
+	readBlindTrustManagerProviderResponse(ctx, trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
 
 	// Populate Computed attribute values
 	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -153,10 +164,17 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 }
 
 // Read a BlindTrustManagerProviderResponse object into the model struct
-func readBlindTrustManagerProviderResponse(r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel) {
+func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Read resource information
@@ -183,7 +201,7 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &state)
+	readBlindTrustManagerProviderResponse(ctx, trustManagerResponse.BlindTrustManagerProviderResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -237,7 +255,7 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
+		readBlindTrustManagerProviderResponse(ctx, trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
 		// Update computed values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

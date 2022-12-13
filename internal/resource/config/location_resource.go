@@ -6,6 +6,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -35,9 +36,10 @@ type locationResource struct {
 
 // locationResourceModel maps the resource schema data.
 type locationResourceModel struct {
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	LastUpdated types.String `tfsdk:"last_updated"`
+	Name          types.String `tfsdk:"name"`
+	Description   types.String `tfsdk:"description"`
+	LastUpdated   types.String `tfsdk:"last_updated"`
+	Notifications types.Set    `tfsdk:"notifications"`
 }
 
 // Metadata returns the resource type name.
@@ -67,6 +69,17 @@ func (r *locationResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 				Description: "Timestamp of the last Terraform update of the location.",
 				Type:        types.StringType,
 				Computed:    true,
+				Required:    false,
+				Optional:    false,
+			},
+			"notifications": {
+				Description: "Notifications returned by the Configuration API.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+				Required: false,
+				Optional: false,
 			},
 		},
 	}, nil
@@ -126,7 +139,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 	// Read the response into the state
 	var state locationResourceModel
-	readLocationResponse(locationResponse, &state, &plan)
+	readLocationResponse(ctx, locationResponse, &state, &plan)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -140,12 +153,19 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 }
 
 // Read a LocationResponse object into the model struct
-func readLocationResponse(r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
+func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Read resource information
@@ -171,7 +191,7 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	// Read the response into the state
-	readLocationResponse(locationResponse, &state, &state)
+	readLocationResponse(ctx, locationResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -224,7 +244,7 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 
 		// Read the response
-		readLocationResponse(locationResponse, &state, &plan)
+		readLocationResponse(ctx, locationResponse, &state, &plan)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

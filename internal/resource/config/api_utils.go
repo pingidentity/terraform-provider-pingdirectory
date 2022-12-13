@@ -12,6 +12,14 @@ import (
 	client "github.com/pingidentity/pingdata-config-api-go-client"
 )
 
+// Get BasicAuth context with a username and password
+func BasicAuthContext(ctx context.Context, providerConfig types.ProviderConfiguration) context.Context {
+	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+		UserName: providerConfig.Username,
+		Password: providerConfig.Password,
+	})
+}
+
 // Error returned from PingDirectory config API
 type pingDirectoryError struct {
 	Schemas []string `json:"schemas"`
@@ -43,10 +51,13 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 	}
 }
 
-// Get BasicAuth context with a username and password
-func BasicAuthContext(ctx context.Context, providerConfig types.ProviderConfiguration) context.Context {
-	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: providerConfig.Username,
-		Password: providerConfig.Password,
-	})
+// Write out notifications from  Config API response to tflog
+func LogNotifications(ctx context.Context, notifications *client.MetaUrnPingidentitySchemasConfigurationMessages20) {
+	if notifications == nil {
+		return
+	}
+
+	for _, message := range notifications.Notifications {
+		tflog.Warn(ctx, "Configuration API Notification: "+message)
+	}
 }

@@ -7,6 +7,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -59,6 +60,7 @@ type directoryServerInstanceResourceModel struct {
 	BaseDN                     types.Set    `tfsdk:"base_dn"`
 	MemberOfServerGroup        types.Set    `tfsdk:"member_of_server_group"`
 	LastUpdated                types.String `tfsdk:"last_updated"`
+	Notifications              types.Set    `tfsdk:"notifications"`
 }
 
 // Metadata returns the resource type name.
@@ -125,7 +127,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 
 	// Read existing config
 	var state directoryServerInstanceResourceModel
-	readDirectoryServerInstanceResponse(getResp.DirectoryServerInstanceResponse, &state)
+	readDirectoryServerInstanceResponse(ctx, getResp.DirectoryServerInstanceResponse, &state)
 
 	// Determine what changes need to be made to match the plan
 	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
@@ -148,7 +150,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		readDirectoryServerInstanceResponse(instanceResp.DirectoryServerInstanceResponse, &plan)
+		readDirectoryServerInstanceResponse(ctx, instanceResp.DirectoryServerInstanceResponse, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -166,7 +168,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 
 // Read a DirectoryServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
-func readDirectoryServerInstanceResponse(r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel) {
+func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel) {
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
 	state.LoadBalancingAlgorithmName = internaltypes.GetStringSet(r.LoadBalancingAlgorithmName)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -193,6 +195,13 @@ func readDirectoryServerInstanceResponse(r *client.DirectoryServerInstanceRespon
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Read resource information
@@ -218,7 +227,7 @@ func (r *directoryServerInstanceResource) Read(ctx context.Context, req resource
 	}
 
 	// Read the response into the state
-	readDirectoryServerInstanceResponse(serverInstanceResponse.DirectoryServerInstanceResponse, &state)
+	readDirectoryServerInstanceResponse(ctx, serverInstanceResponse.DirectoryServerInstanceResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -292,7 +301,7 @@ func (r *directoryServerInstanceResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		readDirectoryServerInstanceResponse(serverInstanceResponse.DirectoryServerInstanceResponse, &state)
+		readDirectoryServerInstanceResponse(ctx, serverInstanceResponse.DirectoryServerInstanceResponse, &state)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

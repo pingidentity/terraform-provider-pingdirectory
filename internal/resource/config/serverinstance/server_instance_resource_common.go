@@ -35,6 +35,7 @@ type CommonServerInstanceResourceModel struct {
 	BaseDN                    types.Set    `tfsdk:"base_dn"`
 	MemberOfServerGroup       types.Set    `tfsdk:"member_of_server_group"`
 	LastUpdated               types.String `tfsdk:"last_updated"`
+	Notifications             types.Set    `tfsdk:"notifications"`
 }
 
 // GetCommonServerInstanceSchema defines the common schema for server instance resources.
@@ -174,6 +175,17 @@ func GetCommonServerInstanceSchema(description string) (tfsdk.Schema, diag.Diagn
 				Description: "Timestamp of the last Terraform update of the Server Instance.",
 				Type:        types.StringType,
 				Computed:    true,
+				Required:    false,
+				Optional:    false,
+			},
+			"notifications": {
+				Description: "Notifications returned by the Configuration API.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+				Required: false,
+				Optional: false,
 			},
 		},
 	}, nil

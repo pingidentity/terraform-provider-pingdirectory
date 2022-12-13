@@ -7,6 +7,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -82,7 +83,7 @@ func (r *syncServerInstanceResource) Create(ctx context.Context, req resource.Cr
 
 	// Read existing config
 	var state CommonServerInstanceResourceModel
-	readSyncServerInstanceResponse(getResp.SyncServerInstanceResponse, &state)
+	readSyncServerInstanceResponse(ctx, getResp.SyncServerInstanceResponse, &state)
 
 	// Determine what changes need to be made to match the plan
 	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
@@ -105,7 +106,7 @@ func (r *syncServerInstanceResource) Create(ctx context.Context, req resource.Cr
 		}
 
 		// Read the response
-		readSyncServerInstanceResponse(instanceResp.SyncServerInstanceResponse, &plan)
+		readSyncServerInstanceResponse(ctx, instanceResp.SyncServerInstanceResponse, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -123,7 +124,7 @@ func (r *syncServerInstanceResource) Create(ctx context.Context, req resource.Cr
 
 // Read a SyncServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
-func readSyncServerInstanceResponse(r *client.SyncServerInstanceResponse, state *CommonServerInstanceResourceModel) {
+func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerInstanceResponse, state *CommonServerInstanceResourceModel) {
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
 	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)
@@ -148,6 +149,13 @@ func readSyncServerInstanceResponse(r *client.SyncServerInstanceResponse, state 
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Read resource information
@@ -173,7 +181,7 @@ func (r *syncServerInstanceResource) Read(ctx context.Context, req resource.Read
 	}
 
 	// Read the response into the state
-	readSyncServerInstanceResponse(serverInstanceResponse.SyncServerInstanceResponse, &state)
+	readSyncServerInstanceResponse(ctx, serverInstanceResponse.SyncServerInstanceResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -218,7 +226,7 @@ func (r *syncServerInstanceResource) Update(ctx context.Context, req resource.Up
 		}
 
 		// Read the response
-		readSyncServerInstanceResponse(serverInstanceResponse.SyncServerInstanceResponse, &state)
+		readSyncServerInstanceResponse(ctx, serverInstanceResponse.SyncServerInstanceResponse, &state)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

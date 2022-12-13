@@ -7,6 +7,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -36,9 +37,10 @@ type jvmDefaultTrustManagerProviderResource struct {
 
 // jvmDefaultTrustManagerProviderResourceModel maps the resource schema data.
 type jvmDefaultTrustManagerProviderResourceModel struct {
-	Name        types.String `tfsdk:"name"`
-	Enabled     types.Bool   `tfsdk:"enabled"`
-	LastUpdated types.String `tfsdk:"last_updated"`
+	Name          types.String `tfsdk:"name"`
+	Enabled       types.Bool   `tfsdk:"enabled"`
+	LastUpdated   types.String `tfsdk:"last_updated"`
+	Notifications types.Set    `tfsdk:"notifications"`
 }
 
 // Metadata returns the resource type name.
@@ -70,6 +72,15 @@ func (r *jvmDefaultTrustManagerProviderResource) GetSchema(_ context.Context) (t
 				Computed:    true,
 				Required:    false,
 				Optional:    false,
+			},
+			"notifications": {
+				Description: "Notifications returned by the Configuration API.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+				Required: false,
+				Optional: false,
 			},
 		},
 	}, nil
@@ -121,7 +132,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
+	readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
 
 	// Populate Computed attribute values
 	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -135,9 +146,16 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 }
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
-func readJvmDefaultTrustManagerProviderResponse(r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
+func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Read resource information
@@ -164,7 +182,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &state)
+	readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -217,7 +235,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 		}
 
 		// Read the response
-		readJvmDefaultTrustManagerProviderResponse(trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
+		readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
 		// Update computed values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

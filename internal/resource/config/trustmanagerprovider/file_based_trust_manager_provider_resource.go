@@ -7,6 +7,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -45,6 +46,7 @@ type fileBasedTrustManagerProviderResourceModel struct {
 	Enabled                         types.Bool   `tfsdk:"enabled"`
 	IncludeJVMDefaultIssuers        types.Bool   `tfsdk:"include_jvm_default_issuers"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
+	Notifications                   types.Set    `tfsdk:"notifications"`
 }
 
 // Metadata returns the resource type name.
@@ -109,6 +111,15 @@ func (r *fileBasedTrustManagerProviderResource) GetSchema(_ context.Context) (tf
 				Computed:    true,
 				Required:    false,
 				Optional:    false,
+			},
+			"notifications": {
+				Description: "Notifications returned by the Configuration API.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+				Required: false,
+				Optional: false,
 			},
 		},
 	}, nil
@@ -189,7 +200,7 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 
 	// Read the response into the state
 	var state fileBasedTrustManagerProviderResourceModel
-	readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
+	readFileBasedTrustManagerProviderResponse(ctx, trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -203,7 +214,7 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 }
 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
-func readFileBasedTrustManagerProviderResponse(r *client.FileBasedTrustManagerProviderResponse,
+func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse,
 	state *fileBasedTrustManagerProviderResourceModel, expectedValues *fileBasedTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
@@ -217,6 +228,13 @@ func readFileBasedTrustManagerProviderResponse(r *client.FileBasedTrustManagerPr
 
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Read resource information
@@ -243,7 +261,7 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 	}
 
 	// Read the response into the state
-	readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &state)
+	readFileBasedTrustManagerProviderResponse(ctx, trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -301,7 +319,7 @@ func (r *fileBasedTrustManagerProviderResource) Update(ctx context.Context, req 
 		}
 
 		// Read the response
-		readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
+		readFileBasedTrustManagerProviderResponse(ctx, trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

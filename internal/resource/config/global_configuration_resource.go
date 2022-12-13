@@ -6,6 +6,7 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -121,6 +122,7 @@ type globalConfigurationResourceModel struct {
 	JmxValueBehavior                                               types.String `tfsdk:"jmx_value_behavior"`
 	JmxUseLegacyMbeanNames                                         types.Bool   `tfsdk:"jmx_use_legacy_mbean_names"`
 	LastUpdated                                                    types.String `tfsdk:"last_updated"`
+	Notifications                                                  types.Set    `tfsdk:"notifications"`
 }
 
 // Metadata returns the resource type name.
@@ -668,6 +670,17 @@ func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema
 				Description: "Timestamp of the last Terraform update of the global configuration.",
 				Type:        types.StringType,
 				Computed:    true,
+				Required:    false,
+				Optional:    false,
+			},
+			"notifications": {
+				Description: "Notifications returned by the Configuration API.",
+				Type: types.SetType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+				Required: false,
+				Optional: false,
 			},
 		},
 	}, nil
@@ -711,7 +724,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	// Read existing global config
 	var state globalConfigurationResourceModel
-	readGlobalConfigurationResponse(getResp, &state)
+	readGlobalConfigurationResponse(ctx, getResp, &state)
 
 	// Determine what changes need to be made to match the plan
 	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig))
@@ -734,7 +747,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(globalResp, &plan)
+		readGlobalConfigurationResponse(ctx, globalResp, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -773,7 +786,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Read the response into the state
-	readGlobalConfigurationResponse(getResp, &state)
+	readGlobalConfigurationResponse(ctx, getResp, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -784,7 +797,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 }
 
 // Read a GlobalConfigurationRespnse object into the model struct
-func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
+func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
 	state.InstanceName = types.StringValue(r.InstanceName)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, true)
 	state.ConfigurationServerGroup = internaltypes.StringTypeOrNil(r.ConfigurationServerGroup, true)
@@ -870,6 +883,13 @@ func readGlobalConfigurationResponse(r *client.GlobalConfigurationResponse, stat
 	state.TrackedApplication = internaltypes.GetStringSet(r.TrackedApplication)
 	state.JmxValueBehavior = internaltypes.StringerStringTypeOrNil(r.JmxValueBehavior)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
+	// Report any notifications from the Config API
+	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
+		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
+		LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	} else {
+		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1000,7 +1020,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(globalResp, &plan)
+		readGlobalConfigurationResponse(ctx, globalResp, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
