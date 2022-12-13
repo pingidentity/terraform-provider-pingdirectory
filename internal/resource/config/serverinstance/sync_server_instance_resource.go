@@ -152,9 +152,11 @@ func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerIns
 	// Report any notifications from the Config API
 	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
 		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+		state.RequiredActions, _ = config.GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
+		config.LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 	} else {
 		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+		state.RequiredActions, _ = types.SetValue(config.GetRequiredActionsObjectType(), []attr.Value{})
 	}
 }
 

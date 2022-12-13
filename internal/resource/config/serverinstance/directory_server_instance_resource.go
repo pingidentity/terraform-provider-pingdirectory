@@ -61,6 +61,7 @@ type directoryServerInstanceResourceModel struct {
 	MemberOfServerGroup        types.Set    `tfsdk:"member_of_server_group"`
 	LastUpdated                types.String `tfsdk:"last_updated"`
 	Notifications              types.Set    `tfsdk:"notifications"`
+	RequiredActions            types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -198,9 +199,11 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	// Report any notifications from the Config API
 	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
 		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+		state.RequiredActions, _ = config.GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
+		config.LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 	} else {
 		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+		state.RequiredActions, _ = types.SetValue(config.GetRequiredActionsObjectType(), []attr.Value{})
 	}
 }
 

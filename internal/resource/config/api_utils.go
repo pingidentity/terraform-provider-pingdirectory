@@ -51,13 +51,20 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 	}
 }
 
-// Write out notifications from  Config API response to tflog
-func LogNotifications(ctx context.Context, notifications *client.MetaUrnPingidentitySchemasConfigurationMessages20) {
-	if notifications == nil {
+// Write out messages from the Config API response to tflog
+func LogMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20) {
+	if messages == nil {
 		return
 	}
 
-	for _, message := range notifications.Notifications {
+	for _, message := range messages.Notifications {
 		tflog.Warn(ctx, "Configuration API Notification: "+message)
+	}
+
+	for _, action := range messages.RequiredActions {
+		actionJson, err := action.MarshalJSON()
+		if err != nil {
+			tflog.Warn(ctx, "Configuration API RequiredAction: "+string(actionJson))
+		}
 	}
 }

@@ -123,6 +123,7 @@ type globalConfigurationResourceModel struct {
 	JmxUseLegacyMbeanNames                                         types.Bool   `tfsdk:"jmx_use_legacy_mbean_names"`
 	LastUpdated                                                    types.String `tfsdk:"last_updated"`
 	Notifications                                                  types.Set    `tfsdk:"notifications"`
+	RequiredActions                                                types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -132,7 +133,7 @@ func (r *globalConfigurationResource) Metadata(_ context.Context, req resource.M
 
 // GetSchema defines the schema for the resource.
 func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: "Manages the global configuration.",
 		// All are considered computed, since we are importing the existing global
 		// configuration from a server, rather than "creating" the global configuration
@@ -666,24 +667,10 @@ func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema
 				Optional:    true,
 				Computed:    true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the global configuration.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
-			"notifications": {
-				Description: "Notifications returned by the Configuration API.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
-				Required: false,
-				Optional: false,
-			},
 		},
-	}, nil
+	}
+	AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -886,9 +873,11 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	// Report any notifications from the Config API
 	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
 		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+		state.RequiredActions, _ = GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
+		LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 	} else {
 		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+		state.RequiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
 	}
 }
 

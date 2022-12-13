@@ -2,6 +2,7 @@ package serverinstance
 
 import (
 	"terraform-provider-pingdirectory/internal/operations"
+	"terraform-provider-pingdirectory/internal/resource/config"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -36,11 +37,12 @@ type CommonServerInstanceResourceModel struct {
 	MemberOfServerGroup       types.Set    `tfsdk:"member_of_server_group"`
 	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
+	RequiredActions           types.Set    `tfsdk:"required_actions"`
 }
 
 // GetCommonServerInstanceSchema defines the common schema for server instance resources.
 func GetCommonServerInstanceSchema(description string) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: description,
 		Attributes: map[string]tfsdk.Attribute{
 			// All are considered computed, since we are importing the existing server
@@ -171,24 +173,10 @@ func GetCommonServerInstanceSchema(description string) (tfsdk.Schema, diag.Diagn
 				Optional: true,
 				Computed: true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Server Instance.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
-			"notifications": {
-				Description: "Notifications returned by the Configuration API.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
-				Required: false,
-				Optional: false,
-			},
 		},
-	}, nil
+	}
+	config.AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Create any update operations necessary to make the state match the plan

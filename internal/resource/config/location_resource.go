@@ -36,10 +36,11 @@ type locationResource struct {
 
 // locationResourceModel maps the resource schema data.
 type locationResourceModel struct {
-	Name          types.String `tfsdk:"name"`
-	Description   types.String `tfsdk:"description"`
-	LastUpdated   types.String `tfsdk:"last_updated"`
-	Notifications types.Set    `tfsdk:"notifications"`
+	Name            types.String `tfsdk:"name"`
+	Description     types.String `tfsdk:"description"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -49,7 +50,7 @@ func (r *locationResource) Metadata(_ context.Context, req resource.MetadataRequ
 
 // GetSchema defines the schema for the resource.
 func (r *locationResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: "Manages a Location.",
 		Attributes: map[string]tfsdk.Attribute{
 			"name": {
@@ -65,24 +66,10 @@ func (r *locationResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 				Type:        types.StringType,
 				Optional:    true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the location.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
-			"notifications": {
-				Description: "Notifications returned by the Configuration API.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
-				Required: false,
-				Optional: false,
-			},
 		},
-	}, nil
+	}
+	AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -162,9 +149,11 @@ func readLocationResponse(ctx context.Context, r *client.LocationResponse, state
 	// Report any notifications from the Config API
 	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
 		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+		state.RequiredActions, _ = GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
+		LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 	} else {
 		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+		state.RequiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
 	}
 }
 

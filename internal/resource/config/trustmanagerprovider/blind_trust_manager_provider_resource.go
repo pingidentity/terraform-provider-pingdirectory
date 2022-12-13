@@ -42,6 +42,7 @@ type blindTrustManagerProviderResourceModel struct {
 	IncludeJVMDefaultIssuers types.Bool   `tfsdk:"include_jvm_default_issuers"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
+	RequiredActions          types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -51,7 +52,7 @@ func (r *blindTrustManagerProviderResource) Metadata(_ context.Context, req reso
 
 // GetSchema defines the schema for the resource.
 func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: "Manages a Blind Trust Manager Provider.",
 		Attributes: map[string]tfsdk.Attribute{
 			"name": {
@@ -74,24 +75,10 @@ func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.
 				Optional:    true,
 				Computed:    true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Trust Manager Provider.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
-			"notifications": {
-				Description: "Notifications returned by the Configuration API.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
-				Required: false,
-				Optional: false,
-			},
 		},
-	}, nil
+	}
+	config.AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -171,9 +158,11 @@ func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindT
 	// Report any notifications from the Config API
 	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
 		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		config.LogNotifications(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+		state.RequiredActions, _ = config.GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
+		config.LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 	} else {
 		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+		state.RequiredActions, _ = types.SetValue(config.GetRequiredActionsObjectType(), []attr.Value{})
 	}
 }
 
