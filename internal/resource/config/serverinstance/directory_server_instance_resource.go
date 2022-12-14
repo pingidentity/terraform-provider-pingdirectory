@@ -7,7 +7,6 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -196,15 +195,7 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
-	// Report any notifications from the Config API
-	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
-		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		state.RequiredActions, _ = config.GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
-		config.LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
-	} else {
-		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
-		state.RequiredActions, _ = types.SetValue(config.GetRequiredActionsObjectType(), []attr.Value{})
-	}
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information

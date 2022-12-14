@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"terraform-provider-pingdirectory/internal/types"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdata-config-api-go-client"
 )
 
 // Get BasicAuth context with a username and password
-func BasicAuthContext(ctx context.Context, providerConfig types.ProviderConfiguration) context.Context {
+func BasicAuthContext(ctx context.Context, providerConfig internaltypes.ProviderConfiguration) context.Context {
 	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
 		UserName: providerConfig.Username,
 		Password: providerConfig.Password,
@@ -67,4 +69,20 @@ func LogMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchema
 			tflog.Warn(ctx, "Configuration API RequiredAction: "+string(actionJson))
 		}
 	}
+}
+
+// Read messages from the Configuration API response
+func ReadMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20) (types.Set, types.Set) {
+	// Report any notifications from the Config API
+	var notifications types.Set
+	var requiredActions types.Set
+	if messages != nil {
+		notifications = internaltypes.GetStringSet(messages.Notifications)
+		requiredActions, _ = GetRequiredActionsSet(*messages)
+		LogMessages(ctx, messages)
+	} else {
+		notifications, _ = types.SetValue(types.StringType, []attr.Value{})
+		requiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
+	}
+	return notifications, requiredActions
 }

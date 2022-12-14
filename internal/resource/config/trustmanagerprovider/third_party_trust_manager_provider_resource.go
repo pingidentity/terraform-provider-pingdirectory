@@ -7,7 +7,6 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -179,15 +178,7 @@ func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.T
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
-	// Report any notifications from the Config API
-	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
-		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		state.RequiredActions, _ = config.GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
-		config.LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
-	} else {
-		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
-		state.RequiredActions, _ = types.SetValue(config.GetRequiredActionsObjectType(), []attr.Value{})
-	}
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information

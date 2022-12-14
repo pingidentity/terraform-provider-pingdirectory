@@ -19,7 +19,7 @@ resource "pingdirectory_location" "drangleic" {
 
 resource "pingdirectory_global_configuration" "global" {
   location = "Docker"
-  encrypt_data = true
+  encrypt_data = false
   sensitive_attribute = ["Delivered One-Time Password", "TOTP Shared Secret"]
   tracked_application = ["Requests by Root Users"]
   result_code_map = "Sun DS Compatible Behavior"

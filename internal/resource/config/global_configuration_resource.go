@@ -6,7 +6,6 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -870,15 +869,7 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.TrackedApplication = internaltypes.GetStringSet(r.TrackedApplication)
 	state.JmxValueBehavior = internaltypes.StringerStringTypeOrNil(r.JmxValueBehavior)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
-	// Report any notifications from the Config API
-	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
-		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		state.RequiredActions, _ = GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
-		LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
-	} else {
-		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
-		state.RequiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
-	}
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Create any update operations necessary to make the state match the plan

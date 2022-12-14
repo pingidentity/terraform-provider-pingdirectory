@@ -6,7 +6,6 @@ import (
 	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -146,15 +145,7 @@ func readLocationResponse(ctx context.Context, r *client.LocationResponse, state
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	// Report any notifications from the Config API
-	if r.Urnpingidentityschemasconfigurationmessages20 != nil {
-		state.Notifications = internaltypes.GetStringSet(r.Urnpingidentityschemasconfigurationmessages20.Notifications)
-		state.RequiredActions, _ = GetRequiredActionsSet(*r.Urnpingidentityschemasconfigurationmessages20)
-		LogMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
-	} else {
-		state.Notifications, _ = types.SetValue(types.StringType, []attr.Value{})
-		state.RequiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
-	}
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information
