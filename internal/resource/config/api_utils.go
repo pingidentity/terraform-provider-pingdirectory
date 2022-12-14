@@ -54,7 +54,7 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 }
 
 // Write out messages from the Config API response to tflog
-func LogMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20) {
+func logMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20) {
 	if messages == nil {
 		return
 	}
@@ -79,7 +79,7 @@ func ReadMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchem
 	if messages != nil {
 		notifications = internaltypes.GetStringSet(messages.Notifications)
 		requiredActions, _ = GetRequiredActionsSet(*messages)
-		LogMessages(ctx, messages)
+		logMessages(ctx, messages)
 	} else {
 		notifications, _ = types.SetValue(types.StringType, []attr.Value{})
 		requiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
