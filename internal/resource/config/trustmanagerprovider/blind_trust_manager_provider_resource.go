@@ -2,7 +2,9 @@ package trustmanagerprovider
 
 import (
 	"context"
-	"terraform-provider-pingdirectory/internal/utils"
+	"terraform-provider-pingdirectory/internal/operations"
+	"terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,7 +30,7 @@ func NewBlindTrustManagerProviderResource() resource.Resource {
 
 // blindTrustManagerProviderResource is the resource implementation.
 type blindTrustManagerProviderResource struct {
-	providerConfig utils.ProviderConfiguration
+	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
@@ -38,6 +40,8 @@ type blindTrustManagerProviderResourceModel struct {
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	IncludeJVMDefaultIssuers types.Bool   `tfsdk:"include_jvm_default_issuers"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
+	Notifications            types.Set    `tfsdk:"notifications"`
+	RequiredActions          types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -47,7 +51,7 @@ func (r *blindTrustManagerProviderResource) Metadata(_ context.Context, req reso
 
 // GetSchema defines the schema for the resource.
 func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: "Manages a Blind Trust Manager Provider.",
 		Attributes: map[string]tfsdk.Attribute{
 			"name": {
@@ -70,15 +74,10 @@ func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.
 				Optional:    true,
 				Computed:    true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Trust Manager Provider.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
 		},
-	}, nil
+	}
+	config.AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -87,7 +86,7 @@ func (r *blindTrustManagerProviderResource) Configure(_ context.Context, req res
 		return
 	}
 
-	providerCfg := req.ProviderData.(utils.ResourceConfiguration)
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
 	r.apiClient = providerCfg.ApiClient
 }
@@ -95,7 +94,7 @@ func (r *blindTrustManagerProviderResource) Configure(_ context.Context, req res
 // Add optional fields to create request
 func addOptionalBlindTrustManagerProviderFields(addRequest *client.AddBlindTrustManagerProviderRequest, plan blindTrustManagerProviderResourceModel) {
 	// Non string values just have to be defined
-	if utils.IsDefinedBool(plan.IncludeJVMDefaultIssuers) {
+	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
 		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
 		addRequest.IncludeJVMDefaultIssuers = &boolVal
 	}
@@ -120,13 +119,13 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddBlindTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -137,7 +136,7 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
+	readBlindTrustManagerProviderResponse(ctx, trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
 
 	// Populate Computed attribute values
 	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -151,10 +150,11 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 }
 
 // Read a BlindTrustManagerProviderResponse object into the model struct
-func readBlindTrustManagerProviderResponse(r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel) {
+func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
-	state.IncludeJVMDefaultIssuers = utils.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
+	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information
@@ -168,9 +168,9 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 	}
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+		config.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -181,7 +181,7 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &state)
+	readBlindTrustManagerProviderResponse(ctx, trustManagerResponse.BlindTrustManagerProviderResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -195,8 +195,8 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 func createBlindTrustManagerProviderOperations(plan blindTrustManagerProviderResourceModel, state blindTrustManagerProviderResourceModel) []client.Operation {
 	var ops []client.Operation
 
-	utils.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	utils.AddBoolOperationIfNecessary(&ops, plan.IncludeJVMDefaultIssuers, state.IncludeJVMDefaultIssuers, "include-jvm-default-issuers")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeJVMDefaultIssuers, state.IncludeJVMDefaultIssuers, "include-jvm-default-issuers")
 	return ops
 }
 
@@ -213,18 +213,18 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 	// Get the current state to see how any attributes are changing
 	var state blindTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createBlindTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
-		utils.LogUpdateOperations(ctx, ops)
+		operations.LogUpdateOperations(ctx, ops)
 
 		trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
-			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
 		}
 
@@ -235,7 +235,7 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readBlindTrustManagerProviderResponse(trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
+		readBlindTrustManagerProviderResponse(ctx, trustManagerResponse.BlindTrustManagerProviderResponse, &plan)
 		// Update computed values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -260,9 +260,9 @@ func (r *blindTrustManagerProviderResource) Delete(ctx context.Context, req reso
 	}
 
 	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(
-		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
 		return
 	}
 }

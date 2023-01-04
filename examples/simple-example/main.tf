@@ -19,14 +19,14 @@ resource "pingdirectory_location" "drangleic" {
 
 resource "pingdirectory_global_configuration" "global" {
   location = "Docker"
-  encrypt_data = true
+  encrypt_data = false
   sensitive_attribute = ["Delivered One-Time Password", "TOTP Shared Secret"]
   tracked_application = ["Requests by Root Users"]
   result_code_map = "Sun DS Compatible Behavior"
-  #result_code_map = ""
+  disabled_privilege = ["jmx-write", "jmx-read"]
 }
 
-/*resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
+resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
   name = "Blind Test"
   enabled = true
   include_jvm_default_issuers = true
@@ -51,10 +51,3 @@ resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
   extension_class = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
   extension_argument = ["val1=one", "val2=two"]
 }
-
-resource "pingdirectory_directory_server_instance" "mine" {
-  // This instance name needs to match the instance name generated for the running instance
-  server_instance_name = "46494028a111"
-  jmx_port = 1112
-  start_tls_enabled = true
-}*/

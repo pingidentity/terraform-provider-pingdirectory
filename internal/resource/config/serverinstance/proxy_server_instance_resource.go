@@ -2,7 +2,9 @@ package serverinstance
 
 import (
 	"context"
-	"terraform-provider-pingdirectory/internal/utils"
+	"terraform-provider-pingdirectory/internal/operations"
+	"terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,33 +30,8 @@ func NewProxyServerInstanceResource() resource.Resource {
 
 // proxyServerInstanceResource is the resource implementation.
 type proxyServerInstanceResource struct {
-	providerConfig utils.ProviderConfiguration
+	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
-}
-
-// proxyServerInstanceResourceModel maps the resource schema data.
-type proxyServerInstanceResourceModel struct {
-	ServerInstanceName        types.String `tfsdk:"server_instance_name"`
-	ClusterName               types.String `tfsdk:"cluster_name"`
-	ServerInstanceLocation    types.String `tfsdk:"server_instance_location"`
-	Hostname                  types.String `tfsdk:"hostname"`
-	ServerRoot                types.String `tfsdk:"server_root"`
-	ServerVersion             types.String `tfsdk:"server_version"`
-	InterServerCertificate    types.String `tfsdk:"inter_server_certificate"`
-	LdapPort                  types.Int64  `tfsdk:"ldap_port"`
-	LdapsPort                 types.Int64  `tfsdk:"ldaps_port"`
-	HttpPort                  types.Int64  `tfsdk:"http_port"`
-	HttpsPort                 types.Int64  `tfsdk:"https_port"`
-	ReplicationPort           types.Int64  `tfsdk:"replication_port"`
-	ReplicationServerID       types.Int64  `tfsdk:"replication_server_id"`
-	ReplicationDomainServerID types.Set    `tfsdk:"replication_domain_server_id"`
-	JmxPort                   types.Int64  `tfsdk:"jmx_port"`
-	JmxsPort                  types.Int64  `tfsdk:"jmxs_port"`
-	PreferredSecurity         types.String `tfsdk:"preferred_security"`
-	StartTLSEnabled           types.Bool   `tfsdk:"start_tls_enabled"`
-	BaseDN                    types.Set    `tfsdk:"base_dn"`
-	MemberOfServerGroup       types.Set    `tfsdk:"member_of_server_group"`
-	LastUpdated               types.String `tfsdk:"last_updated"`
 }
 
 // Metadata returns the resource type name.
@@ -64,144 +41,7 @@ func (r *proxyServerInstanceResource) Metadata(_ context.Context, req resource.M
 
 // GetSchema defines the schema for the resource.
 func (r *proxyServerInstanceResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
-		Description: "Manages a Proxy Server Instance.",
-		Attributes: map[string]tfsdk.Attribute{
-			// All are considered computed, since we are importing the existing server
-			// instance from a server, rather than "creating" a server instance
-			// like a typical Terraform resource.
-			"server_instance_name": {
-				Description: "The name of this Server Instance. The instance name needs to be unique if this server will be part of a topology of servers that are connected to each other. Once set, it may not be changed.",
-				Type:        types.StringType,
-				Required:    true,
-			},
-			"cluster_name": {
-				Description: "The name of the cluster to which this Server Instance belongs. Server instances within the same cluster will share the same cluster-wide configuration.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"server_instance_location": {
-				Description: "Specifies the location for the Server Instance.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"hostname": {
-				Description: "The name of the host where this Server Instance is installed.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"server_root": {
-				Description: "The file system path where this Server Instance is installed.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"server_version": {
-				Description: "The version of the server.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"inter_server_certificate": {
-				Description: "The public component of the certificate used by this instance to protect inter-server communication and to perform server-specific encryption. This will generally be managed by the server and should only be altered by administrators under explicit direction from Ping Identity support personnel.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"ldap_port": {
-				Description: "The TCP port on which this server is listening for LDAP connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"ldaps_port": {
-				Description: "The TCP port on which this server is listening for LDAP secure connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"http_port": {
-				Description: "The TCP port on which this server is listening for HTTP connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"https_port": {
-				Description: "The TCP port on which this server is listening for HTTPS connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"replication_port": {
-				Description: "The replication TCP port.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"replication_server_id": {
-				Description: "Specifies a unique identifier for the replication server on this server instance.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"replication_domain_server_id": {
-				Description: "Specifies a unique identifier for the Directory Server within the replication domain.",
-				Type: types.SetType{
-					ElemType: types.Int64Type,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"jmx_port": {
-				Description: "The TCP port on which this server is listening for JMX connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"jmxs_port": {
-				Description: "The TCP port on which this server is listening for JMX secure connections.",
-				Type:        types.Int64Type,
-				Optional:    true,
-				Computed:    true,
-			},
-			"preferred_security": {
-				Description: "Specifies the preferred mechanism to use for securing connections to the server.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"start_tls_enabled": {
-				Description: "Indicates whether StartTLS is enabled on this server.",
-				Type:        types.BoolType,
-				Optional:    true,
-				Computed:    true,
-			},
-			"base_dn": {
-				Description: "The set of base DNs under the root DSE.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"member_of_server_group": {
-				Description: "The set of groups of which this server is a member.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Server Instance.",
-				Type:        types.StringType,
-				Computed:    true,
-			},
-		},
-	}, nil
+	return GetCommonServerInstanceSchema("Manages a Proxy Server Instance.")
 }
 
 // Configure adds the provider configured client to the resource.
@@ -210,7 +50,7 @@ func (r *proxyServerInstanceResource) Configure(_ context.Context, req resource.
 		return
 	}
 
-	providerCfg := req.ProviderData.(utils.ResourceConfiguration)
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
 	r.apiClient = providerCfg.ApiClient
 }
@@ -221,16 +61,16 @@ func (r *proxyServerInstanceResource) Configure(_ context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan proxyServerInstanceResourceModel
+	var plan CommonServerInstanceResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(utils.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString()).Execute()
+	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
 	}
 
@@ -241,20 +81,20 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Read existing config
-	var state proxyServerInstanceResourceModel
-	readProxyServerInstanceResponse(getResp.ProxyServerInstanceResponse, &state)
+	var state CommonServerInstanceResourceModel
+	readProxyServerInstanceResponse(ctx, getResp.ProxyServerInstanceResponse, &state)
 
 	// Determine what changes need to be made to match the plan
-	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(utils.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
-	ops := createProxyServerInstanceOperations(plan, state)
+	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	ops := CreateCommonServerInstanceOperations(plan, state)
 
 	if len(ops) > 0 {
 		updateInstanceRequest = updateInstanceRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
-		utils.LogUpdateOperations(ctx, ops)
+		operations.LogUpdateOperations(ctx, ops)
 		instanceResp, httpResp, err := r.apiClient.ServerInstanceApi.UpdateServerInstanceExecute(updateInstanceRequest)
 		if err != nil {
-			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance", err, httpResp)
 			return
 		}
 
@@ -265,7 +105,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		readProxyServerInstanceResponse(instanceResp.ProxyServerInstanceResponse, &plan)
+		readProxyServerInstanceResponse(ctx, instanceResp.ProxyServerInstanceResponse, &plan)
 		// Populate Computed attribute values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -283,52 +123,47 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 
 // Read a ProxyServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
-func readProxyServerInstanceResponse(r *client.ProxyServerInstanceResponse, state *proxyServerInstanceResourceModel) {
+func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *CommonServerInstanceResourceModel) {
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
-	state.ServerInstanceLocation = utils.StringTypeOrNil(r.ServerInstanceLocation, true)
-	state.Hostname = utils.StringTypeOrNil(r.Hostname, true)
-	state.ServerRoot = utils.StringTypeOrNil(r.ServerRoot, true)
+	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)
+	state.Hostname = internaltypes.StringTypeOrNil(r.Hostname, true)
+	state.ServerRoot = internaltypes.StringTypeOrNil(r.ServerRoot, true)
 	state.ServerVersion = types.StringValue(r.ServerVersion)
-	state.InterServerCertificate = utils.StringTypeOrNil(r.InterServerCertificate, true)
-	state.LdapPort = utils.Int64TypeOrNil(r.LdapPort)
-	state.LdapsPort = utils.Int64TypeOrNil(r.LdapsPort)
-	state.HttpPort = utils.Int64TypeOrNil(r.HttpPort)
-	state.HttpsPort = utils.Int64TypeOrNil(r.HttpsPort)
-	state.ReplicationPort = utils.Int64TypeOrNil(r.ReplicationPort)
-	state.ReplicationServerID = utils.Int64TypeOrNil(r.ReplicationServerID)
-	state.ReplicationDomainServerID = utils.GetInt64Set(r.ReplicationDomainServerID)
-	/*
-		if r.ReplicationDomainServerID != nil {
-			state.ReplicationDomainServerID = utils.GetInt64Set(*r.ReplicationDomainServerID)
-		} else {
-			state.ReplicationDomainServerID, _ = types.SetValue(types.Int64Type, []attr.Value{})
-		}*/
-	state.JmxPort = utils.Int64TypeOrNil(r.JmxPort)
-	state.JmxsPort = utils.Int64TypeOrNil(r.JmxsPort)
+	state.InterServerCertificate = internaltypes.StringTypeOrNil(r.InterServerCertificate, true)
+	state.LdapPort = internaltypes.Int64TypeOrNil(r.LdapPort)
+	state.LdapsPort = internaltypes.Int64TypeOrNil(r.LdapsPort)
+	state.HttpPort = internaltypes.Int64TypeOrNil(r.HttpPort)
+	state.HttpsPort = internaltypes.Int64TypeOrNil(r.HttpsPort)
+	state.ReplicationPort = internaltypes.Int64TypeOrNil(r.ReplicationPort)
+	state.ReplicationServerID = internaltypes.Int64TypeOrNil(r.ReplicationServerID)
+	state.ReplicationDomainServerID = internaltypes.GetInt64Set(r.ReplicationDomainServerID)
+	state.JmxPort = internaltypes.Int64TypeOrNil(r.JmxPort)
+	state.JmxsPort = internaltypes.Int64TypeOrNil(r.JmxsPort)
 	if r.PreferredSecurity != nil {
 		state.PreferredSecurity = types.StringValue(string(*r.PreferredSecurity))
 	} else {
 		state.PreferredSecurity = types.StringValue("")
 	}
-	state.StartTLSEnabled = utils.BoolTypeOrNil(r.StartTLSEnabled)
-	state.BaseDN = utils.GetStringSet(r.BaseDN)
-	state.MemberOfServerGroup = utils.GetStringSet(r.MemberOfServerGroup)
+	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information
 func (r *proxyServerInstanceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state proxyServerInstanceResourceModel
+	var state CommonServerInstanceResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(utils.BasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString()).Execute()
+	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.BasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
 	}
 
@@ -339,7 +174,7 @@ func (r *proxyServerInstanceResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Read the response into the state
-	readProxyServerInstanceResponse(serverInstanceResponse.ProxyServerInstanceResponse, &state)
+	readProxyServerInstanceResponse(ctx, serverInstanceResponse.ProxyServerInstanceResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -349,37 +184,10 @@ func (r *proxyServerInstanceResource) Read(ctx context.Context, req resource.Rea
 	}
 }
 
-// Create any update operations necessary to make the state match the plan
-func createProxyServerInstanceOperations(plan proxyServerInstanceResourceModel, state proxyServerInstanceResourceModel) []client.Operation {
-	var ops []client.Operation
-
-	utils.AddStringOperationIfNecessary(&ops, plan.ClusterName, state.ClusterName, "cluster-name")
-	utils.AddStringOperationIfNecessary(&ops, plan.ServerInstanceLocation, state.ServerInstanceLocation, "server-instance-location")
-	utils.AddStringOperationIfNecessary(&ops, plan.Hostname, state.Hostname, "hostname")
-	utils.AddStringOperationIfNecessary(&ops, plan.ServerRoot, state.ServerRoot, "server-root")
-	utils.AddStringOperationIfNecessary(&ops, plan.ServerVersion, state.ServerVersion, "server-version")
-	utils.AddStringOperationIfNecessary(&ops, plan.InterServerCertificate, state.InterServerCertificate, "inter-server-certificate")
-	utils.AddInt64OperationIfNecessary(&ops, plan.LdapPort, state.LdapPort, "ldap-port")
-	utils.AddInt64OperationIfNecessary(&ops, plan.LdapsPort, state.LdapsPort, "ldaps-port")
-	utils.AddInt64OperationIfNecessary(&ops, plan.HttpPort, state.HttpPort, "http-port")
-	utils.AddInt64OperationIfNecessary(&ops, plan.HttpsPort, state.HttpsPort, "https-port")
-	utils.AddInt64OperationIfNecessary(&ops, plan.ReplicationPort, state.ReplicationPort, "replication-port")
-	utils.AddInt64OperationIfNecessary(&ops, plan.ReplicationServerID, state.ReplicationServerID, "replication-server-id")
-	utils.AddInt64SetOperationsIfNecessary(&ops, plan.ReplicationDomainServerID, state.ReplicationDomainServerID, "replication-domain-server-id")
-	utils.AddInt64OperationIfNecessary(&ops, plan.JmxPort, state.JmxPort, "jmx-port")
-	utils.AddInt64OperationIfNecessary(&ops, plan.JmxsPort, state.JmxsPort, "jmxs-port")
-	utils.AddStringOperationIfNecessary(&ops, plan.PreferredSecurity, state.PreferredSecurity, "preferred-security")
-	utils.AddBoolOperationIfNecessary(&ops, plan.StartTLSEnabled, state.StartTLSEnabled, "start-tls-enabled")
-	utils.AddStringSetOperationsIfNecessary(&ops, plan.BaseDN, state.BaseDN, "base-dn")
-	utils.AddStringSetOperationsIfNecessary(&ops, plan.MemberOfServerGroup, state.MemberOfServerGroup, "member-of-server-group")
-	utils.AddStringOperationIfNecessary(&ops, plan.LastUpdated, state.LastUpdated, "last-updated")
-	return ops
-}
-
 // Update a resource
 func (r *proxyServerInstanceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan proxyServerInstanceResourceModel
+	var plan CommonServerInstanceResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -387,20 +195,20 @@ func (r *proxyServerInstanceResource) Update(ctx context.Context, req resource.U
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state proxyServerInstanceResourceModel
+	var state CommonServerInstanceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(utils.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createProxyServerInstanceOperations(plan, state)
+	ops := CreateCommonServerInstanceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
-		utils.LogUpdateOperations(ctx, ops)
+		operations.LogUpdateOperations(ctx, ops)
 
 		serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.UpdateServerInstanceExecute(updateRequest)
 		if err != nil {
-			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Server Instance", err, httpResp)
 			return
 		}
 
@@ -411,7 +219,7 @@ func (r *proxyServerInstanceResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		readProxyServerInstanceResponse(serverInstanceResponse.ProxyServerInstanceResponse, &state)
+		readProxyServerInstanceResponse(ctx, serverInstanceResponse.ProxyServerInstanceResponse, &state)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

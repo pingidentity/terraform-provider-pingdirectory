@@ -2,7 +2,9 @@ package trustmanagerprovider
 
 import (
 	"context"
-	"terraform-provider-pingdirectory/internal/utils"
+	"terraform-provider-pingdirectory/internal/operations"
+	"terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,7 +30,7 @@ func NewFileBasedTrustManagerProviderResource() resource.Resource {
 
 // fileBasedTrustManagerProviderResource is the resource implementation.
 type fileBasedTrustManagerProviderResource struct {
-	providerConfig utils.ProviderConfiguration
+	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
@@ -43,6 +45,8 @@ type fileBasedTrustManagerProviderResourceModel struct {
 	Enabled                         types.Bool   `tfsdk:"enabled"`
 	IncludeJVMDefaultIssuers        types.Bool   `tfsdk:"include_jvm_default_issuers"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
+	Notifications                   types.Set    `tfsdk:"notifications"`
+	RequiredActions                 types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -52,7 +56,7 @@ func (r *fileBasedTrustManagerProviderResource) Metadata(_ context.Context, req 
 
 // GetSchema defines the schema for the resource.
 func (r *fileBasedTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: "Manages a File Based Trust Manager Provider.",
 		Attributes: map[string]tfsdk.Attribute{
 			"name": {
@@ -101,15 +105,10 @@ func (r *fileBasedTrustManagerProviderResource) GetSchema(_ context.Context) (tf
 				Optional:    true,
 				Computed:    true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Trust Manager Provider.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
 		},
-	}, nil
+	}
+	config.AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -118,7 +117,7 @@ func (r *fileBasedTrustManagerProviderResource) Configure(_ context.Context, req
 		return
 	}
 
-	providerCfg := req.ProviderData.(utils.ResourceConfiguration)
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
 	r.apiClient = providerCfg.ApiClient
 }
@@ -126,24 +125,24 @@ func (r *fileBasedTrustManagerProviderResource) Configure(_ context.Context, req
 // Add optional fields to create request
 func addOptionalFileBasedTrustManagerProviderFields(addRequest *client.AddFileBasedTrustManagerProviderRequest, plan fileBasedTrustManagerProviderResourceModel) {
 	// Empty strings are treated as equivalent to null
-	if utils.IsNonEmptyString(plan.TrustStoreType) {
+	if internaltypes.IsNonEmptyString(plan.TrustStoreType) {
 		stringVal := plan.TrustStoreType.ValueString()
 		addRequest.TrustStoreType = &stringVal
 	}
-	if utils.IsNonEmptyString(plan.TrustStorePin) {
+	if internaltypes.IsNonEmptyString(plan.TrustStorePin) {
 		stringVal := plan.TrustStorePin.ValueString()
 		addRequest.TrustStorePin = &stringVal
 	}
-	if utils.IsNonEmptyString(plan.TrustStorePinFile) {
+	if internaltypes.IsNonEmptyString(plan.TrustStorePinFile) {
 		stringVal := plan.TrustStorePinFile.ValueString()
 		addRequest.TrustStorePinFile = &stringVal
 	}
-	if utils.IsNonEmptyString(plan.TrustStorePinPassphraseProvider) {
+	if internaltypes.IsNonEmptyString(plan.TrustStorePinPassphraseProvider) {
 		stringVal := plan.TrustStorePinPassphraseProvider.ValueString()
 		addRequest.TrustStorePinPassphraseProvider = &stringVal
 	}
 	// Non string values just have to be defined
-	if utils.IsDefinedBool(plan.IncludeJVMDefaultIssuers) {
+	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
 		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
 		addRequest.IncludeJVMDefaultIssuers = &boolVal
 	}
@@ -169,13 +168,13 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddFileBasedTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -187,7 +186,7 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 
 	// Read the response into the state
 	var state fileBasedTrustManagerProviderResourceModel
-	readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
+	readFileBasedTrustManagerProviderResponse(ctx, trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -201,20 +200,21 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 }
 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
-func readFileBasedTrustManagerProviderResponse(r *client.FileBasedTrustManagerProviderResponse,
+func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse,
 	state *fileBasedTrustManagerProviderResourceModel, expectedValues *fileBasedTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
-	state.TrustStoreType = utils.StringTypeOrNil(r.TrustStoreType, utils.IsEmptyString(expectedValues.TrustStoreType))
-	state.TrustStorePin = utils.StringTypeOrNil(r.TrustStorePin, utils.IsEmptyString(expectedValues.TrustStorePin))
-	state.TrustStorePinFile = utils.StringTypeOrNil(r.TrustStorePinFile, utils.IsEmptyString(expectedValues.TrustStorePinFile))
-	state.TrustStorePinPassphraseProvider = utils.StringTypeOrNil(r.TrustStorePinPassphraseProvider, utils.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
+	state.TrustStorePin = internaltypes.StringTypeOrNil(r.TrustStorePin, internaltypes.IsEmptyString(expectedValues.TrustStorePin))
+	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
+	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 
 	state.Enabled = types.BoolValue(r.Enabled)
-	state.IncludeJVMDefaultIssuers = utils.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
+	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information
@@ -228,9 +228,9 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 	}
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+		config.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -241,7 +241,7 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 	}
 
 	// Read the response into the state
-	readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &state)
+	readFileBasedTrustManagerProviderResponse(ctx, trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -254,13 +254,13 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 // Create any update operations necessary to make the state match the plan
 func createFileBasedTrustManagerProviderOperations(plan fileBasedTrustManagerProviderResourceModel, state fileBasedTrustManagerProviderResourceModel) []client.Operation {
 	var ops []client.Operation
-	utils.AddStringOperationIfNecessary(&ops, plan.TrustStoreFile, state.TrustStoreFile, "trust-store-file")
-	utils.AddStringOperationIfNecessary(&ops, plan.TrustStoreType, state.TrustStoreType, "trust-store-type")
-	utils.AddStringOperationIfNecessary(&ops, plan.TrustStorePin, state.TrustStorePin, "trust-store-pin")
-	utils.AddStringOperationIfNecessary(&ops, plan.TrustStorePinFile, state.TrustStorePinFile, "trust-store-pin-file")
-	utils.AddStringOperationIfNecessary(&ops, plan.TrustStorePinPassphraseProvider, state.TrustStorePinPassphraseProvider, "trust-store-pin-passphrase-provider")
-	utils.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	utils.AddBoolOperationIfNecessary(&ops, plan.IncludeJVMDefaultIssuers, state.IncludeJVMDefaultIssuers, "include-jvm-default-issuers")
+	operations.AddStringOperationIfNecessary(&ops, plan.TrustStoreFile, state.TrustStoreFile, "trust-store-file")
+	operations.AddStringOperationIfNecessary(&ops, plan.TrustStoreType, state.TrustStoreType, "trust-store-type")
+	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePin, state.TrustStorePin, "trust-store-pin")
+	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePinFile, state.TrustStorePinFile, "trust-store-pin-file")
+	operations.AddStringOperationIfNecessary(&ops, plan.TrustStorePinPassphraseProvider, state.TrustStorePinPassphraseProvider, "trust-store-pin-passphrase-provider")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeJVMDefaultIssuers, state.IncludeJVMDefaultIssuers, "include-jvm-default-issuers")
 	return ops
 }
 
@@ -277,18 +277,18 @@ func (r *fileBasedTrustManagerProviderResource) Update(ctx context.Context, req 
 	// Get the current state to see how any attributes are changing
 	var state fileBasedTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createFileBasedTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
-		utils.LogUpdateOperations(ctx, ops)
+		operations.LogUpdateOperations(ctx, ops)
 
 		trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
-			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
 		}
 
@@ -299,7 +299,7 @@ func (r *fileBasedTrustManagerProviderResource) Update(ctx context.Context, req 
 		}
 
 		// Read the response
-		readFileBasedTrustManagerProviderResponse(trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
+		readFileBasedTrustManagerProviderResponse(ctx, trustManagerResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -324,9 +324,9 @@ func (r *fileBasedTrustManagerProviderResource) Delete(ctx context.Context, req 
 	}
 
 	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(
-		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
 		return
 	}
 }

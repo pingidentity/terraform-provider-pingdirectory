@@ -3,7 +3,7 @@ package ldap
 import (
 	"context"
 	"strings"
-	"terraform-provider-pingdirectory/internal/utils"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -32,7 +32,7 @@ func NewUsersResource() resource.Resource {
 
 // usersResource is the resource implementation.
 type usersResource struct {
-	providerConfig utils.ProviderConfiguration
+	providerConfig internaltypes.ProviderConfiguration
 }
 
 // usersResourceModel maps the resource schema data.
@@ -134,7 +134,7 @@ func (r *usersResource) Configure(_ context.Context, req resource.ConfigureReque
 		return
 	}
 
-	resourceConfig := req.ProviderData.(utils.ResourceConfiguration)
+	resourceConfig := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = resourceConfig.ProviderConfig
 }
 
@@ -194,9 +194,6 @@ func (r *usersResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 // Read resource information
 func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	//TODO how to gracefully handle if the user on the remote server gets deleted (outside of terraform's control)?
-	// Kind of a general question for best practice for a provider.
-
 	// Get current state
 	var state usersResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -212,7 +209,6 @@ func (r *usersResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	}
 	defer l.Close()
 
-	//TODO appropriate parameters here - just following one of the package's examples
 	// NOTE: this does no input sanitization so it's probably HIGHLY insecure
 	searchRequest := ldap.NewSearchRequest(baseDN, ldap.ScopeSingleLevel, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(uid="+state.Uid.ValueString()+")(objectClass=person))", []string{"*"}, nil)
@@ -272,9 +268,7 @@ func (r *usersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	defer l.Close()
 
 	// Need to get the current state of the entry
-	//TODO use the state or search the directory? Could lead to issues if the directory state is updated and we form the modify request incorrectly.
-	// Kind of a provider best practice question.
-	//TODO use --permissiveModify request control?
+	// Use --permissiveModify request control?
 	var state usersResourceModel
 	req.State.Get(ctx, &state)
 

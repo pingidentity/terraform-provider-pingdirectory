@@ -2,7 +2,9 @@ package trustmanagerprovider
 
 import (
 	"context"
-	"terraform-provider-pingdirectory/internal/utils"
+	"terraform-provider-pingdirectory/internal/operations"
+	"terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,15 +30,17 @@ func NewJVMDefaultTrustManagerProviderResource() resource.Resource {
 
 // jvmDefaultTrustManagerProviderResource is the resource implementation.
 type jvmDefaultTrustManagerProviderResource struct {
-	providerConfig utils.ProviderConfiguration
+	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
 // jvmDefaultTrustManagerProviderResourceModel maps the resource schema data.
 type jvmDefaultTrustManagerProviderResourceModel struct {
-	Name        types.String `tfsdk:"name"`
-	Enabled     types.Bool   `tfsdk:"enabled"`
-	LastUpdated types.String `tfsdk:"last_updated"`
+	Name            types.String `tfsdk:"name"`
+	Enabled         types.Bool   `tfsdk:"enabled"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
 }
 
 // Metadata returns the resource type name.
@@ -46,7 +50,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Metadata(_ context.Context, req
 
 // GetSchema defines the schema for the resource.
 func (r *jvmDefaultTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+	schema := tfsdk.Schema{
 		Description: "Manages a JVM Default Trust Manager Provider.",
 		Attributes: map[string]tfsdk.Attribute{
 			"name": {
@@ -62,15 +66,10 @@ func (r *jvmDefaultTrustManagerProviderResource) GetSchema(_ context.Context) (t
 				Type:        types.BoolType,
 				Required:    true,
 			},
-			"last_updated": {
-				Description: "Timestamp of the last Terraform update of the Trust Manager Provider.",
-				Type:        types.StringType,
-				Computed:    true,
-				Required:    false,
-				Optional:    false,
-			},
 		},
-	}, nil
+	}
+	config.AddCommonSchema(&schema)
+	return schema, nil
 }
 
 // Configure adds the provider configured client to the resource.
@@ -79,7 +78,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Configure(_ context.Context, re
 		return
 	}
 
-	providerCfg := req.ProviderData.(utils.ResourceConfiguration)
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
 	r.apiClient = providerCfg.ApiClient
 }
@@ -102,13 +101,13 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddJvmDefaultTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -119,7 +118,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
+	readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
 
 	// Populate Computed attribute values
 	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -133,9 +132,10 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 }
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
-func readJvmDefaultTrustManagerProviderResponse(r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
+func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information
@@ -149,9 +149,9 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 	}
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+		config.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
 	}
 
@@ -162,7 +162,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &state)
+	readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -176,7 +176,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 func createJvmDefaultTrustManagerProviderOperations(plan jvmDefaultTrustManagerProviderResourceModel, state jvmDefaultTrustManagerProviderResourceModel) []client.Operation {
 	var ops []client.Operation
 
-	utils.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops
 }
 
@@ -193,18 +193,18 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state jvmDefaultTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJvmDefaultTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
-		utils.LogUpdateOperations(ctx, ops)
+		operations.LogUpdateOperations(ctx, ops)
 
 		trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
-			utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
 			return
 		}
 
@@ -215,7 +215,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 		}
 
 		// Read the response
-		readJvmDefaultTrustManagerProviderResponse(trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
+		readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
 		// Update computed values
 		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -240,9 +240,9 @@ func (r *jvmDefaultTrustManagerProviderResource) Delete(ctx context.Context, req
 	}
 
 	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(
-		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(utils.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(config.BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
-		utils.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
 		return
 	}
 }
