@@ -36,6 +36,8 @@ type jvmDefaultTrustManagerProviderResource struct {
 
 // jvmDefaultTrustManagerProviderResourceModel maps the resource schema data.
 type jvmDefaultTrustManagerProviderResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id              types.String `tfsdk:"id"`
 	Name            types.String `tfsdk:"name"`
 	Enabled         types.Bool   `tfsdk:"enabled"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
@@ -133,6 +135,8 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
 func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)

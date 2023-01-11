@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"net/http"
+	"os"
 
 	"terraform-provider-pingdirectory/internal/resource/config"
 	"terraform-provider-pingdirectory/internal/resource/config/serverinstance"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -24,12 +24,9 @@ import (
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
 type pingdirectoryProviderModel struct {
-	//LdapHost  types.String `tfsdk:"ldap_host"`
 	HttpsHost types.String `tfsdk:"https_host"`
 	Username  types.String `tfsdk:"username"`
 	Password  types.String `tfsdk:"password"`
-	// Uncomment if user management needs to be supported
-	//DefaultUserPassword types.String `tfsdk:"default_user_password"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -55,33 +52,25 @@ func (p *pingdirectoryProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag
 	return tfsdk.Schema{
 		Description: "PingDirectory POC Provider.",
 		Attributes: map[string]tfsdk.Attribute{
-			/*"ldap_host": {
-				Description: "URI for PingDirectory LDAP port.",
-				Type:        types.StringType,
-				Required:    true,
-			},*/
 			"https_host": {
 				Description: "URI for PingDirectory HTTPS port.",
 				Type:        types.StringType,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 			},
 			"username": {
 				Description: "Username for PingDirectory admin user.",
 				Type:        types.StringType,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 			},
 			"password": {
 				Description: "Password for PingDirectory admin user.",
 				Type:        types.StringType,
-				Required:    true,
 				Sensitive:   true,
-			},
-			/*"default_user_password": {
-				Description: "Default user password for created PingDirectory users.",
-				Type:        types.StringType,
+				Computed:    true,
 				Optional:    true,
-				Sensitive:   true,
-			},*/
+			},
 		},
 	}, nil
 }
@@ -98,95 +87,70 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		return
 	}
 
-	// If practitioner provided a configuration value for any of the
-	// attributes, it must be a known value.
-
-	/*if config.LdapHost.IsUnknown() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("ldap_host"),
-			"Unknown PingDirectory LDAP Host",
-			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the PingDirectory LDAP host. "+
-				"Either target apply the source of the value first or set the value statically in the configuration.",
-		)
-	}*/
-
+	// User must provide a https host to the provider
+	var httpsHost string
 	if config.HttpsHost.IsUnknown() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("https_host"),
-			"Unknown PingDirectory HTTPS Host",
-			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the PingDirectory HTTPS host. "+
-				"Either target apply the source of the value first or set the value statically in the configuration.",
+		// Cannot connect to PingDirectory with an unknown value
+		resp.Diagnostics.AddError(
+			"Unable to connect to the PingDirectory instance",
+			"Cannot use unknown value as https_host",
 		)
+	} else {
+		if config.HttpsHost.IsNull() {
+			httpsHost = os.Getenv("PINGDIRECTORY_PROVIDER_HTTPS_HOST")
+		} else {
+			httpsHost = config.HttpsHost.ValueString()
+		}
+		if httpsHost == "" {
+			resp.Diagnostics.AddError(
+				"Unable to find https_host",
+				"https_host cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_HTTPS_HOST environment variable.",
+			)
+		}
 	}
 
+	// User must provide a username to the provider
+	var username string
 	if config.Username.IsUnknown() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("username"),
-			"Unknown PingDirectory Username",
-			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the PingDirectory username. "+
-				"Either target apply the source of the value first or set the value statically in the configuration.",
+		// Cannot connect to PingDirectory with an unknown value
+		resp.Diagnostics.AddError(
+			"Unable to connect to the PingDirectory instance",
+			"Cannot use unknown value as username",
 		)
+	} else {
+		if config.Username.IsNull() {
+			username = os.Getenv("PINGDIRECTORY_PROVIDER_USERNAME")
+		} else {
+			username = config.Username.ValueString()
+		}
+		if username == "" {
+			resp.Diagnostics.AddError(
+				"Unable to find username",
+				"username cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_USERNAME environment variable.",
+			)
+		}
 	}
 
+	// User must provide a username to the provider
+	var password string
 	if config.Password.IsUnknown() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("password"),
-			"Unknown PingDirectory Password",
-			"The provider cannot create the PingDirectory client as there is an unknown configuration value for the PingDirectory password. "+
-				"Either target apply the source of the value first or set the value statically in the configuration.",
+		// Cannot connect to PingDirectory with an unknown value
+		resp.Diagnostics.AddError(
+			"Unable to connect to the PingDirectory instance",
+			"Cannot use unknown value as password",
 		)
-	}
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	//var ldapHost = config.LdapHost.ValueString()
-	var httpsHost = config.HttpsHost.ValueString()
-	var username = config.Username.ValueString()
-	var password = config.Password.ValueString()
-
-	// If any of the expected configurations are missing, return
-	// errors with provider-specific guidance.
-
-	/*if ldapHost == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("ldap_host"),
-			"Missing PingDirectory LDAP Host",
-			"The provider cannot create the PingDirectory client as there is a missing or empty value for the PingDirectory host. "+
-				"Set the host value in the configuration. "+
-				"If it is already set, ensure the value is not empty.",
-		)
-	}*/
-
-	if httpsHost == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("https_host"),
-			"Missing PingDirectory HTTPS Host",
-			"The provider cannot create the PingDirectory client as there is a missing or empty value for the PingDirectory host. "+
-				"Set the host value in the configuration. "+
-				"If it is already set, ensure the value is not empty.",
-		)
-	}
-
-	if username == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("username"),
-			"Missing PingDirectory Username",
-			"The provider cannot create the PingDirectory client as there is a missing or empty value for the PingDirectory username. "+
-				"Set the username value in the configuration. "+
-				"If it is already set, ensure the value is not empty.",
-		)
-	}
-
-	if password == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("password"),
-			"Missing PingDirectory Password",
-			"The provider cannot create the PingDirectory client as there is a missing or empty value for the PingDirectory password. "+
-				"Set the password value in the configuration. "+
-				"If it is already set, ensure the value is not empty.",
-		)
+	} else {
+		if config.Password.IsNull() {
+			password = os.Getenv("PINGDIRECTORY_PROVIDER_PASSWORD")
+		} else {
+			password = config.Password.ValueString()
+		}
+		if password == "" {
+			resp.Diagnostics.AddError(
+				"Unable to find password",
+				"password cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_PASSWORD environment variable.",
+			)
+		}
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -197,17 +161,15 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// type Configure methods.
 	var resourceConfig internaltypes.ResourceConfiguration
 	providerConfig := internaltypes.ProviderConfiguration{
-		HttpsHost: config.HttpsHost.ValueString(),
-		//LdapHost:  config.LdapHost.ValueString(),
-		Username: config.Username.ValueString(),
-		Password: config.Password.ValueString(),
-		//DefaultUserPassword: config.DefaultUserPassword.ValueString(),
+		HttpsHost: httpsHost,
+		Username:  username,
+		Password:  password,
 	}
 	resourceConfig.ProviderConfig = providerConfig
 	clientConfig := client.NewConfiguration()
 	clientConfig.Servers = client.ServerConfigurations{
 		{
-			URL: config.HttpsHost.ValueString() + "/config",
+			URL: httpsHost + "/config",
 		},
 	}
 	//TODO THIS IS NOT SAFE!! Eventually need to add way to trust a specific cert/signer here rather than just trusting everything
@@ -233,8 +195,6 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	return []func() resource.Resource{
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
-		// Disable the users resource in its current state
-		//ldap.NewUsersResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,

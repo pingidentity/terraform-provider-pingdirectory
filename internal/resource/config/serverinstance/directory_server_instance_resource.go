@@ -36,6 +36,8 @@ type directoryServerInstanceResource struct {
 
 // directoryServerInstanceResourceModel maps the resource schema data.
 type directoryServerInstanceResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id                         types.String `tfsdk:"id"`
 	ReplicationSetName         types.String `tfsdk:"replication_set_name"`
 	LoadBalancingAlgorithmName types.Set    `tfsdk:"load_balancing_algorithm_name"`
 	ServerInstanceName         types.String `tfsdk:"server_instance_name"`
@@ -169,6 +171,8 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 // Read a DirectoryServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.ServerInstanceName)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
 	state.LoadBalancingAlgorithmName = internaltypes.GetStringSet(r.LoadBalancingAlgorithmName)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)

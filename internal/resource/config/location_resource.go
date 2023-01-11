@@ -35,6 +35,8 @@ type locationResource struct {
 
 // locationResourceModel maps the resource schema data.
 type locationResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id              types.String `tfsdk:"id"`
 	Name            types.String `tfsdk:"name"`
 	Description     types.String `tfsdk:"description"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
@@ -140,6 +142,8 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 // Read a LocationResponse object into the model struct
 func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we

@@ -124,6 +124,8 @@ func (r *syncServerInstanceResource) Create(ctx context.Context, req resource.Cr
 // Read a SyncServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerInstanceResponse, state *CommonServerInstanceResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.ServerInstanceName)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
 	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)
