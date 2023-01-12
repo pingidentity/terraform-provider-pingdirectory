@@ -36,6 +36,8 @@ type blindTrustManagerProviderResource struct {
 
 // blindTrustManagerProviderResourceModel maps the resource schema data.
 type blindTrustManagerProviderResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	IncludeJVMDefaultIssuers types.Bool   `tfsdk:"include_jvm_default_issuers"`
@@ -151,6 +153,8 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 
 // Read a BlindTrustManagerProviderResponse object into the model struct
 func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)

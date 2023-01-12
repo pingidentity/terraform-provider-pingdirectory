@@ -36,6 +36,8 @@ type thirdPartyTrustManagerProviderResource struct {
 
 // thirdPartyTrustManagerProviderResourceModel maps the resource schema data.
 type thirdPartyTrustManagerProviderResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
 	ExtensionClass           types.String `tfsdk:"extension_class"`
 	ExtensionArgument        types.Set    `tfsdk:"extension_argument"`
@@ -173,6 +175,8 @@ func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req
 
 // Read a ThirdPartyTrustManagerProviderResponse object into the model struct
 func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.ThirdPartyTrustManagerProviderResponse, state *thirdPartyTrustManagerProviderResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)

@@ -35,6 +35,8 @@ type globalConfigurationResource struct {
 
 // globalConfigurationResourceModel maps the resource schema data.
 type globalConfigurationResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id                                                             types.String `tfsdk:"id"`
 	InstanceName                                                   types.String `tfsdk:"instance_name"`
 	Location                                                       types.String `tfsdk:"location"`
 	ConfigurationServerGroup                                       types.String `tfsdk:"configuration_server_group"`
@@ -784,6 +786,8 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 
 // Read a GlobalConfigurationRespnse object into the model struct
 func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.InstanceName)
 	state.InstanceName = types.StringValue(r.InstanceName)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, true)
 	state.ConfigurationServerGroup = internaltypes.StringTypeOrNil(r.ConfigurationServerGroup, true)

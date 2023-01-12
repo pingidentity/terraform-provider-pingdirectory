@@ -51,6 +51,11 @@ func AddCommonSchema(schema *tfsdk.Schema) {
 		Required: false,
 		Optional: false,
 	}
+	schema.Attributes["id"] = tfsdk.Attribute{
+		Description: "Id attribute required for acceptance testing.",
+		Type:        types.StringType,
+		Computed:    true,
+	}
 }
 
 // Get the set of required actions from the configuration messages returned by the config API

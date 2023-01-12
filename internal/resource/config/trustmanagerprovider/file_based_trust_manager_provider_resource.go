@@ -36,6 +36,8 @@ type fileBasedTrustManagerProviderResource struct {
 
 // fileBasedTrustManagerProviderResourceModel maps the resource schema data.
 type fileBasedTrustManagerProviderResourceModel struct {
+	// Id field required for acceptance testing framework
+	Id                              types.String `tfsdk:"id"`
 	Name                            types.String `tfsdk:"name"`
 	TrustStoreFile                  types.String `tfsdk:"trust_store_file"`
 	TrustStoreType                  types.String `tfsdk:"trust_store_type"`
@@ -202,6 +204,8 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
 func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse,
 	state *fileBasedTrustManagerProviderResourceModel, expectedValues *fileBasedTrustManagerProviderResourceModel) {
+	// Placeholder Id value for acceptance test framework
+	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
