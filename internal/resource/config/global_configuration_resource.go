@@ -698,7 +698,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig)).Execute()
+	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
@@ -715,7 +715,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 	readGlobalConfigurationResponse(ctx, getResp, &state)
 
 	// Determine what changes need to be made to match the plan
-	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig))
+	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
 	ops := createGlobalConfigurationOperations(plan, state)
 
 	if len(ops) > 0 {
@@ -761,7 +761,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig)).Execute()
+	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
 		return
@@ -982,7 +982,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 	// Get the current state
 	var state globalConfigurationResourceModel
 	req.State.Get(ctx, &state)
-	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(BasicAuthContext(ctx, r.providerConfig))
+	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
 	ops := createGlobalConfigurationOperations(plan, state)

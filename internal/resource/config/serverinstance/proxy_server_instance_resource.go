@@ -68,7 +68,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString()).Execute()
+	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -85,7 +85,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 	readProxyServerInstanceResponse(ctx, getResp.ProxyServerInstanceResponse, &state)
 
 	// Determine what changes need to be made to match the plan
-	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
 	ops := CreateCommonServerInstanceOperations(plan, state)
 
 	if len(ops) > 0 {
@@ -163,7 +163,7 @@ func (r *proxyServerInstanceResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.BasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString()).Execute()
+	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -199,7 +199,7 @@ func (r *proxyServerInstanceResource) Update(ctx context.Context, req resource.U
 	// Get the current state to see how any attributes are changing
 	var state CommonServerInstanceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.BasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := CreateCommonServerInstanceOperations(plan, state)
