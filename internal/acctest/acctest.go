@@ -119,6 +119,10 @@ func TestAttributesMatchStringSlice(resourceType string, resourceName *string, a
 	return nil
 }
 
+func ExpectedDestroyError(resourceType, resourceName string) error {
+	return fmt.Errorf("%s '%s' still exists after tests. Expected it to be destroyed.", resourceType, resourceName)
+}
+
 func mismatchedAttributeError(resourceType string, resourceName *string, attributeName, expected, found string) error {
 	if resourceName == nil {
 		return mismatchedAttributeErrorSingletonResource(resourceType, attributeName, expected, found)

@@ -83,8 +83,7 @@ func testAccCheckLocationDestroy(s *terraform.State) error {
 	for _, name := range names {
 		_, _, err := testClient.LocationApi.GetLocation(ctx, name).Execute()
 		if err == nil {
-			// We expect an error due to the location not existing. So if the error is nil, this is a failure
-			return fmt.Errorf("Location %s still exists after tests. Expected it to be destroyed.", name)
+			return acctest.ExpectedDestroyError("location", name)
 		}
 	}
 	return nil
