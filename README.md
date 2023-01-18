@@ -3,7 +3,7 @@ This repository contains a Terraform provider that manages PingDirectory configu
 
 It's built with [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework).
 
-# Testing locally
+# Running the provider locally
 ## Prerequisites
 The following must be installed locally to run the provider
 - Go 1.18+
@@ -59,7 +59,7 @@ provider_installation {
 ```
 
 ## Install the provider
-Run `go install .` to install the provider locally.
+Run `make install` (or just `make`) to install the provider locally.
 
 ## Running an example
 ### Starting the PingDirectory server
@@ -107,3 +107,11 @@ $ TF_REATTACH_PROVIDERS='{"pingidentity.com/terraform/pingdirectory":{"Protocol"
 ```
 
 Note that the `TF_REATTACH_PROVIDERS` variable changes each time you run the debugger. You will need to copy it each time you start a new debugger.
+
+# Running acceptance tests
+Acceptance tests for the provider use a local PingDirectory instance running in Docker. The following `make` targets will help with running acceptance tests:
+
+- `make testacc`: Runs the acceptance tests, with the assumption that a local PingDirectory instance is available
+- `make starttestcontainer`: Starts a PingDirectory Docker container and waits for it to become ready
+- `make removetestcontainer`: Stops and removes the PingDirectory Docker container used for testing
+- `make testacccomplete`: Starts the PingDirectory Docker container, waits for it to become ready, runs the acceptance tests, and then removes the Docker container. This is good for running the tests from scratch, but you will have to wait for the container startup each time. If you plan on running the tests multiple times and don't mind reusing the same server, then it is better to use the previous three targets individually

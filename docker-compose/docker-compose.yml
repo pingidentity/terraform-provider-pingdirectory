@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   pingdirectory:
-    image: "pingidentity/pingdirectory:latest"
+    image: "pingidentity/pingdirectory:9.1.0.0-latest"
     ports:
       - "1389:1389"
       - "1636:1636"
@@ -11,5 +11,3 @@ services:
       - TAIL_LOG_FILES=
     env_file:
       - ${HOME}/.pingidentity/devops
-    volumes:
-      - ${PWD}/profile:/opt/in

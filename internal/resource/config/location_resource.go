@@ -110,7 +110,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LocationApi.AddLocation(BasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.LocationApi.AddLocation(ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocationRequest(*addRequest)
 
 	locationResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
@@ -162,7 +162,7 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
@@ -206,7 +206,7 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state locationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocationApi.UpdateLocation(BasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LocationApi.UpdateLocation(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocationOperations(plan, state)
@@ -252,7 +252,7 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(BasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return

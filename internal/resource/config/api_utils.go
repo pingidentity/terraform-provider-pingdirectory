@@ -15,11 +15,16 @@ import (
 )
 
 // Get BasicAuth context with a username and password
-func BasicAuthContext(ctx context.Context, providerConfig internaltypes.ProviderConfiguration) context.Context {
+func BasicAuthContext(ctx context.Context, username, password string) context.Context {
 	return context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: providerConfig.Username,
-		Password: providerConfig.Password,
+		UserName: username,
+		Password: password,
 	})
+}
+
+// Get a BasicAuth context from a ProviderConfiguration
+func ProviderBasicAuthContext(ctx context.Context, providerConfig internaltypes.ProviderConfiguration) context.Context {
+	return BasicAuthContext(ctx, providerConfig.Username, providerConfig.Password)
 }
 
 // Error returned from PingDirectory config API

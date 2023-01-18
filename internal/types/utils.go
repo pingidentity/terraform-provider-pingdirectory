@@ -29,3 +29,25 @@ func Contains(slice []attr.Value, value attr.Value) bool {
 	}
 	return false
 }
+
+// Check if two slices representing sets are equal
+func SetsEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	// Assuming there are no duplicate elements since the slices represent sets
+	for _, aElement := range a {
+		found := false
+		for _, bElement := range b {
+			if bElement == aElement {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+	return true
+}
