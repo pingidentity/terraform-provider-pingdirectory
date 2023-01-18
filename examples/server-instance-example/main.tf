@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     pingdirectory = {
-      source = "pingidentity.com/terraform/pingdirectory"
+      source = "pingidentity/pingdirectory"
     }
   }
 }

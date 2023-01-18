@@ -1,0 +1,16 @@
+# Contributing to the PingDirectory Terraform Provider
+
+We appreciate your help!  We welcome contributions in the form of creating issues or pull requests.
+
+Know that:
+1. If you have any questions, please ask!  We'll help as best we can
+2. While we appreciate perfect PRs, it's not essential. We'll fix up any housekeeping changes before merge.  Any PRs that need further work, we'll point you in the right direction.
+3. We may not be able to respond quickly, our development cycles are on a priority basis.
+4. We base our priorities on customer need and the number of votes on issues/PRs by the number of 👍 reactions.  If there is an existing issue or PR for something you'd like, please vote!
+
+The following guides are there to help you get started with provider development, logging issues and creating PRs.  Following the guides allows us to respond quicker and will result in faster PR merges.
+
+## Getting Started
+
+- [Development](contributing/development.md)
+- More to come

@@ -1,6 +1,6 @@
 package types
 
-import client "github.com/pingidentity/pingdata-config-api-go-client"
+import client "github.com/pingidentity/pingdirectory-go-client/v9100"
 
 // Configuration used by the provider and resources
 type ProviderConfiguration struct {

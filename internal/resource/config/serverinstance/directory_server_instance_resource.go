@@ -2,10 +2,11 @@ package serverinstance
 
 import (
 	"context"
-	"terraform-provider-pingdirectory/internal/operations"
-	"terraform-provider-pingdirectory/internal/resource/config"
-	internaltypes "terraform-provider-pingdirectory/internal/types"
 	"time"
+
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -13,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdata-config-api-go-client"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // Ensure the implementation satisfies the expected interfaces.

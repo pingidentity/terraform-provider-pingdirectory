@@ -2,9 +2,10 @@ package serverinstance_tests
 
 import (
 	"fmt"
-	"terraform-provider-pingdirectory/internal/acctest"
-	"terraform-provider-pingdirectory/internal/provider"
 	"testing"
+
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
