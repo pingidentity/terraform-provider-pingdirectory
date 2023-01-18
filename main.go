@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"terraform-provider-pingdirectory/internal/provider"
+
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
@@ -14,12 +15,7 @@ func main() {
 	flag.Parse()
 
 	providerserver.Serve(context.Background(), provider.New, providerserver.ServeOpts{
-		// NOTE: This is not a typical Terraform Registry provider address,
-		// such as registry.terraform.io/hashicorp/example. This specific
-		// provider address is used in these tutorials in conjunction with a
-		// specific Terraform CLI configuration for manual development testing
-		// of this provider.
-		Address: "pingidentity.com/terraform/pingdirectory",
+		Address: "registry.terraform.io/pingidentity/pingdirectory",
 		Debug:   debug,
 	})
 }

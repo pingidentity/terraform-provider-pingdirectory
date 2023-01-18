@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"unicode"
 
-	internaltypes "terraform-provider-pingdirectory/internal/types"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdata-config-api-go-client"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // Log operations used during an update

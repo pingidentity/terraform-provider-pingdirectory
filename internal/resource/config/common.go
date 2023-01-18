@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	client "github.com/pingidentity/pingdata-config-api-go-client"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // Get attrtype map for the requiredActions returned by the config API

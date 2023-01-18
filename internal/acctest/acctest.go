@@ -8,9 +8,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"terraform-provider-pingdirectory/internal/resource/config"
-	"terraform-provider-pingdirectory/internal/types"
 	"testing"
+
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
 	client "github.com/pingidentity/pingdata-config-api-go-client"
 )

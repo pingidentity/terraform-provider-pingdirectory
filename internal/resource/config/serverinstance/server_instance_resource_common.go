@@ -1,13 +1,13 @@
 package serverinstance
 
 import (
-	"terraform-provider-pingdirectory/internal/operations"
-	"terraform-provider-pingdirectory/internal/resource/config"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	client "github.com/pingidentity/pingdata-config-api-go-client"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // commonServerInstanceResource maps the resource schema data common to server instance config objects.

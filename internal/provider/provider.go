@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"terraform-provider-pingdirectory/internal/resource/config"
-	"terraform-provider-pingdirectory/internal/resource/config/serverinstance"
-	"terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 
-	internaltypes "terraform-provider-pingdirectory/internal/types"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdata-config-api-go-client"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
