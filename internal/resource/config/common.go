@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
@@ -25,35 +25,29 @@ func GetRequiredActionsObjectType() types.ObjectType {
 }
 
 // Get schema elements common to all resources
-func AddCommonSchema(schema *tfsdk.Schema) {
-	schema.Attributes["last_updated"] = tfsdk.Attribute{
+func AddCommonSchema(s *schema.Schema) {
+	s.Attributes["last_updated"] = schema.StringAttribute{
 		Description: "Timestamp of the last Terraform update of this resource.",
-		Type:        types.StringType,
 		Computed:    true,
 		Required:    false,
 		Optional:    false,
 	}
-	schema.Attributes["notifications"] = tfsdk.Attribute{
+	s.Attributes["notifications"] = schema.SetAttribute{
 		Description: "Notifications returned by the PingDirectory Configuration API.",
-		Type: types.SetType{
-			ElemType: types.StringType,
-		},
-		Computed: true,
-		Required: false,
-		Optional: false,
+		ElementType: types.StringType,
+		Computed:    true,
+		Required:    false,
+		Optional:    false,
 	}
-	schema.Attributes["required_actions"] = tfsdk.Attribute{
+	s.Attributes["required_actions"] = schema.SetAttribute{
 		Description: "Required actions returned by the PingDirectory Configuration API.",
-		Type: types.SetType{
-			ElemType: GetRequiredActionsObjectType(),
-		},
-		Computed: true,
-		Required: false,
-		Optional: false,
+		ElementType: GetRequiredActionsObjectType(),
+		Computed:    true,
+		Required:    false,
+		Optional:    false,
 	}
-	schema.Attributes["id"] = tfsdk.Attribute{
+	s.Attributes["id"] = schema.StringAttribute{
 		Description: "Id attribute required for acceptance testing.",
-		Type:        types.StringType,
 		Computed:    true,
 	}
 }

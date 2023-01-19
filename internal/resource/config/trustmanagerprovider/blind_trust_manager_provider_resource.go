@@ -8,10 +8,11 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -53,34 +54,31 @@ func (r *blindTrustManagerProviderResource) Metadata(_ context.Context, req reso
 }
 
 // GetSchema defines the schema for the resource.
-func (r *blindTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	schema := tfsdk.Schema{
+func (r *blindTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
 		Description: "Manages a Blind Trust Manager Provider.",
-		Attributes: map[string]tfsdk.Attribute{
-			"name": {
+		Attributes: map[string]schema.Attribute{
+			"name": schema.StringAttribute{
 				Description: "Name of the Trust Manager Provider.",
-				Type:        types.StringType,
 				Required:    true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"enabled": {
+			"enabled": schema.BoolAttribute{
 				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
-				Type:        types.BoolType,
 				Required:    true,
 			},
 			// Optional boolean fields must be Computed because PD gives them a default value
-			"include_jvm_default_issuers": {
+			"include_jvm_default_issuers": schema.BoolAttribute{
 				Description: "Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
 		},
 	}
 	config.AddCommonSchema(&schema)
-	return schema, nil
+	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.

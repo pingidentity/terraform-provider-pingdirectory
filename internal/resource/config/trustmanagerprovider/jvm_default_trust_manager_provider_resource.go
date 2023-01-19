@@ -8,10 +8,11 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -52,27 +53,25 @@ func (r *jvmDefaultTrustManagerProviderResource) Metadata(_ context.Context, req
 }
 
 // GetSchema defines the schema for the resource.
-func (r *jvmDefaultTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	schema := tfsdk.Schema{
+func (r *jvmDefaultTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
 		Description: "Manages a JVM Default Trust Manager Provider.",
-		Attributes: map[string]tfsdk.Attribute{
-			"name": {
+		Attributes: map[string]schema.Attribute{
+			"name": schema.StringAttribute{
 				Description: "Name of the Trust Manager Provider.",
-				Type:        types.StringType,
 				Required:    true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"enabled": {
+			"enabled": schema.BoolAttribute{
 				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
-				Type:        types.BoolType,
 				Required:    true,
 			},
 		},
 	}
 	config.AddCommonSchema(&schema)
-	return schema, nil
+	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.

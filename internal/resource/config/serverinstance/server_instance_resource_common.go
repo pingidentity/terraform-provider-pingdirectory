@@ -4,8 +4,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
@@ -43,142 +42,119 @@ type CommonServerInstanceResourceModel struct {
 }
 
 // GetCommonServerInstanceSchema defines the common schema for server instance resources.
-func GetCommonServerInstanceSchema(description string) (tfsdk.Schema, diag.Diagnostics) {
-	schema := tfsdk.Schema{
+func GetCommonServerInstanceSchema(description string) schema.Schema {
+	schema := schema.Schema{
 		Description: description,
-		Attributes: map[string]tfsdk.Attribute{
+		Attributes: map[string]schema.Attribute{
 			// All are considered computed, since we are importing the existing server
 			// instance from a server, rather than "creating" a server instance
 			// like a typical Terraform resource.
-			"server_instance_name": {
+			"server_instance_name": schema.StringAttribute{
 				Description: "The name of this Server Instance. The instance name needs to be unique if this server will be part of a topology of servers that are connected to each other. Once set, it may not be changed.",
-				Type:        types.StringType,
 				Required:    true,
 			},
-			"cluster_name": {
+			"cluster_name": schema.StringAttribute{
 				Description: "The name of the cluster to which this Server Instance belongs. Server instances within the same cluster will share the same cluster-wide configuration.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"server_instance_location": {
+			"server_instance_location": schema.StringAttribute{
 				Description: "Specifies the location for the Server Instance.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"hostname": {
+			"hostname": schema.StringAttribute{
 				Description: "The name of the host where this Server Instance is installed.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"server_root": {
+			"server_root": schema.StringAttribute{
 				Description: "The file system path where this Server Instance is installed.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"server_version": {
+			"server_version": schema.StringAttribute{
 				Description: "The version of the server.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"inter_server_certificate": {
+			"inter_server_certificate": schema.StringAttribute{
 				Description: "The public component of the certificate used by this instance to protect inter-server communication and to perform server-specific encryption. This will generally be managed by the server and should only be altered by administrators under explicit direction from Ping Identity support personnel.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"ldap_port": {
+			"ldap_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for LDAP connections.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"ldaps_port": {
+			"ldaps_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for LDAP secure connections.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"http_port": {
+			"http_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for HTTP connections.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"https_port": {
+			"https_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for HTTPS connections.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_port": {
+			"replication_port": schema.Int64Attribute{
 				Description: "The replication TCP port.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_server_id": {
+			"replication_server_id": schema.Int64Attribute{
 				Description: "Specifies a unique identifier for the replication server on this server instance.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_domain_server_id": {
+			"replication_domain_server_id": schema.SetAttribute{
 				Description: "Specifies a unique identifier for the Directory Server within the replication domain.",
-				Type: types.SetType{
-					ElemType: types.Int64Type,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.Int64Type,
+				Optional:    true,
+				Computed:    true,
 			},
-			"jmx_port": {
+			"jmx_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for JMX connections.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"jmxs_port": {
+			"jmxs_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for JMX secure connections.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"preferred_security": {
+			"preferred_security": schema.StringAttribute{
 				Description: "Specifies the preferred mechanism to use for securing connections to the server.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"start_tls_enabled": {
+			"start_tls_enabled": schema.BoolAttribute{
 				Description: "Indicates whether StartTLS is enabled on this server.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"base_dn": {
+			"base_dn": schema.SetAttribute{
 				Description: "The set of base DNs under the root DSE.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"member_of_server_group": {
+			"member_of_server_group": schema.SetAttribute{
 				Description: "The set of groups of which this server is a member.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
 	config.AddCommonSchema(&schema)
-	return schema, nil
+	return schema
 }
 
 // Create any update operations necessary to make the state match the plan
