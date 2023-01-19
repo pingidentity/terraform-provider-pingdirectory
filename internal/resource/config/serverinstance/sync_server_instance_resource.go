@@ -8,10 +8,8 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -41,8 +39,8 @@ func (r *syncServerInstanceResource) Metadata(_ context.Context, req resource.Me
 }
 
 // GetSchema defines the schema for the resource.
-func (r *syncServerInstanceResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return GetCommonServerInstanceSchema("Manages a Sync Server Instance.")
+func (r *syncServerInstanceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = GetCommonServerInstanceSchema("Manages a Sync Server Instance.")
 }
 
 // Configure adds the provider configured client to the resource.

@@ -8,10 +8,9 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -72,24 +71,21 @@ func (r *directoryServerInstanceResource) Metadata(_ context.Context, req resour
 }
 
 // GetSchema defines the schema for the resource.
-func (r *directoryServerInstanceResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *directoryServerInstanceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	// Directory instances only have a couple fields different from other instance types
-	baseSchema, _ := GetCommonServerInstanceSchema("Manages a Directory Server Instance.")
-	baseSchema.Attributes["replication_set_name"] = tfsdk.Attribute{
+	baseSchema := GetCommonServerInstanceSchema("Manages a Directory Server Instance.")
+	baseSchema.Attributes["replication_set_name"] = schema.StringAttribute{
 		Description: "The name of the replication set assigned to this Directory Server. Restricted domains are only replicated within instances using the same replication set name.",
-		Type:        types.StringType,
 		Optional:    true,
 		Computed:    true,
 	}
-	baseSchema.Attributes["load_balancing_algorithm_name"] = tfsdk.Attribute{
+	baseSchema.Attributes["load_balancing_algorithm_name"] = schema.SetAttribute{
 		Description: "The name of the configuration object for a load-balancing algorithm that should include this server.",
-		Type: types.SetType{
-			ElemType: types.StringType,
-		},
-		Optional: true,
-		Computed: true,
+		ElementType: types.StringType,
+		Optional:    true,
+		Computed:    true,
 	}
-	return baseSchema, nil
+	resp.Schema = baseSchema
 }
 
 // Configure adds the provider configured client to the resource.
