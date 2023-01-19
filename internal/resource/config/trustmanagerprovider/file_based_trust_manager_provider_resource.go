@@ -8,10 +8,11 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -58,60 +59,52 @@ func (r *fileBasedTrustManagerProviderResource) Metadata(_ context.Context, req 
 }
 
 // GetSchema defines the schema for the resource.
-func (r *fileBasedTrustManagerProviderResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	schema := tfsdk.Schema{
+func (r *fileBasedTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
 		Description: "Manages a File Based Trust Manager Provider.",
-		Attributes: map[string]tfsdk.Attribute{
-			"name": {
+		Attributes: map[string]schema.Attribute{
+			"name": schema.StringAttribute{
 				Description: "Name of the Trust Manager Provider.",
-				Type:        types.StringType,
 				Required:    true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"trust_store_file": {
+			"trust_store_file": schema.StringAttribute{
 				Description: "Specifies the path to the file containing the trust information. It can be an absolute path or a path that is relative to the Directory Server instance root.",
-				Type:        types.StringType,
 				Required:    true,
 			},
-			"trust_store_type": {
+			"trust_store_type": schema.StringAttribute{
 				Description: "Specifies the format for the data in the trust store file.",
-				Type:        types.StringType,
 				Optional:    true,
 			},
-			"trust_store_pin": {
+			"trust_store_pin": schema.StringAttribute{
 				Description: "Specifies the clear-text PIN needed to access the File Based Trust Manager Provider.",
-				Type:        types.StringType,
 				Optional:    true,
 				Sensitive:   true,
 			},
-			"trust_store_pin_file": {
+			"trust_store_pin_file": schema.StringAttribute{
 				Description: "Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Trust Manager Provider.",
-				Type:        types.StringType,
 				Optional:    true,
 			},
-			"trust_store_pin_passphrase_provider": {
+			"trust_store_pin_passphrase_provider": schema.StringAttribute{
 				Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Trust Manager Provider.",
-				Type:        types.StringType,
 				Optional:    true,
 			},
-			"enabled": {
+			"enabled": schema.BoolAttribute{
 				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
-				Type:        types.BoolType,
 				Required:    true,
 			},
 			// Optional boolean fields must be Computed because PD gives them a default value
-			"include_jvm_default_issuers": {
+			"include_jvm_default_issuers": schema.BoolAttribute{
 				Description: "Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
 		},
 	}
 	config.AddCommonSchema(&schema)
-	return schema, nil
+	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.

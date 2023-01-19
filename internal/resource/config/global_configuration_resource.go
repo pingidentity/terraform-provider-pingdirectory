@@ -7,10 +7,9 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -134,545 +133,452 @@ func (r *globalConfigurationResource) Metadata(_ context.Context, req resource.M
 }
 
 // GetSchema defines the schema for the resource.
-func (r *globalConfigurationResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	schema := tfsdk.Schema{
+func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
 		Description: "Manages the global configuration.",
 		// All are considered computed, since we are importing the existing global
 		// configuration from a server, rather than "creating" the global configuration
 		// like a typical Terraform resource.
-		Attributes: map[string]tfsdk.Attribute{
-			"instance_name": {
+		Attributes: map[string]schema.Attribute{
+			"instance_name": schema.StringAttribute{
 				Description: "A name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
-				Type:        types.StringType,
 				// instance name is read-only after setup, so Terraform can't change it
 				Required: false,
 				Optional: false,
 				Computed: true,
 			},
-			"location": {
+			"location": schema.StringAttribute{
 				Description: "Specifies the location for this Directory Server. Operations performed which involve communication with other servers may prefer servers in the same location to help ensure low-latency responses.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"configuration_server_group": {
+			"configuration_server_group": schema.StringAttribute{
 				Description: "When this property is set, changes made to this server using the console or dsconfig can be automatically applied to all servers in the specified server group.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"force_as_master_for_mirrored_data": {
+			"force_as_master_for_mirrored_data": schema.BoolAttribute{
 				Description: "Indicates whether this server should be forced to assume the master role if no other suitable server is found to act as master or if multiple masters are detected. A master is only needed when changes are made to mirrored data, i.e. data specific to the topology itself and cluster-wide configuration data.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"encrypt_data": {
+			"encrypt_data": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should encrypt the data that it stores in all components that support it. This may include certain types of backends (including local DB and large attribute backends), the LDAP changelog, and the replication server database.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"encryption_settings_cipher_stream_provider": {
+			"encryption_settings_cipher_stream_provider": schema.StringAttribute{
 				Description: "Specifies the cipher stream provider that should be used to protect the contents of the encryption settings database.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"encrypt_backups_by_default": {
+			"encrypt_backups_by_default": schema.BoolAttribute{
 				Description: "Indicates whether the server should encrypt backups by default.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"backup_encryption_settings_definition_id": {
+			"backup_encryption_settings_definition_id": schema.StringAttribute{
 				Description: "The unique identifier for the encryption settings definition to use to generate the encryption key for encrypted backups by default.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"encrypt_ldif_exports_by_default": {
+			"encrypt_ldif_exports_by_default": schema.BoolAttribute{
 				Description: "Indicates whether the server should encrypt LDIF exports by default.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"ldif_export_encryption_settings_definition_id": {
+			"ldif_export_encryption_settings_definition_id": schema.StringAttribute{
 				Description: "The unique identifier for the encryption settings definition to use to generate the encryption key for encrypted LDIF exports by default.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"automatically_compress_encrypted_ldif_exports": {
+			"automatically_compress_encrypted_ldif_exports": schema.BoolAttribute{
 				Description: "Indicates whether to automatically compress LDIF exports that are also encrypted.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"redact_sensitive_values_in_config_logs": {
+			"redact_sensitive_values_in_config_logs": schema.BoolAttribute{
 				Description: "Indicates whether the values of sensitive configuration properties should be redacted when logging configuration changes, including in the configuration audit log, the error log, and the server.out log file.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"sensitive_attribute": {
+			"sensitive_attribute": schema.SetAttribute{
 				Description: "Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"reject_insecure_requests": {
+			"reject_insecure_requests": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should reject any LDAP request (other than StartTLS) received from a client that is not using an encrypted connection.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"allowed_insecure_request_criteria": {
+			"allowed_insecure_request_criteria": schema.StringAttribute{
 				Description: "A set of criteria that may be used to match LDAP requests that may be permitted over an insecure connection even if reject-insecure-requests is true. Note that some types of requests will always be permitted, including StartTLS and start administrative session requests.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"reject_unauthenticated_requests": {
+			"reject_unauthenticated_requests": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should reject any LDAP request (other than bind or StartTLS requests) received from a client that has not yet been authenticated, whose last authentication attempt was unsuccessful, or whose last authentication attempt used anonymous authentication.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"allowed_unauthenticated_request_criteria": {
+			"allowed_unauthenticated_request_criteria": schema.StringAttribute{
 				Description: "A set of criteria that may be used to match LDAP requests that may be permitted over an unauthenticated connection even if reject-unauthenticated-requests is true. Note that some types of requests will always be permitted, including bind, StartTLS, and start administrative session requests.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"bind_with_dn_requires_password": {
+			"bind_with_dn_requires_password": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should reject any simple bind request that contains a DN but no password.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"disabled_privilege": {
+			"disabled_privilege": schema.SetAttribute{
 				Description: "Specifies the name of a privilege that should not be evaluated by the server.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"default_password_policy": {
+			"default_password_policy": schema.StringAttribute{
 				Description: "Specifies the name of the password policy that is in effect for users whose entries do not specify an alternate password policy (either via a real or virtual attribute).",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_user_data_password_policies_to_cache": {
+			"maximum_user_data_password_policies_to_cache": schema.Int64Attribute{
 				Description: "Specifies the maximum number of password policies that are defined in the user data (that is, outside of the configuration) that the server should cache in memory for faster access. A value of zero indicates that the server should not cache any user data password policies.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"proxied_authorization_identity_mapper": {
+			"proxied_authorization_identity_mapper": schema.StringAttribute{
 				Description: "Specifies the name of the identity mapper to map authorization ID values (using the \"u:\" form) provided in the proxied authorization control to the corresponding user entry.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"verify_entry_digests": {
+			"verify_entry_digests": schema.BoolAttribute{
 				Description: "Indicates whether the digest should always be verified whenever an entry containing a digest is decoded. If this is \"true\", then if a digest exists, it will always be verified. Otherwise, the digest will be written when encoding entries but ignored when decoding entries but may still be available for other verification processing.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"allowed_insecure_tls_protocol": {
+			"allowed_insecure_tls_protocol": schema.SetAttribute{
 				Description: "Specifies a set of TLS protocols that will be permitted for use in the server even though there may be known vulnerabilities that could cause their use to be unsafe in some conditions. Enabling support for insecure TLS protocols is discouraged, and is generally recommended only as a short-term measure to permit legacy clients to interact with the server until they can be updated to support more secure communication protocols.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"allow_insecure_local_jmx_connections": {
+			"allow_insecure_local_jmx_connections": schema.BoolAttribute{
 				Description: "Indicates that processes attaching to this server's local JVM are allowed to access internal data through JMX without the authentication requirements that remote JMX connections are subject to. Please review and understand the data that this option will expose (such as cn=monitor) to client applications to ensure there are no security concerns.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"default_internal_operation_client_connection_policy": {
+			"default_internal_operation_client_connection_policy": schema.StringAttribute{
 				Description: "Specifies the client connection policy that will be used by default for internal operations.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"size_limit": {
+			"size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that the Directory Server should return to the client during a search operation.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"time_limit": {
+			"time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that the Directory Server should be allowed to spend processing a search operation.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"idle_time_limit": {
+			"idle_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that a client connection may remain established since its last completed operation.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"lookthrough_limit": {
+			"lookthrough_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that the Directory Server should \"look through\" in the course of processing a search request.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"ldap_join_size_limit": {
+			"ldap_join_size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that may be directly joined with any individual search result entry.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_concurrent_connections": {
+			"maximum_concurrent_connections": schema.Int64Attribute{
 				Description: "Specifies the maximum number of LDAP client connections which may be established to this Directory Server at the same time.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_concurrent_connections_per_id_address": {
+			"maximum_concurrent_connections_per_id_address": schema.Int64Attribute{
 				Description: "Specifies the maximum number of LDAP client connections originating from the same IP address which may be established to this Directory Server at the same time.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_concurrent_connections_per_bind_dn": {
+			"maximum_concurrent_connections_per_bind_dn": schema.Int64Attribute{
 				Description: "Specifies the maximum number of LDAP client connections which may be established to this Directory Server at the same time and authenticated as the same user.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_concurrent_unindexed_searches": {
+			"maximum_concurrent_unindexed_searches": schema.Int64Attribute{
 				Description: "Specifies the maximum number of unindexed searches that may be in progress in this backend at any given time. Any unindexed searches requested while the maximum number of unindexed searches are already being processed will be rejected. A value of zero indicates that no limit will be enforced.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_attributes_per_add_request": {
+			"maximum_attributes_per_add_request": schema.Int64Attribute{
 				Description: "Specifies the maximum number of attributes that may be included in an add request. This property does not impose any limit on the number of values that an attribute may have.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_modifications_per_modify_request": {
+			"maximum_modifications_per_modify_request": schema.Int64Attribute{
 				Description: "Specifies the maximum number of modifications that may be included in a modify request. This property does not impose any limit on the number of attribute values that a modification may have.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"background_thread_for_each_persistent_search": {
+			"background_thread_for_each_persistent_search": schema.BoolAttribute{
 				Description: "Indicates whether the server should use a separate background thread for each persistent search.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"allow_attribute_name_exceptions": {
+			"allow_attribute_name_exceptions": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should allow underscores in attribute names and allow attribute names to begin with numeric digits (both of which are violations of the LDAP standards).",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"invalid_attribute_syntax_behavior": {
+			"invalid_attribute_syntax_behavior": schema.StringAttribute{
 				Description: "Specifies how the Directory Server should handle operations whenever an attribute value violates the associated attribute syntax.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"permit_syntax_violations_for_attribute": {
+			"permit_syntax_violations_for_attribute": schema.SetAttribute{
 				Description: "Specifies a set of attribute types for which the server will permit values that do not conform to the associated attribute syntax.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"single_structural_objectclass_behavior": {
+			"single_structural_objectclass_behavior": schema.StringAttribute{
 				Description: "Specifies how the Directory Server should handle operations for an entry does not contain a structural object class, or for an entry that contains multiple structural classes.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"attributes_modifiable_with_ignore_no_user_modification_request_control": {
+			"attributes_modifiable_with_ignore_no_user_modification_request_control": schema.SetAttribute{
 				Description: "Specifies the operational attribute types that are defined in the schema with the NO-USER-MODIFICATION constraint that the server will allow to be altered if the associated request contains the ignore NO-USER-MODIFICATION request control.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"maximum_server_out_log_file_size": {
+			"maximum_server_out_log_file_size": schema.StringAttribute{
 				Description: "The maximum allowed size that the server.out log file will be allowed to have. If a write would cause the file to exceed this size, then the current file will be rotated out of place and a new empty file will be created and the message written to it.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_server_out_log_file_count": {
+			"maximum_server_out_log_file_count": schema.Int64Attribute{
 				Description: "The maximum number of server.out log files (including the current active log file) that should be retained. When rotating the log file, if the total number of files exceeds this count, then the oldest file(s) will be removed so that the total number of log files is within this limit.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"startup_error_logger_output_location": {
+			"startup_error_logger_output_location": schema.StringAttribute{
 				Description: "Specifies how the server should handle error log messages (which may include errors, warnings, and notices) generated during startup. All of these messages will be written to all configured error loggers, but they may also be written to other locations (like standard output, standard error, or the server.out log file) so that they are displayed on the console when the server is starting.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"exit_on_jvm_error": {
+			"exit_on_jvm_error": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should be shut down if a severe error is raised (e.g., an out of memory error) which may prevent the JVM from continuing to run properly.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"server_error_result_code": {
+			"server_error_result_code": schema.Int64Attribute{
 				Description: "Specifies the numeric value of the result code when request processing fails due to an internal server error.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"result_code_map": {
+			"result_code_map": schema.StringAttribute{
 				Description: "Specifies a result code map that should be used for clients that do not have a map associated with their client connection policy. If the associated client connection policy has a result code map, then that map will be used instead. If no map is associated either with the client connection policy or the global configuration, then an internal default will be used.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"return_bind_error_messages": {
+			"return_bind_error_messages": schema.BoolAttribute{
 				Description: "Indicates whether responses for failed bind operations should include a message string providing the reason for the authentication failure.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"notify_abandoned_operations": {
+			"notify_abandoned_operations": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should send a response to any operation that is interrupted via an abandon request.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"duplicate_error_log_limit": {
+			"duplicate_error_log_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of duplicate error log messages that should be logged in the time window specified by the duplicate-error-log-time-limit property.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"duplicate_error_log_time_limit": {
+			"duplicate_error_log_time_limit": schema.StringAttribute{
 				Description: "Specifies the length of time that must expire before duplicate log messages above the duplicate-error-log-limit threshold are logged again to the error log.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"duplicate_alert_limit": {
+			"duplicate_alert_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of duplicate alert messages that should be sent via the administrative alert framework in the time window specified by the duplicate-alert-time-limit property.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"duplicate_alert_time_limit": {
+			"duplicate_alert_time_limit": schema.StringAttribute{
 				Description: "Specifies the length of time that must expire before duplicate messages are sent via the administrative alert framework.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"writability_mode": {
+			"writability_mode": schema.StringAttribute{
 				Description: "Specifies the kinds of write operations the Directory Server can process.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"unrecoverable_database_error_mode": {
+			"unrecoverable_database_error_mode": schema.StringAttribute{
 				Description: "Specifies the action which should be taken for any database that experiences an unrecoverable error. Action applies to local database backends and the replication recent changes database.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"database_on_virtualized_or_network_storage": {
+			"database_on_virtualized_or_network_storage": schema.BoolAttribute{
 				Description: "This setting provides data integrity options when the Directory Server is installed with a database on a network storage device. A storage device may be accessed directly by a physical server, or indirectly through a virtual machine running on a hypervisor. Enabling this setting will apply changes to all Local DB Backends, the LDAP Changelog Backend, and the replication changelog database.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"auto_name_with_entry_uuid_connection_criteria": {
+			"auto_name_with_entry_uuid_connection_criteria": schema.StringAttribute{
 				Description: "Connection criteria that may be used to identify clients whose add requests should use entryUUID as the naming attribute.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"auto_name_with_entry_uuid_request_criteria": {
+			"auto_name_with_entry_uuid_request_criteria": schema.StringAttribute{
 				Description: "Request criteria that may be used to identify add requests that should use entryUUID as the naming attribute.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"soft_delete_policy": {
+			"soft_delete_policy": schema.StringAttribute{
 				Description: "Specifies the soft delete policy that will be used by default for delete operations. Soft delete operations introduce the ability to control the server behavior of the delete operation. Instead of performing a permanent delete of an entry, deleted entries can be retained as soft deleted entries by their entryUUID values and are available for undelete at a later time. In addition to a soft delete policy enabling soft deletes, delete operations sent to the server must have the soft delete request control present with sufficient access privileges to access the soft delete request control.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"subtree_accessibility_alert_time_limit": {
+			"subtree_accessibility_alert_time_limit": schema.StringAttribute{
 				Description: "Specifies the length of time that a subtree may remain hidden or read-only before an administrative alert is sent.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"warn_for_backends_with_multiple_base_dns": {
+			"warn_for_backends_with_multiple_base_dns": schema.BoolAttribute{
 				Description: "Indicates whether the server should issue a warning when enabling a backend that contains multiple base DNs.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"forced_gc_prime_duration": {
+			"forced_gc_prime_duration": schema.StringAttribute{
 				Description: "Specifies the minimum length of time required for backend or request processor initialization that will trigger the server to force an explicit garbage collection. A value of \"0 seconds\" indicates that the server should never invoke an explicit garbage collection regardless of the length of time required to initialize the server backends.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_set_name": {
+			"replication_set_name": schema.StringAttribute{
 				Description: "The name of the replication set assigned to this Directory Server. Restricted domains are only replicated within instances using the same replication set name.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"startup_min_replication_backlog_count": {
+			"startup_min_replication_backlog_count": schema.Int64Attribute{
 				Description: "The number of outstanding changes any replica can have before the Directory Server will start accepting connections. The Directory Server may never accept connections if this setting is too low. If you are unsure which value to use, you can use the number of expected updates within a five second interval.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_backlog_count_alert_threshold": {
+			"replication_backlog_count_alert_threshold": schema.Int64Attribute{
 				Description: "An alert is sent when the number of outstanding replication changes for the Directory Server has exceeded this threshold for longer than the replication backlog duration alert threshold.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_backlog_duration_alert_threshold": {
+			"replication_backlog_duration_alert_threshold": schema.StringAttribute{
 				Description: "An alert is sent when the number of outstanding replication changes for the Directory Server has exceeded the replication backlog count alert threshold for longer than this duration.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_assurance_source_timeout_suspend_duration": {
+			"replication_assurance_source_timeout_suspend_duration": schema.StringAttribute{
 				Description: "The amount of time a replication assurance source (i.e. a peer Directory Server) will be suspended from assurance requirements on this Directory Server if it experiences an assurance timeout.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_assurance_source_backlog_fast_start_threshold": {
+			"replication_assurance_source_backlog_fast_start_threshold": schema.Int64Attribute{
 				Description: "The maximum number of replication backlog updates a replication assurance source (i.e. a peer Directory Server) can have and be immediately recognized as an available assurance source by this Directory Server.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_history_limit": {
+			"replication_history_limit": schema.Int64Attribute{
 				Description: "Specifies the size limit for historical information.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"allow_inherited_replication_of_subordinate_backends": {
+			"allow_inherited_replication_of_subordinate_backends": schema.BoolAttribute{
 				Description: "Allow replication to be inherited by subordinate/child backends.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"replication_purge_obsolete_replicas": {
+			"replication_purge_obsolete_replicas": schema.BoolAttribute{
 				Description: "Indicates whether state about obsolete replicas is automatically purged.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"smtp_server": {
+			"smtp_server": schema.SetAttribute{
 				Description: "Specifies the set of servers that will be used to send email messages. The order in which the servers are listed indicates the order in which the Directory Server will attempt to use them in the course of sending a message. The first attempt will always go to the server at the top of the list, and servers further down the list will only be used if none of the servers listed above it were able to successfully send the message.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"max_smtp_connection_count": {
+			"max_smtp_connection_count": schema.Int64Attribute{
 				Description: "The maximum number of SMTP connections that will be maintained for delivering email messages.",
-				Type:        types.Int64Type,
 				Optional:    true,
 				Computed:    true,
 			},
-			"max_smtp_connection_age": {
+			"max_smtp_connection_age": schema.StringAttribute{
 				Description: "The maximum length of time that a connection to an SMTP server should be considered valid.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"smtp_connection_health_check_interval": {
+			"smtp_connection_health_check_interval": schema.StringAttribute{
 				Description: "The length of time between checks to ensure that available SMTP connections are still valid.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"allowed_task": {
+			"allowed_task": schema.SetAttribute{
 				Description: "Specifies the fully-qualified name of a Java class that may be invoked in the server.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
+				ElementType: types.StringType,
+				Optional:    true,
+				Computed:    true,
 			},
-			"enable_sub_operation_timer": {
+			"enable_sub_operation_timer": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should attempt to record information about the length of time required to process various phases of an operation. Enabling this feature may impact performance, but could make it easier to identify potential bottlenecks in operation processing.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_shutdown_time": {
+			"maximum_shutdown_time": schema.StringAttribute{
 				Description: "Specifies the maximum amount of time the shutdown of Directory Server may take.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"network_address_cache_ttl": {
+			"network_address_cache_ttl": schema.StringAttribute{
 				Description: "Specifies the length of time that the Directory Server should cache the IP addresses associated with the names of systems with which it interacts.",
-				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"network_address_outage_cache_enabled": {
+			"network_address_outage_cache_enabled": schema.BoolAttribute{
 				Description: "Specifies whether the Directory Server should cache the last valid IP addresses associated with the names of systems with which it interacts with when the domain name service returns an unknown host exception. Java may return an unknown host exception when there is unexpected interruption in domain name service so this setting protects the Directory Server from temporary DNS server outages if previous results have been cached.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"tracked_application": {
+			"tracked_application": schema.SetAttribute{
 				Description: "Specifies criteria for identifying specific applications that access the server to enable tracking throughput and latency of LDAP operations issued by an application.",
-				Type: types.SetType{
-					ElemType: types.StringType,
-				},
-				Optional: true,
-				Computed: true,
-			},
-			"jmx_value_behavior": {
-				Description: "Specifies how a Java type is chosen for monitor attributes exposed as JMX attribute values.",
-				Type:        types.StringType,
+				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
 			},
-			"jmx_use_legacy_mbean_names": {
+			"jmx_value_behavior": schema.StringAttribute{
+				Description: "Specifies how a Java type is chosen for monitor attributes exposed as JMX attribute values.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"jmx_use_legacy_mbean_names": schema.BoolAttribute{
 				Description: "When set to true, the server will use its original, non-standard JMX MBean names for the monitoring MBeans. These include RDN keys of \"Rdn1\" and \"Rdn2\" instead of the recommended \"type\" and \"name\" keys. This should option should only be enabled for installations that have monitoring infrastructure that depends on the old keys.",
-				Type:        types.BoolType,
 				Optional:    true,
 				Computed:    true,
 			},
 		},
 	}
 	AddCommonSchema(&schema)
-	return schema, nil
+	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.

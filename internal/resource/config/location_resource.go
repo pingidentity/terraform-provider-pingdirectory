@@ -7,10 +7,11 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -51,27 +52,25 @@ func (r *locationResource) Metadata(_ context.Context, req resource.MetadataRequ
 }
 
 // GetSchema defines the schema for the resource.
-func (r *locationResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	schema := tfsdk.Schema{
+func (r *locationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
 		Description: "Manages a Location.",
-		Attributes: map[string]tfsdk.Attribute{
-			"name": {
+		Attributes: map[string]schema.Attribute{
+			"name": schema.StringAttribute{
 				Description: "Name of the Location.",
-				Type:        types.StringType,
 				Required:    true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"description": {
+			"description": schema.StringAttribute{
 				Description: "A description for this Location.",
-				Type:        types.StringType,
 				Optional:    true,
 			},
 		},
 	}
 	AddCommonSchema(&schema)
-	return schema, nil
+	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.

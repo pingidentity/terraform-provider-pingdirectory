@@ -13,10 +13,9 @@ import (
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -48,31 +47,25 @@ func (p *pingdirectoryProvider) Metadata(_ context.Context, _ provider.MetadataR
 }
 
 // GetSchema defines the provider-level schema for configuration data.
-func (p *pingdirectoryProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description: "PingDirectory POC Provider.",
-		Attributes: map[string]tfsdk.Attribute{
-			"https_host": {
+		Attributes: map[string]schema.Attribute{
+			"https_host": schema.StringAttribute{
 				Description: "URI for PingDirectory HTTPS port.",
-				Type:        types.StringType,
-				Computed:    true,
 				Optional:    true,
 			},
-			"username": {
+			"username": schema.StringAttribute{
 				Description: "Username for PingDirectory admin user.",
-				Type:        types.StringType,
-				Computed:    true,
 				Optional:    true,
 			},
-			"password": {
+			"password": schema.StringAttribute{
 				Description: "Password for PingDirectory admin user.",
-				Type:        types.StringType,
 				Sensitive:   true,
-				Computed:    true,
 				Optional:    true,
 			},
 		},
-	}, nil
+	}
 }
 
 // Configure prepares a PingDirectory LDAP client
