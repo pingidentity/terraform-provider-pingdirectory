@@ -1,10 +1,10 @@
 # PingDirectory Terraform Provider
 
-The PingDirectory Terraform provider is a plugin for [Terraform](https://www.terraform.io/) that allows for the management of PingDirectory configuration. This provider is maintained internally by the Ping Identity team.
+The PingDirectory Terraform provider is a plugin for [Terraform](https://www.terraform.io/) that supports the management of PingDirectory configuration. This provider is maintained internally by the Ping Identity team.
 
 # Disclaimer - Provider in Development
 
-The PingDirectory Terraform provider is still in development, and breaking changes are likely. It is not yet published on the Terraform registry. It does not currently fully support SSL trust for connecting with PingDirectory servers over HTTPS.
+The PingDirectory Terraform provider is still in development, and breaking changes are likely. As such, it is not yet published on the Terraform registry. It does not currently fully support SSL trust for connecting with PingDirectory servers over HTTPS.
 
 ## Requirements
 * Terraform 1.1+
@@ -12,7 +12,7 @@ The PingDirectory Terraform provider is still in development, and breaking chang
 
 # Using the PingDirectory Terraform Provider
 
-The provider can be used to manage PingDirectory servers via the PingDirectory Configuration API. It can replace configuration management that is normally done via the `dsconfig` command-line tool or dsconfig batch files.
+The provider can be used to manage PingDirectory servers via the PingDirectory Configuration API. It can replace configuration management that is normally done using the `dsconfig` command-line tool or through dsconfig batch files.
 
 The following example configures a `Location` object and updates the PingDirectory `Global Configuration`.
 
