@@ -37,6 +37,7 @@ func GetInt64Set(values []int32) types.Set {
 // Convert Enums from the Go client to a types.Set.
 func GetEnumSet[V client.EnumglobalConfigurationDisabledPrivilegeProp |
 	client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
+	client.EnumrootDnDefaultRootPrivilegeNameProp |
 	client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp |
 	client.EnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp |
 	client.EnumglobalConfigurationJmxValueBehaviorProp |

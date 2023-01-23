@@ -36,7 +36,7 @@ type rootDnResource struct {
 // rootDnResourceModel maps the resource schema data.
 type rootDnResourceModel struct {
 	// Id field required for acceptance testing framework
-	DefaultRootPrivilegeName types.Set    `tfskd:"default_root_privilege_name"`
+	DefaultRootPrivilegeName types.Set    `tfsdk:"default_root_privilege_name"`
 	Id                       types.String `tfsdk:"id"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
@@ -62,8 +62,9 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"default_root_privilege_name": schema.SetAttribute{
 				Description: "The Root DN for this Directory Server instance.",
 				// instance name is read-only after setup, so Terraform can't change it
-				Optional: true,
-				Computed: true,
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 		},
 	}
@@ -83,8 +84,8 @@ func (r *rootDnResource) Configure(_ context.Context, req resource.ConfigureRequ
 }
 
 // Create a new resource
-// For global config, create doesn't actually "create" anything - it "adopts" the servers existing
-// global configuration into management by terraform. This method reads the existing global config
+// For Root DN, create doesn't actually "create" anything - it "adopts" the existing
+// server Root DN settings into being managed by Terraform. This method reads the existing Root DN config
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *rootDnResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -107,14 +108,13 @@ func (r *rootDnResource) Create(ctx context.Context, req resource.CreateRequest,
 		tflog.Debug(ctx, "Read response: "+string(responseJson))
 	}
 
-	// Read existing global config
+	// Read existing Root DN
 	var state rootDnResourceModel
 	readRootDnResponse(ctx, getResp, &state)
 
 	// Determine what changes need to be made to match the plan
 	updateRDnRequest := r.apiClient.RootDnApi.UpdateRootDn(ProviderBasicAuthContext(ctx, r.providerConfig))
 
-	/// START HERE!!!!!!!!
 	ops := createRootDnOperations(plan, state)
 
 	if len(ops) > 0 {
@@ -186,8 +186,13 @@ func (r *rootDnResource) Read(ctx context.Context, req resource.ReadRequest, res
 // Read a GlobalConfigurationRespnse object into the model struct
 func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel) {
 	// Placeholder Id value for acceptance test framework
-	state.Id = types.StringValue(r.InstanceName)
-	state.DefaultRootPrivilegeName = types.StringValue(r.DefaultRootPrivilegeName)
+	// ** FIXME **
+	// Following line throws error if not commented
+	state.Id = types.StringValue("mystate")
+	/* from docs: https://pkg.go.dev/github.com/hashicorp/terraform-plugin-framework@v1.1.1/types#SetValue
+	/* func SetValue(elementType attr.Type, elements []attr.Value) (basetypes.SetValue, diag.Diagnostics) */
+	state.DefaultRootPrivilegeName = internaltypes.GetEnumSet(r.DefaultRootPrivilegeName)
+
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
@@ -195,7 +200,8 @@ func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *ro
 func createRootDnOperations(plan rootDnResourceModel, state rootDnResourceModel) []client.Operation {
 	var ops []client.Operation
 
-	operations.AddStringOperationIfNecessary(&ops, plan.DefaultRootPrivilegeName, state.DefaultRootPrivilegeName, "default_root_privilege_name")
+	// ** FIXME ** Can't use string operation here
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultRootPrivilegeName, state.DefaultRootPrivilegeName, "default-root-privilege-name")
 
 	return ops
 }
