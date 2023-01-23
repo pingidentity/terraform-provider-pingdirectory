@@ -186,11 +186,8 @@ func (r *rootDnResource) Read(ctx context.Context, req resource.ReadRequest, res
 // Read a GlobalConfigurationRespnse object into the model struct
 func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel) {
 	// Placeholder Id value for acceptance test framework
-	// ** FIXME **
-	// Following line throws error if not commented
+	// Id not in RootDN, can be set to anything
 	state.Id = types.StringValue("mystate")
-	/* from docs: https://pkg.go.dev/github.com/hashicorp/terraform-plugin-framework@v1.1.1/types#SetValue
-	/* func SetValue(elementType attr.Type, elements []attr.Value) (basetypes.SetValue, diag.Diagnostics) */
 	state.DefaultRootPrivilegeName = internaltypes.GetEnumSet(r.DefaultRootPrivilegeName)
 
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
@@ -200,7 +197,6 @@ func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *ro
 func createRootDnOperations(plan rootDnResourceModel, state rootDnResourceModel) []client.Operation {
 	var ops []client.Operation
 
-	// ** FIXME ** Can't use string operation here
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultRootPrivilegeName, state.DefaultRootPrivilegeName, "default-root-privilege-name")
 
 	return ops
