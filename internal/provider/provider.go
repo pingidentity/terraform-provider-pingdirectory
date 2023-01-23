@@ -188,6 +188,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	return []func() resource.Resource{
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
+		config.NewRootDnResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
