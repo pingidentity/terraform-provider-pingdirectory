@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -37,9 +35,7 @@ type locationResource struct {
 
 // locationResourceModel maps the resource schema data.
 type locationResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id              types.String `tfsdk:"id"`
-	Name            types.String `tfsdk:"name"`
 	Description     types.String `tfsdk:"description"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
@@ -56,20 +52,13 @@ func (r *locationResource) Schema(ctx context.Context, req resource.SchemaReques
 	schema := schema.Schema{
 		Description: "Manages a Location.",
 		Attributes: map[string]schema.Attribute{
-			"name": schema.StringAttribute{
-				Description: "Name of the Location.",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Location.",
 				Optional:    true,
 			},
 		},
 	}
-	AddCommonSchema(&schema)
+	AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 
@@ -103,7 +92,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	addRequest := client.NewAddLocationRequest(plan.Name.ValueString())
+	addRequest := client.NewAddLocationRequest(plan.Id.ValueString())
 	addOptionalLocationFields(addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -142,9 +131,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 // Read a LocationResponse object into the model struct
 func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
-	// Placeholder Id value for acceptance test framework
 	state.Id = types.StringValue(r.Id)
-	state.Name = types.StringValue(r.Id)
 	// If a plan was provided and is using an empty string, use that for a nil string in the response.
 	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
 	// just want to match whatever is in the plan here.
@@ -162,7 +149,7 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
@@ -206,7 +193,7 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state locationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocationApi.UpdateLocation(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.LocationApi.UpdateLocation(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocationOperations(plan, state)
@@ -252,7 +239,7 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
@@ -260,6 +247,6 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 }
 
 func (r *locationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to Name attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	// Retrieve import ID and save to Id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

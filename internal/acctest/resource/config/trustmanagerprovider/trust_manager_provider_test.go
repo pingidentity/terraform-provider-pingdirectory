@@ -131,7 +131,7 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 func testAccBlindTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
-	name = "%[2]s"
+	id = "%[2]s"
 	enabled = %[3]t
 }`, resourceName, providerName, enabled)
 }
@@ -139,7 +139,7 @@ resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
 func testAccFileBasedTrustManagerProviderResource(resourceName, providerName string, enabled bool, trustStoreFile, trustStoreType string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
-	name = "%[2]s"
+	id = "%[2]s"
 	enabled = %[3]t
 	trust_store_file = "%[4]s"
 	trust_store_type = "%[5]s"
@@ -149,7 +149,7 @@ resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
 func testAccJvmDefaultTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
-	name = "%[2]s"
+	id = "%[2]s"
 	enabled = %[3]t
 }`, resourceName, providerName, enabled)
 }
@@ -157,7 +157,7 @@ resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
 func testAccThirdPartyTrustManagerProviderResource(resourceName, providerName string, enabled bool, extensionClass string, extensionArgument []string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_third_party_trust_manager_provider" "%[1]s" {
-	name = "%[2]s"
+	id = "%[2]s"
 	enabled = %[3]t
 	extension_class = "%[4]s"
 	extension_argument = %[5]s

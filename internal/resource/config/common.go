@@ -4,6 +4,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
@@ -25,7 +27,7 @@ func GetRequiredActionsObjectType() types.ObjectType {
 }
 
 // Get schema elements common to all resources
-func AddCommonSchema(s *schema.Schema) {
+func AddCommonSchema(s *schema.Schema, idRequired bool) {
 	s.Attributes["last_updated"] = schema.StringAttribute{
 		Description: "Timestamp of the last Terraform update of this resource.",
 		Computed:    true,
@@ -46,9 +48,21 @@ func AddCommonSchema(s *schema.Schema) {
 		Required:    false,
 		Optional:    false,
 	}
-	s.Attributes["id"] = schema.StringAttribute{
-		Description: "Id attribute required for acceptance testing.",
-		Computed:    true,
+	// If ID is required (for instantiable config objects) then set it as Required and
+	// require replace when changing. Otherwise, mark it as Computed.
+	if idRequired {
+		s.Attributes["id"] = schema.StringAttribute{
+			Description: "Name of this object.",
+			Required:    true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.RequiresReplace(),
+			},
+		}
+	} else {
+		s.Attributes["id"] = schema.StringAttribute{
+			Description: "Placeholder name of this object required by Terraform.",
+			Computed:    true,
+		}
 	}
 }
 

@@ -14,7 +14,6 @@ import (
 // resource implementations because they use the exact same model. If they change, they won't be able to share
 // these definitions.
 type CommonServerInstanceResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                        types.String `tfsdk:"id"`
 	ServerInstanceName        types.String `tfsdk:"server_instance_name"`
 	ClusterName               types.String `tfsdk:"cluster_name"`
@@ -153,7 +152,7 @@ func GetCommonServerInstanceSchema(description string) schema.Schema {
 			},
 		},
 	}
-	config.AddCommonSchema(&schema)
+	config.AddCommonSchema(&schema, true)
 	return schema
 }
 
