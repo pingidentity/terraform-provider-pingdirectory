@@ -7,6 +7,10 @@ default: install
 install: fmt
 	go install .
 
+generate:
+	go generate ./...
+	go fmt ./...
+
 fmt:
 	go fmt ./...
 
@@ -23,7 +27,7 @@ starttestcontainer:
 # Wait for the instance to become ready
 	sleep 1
 	duration=0
-	while (( duration < 180 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
+	while (( duration < 240 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
 	do \
 	    duration=$$((duration+1)); \
 		sleep 1; \
