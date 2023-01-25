@@ -112,7 +112,7 @@ func TestAttributesMatchInt(resourceType string, resourceName *string, attribute
 	return nil
 }
 
-// Test if int attributes match
+// Test if string attributes match
 func TestAttributesMatchStringSlice(resourceType string, resourceName *string, attributeName string, expected, found []string) error {
 	if !types.SetsEqual(expected, found) {
 		return mismatchedAttributeError(resourceType, resourceName, attributeName, StringSliceToTerraformString(expected), StringSliceToTerraformString(found))

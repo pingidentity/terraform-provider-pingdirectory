@@ -184,6 +184,7 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 }
 
 // Resources defines the resources implemented in the provider.
+// Maintain alphabetical order for ease of management
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		config.NewGlobalConfigurationResource,
