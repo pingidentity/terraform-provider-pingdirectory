@@ -87,7 +87,7 @@ func TestAccRootDn(t *testing.T) {
 	})
 }
 
-// empty resource object means all values are computed, so it will retreive defaults from PD
+// empty resource object means all values are computed, so it will retrieve defaults from PD
 func testAccRootDnResourceDefault(resourceName string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_root_dn" "%[1]s" {
