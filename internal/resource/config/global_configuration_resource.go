@@ -577,7 +577,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 		},
 	}
-	AddCommonSchema(&schema)
+	AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -694,7 +694,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 // Read a GlobalConfigurationRespnse object into the model struct
 func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
 	// Placeholder Id value for acceptance test framework
-	state.Id = types.StringValue(r.InstanceName)
+	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, true)
 	state.ConfigurationServerGroup = internaltypes.StringTypeOrNil(r.ConfigurationServerGroup, true)

@@ -67,7 +67,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString()).Execute()
+	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -84,7 +84,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 	readProxyServerInstanceResponse(ctx, getResp.ProxyServerInstanceResponse, &state)
 
 	// Determine what changes need to be made to match the plan
-	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 	ops := CreateCommonServerInstanceOperations(plan, state)
 
 	if len(ops) > 0 {
@@ -123,8 +123,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 // Read a ProxyServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *CommonServerInstanceResourceModel) {
-	// Placeholder Id value for acceptance test framework
-	state.Id = types.StringValue(r.ServerInstanceName)
+	state.Id = internaltypes.StringTypeOrNil(r.Id, true)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
 	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)
@@ -162,7 +161,7 @@ func (r *proxyServerInstanceResource) Read(ctx context.Context, req resource.Rea
 		return
 	}
 
-	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString()).Execute()
+	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -198,7 +197,7 @@ func (r *proxyServerInstanceResource) Update(ctx context.Context, req resource.U
 	// Get the current state to see how any attributes are changing
 	var state CommonServerInstanceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := CreateCommonServerInstanceOperations(plan, state)
@@ -242,6 +241,6 @@ func (r *proxyServerInstanceResource) Delete(ctx context.Context, req resource.D
 }
 
 func (r *proxyServerInstanceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to Name attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

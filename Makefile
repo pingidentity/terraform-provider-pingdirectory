@@ -4,8 +4,11 @@ SHELL := /bin/bash
 
 default: install
 
-install:
+install: fmt
 	go install .
+
+fmt:
+	go fmt ./...
 
 test:
 	go test -parallel=4 ./...

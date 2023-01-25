@@ -13,7 +13,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_location" "drangleic" {
-  name = "Drangleic"
+  id = "Drangleic"
   description = "Seek the king"
 }
 
@@ -27,13 +27,13 @@ resource "pingdirectory_global_configuration" "global" {
 }
 
 resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
-  name = "Blind Test"
+  id = "Blind Test"
   enabled = true
   include_jvm_default_issuers = true
 }
 
 resource "pingdirectory_file_based_trust_manager_provider" "filetest" {
-  name = "FileTest"
+  id = "FileTest"
   enabled = true
   trust_store_file = "config/keystore"
   trust_store_type = "pkcs12"
@@ -41,12 +41,12 @@ resource "pingdirectory_file_based_trust_manager_provider" "filetest" {
 }
 
 resource "pingdirectory_jvm_default_trust_manager_provider" "jvmtest" {
-  name = "jvmtest"
+  id = "jvmtest"
   enabled = false
 }
 
 resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
-  name = "tptest"
+  id = "tptest"
   enabled = false
   extension_class = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
   extension_argument = ["val1=one", "val2=two"]

@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -38,9 +36,7 @@ type jvmDefaultTrustManagerProviderResource struct {
 
 // jvmDefaultTrustManagerProviderResourceModel maps the resource schema data.
 type jvmDefaultTrustManagerProviderResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id              types.String `tfsdk:"id"`
-	Name            types.String `tfsdk:"name"`
 	Enabled         types.Bool   `tfsdk:"enabled"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
@@ -57,20 +53,13 @@ func (r *jvmDefaultTrustManagerProviderResource) Schema(ctx context.Context, req
 	schema := schema.Schema{
 		Description: "Manages a JVM Default Trust Manager Provider.",
 		Attributes: map[string]schema.Attribute{
-			"name": schema.StringAttribute{
-				Description: "Name of the Trust Manager Provider.",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
-			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
 				Required:    true,
 			},
 		},
 	}
-	config.AddCommonSchema(&schema)
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 
@@ -95,7 +84,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 		return
 	}
 
-	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest(plan.Name.ValueString(),
+	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest(plan.Id.ValueString(),
 		[]client.EnumjvmDefaultTrustManagerProviderSchemaUrn{client.ENUMJVMDEFAULTTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERJVM_DEFAULT},
 		plan.Enabled.ValueBool())
 	// Log request JSON
@@ -135,9 +124,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
 func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
-	// Placeholder Id value for acceptance test framework
 	state.Id = types.StringValue(r.Id)
-	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
@@ -153,7 +140,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 	}
 
 	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
@@ -197,7 +184,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state jvmDefaultTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJvmDefaultTrustManagerProviderOperations(plan, state)
@@ -244,7 +231,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Delete(ctx context.Context, req
 	}
 
 	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(
-		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
+		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
 		return
@@ -252,6 +239,6 @@ func (r *jvmDefaultTrustManagerProviderResource) Delete(ctx context.Context, req
 }
 
 func (r *jvmDefaultTrustManagerProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to Name attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
