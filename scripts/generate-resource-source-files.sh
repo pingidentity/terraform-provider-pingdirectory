@@ -11,7 +11,7 @@ docker run --name pingdirectory_terraform_generator \
 	--env-file "${HOME}/.pingidentity/config" \
 	"pingidentity/pingdirectory:${PINGDIRECTORY_TAG:-9.1.0.0-latest}"
 
-# Wait for the instance to become ready, up to 3 minutes
+# Wait for the instance to become ready, up to 4 minutes
 echo "Waiting for PingDirectory to become ready..."
 sleep 1
 duration=0
@@ -24,15 +24,12 @@ done
 # Fail if the container didn't become ready in time
 docker logs pingdirectory_terraform_generator 2>&1 | grep -q "Setting Server to Available"
 
-# Run the generator, specifying the endpoints to be generated
+# Run the generator, specifying the endpoints to be generated.
+# --endpoint can be specified multiple times to generate multiple endpoints in one run.
 java -jar ../../bin/pingdirectory-openapi-generator.jar \
     --generateMode terraform \
     --targetDirectory ../../ \
-    --endpoint global-configuration \
-    --endpoint location \
-    --endpoint root-dn \
-    --endpoint server-instance \
-    --endpoint trust-manager-provider
+    --endpoint "${PINGDIRECTORY_ENDPOINT_TO_GENERATE:-example-endpoint-name}"
 
 # Remove the PD container
 echo "Stopping and removing PingDirectory container"
