@@ -67,7 +67,7 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
-	AddCommonSchema(&schema)
+	AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
