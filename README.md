@@ -24,7 +24,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_location" "mylocation" {
-  name = "MyLocation"
+  id = "MyLocation"
   description = "My description"
 }
 

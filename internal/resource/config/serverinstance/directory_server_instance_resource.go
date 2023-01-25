@@ -36,7 +36,6 @@ type directoryServerInstanceResource struct {
 
 // directoryServerInstanceResourceModel maps the resource schema data.
 type directoryServerInstanceResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                         types.String `tfsdk:"id"`
 	ReplicationSetName         types.String `tfsdk:"replication_set_name"`
 	LoadBalancingAlgorithmName types.Set    `tfsdk:"load_balancing_algorithm_name"`
@@ -112,7 +111,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString()).Execute()
+	getResp, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -129,7 +128,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 	readDirectoryServerInstanceResponse(ctx, getResp.DirectoryServerInstanceResponse, &state)
 
 	// Determine what changes need to be made to match the plan
-	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateInstanceRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 	ops := createDirectoryServerInstanceOperations(plan, state)
 
 	if len(ops) > 0 {
@@ -168,8 +167,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 // Read a DirectoryServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel) {
-	// Placeholder Id value for acceptance test framework
-	state.Id = types.StringValue(r.ServerInstanceName)
+	state.Id = types.StringValue(r.Id)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
 	state.LoadBalancingAlgorithmName = internaltypes.GetStringSet(r.LoadBalancingAlgorithmName)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -209,7 +207,7 @@ func (r *directoryServerInstanceResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.ServerInstanceName.ValueString()).Execute()
+	serverInstanceResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -274,7 +272,7 @@ func (r *directoryServerInstanceResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state directoryServerInstanceResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDirectoryServerInstanceOperations(plan, state)
@@ -318,6 +316,6 @@ func (r *directoryServerInstanceResource) Delete(ctx context.Context, req resour
 }
 
 func (r *directoryServerInstanceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to Name attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
