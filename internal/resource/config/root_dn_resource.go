@@ -22,7 +22,7 @@ var (
 	_ resource.ResourceWithImportState = &rootDnResource{}
 )
 
-// Create a Global Configuration resource
+// Create a Root DN resource
 func NewRootDnResource() resource.Resource {
 	return &rootDnResource{}
 }
@@ -55,13 +55,12 @@ func (r *rootDnResource) Metadata(_ context.Context, req resource.MetadataReques
 func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	schema := schema.Schema{
 		Description: "Manages the Root DN of PingDirectory.",
-		// All are considered computed, since we are importing the existing global
-		// configuration from a server, rather than "creating" the global configuration
+		// All are considered computed, since we are importing the existing Root DN
+		// from a server, rather than "creating" the Root DN object
 		// like a typical Terraform resource.
 		Attributes: map[string]schema.Attribute{
 			"default_root_privilege_name": schema.SetAttribute{
-				Description: "The Root DN for this Directory Server instance.",
-				// instance name is read-only after setup, so Terraform can't change it
+				Description: "Specifies the names of the privileges that root users will be granted by default.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
@@ -183,11 +182,11 @@ func (r *rootDnResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 }
 
-// Read a GlobalConfigurationRespnse object into the model struct
+// Read a RootDNResponse object into the model struct
 func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel) {
 	// Placeholder Id value for acceptance test framework
 	// Id not in RootDN, can be set to anything
-	state.Id = types.StringValue("mystate")
+	state.Id = types.StringValue("id")
 	state.DefaultRootPrivilegeName = internaltypes.GetEnumSet(r.DefaultRootPrivilegeName)
 
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
@@ -202,7 +201,7 @@ func createRootDnOperations(plan rootDnResourceModel, state rootDnResourceModel)
 	return ops
 }
 
-// Update the global configuration - similar to the Create method since the config is just adopted
+// Update the Root DN Permissions - similar to the Create method since the permissions are adopted
 func (r *rootDnResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
 	var plan rootDnResourceModel
@@ -252,8 +251,8 @@ func (r *rootDnResource) Update(ctx context.Context, req resource.UpdateRequest,
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-// Terraform can't actually delete the global configuration, so this method does nothing.
-// Terraform will just "forget" about the global config, and it can be managed elsewhere.
+// Terraform can't actually delete the Root DN, so this method does nothing.
+// Terraform will just "forget" about the Root DN resource, and it can be managed elsewhere.
 func (r *rootDnResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// No implementation necessary
 }
@@ -262,5 +261,5 @@ func (r *rootDnResource) ImportState(ctx context.Context, req resource.ImportSta
 	// Set an arbitrary state value to appease terraform - the placeholder will immediately be
 	// replaced with the actual instance name when terraform performs a read after the import.
 	// If no value is set here, Terraform will error out when importing.
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("instance_name"), "placeholder")...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "id")...)
 }

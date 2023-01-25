@@ -14,30 +14,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-// Testing will do three things
-// First, read the state and check if default permissions match the slice I provide (unmodified PD instance)
-// Second, apply the minimum permissions set and confirm that only those are there (expected = provided)
-// Third, apply updated permissions set and confirm that "backend-restore" has been added back (expected = provided)
+// Testing will do four things
+//   1) Read the state prior to making changes (unmodified PD instance) and check if default permissions match expected defaults (expected = provided)
+//   2) Apply the minimum permissions set and confirm that only those are there (expected = provided)
+//   3) Apply updated permissions set and confirm that "backend-restore" has been added back (expected = provided)
+//   4) Apply the default permissions just in case they might impact other tests
 
 var defaultPermissionOne = "backend-backup"
 var defaultPermissionTwo = "metrics-read"
 
-// Overkill to have a struct, but makes the logic cleaner later
-type rootDnTestModel struct {
-	permissionsList []string
-}
-
 func TestAccRootDn(t *testing.T) {
 	resourceName := "testrootdn"
-	defaultResourceModel := rootDnTestModel{
-		permissionsList: []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "server-shutdown", "soft-delete-read", "stream-values", "third-party-task", "unindexed-search", "update-schema", "use-admin-session"},
-	}
-	minimumResourceModel := rootDnTestModel{
-		permissionsList: []string{"bypass-acl", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"},
-	}
-	updatedResourceModel := rootDnTestModel{
-		permissionsList: []string{"bypass-acl", "backend-restore", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"},
-	}
+	// default permissions as of January 2023, PingDirectory 9.1.0.0
+	defaultPermissionsList := []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "server-shutdown", "soft-delete-read", "stream-values", "third-party-task", "unindexed-search", "update-schema", "use-admin-session"}
+	//
+	minimumPermissionsList := []string{"bypass-acl", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"}
+	updatedPermissionsList := []string{"bypass-acl", "backend-restore", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -47,40 +39,40 @@ func TestAccRootDn(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				// Test defaults
-				// load defaults from server
+				// load defaults from server with empty resource definition call
 				Config: testAccRootDnResourceDefault(resourceName),
 				Check: resource.ComposeTestCheckFunc(
-					// check if the test default permissions are present in the state file
+					// check if the sample set of test default permissions are present in the state file
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionOne),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionTwo),
 
 					// check if the permissions reported by PingDirectory match the state file
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultResourceModel.permissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultPermissionsList),
 				),
 			},
 
 			{
 				// Test after applying the minimum set
-				Config: testAccRootDnResource(resourceName, minimumResourceModel),
+				Config: testAccRootDnResource(resourceName, minimumPermissionsList),
 				Check: resource.ComposeTestCheckFunc(
 					// check that the permissions reported by PingDirectory match what was sent
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), minimumResourceModel.permissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), minimumPermissionsList),
 				),
 			},
 			{
 				// Test after applying updated permissions
-				Config: testAccRootDnResource(resourceName, updatedResourceModel),
+				Config: testAccRootDnResource(resourceName, updatedPermissionsList),
 				Check: resource.ComposeTestCheckFunc(
 					// check that the permissions reported by PingDirectory match what was sent
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), updatedResourceModel.permissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), updatedPermissionsList),
 				),
 			},
 			{
 				// Set permissions back to default for other tests
-				Config: testAccRootDnResource(resourceName, defaultResourceModel),
+				Config: testAccRootDnResource(resourceName, defaultPermissionsList),
 				Check: resource.ComposeTestCheckFunc(
 					// check if the permissions reported by PingDirectory match the state file
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultResourceModel.permissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultPermissionsList),
 				),
 			},
 		},
@@ -96,17 +88,16 @@ resource "pingdirectory_root_dn" "%[1]s" {
 
 // apply a list of permissions to the default_root_privilege_name object
 // only what is in the list should exist after applied
-func testAccRootDnResource(resourceName string, resourceModel rootDnTestModel) string {
+func testAccRootDnResource(resourceName string, permissionsList []string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_root_dn" "%[1]s" {
 	default_root_privilege_name = %[2]s
-}`, resourceName, acctest.StringSliceToTerraformString(resourceModel.permissionsList))
+}`, resourceName, acctest.StringSliceToTerraformString(permissionsList))
 }
 
 // Test that the expected RootDN permissions are set on the PingDirectory server
 func testAccCheckExpectedRootDnPermissions(resourceName string, expected []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		//		resourceType := "rootdn"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
 		rootDnResponse, _, err := testClient.RootDnApi.GetRootDn(ctx).Execute()
