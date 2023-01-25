@@ -35,21 +35,41 @@ func GetInt64Set(values []int32) types.Set {
 }
 
 // Convert Enums from the Go client to a types.Set.
-func GetEnumSet[V client.EnumglobalConfigurationDisabledPrivilegeProp |
-	client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
+// Maintain alphabetical order for ease of management
+func GetEnumSet[V client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
 	client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp |
+	client.EnumglobalConfigurationDisabledPrivilegeProp |
 	client.EnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp |
 	client.EnumglobalConfigurationJmxValueBehaviorProp |
 	client.EnumglobalConfigurationSingleStructuralObjectclassBehaviorProp |
+	client.EnumglobalConfigurationStartupErrorLoggerOutputLocationProp |
 	client.EnumglobalConfigurationWritabilityModeProp |
 	client.EnumglobalConfigurationUnrecoverableDatabaseErrorModeProp |
-	client.EnumglobalConfigurationStartupErrorLoggerOutputLocationProp](values []V) types.Set {
+	client.EnumrootDnDefaultRootPrivilegeNameProp](values []V) types.Set {
 	setValues := make([]attr.Value, len(values))
 	for i := 0; i < len(values); i++ {
 		setValues[i] = types.StringValue(string(values[i]))
 	}
 	set, _ := types.SetValue(types.StringType, setValues)
 	return set
+}
+
+// convert enum slice to string slice
+func GetEnumStringSlice[V client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
+	client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp |
+	client.EnumglobalConfigurationDisabledPrivilegeProp |
+	client.EnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp |
+	client.EnumglobalConfigurationJmxValueBehaviorProp |
+	client.EnumglobalConfigurationSingleStructuralObjectclassBehaviorProp |
+	client.EnumglobalConfigurationStartupErrorLoggerOutputLocationProp |
+	client.EnumglobalConfigurationWritabilityModeProp |
+	client.EnumglobalConfigurationUnrecoverableDatabaseErrorModeProp |
+	client.EnumrootDnDefaultRootPrivilegeNameProp](values []V) []string {
+	stringSlice := make([]string, len(values))
+	for i := 0; i < len(values); i++ {
+		stringSlice[i] = string(values[i])
+	}
+	return stringSlice
 }
 
 // Get a types.String from the given string pointer, handling if the pointer is nil

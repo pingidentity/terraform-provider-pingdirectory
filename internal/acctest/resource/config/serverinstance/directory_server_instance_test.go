@@ -1,4 +1,4 @@
-package serverinstance_tests
+package serverinstance_test
 
 import (
 	"fmt"
