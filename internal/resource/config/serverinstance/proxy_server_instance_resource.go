@@ -123,7 +123,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 // Read a ProxyServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *CommonServerInstanceResourceModel) {
-	state.Id = internaltypes.StringTypeOrNil(r.Id, true)
+	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
 	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)

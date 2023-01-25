@@ -167,7 +167,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 // Read a DirectoryServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel) {
-	state.Id = internaltypes.StringTypeOrNil(r.Id, true)
+	state.Id = types.StringValue(r.Id)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
 	state.LoadBalancingAlgorithmName = internaltypes.GetStringSet(r.LoadBalancingAlgorithmName)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)

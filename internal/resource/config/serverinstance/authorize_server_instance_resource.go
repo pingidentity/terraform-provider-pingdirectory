@@ -123,7 +123,7 @@ func (r *authorizeServerInstanceResource) Create(ctx context.Context, req resour
 // Read a AuthorizeServerInstanceResponse object into the model struct.
 // Use empty string for nils since everything is marked as computed.
 func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *CommonServerInstanceResourceModel) {
-	state.Id = internaltypes.StringTypeOrNil(r.Id, true)
+	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
 	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)
