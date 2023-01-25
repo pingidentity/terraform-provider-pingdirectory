@@ -58,7 +58,7 @@ Acceptance tests for the provider use a local PingDirectory instance running in 
 
 ## Run an example
 ### Start the PingDirectory server
-Start a PingDirectory server running locally with the provided docker-compose.yaml file. Change to the `docker-compose` directory and run `docker compose up`. (Alternatively, use the `make starttestcontainer` command from the previous section.) The server will take a couple minutes to become ready. When you see the following output in the terminal, the server is ready to process requests:
+Start a PingDirectory server running locally with the provided docker-compose.yaml file. Change to the `docker-compose` directory and run `docker compose up`. (Alternatively, use the `make starttestcontainer` command from the previous section.) The server will take a couple of minutes to become ready. When you see the following output in the terminal, the server is ready to process requests:
 ```
 docker-compose-pingdirectory-1  | Replication will not be configured.
 docker-compose-pingdirectory-1  | Setting Server to Available
