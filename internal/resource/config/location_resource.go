@@ -33,33 +33,9 @@ type locationResource struct {
 	apiClient      *client.APIClient
 }
 
-// locationResourceModel maps the resource schema data.
-type locationResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	Description     types.String `tfsdk:"description"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-}
-
 // Metadata returns the resource type name.
 func (r *locationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_location"
-}
-
-// GetSchema defines the schema for the resource.
-func (r *locationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
-		Description: "Manages a Location.",
-		Attributes: map[string]schema.Attribute{
-			"description": schema.StringAttribute{
-				Description: "A description for this Location.",
-				Optional:    true,
-			},
-		},
-	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.
@@ -73,13 +49,50 @@ func (r *locationResource) Configure(_ context.Context, req resource.ConfigureRe
 	r.apiClient = providerCfg.ApiClient
 }
 
+type locationResourceModel struct {
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Description     types.String `tfsdk:"description"`
+}
+
+// GetSchema defines the schema for the resource.
+func (r *locationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
+		Description: "Manages a Location.",
+		Attributes: map[string]schema.Attribute{
+			"description": schema.StringAttribute{
+				Description: "A description for this Location",
+				Optional:    true,
+			},
+		},
+	}
+	AddCommonSchema(&schema, true)
+	resp.Schema = schema
+}
+
 // Add optional fields to create request
-func addOptionalLocationFields(addRequest *client.AddLocationRequest, plan locationResourceModel) {
+func addOptionalLocationFields(ctx context.Context, addRequest *client.AddLocationRequest, plan locationResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		stringVal := plan.Description.ValueString()
 		addRequest.Description = &stringVal
 	}
+}
+
+// Read a LocationResponse object into the model struct
+func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+}
+
+// Create any update operations necessary to make the state match the plan
+func createLocationOperations(plan locationResourceModel, state locationResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	return ops
 }
 
 // Create a new resource
@@ -93,30 +106,31 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	addRequest := client.NewAddLocationRequest(plan.Id.ValueString())
-	addOptionalLocationFields(addRequest, plan)
+	addOptionalLocationFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.LocationApi.AddLocation(ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.LocationApi.AddLocation(
+		ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddLocationRequest(*addRequest)
 
-	locationResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.LocationApi.AddLocationExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Location", err, httpResp)
 		return
 	}
 
 	// Log response JSON
-	responseJson, err := locationResponse.MarshalJSON()
+	responseJson, err := addResponse.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add response: "+string(responseJson))
 	}
 
 	// Read the response into the state
 	var state locationResourceModel
-	readLocationResponse(ctx, locationResponse, &state, &plan)
+	readLocationResponse(ctx, addResponse, &state, &plan)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -129,16 +143,6 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 	}
 }
 
-// Read a LocationResponse object into the model struct
-func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
-	state.Id = types.StringValue(r.Id)
-	// If a plan was provided and is using an empty string, use that for a nil string in the response.
-	// To PingDirectory, nil and empty string is equivalent, but to Terraform they are distinct. So we
-	// just want to match whatever is in the plan here.
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
-}
-
 // Read resource information
 func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
@@ -149,20 +153,21 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	locationResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
 	}
 
 	// Log response JSON
-	responseJson, err := locationResponse.MarshalJSON()
+	responseJson, err := readResponse.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Read response: "+string(responseJson))
 	}
 
 	// Read the response into the state
-	readLocationResponse(ctx, locationResponse, &state, &state)
+	readLocationResponse(ctx, readResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -170,14 +175,6 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 	if resp.Diagnostics.HasError() {
 		return
 	}
-}
-
-// Create any update operations necessary to make the state match the plan
-func createLocationOperations(plan locationResourceModel, state locationResourceModel) []client.Operation {
-	var ops []client.Operation
-
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	return ops
 }
 
 // Update a resource
@@ -193,7 +190,8 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state locationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocationApi.UpdateLocation(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LocationApi.UpdateLocation(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocationOperations(plan, state)
@@ -202,20 +200,20 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		locationResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.LocationApi.UpdateLocationExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Location", err, httpResp)
 			return
 		}
 
 		// Log response JSON
-		responseJson, err := locationResponse.MarshalJSON()
+		responseJson, err := updateResponse.MarshalJSON()
 		if err == nil {
 			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response
-		readLocationResponse(ctx, locationResponse, &state, &plan)
+		readLocationResponse(ctx, updateResponse, &state, &plan)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -239,7 +237,8 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
@@ -247,6 +246,6 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 }
 
 func (r *locationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to Id attribute
+	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

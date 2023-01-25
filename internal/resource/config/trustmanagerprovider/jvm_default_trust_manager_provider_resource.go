@@ -23,8 +23,8 @@ var (
 	_ resource.ResourceWithImportState = &jvmDefaultTrustManagerProviderResource{}
 )
 
-// Create a JVM Default Trust Manager Provider resource
-func NewJVMDefaultTrustManagerProviderResource() resource.Resource {
+// Create a Jvm Default Trust Manager Provider resource
+func NewJvmDefaultTrustManagerProviderResource() resource.Resource {
 	return &jvmDefaultTrustManagerProviderResource{}
 }
 
@@ -34,33 +34,9 @@ type jvmDefaultTrustManagerProviderResource struct {
 	apiClient      *client.APIClient
 }
 
-// jvmDefaultTrustManagerProviderResourceModel maps the resource schema data.
-type jvmDefaultTrustManagerProviderResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	Enabled         types.Bool   `tfsdk:"enabled"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-}
-
 // Metadata returns the resource type name.
 func (r *jvmDefaultTrustManagerProviderResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_jvm_default_trust_manager_provider"
-}
-
-// GetSchema defines the schema for the resource.
-func (r *jvmDefaultTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
-		Description: "Manages a JVM Default Trust Manager Provider.",
-		Attributes: map[string]schema.Attribute{
-			"enabled": schema.BoolAttribute{
-				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
-				Required:    true,
-			},
-		},
-	}
-	config.AddCommonSchema(&schema, true)
-	resp.Schema = schema
 }
 
 // Configure adds the provider configured client to the resource.
@@ -72,6 +48,47 @@ func (r *jvmDefaultTrustManagerProviderResource) Configure(_ context.Context, re
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
 	r.apiClient = providerCfg.ApiClient
+}
+
+type jvmDefaultTrustManagerProviderResourceModel struct {
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Enabled         types.Bool   `tfsdk:"enabled"`
+}
+
+// GetSchema defines the schema for the resource.
+func (r *jvmDefaultTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	schema := schema.Schema{
+		Description: "Manages a Jvm Default Trust Manager Provider.",
+		Attributes: map[string]schema.Attribute{
+			"enabled": schema.BoolAttribute{
+				Description: "Indicate whether the Trust Manager Provider is enabled for use.",
+				Required:    true,
+			},
+		},
+	}
+	config.AddCommonSchema(&schema, true)
+	resp.Schema = schema
+}
+
+// Add optional fields to create request
+func addOptionalJvmDefaultTrustManagerProviderFields(ctx context.Context, addRequest *client.AddJvmDefaultTrustManagerProviderRequest, plan jvmDefaultTrustManagerProviderResourceModel) {
+}
+
+// Read a JvmDefaultTrustManagerProviderResponse object into the model struct
+func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel, expectedValues *jvmDefaultTrustManagerProviderResourceModel) {
+	state.Id = types.StringValue(r.Id)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+}
+
+// Create any update operations necessary to make the state match the plan
+func createJvmDefaultTrustManagerProviderOperations(plan jvmDefaultTrustManagerProviderResourceModel, state jvmDefaultTrustManagerProviderResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	return ops
 }
 
 // Create a new resource
@@ -87,46 +104,42 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest(plan.Id.ValueString(),
 		[]client.EnumjvmDefaultTrustManagerProviderSchemaUrn{client.ENUMJVMDEFAULTTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERJVM_DEFAULT},
 		plan.Enabled.ValueBool())
+	addOptionalJvmDefaultTrustManagerProviderFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add request: "+string(requestJson))
 	}
-	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest := r.apiClient.TrustManagerProviderApi.AddTrustManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 	apiAddRequest = apiAddRequest.AddTrustManagerProviderRequest(
 		client.AddJvmDefaultTrustManagerProviderRequestAsAddTrustManagerProviderRequest(addRequest))
 
-	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
+	addResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.AddTrustManagerProviderExecute(apiAddRequest)
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Jvm Default Trust Manager Provider", err, httpResp)
 		return
 	}
 
 	// Log response JSON
-	responseJson, err := trustManagerResponse.MarshalJSON()
+	responseJson, err := addResponse.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Add response: "+string(responseJson))
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
+	var state jvmDefaultTrustManagerProviderResourceModel
+	readJvmDefaultTrustManagerProviderResponse(ctx, addResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan)
 
 	// Populate Computed attribute values
-	plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, plan)
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-}
-
-// Read a JvmDefaultTrustManagerProviderResponse object into the model struct
-func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel) {
-	state.Id = types.StringValue(r.Id)
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
 // Read resource information
@@ -139,21 +152,21 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 		return
 	}
 
-	trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
+	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jvm Default Trust Manager Provider", err, httpResp)
 		return
 	}
 
 	// Log response JSON
-	responseJson, err := trustManagerResponse.MarshalJSON()
+	responseJson, err := readResponse.MarshalJSON()
 	if err == nil {
 		tflog.Debug(ctx, "Read response: "+string(responseJson))
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &state)
+	readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -161,14 +174,6 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 	if resp.Diagnostics.HasError() {
 		return
 	}
-}
-
-// Create any update operations necessary to make the state match the plan
-func createJvmDefaultTrustManagerProviderOperations(plan jvmDefaultTrustManagerProviderResourceModel, state jvmDefaultTrustManagerProviderResourceModel) []client.Operation {
-	var ops []client.Operation
-
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	return ops
 }
 
 // Update a resource
@@ -184,7 +189,8 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state jvmDefaultTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJvmDefaultTrustManagerProviderOperations(plan, state)
@@ -193,27 +199,27 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		trustManagerResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trust Manager Provider", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jvm Default Trust Manager Provider", err, httpResp)
 			return
 		}
 
 		// Log response JSON
-		responseJson, err := trustManagerResponse.MarshalJSON()
+		responseJson, err := updateResponse.MarshalJSON()
 		if err == nil {
 			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response
-		readJvmDefaultTrustManagerProviderResponse(ctx, trustManagerResponse.JvmDefaultTrustManagerProviderResponse, &plan)
+		readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan)
 		// Update computed values
-		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
-	diags = resp.State.Set(ctx, plan)
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -230,10 +236,10 @@ func (r *jvmDefaultTrustManagerProviderResource) Delete(ctx context.Context, req
 		return
 	}
 
-	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(
-		r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Jvm Default Trust Manager Provider", err, httpResp)
 		return
 	}
 }

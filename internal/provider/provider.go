@@ -198,8 +198,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		serverinstance.NewProxyServerInstanceResource,
 		serverinstance.NewSyncServerInstanceResource,
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
-		trustmanagerprovider.NewJVMDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
+		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
 	}
 }
