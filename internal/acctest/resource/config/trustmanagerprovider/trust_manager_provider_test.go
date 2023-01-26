@@ -15,6 +15,7 @@ import (
 
 const tmpName = "mytrustmanagerprovider"
 const resourceName = "TestTMP"
+const importResourceName = "ImportResource"
 
 func TestAccBlindTrustManagerProvider(t *testing.T) {
 	importId := "Blind Trust"
@@ -42,10 +43,13 @@ func TestAccBlindTrustManagerProvider(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:        testAccBlindTrustManagerProviderResourceEmpty(resourceName, importId),
-				ResourceName:  "pingdirectory_blind_trust_manager_provider." + resourceName,
+				Config:        testAccBlindTrustManagerProviderResourceEmpty(importResourceName, importId),
+				ResourceName:  "pingdirectory_blind_trust_manager_provider." + importResourceName,
 				ImportStateId: importId,
 				ImportState:   true,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_blind_trust_manager_provider.%s", importResourceName), "enabled", "false"),
+				),
 			},
 		},
 	})
@@ -77,10 +81,14 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:        testAccFileBasedManagerProviderResourceEmpty(resourceName, importId),
-				ResourceName:  "pingdirectory_file_based_trust_manager_provider." + resourceName,
+				Config:        testAccFileBasedManagerProviderResourceEmpty(importResourceName, importId),
+				ResourceName:  "pingdirectory_file_based_trust_manager_provider." + importResourceName,
 				ImportStateId: importId,
 				ImportState:   true,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_file_based_trust_manager_provider.%s", importResourceName), "enabled", "true"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_file_based_trust_manager_provider.%s", importResourceName), "trust-store-file", "config/keystore"),
+				),
 			},
 		},
 	})
@@ -111,10 +119,13 @@ func TestAccJvmDefaultTrustManagerProvider(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:        testAccJvmDefaultManagerProviderResourceEmpty(resourceName, importId),
-				ResourceName:  "pingdirectory_jvm_default_trust_manager_provider." + resourceName,
+				Config:        testAccJvmDefaultManagerProviderResourceEmpty(importResourceName, importId),
+				ResourceName:  "pingdirectory_jvm_default_trust_manager_provider." + importResourceName,
 				ImportStateId: importId,
 				ImportState:   true,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_jvm_default_trust_manager_provider.%s", importResourceName), "enabled", "false"),
+				),
 			},
 		},
 	})
