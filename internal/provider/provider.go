@@ -183,6 +183,9 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 	return nil
 }
 
+// Use go generate to create the resource files used by the provider
+//go:generate ../../scripts/generate-resource-source-files.sh
+
 // Resources defines the resources implemented in the provider.
 // Maintain alphabetical order for ease of management
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
@@ -195,8 +198,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		serverinstance.NewProxyServerInstanceResource,
 		serverinstance.NewSyncServerInstanceResource,
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
-		trustmanagerprovider.NewJVMDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
+		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
 	}
 }

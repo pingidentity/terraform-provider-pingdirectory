@@ -33,10 +33,28 @@ type globalConfigurationResource struct {
 	apiClient      *client.APIClient
 }
 
-// globalConfigurationResourceModel maps the resource schema data.
+// Metadata returns the resource type name.
+func (r *globalConfigurationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_global_configuration"
+}
+
+// Configure adds the provider configured client to the resource.
+func (r *globalConfigurationResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
 type globalConfigurationResourceModel struct {
 	// Id field required for acceptance testing framework
 	Id                                                             types.String `tfsdk:"id"`
+	LastUpdated                                                    types.String `tfsdk:"last_updated"`
+	Notifications                                                  types.Set    `tfsdk:"notifications"`
+	RequiredActions                                                types.Set    `tfsdk:"required_actions"`
 	InstanceName                                                   types.String `tfsdk:"instance_name"`
 	Location                                                       types.String `tfsdk:"location"`
 	ConfigurationServerGroup                                       types.String `tfsdk:"configuration_server_group"`
@@ -69,7 +87,7 @@ type globalConfigurationResourceModel struct {
 	LookthroughLimit                                               types.Int64  `tfsdk:"lookthrough_limit"`
 	LdapJoinSizeLimit                                              types.Int64  `tfsdk:"ldap_join_size_limit"`
 	MaximumConcurrentConnections                                   types.Int64  `tfsdk:"maximum_concurrent_connections"`
-	MaximumConcurrentConnectionsPerIPAddress                       types.Int64  `tfsdk:"maximum_concurrent_connections_per_id_address"`
+	MaximumConcurrentConnectionsPerIPAddress                       types.Int64  `tfsdk:"maximum_concurrent_connections_per_ip_address"`
 	MaximumConcurrentConnectionsPerBindDN                          types.Int64  `tfsdk:"maximum_concurrent_connections_per_bind_dn"`
 	MaximumConcurrentUnindexedSearches                             types.Int64  `tfsdk:"maximum_concurrent_unindexed_searches"`
 	MaximumAttributesPerAddRequest                                 types.Int64  `tfsdk:"maximum_attributes_per_add_request"`
@@ -122,30 +140,17 @@ type globalConfigurationResourceModel struct {
 	TrackedApplication                                             types.Set    `tfsdk:"tracked_application"`
 	JmxValueBehavior                                               types.String `tfsdk:"jmx_value_behavior"`
 	JmxUseLegacyMbeanNames                                         types.Bool   `tfsdk:"jmx_use_legacy_mbean_names"`
-	LastUpdated                                                    types.String `tfsdk:"last_updated"`
-	Notifications                                                  types.Set    `tfsdk:"notifications"`
-	RequiredActions                                                types.Set    `tfsdk:"required_actions"`
-}
-
-// Metadata returns the resource type name.
-func (r *globalConfigurationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_global_configuration"
 }
 
 // GetSchema defines the schema for the resource.
 func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	schema := schema.Schema{
-		Description: "Manages the global configuration.",
-		// All are considered computed, since we are importing the existing global
-		// configuration from a server, rather than "creating" the global configuration
-		// like a typical Terraform resource.
+		Description: "Manages a Global Configuration.",
 		Attributes: map[string]schema.Attribute{
 			"instance_name": schema.StringAttribute{
-				Description: "A name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
-				// instance name is read-only after setup, so Terraform can't change it
-				Required: false,
-				Optional: false,
-				Computed: true,
+				Description: "Specifies a name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"location": schema.StringAttribute{
 				Description: "Specifies the location for this Directory Server. Operations performed which involve communication with other servers may prefer servers in the same location to help ensure low-latency responses.",
@@ -204,9 +209,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"sensitive_attribute": schema.SetAttribute{
 				Description: "Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"reject_insecure_requests": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should reject any LDAP request (other than StartTLS) received from a client that is not using an encrypted connection.",
@@ -235,9 +240,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"disabled_privilege": schema.SetAttribute{
 				Description: "Specifies the name of a privilege that should not be evaluated by the server.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"default_password_policy": schema.StringAttribute{
 				Description: "Specifies the name of the password policy that is in effect for users whose entries do not specify an alternate password policy (either via a real or virtual attribute).",
@@ -261,9 +266,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"allowed_insecure_tls_protocol": schema.SetAttribute{
 				Description: "Specifies a set of TLS protocols that will be permitted for use in the server even though there may be known vulnerabilities that could cause their use to be unsafe in some conditions. Enabling support for insecure TLS protocols is discouraged, and is generally recommended only as a short-term measure to permit legacy clients to interact with the server until they can be updated to support more secure communication protocols.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"allow_insecure_local_jmx_connections": schema.BoolAttribute{
 				Description: "Indicates that processes attaching to this server's local JVM are allowed to access internal data through JMX without the authentication requirements that remote JMX connections are subject to. Please review and understand the data that this option will expose (such as cn=monitor) to client applications to ensure there are no security concerns.",
@@ -305,7 +310,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Optional:    true,
 				Computed:    true,
 			},
-			"maximum_concurrent_connections_per_id_address": schema.Int64Attribute{
+			"maximum_concurrent_connections_per_ip_address": schema.Int64Attribute{
 				Description: "Specifies the maximum number of LDAP client connections originating from the same IP address which may be established to this Directory Server at the same time.",
 				Optional:    true,
 				Computed:    true,
@@ -347,9 +352,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"permit_syntax_violations_for_attribute": schema.SetAttribute{
 				Description: "Specifies a set of attribute types for which the server will permit values that do not conform to the associated attribute syntax.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"single_structural_objectclass_behavior": schema.StringAttribute{
 				Description: "Specifies how the Directory Server should handle operations for an entry does not contain a structural object class, or for an entry that contains multiple structural classes.",
@@ -358,9 +363,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"attributes_modifiable_with_ignore_no_user_modification_request_control": schema.SetAttribute{
 				Description: "Specifies the operational attribute types that are defined in the schema with the NO-USER-MODIFICATION constraint that the server will allow to be altered if the associated request contains the ignore NO-USER-MODIFICATION request control.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"maximum_server_out_log_file_size": schema.StringAttribute{
 				Description: "The maximum allowed size that the server.out log file will be allowed to have. If a write would cause the file to exceed this size, then the current file will be rotated out of place and a new empty file will be created and the message written to it.",
@@ -514,9 +519,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"smtp_server": schema.SetAttribute{
 				Description: "Specifies the set of servers that will be used to send email messages. The order in which the servers are listed indicates the order in which the Directory Server will attempt to use them in the course of sending a message. The first attempt will always go to the server at the top of the list, and servers further down the list will only be used if none of the servers listed above it were able to successfully send the message.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"max_smtp_connection_count": schema.Int64Attribute{
 				Description: "The maximum number of SMTP connections that will be maintained for delivering email messages.",
@@ -535,9 +540,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"allowed_task": schema.SetAttribute{
 				Description: "Specifies the fully-qualified name of a Java class that may be invoked in the server.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"enable_sub_operation_timer": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should attempt to record information about the length of time required to process various phases of an operation. Enabling this feature may impact performance, but could make it easier to identify potential bottlenecks in operation processing.",
@@ -561,9 +566,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 			"tracked_application": schema.SetAttribute{
 				Description: "Specifies criteria for identifying specific applications that access the server to enable tracking throughput and latency of LDAP operations issued by an application.",
-				ElementType: types.StringType,
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"jmx_value_behavior": schema.StringAttribute{
 				Description: "Specifies how a Java type is chosen for monitor attributes exposed as JMX attribute values.",
@@ -581,119 +586,9 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 	resp.Schema = schema
 }
 
-// Configure adds the provider configured client to the resource.
-func (r *globalConfigurationResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
-	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
-}
-
-// Create a new resource
-// For global config, create doesn't actually "create" anything - it "adopts" the servers existing
-// global configuration into management by terraform. This method reads the existing global config
-// and makes any changes needed to make it match the plan - similar to the Update method.
-func (r *globalConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan globalConfigurationResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := getResp.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read existing global config
-	var state globalConfigurationResourceModel
-	readGlobalConfigurationResponse(ctx, getResp, &state)
-
-	// Determine what changes need to be made to match the plan
-	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
-	ops := createGlobalConfigurationOperations(plan, state)
-
-	if len(ops) > 0 {
-		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := globalResp.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readGlobalConfigurationResponse(ctx, globalResp, &plan)
-		// Populate Computed attribute values
-		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		// Just put the initial read into the plan
-		plan = state
-	}
-
-	// Set state to fully populated data
-	diags = resp.State.Set(ctx, plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *globalConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state globalConfigurationResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	getResp, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the global configuration", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := getResp.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readGlobalConfigurationResponse(ctx, getResp, &state)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read a GlobalConfigurationRespnse object into the model struct
+// Read a GlobalConfigurationResponse object into the model struct
 func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
-	// Placeholder Id value for acceptance test framework
+	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, true)
@@ -786,7 +681,7 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 // Create any update operations necessary to make the state match the plan
 func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, state globalConfigurationResourceModel) []client.Operation {
 	var ops []client.Operation
-
+	operations.AddStringOperationIfNecessary(&ops, plan.InstanceName, state.InstanceName, "instance-name")
 	operations.AddStringOperationIfNecessary(&ops, plan.Location, state.Location, "location")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConfigurationServerGroup, state.ConfigurationServerGroup, "configuration-server-group")
 	operations.AddBoolOperationIfNecessary(&ops, plan.ForceAsMasterForMirroredData, state.ForceAsMasterForMirroredData, "force-as-master-for-mirrored-data")
@@ -798,15 +693,18 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddStringOperationIfNecessary(&ops, plan.LdifExportEncryptionSettingsDefinitionID, state.LdifExportEncryptionSettingsDefinitionID, "ldif-export-encryption-settings-definition-id")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AutomaticallyCompressEncryptedLDIFExports, state.AutomaticallyCompressEncryptedLDIFExports, "automatically-compress-encrypted-ldif-exports")
 	operations.AddBoolOperationIfNecessary(&ops, plan.RedactSensitiveValuesInConfigLogs, state.RedactSensitiveValuesInConfigLogs, "redact-sensitive-values-in-config-logs")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.SensitiveAttribute, state.SensitiveAttribute, "sensitive-attribute")
 	operations.AddBoolOperationIfNecessary(&ops, plan.RejectInsecureRequests, state.RejectInsecureRequests, "reject-insecure-requests")
 	operations.AddStringOperationIfNecessary(&ops, plan.AllowedInsecureRequestCriteria, state.AllowedInsecureRequestCriteria, "allowed-insecure-request-criteria")
 	operations.AddBoolOperationIfNecessary(&ops, plan.RejectUnauthenticatedRequests, state.RejectUnauthenticatedRequests, "reject-unauthenticated-requests")
 	operations.AddStringOperationIfNecessary(&ops, plan.AllowedUnauthenticatedRequestCriteria, state.AllowedUnauthenticatedRequestCriteria, "allowed-unauthenticated-request-criteria")
 	operations.AddBoolOperationIfNecessary(&ops, plan.BindWithDNRequiresPassword, state.BindWithDNRequiresPassword, "bind-with-dn-requires-password")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.DisabledPrivilege, state.DisabledPrivilege, "disabled-privilege")
 	operations.AddStringOperationIfNecessary(&ops, plan.DefaultPasswordPolicy, state.DefaultPasswordPolicy, "default-password-policy")
-	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumUserDataPasswordPoliciesToCache, state.MaximumUserDataPasswordPoliciesToCache, "maximum-user-data-password-policies-cache")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumUserDataPasswordPoliciesToCache, state.MaximumUserDataPasswordPoliciesToCache, "maximum-user-data-password-policies-to-cache")
 	operations.AddStringOperationIfNecessary(&ops, plan.ProxiedAuthorizationIdentityMapper, state.ProxiedAuthorizationIdentityMapper, "proxied-authorization-identity-mapper")
 	operations.AddBoolOperationIfNecessary(&ops, plan.VerifyEntryDigests, state.VerifyEntryDigests, "verify-entry-digests")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedInsecureTLSProtocol, state.AllowedInsecureTLSProtocol, "allowed-insecure-tls-protocol")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowInsecureLocalJMXConnections, state.AllowInsecureLocalJMXConnections, "allow-insecure-local-jmx-connections")
 	operations.AddStringOperationIfNecessary(&ops, plan.DefaultInternalOperationClientConnectionPolicy, state.DefaultInternalOperationClientConnectionPolicy, "default-internal-operation-client-connection-policy")
 	operations.AddInt64OperationIfNecessary(&ops, plan.SizeLimit, state.SizeLimit, "size-limit")
@@ -823,11 +721,14 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddBoolOperationIfNecessary(&ops, plan.BackgroundThreadForEachPersistentSearch, state.BackgroundThreadForEachPersistentSearch, "background-thread-for-each-persistent-search")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowAttributeNameExceptions, state.AllowAttributeNameExceptions, "allow-attribute-name-exceptions")
 	operations.AddStringOperationIfNecessary(&ops, plan.InvalidAttributeSyntaxBehavior, state.InvalidAttributeSyntaxBehavior, "invalid-attribute-syntax-behavior")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.PermitSyntaxViolationsForAttribute, state.PermitSyntaxViolationsForAttribute, "permit-syntax-violations-for-attribute")
 	operations.AddStringOperationIfNecessary(&ops, plan.SingleStructuralObjectclassBehavior, state.SingleStructuralObjectclassBehavior, "single-structural-objectclass-behavior")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AttributesModifiableWithIgnoreNoUserModificationRequestControl, state.AttributesModifiableWithIgnoreNoUserModificationRequestControl, "attributes-modifiable-with-ignore-no-user-modification-request-control")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaximumServerOutLogFileSize, state.MaximumServerOutLogFileSize, "maximum-server-out-log-file-size")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumServerOutLogFileCount, state.MaximumServerOutLogFileCount, "maximum-server-out-log-file-count")
 	operations.AddStringOperationIfNecessary(&ops, plan.StartupErrorLoggerOutputLocation, state.StartupErrorLoggerOutputLocation, "startup-error-logger-output-location")
 	operations.AddBoolOperationIfNecessary(&ops, plan.ExitOnJVMError, state.ExitOnJVMError, "exit-on-jvm-error")
+	operations.AddInt64OperationIfNecessary(&ops, plan.ServerErrorResultCode, state.ServerErrorResultCode, "server-error-result-code")
 	operations.AddStringOperationIfNecessary(&ops, plan.ResultCodeMap, state.ResultCodeMap, "result-code-map")
 	operations.AddBoolOperationIfNecessary(&ops, plan.ReturnBindErrorMessages, state.ReturnBindErrorMessages, "return-bind-error-messages")
 	operations.AddBoolOperationIfNecessary(&ops, plan.NotifyAbandonedOperations, state.NotifyAbandonedOperations, "notify-abandoned-operations")
@@ -836,7 +737,7 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddInt64OperationIfNecessary(&ops, plan.DuplicateAlertLimit, state.DuplicateAlertLimit, "duplicate-alert-limit")
 	operations.AddStringOperationIfNecessary(&ops, plan.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, "duplicate-alert-time-limit")
 	operations.AddStringOperationIfNecessary(&ops, plan.WritabilityMode, state.WritabilityMode, "writability-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.UnrecoverableDatabaseErrorMode, state.UnrecoverableDatabaseErrorMode, "unrecoverable-database-error")
+	operations.AddStringOperationIfNecessary(&ops, plan.UnrecoverableDatabaseErrorMode, state.UnrecoverableDatabaseErrorMode, "unrecoverable-database-error-mode")
 	operations.AddBoolOperationIfNecessary(&ops, plan.DatabaseOnVirtualizedOrNetworkStorage, state.DatabaseOnVirtualizedOrNetworkStorage, "database-on-virtualized-or-network-storage")
 	operations.AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDConnectionCriteria, state.AutoNameWithEntryUUIDConnectionCriteria, "auto-name-with-entry-uuid-connection-criteria")
 	operations.AddStringOperationIfNecessary(&ops, plan.AutoNameWithEntryUUIDRequestCriteria, state.AutoNameWithEntryUUIDRequestCriteria, "auto-name-with-entry-uuid-request-criteria")
@@ -853,30 +754,119 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddInt64OperationIfNecessary(&ops, plan.ReplicationHistoryLimit, state.ReplicationHistoryLimit, "replication-history-limit")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowInheritedReplicationOfSubordinateBackends, state.AllowInheritedReplicationOfSubordinateBackends, "allow-inherited-replication-of-subordinate-backends")
 	operations.AddBoolOperationIfNecessary(&ops, plan.ReplicationPurgeObsoleteReplicas, state.ReplicationPurgeObsoleteReplicas, "replication-purge-obsolete-replicas")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.SmtpServer, state.SmtpServer, "smtp-server")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaxSMTPConnectionCount, state.MaxSMTPConnectionCount, "max-smtp-connection-count")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaxSMTPConnectionAge, state.MaxSMTPConnectionAge, "max-smtp-connection-age")
 	operations.AddStringOperationIfNecessary(&ops, plan.SmtpConnectionHealthCheckInterval, state.SmtpConnectionHealthCheckInterval, "smtp-connection-health-check-interval")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedTask, state.AllowedTask, "allowed-task")
 	operations.AddBoolOperationIfNecessary(&ops, plan.EnableSubOperationTimer, state.EnableSubOperationTimer, "enable-sub-operation-timer")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaximumShutdownTime, state.MaximumShutdownTime, "maximum-shutdown-time")
 	operations.AddStringOperationIfNecessary(&ops, plan.NetworkAddressCacheTTL, state.NetworkAddressCacheTTL, "network-address-cache-ttl")
 	operations.AddBoolOperationIfNecessary(&ops, plan.NetworkAddressOutageCacheEnabled, state.NetworkAddressOutageCacheEnabled, "network-address-outage-cache-enabled")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
 	operations.AddStringOperationIfNecessary(&ops, plan.JmxValueBehavior, state.JmxValueBehavior, "jmx-value-behavior")
 	operations.AddBoolOperationIfNecessary(&ops, plan.JmxUseLegacyMbeanNames, state.JmxUseLegacyMbeanNames, "jmx-use-legacy-mbean-names")
-
-	// Multi-valued attributes
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SensitiveAttribute, state.SensitiveAttribute, "sensitive-attribute")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.DisabledPrivilege, state.DisabledPrivilege, "disabled-privilege")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedInsecureTLSProtocol, state.AllowedInsecureTLSProtocol, "allowed-insecure-tls-protocol")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.PermitSyntaxViolationsForAttribute, state.PermitSyntaxViolationsForAttribute, "permit-syntax-violations-for-attribute")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AttributesModifiableWithIgnoreNoUserModificationRequestControl, state.AttributesModifiableWithIgnoreNoUserModificationRequestControl, "attributes-modifiable-with-ignore-no-user-modification-request-control")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SmtpServer, state.SmtpServer, "smtp-server")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedTask, state.AllowedTask, "allowed-task")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TrackedApplication, state.TrackedApplication, "tracked-application")
-
 	return ops
 }
 
-// Update the global configuration - similar to the Create method since the config is just adopted
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *globalConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan globalConfigurationResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(
+		ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Global Configuration", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state globalConfigurationResourceModel
+	readGlobalConfigurationResponse(ctx, readResponse, &state)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
+	ops := createGlobalConfigurationOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Global Configuration", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGlobalConfigurationResponse(ctx, updateResponse, &state)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Read resource information
+func (r *globalConfigurationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state globalConfigurationResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.GetGlobalConfiguration(
+		ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Global Configuration", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readGlobalConfigurationResponse(ctx, readResponse, &state)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
 func (r *globalConfigurationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
 	var plan globalConfigurationResourceModel
@@ -886,39 +876,40 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 		return
 	}
 
-	// Get the current state
+	// Get the current state to see how any attributes are changing
 	var state globalConfigurationResourceModel
 	req.State.Get(ctx, &state)
-	updateGCRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
+	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(
+		ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
 	ops := createGlobalConfigurationOperations(plan, state)
 	if len(ops) > 0 {
-		updateGCRequest = updateGCRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		globalResp, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateGCRequest)
+		updateResponse, httpResp, err := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfigurationExecute(updateRequest)
 		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the global configuration", err, httpResp)
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Global Configuration", err, httpResp)
 			return
 		}
 
 		// Log response JSON
-		responseJson, err := globalResp.MarshalJSON()
+		responseJson, err := updateResponse.MarshalJSON()
 		if err == nil {
 			tflog.Debug(ctx, "Update response: "+string(responseJson))
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(ctx, globalResp, &plan)
-		// Populate Computed attribute values
-		plan.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+		readGlobalConfigurationResponse(ctx, updateResponse, &state)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
-	diags = resp.State.Set(ctx, plan)
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -926,15 +917,15 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-// Terraform can't actually delete the global configuration, so this method does nothing.
-// Terraform will just "forget" about the global config, and it can be managed elsewhere.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
 func (r *globalConfigurationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// No implementation necessary
 }
 
 func (r *globalConfigurationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Set an arbitrary state value to appease terraform - the placeholder will immediately be
-	// replaced with the actual instance name when terraform performs a read after the import.
+	// Set a placeholder id value to appease terraform.
+	// The real attributes will be imported when terraform performs a read after the import.
 	// If no value is set here, Terraform will error out when importing.
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("instance_name"), "placeholder")...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "id")...)
 }
