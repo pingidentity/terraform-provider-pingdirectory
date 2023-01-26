@@ -20,11 +20,11 @@ import (
 //   3) Apply updated permissions set and confirm that "backend-restore" has been added back (expected = provided)
 //   4) Apply the default permissions just in case they might impact other tests
 
-var defaultPermissionOne = "backend-backup"
-var defaultPermissionTwo = "metrics-read"
-
 func TestAccRootDn(t *testing.T) {
+	importId := "id"
 	resourceName := "testrootdn"
+	defaultPermissionOne := "backend-backup"
+	defaultPermissionTwo := "metrics-read"
 	// default permissions as of January 2023, PingDirectory 9.1.0.0
 	defaultPermissionsList := []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "server-shutdown", "soft-delete-read", "stream-values", "third-party-task", "unindexed-search", "update-schema", "use-admin-session"}
 	//
@@ -74,6 +74,13 @@ func TestAccRootDn(t *testing.T) {
 					// check if the permissions reported by PingDirectory match the state file
 					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultPermissionsList),
 				),
+			},
+			{
+				// Test importing the root dn
+				Config:        testAccRootDnResourceDefault(resourceName),
+				ResourceName:  "pingdirectory_root_dn." + resourceName,
+				ImportStateId: importId,
+				ImportState:   true,
 			},
 		},
 	})

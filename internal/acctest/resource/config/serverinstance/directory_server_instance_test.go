@@ -63,8 +63,22 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 					testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName, updatedResourceModel),
 				),
 			},
+			{
+				// Test importing the resource
+				Config:        testAccDirectoryserverInstanceResourceEmpty(resourceName, instanceName),
+				ResourceName:  "pingdirectory_directory_server_instance." + resourceName,
+				ImportStateId: instanceName,
+				ImportState:   true,
+			},
 		},
 	})
+}
+
+func testAccDirectoryserverInstanceResourceEmpty(resourceName, instanceName string) string {
+	return fmt.Sprintf(`
+resource "pingdirectory_directory_server_instance" "%[1]s" {
+	id = "%[2]s"
+}`, resourceName, instanceName)
 }
 
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {

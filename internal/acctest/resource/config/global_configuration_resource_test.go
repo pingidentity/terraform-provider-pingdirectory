@@ -22,6 +22,7 @@ type testModel struct {
 }
 
 func TestAccGlobalConfiguration(t *testing.T) {
+	importId := "id"
 	resourceName := "global"
 	initialResourceModel := testModel{
 		encryptData:        false,
@@ -67,8 +68,21 @@ func TestAccGlobalConfiguration(t *testing.T) {
 					testAccCheckExpectedGlobalConfigurationAttributes(initialResourceModel),
 				),
 			},
+			{
+				// Test importing the global configuration
+				Config:        testAccGlobalConfigurationResourceEmpty(resourceName),
+				ResourceName:  "pingdirectory_global_configuration." + resourceName,
+				ImportStateId: importId,
+				ImportState:   true,
+			},
 		},
 	})
+}
+
+func testAccGlobalConfigurationResourceEmpty(resourceName string) string {
+	return fmt.Sprintf(`
+resource "pingdirectory_global_configuration" "%[1]s" {
+}`, resourceName)
 }
 
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {

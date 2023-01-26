@@ -17,6 +17,7 @@ const tmpName = "mytrustmanagerprovider"
 const resourceName = "TestTMP"
 
 func TestAccBlindTrustManagerProvider(t *testing.T) {
+	importId := "Blind Trust"
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
@@ -39,11 +40,19 @@ func TestAccBlindTrustManagerProvider(t *testing.T) {
 					testAccCheckExpectedBlindTrustManagerProviderAttributes(false),
 				),
 			},
+			{
+				// Test importing the resource
+				Config:        testAccBlindTrustManagerProviderResourceEmpty(resourceName, importId),
+				ResourceName:  "pingdirectory_blind_trust_manager_provider." + resourceName,
+				ImportStateId: importId,
+				ImportState:   true,
+			},
 		},
 	})
 }
 
 func TestAccFileBasedTrustManagerProvider(t *testing.T) {
+	importId := "JKS"
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
@@ -66,11 +75,19 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 					testAccCheckExpectedFileBasedTrustManagerProviderAttributes(false, "config/truststore", "PKCS12"),
 				),
 			},
+			{
+				// Test importing the resource
+				Config:        testAccFileBasedManagerProviderResourceEmpty(resourceName, importId),
+				ResourceName:  "pingdirectory_file_based_trust_manager_provider." + resourceName,
+				ImportStateId: importId,
+				ImportState:   true,
+			},
 		},
 	})
 }
 
 func TestAccJvmDefaultTrustManagerProvider(t *testing.T) {
+	importId := "JVM-Default"
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
@@ -91,6 +108,13 @@ func TestAccJvmDefaultTrustManagerProvider(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedJvmDefaultTrustManagerProviderAttributes(true),
 				),
+			},
+			{
+				// Test importing the resource
+				Config:        testAccJvmDefaultManagerProviderResourceEmpty(resourceName, importId),
+				ResourceName:  "pingdirectory_jvm_default_trust_manager_provider." + resourceName,
+				ImportStateId: importId,
+				ImportState:   true,
 			},
 		},
 	})
@@ -124,6 +148,7 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 					testAccCheckExpectedThirdPartyTrustManagerProviderAttributes(false, extensionClass, updatedArguments),
 				),
 			},
+			//TODO import test
 		},
 	})
 }
@@ -136,6 +161,13 @@ resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
 }`, resourceName, providerName, enabled)
 }
 
+func testAccBlindTrustManagerProviderResourceEmpty(resourceName, providerName string) string {
+	return fmt.Sprintf(`
+resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
+	id = "%[2]s"
+}`, resourceName, providerName)
+}
+
 func testAccFileBasedTrustManagerProviderResource(resourceName, providerName string, enabled bool, trustStoreFile, trustStoreType string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
@@ -146,12 +178,26 @@ resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
 }`, resourceName, providerName, enabled, trustStoreFile, trustStoreType)
 }
 
+func testAccFileBasedManagerProviderResourceEmpty(resourceName, providerName string) string {
+	return fmt.Sprintf(`
+resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
+	id = "%[2]s"
+}`, resourceName, providerName)
+}
+
 func testAccJvmDefaultTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
 	id = "%[2]s"
 	enabled = %[3]t
 }`, resourceName, providerName, enabled)
+}
+
+func testAccJvmDefaultManagerProviderResourceEmpty(resourceName, providerName string) string {
+	return fmt.Sprintf(`
+resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
+	id = "%[2]s"
+}`, resourceName, providerName)
 }
 
 func testAccThirdPartyTrustManagerProviderResource(resourceName, providerName string, enabled bool, extensionClass string, extensionArgument []string) string {
