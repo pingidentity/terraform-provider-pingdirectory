@@ -81,13 +81,6 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 	})
 }
 
-func testAccDirectoryserverInstanceResourceEmpty(resourceName, instanceName string) string {
-	return fmt.Sprintf(`
-resource "pingdirectory_directory_server_instance" "%[1]s" {
-	id = "%[2]s"
-}`, resourceName, instanceName)
-}
-
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_directory_server_instance" "%[1]s" {

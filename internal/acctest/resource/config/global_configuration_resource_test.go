@@ -22,7 +22,6 @@ type testModel struct {
 }
 
 func TestAccGlobalConfiguration(t *testing.T) {
-	importId := "id"
 	resourceName := "global"
 	initialResourceModel := testModel{
 		encryptData:        false,
@@ -70,21 +69,16 @@ func TestAccGlobalConfiguration(t *testing.T) {
 			},
 			{
 				// Test importing the global configuration
-				Config:                  testAccGlobalConfigurationResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_global_configuration." + resourceName,
-				ImportStateId:           importId,
+				Config:       testAccGlobalConfigurationResource(resourceName, initialResourceModel),
+				ResourceName: "pingdirectory_global_configuration." + resourceName,
+				// The id doesn't matter for singleton config objects
+				ImportStateId:           resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})
-}
-
-func testAccGlobalConfigurationResourceEmpty(resourceName string) string {
-	return fmt.Sprintf(`
-resource "pingdirectory_global_configuration" "%[1]s" {
-}`, resourceName)
 }
 
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {

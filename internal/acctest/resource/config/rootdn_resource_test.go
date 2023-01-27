@@ -21,7 +21,6 @@ import (
 //   4) Apply the default permissions just in case they might impact other tests
 
 func TestAccRootDn(t *testing.T) {
-	importId := "id"
 	resourceName := "testrootdn"
 	defaultPermissionOne := "backend-backup"
 	defaultPermissionTwo := "metrics-read"
@@ -77,9 +76,10 @@ func TestAccRootDn(t *testing.T) {
 			},
 			{
 				// Test importing the root dn
-				Config:                  testAccRootDnResource(resourceName, defaultPermissionsList),
-				ResourceName:            "pingdirectory_root_dn." + resourceName,
-				ImportStateId:           importId,
+				Config:       testAccRootDnResource(resourceName, defaultPermissionsList),
+				ResourceName: "pingdirectory_root_dn." + resourceName,
+				// The id doesn't matter for singleton config objects
+				ImportStateId:           resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"last_updated"},
