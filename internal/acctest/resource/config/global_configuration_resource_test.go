@@ -70,10 +70,12 @@ func TestAccGlobalConfiguration(t *testing.T) {
 			},
 			{
 				// Test importing the global configuration
-				Config:        testAccGlobalConfigurationResourceEmpty(resourceName),
-				ResourceName:  "pingdirectory_global_configuration." + resourceName,
-				ImportStateId: importId,
-				ImportState:   true,
+				Config:                  testAccGlobalConfigurationResource(resourceName, initialResourceModel),
+				ResourceName:            "pingdirectory_global_configuration." + resourceName,
+				ImportStateId:           importId,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})

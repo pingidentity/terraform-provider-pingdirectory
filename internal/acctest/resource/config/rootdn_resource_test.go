@@ -77,10 +77,12 @@ func TestAccRootDn(t *testing.T) {
 			},
 			{
 				// Test importing the root dn
-				Config:        testAccRootDnResourceDefault(resourceName),
-				ResourceName:  "pingdirectory_root_dn." + resourceName,
-				ImportStateId: importId,
-				ImportState:   true,
+				Config:                  testAccRootDnResource(resourceName, defaultPermissionsList),
+				ResourceName:            "pingdirectory_root_dn." + resourceName,
+				ImportStateId:           importId,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})

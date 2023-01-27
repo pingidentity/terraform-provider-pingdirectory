@@ -17,9 +17,7 @@ const locationName = "Hoenn"
 const updatedLocationName = "Hoennn"
 
 func TestAccLocation(t *testing.T) {
-	importId := "Docker"
 	resourceName := "TestLocation"
-	importResourceName := "ImportedLocation"
 	locationDescription := "Home of Kyogre"
 	updatedDescription := "Home of Groudon"
 	resource.Test(t, resource.TestCase{
@@ -60,13 +58,12 @@ func TestAccLocation(t *testing.T) {
 			},
 			{
 				// Test importing the default location, which should not have a description attribute
-				Config:        testAccLocationResourceNoDescription(importResourceName, importId),
-				ResourceName:  "pingdirectory_location." + importResourceName,
-				ImportStateId: importId,
-				ImportState:   true,
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckNoResourceAttr(fmt.Sprintf("pingdirectory_location.%s", importResourceName), "description"),
-				),
+				Config:                  testAccLocationResource(resourceName, updatedLocationName, locationDescription),
+				ResourceName:            "pingdirectory_location." + resourceName,
+				ImportStateId:           updatedLocationName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})
