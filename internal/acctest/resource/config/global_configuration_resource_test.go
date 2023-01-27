@@ -67,6 +67,16 @@ func TestAccGlobalConfiguration(t *testing.T) {
 					testAccCheckExpectedGlobalConfigurationAttributes(initialResourceModel),
 				),
 			},
+			{
+				// Test importing the global configuration
+				Config:       testAccGlobalConfigurationResource(resourceName, initialResourceModel),
+				ResourceName: "pingdirectory_global_configuration." + resourceName,
+				// The id doesn't matter for singleton config objects
+				ImportStateId:           resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
+			},
 		},
 	})
 }

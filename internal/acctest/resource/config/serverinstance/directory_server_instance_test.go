@@ -2,6 +2,7 @@ package serverinstance_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
@@ -21,14 +22,18 @@ type testModel struct {
 
 func TestAccDirectoryServerInstance(t *testing.T) {
 	// Figure out the instance name of the test server, so we can use that instance
-	testClient := acctest.TestClient()
-	ctx := acctest.TestBasicAuthContext()
-	response, _, err := testClient.GlobalConfigurationApi.GetGlobalConfiguration(ctx).Execute()
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
+	var instanceName string
+	// Only run for acceptance tests
+	if os.Getenv("TF_ACC") == "1" {
+		testClient := acctest.TestClient()
+		ctx := acctest.TestBasicAuthContext()
+		response, _, err := testClient.GlobalConfigurationApi.GetGlobalConfiguration(ctx).Execute()
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+		instanceName = response.InstanceName
 	}
-	instanceName := response.InstanceName
 	resourceName := "instance"
 
 	initialResourceModel := testModel{
@@ -62,6 +67,15 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName, updatedResourceModel),
 				),
+			},
+			{
+				// Test importing the resource
+				Config:                  testAccDirectoryserverInstanceResource(resourceName, instanceName, updatedResourceModel),
+				ResourceName:            "pingdirectory_directory_server_instance." + resourceName,
+				ImportStateId:           instanceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})

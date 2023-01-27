@@ -14,7 +14,7 @@ import (
 )
 
 const locationName = "Hoenn"
-const updatedName = "Hoennn"
+const updatedLocationName = "Hoennn"
 
 func TestAccLocation(t *testing.T) {
 	resourceName := "TestLocation"
@@ -51,10 +51,19 @@ func TestAccLocation(t *testing.T) {
 			},
 			{
 				// Test updating the name
-				Config: testAccLocationResource(resourceName, updatedName, locationDescription),
+				Config: testAccLocationResource(resourceName, updatedLocationName, locationDescription),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckExpectedLocationAttributes(updatedName, locationDescription),
+					testAccCheckExpectedLocationAttributes(updatedLocationName, locationDescription),
 				),
+			},
+			{
+				// Test importing the default location, which should not have a description attribute
+				Config:                  testAccLocationResource(resourceName, updatedLocationName, locationDescription),
+				ResourceName:            "pingdirectory_location." + resourceName,
+				ImportStateId:           updatedLocationName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})
@@ -80,7 +89,7 @@ func testAccCheckLocationDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
 	// Check for location names used in this test
-	names := []string{locationName, updatedName}
+	names := []string{locationName, updatedLocationName}
 	for _, name := range names {
 		_, _, err := testClient.LocationApi.GetLocation(ctx, name).Execute()
 		if err == nil {

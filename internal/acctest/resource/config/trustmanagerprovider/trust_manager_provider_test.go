@@ -39,6 +39,15 @@ func TestAccBlindTrustManagerProvider(t *testing.T) {
 					testAccCheckExpectedBlindTrustManagerProviderAttributes(false),
 				),
 			},
+			{
+				// Test importing the resource
+				Config:                  testAccBlindTrustManagerProviderResource(resourceName, tmpName, false),
+				ResourceName:            "pingdirectory_blind_trust_manager_provider." + resourceName,
+				ImportStateId:           tmpName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
+			},
 		},
 	})
 }
@@ -66,6 +75,15 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 					testAccCheckExpectedFileBasedTrustManagerProviderAttributes(false, "config/truststore", "PKCS12"),
 				),
 			},
+			{
+				// Test importing the resource
+				Config:                  testAccFileBasedTrustManagerProviderResource(resourceName, tmpName, false, "config/truststore", "PKCS12"),
+				ResourceName:            "pingdirectory_file_based_trust_manager_provider." + resourceName,
+				ImportStateId:           tmpName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
+			},
 		},
 	})
 }
@@ -91,6 +109,15 @@ func TestAccJvmDefaultTrustManagerProvider(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedJvmDefaultTrustManagerProviderAttributes(true),
 				),
+			},
+			{
+				// Test importing the resource
+				Config:                  testAccJvmDefaultTrustManagerProviderResource(resourceName, tmpName, true),
+				ResourceName:            "pingdirectory_jvm_default_trust_manager_provider." + resourceName,
+				ImportStateId:           tmpName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})
@@ -123,6 +150,16 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedThirdPartyTrustManagerProviderAttributes(false, extensionClass, updatedArguments),
 				),
+			},
+			{
+				// Test importing the resource
+				Config: testAccThirdPartyTrustManagerProviderResource(resourceName, tmpName, false,
+					extensionClass, updatedArguments),
+				ResourceName:            "pingdirectory_third_party_trust_manager_provider." + resourceName,
+				ImportStateId:           tmpName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})
