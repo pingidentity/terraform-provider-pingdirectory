@@ -7,6 +7,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -82,10 +83,10 @@ func addOptionalLocationFields(ctx context.Context, addRequest *client.AddLocati
 }
 
 // Read a LocationResponse object into the model struct
-func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel) {
+func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -130,7 +131,7 @@ func (r *locationResource) Create(ctx context.Context, req resource.CreateReques
 
 	// Read the response into the state
 	var state locationResourceModel
-	readLocationResponse(ctx, addResponse, &state, &plan)
+	readLocationResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -167,7 +168,7 @@ func (r *locationResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	// Read the response into the state
-	readLocationResponse(ctx, readResponse, &state, &state)
+	readLocationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -213,7 +214,7 @@ func (r *locationResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 
 		// Read the response
-		readLocationResponse(ctx, updateResponse, &state, &plan)
+		readLocationResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

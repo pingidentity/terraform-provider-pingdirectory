@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -134,7 +135,7 @@ func addOptionalFileBasedTrustManagerProviderFields(ctx context.Context, addRequ
 }
 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
-func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse, state *fileBasedTrustManagerProviderResourceModel, expectedValues *fileBasedTrustManagerProviderResourceModel) {
+func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse, state *fileBasedTrustManagerProviderResourceModel, expectedValues *fileBasedTrustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
@@ -143,7 +144,7 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -198,7 +199,7 @@ func (r *fileBasedTrustManagerProviderResource) Create(ctx context.Context, req 
 
 	// Read the response into the state
 	var state fileBasedTrustManagerProviderResourceModel
-	readFileBasedTrustManagerProviderResponse(ctx, addResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
+	readFileBasedTrustManagerProviderResponse(ctx, addResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -235,7 +236,7 @@ func (r *fileBasedTrustManagerProviderResource) Read(ctx context.Context, req re
 	}
 
 	// Read the response into the state
-	readFileBasedTrustManagerProviderResponse(ctx, readResponse.FileBasedTrustManagerProviderResponse, &state, &state)
+	readFileBasedTrustManagerProviderResponse(ctx, readResponse.FileBasedTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -281,7 +282,7 @@ func (r *fileBasedTrustManagerProviderResource) Update(ctx context.Context, req 
 		}
 
 		// Read the response
-		readFileBasedTrustManagerProviderResponse(ctx, updateResponse.FileBasedTrustManagerProviderResponse, &state, &plan)
+		readFileBasedTrustManagerProviderResponse(ctx, updateResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

@@ -60,32 +60,34 @@ func ReportHttpError(ctx context.Context, diagnostics *diag.Diagnostics, errorSu
 }
 
 // Write out messages from the Config API response to tflog
-func logMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20) {
+func logMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20, diagnostics *diag.Diagnostics) {
 	if messages == nil {
 		return
 	}
 
 	for _, message := range messages.Notifications {
 		tflog.Warn(ctx, "Configuration API Notification: "+message)
+		diagnostics.AddWarning("Configuration API Notification: ", message)
 	}
 
 	for _, action := range messages.RequiredActions {
 		actionJson, err := action.MarshalJSON()
 		if err != nil {
 			tflog.Warn(ctx, "Configuration API RequiredAction: "+string(actionJson))
+			diagnostics.AddWarning("Configuration API RequiredAction: ", string(actionJson))
 		}
 	}
 }
 
 // Read messages from the Configuration API response
-func ReadMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20) (types.Set, types.Set) {
+func ReadMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchemasConfigurationMessages20, diagnostics *diag.Diagnostics) (types.Set, types.Set) {
 	// Report any notifications from the Config API
 	var notifications types.Set
 	var requiredActions types.Set
 	if messages != nil {
 		notifications = internaltypes.GetStringSet(messages.Notifications)
 		requiredActions, _ = GetRequiredActionsSet(*messages)
-		logMessages(ctx, messages)
+		logMessages(ctx, messages, diagnostics)
 	} else {
 		notifications, _ = types.SetValue(types.StringType, []attr.Value{})
 		requiredActions, _ = types.SetValue(GetRequiredActionsObjectType(), []attr.Value{})
