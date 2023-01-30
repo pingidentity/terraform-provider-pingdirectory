@@ -10,6 +10,8 @@ require (
 	github.com/pingidentity/pingdirectory-go-client/v9100 v9100.1.0
 )
 
+replace github.com/pingidentity/pingdirectory-go-client/v9100 v9100.1.0 => ../pingdirectory-go-client
+
 require (
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect

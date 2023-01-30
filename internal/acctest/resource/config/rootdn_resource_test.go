@@ -6,12 +6,12 @@ import (
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // Testing will do four things
@@ -114,7 +114,8 @@ func testAccCheckExpectedRootDnPermissions(resourceName string, expected []strin
 			return err
 		}
 		// Verify that permission matches expected
-		err = acctest.TestAttributesMatchStringSlice("rootDn", nil, "default_root_privilege_name", expected, internaltypes.GetEnumStringSlice(rootDnResponse.DefaultRootPrivilegeName))
+		err = acctest.TestAttributesMatchStringSlice("rootDn", nil, "default_root_privilege_name", expected,
+			client.StringSliceEnumrootDnDefaultRootPrivilegeNameProp(rootDnResponse.DefaultRootPrivilegeName))
 		if err != nil {
 			return err
 		}

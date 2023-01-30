@@ -608,12 +608,14 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.RejectUnauthenticatedRequests = internaltypes.BoolTypeOrNil(r.RejectUnauthenticatedRequests)
 	state.AllowedUnauthenticatedRequestCriteria = internaltypes.StringTypeOrNil(r.AllowedUnauthenticatedRequestCriteria, true)
 	state.BindWithDNRequiresPassword = internaltypes.BoolTypeOrNil(r.BindWithDNRequiresPassword)
-	state.DisabledPrivilege = internaltypes.GetEnumSet(r.DisabledPrivilege)
+	state.DisabledPrivilege = internaltypes.GetStringSet(
+		client.StringSliceEnumglobalConfigurationDisabledPrivilegeProp(r.DisabledPrivilege))
 	state.DefaultPasswordPolicy = types.StringValue(r.DefaultPasswordPolicy)
 	state.MaximumUserDataPasswordPoliciesToCache = internaltypes.Int64TypeOrNil(r.MaximumUserDataPasswordPoliciesToCache)
 	state.ProxiedAuthorizationIdentityMapper = types.StringValue(r.ProxiedAuthorizationIdentityMapper)
 	state.VerifyEntryDigests = internaltypes.BoolTypeOrNil(r.VerifyEntryDigests)
-	state.AllowedInsecureTLSProtocol = internaltypes.GetEnumSet(r.AllowedInsecureTLSProtocol)
+	state.AllowedInsecureTLSProtocol = internaltypes.GetStringSet(
+		client.StringSliceEnumglobalConfigurationAllowedInsecureTLSProtocolProp(r.AllowedInsecureTLSProtocol))
 	state.AllowInsecureLocalJMXConnections = internaltypes.BoolTypeOrNil(r.AllowInsecureLocalJMXConnections)
 	state.DefaultInternalOperationClientConnectionPolicy = internaltypes.StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
 	state.SizeLimit = internaltypes.Int64TypeOrNil(r.SizeLimit)
@@ -632,7 +634,8 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.InvalidAttributeSyntaxBehavior = internaltypes.StringerStringTypeOrNil(r.InvalidAttributeSyntaxBehavior)
 	state.PermitSyntaxViolationsForAttribute = internaltypes.GetStringSet(r.PermitSyntaxViolationsForAttribute)
 	state.SingleStructuralObjectclassBehavior = internaltypes.StringerStringTypeOrNil(r.SingleStructuralObjectclassBehavior)
-	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = internaltypes.GetEnumSet(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl)
+	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = internaltypes.GetStringSet(
+		client.StringSliceEnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl))
 	state.MaximumServerOutLogFileSize = internaltypes.StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
 	state.MaximumServerOutLogFileCount = internaltypes.Int64TypeOrNil(r.MaximumServerOutLogFileCount)
 	state.StartupErrorLoggerOutputLocation = internaltypes.StringerStringTypeOrNil(r.StartupErrorLoggerOutputLocation)

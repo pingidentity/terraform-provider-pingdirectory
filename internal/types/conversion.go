@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 // Convert a int64 to string
@@ -32,44 +31,6 @@ func GetInt64Set(values []int32) types.Set {
 	}
 	set, _ := types.SetValue(types.Int64Type, setValues)
 	return set
-}
-
-// Convert Enums from the Go client to a types.Set.
-// Maintain alphabetical order for ease of management
-func GetEnumSet[V client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
-	client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp |
-	client.EnumglobalConfigurationDisabledPrivilegeProp |
-	client.EnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp |
-	client.EnumglobalConfigurationJmxValueBehaviorProp |
-	client.EnumglobalConfigurationSingleStructuralObjectclassBehaviorProp |
-	client.EnumglobalConfigurationStartupErrorLoggerOutputLocationProp |
-	client.EnumglobalConfigurationWritabilityModeProp |
-	client.EnumglobalConfigurationUnrecoverableDatabaseErrorModeProp |
-	client.EnumrootDnDefaultRootPrivilegeNameProp](values []V) types.Set {
-	setValues := make([]attr.Value, len(values))
-	for i := 0; i < len(values); i++ {
-		setValues[i] = types.StringValue(string(values[i]))
-	}
-	set, _ := types.SetValue(types.StringType, setValues)
-	return set
-}
-
-// convert enum slice to string slice
-func GetEnumStringSlice[V client.EnumglobalConfigurationAllowedInsecureTLSProtocolProp |
-	client.EnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp |
-	client.EnumglobalConfigurationDisabledPrivilegeProp |
-	client.EnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp |
-	client.EnumglobalConfigurationJmxValueBehaviorProp |
-	client.EnumglobalConfigurationSingleStructuralObjectclassBehaviorProp |
-	client.EnumglobalConfigurationStartupErrorLoggerOutputLocationProp |
-	client.EnumglobalConfigurationWritabilityModeProp |
-	client.EnumglobalConfigurationUnrecoverableDatabaseErrorModeProp |
-	client.EnumrootDnDefaultRootPrivilegeNameProp](values []V) []string {
-	stringSlice := make([]string, len(values))
-	for i := 0; i < len(values); i++ {
-		stringSlice[i] = string(values[i])
-	}
-	return stringSlice
 }
 
 // Get a types.String from the given string pointer, handling if the pointer is nil
@@ -104,6 +65,15 @@ func Int64TypeOrNil(i *int32) types.Int64 {
 	}
 
 	return types.Int64Value(int64(*i))
+}
+
+// Get a types.Float64 from the given float32 pointer, handling if the pointer is nil
+func Float64TypeOrNil(f *float32) types.Float64 {
+	if f == nil {
+		return types.Float64Null()
+	}
+
+	return types.Float64Value(float64(*f))
 }
 
 // Get a types.String from the given Stringer, handling if the pointer is nil

@@ -79,7 +79,8 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
-	state.DefaultRootPrivilegeName = internaltypes.GetEnumSet(r.DefaultRootPrivilegeName)
+	state.DefaultRootPrivilegeName = internaltypes.GetStringSet(
+		client.StringSliceEnumrootDnDefaultRootPrivilegeNameProp(r.DefaultRootPrivilegeName))
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
 }
 
