@@ -1,0 +1,36 @@
+name: Terraform Provider Acceptance Tests
+
+on: push
+  # pull_request:
+  #   paths:
+  #     - '.github/workflows/acceptance-tests.yaml'
+  #     - './internal/acctest/acctest.go'
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.19.5'
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.2.*'
+          terraform_wrapper: false
+      - run: go test -v -cover ./...
+        env:
+          TF_ACC: '1'
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.19.5'
+      - run: go test -v -cover ./...
