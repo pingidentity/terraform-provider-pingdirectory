@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete
+.PHONY: install generate fmt vet lint test starttestcontainer removetestcontainer testacc testacccomplete devcheck
 
 default: install
 

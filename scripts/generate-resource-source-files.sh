@@ -3,7 +3,7 @@
 set -e
 
 if test -z "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"; then
-    echo "No endpoint specified with PINGDIRECTORY_ENDPOINT_TO_GENERATE environment variable. Exiting."
+	echo "No endpoint specified with PINGDIRECTORY_ENDPOINT_TO_GENERATE environment variable. Exiting."
 	exit 0
 fi
 
