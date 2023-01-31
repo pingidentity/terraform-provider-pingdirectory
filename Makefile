@@ -33,7 +33,7 @@ starttestcontainer:
 		sleep 1; \
 	done
 # Fail if the container didn't become ready in time
-	docker logs pingdirectory_terraform_acceptance_test
+	docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"
 
 removetestcontainer:
 	docker rm -f pingdirectory_terraform_acceptance_test    
