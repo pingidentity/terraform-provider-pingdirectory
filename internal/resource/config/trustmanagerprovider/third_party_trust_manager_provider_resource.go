@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -105,13 +106,13 @@ func addOptionalThirdPartyTrustManagerProviderFields(ctx context.Context, addReq
 }
 
 // Read a ThirdPartyTrustManagerProviderResponse object into the model struct
-func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.ThirdPartyTrustManagerProviderResponse, state *thirdPartyTrustManagerProviderResourceModel, expectedValues *thirdPartyTrustManagerProviderResourceModel) {
+func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.ThirdPartyTrustManagerProviderResponse, state *thirdPartyTrustManagerProviderResourceModel, expectedValues *thirdPartyTrustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -163,7 +164,7 @@ func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req
 
 	// Read the response into the state
 	var state thirdPartyTrustManagerProviderResourceModel
-	readThirdPartyTrustManagerProviderResponse(ctx, addResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan)
+	readThirdPartyTrustManagerProviderResponse(ctx, addResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -200,7 +201,7 @@ func (r *thirdPartyTrustManagerProviderResource) Read(ctx context.Context, req r
 	}
 
 	// Read the response into the state
-	readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state)
+	readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -246,7 +247,7 @@ func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req
 		}
 
 		// Read the response
-		readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan)
+		readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

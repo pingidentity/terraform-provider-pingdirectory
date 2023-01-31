@@ -7,6 +7,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -76,11 +77,12 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 }
 
 // Read a RootDnResponse object into the model struct
-func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel) {
+func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
-	state.DefaultRootPrivilegeName = internaltypes.GetEnumSet(r.DefaultRootPrivilegeName)
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.DefaultRootPrivilegeName = internaltypes.GetStringSet(
+		client.StringSliceEnumrootDnDefaultRootPrivilegeNameProp(r.DefaultRootPrivilegeName))
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -118,7 +120,7 @@ func (r *rootDnResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// Read the existing configuration
 	var state rootDnResourceModel
-	readRootDnResponse(ctx, readResponse, &state)
+	readRootDnResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.RootDnApi.UpdateRootDn(ProviderBasicAuthContext(ctx, r.providerConfig))
@@ -141,7 +143,7 @@ func (r *rootDnResource) Create(ctx context.Context, req resource.CreateRequest,
 		}
 
 		// Read the response
-		readRootDnResponse(ctx, updateResponse, &state)
+		readRootDnResponse(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -177,7 +179,7 @@ func (r *rootDnResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Read the response into the state
-	readRootDnResponse(ctx, readResponse, &state)
+	readRootDnResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -223,7 +225,7 @@ func (r *rootDnResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		readRootDnResponse(ctx, updateResponse, &state)
+		readRootDnResponse(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

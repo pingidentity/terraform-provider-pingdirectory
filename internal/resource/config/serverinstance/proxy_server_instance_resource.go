@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -198,7 +199,7 @@ func (r *proxyServerInstanceResource) Schema(ctx context.Context, req resource.S
 }
 
 // Read a ProxyServerInstanceResponse object into the model struct
-func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *proxyServerInstanceResourceModel) {
+func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *proxyServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringerStringTypeOrNil(r.ServerInstanceType)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -221,7 +222,7 @@ func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerI
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -279,7 +280,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state proxyServerInstanceResourceModel
-	readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state)
+	readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
@@ -302,7 +303,7 @@ func (r *proxyServerInstanceResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state)
+		readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -338,7 +339,7 @@ func (r *proxyServerInstanceResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Read the response into the state
-	readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state)
+	readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -384,7 +385,7 @@ func (r *proxyServerInstanceResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state)
+		readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

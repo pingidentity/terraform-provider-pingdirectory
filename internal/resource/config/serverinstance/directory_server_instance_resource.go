@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -211,7 +212,7 @@ func (r *directoryServerInstanceResource) Schema(ctx context.Context, req resour
 }
 
 // Read a DirectoryServerInstanceResponse object into the model struct
-func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel) {
+func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringerStringTypeOrNil(r.ServerInstanceType)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
@@ -236,7 +237,7 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -296,7 +297,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state directoryServerInstanceResourceModel
-	readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state)
+	readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
@@ -319,7 +320,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state)
+		readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -355,7 +356,7 @@ func (r *directoryServerInstanceResource) Read(ctx context.Context, req resource
 	}
 
 	// Read the response into the state
-	readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state)
+	readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -401,7 +402,7 @@ func (r *directoryServerInstanceResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state)
+		readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
