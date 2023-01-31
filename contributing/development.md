@@ -65,7 +65,7 @@ docker-compose-pingdirectory-1  | Setting Server to Available
 ```
 
 ### Run Terraform
-Change to the `examples/location-example` directory. The `main.tf` file in this directory defines the Terraform configuration.
+Change to the `examples/resources/pingdirectory_location/` directory. The `resource.tf` file in this directory defines the Terraform configuration.
 
 Run `terraform plan` to view what changes will be made by Terraform. Run `terraform apply` to apply them.
 
