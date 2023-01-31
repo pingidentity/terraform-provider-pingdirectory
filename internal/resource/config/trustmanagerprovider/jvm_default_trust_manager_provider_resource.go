@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -78,10 +79,10 @@ func addOptionalJvmDefaultTrustManagerProviderFields(ctx context.Context, addReq
 }
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
-func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel, expectedValues *jvmDefaultTrustManagerProviderResourceModel) {
+func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *jvmDefaultTrustManagerProviderResourceModel, expectedValues *jvmDefaultTrustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -129,7 +130,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Create(ctx context.Context, req
 
 	// Read the response into the state
 	var state jvmDefaultTrustManagerProviderResourceModel
-	readJvmDefaultTrustManagerProviderResponse(ctx, addResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan)
+	readJvmDefaultTrustManagerProviderResponse(ctx, addResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -166,7 +167,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Read(ctx context.Context, req r
 	}
 
 	// Read the response into the state
-	readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &state)
+	readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -212,7 +213,7 @@ func (r *jvmDefaultTrustManagerProviderResource) Update(ctx context.Context, req
 		}
 
 		// Read the response
-		readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan)
+		readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

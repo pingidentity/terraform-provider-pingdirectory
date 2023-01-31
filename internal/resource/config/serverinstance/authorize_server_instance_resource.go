@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -198,7 +199,7 @@ func (r *authorizeServerInstanceResource) Schema(ctx context.Context, req resour
 }
 
 // Read a AuthorizeServerInstanceResponse object into the model struct
-func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *authorizeServerInstanceResourceModel) {
+func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *authorizeServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringerStringTypeOrNil(r.ServerInstanceType)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -221,7 +222,7 @@ func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.Authoriz
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -279,7 +280,7 @@ func (r *authorizeServerInstanceResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state authorizeServerInstanceResourceModel
-	readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state)
+	readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
@@ -302,7 +303,7 @@ func (r *authorizeServerInstanceResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state)
+		readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -338,7 +339,7 @@ func (r *authorizeServerInstanceResource) Read(ctx context.Context, req resource
 	}
 
 	// Read the response into the state
-	readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state)
+	readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -384,7 +385,7 @@ func (r *authorizeServerInstanceResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state)
+		readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
