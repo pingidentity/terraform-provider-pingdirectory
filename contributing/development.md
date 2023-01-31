@@ -7,18 +7,23 @@ The following applications must be installed locally to run the provider:
 To run the example in this repository, you will also need
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Preparing your Terraform environment for running locally-built providers
+## File system overview
+
+Before starting, take a moment to familiarize yourself with the structure of this repository, [found here](filelayout.md)
+
+## Preparing your Terraform environment to run locally-built providers
 By default, Terraform attempts to pull providers from remote registries. This behavior can be overwritten by modifying the `~/.terraformrc` file to enable the local use of this provider. This configuration can be used to test in-development changes to the provider.
 
 First, find the **GOBIN** path where Go installs your binaries. Your path may vary depending on how your Go environment variables are configured.
-```
+
+```sh
 $ go env GOBIN
 /Users/<Username>/go/bin
 ```
 
-If the GOBIN go environment variable is not set, use the default path, /Users/\<Username\>/go/bin. Create a `~/.terraformrc` file with the following contents, changing the \<PATH\> value to the value returned from `go env GOBIN`.
+If the GOBIN go environment variable is not set, use the default path, **/Users/\<Username\>/go/bin**. Create a `~/.terraformrc` file with the following contents, changing the \<PATH\> value to the value returned from `go env GOBIN`.
 
-```
+```text
 provider_installation {
   dev_overrides {
     "pingidentity/pingdirectory" = "<PATH>"
@@ -36,7 +41,11 @@ The PingDirectory Terraform provider relies on the [PingDirectory Go Client](htt
 If changes are needed in the Go client, the `replace` command in the `go.mod` file can be used to point to a modified local Go client while testing.
 
 ```
-replace github.com/pingidentity/pingdirectory-go-client v0.0.0 => ../pingdirectory-go-client
+replace github.com/pingidentity/pingdirectory-go-client v0.0.0
+
+with 
+
+../pingdirectory-go-client
 ```
 
 In this example above, the `replace` path points to `../pingdirectory-go-client`, meaning you would need to clone the client repo and place it alongside this repo in your filesystem.
@@ -58,7 +67,7 @@ Acceptance tests for the provider use a local PingDirectory instance running in 
 
 ## Run an example
 ### Start the PingDirectory server
-Start a PingDirectory server running locally with the provided docker-compose.yaml file. Change to the `docker-compose` directory and run `docker compose up`. (Alternatively, use the `make starttestcontainer` command from the previous section.) The server will take a couple of minutes to become ready. When you see the following output in the terminal, the server is ready to process requests:
+Start a PingDirectory server running locally with the provided **docker-compose.yaml** file. Change to the `docker-compose` directory and run `docker compose up`. (Alternatively, use the `make starttestcontainer` command from the previous section.) The server will take a couple of minutes to become ready. When you see the following output in the terminal, the server is ready to process requests:
 ```
 docker-compose-pingdirectory-1  | Replication will not be configured.
 docker-compose-pingdirectory-1  | Setting Server to Available
@@ -71,11 +80,11 @@ Run `terraform plan` to view what changes will be made by Terraform. Run `terraf
 
 You can verify the location is created on the PingDirectory server:
 
-```
+```sh
 docker exec -ti docker-compose-pingdirectory-1 dsconfig list-locations
 ```
 
-```
+```sh
 docker exec -ti docker-compose-pingdirectory-1 dsconfig get-location-prop --location-name Drangleic --property description
 ```
 
@@ -86,9 +95,9 @@ Run `terraform destroy` to destroy any objects managed by Terraform.
 ## Debugging with VSCode
 You can attach a debugger to the provider with VSCode. The `.vscode/launch.json` file defines the debug configuration.
 
-To debug the provider, go to Run->Start Debugging. Then, open the Debug Console and wait for a message like this:
+To debug the provider, navigate to **Run > Start Debugging**. Then, open the Debug Console and wait for a message like this:
 
-```
+```text
 Provider started. To attach Terraform CLI, set the TF_REATTACH_PROVIDERS environment variable with the following:
 
 	TF_REATTACH_PROVIDERS='{"registry.terraform.io/pingidentity/pingdirectory":{"Protocol":"grpc","ProtocolVersion":6,"Pid":53173,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/m8/hpzxbdws7rdgj3cc21vrb1jw0000gn/T/plugin3225934397"}}}'
@@ -96,8 +105,8 @@ Provider started. To attach Terraform CLI, set the TF_REATTACH_PROVIDERS environ
 
 You can then use this to attach the debugger to command-line terraform commands by pasting this line before each command.
 
-```
+```sh
 $ TF_REATTACH_PROVIDERS='{"registry.terraform.io/pingidentity/pingdirectory":{"Protocol":"grpc","ProtocolVersion":6,"Pid":53173,"Test":true,"Addr":{"Network":"unix","String":"/var/folders/m8/hpzxbdws7rdgj3cc21vrb1jw0000gn/T/plugin3225934397"}}}' terraform apply
 ```
 
-**Note**: The `TF_REATTACH_PROVIDERS` variable changes each time you run the debugger. You will need to copy it each time you start a new debugger.
+**Note**: The `TF_REATTACH_PROVIDERS` variable changes each time you run the debugger. You will need to copy the output for use each time you start a new debugger.
