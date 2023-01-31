@@ -4,7 +4,6 @@ on: push
   # pull_request:
   #   paths:
   #     - '.github/workflows/acceptance-tests.yaml'
-  #     - './internal/acctest/acctest.go'
 
 permissions:
   contents: read
