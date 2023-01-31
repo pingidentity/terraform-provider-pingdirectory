@@ -8,6 +8,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -88,11 +89,11 @@ func addOptionalBlindTrustManagerProviderFields(ctx context.Context, addRequest 
 }
 
 // Read a BlindTrustManagerProviderResponse object into the model struct
-func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel, expectedValues *blindTrustManagerProviderResourceModel) {
+func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *blindTrustManagerProviderResourceModel, expectedValues *blindTrustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -141,7 +142,7 @@ func (r *blindTrustManagerProviderResource) Create(ctx context.Context, req reso
 
 	// Read the response into the state
 	var state blindTrustManagerProviderResourceModel
-	readBlindTrustManagerProviderResponse(ctx, addResponse.BlindTrustManagerProviderResponse, &state, &plan)
+	readBlindTrustManagerProviderResponse(ctx, addResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -178,7 +179,7 @@ func (r *blindTrustManagerProviderResource) Read(ctx context.Context, req resour
 	}
 
 	// Read the response into the state
-	readBlindTrustManagerProviderResponse(ctx, readResponse.BlindTrustManagerProviderResponse, &state, &state)
+	readBlindTrustManagerProviderResponse(ctx, readResponse.BlindTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -224,7 +225,7 @@ func (r *blindTrustManagerProviderResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readBlindTrustManagerProviderResponse(ctx, updateResponse.BlindTrustManagerProviderResponse, &state, &plan)
+		readBlindTrustManagerProviderResponse(ctx, updateResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

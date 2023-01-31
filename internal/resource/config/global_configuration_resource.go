@@ -7,6 +7,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -587,7 +588,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 }
 
 // Read a GlobalConfigurationResponse object into the model struct
-func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel) {
+func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)
@@ -675,7 +676,7 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.TrackedApplication = internaltypes.GetStringSet(r.TrackedApplication)
 	state.JmxValueBehavior = internaltypes.StringerStringTypeOrNil(r.JmxValueBehavior)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -797,7 +798,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state globalConfigurationResourceModel
-	readGlobalConfigurationResponse(ctx, readResponse, &state)
+	readGlobalConfigurationResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
@@ -820,7 +821,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(ctx, updateResponse, &state)
+		readGlobalConfigurationResponse(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -856,7 +857,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Read the response into the state
-	readGlobalConfigurationResponse(ctx, readResponse, &state)
+	readGlobalConfigurationResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -902,7 +903,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(ctx, updateResponse, &state)
+		readGlobalConfigurationResponse(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
