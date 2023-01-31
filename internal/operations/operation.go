@@ -77,6 +77,26 @@ func AddInt64OperationIfNecessary(ops *[]client.Operation, plan types.Int64, sta
 	}
 }
 
+// Add float64 operation if the plan doesn't match the state
+func AddFloat64OperationIfNecessary(ops *[]client.Operation, plan types.Float64, state types.Float64, path string) {
+	// If plan is unknown, then just take whatever's in the state - no operation needed
+	if plan.IsUnknown() {
+		return
+	}
+	validateOperationPath(path)
+
+	if !plan.Equal(state) {
+		var op *client.Operation
+		if plan.IsNull() {
+			op = client.NewOperation(client.ENUMOPERATION_REMOVE, path)
+		} else {
+			op = client.NewOperation(client.ENUMOPERATION_REPLACE, path)
+			op.SetValue(strconv.FormatFloat(plan.ValueFloat64(), 'f', -1, 64))
+		}
+		*ops = append(*ops, *op)
+	}
+}
+
 // Add string operation if the plan doesn't match the state
 func AddStringOperationIfNecessary(ops *[]client.Operation, plan types.String, state types.String, path string) {
 	// If plan is unknown, then just take whatever's in the state - no operation needed
