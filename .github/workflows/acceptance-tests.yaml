@@ -1,9 +1,10 @@
 name: Terraform Provider Acceptance Tests
 
-on: push
-  # pull_request:
-  #   paths:
-  #     - '.github/workflows/acceptance-tests.yaml'
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/acceptance-tests.yaml'
+      - '**.go'
 
 permissions:
   contents: read
