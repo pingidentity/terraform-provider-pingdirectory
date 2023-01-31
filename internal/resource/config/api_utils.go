@@ -67,14 +67,14 @@ func logMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchema
 
 	for _, message := range messages.Notifications {
 		tflog.Warn(ctx, "Configuration API Notification: "+message)
-		diagnostics.AddWarning("Configuration API Notification: ", message)
+		diagnostics.AddWarning("Configuration API Notification", message)
 	}
 
 	for _, action := range messages.RequiredActions {
 		actionJson, err := action.MarshalJSON()
 		if err == nil {
 			tflog.Warn(ctx, "Configuration API RequiredAction: "+string(actionJson))
-			diagnostics.AddWarning("Configuration API RequiredAction: ", string(actionJson))
+			diagnostics.AddWarning("Configuration API RequiredAction", string(actionJson))
 		}
 	}
 }
