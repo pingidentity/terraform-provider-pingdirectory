@@ -1,6 +1,12 @@
 #!/bin/bash
 
 set -e
+
+if test -z "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"; then
+    echo "No endpoint specified with PINGDIRECTORY_ENDPOINT_TO_GENERATE environment variable. Exiting."
+	exit 0
+fi
+
 echo "Generating resource files"
 
 # Start a PD container to read the config model from
@@ -26,10 +32,10 @@ docker logs pingdirectory_terraform_generator 2>&1 | grep -q "Setting Server to 
 
 # Run the generator, specifying the endpoints to be generated.
 # --endpoint can be specified multiple times to generate multiple endpoints in one run.
-java -jar ../../bin/pingdirectory-openapi-generator.jar \
+java -jar ./bin/pingdirectory-openapi-generator.jar \
     --generateMode terraform \
     --targetDirectory ../../ \
-    --endpoint "${PINGDIRECTORY_ENDPOINT_TO_GENERATE:-example-endpoint-name}"
+    --endpoint "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"
 
 # Remove the PD container
 echo "Stopping and removing PingDirectory container"
