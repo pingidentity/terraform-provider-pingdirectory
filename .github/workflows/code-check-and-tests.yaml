@@ -1,4 +1,4 @@
-name: Terraform Provider Code Check and Acceptance Tests
+name: Code Check and Acceptance Tests
 
 on:
   pull_request:
