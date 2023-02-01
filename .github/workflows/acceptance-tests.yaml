@@ -6,6 +6,9 @@ on:
       - '.github/workflows/acceptance-tests.yaml'
       - '**.go'
       - 'Makefile'
+  push:
+    branches:
+      - "main"
 
 permissions:
   contents: read
