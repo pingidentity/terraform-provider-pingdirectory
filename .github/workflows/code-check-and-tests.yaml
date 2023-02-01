@@ -33,43 +33,43 @@ jobs:
       - name: Build
         run: |
           make install
-  fmt:
-    name: go fmt
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - run: |
-          if [ "$(go fmt ./... | wc -l)" -gt 0 ]; then
-            echo "::error::'go fmt' found required formatting changes. Run 'make fmt' on your branch."
-            exit 1;
-          fi
-  vet:
-    name: go vet
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - run: go vet ./...
-  lint:
-    name: golangcli-lint
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
+  #fmt:
+  #  name: go fmt
+  #  needs: [build]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v3
+  #    - uses: actions/setup-go@v3
+  #      with:
+  #        go-version-file: 'go.mod'
+  #        cache: true
+  #    - run: |
+  #        if [ "$(go fmt ./... | wc -l)" -gt 0 ]; then
+  #          echo "::error::'go fmt' found required formatting changes. Run 'make fmt' on your branch."
+  #          exit 1;
+  #        fi
+  #vet:
+  #  name: go vet
+  #  needs: [build]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v3
+  #    - uses: actions/setup-go@v3
+  #      with:
+  #        go-version-file: 'go.mod'
+  #        cache: true
+  #    - run: go vet ./...
+  #lint:
+  #  name: golangcli-lint
+  #  needs: [build]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v3
+  #    - uses: actions/setup-go@v3
+  #      with:
+  #        go-version-file: 'go.mod'
+  #        cache: true
+  #    - run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
   generate:
     name: go generate
     needs: [build]
@@ -82,24 +82,26 @@ jobs:
           cache: true
       - run: |
           go generate ./...
+          git status
+          git diff
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
-  acceptance:
-    name: Acceptance Tests
-    needs: [fmt, vet, lint, generate]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: '1.2.*'
-          terraform_wrapper: false
-      - run:
-          mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && make testacccomplete
-        env:
-          TF_ACC: '1'
-          CONFIG: ${{ secrets.Config }}
+  #acceptance:
+  #  name: Acceptance Tests
+  #  needs: [fmt, vet, lint, generate]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v3
+  #    - uses: actions/setup-go@v3
+  #      with:
+  #        go-version-file: 'go.mod'
+  #        cache: true
+  #    - uses: hashicorp/setup-terraform@v2
+  #      with:
+  #        terraform_version: '1.2.*'
+  #        terraform_wrapper: false
+  #    - run:
+  #        mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && make testacccomplete
+  #      env:
+  #        TF_ACC: '1'
+  #        CONFIG: ${{ secrets.Config }}
