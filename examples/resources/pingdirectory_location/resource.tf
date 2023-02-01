@@ -7,12 +7,12 @@ terraform {
 }
 
 provider "pingdirectory" {
-  username = "cn=administrator"
-  password = "2FederateM0re"
+  username   = "cn=administrator"
+  password   = "2FederateM0re"
   https_host = "https://localhost:1443"
 }
 
 resource "pingdirectory_location" "drangleic" {
-  id = "Drangleic"
+  id          = "Drangleic"
   description = "Seek the king"
 }

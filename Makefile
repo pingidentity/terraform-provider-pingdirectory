@@ -1,18 +1,26 @@
 SHELL := /bin/bash
 
-.PHONY: install test starttestcontainer removetestcontainer testacc testacccomplete
+.PHONY: install generate fmt vet lint test starttestcontainer removetestcontainer testacc testacccomplete devcheck
 
 default: install
 
-install: fmt
+install:
+	go mod tidy
 	go install .
 
 generate:
 	go generate ./...
 	go fmt ./...
+	go vet ./...
 
 fmt:
 	go fmt ./...
+
+vet:
+	go vet ./...
+
+lint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
 test:
 	go test -parallel=4 ./...
@@ -47,3 +55,5 @@ testacc:
 testacccomplete:
 # Ensure removetestcontainer runs even if an earlier target fails
 	${MAKE} starttestcontainer testacc removetestcontainer || ${MAKE} removetestcontainer
+
+devcheck: generate install lint test testacccomplete

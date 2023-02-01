@@ -1,3 +1,26 @@
+---
+page_title: "Provider: PingDirectory"
+description: |-
+  The PingDirectory provider is used to manage the configuration of a PingDirectory server through the Configuration API.
+---
+
+# PingDirectory Provider
+
+The PingDirectory provider manages the configuration of a PingDirectory server through the Configuration API. The Configuration API requires credentials for basic auth, which must be passed to the provider.
+
+## Providing credentials
+
+The server host, username, and password can either be provided in the Terraform configuration file, or they can be provided via environment variables:
+
+```
+PINGDIRECTORY_PROVIDER_HTTPS_HOST
+PINGDIRECTORY_PROVIDER_USERNAME
+PINGDIRECTORY_PROVIDER_PASSWORD
+```
+
+## An example managing several config objects
+
+```terraform
 terraform {
   required_providers {
     pingdirectory = {
@@ -51,3 +74,4 @@ resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
   extension_class    = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
   extension_argument = ["val1=one", "val2=two"]
 }
+```
