@@ -4,7 +4,7 @@ Items for improvement
 
 ### To Do
 
-- [ ] Investigate splitting the utils package out into more granular packages - Ping internal ticket BRASS-630
+- [ ] N/A
 
 ### In Progress
 

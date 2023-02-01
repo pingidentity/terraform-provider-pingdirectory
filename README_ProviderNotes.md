@@ -8,9 +8,9 @@ This document will provide guidance on things you should know when either using 
 
 Certain configuration objects are edit-only. These objects do not fit in the typical Terraform model. Terraform expects to manage the entire lifecycle of an object, from creation to deletion. In the case of PingDirectory, some objects are inherent, often with default values.  However, leaving these objects out of the control of Terraform would severely restrict the ability to manage PingDirectory configuration using Terraform HCL. As an example, consider the global configuration, which is very useful and often modified in PingDirectory; this resource is edit-only.
 
-Other providers have functionality to manage resources in this category. One particular example is in this AWS provider resource: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group.  For items such as this and others in the registry, the strategy in Terraform is to “adopt” them on a typical create, and "forget" them on a delete action.  When Terraform forgets, the resource still exists and can be managed elsewhere. This pattern is what the PingDirectory provider has implemented for edit-only objects.
+Other providers have functionality to manage resources in this category. In these cases, the strategy in Terraform is to “adopt” them on a typical create, and "forget" them on a delete action.  When Terraform forgets, the resource still exists and can be managed elsewhere. This pattern is what the PingDirectory provider has implemented for edit-only objects.
 
-However, there is one major difference between how the PingDirectory provider handles edit-only resources versus the AWS provider example above. This difference is in how the resource is initialized.  In the ***create*** action of the AWS provider, all of the properties of the existing edit-only object are wiped and replaced completely with what is specified in the Terraform file. In the global configuration of PingDirectory, for example, this action was determined to be impractical.  Doing a wipe would require the person managing the global configuration to specify every single property of the global configuration (over 80 in total) in order to manage it with Terraform.  All properties would be managed, even if only one of them needed to be changed from the default. Instead, a strategy of marking every property as **_Optional_** and **_Computed_** in the Terraform schema was adopted.  In this way, defaults and existing values are allowed to flow through from PingDirectory, and from that point the user only needs to specify the values to be modified and managed in the Terraform file.
+However, there is one major difference between how the PingDirectory provider handles edit-only resources versus many other providers. This difference is in how the resource is initialized.  In the ***create*** action of the some providers, all of the properties of the existing edit-only object are wiped and replaced completely with what is specified in the Terraform file. In the global configuration of PingDirectory, for example, this action was determined to be impractical.  Doing a wipe would require the person managing the global configuration to specify every single property of the global configuration (over 80 in total) in order to manage it with Terraform.  All properties would be managed, even if only one of them needed to be changed from the default. Instead, a strategy of marking every property as **_Optional_** and **_Computed_** in the Terraform schema was adopted.  In this way, defaults and existing values are allowed to flow through from PingDirectory, and from that point the user only needs to specify the values to be modified and managed in the Terraform file.
 
 While the global configuration is used as an example here, all edit-only resources are handled in this manner.
 
@@ -21,6 +21,29 @@ As part of the edit-only strategy, all attributes of these resources are defined
 ## id instead of name
 
 When running **_dsconfig_** commands, the instance is referred to using the **name** variable.  The convention in a Terraform provider is to use **id** as the naming attribute in most cases.
+
+For example, consider these two examples using dsconfig and the provider that accomplish the same thing:
+
+- ### dsconfig
+  ```text
+  dsconfig create-location \
+    --location-name MyLocation \
+    --set "description:My description"
+
+  dsconfig set-global-configuration-prop \
+    --set encrypt-data:true
+  ```
+- ### Terraform (omitting the provider configuration elements)
+  ```text
+  resource "pingdirectory_location" "mylocation" {
+    id = "MyLocation"
+    description = "My description"
+  }
+
+  resource "pingdirectory_global_configuration" "global" {
+    encrypt_data = true
+  }
+  ```
 
 ## Boolean and Optional fields
 

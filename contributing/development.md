@@ -41,7 +41,7 @@ The PingDirectory Terraform provider relies on the [PingDirectory Go Client](htt
 If changes are needed in the Go client, the `replace` command in the `go.mod` file can be used to point to a modified local Go client while testing.
 
 ```txt
-replace github.com/pingidentity/pingdirectory-go-client v0.0.0 with ==> ./pingdirectory-go-client
+replace github.com/pingidentity/pingdirectory-go-client v0.0.0 => ./pingdirectory-go-client
 ```
 
 In this example above, the `replace` path points to `../pingdirectory-go-client`, meaning you would need to clone the client repo and place it alongside this repo in your filesystem.

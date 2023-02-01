@@ -26,17 +26,14 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	}
 ```
 
-The **utils** package contains functions used across other packages.
-
 Finally, the actual **configuration** object resources are contained under the **resource/** folder:
-- **resource/ldap/** contains the non-production-ready resource for managing LDAP users
 - **resource/config/** contains the configuration object resources
 
 The **config** folder will have two types of resources:
 - Resources that only support a single type, such as **Location** and **Global Configuration**.  These resources will be found directly in the **config** folder.
 - Resources with an API that manages multiple types, such at the **Trust Manager**.  PingDirectory supports multiple types of providers (Blind Trust, Third Party, JVM Default, and File Based).  In these cases, each type is located in a separate sub-package folder that is named for the type.
 
-## Tests
+## Acceptance Tests
 
 Tests are under the **acctest** folder. The ***acctest.go*** file contains functions used across the acceptance tests. Tests for each resource are located in a separate file, such as ***location_resource_test.go***.
 
@@ -79,15 +76,11 @@ A partial listing of the files and directories is here:
 │   │           ├── jvm_default_trust_manager_provider_resource.go
 │   │           └── third_party_trust_manager_provider_resource.go
 │   └── types                    ← utility type stuff
-│       ├── conversion.go        ← this file might need updating (see below)
+│       ├── conversion.go
 │       ├── definitions.go
 │       └── utils.go
 └── main.go                      ← standard Go convention
 ```
-
-#### Note on conversions.go:  
-
-In the case you have an ***Enum*** object in the Go client, you will need to convert it to a **types.Set** object in the provider.  A function is included in the ***conversions.go*** file called **GetEnumSet** that will handle this for you.  You will need to add your Enum object to the listing, as was the case for the Root DN resource.  In the client, you can see the object near the top of the **​​model_enumroot_dn_default_root_privilege_name_prop.go** file; this Enum was placed in the **conversions.go** file in the provider.
 
 After the resource is implemented, add support for it in **provider.go**. When this has been done, you can rebuild the provider with `go install .` and test using the new resource in Terraform.
 
