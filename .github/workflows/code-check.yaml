@@ -1,0 +1,102 @@
+name: Code Check
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/lint.yaml'
+      - '**.go'
+  push:
+    branches:
+      - "main"
+
+permissions:
+  contents: read
+
+jobs:
+  fmt:
+    name: go fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: |
+          if [ "$(go fmt ./... | wc -l)" -gt 0 ]; then
+            echo "::error::'go fmt' found required formatting changes. Run 'make fmt' on your branch."
+            exit 1;
+          fi
+  vet:
+    name: go vet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: |
+          go vet ./...
+          if [ "$?" -ne 0 ]; then
+            echo "::error::'go vet' found required changes. Run 'make vet' on your branch."
+            exit 1;
+          fi
+  lint:
+    name: golangcli-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run:
+          go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
+          if [ "$?" -ne 0 ]; then
+            echo "::error::'golangci-lint' found required changes. Run 'make lint' on your branch."
+            exit 1;
+          fi
+  generate:
+    name: go generate
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: go generate ./...
+      - name: git diff
+        run: |
+          git diff --compact-summary --exit-code
+          if [ "$?" -ne 0 ]; then
+            echo "::error::Unexpected differences after code generation. Run 'make generate' on your branch."
+            exit 1;
+          fi
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - name: Get dependencies
+        run: |
+          go mod tidy
+          git diff --compact-summary --exit-code
+          if [ "$?" -ne 0 ]; then
+            echo "::error::Unexpected differences after 'go mod tidy'. Run 'go mod tidy' on your branch."
+            exit 1;
+          fi
+      - name: Build
+        run: |
+          make install
+          if [ "$?" -ne 0 ]; then
+            echo "::error::Failed to build the project."
+            exit 1;
+          fi
