@@ -119,7 +119,6 @@ func (r *authorizeServerInstanceResource) Schema(ctx context.Context, req resour
 				Optional:    true,
 				Computed:    true,
 			},
-
 			"inter_server_certificate": schema.StringAttribute{
 				Description: "The public component of the certificate used by this instance to protect inter-server communication and to perform server-specific encryption. This will generally be managed by the server and should only be altered by administrators under explicit direction from Ping Identity support personnel.",
 				Optional:    true,

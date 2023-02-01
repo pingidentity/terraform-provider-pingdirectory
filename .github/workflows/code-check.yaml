@@ -3,7 +3,7 @@ name: Code Check
 on:
   pull_request:
     paths:
-      - '.github/workflows/lint.yaml'
+      - '.github/workflows/code-check.yaml'
       - '**.go'
   push:
     branches:
