@@ -3,7 +3,6 @@
 import (
 	"context"
 	"flag"
-	"fmt"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 
