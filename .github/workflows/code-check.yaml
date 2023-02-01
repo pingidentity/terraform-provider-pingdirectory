@@ -51,7 +51,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run:
+      - run: |
           go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
           if [ "$?" -ne 0 ]; then
             echo "::error::'golangci-lint' found required changes. Run 'make lint' on your branch."
