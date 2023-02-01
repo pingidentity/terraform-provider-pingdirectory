@@ -80,9 +80,8 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: go generate ./...
-      - name: git diff
-        run: |
+      - run: |
+          go generate ./...
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
   acceptance:
