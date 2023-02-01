@@ -1,10 +1,11 @@
-name: Code Check
+name: Terraform Provider Code Check and Acceptance Tests
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/code-check.yaml'
+      - '.github/workflows/code-check-and-tests.yaml'
       - '**.go'
+      - 'Makefile'
   push:
     branches:
       - "main"
@@ -13,6 +14,25 @@ permissions:
   contents: read
 
 jobs:
+# Ensure the project can build first
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - name: Get dependencies
+        run: |
+          go mod tidy
+          git diff --compact-summary --exit-code || \
+            (echo; echo "Unexpected difference after 'go mod tidy'. Run 'go mod tidy' command and commit."; exit 1)
+      - name: Build
+        run: |
+          make install
   fmt:
     name: go fmt
     needs: [build]
@@ -65,20 +85,22 @@ jobs:
         run: |
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
-  build:
-    name: Build
+  acceptance:
+    name: Acceptance Tests
+    needs: [fmt, vet, lint, generate]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version-file: 'go.mod'
           cache: true
-      - name: Get dependencies
-        run: |
-          go mod tidy
-          git diff --compact-summary --exit-code || \
-            (echo; echo "Unexpected difference after 'go mod tidy'. Run 'go mod tidy' command and commit."; exit 1)
-      - name: Build
-        run: make install
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.2.*'
+          terraform_wrapper: false
+      - run:
+          mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && make testacccomplete
+        env:
+          TF_ACC: '1'
+          CONFIG: ${{ secrets.Config }}
