@@ -80,10 +80,10 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      # Use git add -N . to ensure that new files are listed in the git diff check
       - run: |
           go generate ./...
-          git status
-          git diff
+          git add -N .
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
   #acceptance:
