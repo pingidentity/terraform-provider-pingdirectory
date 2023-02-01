@@ -34,7 +34,7 @@ docker logs pingdirectory_terraform_generator 2>&1 | grep -q "Setting Server to 
 # --endpoint can be specified multiple times to generate multiple endpoints in one run.
 java -jar ./bin/pingdirectory-openapi-generator.jar \
     --generateMode terraform \
-    --targetDirectory ../../ \
+    --targetDirectory ./ \
     --endpoint "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"
 
 # Remove the PD container
