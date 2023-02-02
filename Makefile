@@ -52,8 +52,6 @@ testacc:
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
 	TF_ACC=1 go test -parallel=4 -timeout 10m -v ./...
 
-testacccomplete:
-# Ensure removetestcontainer runs even if an earlier target fails
-	${MAKE} starttestcontainer testacc removetestcontainer || ${MAKE} removetestcontainer
+testacccomplete: removetestcontainer starttestcontainer testacc removetestcontainer
 
 devcheck: generate install lint test testacccomplete
