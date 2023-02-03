@@ -191,6 +191,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
+		config.NewTopologyAdminUserResource,
 		connectionhandler.NewHttpConnectionHandlerResource,
 		connectionhandler.NewJmxConnectionHandlerResource,
 		connectionhandler.NewLdapConnectionHandlerResource,
