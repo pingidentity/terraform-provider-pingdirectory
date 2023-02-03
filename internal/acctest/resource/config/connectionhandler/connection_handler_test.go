@@ -14,6 +14,9 @@ import (
 )
 
 // Some attributes to test with
+const resourceName = "http"
+const configId = "example"
+
 type testModel struct {
 	id                   string
 	listenPort           int
@@ -21,19 +24,16 @@ type testModel struct {
 	httpServletExtension []string
 }
 
-const resourceName = "http"
-const updatedResourceName = "http"
-
 func TestAccHttpConnectionHandler(t *testing.T) {
 
 	initialResourceModel := testModel{
-		id:                   "example",
+		id:                   configId,
 		listenPort:           2443,
 		enabled:              true,
 		httpServletExtension: []string{"Available or Degraded State", "Available State"},
 	}
 	updatedResourceModel := testModel{
-		id:                   "example",
+		id:                   configId,
 		listenPort:           2444,
 		enabled:              false,
 		httpServletExtension: []string{"Available or Degraded State"},
@@ -90,13 +90,9 @@ resource "pingdirectory_http_connection_handler" "%[1]s" {
 func testAccCheckHttpConnectionHandlerDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	// Check for handler names used in this test
-	names := []string{resourceName, updatedResourceName}
-	for _, name := range names {
-		_, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, name).Execute()
-		if err == nil {
-			return acctest.ExpectedDestroyError("http connection handler", name)
-		}
+	_, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, configId).Execute()
+	if err == nil {
+		return acctest.ExpectedDestroyError("trust manager provider", configId)
 	}
 	return nil
 }
