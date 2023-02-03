@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 
@@ -190,6 +191,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
+		connectionhandler.NewHttpConnectionHandlerResource,
+		connectionhandler.NewJmxConnectionHandlerResource,
+		connectionhandler.NewLdapConnectionHandlerResource,
+		connectionhandler.NewLdifConnectionHandlerResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
