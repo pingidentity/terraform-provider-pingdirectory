@@ -191,6 +191,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
+		connectionhandler.NewHttpConnectionHandlerResource,
+		connectionhandler.NewJmxConnectionHandlerResource,
+		connectionhandler.NewLdapConnectionHandlerResource,
+		connectionhandler.NewLdifConnectionHandlerResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
@@ -199,9 +203,5 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
-		connectionhandler.NewHttpConnectionHandlerResource,
-		connectionhandler.NewJmxConnectionHandlerResource,
-		connectionhandler.NewLdapConnectionHandlerResource,
-		connectionhandler.NewLdifConnectionHandlerResource,
 	}
 }

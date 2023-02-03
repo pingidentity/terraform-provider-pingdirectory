@@ -21,8 +21,10 @@ type testModel struct {
 	httpServletExtension []string
 }
 
+const resourceName = "http"
+const updatedResourceName = "http"
+
 func TestAccHttpConnectionHandler(t *testing.T) {
-	resourceName := "http"
 
 	initialResourceModel := testModel{
 		id:                   "example",
@@ -31,7 +33,7 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 		httpServletExtension: []string{"Available or Degraded State", "Available State"},
 	}
 	updatedResourceModel := testModel{
-		id:                   "test",
+		id:                   "example",
 		listenPort:           2444,
 		enabled:              false,
 		httpServletExtension: []string{"Available or Degraded State"},
@@ -42,6 +44,7 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
+		CheckDestroy: testAccCheckHttpConnectionHandlerDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
@@ -81,6 +84,21 @@ resource "pingdirectory_http_connection_handler" "%[1]s" {
 	http_servlet_extension = %[5]s
 }`, resourceName, resourceModel.id, resourceModel.listenPort, resourceModel.enabled,
 		acctest.StringSliceToTerraformString(resourceModel.httpServletExtension))
+}
+
+// Test that any handlers created by the test are destroyed
+func testAccCheckHttpConnectionHandlerDestroy(s *terraform.State) error {
+	testClient := acctest.TestClient()
+	ctx := acctest.TestBasicAuthContext()
+	// Check for handler names used in this test
+	names := []string{resourceName, updatedResourceName}
+	for _, name := range names {
+		_, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, name).Execute()
+		if err == nil {
+			return acctest.ExpectedDestroyError("http connection handler", name)
+		}
+	}
+	return nil
 }
 
 // Test that the expected attributes are set on the PingDirectory server
