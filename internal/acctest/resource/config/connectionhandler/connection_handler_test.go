@@ -92,7 +92,7 @@ func testAccCheckHttpConnectionHandlerDestroy(s *terraform.State) error {
 	ctx := acctest.TestBasicAuthContext()
 	_, _, err := testClient.ConnectionHandlerApi.GetConnectionHandler(ctx, configId).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("trust manager provider", configId)
+		return acctest.ExpectedDestroyError("http connection handler", configId)
 	}
 	return nil
 }
