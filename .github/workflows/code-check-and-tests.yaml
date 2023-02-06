@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/code-check-and-tests.yaml'
       - '**.go'
+      - 'go.mod'
+      - 'go.sum'
       - 'Makefile'
   push:
     branches:
