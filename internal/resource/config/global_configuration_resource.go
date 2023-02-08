@@ -632,14 +632,17 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.MaximumModificationsPerModifyRequest = internaltypes.Int64TypeOrNil(r.MaximumModificationsPerModifyRequest)
 	state.BackgroundThreadForEachPersistentSearch = internaltypes.BoolTypeOrNil(r.BackgroundThreadForEachPersistentSearch)
 	state.AllowAttributeNameExceptions = internaltypes.BoolTypeOrNil(r.AllowAttributeNameExceptions)
-	state.InvalidAttributeSyntaxBehavior = internaltypes.StringerStringTypeOrNil(r.InvalidAttributeSyntaxBehavior)
+	state.InvalidAttributeSyntaxBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumglobalConfigurationInvalidAttributeSyntaxBehaviorProp(r.InvalidAttributeSyntaxBehavior), true)
 	state.PermitSyntaxViolationsForAttribute = internaltypes.GetStringSet(r.PermitSyntaxViolationsForAttribute)
-	state.SingleStructuralObjectclassBehavior = internaltypes.StringerStringTypeOrNil(r.SingleStructuralObjectclassBehavior)
+	state.SingleStructuralObjectclassBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumglobalConfigurationSingleStructuralObjectclassBehaviorProp(r.SingleStructuralObjectclassBehavior), true)
 	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = internaltypes.GetStringSet(
 		client.StringSliceEnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl))
 	state.MaximumServerOutLogFileSize = internaltypes.StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
 	state.MaximumServerOutLogFileCount = internaltypes.Int64TypeOrNil(r.MaximumServerOutLogFileCount)
-	state.StartupErrorLoggerOutputLocation = internaltypes.StringerStringTypeOrNil(r.StartupErrorLoggerOutputLocation)
+	state.StartupErrorLoggerOutputLocation = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumglobalConfigurationStartupErrorLoggerOutputLocationProp(r.StartupErrorLoggerOutputLocation), true)
 	state.ExitOnJVMError = internaltypes.BoolTypeOrNil(r.ExitOnJVMError)
 	state.ServerErrorResultCode = internaltypes.Int64TypeOrNil(r.ServerErrorResultCode)
 	state.ResultCodeMap = internaltypes.StringTypeOrNil(r.ResultCodeMap, true)
@@ -649,8 +652,10 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.DuplicateErrorLogTimeLimit = types.StringValue(r.DuplicateErrorLogTimeLimit)
 	state.DuplicateAlertLimit = types.Int64Value(int64(r.DuplicateAlertLimit))
 	state.DuplicateAlertTimeLimit = types.StringValue(r.DuplicateAlertTimeLimit)
-	state.WritabilityMode = internaltypes.StringerStringTypeOrNil(r.WritabilityMode)
-	state.UnrecoverableDatabaseErrorMode = internaltypes.StringerStringTypeOrNil(r.UnrecoverableDatabaseErrorMode)
+	state.WritabilityMode = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumglobalConfigurationWritabilityModeProp(r.WritabilityMode), true)
+	state.UnrecoverableDatabaseErrorMode = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumglobalConfigurationUnrecoverableDatabaseErrorModeProp(r.UnrecoverableDatabaseErrorMode), true)
 	state.DatabaseOnVirtualizedOrNetworkStorage = internaltypes.BoolTypeOrNil(r.DatabaseOnVirtualizedOrNetworkStorage)
 	state.AutoNameWithEntryUUIDConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoNameWithEntryUUIDConnectionCriteria, true)
 	state.AutoNameWithEntryUUIDRequestCriteria = internaltypes.StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria, true)
@@ -677,7 +682,8 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.NetworkAddressCacheTTL = internaltypes.StringTypeOrNil(r.NetworkAddressCacheTTL, true)
 	state.NetworkAddressOutageCacheEnabled = internaltypes.BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
 	state.TrackedApplication = internaltypes.GetStringSet(r.TrackedApplication)
-	state.JmxValueBehavior = internaltypes.StringerStringTypeOrNil(r.JmxValueBehavior)
+	state.JmxValueBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumglobalConfigurationJmxValueBehaviorProp(r.JmxValueBehavior), true)
 	state.JmxUseLegacyMbeanNames = internaltypes.BoolTypeOrNil(r.JmxUseLegacyMbeanNames)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }

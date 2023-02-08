@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -74,14 +73,4 @@ func Float64TypeOrNil(f *float32) types.Float64 {
 	}
 
 	return types.Float64Value(float64(*f))
-}
-
-// Get a types.String from the given Stringer, handling if the pointer is nil
-func StringerStringTypeOrNil(value fmt.Stringer) types.String {
-	// Similar to the StringTypeOrNil method - use an empty string for nil values
-	if value != nil {
-		return types.StringValue(value.String())
-	} else {
-		return types.StringValue("")
-	}
 }

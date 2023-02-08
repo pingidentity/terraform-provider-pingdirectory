@@ -369,7 +369,8 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.MaxCancelHandlers = internaltypes.Int64TypeOrNil(r.MaxCancelHandlers)
 	state.NumAcceptHandlers = internaltypes.Int64TypeOrNil(r.NumAcceptHandlers)
 	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
-	state.SslClientAuthPolicy = internaltypes.StringerStringTypeOrNil(r.SslClientAuthPolicy)
+	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
 	state.SslProtocol = internaltypes.GetStringSet(r.SslProtocol)
 	state.SslCipherSuite = internaltypes.GetStringSet(r.SslCipherSuite)

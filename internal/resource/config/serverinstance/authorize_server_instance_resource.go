@@ -201,7 +201,8 @@ func (r *authorizeServerInstanceResource) Schema(ctx context.Context, req resour
 // Read a AuthorizeServerInstanceResponse object into the model struct
 func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *authorizeServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceType = internaltypes.StringerStringTypeOrNil(r.ServerInstanceType)
+	state.ServerInstanceType = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
 	state.ClusterName = types.StringValue(r.ClusterName)
 	state.ServerInstanceLocation = internaltypes.StringTypeOrNil(r.ServerInstanceLocation, true)
@@ -218,7 +219,8 @@ func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.Authoriz
 	state.ReplicationDomainServerID = internaltypes.GetInt64Set(r.ReplicationDomainServerID)
 	state.JmxPort = internaltypes.Int64TypeOrNil(r.JmxPort)
 	state.JmxsPort = internaltypes.Int64TypeOrNil(r.JmxsPort)
-	state.PreferredSecurity = internaltypes.StringerStringTypeOrNil(r.PreferredSecurity)
+	state.PreferredSecurity = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumserverInstancePreferredSecurityProp(r.PreferredSecurity), true)
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
