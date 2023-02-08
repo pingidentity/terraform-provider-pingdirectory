@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.14.3
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1
-	github.com/pingidentity/pingdirectory-go-client/v9100 v9100.3.2
+	github.com/pingidentity/pingdirectory-go-client/v9100 v9100.4.0
 )
 
 require (

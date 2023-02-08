@@ -214,7 +214,8 @@ func (r *directoryServerInstanceResource) Schema(ctx context.Context, req resour
 // Read a DirectoryServerInstanceResponse object into the model struct
 func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *directoryServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceType = internaltypes.StringerStringTypeOrNil(r.ServerInstanceType)
+	state.ServerInstanceType = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
 	state.LoadBalancingAlgorithmName = internaltypes.GetStringSet(r.LoadBalancingAlgorithmName)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -233,7 +234,8 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	state.ReplicationDomainServerID = internaltypes.GetInt64Set(r.ReplicationDomainServerID)
 	state.JmxPort = internaltypes.Int64TypeOrNil(r.JmxPort)
 	state.JmxsPort = internaltypes.Int64TypeOrNil(r.JmxsPort)
-	state.PreferredSecurity = internaltypes.StringerStringTypeOrNil(r.PreferredSecurity)
+	state.PreferredSecurity = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumserverInstancePreferredSecurityProp(r.PreferredSecurity), true)
 	state.StartTLSEnabled = internaltypes.BoolTypeOrNil(r.StartTLSEnabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)

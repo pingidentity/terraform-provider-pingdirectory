@@ -393,7 +393,8 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.UseCorrelationIDHeader = internaltypes.BoolTypeOrNil(r.UseCorrelationIDHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.CorrelationIDRequestHeader = internaltypes.GetStringSet(r.CorrelationIDRequestHeader)
-	state.SslClientAuthPolicy = internaltypes.StringerStringTypeOrNil(r.SslClientAuthPolicy)
+	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
