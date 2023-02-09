@@ -188,6 +188,7 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 // Maintain alphabetical order for ease of management
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		config.NewConsentDefinitionResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
