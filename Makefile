@@ -30,9 +30,9 @@ starttestcontainer:
 	docker run --name pingdirectory_terraform_acceptance_test \
 		-d -p 1443:1443 \
 		--env-file "${HOME}/.pingidentity/config" \
-		-e SERVER_PROFILE_URL=https://github.com/henryrecker-pingidentity/pingidentity-server-profiles.git
-		-e SERVER_PROFILE_PATH=debugtrace
-		-e TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access ${SERVER_ROOT_DIR}/logs/errors ${SERVER_ROOT_DIR}/logs/failed-ops ${SERVER_ROOT_DIR}/logs/config-audit.log ${SERVER_ROOT_DIR}/logs/debug-trace ${SERVER_ROOT_DIR}/logs/debug-aci ${SERVER_ROOT_DIR}/logs/tools/*.log* ${SERVER_BITS_DIR}/logs/tools/*.log* ${SERVER_ROOT_DIR}/logs/debug" 
+		-e SERVER_PROFILE_URL=https://github.com/henryrecker-pingidentity/pingidentity-server-profiles.git \
+		-e SERVER_PROFILE_PATH=debugtrace \
+		-e TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access ${SERVER_ROOT_DIR}/logs/errors ${SERVER_ROOT_DIR}/logs/failed-ops ${SERVER_ROOT_DIR}/logs/config-audit.log ${SERVER_ROOT_DIR}/logs/debug-trace ${SERVER_ROOT_DIR}/logs/debug-aci ${SERVER_ROOT_DIR}/logs/tools/*.log* ${SERVER_BITS_DIR}/logs/tools/*.log* ${SERVER_ROOT_DIR}/logs/debug" \
 		pingidentity/pingdirectory:$${PINGDIRECTORY_TAG:-9.1.0.0-latest}
 # Wait for the instance to become ready
 	sleep 1
@@ -52,7 +52,7 @@ testacc:
 	PINGDIRECTORY_PROVIDER_HTTPS_HOST=https://localhost:1443 \
 	PINGDIRECTORY_PROVIDER_USERNAME=cn=administrator \
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
-	TF_ACC=1 TF_LOG=WARN go test -parallel=1 -timeout 10m -v ./... || docker logs pingdirectory_terraform_acceptance_test && exit 1
+	TF_ACC=1 TF_LOG=WARN go test -parallel=1 -timeout 10m -v ./... || docker logs pingdirectory_terraform_acceptance_test && docker exec pingdirectory_terraform_acceptance_test status && exit 1
 
 testacccomplete: removetestcontainer starttestcontainer testacc removetestcontainer
 
