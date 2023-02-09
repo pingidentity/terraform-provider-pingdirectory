@@ -27,13 +27,13 @@ func TestAccGlobalConfiguration(t *testing.T) {
 		encryptData:        false,
 		sensitiveAttribute: []string{"Delivered One-Time Password", "TOTP Shared Secret"},
 		resultCodeMap:      "Sun DS Compatible Behavior",
-		sizeLimit:          2000,
+		sizeLimit:          4000,
 	}
 	updatedResourceModel := testModel{
 		encryptData:        true,
 		sensitiveAttribute: []string{"TOTP Shared Secret"},
 		resultCodeMap:      "",
-		sizeLimit:          1000,
+		sizeLimit:          5000,
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },

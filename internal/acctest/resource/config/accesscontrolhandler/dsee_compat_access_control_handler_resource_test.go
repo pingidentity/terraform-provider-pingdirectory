@@ -21,10 +21,10 @@ type dseeCompatAccessControlHandlerTestModel struct {
 func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := dseeCompatAccessControlHandlerTestModel{
-		enabled: false,
+		enabled: true,
 	}
 	updatedResourceModel := dseeCompatAccessControlHandlerTestModel{
-		enabled: false,
+		enabled: true,
 	}
 
 	resource.Test(t, resource.TestCase{
