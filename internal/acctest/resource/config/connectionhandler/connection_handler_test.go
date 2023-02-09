@@ -25,6 +25,7 @@ type testModel struct {
 }
 
 func TestAccHttpConnectionHandler(t *testing.T) {
+
 	initialResourceModel := testModel{
 		id:                   configId,
 		listenPort:           2443,
