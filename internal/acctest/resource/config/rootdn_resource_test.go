@@ -1,27 +1,12 @@
 package config_test
 
-import (
-	"fmt"
-	"testing"
-	"time"
-
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100"
-)
-
 // Testing will do four things
 //   1) Read the state prior to making changes (unmodified PD instance) and check if default permissions match expected defaults (expected = provided)
 //   2) Apply the minimum permissions set and confirm that only those are there (expected = provided)
 //   3) Apply updated permissions set and confirm that "backend-restore" has been added back (expected = provided)
 //   4) Apply the default permissions just in case they might impact other tests
 
-func TestAccRootDn(t *testing.T) {
+/*func TestAccRootDn(t *testing.T) {
 	t.SkipNow()
 	resourceName := "testrootdn"
 	defaultPermissionOne := "backend-backup"
@@ -128,4 +113,4 @@ func testAccCheckExpectedRootDnPermissions(resourceName string, expected []strin
 
 	}
 
-}
+}*/
