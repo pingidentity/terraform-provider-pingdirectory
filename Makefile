@@ -50,7 +50,7 @@ testacc:
 	PINGDIRECTORY_PROVIDER_HTTPS_HOST=https://localhost:1443 \
 	PINGDIRECTORY_PROVIDER_USERNAME=cn=administrator \
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
-	TF_ACC=1 TF_LOG=DEBUG go test -parallel=4 -timeout 10m -v ./...
+	TF_ACC=1 TF_LOG=WARN go test -parallel=4 -timeout 10m -v ./...
 
 testacccomplete: removetestcontainer starttestcontainer testacc removetestcontainer
 

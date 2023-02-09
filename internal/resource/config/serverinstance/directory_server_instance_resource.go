@@ -282,6 +282,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 		return
 	}
 
+	tflog.Warn(ctx, "get ID: "+plan.Id.ValueString())
 	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
 	if err != nil {
@@ -300,6 +301,7 @@ func (r *directoryServerInstanceResource) Create(ctx context.Context, req resour
 	readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
+	tflog.Warn(ctx, "update ID: "+plan.Id.ValueString())
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 	ops := createDirectoryServerInstanceOperations(plan, state)
 	if len(ops) > 0 {
@@ -379,6 +381,7 @@ func (r *directoryServerInstanceResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state directoryServerInstanceResourceModel
 	req.State.Get(ctx, &state)
+	tflog.Warn(ctx, "update ID: "+plan.Id.ValueString())
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
