@@ -3,6 +3,7 @@ package config_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
@@ -107,6 +108,8 @@ resource "pingdirectory_root_dn" "%[1]s" {
 // Test that the expected RootDN permissions are set on the PingDirectory server
 func testAccCheckExpectedRootDnPermissions(resourceName string, expected []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		dt := time.Now()
+		fmt.Println("testAccCheckExpectedRootDnPermissions date and time is: ", dt.String())
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
 		rootDnResponse, _, err := testClient.RootDnApi.GetRootDn(ctx).Execute()

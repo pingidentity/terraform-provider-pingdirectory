@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
@@ -84,6 +85,8 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 }
 
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {
+	dt := time.Now()
+	fmt.Println("testAccDirectoryserverInstanceResource date and time is: ", dt.String())
 	return fmt.Sprintf(`
 resource "pingdirectory_directory_server_instance" "%[1]s" {
 	id = "%[2]s"
@@ -96,6 +99,8 @@ resource "pingdirectory_directory_server_instance" "%[1]s" {
 // Test that the expected attributes are set on the PingDirectory server
 func testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName string, config testModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		dt := time.Now()
+		fmt.Println("testAccCheckExpectedDirectoryServerInstanceAttributes date and time is: ", dt.String())
 		resourceType := "directory server instance"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
