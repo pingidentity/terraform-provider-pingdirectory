@@ -344,6 +344,7 @@ func (r *directoryServerInstanceResource) Read(ctx context.Context, req resource
 		return
 	}
 
+	tflog.Warn(ctx, "get ID: "+state.Id.ValueString())
 	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {

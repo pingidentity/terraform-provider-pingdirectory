@@ -99,7 +99,7 @@ func testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName string, 
 		resourceType := "directory server instance"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		print("Checking for instance name: " + instanceName)
+		print("Checking for instance name: " + instanceName + "\n")
 		response, httpResp, err := testClient.ServerInstanceApi.GetServerInstance(ctx, instanceName).Execute()
 		if err != nil {
 			if httpResp != nil {
