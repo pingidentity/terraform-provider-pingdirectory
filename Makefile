@@ -32,7 +32,7 @@ starttestcontainer:
 		--env-file "${HOME}/.pingidentity/config" \
 		-e SERVER_PROFILE_URL=https://github.com/henryrecker-pingidentity/pingidentity-server-profiles.git \
 		-e SERVER_PROFILE_PATH=debugtrace \
-		-e TAIL_LOG_FILES="${SERVER_ROOT_DIR}/logs/access ${SERVER_ROOT_DIR}/logs/errors ${SERVER_ROOT_DIR}/logs/failed-ops ${SERVER_ROOT_DIR}/logs/config-audit.log ${SERVER_ROOT_DIR}/logs/debug-trace ${SERVER_ROOT_DIR}/logs/debug-aci ${SERVER_ROOT_DIR}/logs/tools/*.log* ${SERVER_BITS_DIR}/logs/tools/*.log* ${SERVER_ROOT_DIR}/logs/debug" \
+		-e TAIL_LOG_FILES="/opt/out/instance/logs/access /opt/out/instance/logs/errors /opt/out/instance/logs/failed-ops /opt/out/instance/logs/config-audit.log /opt/out/instance/logs/debug-trace /opt/out/instance/logs/debug-aci /opt/out/instance/logs/debug" \
 		pingidentity/pingdirectory:$${PINGDIRECTORY_TAG:-9.1.0.0-latest}
 # Wait for the instance to become ready
 	sleep 1
