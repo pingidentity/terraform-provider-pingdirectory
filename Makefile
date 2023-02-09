@@ -29,7 +29,6 @@ starttestcontainer:
 # Start a PingDirectory instance locally to test against
 	docker run --name pingdirectory_terraform_acceptance_test \
 		-d -p 1443:1443 \
-		-e TAIL_LOG_FILES= \
 		--env-file "${HOME}/.pingidentity/config" \
 		pingidentity/pingdirectory:$${PINGDIRECTORY_TAG:-9.1.0.0-latest}
 # Wait for the instance to become ready
@@ -50,7 +49,7 @@ testacc:
 	PINGDIRECTORY_PROVIDER_HTTPS_HOST=https://localhost:1443 \
 	PINGDIRECTORY_PROVIDER_USERNAME=cn=administrator \
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
-	TF_ACC=1 TF_LOG=WARN go test -parallel=4 -timeout 10m -v ./...
+	TF_ACC=1 TF_LOG=WARN go test -parallel=4 -timeout 10m -v ./... || docker logs pingdirectory_terraform_acceptance_test && exit 1
 
 testacccomplete: removetestcontainer starttestcontainer testacc removetestcontainer
 
