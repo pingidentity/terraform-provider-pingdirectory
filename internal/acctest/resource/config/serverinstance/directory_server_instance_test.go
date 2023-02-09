@@ -2,6 +2,7 @@ package serverinstance_test
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"testing"
 
@@ -33,6 +34,7 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 			t.FailNow()
 		}
 		instanceName = response.InstanceName
+		print("InstanceName: " + instanceName + "\n")
 	}
 	resourceName := "instance"
 
@@ -97,8 +99,15 @@ func testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName string, 
 		resourceType := "directory server instance"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ServerInstanceApi.GetServerInstance(ctx, instanceName).Execute()
+		print("Checking for instance name: " + instanceName)
+		response, httpResp, err := testClient.ServerInstanceApi.GetServerInstance(ctx, instanceName).Execute()
 		if err != nil {
+			if httpResp != nil {
+				body, internalError := io.ReadAll(httpResp.Body)
+				if internalError == nil {
+					print("Error HTTP response body: " + string(body) + "\n")
+				}
+			}
 			return err
 		}
 		// Verify that attributes have expected values

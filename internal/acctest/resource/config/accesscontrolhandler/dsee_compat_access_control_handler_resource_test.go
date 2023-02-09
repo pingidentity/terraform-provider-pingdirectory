@@ -21,7 +21,7 @@ type dseeCompatAccessControlHandlerTestModel struct {
 func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := dseeCompatAccessControlHandlerTestModel{
-		enabled: true,
+		enabled: false,
 	}
 	updatedResourceModel := dseeCompatAccessControlHandlerTestModel{
 		enabled: true,
