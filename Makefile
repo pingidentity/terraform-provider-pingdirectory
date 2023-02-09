@@ -52,7 +52,7 @@ testacc:
 	PINGDIRECTORY_PROVIDER_HTTPS_HOST=https://localhost:1443 \
 	PINGDIRECTORY_PROVIDER_USERNAME=cn=administrator \
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
-	TF_ACC=1 TF_LOG=WARN go test -parallel=1 -timeout 10m -v ./... || docker logs pingdirectory_terraform_acceptance_test && docker exec pingdirectory_terraform_acceptance_test status && exit 1
+	TF_ACC=1 go test -timeout 10m -v ./... -p 1
 
 testacccomplete: removetestcontainer starttestcontainer testacc removetestcontainer
 

@@ -17,6 +17,7 @@ const tmpName = "mytrustmanagerprovider"
 const resourceName = "TestTMP"
 
 func TestAccBlindTrustManagerProvider(t *testing.T) {
+	acctest.PrintTime("Start tmp")
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
@@ -50,6 +51,7 @@ func TestAccBlindTrustManagerProvider(t *testing.T) {
 			},
 		},
 	})
+	acctest.PrintTime("End tmp")
 }
 
 func TestAccFileBasedTrustManagerProvider(t *testing.T) {

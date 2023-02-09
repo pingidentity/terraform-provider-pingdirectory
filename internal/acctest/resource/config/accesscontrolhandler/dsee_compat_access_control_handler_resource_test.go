@@ -3,7 +3,6 @@ package accesscontrolhandler_test
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
@@ -20,6 +19,7 @@ type dseeCompatAccessControlHandlerTestModel struct {
 }
 
 func TestAccDseeCompatAccessControlHandler(t *testing.T) {
+	acctest.PrintTime("Start accesscontrolhandler")
 	resourceName := "myresource"
 	initialResourceModel := dseeCompatAccessControlHandlerTestModel{
 		enabled: true,
@@ -55,6 +55,7 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 			},
 		},
 	})
+	acctest.PrintTime("End accesscontrolhandler")
 }
 
 func testAccDseeCompatAccessControlHandlerResource(resourceName string, resourceModel dseeCompatAccessControlHandlerTestModel) string {
@@ -67,8 +68,6 @@ resource "pingdirectory_dsee_compat_access_control_handler" "%[1]s" {
 // Test that the expected attributes are set on the PingDirectory server
 func testAccCheckExpectedDseeCompatAccessControlHandlerAttributes(config dseeCompatAccessControlHandlerTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		dt := time.Now()
-		fmt.Println("testAccCheckExpectedRootDnPermissions date and time is: ", dt.String())
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
 		response, _, err := testClient.AccessControlHandlerApi.GetAccessControlHandler(ctx).Execute()

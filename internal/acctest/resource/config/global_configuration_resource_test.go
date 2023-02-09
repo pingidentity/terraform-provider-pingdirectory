@@ -22,6 +22,7 @@ type testModel struct {
 }
 
 func TestAccGlobalConfiguration(t *testing.T) {
+	acctest.PrintTime("Start global")
 	resourceName := "global"
 	initialResourceModel := testModel{
 		encryptData:        false,
@@ -79,6 +80,7 @@ func TestAccGlobalConfiguration(t *testing.T) {
 			},
 		},
 	})
+	acctest.PrintTime("End global")
 }
 
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {

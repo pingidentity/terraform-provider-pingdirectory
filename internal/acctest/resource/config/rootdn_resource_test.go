@@ -1,17 +1,31 @@
 package config_test
 
+import (
+	"fmt"
+	"testing"
+
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
+
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
+)
+
 // Testing will do four things
 //   1) Read the state prior to making changes (unmodified PD instance) and check if default permissions match expected defaults (expected = provided)
 //   2) Apply the minimum permissions set and confirm that only those are there (expected = provided)
 //   3) Apply updated permissions set and confirm that "backend-restore" has been added back (expected = provided)
 //   4) Apply the default permissions just in case they might impact other tests
 
-/*func TestAccRootDn(t *testing.T) {
-	t.SkipNow()
+func TestAccRootDn(t *testing.T) {
+	acctest.PrintTime("Start rootdn")
 	resourceName := "testrootdn"
 	defaultPermissionOne := "backend-backup"
 	defaultPermissionTwo := "metrics-read"
-	// default permissions as of January 2023, PingDirectory 9.1.0.0
+	// default permissions as of PingDirectory 9.1.0.0
 	defaultPermissionsList := []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "server-shutdown", "soft-delete-read", "stream-values", "third-party-task", "unindexed-search", "update-schema", "use-admin-session"}
 	//
 	minimumPermissionsList := []string{"bypass-acl", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"}
@@ -73,6 +87,7 @@ package config_test
 			},
 		},
 	})
+	acctest.PrintTime("End rootdn")
 }
 
 // empty resource object means all values are computed, so it will retrieve defaults from PD
@@ -94,8 +109,6 @@ resource "pingdirectory_root_dn" "%[1]s" {
 // Test that the expected RootDN permissions are set on the PingDirectory server
 func testAccCheckExpectedRootDnPermissions(resourceName string, expected []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		dt := time.Now()
-		fmt.Println("testAccCheckExpectedRootDnPermissions date and time is: ", dt.String())
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
 		rootDnResponse, _, err := testClient.RootDnApi.GetRootDn(ctx).Execute()
@@ -113,4 +126,4 @@ func testAccCheckExpectedRootDnPermissions(resourceName string, expected []strin
 
 	}
 
-}*/
+}
