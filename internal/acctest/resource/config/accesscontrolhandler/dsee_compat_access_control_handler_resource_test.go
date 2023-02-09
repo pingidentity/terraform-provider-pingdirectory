@@ -24,7 +24,7 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 		enabled: false,
 	}
 	updatedResourceModel := dseeCompatAccessControlHandlerTestModel{
-		enabled: true,
+		enabled: false,
 	}
 
 	resource.Test(t, resource.TestCase{
