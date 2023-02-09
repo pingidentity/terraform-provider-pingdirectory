@@ -1,4 +1,4 @@
-package zaccesscontrolhandler
+package accesscontrolhandler
 
 import (
 	"context"
