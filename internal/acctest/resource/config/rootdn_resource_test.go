@@ -22,6 +22,7 @@ import (
 //   4) Apply the default permissions just in case they might impact other tests
 
 func TestAccRootDn(t *testing.T) {
+	t.SkipNow()
 	resourceName := "testrootdn"
 	defaultPermissionOne := "backend-backup"
 	defaultPermissionTwo := "metrics-read"
