@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -59,11 +58,6 @@ func TestClient() *client.APIClient {
 func TestBasicAuthContext() context.Context {
 	ctx := context.Background()
 	return config.BasicAuthContext(ctx, os.Getenv("PINGDIRECTORY_PROVIDER_USERNAME"), os.Getenv("PINGDIRECTORY_PROVIDER_PASSWORD"))
-}
-
-func PrintTime(s string) {
-	dt := time.Now()
-	fmt.Println(s+" date and time is: ", dt.String())
 }
 
 // Convert a string slice to the format used in Terraform files

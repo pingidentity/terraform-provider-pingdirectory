@@ -19,10 +19,9 @@ type dseeCompatAccessControlHandlerTestModel struct {
 }
 
 func TestAccDseeCompatAccessControlHandler(t *testing.T) {
-	acctest.PrintTime("Start accesscontrolhandler")
 	resourceName := "myresource"
 	initialResourceModel := dseeCompatAccessControlHandlerTestModel{
-		enabled: true,
+		enabled: false,
 	}
 	updatedResourceModel := dseeCompatAccessControlHandlerTestModel{
 		enabled: true,
@@ -55,7 +54,6 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 			},
 		},
 	})
-	acctest.PrintTime("End accesscontrolhandler")
 }
 
 func testAccDseeCompatAccessControlHandlerResource(resourceName string, resourceModel dseeCompatAccessControlHandlerTestModel) string {

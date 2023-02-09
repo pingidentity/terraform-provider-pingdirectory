@@ -22,19 +22,18 @@ type testModel struct {
 }
 
 func TestAccGlobalConfiguration(t *testing.T) {
-	acctest.PrintTime("Start global")
 	resourceName := "global"
 	initialResourceModel := testModel{
 		encryptData:        false,
 		sensitiveAttribute: []string{"Delivered One-Time Password", "TOTP Shared Secret"},
 		resultCodeMap:      "Sun DS Compatible Behavior",
-		sizeLimit:          4000,
+		sizeLimit:          2000,
 	}
 	updatedResourceModel := testModel{
 		encryptData:        true,
 		sensitiveAttribute: []string{"TOTP Shared Secret"},
 		resultCodeMap:      "",
-		sizeLimit:          5000,
+		sizeLimit:          1000,
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -80,7 +79,6 @@ func TestAccGlobalConfiguration(t *testing.T) {
 			},
 		},
 	})
-	acctest.PrintTime("End global")
 }
 
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {

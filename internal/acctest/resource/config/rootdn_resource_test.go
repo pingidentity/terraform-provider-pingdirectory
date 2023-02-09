@@ -21,15 +21,13 @@ import (
 //   4) Apply the default permissions just in case they might impact other tests
 
 func TestAccRootDn(t *testing.T) {
-	acctest.PrintTime("Start rootdn")
 	resourceName := "testrootdn"
 	defaultPermissionOne := "backend-backup"
 	defaultPermissionTwo := "metrics-read"
 	// default permissions as of PingDirectory 9.1.0.0
 	defaultPermissionsList := []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "server-shutdown", "soft-delete-read", "stream-values", "third-party-task", "unindexed-search", "update-schema", "use-admin-session"}
-	//
-	minimumPermissionsList := []string{"bypass-acl", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"}
-	updatedPermissionsList := []string{"bypass-acl", "backend-restore", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"}
+	minimumPermissionsList := []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "server-shutdown", "soft-delete-read", "stream-values", "unindexed-search", "use-admin-session"}
+	updatedPermissionsList := []string{"audit-data-security", "backend-backup", "backend-restore", "bypass-acl", "collect-support-data", "config-read", "config-write", "disconnect-client", "file-servlet-access", "ldif-export", "ldif-import", "lockdown-mode", "manage-topology", "metrics-read", "modify-acl", "password-reset", "permit-get-password-policy-state-issues", "privilege-change", "server-restart", "soft-delete-read", "stream-values", "third-party-task", "unindexed-search", "update-schema", "use-admin-session"}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -87,7 +85,6 @@ func TestAccRootDn(t *testing.T) {
 			},
 		},
 	})
-	acctest.PrintTime("End rootdn")
 }
 
 // empty resource object means all values are computed, so it will retrieve defaults from PD

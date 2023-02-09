@@ -25,7 +25,6 @@ type testModel struct {
 }
 
 func TestAccHttpConnectionHandler(t *testing.T) {
-	acctest.PrintTime("Start httpconn")
 	initialResourceModel := testModel{
 		id:                   configId,
 		listenPort:           2443,
@@ -73,7 +72,6 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 			},
 		},
 	})
-	acctest.PrintTime("End httpconn")
 }
 
 func testAccHttpConnectionHandler(resourceName string, resourceModel testModel) string {
