@@ -9,6 +9,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 
@@ -199,6 +200,17 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		connectionhandler.NewJmxConnectionHandlerResource,
 		connectionhandler.NewLdapConnectionHandlerResource,
 		connectionhandler.NewLdifConnectionHandlerResource,
+		recurringtask.NewBackupRecurringTaskResource,
+		recurringtask.NewCollectSupportDataRecurringTaskResource,
+		recurringtask.NewDelayRecurringTaskResource,
+		recurringtask.NewEnterLockdownModeRecurringTaskResource,
+		recurringtask.NewExecRecurringTaskResource,
+		recurringtask.NewFileRetentionRecurringTaskResource,
+		recurringtask.NewGenerateServerProfileRecurringTaskResource,
+		recurringtask.NewLdifExportRecurringTaskResource,
+		recurringtask.NewLeaveLockdownModeRecurringTaskResource,
+		recurringtask.NewStaticallyDefinedRecurringTaskResource,
+		recurringtask.NewThirdPartyRecurringTaskResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
