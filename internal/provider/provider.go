@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
@@ -188,6 +189,7 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 // Maintain alphabetical order for ease of management
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		accesscontrolhandler.NewDseeCompatAccessControlHandlerResource,
 		config.NewConsentDefinitionResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
