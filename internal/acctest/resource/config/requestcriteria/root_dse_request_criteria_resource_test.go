@@ -17,13 +17,20 @@ const testIdRootDseRequestCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type rootDseRequestCriteriaTestModel struct {
-	id string
+	id          string
+	description string
 }
 
 func TestAccRootDseRequestCriteria(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := rootDseRequestCriteriaTestModel{
-		id: testIdRootDseRequestCriteria,
+		id:          testIdRootDseRequestCriteria,
+		description: "test description",
+	}
+
+	updatedResourceModel := rootDseRequestCriteriaTestModel{
+		id:          testIdRootDseRequestCriteria,
+		description: "updated test description",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -37,6 +44,12 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
+				Check:  testAccCheckExpectedRootDseRequestCriteriaAttributes(initialResourceModel),
+			},
+			{
+				// Test updating some fields
+				Config: testAccRootDseRequestCriteriaResource(resourceName, updatedResourceModel),
+				Check:  testAccCheckExpectedRootDseRequestCriteriaAttributes(updatedResourceModel),
 			},
 			{
 				// Test importing the resource
@@ -55,7 +68,8 @@ func testAccRootDseRequestCriteriaResource(resourceName string, resourceModel ro
 	return fmt.Sprintf(`
 resource "pingdirectory_root_dse_request_criteria" "%[1]s" {
 	 id = "%[2]s"
-}`, resourceName, resourceModel.id)
+	 description = "%[3]s"
+}`, resourceName, resourceModel.id, resourceModel.description)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
