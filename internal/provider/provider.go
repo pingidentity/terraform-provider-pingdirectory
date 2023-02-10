@@ -190,6 +190,7 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		accesscontrolhandler.NewDseeCompatAccessControlHandlerResource,
+		config.NewConsentDefinitionResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
