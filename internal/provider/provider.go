@@ -10,6 +10,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 
@@ -211,6 +212,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		recurringtask.NewLeaveLockdownModeRecurringTaskResource,
 		recurringtask.NewStaticallyDefinedRecurringTaskResource,
 		recurringtask.NewThirdPartyRecurringTaskResource,
+		requestcriteria.NewAggregateRequestCriteriaResource,
+		requestcriteria.NewRootDseRequestCriteriaResource,
+		requestcriteria.NewSimpleRequestCriteriaResource,
+		requestcriteria.NewThirdPartyRequestCriteriaResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
