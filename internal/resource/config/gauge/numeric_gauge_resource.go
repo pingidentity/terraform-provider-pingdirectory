@@ -280,17 +280,17 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OverrideSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), true)
+		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
 	state.AlertLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), true)
+		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
 	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
 	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
 	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
 	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
 	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), true)
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
 	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), true)
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
