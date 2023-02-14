@@ -13,8 +13,8 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_debug_target" "myDebugTarget" {
-  id                            = "MyDebugTarget"
-  log_publisher_name                            = "File-Based Debug Logger"
-  debug_scope                      = "com.example.MyClass"
-  debug_level                      = "all"
+  id                 = "MyDebugTarget"
+  log_publisher_name = "File-Based Debug Logger"
+  debug_scope        = "com.example.MyClass"
+  debug_level        = "all"
 }
