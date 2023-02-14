@@ -217,6 +217,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		requestcriteria.NewRootDseRequestCriteriaResource,
 		requestcriteria.NewSimpleRequestCriteriaResource,
 		requestcriteria.NewThirdPartyRequestCriteriaResource,
+		restresourcetype.NewGenericRestResourceTypeResource,
 		restresourcetype.NewGroupRestResourceTypeResource,
 		restresourcetype.NewUserRestResourceTypeResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
