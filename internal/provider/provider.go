@@ -193,6 +193,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 	return []func() resource.Resource{
 		accesscontrolhandler.NewDseeCompatAccessControlHandlerResource,
 		config.NewConsentDefinitionResource,
+		config.NewDebugTargetResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
