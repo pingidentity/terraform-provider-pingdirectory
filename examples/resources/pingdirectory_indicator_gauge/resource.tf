@@ -13,7 +13,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_indicator_gauge" "myIndicatorGauge" {
-  id                            = "MyIndicatorGauge"
-  gauge_data_source             = "Replication Connection Status"
-  enabled                       = false
+  id                = "MyIndicatorGauge"
+  gauge_data_source = "Replication Connection Status"
+  enabled           = false
 }
