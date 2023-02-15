@@ -833,7 +833,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state globalConfigurationResourceModel
-	readGlobalConfigurationResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readGlobalConfigurationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
