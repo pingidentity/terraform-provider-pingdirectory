@@ -339,16 +339,24 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.IncludeExtensionSource = internaltypes.BoolTypeOrNil(r.IncludeExtensionSource)
 	state.UseSequentialMode = internaltypes.BoolTypeOrNil(r.UseSequentialMode)
 	state.SecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), true)
+		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), internaltypes.IsEmptyString(expectedValues.SecurityLevel))
 	state.JstackCount = internaltypes.Int64TypeOrNil(r.JstackCount)
 	state.ReportCount = internaltypes.Int64TypeOrNil(r.ReportCount)
 	state.ReportIntervalSeconds = internaltypes.Int64TypeOrNil(r.ReportIntervalSeconds)
 	state.LogDuration = internaltypes.StringTypeOrNil(r.LogDuration, internaltypes.IsEmptyString(expectedValues.LogDuration))
+	config.CheckMismatchedPDFormattedAttributes("log_duration",
+		expectedValues.LogDuration, state.LogDuration, diagnostics)
 	state.LogFileHeadCollectionSize = internaltypes.StringTypeOrNil(r.LogFileHeadCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileHeadCollectionSize))
+	config.CheckMismatchedPDFormattedAttributes("log_file_head_collection_size",
+		expectedValues.LogFileHeadCollectionSize, state.LogFileHeadCollectionSize, diagnostics)
 	state.LogFileTailCollectionSize = internaltypes.StringTypeOrNil(r.LogFileTailCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileTailCollectionSize))
+	config.CheckMismatchedPDFormattedAttributes("log_file_tail_collection_size",
+		expectedValues.LogFileTailCollectionSize, state.LogFileTailCollectionSize, diagnostics)
 	state.Comment = internaltypes.StringTypeOrNil(r.Comment, internaltypes.IsEmptyString(expectedValues.Comment))
 	state.RetainPreviousSupportDataArchiveCount = internaltypes.Int64TypeOrNil(r.RetainPreviousSupportDataArchiveCount)
 	state.RetainPreviousSupportDataArchiveAge = internaltypes.StringTypeOrNil(r.RetainPreviousSupportDataArchiveAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousSupportDataArchiveAge))
+	config.CheckMismatchedPDFormattedAttributes("retain_previous_support_data_archive_age",
+		expectedValues.RetainPreviousSupportDataArchiveAge, state.RetainPreviousSupportDataArchiveAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)

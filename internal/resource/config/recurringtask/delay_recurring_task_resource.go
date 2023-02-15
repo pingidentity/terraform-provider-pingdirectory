@@ -240,13 +240,23 @@ func addOptionalDelayRecurringTaskFields(ctx context.Context, addRequest *client
 func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurringTaskResponse, state *delayRecurringTaskResourceModel, expectedValues *delayRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.SleepDuration = internaltypes.StringTypeOrNil(r.SleepDuration, internaltypes.IsEmptyString(expectedValues.SleepDuration))
+	config.CheckMismatchedPDFormattedAttributes("sleep_duration",
+		expectedValues.SleepDuration, state.SleepDuration, diagnostics)
 	state.DurationToWaitForWorkQueueIdle = internaltypes.StringTypeOrNil(r.DurationToWaitForWorkQueueIdle, internaltypes.IsEmptyString(expectedValues.DurationToWaitForWorkQueueIdle))
+	config.CheckMismatchedPDFormattedAttributes("duration_to_wait_for_work_queue_idle",
+		expectedValues.DurationToWaitForWorkQueueIdle, state.DurationToWaitForWorkQueueIdle, diagnostics)
 	state.LdapURLForSearchExpectedToReturnEntries = internaltypes.GetStringSet(r.LdapURLForSearchExpectedToReturnEntries)
 	state.SearchInterval = internaltypes.StringTypeOrNil(r.SearchInterval, internaltypes.IsEmptyString(expectedValues.SearchInterval))
+	config.CheckMismatchedPDFormattedAttributes("search_interval",
+		expectedValues.SearchInterval, state.SearchInterval, diagnostics)
 	state.SearchTimeLimit = internaltypes.StringTypeOrNil(r.SearchTimeLimit, internaltypes.IsEmptyString(expectedValues.SearchTimeLimit))
+	config.CheckMismatchedPDFormattedAttributes("search_time_limit",
+		expectedValues.SearchTimeLimit, state.SearchTimeLimit, diagnostics)
 	state.DurationToWaitForSearchToReturnEntries = internaltypes.StringTypeOrNil(r.DurationToWaitForSearchToReturnEntries, internaltypes.IsEmptyString(expectedValues.DurationToWaitForSearchToReturnEntries))
+	config.CheckMismatchedPDFormattedAttributes("duration_to_wait_for_search_to_return_entries",
+		expectedValues.DurationToWaitForSearchToReturnEntries, state.DurationToWaitForSearchToReturnEntries, diagnostics)
 	state.TaskReturnStateIfTimeoutIsEncountered = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), true)
+		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), internaltypes.IsEmptyString(expectedValues.TaskReturnStateIfTimeoutIsEncountered))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)

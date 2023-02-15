@@ -443,7 +443,7 @@ func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminU
 	state.AllowedAuthenticationIPAddress = internaltypes.GetStringSet(r.AllowedAuthenticationIPAddress)
 	state.PreferredOTPDeliveryMechanism = internaltypes.GetStringSet(r.PreferredOTPDeliveryMechanism)
 	state.IsProxyable = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumtopologyAdminUserIsProxyableProp(r.IsProxyable), true)
+		client.StringPointerEnumtopologyAdminUserIsProxyableProp(r.IsProxyable), internaltypes.IsEmptyString(expectedValues.IsProxyable))
 	state.IsProxyableByDN = internaltypes.GetStringSet(r.IsProxyableByDN)
 	state.IsProxyableByGroup = internaltypes.GetStringSet(r.IsProxyableByGroup)
 	state.IsProxyableByURL = internaltypes.GetStringSet(r.IsProxyableByURL)

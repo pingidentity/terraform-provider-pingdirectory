@@ -246,9 +246,11 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	state.CommandOutputFileBaseName = internaltypes.StringTypeOrNil(r.CommandOutputFileBaseName, internaltypes.IsEmptyString(expectedValues.CommandOutputFileBaseName))
 	state.RetainPreviousOutputFileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousOutputFileCount)
 	state.RetainPreviousOutputFileAge = internaltypes.StringTypeOrNil(r.RetainPreviousOutputFileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousOutputFileAge))
+	config.CheckMismatchedPDFormattedAttributes("retain_previous_output_file_age",
+		expectedValues.RetainPreviousOutputFileAge, state.RetainPreviousOutputFileAge, diagnostics)
 	state.LogCommandOutput = internaltypes.BoolTypeOrNil(r.LogCommandOutput)
 	state.TaskCompletionStateForNonzeroExitCode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), true)
+		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), internaltypes.IsEmptyString(expectedValues.TaskCompletionStateForNonzeroExitCode))
 	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, internaltypes.IsEmptyString(expectedValues.WorkingDirectory))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)

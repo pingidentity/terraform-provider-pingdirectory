@@ -94,3 +94,19 @@ func ReadMessages(ctx context.Context, messages *client.MetaUrnPingidentitySchem
 	}
 	return notifications, requiredActions
 }
+
+// Certain types of string attributes (durations, file paths, and sizes) can be modifed by PD when applying to a
+// config object. For example a duration of "5ms" will be accepted by PD but will be modified to "5 ms" when actually
+// stored in the configuration. This can lead to a Terraform error due to mismatched plan and result.
+// The error reported by Terraform is a little misleading, so this method adds a custom error in that case to indicate
+// that the plan value just needs to be modified.
+func CheckMismatchedPDFormattedAttributes(attrName string, expected, result types.String, diagnostics *diag.Diagnostics) {
+	if expected.IsNull() || expected.IsUnknown() {
+		return
+	}
+
+	if !expected.Equal(result) {
+		diagnostics.AddError("Mismatched attributes - ensure you have formatted the '"+attrName+"' attribute correctly.",
+			"Provided \""+expected.ValueString()+"\", PingDirectory expected \""+result.ValueString()+"\"")
+	}
+}

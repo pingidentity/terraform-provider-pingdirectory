@@ -9,8 +9,10 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 
@@ -202,6 +204,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		connectionhandler.NewJmxConnectionHandlerResource,
 		connectionhandler.NewLdapConnectionHandlerResource,
 		connectionhandler.NewLdifConnectionHandlerResource,
+		gauge.NewIndicatorGaugeResource,
+		gauge.NewNumericGaugeResource,
 		recurringtask.NewBackupRecurringTaskResource,
 		recurringtask.NewCollectSupportDataRecurringTaskResource,
 		recurringtask.NewDelayRecurringTaskResource,
@@ -217,6 +221,9 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		requestcriteria.NewRootDseRequestCriteriaResource,
 		requestcriteria.NewSimpleRequestCriteriaResource,
 		requestcriteria.NewThirdPartyRequestCriteriaResource,
+		restresourcetype.NewGenericRestResourceTypeResource,
+		restresourcetype.NewGroupRestResourceTypeResource,
+		restresourcetype.NewUserRestResourceTypeResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,

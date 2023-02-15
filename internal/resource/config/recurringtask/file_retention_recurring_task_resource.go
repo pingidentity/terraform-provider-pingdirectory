@@ -211,7 +211,11 @@ func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileR
 	state.TimestampFormat = types.StringValue(r.TimestampFormat.String())
 	state.RetainFileCount = internaltypes.Int64TypeOrNil(r.RetainFileCount)
 	state.RetainFileAge = internaltypes.StringTypeOrNil(r.RetainFileAge, internaltypes.IsEmptyString(expectedValues.RetainFileAge))
+	config.CheckMismatchedPDFormattedAttributes("retain_file_age",
+		expectedValues.RetainFileAge, state.RetainFileAge, diagnostics)
 	state.RetainAggregateFileSize = internaltypes.StringTypeOrNil(r.RetainAggregateFileSize, internaltypes.IsEmptyString(expectedValues.RetainAggregateFileSize))
+	config.CheckMismatchedPDFormattedAttributes("retain_aggregate_file_size",
+		expectedValues.RetainAggregateFileSize, state.RetainAggregateFileSize, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
