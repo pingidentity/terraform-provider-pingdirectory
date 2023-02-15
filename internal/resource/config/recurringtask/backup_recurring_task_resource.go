@@ -268,6 +268,8 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
 	state.RetainPreviousFullBackupCount = internaltypes.Int64TypeOrNil(r.RetainPreviousFullBackupCount)
 	state.RetainPreviousFullBackupAge = internaltypes.StringTypeOrNil(r.RetainPreviousFullBackupAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousFullBackupAge))
+	config.CheckMismatchedPDFormattedAttributes("retain_previous_full_backup_age",
+		expectedValues.RetainPreviousFullBackupAge, state.RetainPreviousFullBackupAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)

@@ -202,6 +202,8 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	state.IncludePath = internaltypes.GetStringSet(r.IncludePath)
 	state.RetainPreviousProfileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousProfileCount)
 	state.RetainPreviousProfileAge = internaltypes.StringTypeOrNil(r.RetainPreviousProfileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousProfileAge))
+	config.CheckMismatchedPDFormattedAttributes("retain_previous_profile_age",
+		expectedValues.RetainPreviousProfileAge, state.RetainPreviousProfileAge, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
 	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
