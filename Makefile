@@ -53,6 +53,6 @@ testacc:
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
 	TF_ACC=1 go test -timeout 10m -v ./... -p 4
 
-testacccomplete: removetestcontainer starttestcontainer testacc removetestcontainer
+testacccomplete: removetestcontainer starttestcontainer testacc
 
 devcheck: generate install lint test testacccomplete
