@@ -8,6 +8,7 @@ import (
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
@@ -194,6 +195,18 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		accesscontrolhandler.NewDseeCompatAccessControlHandlerResource,
+		backend.NewAlarmBackendResource,
+		backend.NewAlertBackendResource,
+		backend.NewBackupBackendResource,
+		backend.NewChangelogBackendResource,
+		backend.NewConfigFileHandlerBackendResource,
+		backend.NewEncryptionSettingsBackendResource,
+		backend.NewLocalDbBackendResource,
+		backend.NewMetricsBackendResource,
+		backend.NewMonitorBackendResource,
+		backend.NewSchemaBackendResource,
+		backend.NewTaskBackendResource,
+		backend.NewTrustStoreBackendResource,
 		config.NewConsentDefinitionResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
