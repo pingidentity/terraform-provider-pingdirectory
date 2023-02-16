@@ -18,6 +18,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
@@ -288,5 +289,27 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
+		virtualattribute.NewConstructedVirtualAttributeResource,
+		virtualattribute.NewCurrentTimeVirtualAttributeResource,
+		virtualattribute.NewDnJoinVirtualAttributeResource,
+		virtualattribute.NewEntryChecksumVirtualAttributeResource,
+		virtualattribute.NewEntryDnVirtualAttributeResource,
+		virtualattribute.NewEqualityJoinVirtualAttributeResource,
+		virtualattribute.NewGroovyScriptedVirtualAttributeResource,
+		virtualattribute.NewHasSubordinatesVirtualAttributeResource,
+		virtualattribute.NewIdentifyReferencesVirtualAttributeResource,
+		virtualattribute.NewInstanceNameVirtualAttributeResource,
+		virtualattribute.NewIsMemberOfVirtualAttributeResource,
+		virtualattribute.NewMemberOfServerGroupVirtualAttributeResource,
+		virtualattribute.NewMemberVirtualAttributeResource,
+		virtualattribute.NewMirrorVirtualAttributeResource,
+		virtualattribute.NewNumSubordinatesVirtualAttributeResource,
+		virtualattribute.NewPasswordPolicyStateJsonVirtualAttributeResource,
+		virtualattribute.NewReplicationStateDetailVirtualAttributeResource,
+		virtualattribute.NewReverseDnJoinVirtualAttributeResource,
+		virtualattribute.NewShortUniqueIdVirtualAttributeResource,
+		virtualattribute.NewSubschemaSubentryVirtualAttributeResource,
+		virtualattribute.NewThirdPartyVirtualAttributeResource,
+		virtualattribute.NewUserDefinedVirtualAttributeResource,
 	}
 }
