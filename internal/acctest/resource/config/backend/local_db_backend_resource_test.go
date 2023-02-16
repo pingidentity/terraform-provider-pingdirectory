@@ -40,7 +40,7 @@ func TestAccLocalDbBackend(t *testing.T) {
 	updatedResourceModel := localDbBackendTestModel{
 		id:                  testIdLocalDbBackend,
 		backendId:           testIdLocalDbBackend,
-		baseDn:              []string{"dc=example,dc=com"},
+		baseDn:              []string{"dc=example1,dc=com"},
 		writabilityMode:     "internal-only",
 		dbDirectory:         "db",
 		importTempDirectory: "tmp/test",
