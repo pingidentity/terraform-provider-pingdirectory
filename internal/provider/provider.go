@@ -8,6 +8,8 @@ import (
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
@@ -16,6 +18,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
@@ -195,12 +198,27 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		accesscontrolhandler.NewDseeCompatAccessControlHandlerResource,
+		backend.NewAlarmBackendResource,
+		backend.NewAlertBackendResource,
+		backend.NewBackupBackendResource,
+		backend.NewChangelogBackendResource,
+		backend.NewConfigFileHandlerBackendResource,
+		backend.NewEncryptionSettingsBackendResource,
+		backend.NewLocalDbBackendResource,
+		backend.NewMetricsBackendResource,
+		backend.NewMonitorBackendResource,
+		backend.NewSchemaBackendResource,
+		backend.NewTaskBackendResource,
+		backend.NewTrustStoreBackendResource,
 		config.NewConsentDefinitionResource,
 		config.NewDebugTargetResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
 		config.NewTopologyAdminUserResource,
+		connectioncriteria.NewAggregateConnectionCriteriaResource,
+		connectioncriteria.NewSimpleConnectionCriteriaResource,
+		connectioncriteria.NewThirdPartyConnectionCriteriaResource,
 		connectionhandler.NewHttpConnectionHandlerResource,
 		connectionhandler.NewJmxConnectionHandlerResource,
 		connectionhandler.NewLdapConnectionHandlerResource,
@@ -271,5 +289,27 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
+		virtualattribute.NewConstructedVirtualAttributeResource,
+		virtualattribute.NewCurrentTimeVirtualAttributeResource,
+		virtualattribute.NewDnJoinVirtualAttributeResource,
+		virtualattribute.NewEntryChecksumVirtualAttributeResource,
+		virtualattribute.NewEntryDnVirtualAttributeResource,
+		virtualattribute.NewEqualityJoinVirtualAttributeResource,
+		virtualattribute.NewGroovyScriptedVirtualAttributeResource,
+		virtualattribute.NewHasSubordinatesVirtualAttributeResource,
+		virtualattribute.NewIdentifyReferencesVirtualAttributeResource,
+		virtualattribute.NewInstanceNameVirtualAttributeResource,
+		virtualattribute.NewIsMemberOfVirtualAttributeResource,
+		virtualattribute.NewMemberOfServerGroupVirtualAttributeResource,
+		virtualattribute.NewMemberVirtualAttributeResource,
+		virtualattribute.NewMirrorVirtualAttributeResource,
+		virtualattribute.NewNumSubordinatesVirtualAttributeResource,
+		virtualattribute.NewPasswordPolicyStateJsonVirtualAttributeResource,
+		virtualattribute.NewReplicationStateDetailVirtualAttributeResource,
+		virtualattribute.NewReverseDnJoinVirtualAttributeResource,
+		virtualattribute.NewShortUniqueIdVirtualAttributeResource,
+		virtualattribute.NewSubschemaSubentryVirtualAttributeResource,
+		virtualattribute.NewThirdPartyVirtualAttributeResource,
+		virtualattribute.NewUserDefinedVirtualAttributeResource,
 	}
 }
