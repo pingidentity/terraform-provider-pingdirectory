@@ -8,6 +8,7 @@ import (
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
@@ -200,6 +201,9 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLocationResource,
 		config.NewRootDnResource,
 		config.NewTopologyAdminUserResource,
+		connectioncriteria.NewAggregateConnectionCriteriaResource,
+		connectioncriteria.NewSimpleConnectionCriteriaResource,
+		connectioncriteria.NewThirdPartyConnectionCriteriaResource,
 		connectionhandler.NewHttpConnectionHandlerResource,
 		connectionhandler.NewJmxConnectionHandlerResource,
 		connectionhandler.NewLdapConnectionHandlerResource,
