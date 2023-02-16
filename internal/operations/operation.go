@@ -29,10 +29,10 @@ func LogUpdateOperations(ctx context.Context, ops []client.Operation) {
 
 // Validate that the path for a given operation is valid
 func validateOperationPath(path string) {
-	// Paths must only contain lowercase letters and dashes
+	// Paths must only contain lowercase letters, dashes and digits
 	for _, c := range path {
-		if !unicode.IsLower(c) && c != '-' {
-			panic("Non-lowercase and non-dash character '" + string(c) + "' included in Operation path: '" + path + "'")
+		if !unicode.IsLower(c) && c != '-' && !unicode.IsDigit(c) {
+			panic("Non-lowercase, non-dash character and non-digit '" + string(c) + "' included in Operation path: '" + path + "'")
 		}
 	}
 }
