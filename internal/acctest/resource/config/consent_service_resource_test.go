@@ -116,28 +116,28 @@ func testAccCheckExpectedConsentServiceAttributes(config consentServiceTestModel
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchBool(resourceType, nil, "base-dn",
-			config.enabled, response.Enabled)
+		err = acctest.TestAttributesMatchString(resourceType, nil, "base-dn",
+			config.base_dn, *response.BaseDN)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchBool(resourceType, nil, "bind-dn",
-			config.enabled, response.Enabled)
+		err = acctest.TestAttributesMatchString(resourceType, nil, "bind-dn",
+			config.bind_dn, *response.BindDN)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchBool(resourceType, nil, "unprivileged-consent-scope",
-			config.enabled, response.Enabled)
+		err = acctest.TestAttributesMatchString(resourceType, nil, "unprivileged-consent-scope",
+			config.unprivileged_consent_scope, *response.UnprivilegedConsentScope)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchBool(resourceType, nil, "privileged-consent-scope",
-			config.enabled, response.Enabled)
+		err = acctest.TestAttributesMatchString(resourceType, nil, "privileged-consent-scope",
+			config.privileged_consent_scope, *response.PrivilegedConsentScope)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchBool(resourceType, nil, "search-size-limit",
-			config.enabled, response.Enabled)
+		err = acctest.TestAttributesMatchInt(resourceType, nil, "search-size-limit",
+			config.search_size_limit, int64(*response.SearchSizeLimit))
 		if err != nil {
 			return err
 		}
