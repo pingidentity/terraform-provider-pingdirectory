@@ -588,7 +588,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 }
 
 // Read a GlobalConfigurationResponse object into the model struct
-func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel, diagnostics *diag.Diagnostics) {
+func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel, expectedValues *globalConfigurationResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)
@@ -621,7 +621,11 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.DefaultInternalOperationClientConnectionPolicy = internaltypes.StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
 	state.SizeLimit = internaltypes.Int64TypeOrNil(r.SizeLimit)
 	state.TimeLimit = internaltypes.StringTypeOrNil(r.TimeLimit, true)
+	CheckMismatchedPDFormattedAttributes("time_limit",
+		expectedValues.TimeLimit, state.TimeLimit, diagnostics)
 	state.IdleTimeLimit = internaltypes.StringTypeOrNil(r.IdleTimeLimit, true)
+	CheckMismatchedPDFormattedAttributes("idle_time_limit",
+		expectedValues.IdleTimeLimit, state.IdleTimeLimit, diagnostics)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
 	state.LdapJoinSizeLimit = internaltypes.Int64TypeOrNil(r.LdapJoinSizeLimit)
 	state.MaximumConcurrentConnections = internaltypes.Int64TypeOrNil(r.MaximumConcurrentConnections)
@@ -640,6 +644,8 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.AttributesModifiableWithIgnoreNoUserModificationRequestControl = internaltypes.GetStringSet(
 		client.StringSliceEnumglobalConfigurationAttributesModifiableWithIgnoreNoUserModificationRequestControlProp(r.AttributesModifiableWithIgnoreNoUserModificationRequestControl))
 	state.MaximumServerOutLogFileSize = internaltypes.StringTypeOrNil(r.MaximumServerOutLogFileSize, true)
+	CheckMismatchedPDFormattedAttributes("maximum_server_out_log_file_size",
+		expectedValues.MaximumServerOutLogFileSize, state.MaximumServerOutLogFileSize, diagnostics)
 	state.MaximumServerOutLogFileCount = internaltypes.Int64TypeOrNil(r.MaximumServerOutLogFileCount)
 	state.StartupErrorLoggerOutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationStartupErrorLoggerOutputLocationProp(r.StartupErrorLoggerOutputLocation), true)
@@ -650,8 +656,12 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.NotifyAbandonedOperations = internaltypes.BoolTypeOrNil(r.NotifyAbandonedOperations)
 	state.DuplicateErrorLogLimit = types.Int64Value(int64(r.DuplicateErrorLogLimit))
 	state.DuplicateErrorLogTimeLimit = types.StringValue(r.DuplicateErrorLogTimeLimit)
+	CheckMismatchedPDFormattedAttributes("duplicate_error_log_time_limit",
+		expectedValues.DuplicateErrorLogTimeLimit, state.DuplicateErrorLogTimeLimit, diagnostics)
 	state.DuplicateAlertLimit = types.Int64Value(int64(r.DuplicateAlertLimit))
 	state.DuplicateAlertTimeLimit = types.StringValue(r.DuplicateAlertTimeLimit)
+	CheckMismatchedPDFormattedAttributes("duplicate_alert_time_limit",
+		expectedValues.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, diagnostics)
 	state.WritabilityMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumglobalConfigurationWritabilityModeProp(r.WritabilityMode), true)
 	state.UnrecoverableDatabaseErrorMode = internaltypes.StringTypeOrNil(
@@ -661,13 +671,21 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.AutoNameWithEntryUUIDRequestCriteria = internaltypes.StringTypeOrNil(r.AutoNameWithEntryUUIDRequestCriteria, true)
 	state.SoftDeletePolicy = internaltypes.StringTypeOrNil(r.SoftDeletePolicy, true)
 	state.SubtreeAccessibilityAlertTimeLimit = internaltypes.StringTypeOrNil(r.SubtreeAccessibilityAlertTimeLimit, true)
+	CheckMismatchedPDFormattedAttributes("subtree_accessibility_alert_time_limit",
+		expectedValues.SubtreeAccessibilityAlertTimeLimit, state.SubtreeAccessibilityAlertTimeLimit, diagnostics)
 	state.WarnForBackendsWithMultipleBaseDns = internaltypes.BoolTypeOrNil(r.WarnForBackendsWithMultipleBaseDns)
 	state.ForcedGCPrimeDuration = internaltypes.StringTypeOrNil(r.ForcedGCPrimeDuration, true)
+	CheckMismatchedPDFormattedAttributes("forced_gc_prime_duration",
+		expectedValues.ForcedGCPrimeDuration, state.ForcedGCPrimeDuration, diagnostics)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
 	state.StartupMinReplicationBacklogCount = types.Int64Value(int64(r.StartupMinReplicationBacklogCount))
 	state.ReplicationBacklogCountAlertThreshold = types.Int64Value(int64(r.ReplicationBacklogCountAlertThreshold))
 	state.ReplicationBacklogDurationAlertThreshold = types.StringValue(r.ReplicationBacklogDurationAlertThreshold)
+	CheckMismatchedPDFormattedAttributes("replication_backlog_duration_alert_threshold",
+		expectedValues.ReplicationBacklogDurationAlertThreshold, state.ReplicationBacklogDurationAlertThreshold, diagnostics)
 	state.ReplicationAssuranceSourceTimeoutSuspendDuration = types.StringValue(r.ReplicationAssuranceSourceTimeoutSuspendDuration)
+	CheckMismatchedPDFormattedAttributes("replication_assurance_source_timeout_suspend_duration",
+		expectedValues.ReplicationAssuranceSourceTimeoutSuspendDuration, state.ReplicationAssuranceSourceTimeoutSuspendDuration, diagnostics)
 	state.ReplicationAssuranceSourceBacklogFastStartThreshold = types.Int64Value(int64(r.ReplicationAssuranceSourceBacklogFastStartThreshold))
 	state.ReplicationHistoryLimit = internaltypes.Int64TypeOrNil(r.ReplicationHistoryLimit)
 	state.AllowInheritedReplicationOfSubordinateBackends = types.BoolValue(r.AllowInheritedReplicationOfSubordinateBackends)
@@ -675,11 +693,19 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.SmtpServer = internaltypes.GetStringSet(r.SmtpServer)
 	state.MaxSMTPConnectionCount = internaltypes.Int64TypeOrNil(r.MaxSMTPConnectionCount)
 	state.MaxSMTPConnectionAge = internaltypes.StringTypeOrNil(r.MaxSMTPConnectionAge, true)
+	CheckMismatchedPDFormattedAttributes("max_smtp_connection_age",
+		expectedValues.MaxSMTPConnectionAge, state.MaxSMTPConnectionAge, diagnostics)
 	state.SmtpConnectionHealthCheckInterval = internaltypes.StringTypeOrNil(r.SmtpConnectionHealthCheckInterval, true)
+	CheckMismatchedPDFormattedAttributes("smtp_connection_health_check_interval",
+		expectedValues.SmtpConnectionHealthCheckInterval, state.SmtpConnectionHealthCheckInterval, diagnostics)
 	state.AllowedTask = internaltypes.GetStringSet(r.AllowedTask)
 	state.EnableSubOperationTimer = internaltypes.BoolTypeOrNil(r.EnableSubOperationTimer)
 	state.MaximumShutdownTime = internaltypes.StringTypeOrNil(r.MaximumShutdownTime, true)
+	CheckMismatchedPDFormattedAttributes("maximum_shutdown_time",
+		expectedValues.MaximumShutdownTime, state.MaximumShutdownTime, diagnostics)
 	state.NetworkAddressCacheTTL = internaltypes.StringTypeOrNil(r.NetworkAddressCacheTTL, true)
+	CheckMismatchedPDFormattedAttributes("network_address_cache_ttl",
+		expectedValues.NetworkAddressCacheTTL, state.NetworkAddressCacheTTL, diagnostics)
 	state.NetworkAddressOutageCacheEnabled = internaltypes.BoolTypeOrNil(r.NetworkAddressOutageCacheEnabled)
 	state.TrackedApplication = internaltypes.GetStringSet(r.TrackedApplication)
 	state.JmxValueBehavior = internaltypes.StringTypeOrNil(
@@ -807,7 +833,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state globalConfigurationResourceModel
-	readGlobalConfigurationResponse(ctx, readResponse, &state, &resp.Diagnostics)
+	readGlobalConfigurationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
@@ -830,7 +856,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(ctx, updateResponse, &state, &resp.Diagnostics)
+		readGlobalConfigurationResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -866,7 +892,7 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Read the response into the state
-	readGlobalConfigurationResponse(ctx, readResponse, &state, &resp.Diagnostics)
+	readGlobalConfigurationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -912,7 +938,7 @@ func (r *globalConfigurationResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		readGlobalConfigurationResponse(ctx, updateResponse, &state, &resp.Diagnostics)
+		readGlobalConfigurationResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

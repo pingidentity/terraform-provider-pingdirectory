@@ -268,6 +268,8 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
 	state.RetainPreviousLDIFExportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousLDIFExportCount)
 	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousLDIFExportAge))
+	config.CheckMismatchedPDFormattedAttributes("retain_previous_ldif_export_age",
+		expectedValues.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, diagnostics)
 	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
