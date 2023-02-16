@@ -42,7 +42,6 @@ resource "pingdirectory_debug_target" "myDebugTarget" {
 
 - `debug_level` (String) Specifies the lowest severity level of debug messages to log.
 - `debug_scope` (String) Specifies the fully-qualified Java package, class, or method affected by the settings in this target definition. Use the number character (#) to separate the class name and the method name (that is, com.unboundid.directory.server.core.DirectoryServer#startUp).
-- `id` (String) Name of this object.
 - `log_publisher_name` (String) Name of the parent Log Publisher
 
 ### Optional
@@ -56,6 +55,7 @@ resource "pingdirectory_debug_target" "myDebugTarget" {
 
 ### Read-Only
 
+- `id` (String) Placeholder name of this object required by Terraform.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

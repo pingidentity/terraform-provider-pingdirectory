@@ -129,6 +129,8 @@ func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnec
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.LdifDirectory = types.StringValue(r.LdifDirectory)
 	state.PollInterval = types.StringValue(r.PollInterval)
+	config.CheckMismatchedPDFormattedAttributes("poll_interval",
+		expectedValues.PollInterval, state.PollInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

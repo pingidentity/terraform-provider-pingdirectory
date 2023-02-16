@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100"
@@ -69,6 +71,9 @@ func (r *consentDefinitionResource) Schema(ctx context.Context, req resource.Sch
 			"unique_id": schema.StringAttribute{
 				Description: "A version-independent unique identifier for this Consent Definition.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"display_name": schema.StringAttribute{
 				Description: "A human-readable display name for this Consent Definition.",
@@ -86,7 +91,7 @@ func (r *consentDefinitionResource) Schema(ctx context.Context, req resource.Sch
 			},
 		},
 	}
-	AddCommonSchema(&schema, true)
+	AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -139,7 +144,7 @@ func (r *consentDefinitionResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	addRequest := client.NewAddConsentDefinitionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConsentDefinitionRequest(plan.UniqueID.ValueString(),
 		plan.UniqueID.ValueString())
 	addOptionalConsentDefinitionFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -189,7 +194,7 @@ func (r *consentDefinitionResource) Read(ctx context.Context, req resource.ReadR
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.GetConsentDefinition(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition", err, httpResp)
 		return
@@ -226,7 +231,7 @@ func (r *consentDefinitionResource) Update(ctx context.Context, req resource.Upd
 	var state consentDefinitionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinition(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConsentDefinitionOperations(plan, state)
@@ -273,7 +278,7 @@ func (r *consentDefinitionResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.ConsentDefinitionApi.DeleteConsentDefinitionExecute(r.apiClient.ConsentDefinitionApi.DeleteConsentDefinition(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()))
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Consent Definition", err, httpResp)
 		return
