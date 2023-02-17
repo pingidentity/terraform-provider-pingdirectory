@@ -116,23 +116,23 @@ func testAccCheckExpectedConsentServiceAttributes(config consentServiceTestModel
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchString(resourceType, nil, "base-dn",
-			config.base_dn, *response.BaseDN)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "base-dn",
+			config.base_dn, response.BaseDN)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchString(resourceType, nil, "bind-dn",
-			config.bind_dn, *response.BindDN)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "bind-dn",
+			config.bind_dn, response.BindDN)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchString(resourceType, nil, "unprivileged-consent-scope",
-			config.unprivileged_consent_scope, *response.UnprivilegedConsentScope)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "unprivileged-consent-scope",
+			config.unprivileged_consent_scope, response.UnprivilegedConsentScope)
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchString(resourceType, nil, "privileged-consent-scope",
-			config.privileged_consent_scope, *response.PrivilegedConsentScope)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "privileged-consent-scope",
+			config.privileged_consent_scope, response.PrivilegedConsentScope)
 		if err != nil {
 			return err
 		}
