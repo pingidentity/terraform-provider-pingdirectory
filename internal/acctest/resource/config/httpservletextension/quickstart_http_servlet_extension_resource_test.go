@@ -74,9 +74,16 @@ resource "pingdirectory_quickstart_http_servlet_extension" "%[1]s" {
 // Test that the expected attributes are set on the PingDirectory server
 func testAccCheckExpectedQuickstartHttpServletExtensionAttributes(config quickstartHttpServletExtensionTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		resourceType := "http servlet extension"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.HttpServletExtensionApi.GetHttpServletExtension(ctx, config.id).Execute()
+		response, _, err := testClient.HttpServletExtensionApi.GetHttpServletExtension(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		// Verify that description matches expected
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.QuickstartHttpServletExtensionResponse.Description)
 		if err != nil {
 			return err
 		}
