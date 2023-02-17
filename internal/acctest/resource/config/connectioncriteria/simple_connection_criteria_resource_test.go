@@ -17,23 +17,23 @@ const testIdSimpleConnectionCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type simpleConnectionCriteriaTestModel struct {
-	id             string
-	description    string
-	user_auth_type []string
+	id           string
+	description  string
+	userAuthType []string
 }
 
 func TestAccSimpleConnectionCriteria(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := simpleConnectionCriteriaTestModel{
-		id:             testIdSimpleConnectionCriteria,
-		description:    "Test simple connection example",
-		user_auth_type: []string{"internal", "sasl"},
+		id:           testIdSimpleConnectionCriteria,
+		description:  "Test simple connection example",
+		userAuthType: []string{"internal", "sasl"},
 	}
 
 	updatedResourceModel := simpleConnectionCriteriaTestModel{
-		id:             testIdSimpleConnectionCriteria,
-		description:    "Test simple connection modified",
-		user_auth_type: []string{"internal", "sasl", "simple"},
+		id:           testIdSimpleConnectionCriteria,
+		description:  "Test simple connection modified",
+		userAuthType: []string{"internal", "sasl", "simple"},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -92,7 +92,7 @@ func testAccCheckExpectedSimpleConnectionCriteriaAttributes(config simpleConnect
 			return err
 		}
 		err = acctest.TestAttributesMatchStringSlice(resourceType, &config.id, "user_auth_type",
-			config.user_auth_type, response.SimpleConnectionCriteriaResponse.UserAuthType)
+			config.userAuthType, response.SimpleConnectionCriteriaResponse.UserAuthType)
 		if err != nil {
 			return err
 		}
