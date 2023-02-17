@@ -212,6 +212,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		backend.NewTaskBackendResource,
 		backend.NewTrustStoreBackendResource,
 		config.NewConsentDefinitionResource,
+		config.NewConsentServiceResource,
 		config.NewDebugTargetResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
