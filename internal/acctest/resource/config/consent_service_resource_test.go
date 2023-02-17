@@ -13,8 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testIdConsentService = "MyId"
-
 // Attributes to test with. Add optional properties to test here if desired.
 type consentServiceTestModel struct {
 	enabled                    bool
