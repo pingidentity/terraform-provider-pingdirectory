@@ -36,7 +36,7 @@ starttestcontainer:
 # Wait for the instance to become ready
 	sleep 1
 	duration=0
-	while (( duration < 240 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
+	while (( duration < 10 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
 	do \
 	    duration=$$((duration+1)); \
 		sleep 1; \
