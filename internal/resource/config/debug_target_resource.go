@@ -361,10 +361,10 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 func (r *debugTargetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	split := strings.Split(req.ID, "/")
 	if len(split) != 2 {
-		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [log-publisher-name]/[debug-target-name]. Got: "+req.ID)
+		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [log-publisher-name]/[debug-target-debug-scope]. Got: "+req.ID)
 		return
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("log_publisher_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("debug_scope"), split[1])...)
 }

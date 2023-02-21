@@ -286,6 +286,6 @@ func (r *consentDefinitionResource) Delete(ctx context.Context, req resource.Del
 }
 
 func (r *consentDefinitionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to unique_id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("unique_id"), req, resp)
 }
