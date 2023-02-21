@@ -3,9 +3,12 @@ package provider
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
@@ -179,7 +182,38 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		insecureTrustAllTls, err = strconv.ParseBool(os.Getenv("PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS"))
 		if err != nil {
 			insecureTrustAllTls = false
-			tflog.Warn(ctx, "Failed to parse boolean from 'PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS' environment variable, defaulting 'insecure_trust_all_tls' to false")
+			tflog.Info(ctx, "Failed to parse boolean from 'PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS' environment variable, defaulting 'insecure_trust_all_tls' to false")
+		}
+	}
+
+	var caCertPemFiles []string
+	if !config.CACertificatePEMFiles.IsUnknown() && !config.CACertificatePEMFiles.IsNull() {
+		config.CACertificatePEMFiles.ElementsAs(ctx, &caCertPemFiles, false)
+	} else {
+		pemFilesEnvVar := os.Getenv("PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES")
+		if len(pemFilesEnvVar) == 0 {
+			tflog.Info(ctx, "Did not find any certificate paths specified via the 'PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES' environment variable, using the host's root CA set")
+		} else {
+			caCertPemFiles = strings.Split(pemFilesEnvVar, ",")
+		}
+	}
+
+	var caCertPool *x509.CertPool
+	if len(caCertPemFiles) == 0 {
+		tflog.Info(ctx, "No CA certs specified, using the host's root CA set")
+		caCertPool = nil
+	} else {
+		caCertPool := x509.NewCertPool()
+		for _, pemFilename := range caCertPemFiles {
+			// Load CA cert
+			caCert, err := ioutil.ReadFile(pemFilename)
+			if err != nil {
+				resp.Diagnostics.AddError("Failed to read CA PEM certificate file: "+pemFilename, err.Error())
+			}
+			tflog.Info(ctx, "Adding CA cert from file: "+pemFilename)
+			if !caCertPool.AppendCertsFromPEM(caCert) {
+				resp.Diagnostics.AddWarning("Failed to parse certificate", "Failed to parse CA PEM certificate from file: "+pemFilename)
+			}
 		}
 	}
 
@@ -202,10 +236,11 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 			URL: httpsHost + "/config",
 		},
 	}
-	//TODO THIS IS NOT SAFE!! Eventually need to add way to trust a specific cert/signer here rather than just trusting everything
-	//https://stackoverflow.com/questions/12122159/how-to-do-a-https-request-with-bad-certificate
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecureTrustAllTls},
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: insecureTrustAllTls,
+			RootCAs:            caCertPool,
+		},
 	}
 	httpClient := &http.Client{Transport: tr}
 	clientConfig.HTTPClient = httpClient
