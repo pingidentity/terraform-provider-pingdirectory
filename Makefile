@@ -36,14 +36,14 @@ starttestcontainer:
 # Wait for the instance to become ready
 	sleep 1
 	duration=0
-	while (( duration < 10 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
+	while (( duration < 240 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
 	do \
 	    duration=$$((duration+1)); \
 		sleep 1; \
 	done
 # Fail if the container didn't become ready in time
 	docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available" || \
-		docker logs pingdirectory_terraform_acceptance_test && exit 1
+		{ echo "PingDirectory container did not become ready in time. Logs:"; docker logs pingdirectory_terraform_acceptance_test; exit 1; }
 
 removetestcontainer:
 	docker rm -f pingdirectory_terraform_acceptance_test    
