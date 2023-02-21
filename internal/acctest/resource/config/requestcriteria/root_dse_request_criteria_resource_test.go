@@ -75,9 +75,16 @@ resource "pingdirectory_root_dse_request_criteria" "%[1]s" {
 // Test that the expected attributes are set on the PingDirectory server
 func testAccCheckExpectedRootDseRequestCriteriaAttributes(config rootDseRequestCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		resourceType := "root dse request criteria"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		// Verify that description matches expected
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.RootDseRequestCriteriaResponse.Description)
 		if err != nil {
 			return err
 		}

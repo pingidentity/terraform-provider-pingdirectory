@@ -12,6 +12,8 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -211,6 +213,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		backend.NewTaskBackendResource,
 		backend.NewTrustStoreBackendResource,
 		config.NewConsentDefinitionResource,
+		config.NewConsentServiceResource,
 		config.NewDebugTargetResource,
 		config.NewGlobalConfigurationResource,
 		config.NewLocationResource,
@@ -225,6 +228,23 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		connectionhandler.NewLdifConnectionHandlerResource,
 		gauge.NewIndicatorGaugeResource,
 		gauge.NewNumericGaugeResource,
+		httpservletextension.NewAvailabilityStateHttpServletExtensionResource,
+		httpservletextension.NewConfigHttpServletExtensionResource,
+		httpservletextension.NewConsentHttpServletExtensionResource,
+		httpservletextension.NewDelegatedAdminHttpServletExtensionResource,
+		httpservletextension.NewDirectoryRestApiHttpServletExtensionResource,
+		httpservletextension.NewFileServerHttpServletExtensionResource,
+		httpservletextension.NewGroovyScriptedHttpServletExtensionResource,
+		httpservletextension.NewLdapMappedScimHttpServletExtensionResource,
+		httpservletextension.NewQuickstartHttpServletExtensionResource,
+		httpservletextension.NewScim2HttpServletExtensionResource,
+		httpservletextension.NewThirdPartyHttpServletExtensionResource,
+		httpservletextension.NewVelocityHttpServletExtensionResource,
+		identitymapper.NewAggregateIdentityMapperResource,
+		identitymapper.NewExactMatchIdentityMapperResource,
+		identitymapper.NewGroovyScriptedIdentityMapperResource,
+		identitymapper.NewRegularExpressionIdentityMapperResource,
+		identitymapper.NewThirdPartyIdentityMapperResource,
 		logpublisher.NewAdminAlertAccessLogPublisherResource,
 		logpublisher.NewCommonLogFileHttpOperationLogPublisherResource,
 		logpublisher.NewConsoleJsonAccessLogPublisherResource,
