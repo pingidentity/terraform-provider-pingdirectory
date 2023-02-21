@@ -42,7 +42,8 @@ starttestcontainer:
 		sleep 1; \
 	done
 # Fail if the container didn't become ready in time
-	docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"
+	docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available" || \
+		{ echo "PingDirectory container did not become ready in time. Logs:"; docker logs pingdirectory_terraform_acceptance_test; exit 1; }
 
 removetestcontainer:
 	docker rm -f pingdirectory_terraform_acceptance_test    
