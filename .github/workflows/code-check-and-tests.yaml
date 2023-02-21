@@ -8,9 +8,9 @@ on:
   pull_request:
     paths:
       - '.github/workflows/code-check-and-tests.yaml'
-      - 'go.sum'
-      - 'go.mod'
       - '**.go'
+      - 'go.mod'
+      - 'go.sum'
       - 'Makefile'
   push:
     branches:
