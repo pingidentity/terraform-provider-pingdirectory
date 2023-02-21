@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100"
 )
 
 const testIdSimpleConnectionCriteria = "MyId"
@@ -76,14 +77,23 @@ resource "pingdirectory_simple_connection_criteria" "%[1]s" {
 }`, resourceName, resourceModel.id, resourceModel.description, acctest.StringSliceToTerraformString(resourceModel.user_auth_type))
 }
 
-//acctest.StringSliceToTerraformString(permissionsList)
-
 // Test that the expected attributes are set on the PingDirectory server
 func testAccCheckExpectedSimpleConnectionCriteriaAttributes(config simpleConnectionCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		resourceType := "connection criteria"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.ConnectionCriteriaApi.GetConnectionCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.ConnectionCriteriaApi.GetConnectionCriteria(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.SimpleConnectionCriteriaResponse.Description)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchStringSlice(resourceType, &config.id, "user_auth_type",
+			config.user_auth_type, client.StringSliceEnumconnectionCriteriaUserAuthTypeProp(response.SimpleConnectionCriteriaResponse.UserAuthType))
 		if err != nil {
 			return err
 		}
