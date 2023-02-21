@@ -73,6 +73,6 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# Importing a Debug Target requires providing the name of the parents in the following format
-terraform import pingdirectory_debug_target "[log-publisher-name]/[debug-target-name]"
+# Importing a Debug Target requires providing the name of all parent resources in the following format
+terraform import pingdirectory_debug_target "[log-publisher-name]/[debug-target-debug-scope]"
 ```
