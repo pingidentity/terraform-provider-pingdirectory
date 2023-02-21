@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["Pull Request"]
     types: 
-      - completed
+      - requested
   push:
     branches:
       - "main"

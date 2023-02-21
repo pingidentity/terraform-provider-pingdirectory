@@ -9,7 +9,7 @@ on:
       - 'Makefile'
 
 jobs:
-  check-dependabot:
+  message:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Pull request created..."
