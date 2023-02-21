@@ -28,7 +28,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_debug_target" "myDebugTarget" {
-  id                 = "com.example.MyClass"
   log_publisher_name = "File-Based Debug Logger"
   debug_scope        = "com.example.MyClass"
   debug_level        = "all"
