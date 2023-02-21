@@ -8,6 +8,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/code-check-and-tests.yaml'
+      - 'go.sum'
+      - 'go.mod'
       - '**.go'
       - 'Makefile'
   push:
