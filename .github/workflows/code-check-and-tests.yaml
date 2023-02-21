@@ -2,15 +2,13 @@ name: Code Check and Acceptance Tests
 
 on:
   workflow_run:
-    workflows: ["Dependabot PR Check"]
+    workflows: ["Go Package Dependencies"]
     types: 
       - completed
   pull_request:
     paths:
       - '.github/workflows/code-check-and-tests.yaml'
       - '**.go'
-      - 'go.mod'
-      - 'go.sum'
       - 'Makefile'
   push:
     branches:
