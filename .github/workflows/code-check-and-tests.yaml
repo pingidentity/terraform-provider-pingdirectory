@@ -71,7 +71,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
+      - run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
   generate:
     name: go generate
     needs: [build]
