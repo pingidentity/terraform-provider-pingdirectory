@@ -1,0 +1,22 @@
+name: Pull Request
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/code-check-and-tests.yaml'
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'Makefile'
+
+jobs:
+  check-dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - run: echo "PR created by Dependabot"
+  check-dev:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - run: echo "PR created by a developer"
+  
