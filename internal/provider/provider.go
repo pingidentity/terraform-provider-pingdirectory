@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
@@ -35,9 +36,11 @@ import (
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
 type pingdirectoryProviderModel struct {
-	HttpsHost types.String `tfsdk:"https_host"`
-	Username  types.String `tfsdk:"username"`
-	Password  types.String `tfsdk:"password"`
+	HttpsHost             types.String `tfsdk:"https_host"`
+	Username              types.String `tfsdk:"username"`
+	Password              types.String `tfsdk:"password"`
+	InsecureTrustAllTls   types.Bool   `tfsdk:"insecure_trust_all_tls"`
+	CACertificatePEMFiles types.Set    `tfsdk:"ca_certificate_pem_files"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -74,6 +77,15 @@ func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaR
 			"password": schema.StringAttribute{
 				Description: "Password for PingDirectory admin user.",
 				Sensitive:   true,
+				Optional:    true,
+			},
+			"insecure_trust_all_tls": schema.BoolAttribute{
+				Description: "Set to true to trust any certificate when connecting to the PingDirectory server. This is insecure and should not be enabled outside of testing.",
+				Optional:    true,
+			},
+			"ca_certificate_pem_files": schema.SetAttribute{
+				ElementType: types.StringType,
+				Description: "Paths to files containing PEM-encoded certificates to be trusted as root CAs when connecting to the PingDirectory server over HTTPS. If not set, the host's root CA set will be used.",
 				Optional:    true,
 			},
 		},
@@ -158,6 +170,19 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		}
 	}
 
+	// Optional attributes
+	var insecureTrustAllTls bool
+	var err error
+	if !config.InsecureTrustAllTls.IsUnknown() && !config.InsecureTrustAllTls.IsNull() {
+		insecureTrustAllTls = config.InsecureTrustAllTls.ValueBool()
+	} else {
+		insecureTrustAllTls, err = strconv.ParseBool(os.Getenv("PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS"))
+		if err != nil {
+			insecureTrustAllTls = false
+			tflog.Warn(ctx, "Failed to parse boolean from 'PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS' environment variable, defaulting 'insecure_trust_all_tls' to false")
+		}
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -180,7 +205,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	//TODO THIS IS NOT SAFE!! Eventually need to add way to trust a specific cert/signer here rather than just trusting everything
 	//https://stackoverflow.com/questions/12122159/how-to-do-a-https-request-with-bad-certificate
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecureTrustAllTls},
 	}
 	httpClient := &http.Client{Transport: tr}
 	clientConfig.HTTPClient = httpClient
