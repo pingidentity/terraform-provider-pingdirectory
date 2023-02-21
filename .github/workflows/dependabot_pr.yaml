@@ -1,9 +1,6 @@
 name: Go Package Dependencies
 on:
-  pull_request:
-    paths:
-        - 'go.mod'
-        - 'go.sum'
+  pull_request
 
 jobs:
   check-dependabot:
@@ -11,8 +8,3 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - run: echo "PR created by Dependabot"
-  check-dev:
-    runs-on: ubuntu-latest
-    if: ${{ github.actor != 'dependabot[bot]' }}
-    steps:
-      - run: echo "PR created by developer"
