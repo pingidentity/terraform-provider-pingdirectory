@@ -14,7 +14,7 @@ import (
 )
 
 const testIdConsentDefinitionLocalization = "en-US"
-const testConsentDefinitionName = "MyId"
+const testConsentDefinitionName = "myConsentDefinition"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type consentDefinitionLocalizationTestModel struct {
@@ -75,18 +75,17 @@ func TestAccConsentDefinitionLocalization(t *testing.T) {
 
 func testAccConsentDefinitionLocalizationResource(resourceName string, resourceModel consentDefinitionLocalizationTestModel) string {
 	return fmt.Sprintf(`
-	resource "pingdirectory_consent_definition" "MyId" {
-		unique_id = "MyId"
+	resource "pingdirectory_consent_definition" "myConsentDefinition" {
+		unique_id = "myConsentDefinition"
 		display_name = "example display name"
 }
 	resource "pingdirectory_consent_definition_localization" "%[1]s" {
-	 consent_definition_name = "%[2]s"
-	 locale = "%[3]s"
-	 version = "%[4]s"
-	 data_text = "%[5]s"
-	 purpose_text = "%[6]s"
+		consent_definition_name = pingdirectory_consent_definition.myConsentDefinition.unique_id
+		locale = "%[2]s"
+		version = "%[3]s"
+		data_text = "%[4]s"
+		purpose_text = "%[5]s"
 }`, resourceName,
-		resourceModel.consentDefinitionName,
 		resourceModel.locale,
 		resourceModel.version,
 		resourceModel.dataText,
