@@ -26,7 +26,7 @@ jobs:
       - name: git diff
         id: git_diff
         run: | 
-          echo "========== Checking for go.mod or go.sum modifications "=========="
+          echo "========== Checking for go.mod or go.sum modifications =========="
           diff=$(git diff main.. | grep -E "\+\+\+\s(go.)")
           if ($diff); then
             echo "::set-output name=run_acceptance_tests::false"
