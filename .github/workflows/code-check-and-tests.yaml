@@ -1,10 +1,13 @@
 name: Code Check and Acceptance Tests
 
 on:
-  workflow_run:
-    workflows: ["Pull Request"]
-    types: 
-      - requested
+  pull_request:
+    paths:
+      - '.github/workflows/code-check-and-tests.yaml'
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'Makefile'
   push:
     branches:
       - "main"
@@ -13,9 +16,30 @@ permissions:
   contents: read
 
 jobs:
+  git-diff:
+    name: Git File Diff
+    outputs:
+      run_acceptance_tests: ${{steps.git_diff.outputs.run_acceptance_tests}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: git diff
+        id: git_diff
+        run: | 
+          echo "========== Checking for go.mod or go.sum modifications "=========="
+          diff=$(git diff main.. | grep -E "\+\+\+\s(go.)")
+          if ($diff); then
+            echo "::set-output name=run_acceptance_tests::false"
+            echo "go.mod or go.sum found in git diff..."
+          else
+            echo "::set-output name=run_acceptance_tests::true"
+            echo "no go.mod or go.sum modifications found..."
+          fi
+          
 # Ensure the project can build first
   build:
     name: Build
+    needs: [git-diff]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -87,7 +111,8 @@ jobs:
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
   acceptance:
     name: Acceptance Tests
-    needs: [fmt, vet, lint, generate]
+    needs: [git-diff, fmt, vet, lint, generate]
+    if: needs.git-diff.outputs.run_acceptance_tests == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
