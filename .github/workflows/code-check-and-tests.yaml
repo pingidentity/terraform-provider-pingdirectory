@@ -26,6 +26,8 @@ jobs:
       - name: git diff
         id: git_diff
         run: | 
+          echo "===================== Fetching main branch ======================"
+          git fetch origin main:refs/remotes/origin/main
           echo "========== Checking for go.mod or go.sum modifications =========="
           diff=$(git diff main.. | grep -E "\+\+\+\s(go.)")
           if ($diff); then
