@@ -27,8 +27,7 @@ jobs:
         id: git_diff
         run: | 
           echo "========== Checking for go.mod or go.sum modifications =========="
-          diff=$(git diff main --name-only | grep -E "^(\+\+\+ go\.)")
-          if ($diff); then
+          if (git diff main --name-only | grep -E '^(go.)'); then
             echo "::set-output name=run_acceptance_tests::false"
             echo "go.mod or go.sum found in git diff..."
           else
