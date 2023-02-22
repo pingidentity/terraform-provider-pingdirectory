@@ -20,10 +20,10 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_internal_search_rate_plugin" "myInternalSearchRatePlugin" {
-  id                            = "MyInternalSearchRatePlugin"
-  plugin_type                      = ["shutdown", "startup"]
-  num_threads                      = 10
-  base_dn                      = "dc=example,dc=com"
-  filter_prefix                      = "myprefix"
-  enabled                      = true
+  id            = "MyInternalSearchRatePlugin"
+  plugin_type   = ["shutdown", "startup"]
+  num_threads   = 10
+  base_dn       = "dc=example,dc=com"
+  filter_prefix = "myprefix"
+  enabled       = true
 }
