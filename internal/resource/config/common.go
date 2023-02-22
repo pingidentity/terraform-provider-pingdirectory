@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
 )
 
 // Get attrtype map for the requiredActions returned by the config API

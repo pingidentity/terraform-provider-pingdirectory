@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
 )
 
 // Get BasicAuth context with a username and password

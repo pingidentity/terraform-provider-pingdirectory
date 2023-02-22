@@ -13,7 +13,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 
-	client "github.com/pingidentity/pingdirectory-go-client/v9100"
+	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
 )
 
 // Verify that any required environment variables are set before the test begins
