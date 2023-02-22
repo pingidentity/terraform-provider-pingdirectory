@@ -15,30 +15,10 @@ on:
 permissions:
   contents: read
 
-jobs:
-  git-diff:
-    name: Git File Diff
-    outputs:
-      run_acceptance_tests: ${{steps.git_diff.outputs.run_acceptance_tests}}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: git diff
-        id: git_diff
-        run: | 
-          echo "========== Checking for go.mod or go.sum modifications =========="
-          if (git diff main --name-only | grep -E '^(go.)'); then
-            echo "::set-output name=run_acceptance_tests::false"
-            echo "go.mod or go.sum found in git diff..."
-          else
-            echo "::set-output name=run_acceptance_tests::true"
-            echo "no go.mod or go.sum modifications found..."
-          fi
-          
+jobs:  
 # Ensure the project can build first
   build:
     name: Build
-    needs: [git-diff]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -111,7 +91,7 @@ jobs:
   acceptance:
     name: Acceptance Tests
     needs: [git-diff, fmt, vet, lint, generate]
-    if: needs.git-diff.outputs.run_acceptance_tests == 'true'
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
