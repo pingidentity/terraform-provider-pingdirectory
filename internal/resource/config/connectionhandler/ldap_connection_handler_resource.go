@@ -365,16 +365,22 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.UseTCPKeepAlive = internaltypes.BoolTypeOrNil(r.UseTCPKeepAlive)
 	state.SendRejectionNotice = internaltypes.BoolTypeOrNil(r.SendRejectionNotice)
 	state.FailedBindResponseDelay = internaltypes.StringTypeOrNil(r.FailedBindResponseDelay, internaltypes.IsEmptyString(expectedValues.FailedBindResponseDelay))
+	config.CheckMismatchedPDFormattedAttributes("failed_bind_response_delay",
+		expectedValues.FailedBindResponseDelay, state.FailedBindResponseDelay, diagnostics)
 	state.MaxRequestSize = internaltypes.StringTypeOrNil(r.MaxRequestSize, internaltypes.IsEmptyString(expectedValues.MaxRequestSize))
+	config.CheckMismatchedPDFormattedAttributes("max_request_size",
+		expectedValues.MaxRequestSize, state.MaxRequestSize, diagnostics)
 	state.MaxCancelHandlers = internaltypes.Int64TypeOrNil(r.MaxCancelHandlers)
 	state.NumAcceptHandlers = internaltypes.Int64TypeOrNil(r.NumAcceptHandlers)
 	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
+		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), internaltypes.IsEmptyString(expectedValues.SslClientAuthPolicy))
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
 	state.SslProtocol = internaltypes.GetStringSet(r.SslProtocol)
 	state.SslCipherSuite = internaltypes.GetStringSet(r.SslCipherSuite)
 	state.MaxBlockedWriteTimeLimit = internaltypes.StringTypeOrNil(r.MaxBlockedWriteTimeLimit, internaltypes.IsEmptyString(expectedValues.MaxBlockedWriteTimeLimit))
+	config.CheckMismatchedPDFormattedAttributes("max_blocked_write_time_limit",
+		expectedValues.MaxBlockedWriteTimeLimit, state.MaxBlockedWriteTimeLimit, diagnostics)
 	state.AutoAuthenticateUsingClientCertificate = internaltypes.BoolTypeOrNil(r.AutoAuthenticateUsingClientCertificate)
 	state.CloseConnectionsWhenUnavailable = internaltypes.BoolTypeOrNil(r.CloseConnectionsWhenUnavailable)
 	state.CloseConnectionsOnExplicitGC = internaltypes.BoolTypeOrNil(r.CloseConnectionsOnExplicitGC)

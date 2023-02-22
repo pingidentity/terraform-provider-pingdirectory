@@ -384,8 +384,12 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
 	state.AllowTCPReuseAddress = internaltypes.BoolTypeOrNil(r.AllowTCPReuseAddress)
 	state.IdleTimeLimit = internaltypes.StringTypeOrNil(r.IdleTimeLimit, internaltypes.IsEmptyString(expectedValues.IdleTimeLimit))
+	config.CheckMismatchedPDFormattedAttributes("idle_time_limit",
+		expectedValues.IdleTimeLimit, state.IdleTimeLimit, diagnostics)
 	state.LowResourcesConnectionThreshold = internaltypes.Int64TypeOrNil(r.LowResourcesConnectionThreshold)
 	state.LowResourcesIdleTimeLimit = internaltypes.StringTypeOrNil(r.LowResourcesIdleTimeLimit, internaltypes.IsEmptyString(expectedValues.LowResourcesIdleTimeLimit))
+	config.CheckMismatchedPDFormattedAttributes("low_resources_idle_time_limit",
+		expectedValues.LowResourcesIdleTimeLimit, state.LowResourcesIdleTimeLimit, diagnostics)
 	state.EnableMultipartMIMEParameters = internaltypes.BoolTypeOrNil(r.EnableMultipartMIMEParameters)
 	state.UseForwardedHeaders = internaltypes.BoolTypeOrNil(r.UseForwardedHeaders)
 	state.HttpRequestHeaderSize = internaltypes.Int64TypeOrNil(r.HttpRequestHeaderSize)
@@ -394,7 +398,7 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.CorrelationIDRequestHeader = internaltypes.GetStringSet(r.CorrelationIDRequestHeader)
 	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), true)
+		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), internaltypes.IsEmptyString(expectedValues.SslClientAuthPolicy))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

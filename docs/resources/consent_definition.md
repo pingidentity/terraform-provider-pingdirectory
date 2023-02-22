@@ -35,7 +35,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_consent_definition" "myConsentDefinition" {
-  id           = "myConsentDefinition"
   unique_id    = "myConsentDefinition"
   display_name = "example description"
 }
@@ -46,7 +45,6 @@ resource "pingdirectory_consent_definition" "myConsentDefinition" {
 
 ### Required
 
-- `id` (String) Name of this object.
 - `unique_id` (String) A version-independent unique identifier for this Consent Definition.
 
 ### Optional
@@ -57,6 +55,7 @@ resource "pingdirectory_consent_definition" "myConsentDefinition" {
 
 ### Read-Only
 
+- `id` (String) Placeholder name of this object required by Terraform.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
