@@ -17,21 +17,18 @@ const testIdConsentDefinition = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type consentDefinitionTestModel struct {
-	id          string
-	unique_id   string
+	uniqueId    string
 	displayName string
 }
 
 func TestAccConsentDefinition(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := consentDefinitionTestModel{
-		id:          testIdConsentDefinition,
-		unique_id:   testIdConsentDefinition,
+		uniqueId:    testIdConsentDefinition,
 		displayName: "DisplayName",
 	}
 	updatedResourceModel := consentDefinitionTestModel{
-		id:          testIdConsentDefinition,
-		unique_id:   testIdConsentDefinition,
+		uniqueId:    testIdConsentDefinition,
 		displayName: "DisplayName1",
 	}
 
@@ -57,7 +54,7 @@ func TestAccConsentDefinition(t *testing.T) {
 				// Test importing the resource
 				Config:                  testAccConsentDefinitionResource(resourceName, updatedResourceModel),
 				ResourceName:            "pingdirectory_consent_definition." + resourceName,
-				ImportStateId:           updatedResourceModel.id,
+				ImportStateId:           updatedResourceModel.uniqueId,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"last_updated"},
@@ -69,10 +66,11 @@ func TestAccConsentDefinition(t *testing.T) {
 func testAccConsentDefinitionResource(resourceName string, resourceModel consentDefinitionTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_consent_definition" "%[1]s" {
-	 id = "%[2]s"
-	 unique_id = "%[3]s"
-	 display_name = "%[4]s"
-}`, resourceName, resourceModel.id, resourceModel.unique_id, resourceModel.displayName)
+	 unique_id = "%[2]s"
+	 display_name = "%[3]s"
+}`, resourceName,
+		resourceModel.uniqueId,
+		resourceModel.displayName)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
@@ -80,14 +78,19 @@ func testAccCheckExpectedConsentDefinitionAttributes(config consentDefinitionTes
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.ConsentDefinitionApi.GetConsentDefinition(ctx, config.id).Execute()
+		response, _, err := testClient.ConsentDefinitionApi.GetConsentDefinition(ctx, config.uniqueId).Execute()
 		if err != nil {
 			return err
 		}
 		// Verify that attributes have expected values
 		resourceType := "Consent Definition"
-		err = acctest.TestAttributesMatchString(resourceType, &config.id, "unique-id",
-			testIdConsentDefinition, response.UniqueID)
+		err = acctest.TestAttributesMatchString(resourceType, &config.uniqueId, "unique-id",
+			config.uniqueId, response.UniqueID)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.uniqueId, "display-name",
+			config.displayName, response.DisplayName)
 		if err != nil {
 			return err
 		}

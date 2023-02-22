@@ -284,6 +284,8 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 	state.AlertLevel = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
 	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	config.CheckMismatchedPDFormattedAttributes("update_interval",
+		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
 	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
 	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
 	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)

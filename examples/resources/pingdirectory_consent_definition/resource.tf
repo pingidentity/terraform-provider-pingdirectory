@@ -13,7 +13,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_consent_definition" "myConsentDefinition" {
-  id           = "myConsentDefinition"
   unique_id    = "myConsentDefinition"
   display_name = "example description"
 }

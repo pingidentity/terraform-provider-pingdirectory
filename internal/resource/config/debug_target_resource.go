@@ -84,6 +84,9 @@ func (r *debugTargetResource) Schema(ctx context.Context, req resource.SchemaReq
 			"debug_scope": schema.StringAttribute{
 				Description: "Specifies the fully-qualified Java package, class, or method affected by the settings in this target definition. Use the number character (#) to separate the class name and the method name (that is, com.unboundid.directory.server.core.DirectoryServer#startUp).",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"debug_level": schema.StringAttribute{
 				Description: "Specifies the lowest severity level of debug messages to log.",
@@ -121,7 +124,7 @@ func (r *debugTargetResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 		},
 	}
-	AddCommonSchema(&schema, true)
+	AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -209,7 +212,7 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 		resp.Diagnostics.AddError("Failed to parse enum value for DebugLevel", err.Error())
 		return
 	}
-	addRequest := client.NewAddDebugTargetRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDebugTargetRequest(plan.DebugScope.ValueString(),
 		plan.DebugScope.ValueString(),
 		*debugLevel)
 	err = addOptionalDebugTargetFields(ctx, addRequest, plan)
@@ -264,7 +267,7 @@ func (r *debugTargetResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	readResponse, httpResp, err := r.apiClient.DebugTargetApi.GetDebugTarget(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.LogPublisherName.ValueString()).Execute()
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
 		return
@@ -301,7 +304,7 @@ func (r *debugTargetResource) Update(ctx context.Context, req resource.UpdateReq
 	var state debugTargetResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.LogPublisherName.ValueString())
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDebugTargetOperations(plan, state)
@@ -348,7 +351,7 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	httpResp, err := r.apiClient.DebugTargetApi.DeleteDebugTargetExecute(r.apiClient.DebugTargetApi.DeleteDebugTarget(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.LogPublisherName.ValueString()))
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()))
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Debug Target", err, httpResp)
 		return
@@ -358,10 +361,10 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 func (r *debugTargetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	split := strings.Split(req.ID, "/")
 	if len(split) != 2 {
-		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [log-publisher-name]/[debug-target-name]. Got: "+req.ID)
+		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [log-publisher-name]/[debug-target-debug-scope]. Got: "+req.ID)
 		return
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("log_publisher_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("debug_scope"), split[1])...)
 }
