@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -206,7 +205,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		caCertPool = x509.NewCertPool()
 		for _, pemFilename := range caCertPemFiles {
 			// Load CA cert
-			caCert, err := ioutil.ReadFile(pemFilename)
+			caCert, err := os.ReadFile(pemFilename)
 			if err != nil {
 				resp.Diagnostics.AddError("Failed to read CA PEM certificate file: "+pemFilename, err.Error())
 			}
