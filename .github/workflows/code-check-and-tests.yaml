@@ -26,10 +26,8 @@ jobs:
       - name: git diff
         id: git_diff
         run: | 
-          echo "===================== Fetching main branch ======================"
-          git fetch origin main:refs/remotes/origin/main
           echo "========== Checking for go.mod or go.sum modifications =========="
-          diff=$(git diff main.. | grep -E "\+\+\+\s(go.)")
+          diff=$(git diff main --name-only | grep -E "^(\+\+\+ go\.)")
           if ($diff); then
             echo "::set-output name=run_acceptance_tests::false"
             echo "go.mod or go.sum found in git diff..."
