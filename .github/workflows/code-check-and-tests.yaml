@@ -90,7 +90,7 @@ jobs:
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
   acceptance:
     name: Acceptance Tests
-    needs: [git-diff, fmt, vet, lint, generate]
+    needs: [fmt, vet, lint, generate]
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
