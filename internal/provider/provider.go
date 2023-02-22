@@ -203,7 +203,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		tflog.Info(ctx, "No CA certs specified, using the host's root CA set")
 		caCertPool = nil
 	} else {
-		caCertPool := x509.NewCertPool()
+		caCertPool = x509.NewCertPool()
 		for _, pemFilename := range caCertPemFiles {
 			// Load CA cert
 			caCert, err := ioutil.ReadFile(pemFilename)
