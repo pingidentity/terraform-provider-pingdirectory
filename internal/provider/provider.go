@@ -11,6 +11,7 @@ import (
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
@@ -261,6 +262,12 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		accesscontrolhandler.NewDseeCompatAccessControlHandlerResource,
+		accountstatusnotificationhandler.NewAdminAlertAccountStatusNotificationHandlerResource,
+		accountstatusnotificationhandler.NewErrorLogAccountStatusNotificationHandlerResource,
+		accountstatusnotificationhandler.NewGroovyScriptedAccountStatusNotificationHandlerResource,
+		accountstatusnotificationhandler.NewMultiPartEmailAccountStatusNotificationHandlerResource,
+		accountstatusnotificationhandler.NewSmtpAccountStatusNotificationHandlerResource,
+		accountstatusnotificationhandler.NewThirdPartyAccountStatusNotificationHandlerResource,
 		backend.NewAlarmBackendResource,
 		backend.NewAlertBackendResource,
 		backend.NewBackupBackendResource,
