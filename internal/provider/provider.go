@@ -15,6 +15,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/externalserver"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
@@ -295,6 +296,22 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		connectionhandler.NewJmxConnectionHandlerResource,
 		connectionhandler.NewLdapConnectionHandlerResource,
 		connectionhandler.NewLdifConnectionHandlerResource,
+		externalserver.NewActiveDirectoryExternalServerResource,
+		externalserver.NewAmazonAwsExternalServerResource,
+		externalserver.NewConjurExternalServerResource,
+		externalserver.NewHttpExternalServerResource,
+		externalserver.NewJdbcExternalServerResource,
+		externalserver.NewLdapExternalServerResource,
+		externalserver.NewNokiaDsExternalServerResource,
+		externalserver.NewNokiaProxyServerExternalServerResource,
+		externalserver.NewOpendjExternalServerResource,
+		externalserver.NewOracleUnifiedDirectoryExternalServerResource,
+		externalserver.NewPingIdentityDsExternalServerResource,
+		externalserver.NewPingIdentityProxyServerExternalServerResource,
+		externalserver.NewPingOneHttpExternalServerResource,
+		externalserver.NewSmtpExternalServerResource,
+		externalserver.NewSyslogExternalServerResource,
+		externalserver.NewVaultExternalServerResource,
 		gauge.NewIndicatorGaugeResource,
 		gauge.NewNumericGaugeResource,
 		httpservletextension.NewAvailabilityStateHttpServletExtensionResource,
