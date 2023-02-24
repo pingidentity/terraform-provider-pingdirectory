@@ -104,7 +104,7 @@ jobs:
           terraform_version: '1.2.*'
           terraform_wrapper: false
       - run:
-          mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && make testacccomplete && make removetestcontainer
+          mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && grep -E "[a-zA-Z]" $HOME/.pingidentity/config || exit 1 && make testacccomplete && make removetestcontainer
         env:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
