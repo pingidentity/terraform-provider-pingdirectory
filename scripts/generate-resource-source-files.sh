@@ -19,19 +19,20 @@ else
 		-e TAIL_LOG_FILES= \
 		--env-file "${HOME}/.pingidentity/config" \
 		"pingidentity/pingdirectory:${PINGDIRECTORY_TAG:-9.1.0.0-latest}"
-	# Wait for the instance to become ready, up to 4 minutes
-	echo "Waiting for PingDirectory to become ready..."
-	sleep 1
-	duration=0
-	while (( duration < 240 )) && ! docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available"; \
-	do \
-			duration=$((duration+1)); \
-		sleep 1; \
-	done
-
-	# Fail if the container didn't become ready in time
-	docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available"
 fi
+
+# Wait for the instance to become ready, up to 4 minutes
+echo "Waiting for PingDirectory to become ready..."
+sleep 1
+duration=0
+while (( duration < 240 )) && ! docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available"; \
+do \
+		duration=$((duration+1)); \
+	sleep 1; \
+done
+
+# Fail if the container didn't become ready in time
+docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available"
 
 # Run the generator, specifying the endpoints to be generated.
 # --endpoint can be specified multiple times to generate multiple endpoints in one run.
