@@ -94,15 +94,18 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 		Attributes: map[string]schema.Attribute{
 			"log_interval": schema.StringAttribute{
 				Description: "The duration between statistics collection and logging. A new line is logged to the output for each interval. Setting this value too small can have an impact on performance.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"collection_interval": schema.StringAttribute{
 				Description: "Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered. It should be a multiple of the log-interval.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"suppress_if_idle": schema.BoolAttribute{
 				Description: "If the server is idle during the specified interval, then do not log any output if this property is set to true. The server is idle if during the interval, no new connections were established, no operations were processed, and no operations are pending.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"header_prefix_per_column": schema.BoolAttribute{
 				Description: "This property controls whether the header prefix, which applies to a group of columns, appears at the start of each column header or only the first column in a group.",
@@ -116,7 +119,8 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 			},
 			"lines_between_header": schema.Int64Attribute{
 				Description: "The number of lines to log between logging the header line that summarizes the columns in the table.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"included_ldap_stat": schema.SetAttribute{
 				Description: "Specifies the types of statistics related to LDAP connections and operation processing that should be included in the output.",
@@ -132,7 +136,8 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 			},
 			"histogram_format": schema.StringAttribute{
 				Description: "The format of the data in the processing time histogram.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"histogram_op_type": schema.SetAttribute{
 				Description: "Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.",
@@ -171,7 +176,8 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this Periodic Stats Logger Plugin.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"append": schema.BoolAttribute{
 				Description: "Specifies whether to append to existing log files.",
@@ -180,7 +186,8 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the Periodic Stats Logger Plugin .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -191,7 +198,8 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the Periodic Stats Logger Plugin .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"logging_error_behavior": schema.StringAttribute{
@@ -242,6 +250,20 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 
 // Add optional fields to create request
 func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest *client.AddPeriodicStatsLoggerPluginRequest, plan periodicStatsLoggerPluginResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogInterval) {
+		stringVal := plan.LogInterval.ValueString()
+		addRequest.LogInterval = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.CollectionInterval) {
+		stringVal := plan.CollectionInterval.ValueString()
+		addRequest.CollectionInterval = &stringVal
+	}
+	if internaltypes.IsDefined(plan.SuppressIfIdle) {
+		boolVal := plan.SuppressIfIdle.ValueBool()
+		addRequest.SuppressIfIdle = &boolVal
+	}
 	if internaltypes.IsDefined(plan.HeaderPrefixPerColumn) {
 		boolVal := plan.HeaderPrefixPerColumn.ValueBool()
 		addRequest.HeaderPrefixPerColumn = &boolVal
@@ -249,6 +271,10 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 	if internaltypes.IsDefined(plan.EmptyInsteadOfZero) {
 		boolVal := plan.EmptyInsteadOfZero.ValueBool()
 		addRequest.EmptyInsteadOfZero = &boolVal
+	}
+	if internaltypes.IsDefined(plan.LinesBetweenHeader) {
+		intVal := int32(plan.LinesBetweenHeader.ValueInt64())
+		addRequest.LinesBetweenHeader = &intVal
 	}
 	if internaltypes.IsDefined(plan.IncludedLDAPStat) {
 		var slice []string
@@ -275,6 +301,14 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 			enumSlice[i] = *enumVal
 		}
 		addRequest.IncludedResourceStat = enumSlice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HistogramFormat) {
+		histogramFormat, err := client.NewEnumpluginHistogramFormatPropFromValue(plan.HistogramFormat.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.HistogramFormat = histogramFormat
 	}
 	if internaltypes.IsDefined(plan.HistogramOpType) {
 		var slice []string
@@ -329,14 +363,29 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 		}
 		addRequest.LogFileFormat = logFileFormat
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
 	if internaltypes.IsDefined(plan.Append) {
 		boolVal := plan.Append.ValueBool()
 		addRequest.Append = &boolVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
 	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LoggingErrorBehavior) {
@@ -493,28 +542,11 @@ func (r *periodicStatsLoggerPluginResource) Create(ctx context.Context, req reso
 		return
 	}
 
-	histogramFormat, err := client.NewEnumpluginHistogramFormatPropFromValue(plan.HistogramFormat.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for HistogramFormat", err.Error())
-		return
-	}
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddPeriodicStatsLoggerPluginRequest(plan.Id.ValueString(),
 		[]client.EnumperiodicStatsLoggerPluginSchemaUrn{client.ENUMPERIODICSTATSLOGGERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_STATS_LOGGER},
-		plan.LogInterval.ValueString(),
-		plan.CollectionInterval.ValueString(),
-		plan.SuppressIfIdle.ValueBool(),
-		int32(plan.LinesBetweenHeader.ValueInt64()),
-		*histogramFormat,
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
 		plan.Enabled.ValueBool())
-	err = addOptionalPeriodicStatsLoggerPluginFields(ctx, addRequest, plan)
+	err := addOptionalPeriodicStatsLoggerPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Periodic Stats Logger Plugin", err.Error())
 		return

@@ -83,7 +83,8 @@ func (r *backupRecurringTaskResource) Schema(ctx context.Context, req resource.S
 		Attributes: map[string]schema.Attribute{
 			"backup_directory": schema.StringAttribute{
 				Description: "The directory in which backup files will be placed. When backing up a single backend, the backup files will be placed directly in this directory. When backing up multiple backends, the backup files for each backend will be placed in a subdirectory whose name is the corresponding backend ID.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"included_backend_id": schema.SetAttribute{
 				Description: "The backend IDs of any backends that should be included in the backup.",
@@ -119,14 +120,17 @@ func (r *backupRecurringTaskResource) Schema(ctx context.Context, req resource.S
 			"retain_previous_full_backup_count": schema.Int64Attribute{
 				Description: "The minimum number of previous full backups that should be preserved after a new backup completes successfully.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"retain_previous_full_backup_age": schema.StringAttribute{
 				Description: "The minimum age of previous full backups that should be preserved after a new backup completes successfully.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"max_megabytes_per_second": schema.Int64Attribute{
 				Description: "The maximum rate, in megabytes per second, at which backups should be written.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",
@@ -178,6 +182,11 @@ func (r *backupRecurringTaskResource) Schema(ctx context.Context, req resource.S
 
 // Add optional fields to create request
 func addOptionalBackupRecurringTaskFields(ctx context.Context, addRequest *client.AddBackupRecurringTaskRequest, plan backupRecurringTaskResourceModel) {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.BackupDirectory) {
+		stringVal := plan.BackupDirectory.ValueString()
+		addRequest.BackupDirectory = &stringVal
+	}
 	if internaltypes.IsDefined(plan.IncludedBackendID) {
 		var slice []string
 		plan.IncludedBackendID.ElementsAs(ctx, &slice, false)
@@ -317,8 +326,7 @@ func (r *backupRecurringTaskResource) Create(ctx context.Context, req resource.C
 	}
 
 	addRequest := client.NewAddBackupRecurringTaskRequest(plan.Id.ValueString(),
-		[]client.EnumbackupRecurringTaskSchemaUrn{client.ENUMBACKUPRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKBACKUP},
-		plan.BackupDirectory.ValueString())
+		[]client.EnumbackupRecurringTaskSchemaUrn{client.ENUMBACKUPRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKBACKUP})
 	addOptionalBackupRecurringTaskFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()

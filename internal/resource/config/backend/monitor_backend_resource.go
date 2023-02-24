@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -74,6 +76,9 @@ func (r *monitorBackendResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies a name to identify the associated backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies the base DN(s) for the data that the backend handles.",
@@ -108,7 +113,7 @@ func (r *monitorBackendResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -152,7 +157,7 @@ func (r *monitorBackendResource) Create(ctx context.Context, req resource.Create
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Backend", err, httpResp)
 		return
@@ -169,7 +174,7 @@ func (r *monitorBackendResource) Create(ctx context.Context, req resource.Create
 	readMonitorBackendResponse(ctx, readResponse.MonitorBackendResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 	ops := createMonitorBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -212,7 +217,7 @@ func (r *monitorBackendResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Backend", err, httpResp)
 		return
@@ -249,7 +254,7 @@ func (r *monitorBackendResource) Update(ctx context.Context, req resource.Update
 	var state monitorBackendResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMonitorBackendOperations(plan, state)
@@ -293,6 +298,6 @@ func (r *monitorBackendResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *monitorBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to backend_id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

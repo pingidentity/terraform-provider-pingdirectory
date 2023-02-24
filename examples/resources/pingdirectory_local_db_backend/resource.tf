@@ -20,7 +20,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
-  id                    = "MyLocalDbBackend"
   backend_id            = "MyLocalDbBackend"
   base_dn               = ["dc=example1,dc=com"]
   writability_mode      = "enabled"

@@ -83,11 +83,13 @@ func (r *ldifConnectionHandlerResource) Schema(ctx context.Context, req resource
 			},
 			"ldif_directory": schema.StringAttribute{
 				Description: "Specifies the path to the directory in which the LDIF files should be placed.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"poll_interval": schema.StringAttribute{
 				Description: "Specifies how frequently the LDIF connection handler should check the LDIF directory to determine whether a new LDIF file has been added.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Connection Handler",
@@ -114,6 +116,16 @@ func addOptionalLdifConnectionHandlerFields(ctx context.Context, addRequest *cli
 		var slice []string
 		plan.DeniedClient.ElementsAs(ctx, &slice, false)
 		addRequest.DeniedClient = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LdifDirectory) {
+		stringVal := plan.LdifDirectory.ValueString()
+		addRequest.LdifDirectory = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.PollInterval) {
+		stringVal := plan.PollInterval.ValueString()
+		addRequest.PollInterval = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -160,8 +172,6 @@ func (r *ldifConnectionHandlerResource) Create(ctx context.Context, req resource
 
 	addRequest := client.NewAddLdifConnectionHandlerRequest(plan.Id.ValueString(),
 		[]client.EnumldifConnectionHandlerSchemaUrn{client.ENUMLDIFCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDIF},
-		plan.LdifDirectory.ValueString(),
-		plan.PollInterval.ValueString(),
 		plan.Enabled.ValueBool())
 	addOptionalLdifConnectionHandlerFields(ctx, addRequest, plan)
 	// Log request JSON

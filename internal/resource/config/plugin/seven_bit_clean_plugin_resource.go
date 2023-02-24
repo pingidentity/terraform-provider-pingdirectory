@@ -71,12 +71,14 @@ func (r *sevenBitCleanPluginResource) Schema(ctx context.Context, req resource.S
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"attribute_type": schema.SetAttribute{
 				Description: "Specifies the name or OID of an attribute type for which values should be checked to ensure that they are 7-bit clean.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"base_dn": schema.SetAttribute{
@@ -105,7 +107,25 @@ func (r *sevenBitCleanPluginResource) Schema(ctx context.Context, req resource.S
 }
 
 // Add optional fields to create request
-func addOptionalSevenBitCleanPluginFields(ctx context.Context, addRequest *client.AddSevenBitCleanPluginRequest, plan sevenBitCleanPluginResourceModel) {
+func addOptionalSevenBitCleanPluginFields(ctx context.Context, addRequest *client.AddSevenBitCleanPluginRequest, plan sevenBitCleanPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.AttributeType) {
+		var slice []string
+		plan.AttributeType.ElementsAs(ctx, &slice, false)
+		addRequest.AttributeType = slice
+	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
 		plan.BaseDN.ElementsAs(ctx, &slice, false)
@@ -120,6 +140,7 @@ func addOptionalSevenBitCleanPluginFields(ctx context.Context, addRequest *clien
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a SevenBitCleanPluginResponse object into the model struct
@@ -157,16 +178,14 @@ func (r *sevenBitCleanPluginResource) Create(ctx context.Context, req resource.C
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
-	var AttributeTypeSlice []string
-	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
 	addRequest := client.NewAddSevenBitCleanPluginRequest(plan.Id.ValueString(),
 		[]client.EnumsevenBitCleanPluginSchemaUrn{client.ENUMSEVENBITCLEANPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEVEN_BIT_CLEAN},
-		PluginTypeSlice,
-		AttributeTypeSlice,
 		plan.Enabled.ValueBool())
-	addOptionalSevenBitCleanPluginFields(ctx, addRequest, plan)
+	err := addOptionalSevenBitCleanPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Seven Bit Clean Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

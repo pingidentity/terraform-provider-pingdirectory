@@ -98,7 +98,8 @@ func (r *smtpAccountStatusNotificationHandlerResource) Schema(ctx context.Contex
 			},
 			"send_message_without_end_user_address": schema.BoolAttribute{
 				Description: "Indicates whether an email notification message should be generated and sent to the set of notification recipients even if the user entry does not contain any values for any of the email address attributes (that is, in cases when it is not possible to notify the end user).",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"sender_address": schema.StringAttribute{
 				Description: "Specifies the email address from which the message is sent. Note that this does not necessarily have to be a legitimate email address.",
@@ -130,10 +131,12 @@ func (r *smtpAccountStatusNotificationHandlerResource) Schema(ctx context.Contex
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
@@ -162,6 +165,10 @@ func addOptionalSmtpAccountStatusNotificationHandlerFields(ctx context.Context, 
 		var slice []string
 		plan.RecipientAddress.ElementsAs(ctx, &slice, false)
 		addRequest.RecipientAddress = slice
+	}
+	if internaltypes.IsDefined(plan.SendMessageWithoutEndUserAddress) {
+		boolVal := plan.SendMessageWithoutEndUserAddress.ValueBool()
+		addRequest.SendMessageWithoutEndUserAddress = &boolVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -238,7 +245,6 @@ func (r *smtpAccountStatusNotificationHandlerResource) Create(ctx context.Contex
 	plan.MessageTemplateFile.ElementsAs(ctx, &MessageTemplateFileSlice, false)
 	addRequest := client.NewAddSmtpAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
 		[]client.EnumsmtpAccountStatusNotificationHandlerSchemaUrn{client.ENUMSMTPACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERSMTP},
-		plan.SendMessageWithoutEndUserAddress.ValueBool(),
 		plan.SenderAddress.ValueString(),
 		MessageSubjectSlice,
 		MessageTemplateFileSlice,

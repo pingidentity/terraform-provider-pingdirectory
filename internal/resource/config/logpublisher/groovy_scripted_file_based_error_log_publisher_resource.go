@@ -95,11 +95,13 @@ func (r *groovyScriptedFileBasedErrorLogPublisherResource) Schema(ctx context.Co
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this Scripted File Based Error Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the Scripted File Based Error Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -110,7 +112,8 @@ func (r *groovyScriptedFileBasedErrorLogPublisherResource) Schema(ctx context.Co
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the Scripted File Based Error Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -145,7 +148,8 @@ func (r *groovyScriptedFileBasedErrorLogPublisherResource) Schema(ctx context.Co
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Scripted File Based Error Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -200,10 +204,25 @@ func (r *groovyScriptedFileBasedErrorLogPublisherResource) Schema(ctx context.Co
 
 // Add optional fields to create request
 func addOptionalGroovyScriptedFileBasedErrorLogPublisherFields(ctx context.Context, addRequest *client.AddGroovyScriptedFileBasedErrorLogPublisherRequest, plan groovyScriptedFileBasedErrorLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -234,6 +253,10 @@ func addOptionalGroovyScriptedFileBasedErrorLogPublisherFields(ctx context.Conte
 		var slice []string
 		plan.ScriptArgument.ElementsAs(ctx, &slice, false)
 		addRequest.ScriptArgument = slice
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -360,18 +383,10 @@ func (r *groovyScriptedFileBasedErrorLogPublisherResource) Create(ctx context.Co
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddGroovyScriptedFileBasedErrorLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumgroovyScriptedFileBasedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ERROR},
 		plan.ScriptClass.ValueString(),
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalGroovyScriptedFileBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

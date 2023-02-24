@@ -73,7 +73,8 @@ func (r *attributeMapperPluginResource) Schema(ctx context.Context, req resource
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"source_attribute": schema.StringAttribute{
@@ -86,11 +87,13 @@ func (r *attributeMapperPluginResource) Schema(ctx context.Context, req resource
 			},
 			"enable_control_mapping": schema.BoolAttribute{
 				Description: "Indicates whether mapping should be applied to attribute types that may be present in specific controls. If enabled, attribute mapping will only be applied for control types which are specifically supported by the attribute mapper plugin.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"always_map_responses": schema.BoolAttribute{
 				Description: "Indicates whether the target attribute in response messages should always be remapped back to the source attribute. If this is \"false\", then the mapping will be performed for a response message only if one or more elements of the associated request are mapped. Otherwise, the mapping will be performed for all responses regardless of whether the mapping was applied to the request.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -112,7 +115,28 @@ func (r *attributeMapperPluginResource) Schema(ctx context.Context, req resource
 }
 
 // Add optional fields to create request
-func addOptionalAttributeMapperPluginFields(ctx context.Context, addRequest *client.AddAttributeMapperPluginRequest, plan attributeMapperPluginResourceModel) {
+func addOptionalAttributeMapperPluginFields(ctx context.Context, addRequest *client.AddAttributeMapperPluginRequest, plan attributeMapperPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.EnableControlMapping) {
+		boolVal := plan.EnableControlMapping.ValueBool()
+		addRequest.EnableControlMapping = &boolVal
+	}
+	if internaltypes.IsDefined(plan.AlwaysMapResponses) {
+		boolVal := plan.AlwaysMapResponses.ValueBool()
+		addRequest.AlwaysMapResponses = &boolVal
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		stringVal := plan.Description.ValueString()
@@ -122,6 +146,7 @@ func addOptionalAttributeMapperPluginFields(ctx context.Context, addRequest *cli
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a AttributeMapperPluginResponse object into the model struct
@@ -163,17 +188,16 @@ func (r *attributeMapperPluginResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	addRequest := client.NewAddAttributeMapperPluginRequest(plan.Id.ValueString(),
 		[]client.EnumattributeMapperPluginSchemaUrn{client.ENUMATTRIBUTEMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINATTRIBUTE_MAPPER},
-		PluginTypeSlice,
 		plan.SourceAttribute.ValueString(),
 		plan.TargetAttribute.ValueString(),
-		plan.EnableControlMapping.ValueBool(),
-		plan.AlwaysMapResponses.ValueBool(),
 		plan.Enabled.ValueBool())
-	addOptionalAttributeMapperPluginFields(ctx, addRequest, plan)
+	err := addOptionalAttributeMapperPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Attribute Mapper Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

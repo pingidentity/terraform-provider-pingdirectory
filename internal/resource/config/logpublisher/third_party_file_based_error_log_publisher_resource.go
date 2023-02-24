@@ -91,11 +91,13 @@ func (r *thirdPartyFileBasedErrorLogPublisherResource) Schema(ctx context.Contex
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this Third Party File Based Error Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the Third Party File Based Error Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -106,7 +108,8 @@ func (r *thirdPartyFileBasedErrorLogPublisherResource) Schema(ctx context.Contex
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the Third Party File Based Error Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -145,7 +148,8 @@ func (r *thirdPartyFileBasedErrorLogPublisherResource) Schema(ctx context.Contex
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Third Party File Based Error Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -200,10 +204,25 @@ func (r *thirdPartyFileBasedErrorLogPublisherResource) Schema(ctx context.Contex
 
 // Add optional fields to create request
 func addOptionalThirdPartyFileBasedErrorLogPublisherFields(ctx context.Context, addRequest *client.AddThirdPartyFileBasedErrorLogPublisherRequest, plan thirdPartyFileBasedErrorLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -234,6 +253,10 @@ func addOptionalThirdPartyFileBasedErrorLogPublisherFields(ctx context.Context, 
 		var slice []string
 		plan.ExtensionArgument.ElementsAs(ctx, &slice, false)
 		addRequest.ExtensionArgument = slice
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -360,18 +383,10 @@ func (r *thirdPartyFileBasedErrorLogPublisherResource) Create(ctx context.Contex
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddThirdPartyFileBasedErrorLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumthirdPartyFileBasedErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ERROR},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
 		plan.ExtensionClass.ValueString(),
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalThirdPartyFileBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

@@ -90,10 +90,12 @@ func (r *errorLogAccountStatusNotificationHandlerResource) Schema(ctx context.Co
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

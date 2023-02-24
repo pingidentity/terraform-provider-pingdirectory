@@ -88,10 +88,12 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 			"password_attribute_category": schema.StringAttribute{
 				Description: "Specifies which attribute category the password belongs to.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"password_display_order_index": schema.Int64Attribute{
 				Description: "This property determines the display order for the password within its attribute category. Attributes are ordered within their category based on this index from least to greatest.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this REST Resource Type",
@@ -136,10 +138,12 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 			"relative_dn_from_parent_resource": schema.StringAttribute{
 				Description: "Specifies a template for a relative DN from the parent resource which identifies the parent entry for a new resource of this type. If this property is not specified then new resources are created immediately below the parent resource or parent DN.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"create_rdn_attribute_type": schema.StringAttribute{
 				Description: "Specifies the name or OID of the LDAP attribute type to be used as the RDN of new resources.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"post_create_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a new resource is created. The values are only set at creation time. Subsequent modifications to attributes in the constructed attribute value-pattern are not propagated here.",

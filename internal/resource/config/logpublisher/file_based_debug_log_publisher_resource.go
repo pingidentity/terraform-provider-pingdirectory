@@ -94,11 +94,13 @@ func (r *fileBasedDebugLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this File Based Debug Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the File Based Debug Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -109,7 +111,8 @@ func (r *fileBasedDebugLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the File Based Debug Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -138,7 +141,8 @@ func (r *fileBasedDebugLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the File Based Debug Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -167,7 +171,8 @@ func (r *fileBasedDebugLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"default_debug_level": schema.StringAttribute{
 				Description: "The lowest severity level of debug messages to log when none of the defined targets match the message.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"default_debug_category": schema.SetAttribute{
 				Description: "The debug message categories to be logged when none of the defined targets match the message.",
@@ -216,10 +221,25 @@ func (r *fileBasedDebugLogPublisherResource) Schema(ctx context.Context, req res
 
 // Add optional fields to create request
 func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest *client.AddFileBasedDebugLogPublisherRequest, plan fileBasedDebugLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -246,6 +266,10 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 		boolVal := plan.Append.ValueBool()
 		addRequest.Append = &boolVal
 	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
+	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
 		addRequest.AutoFlush = &boolVal
@@ -271,6 +295,14 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 			return err
 		}
 		addRequest.TimestampPrecision = timestampPrecision
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.DefaultDebugLevel) {
+		defaultDebugLevel, err := client.NewEnumlogPublisherDefaultDebugLevelPropFromValue(plan.DefaultDebugLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.DefaultDebugLevel = defaultDebugLevel
 	}
 	if internaltypes.IsDefined(plan.DefaultDebugCategory) {
 		var slice []string
@@ -397,25 +429,11 @@ func (r *fileBasedDebugLogPublisherResource) Create(ctx context.Context, req res
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
-	defaultDebugLevel, err := client.NewEnumlogPublisherDefaultDebugLevelPropFromValue(plan.DefaultDebugLevel.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for DefaultDebugLevel", err.Error())
-		return
-	}
 	addRequest := client.NewAddFileBasedDebugLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumfileBasedDebugLogPublisherSchemaUrn{client.ENUMFILEBASEDDEBUGLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_DEBUG},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
-		*defaultDebugLevel,
 		plan.Enabled.ValueBool())
-	err = addOptionalFileBasedDebugLogPublisherFields(ctx, addRequest, plan)
+	err := addOptionalFileBasedDebugLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for File Based Debug Log Publisher", err.Error())
 		return

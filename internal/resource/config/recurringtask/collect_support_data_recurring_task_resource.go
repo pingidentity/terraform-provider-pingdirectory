@@ -144,14 +144,17 @@ func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, re
 			"log_duration": schema.StringAttribute{
 				Description: "The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"log_file_head_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the beginning of each log file included in the support data archive.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"log_file_tail_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the end of each log file included in the support data archive.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"comment": schema.StringAttribute{
 				Description: "An optional comment to include in a README file within the support data archive.",
@@ -160,10 +163,12 @@ func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, re
 			"retain_previous_support_data_archive_count": schema.Int64Attribute{
 				Description: "The minimum number of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"retain_previous_support_data_archive_age": schema.StringAttribute{
 				Description: "The minimum age of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",

@@ -17,12 +17,12 @@ Manages a Admin Alert Access Log Publisher.
 
 ### Required
 
-- `asynchronous` (Boolean) Indicates whether the Admin Alert Access Log Publisher will publish records asynchronously.
 - `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `asynchronous` (Boolean) Indicates whether the Admin Alert Access Log Publisher will publish records asynchronously.
 - `auto_flush` (Boolean) Specifies whether to flush the writer after every log record.
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the associated client connection in order for a connect, disconnect, request, or result message to be logged.
 - `correlate_requests_and_results` (Boolean) Indicates whether to automatically log result messages for any operation in which the corresponding request was logged. In such cases, the result, entry, and reference criteria will be ignored, although the log-responses, log-search-entries, and log-search-references properties will be honored.

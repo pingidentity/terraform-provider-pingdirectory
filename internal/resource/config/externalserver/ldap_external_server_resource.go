@@ -90,7 +90,8 @@ func (r *ldapExternalServerResource) Schema(ctx context.Context, req resource.Sc
 			},
 			"server_port": schema.Int64Attribute{
 				Description: "The port number on which the server listens for requests.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"location": schema.StringAttribute{
 				Description: "Specifies the location for the LDAP External Server.",
@@ -111,23 +112,28 @@ func (r *ldapExternalServerResource) Schema(ctx context.Context, req resource.Sc
 			},
 			"connection_security": schema.StringAttribute{
 				Description: "The mechanism to use to secure communication with the directory server.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"authentication_method": schema.StringAttribute{
 				Description: "The mechanism to use to authenticate to the target server.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"verify_credentials_method": schema.StringAttribute{
 				Description: "The mechanism to use to verify user credentials while ensuring that the ability to process other operations is not impacted by an alternate authorization identity.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"health_check_connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"max_connection_age": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that connections to this server should be allowed to remain established before being closed and replaced with newly-established connections.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"min_expired_connection_disconnect_interval": schema.StringAttribute{
 				Description: "Specifies the minimum length of time that should pass between connection closures as a result of the connections being established for longer than the maximum connection age. This may help avoid cases in which a large number of connections are closed and re-established in a short period of time because of the maximum connection age.",
@@ -136,11 +142,13 @@ func (r *ldapExternalServerResource) Schema(ctx context.Context, req resource.Sc
 			},
 			"connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"max_response_size": schema.StringAttribute{
 				Description: "Specifies the maximum response size that should be supported for messages received from the LDAP external server.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description: "The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
@@ -183,6 +191,10 @@ func (r *ldapExternalServerResource) Schema(ctx context.Context, req resource.Sc
 
 // Add optional fields to create request
 func addOptionalLdapExternalServerFields(ctx context.Context, addRequest *client.AddLdapExternalServerRequest, plan ldapExternalServerResourceModel) error {
+	if internaltypes.IsDefined(plan.ServerPort) {
+		intVal := int32(plan.ServerPort.ValueInt64())
+		addRequest.ServerPort = &intVal
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Location) {
 		stringVal := plan.Location.ValueString()
@@ -204,14 +216,53 @@ func addOptionalLdapExternalServerFields(ctx context.Context, addRequest *client
 		addRequest.PassphraseProvider = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
+		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ConnectionSecurity = connectionSecurity
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
+		authenticationMethod, err := client.NewEnumexternalServerAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.AuthenticationMethod = authenticationMethod
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.VerifyCredentialsMethod) {
+		verifyCredentialsMethod, err := client.NewEnumexternalServerVerifyCredentialsMethodPropFromValue(plan.VerifyCredentialsMethod.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.VerifyCredentialsMethod = verifyCredentialsMethod
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.HealthCheckConnectTimeout) {
 		stringVal := plan.HealthCheckConnectTimeout.ValueString()
 		addRequest.HealthCheckConnectTimeout = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.MaxConnectionAge) {
+		stringVal := plan.MaxConnectionAge.ValueString()
+		addRequest.MaxConnectionAge = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MinExpiredConnectionDisconnectInterval) {
 		stringVal := plan.MinExpiredConnectionDisconnectInterval.ValueString()
 		addRequest.MinExpiredConnectionDisconnectInterval = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectTimeout) {
+		stringVal := plan.ConnectTimeout.ValueString()
+		addRequest.ConnectTimeout = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.MaxResponseSize) {
+		stringVal := plan.MaxResponseSize.ValueString()
+		addRequest.MaxResponseSize = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyManagerProvider) {
@@ -331,32 +382,10 @@ func (r *ldapExternalServerResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for ConnectionSecurity", err.Error())
-		return
-	}
-	authenticationMethod, err := client.NewEnumexternalServerAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for AuthenticationMethod", err.Error())
-		return
-	}
-	verifyCredentialsMethod, err := client.NewEnumexternalServerVerifyCredentialsMethodPropFromValue(plan.VerifyCredentialsMethod.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for VerifyCredentialsMethod", err.Error())
-		return
-	}
 	addRequest := client.NewAddLdapExternalServerRequest(plan.Id.ValueString(),
 		[]client.EnumldapExternalServerSchemaUrn{client.ENUMLDAPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERLDAP},
-		plan.ServerHostName.ValueString(),
-		int32(plan.ServerPort.ValueInt64()),
-		*connectionSecurity,
-		*authenticationMethod,
-		*verifyCredentialsMethod,
-		plan.MaxConnectionAge.ValueString(),
-		plan.ConnectTimeout.ValueString(),
-		plan.MaxResponseSize.ValueString())
-	err = addOptionalLdapExternalServerFields(ctx, addRequest, plan)
+		plan.ServerHostName.ValueString())
+	err := addOptionalLdapExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Ldap External Server", err.Error())
 		return

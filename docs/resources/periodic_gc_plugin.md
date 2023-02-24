@@ -20,7 +20,6 @@ Manages a Periodic Gc Plugin.
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 - `invoke_gc_time_utc` (Set of String) Specifies the times of the day at which garbage collection may be explicitly invoked. The times should be specified in "HH:MM" format, with "HH" as a two-digit numeric value between 00 and 23 representing the hour of the day, and MM as a two-digit numeric value between 00 and 59 representing the minute of the hour. All times will be interpreted in the UTC time zone.
-- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 
 ### Optional
 
@@ -29,6 +28,7 @@ Manages a Periodic Gc Plugin.
 - `description` (String) A description for this Plugin
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `invoke_gc_day_of_week` (Set of String) Specifies the days of the week which the Periodic GC Plugin should run. If no values are provided, then the plugin will run every day at the specified time.
+- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 
 ### Read-Only
 

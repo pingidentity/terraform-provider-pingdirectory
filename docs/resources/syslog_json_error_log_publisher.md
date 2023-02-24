@@ -20,7 +20,6 @@ Manages a Syslog Json Error Log Publisher.
 - `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 - `syslog_external_server` (Set of String) The syslog server to which messages should be sent.
-- `syslog_facility` (String) The syslog facility to use for the messages that are logged by this Syslog JSON Error Log Publisher.
 
 ### Optional
 
@@ -34,6 +33,7 @@ Manages a Syslog Json Error Log Publisher.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `override_severity` (Set of String) Specifies the override severity levels for the logger based on the category of the messages.
 - `queue_size` (Number) The maximum number of log records that can be stored in the asynchronous queue.
+- `syslog_facility` (String) The syslog facility to use for the messages that are logged by this Syslog JSON Error Log Publisher.
 - `syslog_message_application_name` (String) The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.
 - `syslog_message_host_name` (String) The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.
 - `syslog_severity` (String) The syslog severity to use for the messages that are logged by this Syslog JSON Error Log Publisher. If this is not specified, then the severity for each syslog message will be automatically based on the severity for the associated log message.

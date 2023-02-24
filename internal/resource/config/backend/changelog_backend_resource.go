@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -256,6 +258,9 @@ func (r *changelogBackendResource) Schema(ctx context.Context, req resource.Sche
 				Description: "Specifies a name to identify the associated backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Backend",
@@ -284,7 +289,7 @@ func (r *changelogBackendResource) Schema(ctx context.Context, req resource.Sche
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -389,7 +394,7 @@ func (r *changelogBackendResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Changelog Backend", err, httpResp)
 		return
@@ -403,10 +408,10 @@ func (r *changelogBackendResource) Create(ctx context.Context, req resource.Crea
 
 	// Read the existing configuration
 	var state changelogBackendResourceModel
-	readChangelogBackendResponse(ctx, readResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
+	readChangelogBackendResponse(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 	ops := createChangelogBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -449,7 +454,7 @@ func (r *changelogBackendResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Changelog Backend", err, httpResp)
 		return
@@ -486,7 +491,7 @@ func (r *changelogBackendResource) Update(ctx context.Context, req resource.Upda
 	var state changelogBackendResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createChangelogBackendOperations(plan, state)
@@ -530,6 +535,6 @@ func (r *changelogBackendResource) Delete(ctx context.Context, req resource.Dele
 }
 
 func (r *changelogBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to backend_id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

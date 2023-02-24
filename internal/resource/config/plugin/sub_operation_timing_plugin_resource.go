@@ -71,7 +71,8 @@ func (r *subOperationTimingPluginResource) Schema(ctx context.Context, req resou
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"request_criteria": schema.StringAttribute{
@@ -80,7 +81,8 @@ func (r *subOperationTimingPluginResource) Schema(ctx context.Context, req resou
 			},
 			"num_most_expensive_phases_shown": schema.Int64Attribute{
 				Description: "This controls how many of the most expensive phases are included per operation type in the monitor entry.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"invoke_for_internal_operations": schema.BoolAttribute{
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
@@ -102,11 +104,28 @@ func (r *subOperationTimingPluginResource) Schema(ctx context.Context, req resou
 }
 
 // Add optional fields to create request
-func addOptionalSubOperationTimingPluginFields(ctx context.Context, addRequest *client.AddSubOperationTimingPluginRequest, plan subOperationTimingPluginResourceModel) {
+func addOptionalSubOperationTimingPluginFields(ctx context.Context, addRequest *client.AddSubOperationTimingPluginRequest, plan subOperationTimingPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
 		stringVal := plan.RequestCriteria.ValueString()
 		addRequest.RequestCriteria = &stringVal
+	}
+	if internaltypes.IsDefined(plan.NumMostExpensivePhasesShown) {
+		intVal := int32(plan.NumMostExpensivePhasesShown.ValueInt64())
+		addRequest.NumMostExpensivePhasesShown = &intVal
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
@@ -117,6 +136,7 @@ func addOptionalSubOperationTimingPluginFields(ctx context.Context, addRequest *
 		stringVal := plan.Description.ValueString()
 		addRequest.Description = &stringVal
 	}
+	return nil
 }
 
 // Read a SubOperationTimingPluginResponse object into the model struct
@@ -154,14 +174,14 @@ func (r *subOperationTimingPluginResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	addRequest := client.NewAddSubOperationTimingPluginRequest(plan.Id.ValueString(),
 		[]client.EnumsubOperationTimingPluginSchemaUrn{client.ENUMSUBOPERATIONTIMINGPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSUB_OPERATION_TIMING},
-		PluginTypeSlice,
-		int32(plan.NumMostExpensivePhasesShown.ValueInt64()),
 		plan.Enabled.ValueBool())
-	addOptionalSubOperationTimingPluginFields(ctx, addRequest, plan)
+	err := addOptionalSubOperationTimingPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Sub Operation Timing Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

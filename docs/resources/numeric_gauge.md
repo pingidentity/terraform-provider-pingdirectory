@@ -17,7 +17,6 @@ Manages a Numeric Gauge.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether this Gauge is enabled.
 - `gauge_data_source` (String) Specifies the source of data to use in determining this gauge's current severity.
 - `id` (String) Name of this object.
 
@@ -27,6 +26,7 @@ Manages a Numeric Gauge.
 - `critical_exit_value` (Number) A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'critical'.
 - `critical_value` (Number) A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.
 - `description` (String) A description for this Gauge
+- `enabled` (Boolean) Indicates whether this Gauge is enabled.
 - `exclude_resource` (Set of String) Specifies resources to exclude from being monitored.
 - `include_resource` (Set of String) Specifies set of resources to be monitored.
 - `major_exit_value` (Number) A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'major'.

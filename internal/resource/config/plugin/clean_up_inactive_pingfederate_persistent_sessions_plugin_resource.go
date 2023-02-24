@@ -76,23 +76,28 @@ func (r *cleanUpInactivePingfederatePersistentSessionsPluginResource) Schema(ctx
 			},
 			"polling_interval": schema.StringAttribute{
 				Description: "This specifies how often the plugin should check for expired data. It also controls the offset of peer servers (see the peer-server-priority-index for more information).",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"peer_server_priority_index": schema.Int64Attribute{
 				Description: "In a replicated environment, this determines the order in which peer servers should attempt to purge data.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"base_dn": schema.StringAttribute{
 				Description: "Only entries located within the subtree specified by this base DN are eligible for purging.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"max_updates_per_second": schema.Int64Attribute{
 				Description: "This setting smooths out the performance impact on the server by throttling the purging to the specified maximum number of updates per second. To avoid a large backlog, this value should be set comfortably above the average rate that expired data is generated. When purge-behavior is set to subtree-delete-entries, then deletion of the entire subtree is considered a single update for the purposes of throttling.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"num_delete_threads": schema.Int64Attribute{
 				Description: "The number of threads used to delete expired entries.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether the plug-in is enabled for use.",
@@ -106,6 +111,11 @@ func (r *cleanUpInactivePingfederatePersistentSessionsPluginResource) Schema(ctx
 
 // Add optional fields to create request
 func addOptionalCleanUpInactivePingfederatePersistentSessionsPluginFields(ctx context.Context, addRequest *client.AddCleanUpInactivePingfederatePersistentSessionsPluginRequest, plan cleanUpInactivePingfederatePersistentSessionsPluginResourceModel) {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.PollingInterval) {
+		stringVal := plan.PollingInterval.ValueString()
+		addRequest.PollingInterval = &stringVal
+	}
 	if internaltypes.IsDefined(plan.PeerServerPriorityIndex) {
 		intVal := int32(plan.PeerServerPriorityIndex.ValueInt64())
 		addRequest.PeerServerPriorityIndex = &intVal
@@ -114,6 +124,14 @@ func addOptionalCleanUpInactivePingfederatePersistentSessionsPluginFields(ctx co
 	if internaltypes.IsNonEmptyString(plan.BaseDN) {
 		stringVal := plan.BaseDN.ValueString()
 		addRequest.BaseDN = &stringVal
+	}
+	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
+		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())
+		addRequest.MaxUpdatesPerSecond = &intVal
+	}
+	if internaltypes.IsDefined(plan.NumDeleteThreads) {
+		intVal := int32(plan.NumDeleteThreads.ValueInt64())
+		addRequest.NumDeleteThreads = &intVal
 	}
 }
 
@@ -160,9 +178,6 @@ func (r *cleanUpInactivePingfederatePersistentSessionsPluginResource) Create(ctx
 	addRequest := client.NewAddCleanUpInactivePingfederatePersistentSessionsPluginRequest(plan.Id.ValueString(),
 		[]client.EnumcleanUpInactivePingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPINACTIVEPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_INACTIVE_PINGFEDERATE_PERSISTENT_SESSIONS},
 		plan.ExpirationOffset.ValueString(),
-		plan.PollingInterval.ValueString(),
-		int32(plan.MaxUpdatesPerSecond.ValueInt64()),
-		int32(plan.NumDeleteThreads.ValueInt64()),
 		plan.Enabled.ValueBool())
 	addOptionalCleanUpInactivePingfederatePersistentSessionsPluginFields(ctx, addRequest, plan)
 	// Log request JSON

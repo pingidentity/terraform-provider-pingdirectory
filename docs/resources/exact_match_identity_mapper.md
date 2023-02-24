@@ -48,11 +48,11 @@ resource "pingdirectory_exact_match_identity_mapper" "myExactMatchIdentityMapper
 
 - `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
 - `id` (String) Name of this object.
-- `match_attribute` (Set of String) Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.
 
 ### Optional
 
 - `description` (String) A description for this Identity Mapper
+- `match_attribute` (Set of String) Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.
 - `match_base_dn` (Set of String) Specifies the set of base DNs below which to search for users.
 - `match_filter` (String) An optional filter that mapped users must match.
 

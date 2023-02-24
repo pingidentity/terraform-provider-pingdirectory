@@ -85,7 +85,8 @@ func (r *isMemberOfVirtualAttributeResource) Schema(ctx context.Context, req res
 			},
 			"attribute_type": schema.StringAttribute{
 				Description: "Specifies the attribute type for the attribute whose values are to be dynamically assigned by the virtual attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"direct_memberships_only": schema.BoolAttribute{
 				Description: "Specifies whether to only include groups in which the user is directly associated with and the membership maybe modified via the group entry. Groups in which the user's membership is derived dynamically or through nested groups will not be included.",
@@ -167,6 +168,11 @@ func addOptionalIsMemberOfVirtualAttributeFields(ctx context.Context, addRequest
 			return err
 		}
 		addRequest.ConflictBehavior = conflictBehavior
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AttributeType) {
+		stringVal := plan.AttributeType.ValueString()
+		addRequest.AttributeType = &stringVal
 	}
 	if internaltypes.IsDefined(plan.DirectMembershipsOnly) {
 		boolVal := plan.DirectMembershipsOnly.ValueBool()
@@ -290,7 +296,6 @@ func (r *isMemberOfVirtualAttributeResource) Create(ctx context.Context, req res
 
 	addRequest := client.NewAddIsMemberOfVirtualAttributeRequest(plan.Id.ValueString(),
 		[]client.EnumisMemberOfVirtualAttributeSchemaUrn{client.ENUMISMEMBEROFVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIS_MEMBER_OF},
-		plan.AttributeType.ValueString(),
 		plan.Enabled.ValueBool())
 	err := addOptionalIsMemberOfVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {

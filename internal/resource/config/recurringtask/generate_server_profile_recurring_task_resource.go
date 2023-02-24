@@ -88,10 +88,12 @@ func (r *generateServerProfileRecurringTaskResource) Schema(ctx context.Context,
 			"retain_previous_profile_count": schema.Int64Attribute{
 				Description: "The minimum number of previous server profile zip files that should be preserved after a new profile is generated.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"retain_previous_profile_age": schema.StringAttribute{
 				Description: "The minimum age of previous server profile zip files that should be preserved after a new profile is generated.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",

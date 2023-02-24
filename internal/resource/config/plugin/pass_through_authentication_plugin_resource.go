@@ -84,7 +84,8 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"server": schema.SetAttribute{
@@ -94,15 +95,18 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 			},
 			"try_local_bind": schema.BoolAttribute{
 				Description: "Indicates whether the bind attempt should first be attempted against the local server. Depending on the value of the override-local-password property, the bind attempt may then be attempted against a remote server if the local bind fails.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"override_local_password": schema.BoolAttribute{
 				Description: "Indicates whether the bind attempt should be attempted against a remote server in the event that the local bind fails but the local password is present.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"update_local_password": schema.BoolAttribute{
 				Description: "Indicates whether the local password value should be updated to the value used in the bind request in the event that the local bind fails but the remote bind succeeds.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"allow_lax_pass_through_authentication_passwords": schema.BoolAttribute{
 				Description: "Indicates whether updates to the local password value should accept passwords that do not meet password policy constraints.",
@@ -111,7 +115,8 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 			},
 			"server_access_mode": schema.StringAttribute{
 				Description: "Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"included_local_entry_base_dn": schema.SetAttribute{
 				Description: "The base DNs for the local users whose authentication attempts may be passed through to an alternate server.",
@@ -140,6 +145,7 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 			"search_base_dn": schema.StringAttribute{
 				Description: "The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"search_filter_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, \"(mail={uid:ldapFilterEscape}@example.com)\" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before \"@example.com\" in the mail attribute in the external server. Note that the \"ldapFilterEscape\" modifier should almost always be used with attributes specified in the pattern.",
@@ -147,11 +153,13 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 			},
 			"initial_connections": schema.Int64Attribute{
 				Description: "Specifies the initial number of connections to establish to each external server against which authentication may be attempted.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"max_connections": schema.Int64Attribute{
 				Description: "Specifies the maximum number of connections to maintain to each external server against which authentication may be attempted. This value must be greater than or equal to the value for the initial-connections property.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -173,10 +181,43 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 }
 
 // Add optional fields to create request
-func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRequest *client.AddPassThroughAuthenticationPluginRequest, plan passThroughAuthenticationPluginResourceModel) {
+func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRequest *client.AddPassThroughAuthenticationPluginRequest, plan passThroughAuthenticationPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.TryLocalBind) {
+		boolVal := plan.TryLocalBind.ValueBool()
+		addRequest.TryLocalBind = &boolVal
+	}
+	if internaltypes.IsDefined(plan.OverrideLocalPassword) {
+		boolVal := plan.OverrideLocalPassword.ValueBool()
+		addRequest.OverrideLocalPassword = &boolVal
+	}
+	if internaltypes.IsDefined(plan.UpdateLocalPassword) {
+		boolVal := plan.UpdateLocalPassword.ValueBool()
+		addRequest.UpdateLocalPassword = &boolVal
+	}
 	if internaltypes.IsDefined(plan.AllowLaxPassThroughAuthenticationPasswords) {
 		boolVal := plan.AllowLaxPassThroughAuthenticationPasswords.ValueBool()
 		addRequest.AllowLaxPassThroughAuthenticationPasswords = &boolVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerAccessMode) {
+		serverAccessMode, err := client.NewEnumpluginServerAccessModePropFromValue(plan.ServerAccessMode.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ServerAccessMode = serverAccessMode
 	}
 	if internaltypes.IsDefined(plan.IncludedLocalEntryBaseDN) {
 		var slice []string
@@ -213,6 +254,14 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 		stringVal := plan.SearchFilterPattern.ValueString()
 		addRequest.SearchFilterPattern = &stringVal
 	}
+	if internaltypes.IsDefined(plan.InitialConnections) {
+		intVal := int32(plan.InitialConnections.ValueInt64())
+		addRequest.InitialConnections = &intVal
+	}
+	if internaltypes.IsDefined(plan.MaxConnections) {
+		intVal := int32(plan.MaxConnections.ValueInt64())
+		addRequest.MaxConnections = &intVal
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		stringVal := plan.Description.ValueString()
@@ -222,6 +271,7 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a PassThroughAuthenticationPluginResponse object into the model struct
@@ -285,27 +335,17 @@ func (r *passThroughAuthenticationPluginResource) Create(ctx context.Context, re
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	var ServerSlice []string
 	plan.Server.ElementsAs(ctx, &ServerSlice, false)
-	serverAccessMode, err := client.NewEnumpluginServerAccessModePropFromValue(plan.ServerAccessMode.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for ServerAccessMode", err.Error())
-		return
-	}
 	addRequest := client.NewAddPassThroughAuthenticationPluginRequest(plan.Id.ValueString(),
 		[]client.EnumpassThroughAuthenticationPluginSchemaUrn{client.ENUMPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPASS_THROUGH_AUTHENTICATION},
-		PluginTypeSlice,
 		ServerSlice,
-		plan.TryLocalBind.ValueBool(),
-		plan.OverrideLocalPassword.ValueBool(),
-		plan.UpdateLocalPassword.ValueBool(),
-		*serverAccessMode,
-		int32(plan.InitialConnections.ValueInt64()),
-		int32(plan.MaxConnections.ValueInt64()),
 		plan.Enabled.ValueBool())
-	addOptionalPassThroughAuthenticationPluginFields(ctx, addRequest, plan)
+	err := addOptionalPassThroughAuthenticationPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

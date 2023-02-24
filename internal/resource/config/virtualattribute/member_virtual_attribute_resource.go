@@ -83,7 +83,8 @@ func (r *memberVirtualAttributeResource) Schema(ctx context.Context, req resourc
 			},
 			"allow_retrieving_membership": schema.BoolAttribute{
 				Description: "Indicates whether to handle requests that request all values for the virtual attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"filter": schema.SetAttribute{
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
@@ -155,6 +156,10 @@ func addOptionalMemberVirtualAttributeFields(ctx context.Context, addRequest *cl
 			return err
 		}
 		addRequest.ConflictBehavior = conflictBehavior
+	}
+	if internaltypes.IsDefined(plan.AllowRetrievingMembership) {
+		boolVal := plan.AllowRetrievingMembership.ValueBool()
+		addRequest.AllowRetrievingMembership = &boolVal
 	}
 	if internaltypes.IsDefined(plan.Filter) {
 		var slice []string
@@ -256,7 +261,6 @@ func (r *memberVirtualAttributeResource) Create(ctx context.Context, req resourc
 
 	addRequest := client.NewAddMemberVirtualAttributeRequest(plan.Id.ValueString(),
 		[]client.EnummemberVirtualAttributeSchemaUrn{client.ENUMMEMBERVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMEMBER},
-		plan.AllowRetrievingMembership.ValueBool(),
 		plan.Enabled.ValueBool(),
 		plan.AttributeType.ValueString())
 	err := addOptionalMemberVirtualAttributeFields(ctx, addRequest, plan)

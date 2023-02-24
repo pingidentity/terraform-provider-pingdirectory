@@ -53,14 +53,6 @@ resource "pingdirectory_topology_admin_user" "myuser" {
 ### Required
 
 - `id` (String) Name of this object.
-- `idle_time_limit_seconds` (Number) Specifies the maximum length of time (in seconds) that a connection authenticated as this user may remain established without issuing any requests. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-idle-time-limit LDAP attribute.
-- `inherit_default_root_privileges` (Boolean) Indicates whether this User should be automatically granted the set of privileges defined in the default-root-privilege-name property of the Root DN configuration object.
-- `look_through_entry_limit` (Number) Specifies the maximum number of candidate entries that the server may examine in the course of processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-lookthrough-limit LDAP attribute.
-- `password_policy` (String) Specifies the password policy for the user. This is stored in the ds-pwp-password-policy-dn LDAP attribute.
-- `require_secure_authentication` (Boolean) Indicates whether this User must authenticate in a secure manner. When set to "true", the User will only be allowed to authenticate over a secure connection or using a mechanism that does not expose user credentials (e.g., the CRAM-MD5, DIGEST-MD5, and GSSAPI SASL mechanisms).
-- `require_secure_connections` (Boolean) Indicates whether this User must be required to communicate with the server over a secure connection. When set to "true", the User will only be allowed to communicate with the server over a secure connection (i.e., using TLS or the StartTLS extended operation).
-- `search_result_entry_limit` (Number) Specifies the maximum number of entries that the server may return to the user in response to any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-size-limit LDAP attribute.
-- `time_limit_seconds` (Number) Specifies the maximum length of time (in seconds) that the server may spend processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-time-limit LDAP attribute.
 
 ### Optional
 
@@ -74,19 +66,27 @@ resource "pingdirectory_topology_admin_user" "myuser" {
 - `email_address` (Set of String) Specifies the user's email address. This is stored in the mail LDAP attribute.
 - `first_name` (Set of String) Specifies the user's first name. This is stored in the givenName LDAP attribute.
 - `home_telephone_number` (Set of String) Specifies the user's home telephone number. This is stored in the homePhone LDAP attribute.
+- `idle_time_limit_seconds` (Number) Specifies the maximum length of time (in seconds) that a connection authenticated as this user may remain established without issuing any requests. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-idle-time-limit LDAP attribute.
+- `inherit_default_root_privileges` (Boolean) Indicates whether this User should be automatically granted the set of privileges defined in the default-root-privilege-name property of the Root DN configuration object.
 - `is_proxyable` (String) This can be used to indicate whether the User can be used as an alternate authorization identity (using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity).
 - `is_proxyable_by_dn` (Set of String) Specifies the DNs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to "allowed" or "required".
 - `is_proxyable_by_group` (Set of String) Specifies the DNs of groups whose members can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to "allowed" or "required".
 - `is_proxyable_by_url` (Set of String) Specifies LDAP URLs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to "allowed" or "required".
 - `last_name` (Set of String) Specifies the user's last name. This is stored in the sn LDAP attribute.
+- `look_through_entry_limit` (Number) Specifies the maximum number of candidate entries that the server may examine in the course of processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-lookthrough-limit LDAP attribute.
 - `may_proxy_as_dn` (Set of String) This restricts the set of accounts that this User can proxy as to entries with the specified DNs.
 - `may_proxy_as_group` (Set of String) This restricts the set of accounts that this User can proxy as to entries that are in the group with the specified DN.
 - `may_proxy_as_url` (Set of String) This restricts the set of accounts that this User can proxy as to entries that are matched by the specified LDAP URL.
 - `mobile_telephone_number` (Set of String) Specifies the user's mobile telephone number. This is stored in the mobile LDAP attribute.
 - `pager_telephone_number` (Set of String) Specifies the user's pager telephone number. This is stored in the pager LDAP attribute.
 - `password` (String, Sensitive) Specifies the user's password. This is stored in the userPassword LDAP attribute. To set a pre-hashed value, the account making the change must have the bypass-pw-policy privilege.
+- `password_policy` (String) Specifies the password policy for the user. This is stored in the ds-pwp-password-policy-dn LDAP attribute.
 - `preferred_otp_delivery_mechanism` (Set of String) Overrides the default settings for the mechanisms (e.g., email or SMS) that are used to deliver one time passwords to Users.
 - `privilege` (Set of String) Privileges that are either explicitly granted or revoked from the root user. Privileges can be revoked by including a minus sign (-) before the privilege name. This is stored in the ds-privilege-name LDAP attribute.
+- `require_secure_authentication` (Boolean) Indicates whether this User must authenticate in a secure manner. When set to "true", the User will only be allowed to authenticate over a secure connection or using a mechanism that does not expose user credentials (e.g., the CRAM-MD5, DIGEST-MD5, and GSSAPI SASL mechanisms).
+- `require_secure_connections` (Boolean) Indicates whether this User must be required to communicate with the server over a secure connection. When set to "true", the User will only be allowed to communicate with the server over a secure connection (i.e., using TLS or the StartTLS extended operation).
+- `search_result_entry_limit` (Number) Specifies the maximum number of entries that the server may return to the user in response to any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-size-limit LDAP attribute.
+- `time_limit_seconds` (Number) Specifies the maximum length of time (in seconds) that the server may spend processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-time-limit LDAP attribute.
 - `user_id` (String) Specifies the user's user ID. This is stored in the uid LDAP attribute.
 - `work_telephone_number` (Set of String) Specifies the user's work telephone number. This is stored in the telephoneNumber LDAP attribute.
 

@@ -46,7 +46,6 @@ resource "pingdirectory_indicator_gauge" "myIndicatorGauge" {
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether this Gauge is enabled.
 - `gauge_data_source` (String) Specifies the source of data to use in determining this Indicator Gauge's severity and status.
 - `id` (String) Name of this object.
 
@@ -55,6 +54,7 @@ resource "pingdirectory_indicator_gauge" "myIndicatorGauge" {
 - `alert_level` (String) Specifies the level at which alerts are sent for alarms raised by this Gauge.
 - `critical_value` (String) A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical.
 - `description` (String) A description for this Gauge
+- `enabled` (Boolean) Indicates whether this Gauge is enabled.
 - `exclude_resource` (Set of String) Specifies resources to exclude from being monitored.
 - `include_resource` (Set of String) Specifies set of resources to be monitored.
 - `major_value` (String) A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.

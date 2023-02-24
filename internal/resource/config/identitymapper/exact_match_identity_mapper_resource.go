@@ -70,7 +70,8 @@ func (r *exactMatchIdentityMapperResource) Schema(ctx context.Context, req resou
 		Attributes: map[string]schema.Attribute{
 			"match_attribute": schema.SetAttribute{
 				Description: "Specifies the attribute whose value should exactly match the ID string provided to this identity mapper.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"match_base_dn": schema.SetAttribute{
@@ -99,6 +100,11 @@ func (r *exactMatchIdentityMapperResource) Schema(ctx context.Context, req resou
 
 // Add optional fields to create request
 func addOptionalExactMatchIdentityMapperFields(ctx context.Context, addRequest *client.AddExactMatchIdentityMapperRequest, plan exactMatchIdentityMapperResourceModel) {
+	if internaltypes.IsDefined(plan.MatchAttribute) {
+		var slice []string
+		plan.MatchAttribute.ElementsAs(ctx, &slice, false)
+		addRequest.MatchAttribute = slice
+	}
 	if internaltypes.IsDefined(plan.MatchBaseDN) {
 		var slice []string
 		plan.MatchBaseDN.ElementsAs(ctx, &slice, false)
@@ -148,11 +154,8 @@ func (r *exactMatchIdentityMapperResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	var MatchAttributeSlice []string
-	plan.MatchAttribute.ElementsAs(ctx, &MatchAttributeSlice, false)
 	addRequest := client.NewAddExactMatchIdentityMapperRequest(plan.Id.ValueString(),
 		[]client.EnumexactMatchIdentityMapperSchemaUrn{client.ENUMEXACTMATCHIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPEREXACT_MATCH},
-		MatchAttributeSlice,
 		plan.Enabled.ValueBool())
 	addOptionalExactMatchIdentityMapperFields(ctx, addRequest, plan)
 	// Log request JSON

@@ -127,11 +127,13 @@ func (r *jsonAccessLogPublisherResource) Schema(ctx context.Context, req resourc
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this JSON Access Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the JSON Access Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -142,7 +144,8 @@ func (r *jsonAccessLogPublisherResource) Schema(ctx context.Context, req resourc
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the JSON Access Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -191,7 +194,8 @@ func (r *jsonAccessLogPublisherResource) Schema(ctx context.Context, req resourc
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the JSON Access Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -408,10 +412,25 @@ func (r *jsonAccessLogPublisherResource) Schema(ctx context.Context, req resourc
 
 // Add optional fields to create request
 func addOptionalJsonAccessLogPublisherFields(ctx context.Context, addRequest *client.AddJsonAccessLogPublisherRequest, plan jsonAccessLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -453,6 +472,10 @@ func addOptionalJsonAccessLogPublisherFields(ctx context.Context, addRequest *cl
 	if internaltypes.IsDefined(plan.LogAssuranceCompleted) {
 		boolVal := plan.LogAssuranceCompleted.ValueBool()
 		addRequest.LogAssuranceCompleted = &boolVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -782,17 +805,9 @@ func (r *jsonAccessLogPublisherResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddJsonAccessLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumjsonAccessLogPublisherSchemaUrn{client.ENUMJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalJsonAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

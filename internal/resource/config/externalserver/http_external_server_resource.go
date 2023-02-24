@@ -83,14 +83,17 @@ func (r *httpExternalServerResource) Schema(ctx context.Context, req resource.Sc
 			"key_manager_provider": schema.StringAttribute{
 				Description: "The key manager provider to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use if SSL (HTTPS) is to be used for connection-level security.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "The certificate alias within the keystore to use if SSL (HTTPS) is to be used for connection-level security. When specifying a value for this property you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established before aborting a request to the server.",

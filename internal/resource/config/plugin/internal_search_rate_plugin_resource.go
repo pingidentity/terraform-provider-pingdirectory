@@ -75,12 +75,14 @@ func (r *internalSearchRatePluginResource) Schema(ctx context.Context, req resou
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"num_threads": schema.Int64Attribute{
 				Description: "Specifies the number of concurrent threads that should be used to process the search operations.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"base_dn": schema.StringAttribute{
 				Description: "Specifies the base DN to use for the searches to perform.",
@@ -123,7 +125,24 @@ func (r *internalSearchRatePluginResource) Schema(ctx context.Context, req resou
 }
 
 // Add optional fields to create request
-func addOptionalInternalSearchRatePluginFields(ctx context.Context, addRequest *client.AddInternalSearchRatePluginRequest, plan internalSearchRatePluginResourceModel) {
+func addOptionalInternalSearchRatePluginFields(ctx context.Context, addRequest *client.AddInternalSearchRatePluginRequest, plan internalSearchRatePluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.NumThreads) {
+		intVal := int32(plan.NumThreads.ValueInt64())
+		addRequest.NumThreads = &intVal
+	}
 	if internaltypes.IsDefined(plan.LowerBound) {
 		intVal := int32(plan.LowerBound.ValueInt64())
 		addRequest.LowerBound = &intVal
@@ -146,6 +165,7 @@ func addOptionalInternalSearchRatePluginFields(ctx context.Context, addRequest *
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -191,16 +211,16 @@ func (r *internalSearchRatePluginResource) Create(ctx context.Context, req resou
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	addRequest := client.NewAddInternalSearchRatePluginRequest(plan.Id.ValueString(),
 		[]client.EnuminternalSearchRatePluginSchemaUrn{client.ENUMINTERNALSEARCHRATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGININTERNAL_SEARCH_RATE},
-		PluginTypeSlice,
-		int32(plan.NumThreads.ValueInt64()),
 		plan.BaseDN.ValueString(),
 		plan.FilterPrefix.ValueString(),
 		plan.Enabled.ValueBool())
-	addOptionalInternalSearchRatePluginFields(ctx, addRequest, plan)
+	err := addOptionalInternalSearchRatePluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Internal Search Rate Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

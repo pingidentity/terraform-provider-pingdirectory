@@ -83,7 +83,8 @@ func (r *ldifExportRecurringTaskResource) Schema(ctx context.Context, req resour
 		Attributes: map[string]schema.Attribute{
 			"ldif_directory": schema.StringAttribute{
 				Description: "The directory in which LDIF export files will be placed. The directory must already exist.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"backend_id": schema.SetAttribute{
 				Description: "The backend ID for a backend to be exported.",
@@ -119,14 +120,17 @@ func (r *ldifExportRecurringTaskResource) Schema(ctx context.Context, req resour
 			"retain_previous_ldif_export_count": schema.Int64Attribute{
 				Description: "The minimum number of previous LDIF exports that should be preserved after a new export completes successfully.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"retain_previous_ldif_export_age": schema.StringAttribute{
 				Description: "The minimum age of previous LDIF exports that should be preserved after a new export completes successfully.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"max_megabytes_per_second": schema.Int64Attribute{
 				Description: "The maximum rate, in megabytes per second, at which LDIF exports should be written.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",
@@ -178,6 +182,11 @@ func (r *ldifExportRecurringTaskResource) Schema(ctx context.Context, req resour
 
 // Add optional fields to create request
 func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *client.AddLdifExportRecurringTaskRequest, plan ldifExportRecurringTaskResourceModel) {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LdifDirectory) {
+		stringVal := plan.LdifDirectory.ValueString()
+		addRequest.LdifDirectory = &stringVal
+	}
 	if internaltypes.IsDefined(plan.BackendID) {
 		var slice []string
 		plan.BackendID.ElementsAs(ctx, &slice, false)
@@ -317,8 +326,7 @@ func (r *ldifExportRecurringTaskResource) Create(ctx context.Context, req resour
 	}
 
 	addRequest := client.NewAddLdifExportRecurringTaskRequest(plan.Id.ValueString(),
-		[]client.EnumldifExportRecurringTaskSchemaUrn{client.ENUMLDIFEXPORTRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLDIF_EXPORT},
-		plan.LdifDirectory.ValueString())
+		[]client.EnumldifExportRecurringTaskSchemaUrn{client.ENUMLDIFEXPORTRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLDIF_EXPORT})
 	addOptionalLdifExportRecurringTaskFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()

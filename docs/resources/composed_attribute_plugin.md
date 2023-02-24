@@ -20,7 +20,6 @@ Manages a Composed Attribute Plugin.
 - `attribute_type` (String) The name or OID of the attribute type for which values are to be generated.
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
-- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `value_pattern` (Set of String) Specifies a pattern for constructing the values to use for the target attribute type.
 
 ### Optional
@@ -33,6 +32,7 @@ Manages a Composed Attribute Plugin.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `multi_valued_attribute_behavior` (String) The behavior to exhibit for source attributes that have multiple values.
 - `multiple_value_pattern_behavior` (String) The behavior to exhibit if the plugin is configured with multiple value patterns.
+- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `source_attribute_removal_behavior` (String) The behavior to exhibit for modify and modify DN operations that update an entry to remove source attributes in such a way that this plugin would no longer generate any composed values for that entry.
 - `target_attribute_exists_during_initial_population_behavior` (String) The behavior to exhibit if the target attribute exists when initially populating the entry with composed values (whether during an LDIF import, an add operation, or an invocation of the populate composed attribute values task).
 - `update_source_attribute_behavior` (String) The behavior to exhibit for modify and modify DN operations that update one or more of the source attributes used in any of the value patterns.

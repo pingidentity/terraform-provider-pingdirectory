@@ -83,7 +83,8 @@ func (r *composedAttributePluginResource) Schema(ctx context.Context, req resour
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"attribute_type": schema.StringAttribute{
@@ -180,6 +181,19 @@ func (r *composedAttributePluginResource) Schema(ctx context.Context, req resour
 
 // Add optional fields to create request
 func addOptionalComposedAttributePluginFields(ctx context.Context, addRequest *client.AddComposedAttributePluginRequest, plan composedAttributePluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MultipleValuePatternBehavior) {
 		multipleValuePatternBehavior, err := client.NewEnumpluginMultipleValuePatternBehaviorPropFromValue(plan.MultipleValuePatternBehavior.ValueString())
@@ -343,13 +357,10 @@ func (r *composedAttributePluginResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
 	addRequest := client.NewAddComposedAttributePluginRequest(plan.Id.ValueString(),
 		[]client.EnumcomposedAttributePluginSchemaUrn{client.ENUMCOMPOSEDATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOMPOSED_ATTRIBUTE},
-		PluginTypeSlice,
 		plan.AttributeType.ValueString(),
 		ValuePatternSlice,
 		plan.Enabled.ValueBool())

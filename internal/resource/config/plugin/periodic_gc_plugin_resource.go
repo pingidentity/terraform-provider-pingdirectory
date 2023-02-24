@@ -73,7 +73,8 @@ func (r *periodicGcPluginResource) Schema(ctx context.Context, req resource.Sche
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"invoke_gc_day_of_week": schema.SetAttribute{
@@ -118,6 +119,19 @@ func (r *periodicGcPluginResource) Schema(ctx context.Context, req resource.Sche
 
 // Add optional fields to create request
 func addOptionalPeriodicGcPluginFields(ctx context.Context, addRequest *client.AddPeriodicGcPluginRequest, plan periodicGcPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	if internaltypes.IsDefined(plan.InvokeGCDayOfWeek) {
 		var slice []string
 		plan.InvokeGCDayOfWeek.ElementsAs(ctx, &slice, false)
@@ -197,13 +211,10 @@ func (r *periodicGcPluginResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	var InvokeGCTimeUtcSlice []string
 	plan.InvokeGCTimeUtc.ElementsAs(ctx, &InvokeGCTimeUtcSlice, false)
 	addRequest := client.NewAddPeriodicGcPluginRequest(plan.Id.ValueString(),
 		[]client.EnumperiodicGcPluginSchemaUrn{client.ENUMPERIODICGCPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_GC},
-		PluginTypeSlice,
 		InvokeGCTimeUtcSlice,
 		plan.Enabled.ValueBool())
 	err := addOptionalPeriodicGcPluginFields(ctx, addRequest, plan)

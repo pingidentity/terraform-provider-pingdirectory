@@ -20,8 +20,6 @@ Manages a Syslog Json Http Operation Log Publisher.
 - `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 - `syslog_external_server` (Set of String) The syslog server to which messages should be sent.
-- `syslog_facility` (String) The syslog facility to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
-- `syslog_severity` (String) The syslog severity to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
 
 ### Optional
 
@@ -46,8 +44,10 @@ Manages a Syslog Json Http Operation Log Publisher.
 - `suppressed_request_header_name` (Set of String) Specifies the case-insensitive names of request headers that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-request-headers property has a value of true.
 - `suppressed_request_parameter_name` (Set of String) Specifies the case-insensitive names of request parameters that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-request-parameters property has a value of parameter-names or parameter-names-and-values.
 - `suppressed_response_header_name` (Set of String) Specifies the case-insensitive names of response headers that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-response-headers property has a value of true.
+- `syslog_facility` (String) The syslog facility to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
 - `syslog_message_application_name` (String) The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
 - `syslog_message_host_name` (String) The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
+- `syslog_severity` (String) The syslog severity to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
 - `write_multi_line_messages` (Boolean) Indicates whether the JSON objects should use a multi-line representation (with each object field and array value on its own line) that may be easier for administrators to read, but each message will be larger (because of additional spaces and end-of-line markers), and it may be more difficult to consume and parse through some text-oriented tools.
 
 ### Read-Only

@@ -72,7 +72,8 @@ func (r *regularExpressionIdentityMapperResource) Schema(ctx context.Context, re
 		Attributes: map[string]schema.Attribute{
 			"match_attribute": schema.SetAttribute{
 				Description: "Specifies the name or OID of the attribute whose value should match the provided identifier string after it has been processed by the associated regular expression.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"match_base_dn": schema.SetAttribute{
@@ -92,6 +93,7 @@ func (r *regularExpressionIdentityMapperResource) Schema(ctx context.Context, re
 			"replace_pattern": schema.StringAttribute{
 				Description: "Specifies the replacement pattern that should be used for substrings in the ID string that match the provided regular expression pattern.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Identity Mapper",
@@ -109,6 +111,11 @@ func (r *regularExpressionIdentityMapperResource) Schema(ctx context.Context, re
 
 // Add optional fields to create request
 func addOptionalRegularExpressionIdentityMapperFields(ctx context.Context, addRequest *client.AddRegularExpressionIdentityMapperRequest, plan regularExpressionIdentityMapperResourceModel) {
+	if internaltypes.IsDefined(plan.MatchAttribute) {
+		var slice []string
+		plan.MatchAttribute.ElementsAs(ctx, &slice, false)
+		addRequest.MatchAttribute = slice
+	}
 	if internaltypes.IsDefined(plan.MatchBaseDN) {
 		var slice []string
 		plan.MatchBaseDN.ElementsAs(ctx, &slice, false)
@@ -167,11 +174,8 @@ func (r *regularExpressionIdentityMapperResource) Create(ctx context.Context, re
 		return
 	}
 
-	var MatchAttributeSlice []string
-	plan.MatchAttribute.ElementsAs(ctx, &MatchAttributeSlice, false)
 	addRequest := client.NewAddRegularExpressionIdentityMapperRequest(plan.Id.ValueString(),
 		[]client.EnumregularExpressionIdentityMapperSchemaUrn{client.ENUMREGULAREXPRESSIONIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERREGULAR_EXPRESSION},
-		MatchAttributeSlice,
 		plan.MatchPattern.ValueString(),
 		plan.Enabled.ValueBool())
 	addOptionalRegularExpressionIdentityMapperFields(ctx, addRequest, plan)

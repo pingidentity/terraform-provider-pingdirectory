@@ -79,6 +79,7 @@ func (r *quickstartHttpServletExtensionResource) Schema(ctx context.Context, req
 			"cross_origin_policy": schema.StringAttribute{
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"response_header": schema.SetAttribute{
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
@@ -89,6 +90,7 @@ func (r *quickstartHttpServletExtensionResource) Schema(ctx context.Context, req
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
