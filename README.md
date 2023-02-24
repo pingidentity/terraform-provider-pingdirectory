@@ -4,7 +4,7 @@ The PingDirectory Terraform provider is a plugin for [Terraform](https://www.ter
 
 # Disclaimer - Provider in Development
 
-The PingDirectory Terraform provider is still in development, and breaking changes are likely. As such, it is not yet published on the Terraform registry. It does not currently fully support SSL trust for connecting with PingDirectory servers over HTTPS.
+The PingDirectory Terraform provider is still in development, and breaking changes are likely. As such, it is not yet published on the Terraform registry.
 
 ## Requirements
 * Terraform 1.1+
@@ -21,6 +21,8 @@ provider "pingdirectory" {
   username = "cn=administrator"
   password = "2FederateM0re"
   https_host = "https://localhost:1443"
+  # Warning: The insecure_trust_all_tls attribute configures the provider to trust any certificate presented by the PingDirectory server.
+  insecure_trust_all_tls = true
 }
 
 resource "pingdirectory_location" "mylocation" {
