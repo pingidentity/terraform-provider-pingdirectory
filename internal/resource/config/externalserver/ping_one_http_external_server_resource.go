@@ -76,6 +76,7 @@ func (r *pingOneHttpExternalServerResource) Schema(ctx context.Context, req reso
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use for HTTPS connection-level security.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established before aborting a request to PingOne.",

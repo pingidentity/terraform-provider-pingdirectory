@@ -97,11 +97,13 @@ func (r *fileBasedTraceLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this File Based Trace Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the File Based Trace Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -112,7 +114,8 @@ func (r *fileBasedTraceLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the File Based Trace Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -151,7 +154,8 @@ func (r *fileBasedTraceLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Writer Based Trace Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -244,10 +248,25 @@ func (r *fileBasedTraceLogPublisherResource) Schema(ctx context.Context, req res
 
 // Add optional fields to create request
 func addOptionalFileBasedTraceLogPublisherFields(ctx context.Context, addRequest *client.AddFileBasedTraceLogPublisherRequest, plan fileBasedTraceLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -283,6 +302,10 @@ func addOptionalFileBasedTraceLogPublisherFields(ctx context.Context, addRequest
 	if internaltypes.IsNonEmptyString(plan.TimeInterval) {
 		stringVal := plan.TimeInterval.ValueString()
 		addRequest.TimeInterval = &stringVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
@@ -514,17 +537,9 @@ func (r *fileBasedTraceLogPublisherResource) Create(ctx context.Context, req res
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddFileBasedTraceLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumfileBasedTraceLogPublisherSchemaUrn{client.ENUMFILEBASEDTRACELOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_TRACE},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalFileBasedTraceLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

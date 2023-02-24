@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -93,6 +95,9 @@ func (r *ldifBackendResource) Schema(ctx context.Context, req resource.SchemaReq
 				Description: "Specifies a name to identify the associated backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Backend",
@@ -132,7 +137,7 @@ func (r *ldifBackendResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -184,7 +189,7 @@ func (r *ldifBackendResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldif Backend", err, httpResp)
 		return
@@ -201,7 +206,7 @@ func (r *ldifBackendResource) Create(ctx context.Context, req resource.CreateReq
 	readLdifBackendResponse(ctx, readResponse.LdifBackendResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 	ops := createLdifBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -244,7 +249,7 @@ func (r *ldifBackendResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldif Backend", err, httpResp)
 		return
@@ -281,7 +286,7 @@ func (r *ldifBackendResource) Update(ctx context.Context, req resource.UpdateReq
 	var state ldifBackendResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLdifBackendOperations(plan, state)
@@ -325,6 +330,6 @@ func (r *ldifBackendResource) Delete(ctx context.Context, req resource.DeleteReq
 }
 
 func (r *ldifBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to backend_id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

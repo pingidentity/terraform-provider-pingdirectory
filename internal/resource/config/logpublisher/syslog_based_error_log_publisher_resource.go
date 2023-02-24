@@ -80,15 +80,18 @@ func (r *syslogBasedErrorLogPublisherResource) Schema(ctx context.Context, req r
 			},
 			"server_host_name": schema.StringAttribute{
 				Description: "Specifies the hostname or IP address of the syslogd host to log to. It is highly recommend to use localhost.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"server_port": schema.Int64Attribute{
 				Description: "Specifies the port number of the syslogd host to log to.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_facility": schema.Int64Attribute{
 				Description: "Specifies the syslog facility to use for this Syslog Based Error Log Publisher",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -97,7 +100,8 @@ func (r *syslogBasedErrorLogPublisherResource) Schema(ctx context.Context, req r
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Syslog Based Error Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -133,9 +137,26 @@ func (r *syslogBasedErrorLogPublisherResource) Schema(ctx context.Context, req r
 
 // Add optional fields to create request
 func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addRequest *client.AddSyslogBasedErrorLogPublisherRequest, plan syslogBasedErrorLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerHostName) {
+		stringVal := plan.ServerHostName.ValueString()
+		addRequest.ServerHostName = &stringVal
+	}
+	if internaltypes.IsDefined(plan.ServerPort) {
+		intVal := int32(plan.ServerPort.ValueInt64())
+		addRequest.ServerPort = &intVal
+	}
+	if internaltypes.IsDefined(plan.SyslogFacility) {
+		intVal := int32(plan.SyslogFacility.ValueInt64())
+		addRequest.SyslogFacility = &intVal
+	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
 		addRequest.AutoFlush = &boolVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
@@ -223,11 +244,7 @@ func (r *syslogBasedErrorLogPublisherResource) Create(ctx context.Context, req r
 
 	addRequest := client.NewAddSyslogBasedErrorLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumsyslogBasedErrorLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ERROR},
-		plan.Enabled.ValueBool(),
-		plan.ServerHostName.ValueString(),
-		int32(plan.ServerPort.ValueInt64()),
-		int32(plan.SyslogFacility.ValueInt64()),
-		plan.Asynchronous.ValueBool())
+		plan.Enabled.ValueBool())
 	err := addOptionalSyslogBasedErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Syslog Based Error Log Publisher", err.Error())

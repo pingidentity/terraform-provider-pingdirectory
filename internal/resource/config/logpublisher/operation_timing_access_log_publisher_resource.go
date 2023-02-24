@@ -103,11 +103,13 @@ func (r *operationTimingAccessLogPublisherResource) Schema(ctx context.Context, 
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this Operation Timing Access Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the Operation Timing Access Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -118,7 +120,8 @@ func (r *operationTimingAccessLogPublisherResource) Schema(ctx context.Context, 
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the Operation Timing Access Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -182,10 +185,12 @@ func (r *operationTimingAccessLogPublisherResource) Schema(ctx context.Context, 
 			"min_included_phase_time_nanos": schema.Int64Attribute{
 				Description: "The minimum length of time in nanoseconds that an operation phase should take before it is included in a log message.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Operation Timing Access Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -265,10 +270,25 @@ func (r *operationTimingAccessLogPublisherResource) Schema(ctx context.Context, 
 
 // Add optional fields to create request
 func addOptionalOperationTimingAccessLogPublisherFields(ctx context.Context, addRequest *client.AddOperationTimingAccessLogPublisherRequest, plan operationTimingAccessLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -327,6 +347,10 @@ func addOptionalOperationTimingAccessLogPublisherFields(ctx context.Context, add
 	if internaltypes.IsDefined(plan.MinIncludedPhaseTimeNanos) {
 		intVal := int32(plan.MinIncludedPhaseTimeNanos.ValueInt64())
 		addRequest.MinIncludedPhaseTimeNanos = &intVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -495,17 +519,9 @@ func (r *operationTimingAccessLogPublisherResource) Create(ctx context.Context, 
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddOperationTimingAccessLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumoperationTimingAccessLogPublisherSchemaUrn{client.ENUMOPERATIONTIMINGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHEROPERATION_TIMING_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalOperationTimingAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

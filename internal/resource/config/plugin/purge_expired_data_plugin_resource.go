@@ -88,7 +88,8 @@ func (r *purgeExpiredDataPluginResource) Schema(ctx context.Context, req resourc
 			},
 			"datetime_format": schema.StringAttribute{
 				Description: "Specifies the format of the datetime stored within the entry that determines when data should be purged.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"custom_datetime_format": schema.StringAttribute{
 				Description: "When the datetime-format property is configured with a value of \"custom\", this specifies the format (using a string compatible with the java.text.SimpleDateFormat class) that will be used to search for expired data.",
@@ -97,6 +98,7 @@ func (r *purgeExpiredDataPluginResource) Schema(ctx context.Context, req resourc
 			"custom_timezone": schema.StringAttribute{
 				Description: "Specifies the time zone to use when generating a date string using the configured custom-datetime-format value. The provided value must be accepted by java.util.TimeZone.getTimeZone.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"expiration_offset": schema.StringAttribute{
 				Description: "The duration to wait after the value specified in datetime-attribute (and optionally datetime-json-field) before purging the data.",
@@ -109,26 +111,32 @@ func (r *purgeExpiredDataPluginResource) Schema(ctx context.Context, req resourc
 			"base_dn": schema.StringAttribute{
 				Description: "Only entries located within the subtree specified by this base DN are eligible for purging.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"filter": schema.StringAttribute{
 				Description: "Only entries that match this LDAP filter will be eligible for having data purged.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"polling_interval": schema.StringAttribute{
 				Description: "This specifies how often the plugin should check for expired data. It also controls the offset of peer servers (see the peer-server-priority-index for more information).",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"max_updates_per_second": schema.Int64Attribute{
 				Description: "This setting smooths out the performance impact on the server by throttling the purging to the specified maximum number of updates per second. To avoid a large backlog, this value should be set comfortably above the average rate that expired data is generated. When purge-behavior is set to subtree-delete-entries, then deletion of the entire subtree is considered a single update for the purposes of throttling.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"peer_server_priority_index": schema.Int64Attribute{
 				Description: "In a replicated environment, this determines the order in which peer servers should attempt to purge data.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"num_delete_threads": schema.Int64Attribute{
 				Description: "The number of threads used to delete expired entries.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -150,6 +158,14 @@ func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *cl
 	if internaltypes.IsNonEmptyString(plan.DatetimeJSONField) {
 		stringVal := plan.DatetimeJSONField.ValueString()
 		addRequest.DatetimeJSONField = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.DatetimeFormat) {
+		datetimeFormat, err := client.NewEnumpluginDatetimeFormatPropFromValue(plan.DatetimeFormat.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.DatetimeFormat = datetimeFormat
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CustomDatetimeFormat) {
@@ -179,9 +195,22 @@ func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *cl
 		stringVal := plan.Filter.ValueString()
 		addRequest.Filter = &stringVal
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.PollingInterval) {
+		stringVal := plan.PollingInterval.ValueString()
+		addRequest.PollingInterval = &stringVal
+	}
+	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
+		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())
+		addRequest.MaxUpdatesPerSecond = &intVal
+	}
 	if internaltypes.IsDefined(plan.PeerServerPriorityIndex) {
 		intVal := int32(plan.PeerServerPriorityIndex.ValueInt64())
 		addRequest.PeerServerPriorityIndex = &intVal
+	}
+	if internaltypes.IsDefined(plan.NumDeleteThreads) {
+		intVal := int32(plan.NumDeleteThreads.ValueInt64())
+		addRequest.NumDeleteThreads = &intVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -248,21 +277,12 @@ func (r *purgeExpiredDataPluginResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	datetimeFormat, err := client.NewEnumpluginDatetimeFormatPropFromValue(plan.DatetimeFormat.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for DatetimeFormat", err.Error())
-		return
-	}
 	addRequest := client.NewAddPurgeExpiredDataPluginRequest(plan.Id.ValueString(),
 		[]client.EnumpurgeExpiredDataPluginSchemaUrn{client.ENUMPURGEEXPIREDDATAPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPURGE_EXPIRED_DATA},
 		plan.DatetimeAttribute.ValueString(),
-		*datetimeFormat,
 		plan.ExpirationOffset.ValueString(),
-		plan.PollingInterval.ValueString(),
-		int32(plan.MaxUpdatesPerSecond.ValueInt64()),
-		int32(plan.NumDeleteThreads.ValueInt64()),
 		plan.Enabled.ValueBool())
-	err = addOptionalPurgeExpiredDataPluginFields(ctx, addRequest, plan)
+	err := addOptionalPurgeExpiredDataPluginFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Purge Expired Data Plugin", err.Error())
 		return

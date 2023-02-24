@@ -83,6 +83,7 @@ func (r *jmxConnectionHandlerResource) Schema(ctx context.Context, req resource.
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description: "Specifies the name of the key manager that should be used with this JMX Connection Handler .",

@@ -20,7 +20,6 @@ Manages a Jdbc Based Access Log Publisher.
 - `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 - `log_field_mapping` (String) The log field mapping associates loggable fields to database column names. The table name is not part of this mapping.
-- `log_table_name` (String) The table name to log entries to the database server.
 - `server` (String) The JDBC-based Database Server to use for a connection.
 
 ### Optional
@@ -37,6 +36,7 @@ Manages a Jdbc Based Access Log Publisher.
 - `log_search_entries` (Boolean) Indicates whether to log information about search result entries sent to the client.
 - `log_search_references` (Boolean) Indicates whether to log information about search result references sent to the client.
 - `log_security_negotiation` (Boolean) Indicates whether to log information about the result of any security negotiation (e.g., SSL handshake) processing that has been performed.
+- `log_table_name` (String) The table name to log entries to the database server.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `queue_size` (Number) The maximum number of log records that can be stored in the asynchronous queue.
 - `request_criteria` (String) Specifies a set of request criteria that must match the associated operation request in order for a request or result to be logged by this Access Log Publisher.

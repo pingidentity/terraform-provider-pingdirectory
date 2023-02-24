@@ -114,11 +114,13 @@ func (r *fileBasedAuditLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this File Based Audit Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the File Based Audit Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -129,7 +131,8 @@ func (r *fileBasedAuditLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the File Based Audit Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -230,7 +233,8 @@ func (r *fileBasedAuditLogPublisherResource) Schema(ctx context.Context, req res
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the File Based Audit Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -309,10 +313,25 @@ func addOptionalFileBasedAuditLogPublisherFields(ctx context.Context, addRequest
 		boolVal := plan.SuppressInternalOperations.ValueBool()
 		addRequest.SuppressInternalOperations = &boolVal
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -400,6 +419,10 @@ func addOptionalFileBasedAuditLogPublisherFields(ctx context.Context, addRequest
 		var slice []string
 		plan.ExcludeAttribute.ElementsAs(ctx, &slice, false)
 		addRequest.ExcludeAttribute = slice
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -580,17 +603,9 @@ func (r *fileBasedAuditLogPublisherResource) Create(ctx context.Context, req res
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddFileBasedAuditLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumfileBasedAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_AUDIT},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalFileBasedAuditLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

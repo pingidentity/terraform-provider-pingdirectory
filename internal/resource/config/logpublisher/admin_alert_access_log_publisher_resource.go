@@ -163,7 +163,8 @@ func (r *adminAlertAccessLogPublisherResource) Schema(ctx context.Context, req r
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Admin Alert Access Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -377,6 +378,10 @@ func addOptionalAdminAlertAccessLogPublisherFields(ctx context.Context, addReque
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
 		addRequest.AutoFlush = &boolVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
@@ -633,7 +638,6 @@ func (r *adminAlertAccessLogPublisherResource) Create(ctx context.Context, req r
 
 	addRequest := client.NewAddAdminAlertAccessLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumadminAlertAccessLogPublisherSchemaUrn{client.ENUMADMINALERTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERADMIN_ALERT_ACCESS},
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalAdminAlertAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

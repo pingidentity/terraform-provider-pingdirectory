@@ -117,15 +117,18 @@ func (r *syslogBasedAccessLogPublisherResource) Schema(ctx context.Context, req 
 			},
 			"server_host_name": schema.StringAttribute{
 				Description: "Specifies the hostname or IP address of the syslogd host to log to. It is highly recommend to use localhost.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"server_port": schema.Int64Attribute{
 				Description: "Specifies the port number of the syslogd host to log to.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_facility": schema.Int64Attribute{
 				Description: "Specifies the syslog facility to use for this Syslog Based Access Log Publisher",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"max_string_length": schema.Int64Attribute{
 				Description: "Specifies the maximum number of characters that may be included in any string in a log message before that string is truncated and replaced with a placeholder indicating the number of characters that were omitted. This can help prevent extremely long log messages from being written.",
@@ -249,7 +252,8 @@ func (r *syslogBasedAccessLogPublisherResource) Schema(ctx context.Context, req 
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Writer Based Access Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -347,6 +351,19 @@ func (r *syslogBasedAccessLogPublisherResource) Schema(ctx context.Context, req 
 
 // Add optional fields to create request
 func addOptionalSyslogBasedAccessLogPublisherFields(ctx context.Context, addRequest *client.AddSyslogBasedAccessLogPublisherRequest, plan syslogBasedAccessLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerHostName) {
+		stringVal := plan.ServerHostName.ValueString()
+		addRequest.ServerHostName = &stringVal
+	}
+	if internaltypes.IsDefined(plan.ServerPort) {
+		intVal := int32(plan.ServerPort.ValueInt64())
+		addRequest.ServerPort = &intVal
+	}
+	if internaltypes.IsDefined(plan.SyslogFacility) {
+		intVal := int32(plan.SyslogFacility.ValueInt64())
+		addRequest.SyslogFacility = &intVal
+	}
 	if internaltypes.IsDefined(plan.MaxStringLength) {
 		intVal := int32(plan.MaxStringLength.ValueInt64())
 		addRequest.MaxStringLength = &intVal
@@ -442,6 +459,10 @@ func addOptionalSyslogBasedAccessLogPublisherFields(ctx context.Context, addRequ
 	if internaltypes.IsDefined(plan.GenerifyMessageStringsWhenPossible) {
 		boolVal := plan.GenerifyMessageStringsWhenPossible.ValueBool()
 		addRequest.GenerifyMessageStringsWhenPossible = &boolVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -654,11 +675,7 @@ func (r *syslogBasedAccessLogPublisherResource) Create(ctx context.Context, req 
 
 	addRequest := client.NewAddSyslogBasedAccessLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumsyslogBasedAccessLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ACCESS},
-		plan.Enabled.ValueBool(),
-		plan.ServerHostName.ValueString(),
-		int32(plan.ServerPort.ValueInt64()),
-		int32(plan.SyslogFacility.ValueInt64()),
-		plan.Asynchronous.ValueBool())
+		plan.Enabled.ValueBool())
 	err := addOptionalSyslogBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Syslog Based Access Log Publisher", err.Error())

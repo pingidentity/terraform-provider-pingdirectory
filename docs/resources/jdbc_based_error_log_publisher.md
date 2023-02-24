@@ -20,13 +20,13 @@ Manages a Jdbc Based Error Log Publisher.
 - `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 - `log_field_mapping` (String) The log field mapping associates loggable fields to database column names. The table name is not part of this mapping.
-- `log_table_name` (String) The table name to log entries to the database server.
 - `server` (String) The JDBC-based Database Server to use for a connection.
 
 ### Optional
 
 - `default_severity` (Set of String) Specifies the default severity levels for the logger.
 - `description` (String) A description for this Log Publisher
+- `log_table_name` (String) The table name to log entries to the database server.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `override_severity` (Set of String) Specifies the override severity levels for the logger based on the category of the messages.
 - `queue_size` (Number) The maximum number of log records that can be stored in the asynchronous queue.

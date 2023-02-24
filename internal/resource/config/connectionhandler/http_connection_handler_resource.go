@@ -94,6 +94,7 @@ func (r *httpConnectionHandlerResource) Schema(ctx context.Context, req resource
 			"listen_address": schema.StringAttribute{
 				Description: "Specifies the address on which to listen for connections from HTTP clients. If no value is defined, the server will listen on all addresses on all interfaces.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"listen_port": schema.Int64Attribute{
 				Description: "Specifies the port number on which the HTTP Connection Handler will listen for connections from clients.",
@@ -107,6 +108,7 @@ func (r *httpConnectionHandlerResource) Schema(ctx context.Context, req resource
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "Specifies the nickname (also called the alias) of the certificate that the HTTP Connection Handler should use when performing SSL communication.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"http_servlet_extension": schema.SetAttribute{
 				Description: "Specifies information about servlets that will be provided via this connection handler.",

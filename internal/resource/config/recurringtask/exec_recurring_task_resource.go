@@ -94,10 +94,12 @@ func (r *execRecurringTaskResource) Schema(ctx context.Context, req resource.Sch
 			"retain_previous_output_file_count": schema.Int64Attribute{
 				Description: "The minimum number of previous command output files that should be preserved after a new instance of the command is invoked.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"retain_previous_output_file_age": schema.StringAttribute{
 				Description: "The minimum age of previous command output files that should be preserved after a new instance of the command is invoked.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"log_command_output": schema.BoolAttribute{
 				Description: "Indicates whether the command's output (both standard output and standard error) should be recorded in the server's error log.",
@@ -112,6 +114,7 @@ func (r *execRecurringTaskResource) Schema(ctx context.Context, req resource.Sch
 			"working_directory": schema.StringAttribute{
 				Description: "The absolute path to a working directory where the command should be executed. It must be an absolute path and the corresponding directory must exist.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",

@@ -97,7 +97,8 @@ func (r *jdbcBasedAccessLogPublisherResource) Schema(ctx context.Context, req re
 			},
 			"log_table_name": schema.StringAttribute{
 				Description: "The table name to log entries to the database server.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -205,6 +206,11 @@ func (r *jdbcBasedAccessLogPublisherResource) Schema(ctx context.Context, req re
 
 // Add optional fields to create request
 func addOptionalJdbcBasedAccessLogPublisherFields(ctx context.Context, addRequest *client.AddJdbcBasedAccessLogPublisherRequest, plan jdbcBasedAccessLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogTableName) {
+		stringVal := plan.LogTableName.ValueString()
+		addRequest.LogTableName = &stringVal
+	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
 		addRequest.QueueSize = &intVal
@@ -373,7 +379,6 @@ func (r *jdbcBasedAccessLogPublisherResource) Create(ctx context.Context, req re
 		[]client.EnumjdbcBasedAccessLogPublisherSchemaUrn{client.ENUMJDBCBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ACCESS},
 		plan.Server.ValueString(),
 		plan.LogFieldMapping.ValueString(),
-		plan.LogTableName.ValueString(),
 		plan.Enabled.ValueBool())
 	err := addOptionalJdbcBasedAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

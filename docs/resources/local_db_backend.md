@@ -52,11 +52,7 @@ resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
 
 - `backend_id` (String) Specifies a name to identify the associated backend.
 - `base_dn` (Set of String) Specifies the base DN(s) for the data that the backend handles.
-- `db_directory` (String) Specifies the path to the filesystem directory that is used to hold the Berkeley DB Java Edition database files containing the data for this backend. The files for this backend are stored in a sub-directory named after the backend-id.
 - `enabled` (Boolean) Indicates whether the backend is enabled in the server.
-- `id` (String) Name of this object.
-- `import_temp_directory` (String) Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.
-- `writability_mode` (String) Specifies the behavior that the backend should use when processing write operations.
 
 ### Optional
 
@@ -68,6 +64,7 @@ resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
 - `db_cache_percent` (Number) Specifies the percentage of JVM memory to allocate to the database cache.
 - `db_checkpointer_wakeup_interval` (String) Specifies the maximum length of time that should pass between checkpoints.
 - `db_cleaner_min_utilization` (Number) Specifies the minimum percentage of "live" data that the database cleaner attempts to keep in database log files.
+- `db_directory` (String) Specifies the path to the filesystem directory that is used to hold the Berkeley DB Java Edition database files containing the data for this backend. The files for this backend are stored in a sub-directory named after the backend-id.
 - `db_directory_permissions` (String) Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.
 - `db_evictor_critical_percentage` (Number) Specifies the percentage over the configured maximum that the database cache is allowed to grow. It is recommended to set this value slightly above zero when the database is too large to fully cache in memory. In this case, a dedicated background evictor thread is used to perform evictions once the cache fills up reducing the possibility that server threads are blocked.
 - `db_import_cache_percent` (Number) The percentage of JVM memory to allocate to the database cache during import operations.
@@ -89,6 +86,7 @@ resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
 - `id2entry_cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the "cache-keys-and-values" default value.
 - `id2subtree_cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the id2subtree database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its children to any depth. This index may be used when performing searches with a whole-subtree or subordinate-subtree scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.
 - `id2subtree_index_entry_limit` (Number) Specifies the maximum number of entry IDs to maintain for each entry in the id2subtree system index (which keeps track of all descendants below an entry, to assist in otherwise unindexed searches with a whole-subtree or subordinate subtree scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.
+- `import_temp_directory` (String) Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.
 - `import_thread_count` (Number) Specifies the number of threads to use for concurrent processing during an LDIF import.
 - `index_entry_limit` (Number) Specifies the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained.
 - `is_private_backend` (Boolean) Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.
@@ -112,9 +110,11 @@ resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
 - `uncached_attribute_criteria` (String) The criteria that will be used to identify attributes that should be written into the uncached-id2entry database rather than the id2entry database. This will only be used for entries in which the associated uncached-entry-criteria does not indicate that the entire entry should be uncached.
 - `uncached_entry_criteria` (String) The criteria that will be used to identify entries that should be written into the uncached-id2entry database rather than the id2entry database.
 - `uncached_id2entry_cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the uncached-id2entry database, which provides a way to store complete or partial encoded entries with a different (and presumably less memory-intensive) cache mode than records written to id2entry.
+- `writability_mode` (String) Specifies the behavior that the backend should use when processing write operations.
 
 ### Read-Only
 
+- `id` (String) Placeholder name of this object required by Terraform.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

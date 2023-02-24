@@ -98,19 +98,23 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Schema(ctx context.Context
 			},
 			"syslog_facility": schema.StringAttribute{
 				Description: "The syslog facility to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_severity": schema.StringAttribute{
 				Description: "The syslog severity to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_message_host_name": schema.StringAttribute{
 				Description: "The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_message_application_name": schema.StringAttribute{
 				Description: "The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
@@ -236,6 +240,22 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Schema(ctx context.Context
 
 // Add optional fields to create request
 func addOptionalSyslogJsonHttpOperationLogPublisherFields(ctx context.Context, addRequest *client.AddSyslogJsonHttpOperationLogPublisherRequest, plan syslogJsonHttpOperationLogPublisherResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.SyslogFacility) {
+		syslogFacility, err := client.NewEnumlogPublisherSyslogFacilityPropFromValue(plan.SyslogFacility.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.SyslogFacility = syslogFacility
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.SyslogSeverity) {
+		syslogSeverity, err := client.NewEnumlogPublisherSyslogSeverityPropFromValue(plan.SyslogSeverity.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.SyslogSeverity = syslogSeverity
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SyslogMessageHostName) {
 		stringVal := plan.SyslogMessageHostName.ValueString()
@@ -441,23 +461,11 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Create(ctx context.Context
 
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	syslogFacility, err := client.NewEnumlogPublisherSyslogFacilityPropFromValue(plan.SyslogFacility.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for SyslogFacility", err.Error())
-		return
-	}
-	syslogSeverity, err := client.NewEnumlogPublisherSyslogSeverityPropFromValue(plan.SyslogSeverity.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for SyslogSeverity", err.Error())
-		return
-	}
 	addRequest := client.NewAddSyslogJsonHttpOperationLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumsyslogJsonHttpOperationLogPublisherSchemaUrn{client.ENUMSYSLOGJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_HTTP_OPERATION},
 		SyslogExternalServerSlice,
-		*syslogFacility,
-		*syslogSeverity,
 		plan.Enabled.ValueBool())
-	err = addOptionalSyslogJsonHttpOperationLogPublisherFields(ctx, addRequest, plan)
+	err := addOptionalSyslogJsonHttpOperationLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Syslog Json Http Operation Log Publisher", err.Error())
 		return

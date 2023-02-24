@@ -17,17 +17,17 @@ Manages a Syslog External Server.
 
 ### Required
 
-- `connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption).
 - `id` (String) Name of this object.
-- `max_connection_age` (String) The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.
 - `server_host_name` (String) The address of the syslog server.
 - `transport_mechanism` (String) The transport mechanism that should be used when communicating with the syslog server.
-- `trust_manager_provider` (String) A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.
 
 ### Optional
 
+- `connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption).
 - `description` (String) A description for this External Server
+- `max_connection_age` (String) The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.
 - `server_port` (Number) The port on which the syslog server accepts connections.
+- `trust_manager_provider` (String) A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.
 
 ### Read-Only
 

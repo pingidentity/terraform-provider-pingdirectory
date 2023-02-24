@@ -73,7 +73,8 @@ func (r *referentialIntegrityPluginResource) Schema(ctx context.Context, req res
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"attribute_type": schema.SetAttribute{
@@ -117,7 +118,20 @@ func (r *referentialIntegrityPluginResource) Schema(ctx context.Context, req res
 }
 
 // Add optional fields to create request
-func addOptionalReferentialIntegrityPluginFields(ctx context.Context, addRequest *client.AddReferentialIntegrityPluginRequest, plan referentialIntegrityPluginResourceModel) {
+func addOptionalReferentialIntegrityPluginFields(ctx context.Context, addRequest *client.AddReferentialIntegrityPluginRequest, plan referentialIntegrityPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
 		plan.BaseDN.ElementsAs(ctx, &slice, false)
@@ -142,6 +156,7 @@ func addOptionalReferentialIntegrityPluginFields(ctx context.Context, addRequest
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a ReferentialIntegrityPluginResponse object into the model struct
@@ -185,16 +200,17 @@ func (r *referentialIntegrityPluginResource) Create(ctx context.Context, req res
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	var AttributeTypeSlice []string
 	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
 	addRequest := client.NewAddReferentialIntegrityPluginRequest(plan.Id.ValueString(),
 		[]client.EnumreferentialIntegrityPluginSchemaUrn{client.ENUMREFERENTIALINTEGRITYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERENTIAL_INTEGRITY},
-		PluginTypeSlice,
 		AttributeTypeSlice,
 		plan.Enabled.ValueBool())
-	addOptionalReferentialIntegrityPluginFields(ctx, addRequest, plan)
+	err := addOptionalReferentialIntegrityPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Referential Integrity Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

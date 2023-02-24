@@ -72,7 +72,8 @@ func (r *delayPluginResource) Schema(ctx context.Context, req resource.SchemaReq
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"delay": schema.StringAttribute{
@@ -107,7 +108,20 @@ func (r *delayPluginResource) Schema(ctx context.Context, req resource.SchemaReq
 }
 
 // Add optional fields to create request
-func addOptionalDelayPluginFields(ctx context.Context, addRequest *client.AddDelayPluginRequest, plan delayPluginResourceModel) {
+func addOptionalDelayPluginFields(ctx context.Context, addRequest *client.AddDelayPluginRequest, plan delayPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
 		stringVal := plan.ConnectionCriteria.ValueString()
@@ -127,6 +141,7 @@ func addOptionalDelayPluginFields(ctx context.Context, addRequest *client.AddDel
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a DelayPluginResponse object into the model struct
@@ -168,14 +183,15 @@ func (r *delayPluginResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	addRequest := client.NewAddDelayPluginRequest(plan.Id.ValueString(),
 		[]client.EnumdelayPluginSchemaUrn{client.ENUMDELAYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDELAY},
-		PluginTypeSlice,
 		plan.Delay.ValueString(),
 		plan.Enabled.ValueBool())
-	addOptionalDelayPluginFields(ctx, addRequest, plan)
+	err := addOptionalDelayPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Delay Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

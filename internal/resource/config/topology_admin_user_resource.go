@@ -158,7 +158,8 @@ func (r *topologyAdminUserResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"inherit_default_root_privileges": schema.BoolAttribute{
 				Description: "Indicates whether this User should be automatically granted the set of privileges defined in the default-root-privilege-name property of the Root DN configuration object.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"privilege": schema.SetAttribute{
 				Description: "Privileges that are either explicitly granted or revoked from the root user. Privileges can be revoked by including a minus sign (-) before the privilege name. This is stored in the ds-privilege-name LDAP attribute.",
@@ -168,23 +169,28 @@ func (r *topologyAdminUserResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"search_result_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that the server may return to the user in response to any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-size-limit LDAP attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"time_limit_seconds": schema.Int64Attribute{
 				Description: "Specifies the maximum length of time (in seconds) that the server may spend processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-time-limit LDAP attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"look_through_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of candidate entries that the server may examine in the course of processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-lookthrough-limit LDAP attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"idle_time_limit_seconds": schema.Int64Attribute{
 				Description: "Specifies the maximum length of time (in seconds) that a connection authenticated as this user may remain established without issuing any requests. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-idle-time-limit LDAP attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"password_policy": schema.StringAttribute{
 				Description: "Specifies the password policy for the user. This is stored in the ds-pwp-password-policy-dn LDAP attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"disabled": schema.BoolAttribute{
 				Description: "Specifies whether the root user account should be disabled. A disabled account is not permitted to authenticate, nor can it be used as an authorization identity. This is stored in the ds-pwp-account-disabled LDAP attribute.",
@@ -201,11 +207,13 @@ func (r *topologyAdminUserResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"require_secure_authentication": schema.BoolAttribute{
 				Description: "Indicates whether this User must authenticate in a secure manner. When set to \"true\", the User will only be allowed to authenticate over a secure connection or using a mechanism that does not expose user credentials (e.g., the CRAM-MD5, DIGEST-MD5, and GSSAPI SASL mechanisms).",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"require_secure_connections": schema.BoolAttribute{
 				Description: "Indicates whether this User must be required to communicate with the server over a secure connection. When set to \"true\", the User will only be allowed to communicate with the server over a secure connection (i.e., using TLS or the StartTLS extended operation).",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"allowed_authentication_type": schema.SetAttribute{
 				Description: "Indicates that User should only be allowed to authenticate in certain ways. Allowed values include \"simple\" (to indicate that the user should be allowed to bind using simple authentication) or \"sasl {mech}\" (to indicate that the user should be allowed to bind using the specified SASL mechanism, like \"sasl PLAIN\"). The list of available SASL mechanisms can be retrieved by running \"dsconfig --advanced list-sasl-mechanism-handlers\".",
@@ -329,6 +337,10 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 		plan.PagerTelephoneNumber.ElementsAs(ctx, &slice, false)
 		addRequest.PagerTelephoneNumber = slice
 	}
+	if internaltypes.IsDefined(plan.InheritDefaultRootPrivileges) {
+		boolVal := plan.InheritDefaultRootPrivileges.ValueBool()
+		addRequest.InheritDefaultRootPrivileges = &boolVal
+	}
 	if internaltypes.IsDefined(plan.Privilege) {
 		var slice []string
 		plan.Privilege.ElementsAs(ctx, &slice, false)
@@ -341,6 +353,27 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 			enumSlice[i] = *enumVal
 		}
 		addRequest.Privilege = enumSlice
+	}
+	if internaltypes.IsDefined(plan.SearchResultEntryLimit) {
+		intVal := int32(plan.SearchResultEntryLimit.ValueInt64())
+		addRequest.SearchResultEntryLimit = &intVal
+	}
+	if internaltypes.IsDefined(plan.TimeLimitSeconds) {
+		intVal := int32(plan.TimeLimitSeconds.ValueInt64())
+		addRequest.TimeLimitSeconds = &intVal
+	}
+	if internaltypes.IsDefined(plan.LookThroughEntryLimit) {
+		intVal := int32(plan.LookThroughEntryLimit.ValueInt64())
+		addRequest.LookThroughEntryLimit = &intVal
+	}
+	if internaltypes.IsDefined(plan.IdleTimeLimitSeconds) {
+		intVal := int32(plan.IdleTimeLimitSeconds.ValueInt64())
+		addRequest.IdleTimeLimitSeconds = &intVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.PasswordPolicy) {
+		stringVal := plan.PasswordPolicy.ValueString()
+		addRequest.PasswordPolicy = &stringVal
 	}
 	if internaltypes.IsDefined(plan.Disabled) {
 		boolVal := plan.Disabled.ValueBool()
@@ -355,6 +388,14 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 	if internaltypes.IsNonEmptyString(plan.AccountExpirationTime) {
 		stringVal := plan.AccountExpirationTime.ValueString()
 		addRequest.AccountExpirationTime = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RequireSecureAuthentication) {
+		boolVal := plan.RequireSecureAuthentication.ValueBool()
+		addRequest.RequireSecureAuthentication = &boolVal
+	}
+	if internaltypes.IsDefined(plan.RequireSecureConnections) {
+		boolVal := plan.RequireSecureConnections.ValueBool()
+		addRequest.RequireSecureConnections = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AllowedAuthenticationType) {
 		var slice []string
@@ -502,15 +543,7 @@ func (r *topologyAdminUserResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	addRequest := client.NewAddTopologyAdminUserRequest(plan.Id.ValueString(),
-		plan.InheritDefaultRootPrivileges.ValueBool(),
-		int32(plan.SearchResultEntryLimit.ValueInt64()),
-		int32(plan.TimeLimitSeconds.ValueInt64()),
-		int32(plan.LookThroughEntryLimit.ValueInt64()),
-		int32(plan.IdleTimeLimitSeconds.ValueInt64()),
-		plan.PasswordPolicy.ValueString(),
-		plan.RequireSecureAuthentication.ValueBool(),
-		plan.RequireSecureConnections.ValueBool())
+	addRequest := client.NewAddTopologyAdminUserRequest(plan.Id.ValueString())
 	err := addOptionalTopologyAdminUserFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Topology Admin User", err.Error())

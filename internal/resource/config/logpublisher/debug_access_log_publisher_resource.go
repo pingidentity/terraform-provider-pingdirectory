@@ -133,11 +133,13 @@ func (r *debugAccessLogPublisherResource) Schema(ctx context.Context, req resour
 			},
 			"log_file_permissions": schema.StringAttribute{
 				Description: "The UNIX permissions of the log files created by this Debug Access Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the Debug Access Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
@@ -148,7 +150,8 @@ func (r *debugAccessLogPublisherResource) Schema(ctx context.Context, req resour
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the Debug Access Log Publisher .",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
@@ -193,7 +196,8 @@ func (r *debugAccessLogPublisherResource) Schema(ctx context.Context, req resour
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Debug Access Log Publisher will publish records asynchronously.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
@@ -316,10 +320,25 @@ func addOptionalDebugAccessLogPublisherFields(ctx context.Context, addRequest *c
 		boolVal := plan.LogSearchReferences.ValueBool()
 		addRequest.LogSearchReferences = &boolVal
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
+		stringVal := plan.LogFilePermissions.ValueString()
+		addRequest.LogFilePermissions = &stringVal
+	}
+	if internaltypes.IsDefined(plan.RotationPolicy) {
+		var slice []string
+		plan.RotationPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RotationPolicy = slice
+	}
 	if internaltypes.IsDefined(plan.RotationListener) {
 		var slice []string
 		plan.RotationListener.ElementsAs(ctx, &slice, false)
 		addRequest.RotationListener = slice
+	}
+	if internaltypes.IsDefined(plan.RetentionPolicy) {
+		var slice []string
+		plan.RetentionPolicy.ElementsAs(ctx, &slice, false)
+		addRequest.RetentionPolicy = slice
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CompressionMechanism) {
@@ -358,6 +377,10 @@ func addOptionalDebugAccessLogPublisherFields(ctx context.Context, addRequest *c
 	if internaltypes.IsDefined(plan.DebugACIEnabled) {
 		boolVal := plan.DebugACIEnabled.ValueBool()
 		addRequest.DebugACIEnabled = &boolVal
+	}
+	if internaltypes.IsDefined(plan.Asynchronous) {
+		boolVal := plan.Asynchronous.ValueBool()
+		addRequest.Asynchronous = &boolVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		boolVal := plan.AutoFlush.ValueBool()
@@ -556,17 +579,9 @@ func (r *debugAccessLogPublisherResource) Create(ctx context.Context, req resour
 		return
 	}
 
-	var RotationPolicySlice []string
-	plan.RotationPolicy.ElementsAs(ctx, &RotationPolicySlice, false)
-	var RetentionPolicySlice []string
-	plan.RetentionPolicy.ElementsAs(ctx, &RetentionPolicySlice, false)
 	addRequest := client.NewAddDebugAccessLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumdebugAccessLogPublisherSchemaUrn{client.ENUMDEBUGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDEBUG_ACCESS},
 		plan.LogFile.ValueString(),
-		plan.LogFilePermissions.ValueString(),
-		RotationPolicySlice,
-		RetentionPolicySlice,
-		plan.Asynchronous.ValueBool(),
 		plan.Enabled.ValueBool())
 	err := addOptionalDebugAccessLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {

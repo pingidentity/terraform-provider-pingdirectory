@@ -76,14 +76,17 @@ func (r *snmpSubagentPluginResource) Schema(ctx context.Context, req resource.Sc
 			"context_name": schema.StringAttribute{
 				Description: "The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"agentx_address": schema.StringAttribute{
 				Description: "The hostname or IP address of the SNMP master agent.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"agentx_port": schema.Int64Attribute{
 				Description: "The port number on which the SNMP master agent will be contacted.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"num_worker_threads": schema.Int64Attribute{
 				Description: "The number of worker threads to use to handle SNMP requests.",
@@ -130,6 +133,15 @@ func addOptionalSnmpSubagentPluginFields(ctx context.Context, addRequest *client
 	if internaltypes.IsNonEmptyString(plan.ContextName) {
 		stringVal := plan.ContextName.ValueString()
 		addRequest.ContextName = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AgentxAddress) {
+		stringVal := plan.AgentxAddress.ValueString()
+		addRequest.AgentxAddress = &stringVal
+	}
+	if internaltypes.IsDefined(plan.AgentxPort) {
+		intVal := int32(plan.AgentxPort.ValueInt64())
+		addRequest.AgentxPort = &intVal
 	}
 	if internaltypes.IsDefined(plan.NumWorkerThreads) {
 		intVal := int32(plan.NumWorkerThreads.ValueInt64())
@@ -211,8 +223,6 @@ func (r *snmpSubagentPluginResource) Create(ctx context.Context, req resource.Cr
 
 	addRequest := client.NewAddSnmpSubagentPluginRequest(plan.Id.ValueString(),
 		[]client.EnumsnmpSubagentPluginSchemaUrn{client.ENUMSNMPSUBAGENTPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSNMP_SUBAGENT},
-		plan.AgentxAddress.ValueString(),
-		int32(plan.AgentxPort.ValueInt64()),
 		plan.Enabled.ValueBool())
 	addOptionalSnmpSubagentPluginFields(ctx, addRequest, plan)
 	// Log request JSON

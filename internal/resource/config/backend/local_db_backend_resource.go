@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -136,7 +138,8 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"writability_mode": schema.StringAttribute{
 				Description: "Specifies the behavior that the backend should use when processing write operations.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"set_degraded_alert_for_untrusted_index": schema.BoolAttribute{
 				Description: "Determines whether the Directory Server enters a DEGRADED state when this Local DB Backend has an index whose contents cannot be trusted.",
@@ -160,7 +163,8 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"db_directory": schema.StringAttribute{
 				Description: "Specifies the path to the filesystem directory that is used to hold the Berkeley DB Java Edition database files containing the data for this backend. The files for this backend are stored in a sub-directory named after the backend-id.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"db_directory_permissions": schema.StringAttribute{
 				Description: "Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
@@ -242,22 +246,27 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 			"id2entry_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the \"cache-keys-and-values\" default value.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"dn2id_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2id database, which provides a mapping between normalized entry DNs and the corresponding entry IDs.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"id2children_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2children database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its immediate children. This index may be used when performing searches with a single-level scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"id2subtree_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2subtree database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its children to any depth. This index may be used when performing searches with a whole-subtree or subordinate-subtree scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"dn2uri_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2uri database, which provides a mapping between a normalized entry DN and a set of referral URLs contained in the associated smart referral entry.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"prime_method": schema.SetAttribute{
 				Description: "Specifies the method that should be used to prime caches with data for this backend.",
@@ -310,14 +319,17 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 			"id2children_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2children system index (which keeps track of the immediate children for an entry, to assist in otherwise unindexed searches with a single-level scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"id2subtree_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2subtree system index (which keeps track of all descendants below an entry, to assist in otherwise unindexed searches with a whole-subtree or subordinate subtree scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"import_temp_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"import_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use for concurrent processing during an LDIF import.",
@@ -372,6 +384,9 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 			"backend_id": schema.StringAttribute{
 				Description: "Specifies a name to identify the associated backend.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Backend",
@@ -402,7 +417,7 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -426,6 +441,14 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		stringVal := plan.UncachedEntryCriteria.ValueString()
 		addRequest.UncachedEntryCriteria = &stringVal
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.WritabilityMode) {
+		writabilityMode, err := client.NewEnumbackendWritabilityModePropFromValue(plan.WritabilityMode.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.WritabilityMode = writabilityMode
+	}
 	if internaltypes.IsDefined(plan.SetDegradedAlertForUntrustedIndex) {
 		boolVal := plan.SetDegradedAlertForUntrustedIndex.ValueBool()
 		addRequest.SetDegradedAlertForUntrustedIndex = &boolVal
@@ -441,6 +464,11 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	if internaltypes.IsDefined(plan.IsPrivateBackend) {
 		boolVal := plan.IsPrivateBackend.ValueBool()
 		addRequest.IsPrivateBackend = &boolVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.DbDirectory) {
+		stringVal := plan.DbDirectory.ValueString()
+		addRequest.DbDirectory = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbDirectoryPermissions) {
@@ -624,6 +652,11 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	if internaltypes.IsDefined(plan.Id2subtreeIndexEntryLimit) {
 		intVal := int32(plan.Id2subtreeIndexEntryLimit.ValueInt64())
 		addRequest.Id2subtreeIndexEntryLimit = &intVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ImportTempDirectory) {
+		stringVal := plan.ImportTempDirectory.ValueString()
+		addRequest.ImportTempDirectory = &stringVal
 	}
 	if internaltypes.IsDefined(plan.ImportThreadCount) {
 		intVal := int32(plan.ImportThreadCount.ValueInt64())
@@ -855,22 +888,14 @@ func (r *localDbBackendResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	writabilityMode, err := client.NewEnumbackendWritabilityModePropFromValue(plan.WritabilityMode.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for WritabilityMode", err.Error())
-		return
-	}
 	var BaseDNSlice []string
 	plan.BaseDN.ElementsAs(ctx, &BaseDNSlice, false)
-	addRequest := client.NewAddLocalDbBackendRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLocalDbBackendRequest(plan.BackendID.ValueString(),
 		[]client.EnumlocalDbBackendSchemaUrn{client.ENUMLOCALDBBACKENDSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0BACKENDLOCAL_DB},
-		*writabilityMode,
-		plan.DbDirectory.ValueString(),
-		plan.ImportTempDirectory.ValueString(),
 		plan.BackendID.ValueString(),
 		plan.Enabled.ValueBool(),
 		BaseDNSlice)
-	err = addOptionalLocalDbBackendFields(ctx, addRequest, plan)
+	err := addOptionalLocalDbBackendFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Local Db Backend", err.Error())
 		return
@@ -922,7 +947,7 @@ func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Backend", err, httpResp)
 		return
@@ -959,7 +984,7 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 	var state localDbBackendResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocalDbBackendOperations(plan, state)
@@ -1006,7 +1031,7 @@ func (r *localDbBackendResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	httpResp, err := r.apiClient.BackendApi.DeleteBackendExecute(r.apiClient.BackendApi.DeleteBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Backend", err, httpResp)
 		return
@@ -1014,6 +1039,6 @@ func (r *localDbBackendResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *localDbBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to backend_id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

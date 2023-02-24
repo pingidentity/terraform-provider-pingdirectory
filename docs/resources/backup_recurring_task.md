@@ -17,7 +17,6 @@ Manages a Backup Recurring Task.
 
 ### Required
 
-- `backup_directory` (String) The directory in which backup files will be placed. When backing up a single backend, the backup files will be placed directly in this directory. When backing up multiple backends, the backup files for each backend will be placed in a subdirectory whose name is the corresponding backend ID.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -25,6 +24,7 @@ Manages a Backup Recurring Task.
 - `alert_on_failure` (Boolean) Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.
 - `alert_on_start` (Boolean) Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.
 - `alert_on_success` (Boolean) Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.
+- `backup_directory` (String) The directory in which backup files will be placed. When backing up a single backend, the backup files will be placed directly in this directory. When backing up multiple backends, the backup files for each backend will be placed in a subdirectory whose name is the corresponding backend ID.
 - `cancel_on_task_dependency_failure` (Boolean) Indicates whether an instance of this Recurring Task should be canceled if the task immediately before it in the recurring task chain fails to complete successfully (including if it is canceled by an administrator before it starts or while it is running).
 - `compress` (Boolean) Indicates whether to compress the data as it is written into the backup.
 - `description` (String) A description for this Recurring Task

@@ -93,19 +93,23 @@ func (r *syslogTextErrorLogPublisherResource) Schema(ctx context.Context, req re
 			},
 			"syslog_facility": schema.StringAttribute{
 				Description: "The syslog facility to use for the messages that are logged by this Syslog Text Error Log Publisher.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_severity": schema.StringAttribute{
 				Description: "The syslog severity to use for the messages that are logged by this Syslog Text Error Log Publisher. If this is not specified, then the severity for each syslog message will be automatically based on the severity for the associated log message.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_message_host_name": schema.StringAttribute{
 				Description: "The local host name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"syslog_message_application_name": schema.StringAttribute{
 				Description: "The application name that will be included in syslog messages that are logged by this Syslog Text Error Log Publisher.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"include_product_name": schema.BoolAttribute{
 				Description: "Indicates whether log messages should include the product name for the Directory Server.",
@@ -181,6 +185,14 @@ func addOptionalSyslogTextErrorLogPublisherFields(ctx context.Context, addReques
 			enumSlice[i] = *enumVal
 		}
 		addRequest.DefaultSeverity = enumSlice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.SyslogFacility) {
+		syslogFacility, err := client.NewEnumlogPublisherSyslogFacilityPropFromValue(plan.SyslogFacility.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.SyslogFacility = syslogFacility
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SyslogSeverity) {
@@ -315,17 +327,11 @@ func (r *syslogTextErrorLogPublisherResource) Create(ctx context.Context, req re
 
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	syslogFacility, err := client.NewEnumlogPublisherSyslogFacilityPropFromValue(plan.SyslogFacility.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for SyslogFacility", err.Error())
-		return
-	}
 	addRequest := client.NewAddSyslogTextErrorLogPublisherRequest(plan.Id.ValueString(),
 		[]client.EnumsyslogTextErrorLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ERROR},
 		SyslogExternalServerSlice,
-		*syslogFacility,
 		plan.Enabled.ValueBool())
-	err = addOptionalSyslogTextErrorLogPublisherFields(ctx, addRequest, plan)
+	err := addOptionalSyslogTextErrorLogPublisherFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Syslog Text Error Log Publisher", err.Error())
 		return

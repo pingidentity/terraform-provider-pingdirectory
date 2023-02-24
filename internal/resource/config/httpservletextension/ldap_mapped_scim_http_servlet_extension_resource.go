@@ -132,18 +132,22 @@ func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context,
 			"entity_tag_ldap_attribute": schema.StringAttribute{
 				Description: "Specifies the LDAP attribute whose value should be used as the entity tag value to enable SCIM resource versioning support.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"base_context_path": schema.StringAttribute{
 				Description: "The context path to use to access the SCIM interface. The value must start with a forward slash and must represent a valid HTTP context path.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"temporary_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to create temporary files containing SCIM request data.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"temporary_directory_permissions": schema.StringAttribute{
 				Description: "Specifies the permissions that should be applied to the directory that is used to create temporary files.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"max_results": schema.Int64Attribute{
 				Description: "The maximum number of resources that are returned in a response.",
@@ -172,16 +176,19 @@ func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context,
 			},
 			"debug_level": schema.StringAttribute{
 				Description: "The minimum debug level that should be used for messages to be logged.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"debug_type": schema.SetAttribute{
 				Description: "The types of debug messages that should be logged.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"include_stack_trace": schema.BoolAttribute{
 				Description: "Indicates whether a stack trace of the thread which called the debug method should be included in debug log messages.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Extension",
@@ -190,6 +197,7 @@ func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context,
 			"cross_origin_policy": schema.StringAttribute{
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"response_header": schema.SetAttribute{
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
@@ -200,6 +208,7 @@ func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context,
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
@@ -208,7 +217,7 @@ func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context,
 }
 
 // Add optional fields to create request
-func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, addRequest *client.AddLdapMappedScimHttpServletExtensionRequest, plan ldapMappedScimHttpServletExtensionResourceModel) {
+func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, addRequest *client.AddLdapMappedScimHttpServletExtensionRequest, plan ldapMappedScimHttpServletExtensionResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.OAuthTokenHandler) {
 		stringVal := plan.OAuthTokenHandler.ValueString()
@@ -253,6 +262,21 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 		stringVal := plan.EntityTagLDAPAttribute.ValueString()
 		addRequest.EntityTagLDAPAttribute = &stringVal
 	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.BaseContextPath) {
+		stringVal := plan.BaseContextPath.ValueString()
+		addRequest.BaseContextPath = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.TemporaryDirectory) {
+		stringVal := plan.TemporaryDirectory.ValueString()
+		addRequest.TemporaryDirectory = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.TemporaryDirectoryPermissions) {
+		stringVal := plan.TemporaryDirectoryPermissions.ValueString()
+		addRequest.TemporaryDirectoryPermissions = &stringVal
+	}
 	if internaltypes.IsDefined(plan.MaxResults) {
 		intVal := int32(plan.MaxResults.ValueInt64())
 		addRequest.MaxResults = &intVal
@@ -275,6 +299,31 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 		addRequest.DebugEnabled = &boolVal
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.DebugLevel) {
+		debugLevel, err := client.NewEnumhttpServletExtensionDebugLevelPropFromValue(plan.DebugLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.DebugLevel = debugLevel
+	}
+	if internaltypes.IsDefined(plan.DebugType) {
+		var slice []string
+		plan.DebugType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumhttpServletExtensionDebugTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumhttpServletExtensionDebugTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.DebugType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.IncludeStackTrace) {
+		boolVal := plan.IncludeStackTrace.ValueBool()
+		addRequest.IncludeStackTrace = &boolVal
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		stringVal := plan.Description.ValueString()
 		addRequest.Description = &stringVal
@@ -294,6 +343,7 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 		stringVal := plan.CorrelationIDResponseHeader.ValueString()
 		addRequest.CorrelationIDResponseHeader = &stringVal
 	}
+	return nil
 }
 
 // Read a LdapMappedScimHttpServletExtensionResponse object into the model struct
@@ -369,22 +419,13 @@ func (r *ldapMappedScimHttpServletExtensionResource) Create(ctx context.Context,
 		return
 	}
 
-	debugLevel, err := client.NewEnumhttpServletExtensionDebugLevelPropFromValue(plan.DebugLevel.ValueString())
+	addRequest := client.NewAddLdapMappedScimHttpServletExtensionRequest(plan.Id.ValueString(),
+		[]client.EnumldapMappedScimHttpServletExtensionSchemaUrn{client.ENUMLDAPMAPPEDSCIMHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONLDAP_MAPPED_SCIM})
+	err := addOptionalLdapMappedScimHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to parse enum value for DebugLevel", err.Error())
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Ldap Mapped Scim Http Servlet Extension", err.Error())
 		return
 	}
-	var DebugTypeSlice []client.EnumhttpServletExtensionDebugTypeProp
-	plan.DebugType.ElementsAs(ctx, &DebugTypeSlice, false)
-	addRequest := client.NewAddLdapMappedScimHttpServletExtensionRequest(plan.Id.ValueString(),
-		[]client.EnumldapMappedScimHttpServletExtensionSchemaUrn{client.ENUMLDAPMAPPEDSCIMHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONLDAP_MAPPED_SCIM},
-		plan.BaseContextPath.ValueString(),
-		plan.TemporaryDirectory.ValueString(),
-		plan.TemporaryDirectoryPermissions.ValueString(),
-		*debugLevel,
-		DebugTypeSlice,
-		plan.IncludeStackTrace.ValueBool())
-	addOptionalLdapMappedScimHttpServletExtensionFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

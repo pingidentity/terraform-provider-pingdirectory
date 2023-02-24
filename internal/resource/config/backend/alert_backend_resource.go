@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -80,6 +82,9 @@ func (r *alertBackendResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies a name to identify the associated backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies the base DN(s) for the data that the backend handles.",
@@ -145,7 +150,7 @@ func (r *alertBackendResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
@@ -204,7 +209,7 @@ func (r *alertBackendResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Backend", err, httpResp)
 		return
@@ -218,10 +223,10 @@ func (r *alertBackendResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state alertBackendResourceModel
-	readAlertBackendResponse(ctx, readResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
+	readAlertBackendResponse(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 	ops := createAlertBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -264,7 +269,7 @@ func (r *alertBackendResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Backend", err, httpResp)
 		return
@@ -301,7 +306,7 @@ func (r *alertBackendResource) Update(ctx context.Context, req resource.UpdateRe
 	var state alertBackendResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAlertBackendOperations(plan, state)
@@ -345,6 +350,6 @@ func (r *alertBackendResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *alertBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to backend_id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

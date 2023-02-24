@@ -17,13 +17,13 @@ Manages a Snmp Subagent Plugin.
 
 ### Required
 
-- `agentx_address` (String) The hostname or IP address of the SNMP master agent.
-- `agentx_port` (Number) The port number on which the SNMP master agent will be contacted.
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `agentx_address` (String) The hostname or IP address of the SNMP master agent.
+- `agentx_port` (Number) The port number on which the SNMP master agent will be contacted.
 - `connect_retry_max_wait` (String) The maximum amount of time to wait between attempts to establish a connection to the master agent.
 - `context_name` (String) The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.
 - `description` (String) A description for this Plugin

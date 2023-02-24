@@ -19,7 +19,6 @@ Manages a Unique Attribute Plugin.
 
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
-- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `type` (Set of String) Specifies the type of attributes to check for value uniqueness.
 
 ### Optional
@@ -29,6 +28,7 @@ Manages a Unique Attribute Plugin.
 - `filter` (String) Specifies the search filter to apply to determine if attribute uniqueness is enforced for the matching entries.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `multiple_attribute_behavior` (String) The behavior to exhibit if multiple attribute types are specified.
+- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `prevent_conflicts_with_soft_deleted_entries` (Boolean) Indicates whether this Unique Attribute Plugin should reject a change that would result in one or more conflicts, even if those conflicts only exist in soft-deleted entries.
 
 ### Read-Only

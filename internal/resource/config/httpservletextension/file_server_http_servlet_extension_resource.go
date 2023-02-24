@@ -102,6 +102,7 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 			"mime_types_file": schema.StringAttribute{
 				Description: "Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"default_mime_type": schema.StringAttribute{
 				Description: "Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.",
@@ -145,6 +146,7 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 			"identity_mapper": schema.StringAttribute{
 				Description: "The identity mapper that will be used to identify the entry with which a username is associated.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Extension",
@@ -153,6 +155,7 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 			"cross_origin_policy": schema.StringAttribute{
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"response_header": schema.SetAttribute{
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
@@ -163,6 +166,7 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}

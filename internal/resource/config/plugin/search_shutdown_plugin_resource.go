@@ -74,6 +74,7 @@ func (r *searchShutdownPluginResource) Schema(ctx context.Context, req resource.
 			"base_dn": schema.StringAttribute{
 				Description: "The base DN to use for the search.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"scope": schema.StringAttribute{
 				Description: "The scope to use for the search.",
@@ -96,6 +97,7 @@ func (r *searchShutdownPluginResource) Schema(ctx context.Context, req resource.
 			"previous_file_extension": schema.StringAttribute{
 				Description: "An extension that should be appended to the name of an existing output file rather than deleting it. If a file already exists with the full previous file name, then it will be deleted before the current file is renamed to become the previous file.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",

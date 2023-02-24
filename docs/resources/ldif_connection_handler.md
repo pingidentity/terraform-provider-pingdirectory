@@ -19,14 +19,14 @@ Manages a Ldif Connection Handler.
 
 - `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `id` (String) Name of this object.
-- `ldif_directory` (String) Specifies the path to the directory in which the LDIF files should be placed.
-- `poll_interval` (String) Specifies how frequently the LDIF connection handler should check the LDIF directory to determine whether a new LDIF file has been added.
 
 ### Optional
 
 - `allowed_client` (Set of String) Specifies a set of address masks that determines the addresses of the clients that are allowed to establish connections to this connection handler.
 - `denied_client` (Set of String) Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.
 - `description` (String) A description for this Connection Handler
+- `ldif_directory` (String) Specifies the path to the directory in which the LDIF files should be placed.
+- `poll_interval` (String) Specifies how frequently the LDIF connection handler should check the LDIF directory to determine whether a new LDIF file has been added.
 
 ### Read-Only
 

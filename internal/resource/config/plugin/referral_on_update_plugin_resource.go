@@ -71,7 +71,8 @@ func (r *referralOnUpdatePluginResource) Schema(ctx context.Context, req resourc
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"referral_base_url": schema.SetAttribute{
@@ -105,7 +106,20 @@ func (r *referralOnUpdatePluginResource) Schema(ctx context.Context, req resourc
 }
 
 // Add optional fields to create request
-func addOptionalReferralOnUpdatePluginFields(ctx context.Context, addRequest *client.AddReferralOnUpdatePluginRequest, plan referralOnUpdatePluginResourceModel) {
+func addOptionalReferralOnUpdatePluginFields(ctx context.Context, addRequest *client.AddReferralOnUpdatePluginRequest, plan referralOnUpdatePluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
 		plan.BaseDN.ElementsAs(ctx, &slice, false)
@@ -120,6 +134,7 @@ func addOptionalReferralOnUpdatePluginFields(ctx context.Context, addRequest *cl
 		stringVal := plan.Description.ValueString()
 		addRequest.Description = &stringVal
 	}
+	return nil
 }
 
 // Read a ReferralOnUpdatePluginResponse object into the model struct
@@ -157,16 +172,17 @@ func (r *referralOnUpdatePluginResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	var ReferralBaseURLSlice []string
 	plan.ReferralBaseURL.ElementsAs(ctx, &ReferralBaseURLSlice, false)
 	addRequest := client.NewAddReferralOnUpdatePluginRequest(plan.Id.ValueString(),
 		[]client.EnumreferralOnUpdatePluginSchemaUrn{client.ENUMREFERRALONUPDATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERRAL_ON_UPDATE},
-		PluginTypeSlice,
 		ReferralBaseURLSlice,
 		plan.Enabled.ValueBool())
-	addOptionalReferralOnUpdatePluginFields(ctx, addRequest, plan)
+	err := addOptionalReferralOnUpdatePluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Referral On Update Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

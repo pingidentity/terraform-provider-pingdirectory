@@ -74,7 +74,8 @@ func (r *uniqueAttributePluginResource) Schema(ctx context.Context, req resource
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"type": schema.SetAttribute{
@@ -123,6 +124,19 @@ func (r *uniqueAttributePluginResource) Schema(ctx context.Context, req resource
 
 // Add optional fields to create request
 func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *client.AddUniqueAttributePluginRequest, plan uniqueAttributePluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MultipleAttributeBehavior) {
 		multipleAttributeBehavior, err := client.NewEnumpluginMultipleAttributeBehaviorPropFromValue(plan.MultipleAttributeBehavior.ValueString())
@@ -199,13 +213,10 @@ func (r *uniqueAttributePluginResource) Create(ctx context.Context, req resource
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	var TypeSlice []string
 	plan.Type.ElementsAs(ctx, &TypeSlice, false)
 	addRequest := client.NewAddUniqueAttributePluginRequest(plan.Id.ValueString(),
 		[]client.EnumuniqueAttributePluginSchemaUrn{client.ENUMUNIQUEATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINUNIQUE_ATTRIBUTE},
-		PluginTypeSlice,
 		TypeSlice,
 		plan.Enabled.ValueBool())
 	err := addOptionalUniqueAttributePluginFields(ctx, addRequest, plan)

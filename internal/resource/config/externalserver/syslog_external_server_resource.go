@@ -77,6 +77,7 @@ func (r *syslogExternalServerResource) Schema(ctx context.Context, req resource.
 			"server_port": schema.Int64Attribute{
 				Description: "The port on which the syslog server accepts connections.",
 				Optional:    true,
+				Computed:    true,
 			},
 			"transport_mechanism": schema.StringAttribute{
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
@@ -84,15 +85,18 @@ func (r *syslogExternalServerResource) Schema(ctx context.Context, req resource.
 			},
 			"connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption).",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"max_connection_age": schema.StringAttribute{
 				Description: "The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this External Server",
@@ -109,6 +113,21 @@ func addOptionalSyslogExternalServerFields(ctx context.Context, addRequest *clie
 	if internaltypes.IsDefined(plan.ServerPort) {
 		intVal := int32(plan.ServerPort.ValueInt64())
 		addRequest.ServerPort = &intVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectTimeout) {
+		stringVal := plan.ConnectTimeout.ValueString()
+		addRequest.ConnectTimeout = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.MaxConnectionAge) {
+		stringVal := plan.MaxConnectionAge.ValueString()
+		addRequest.MaxConnectionAge = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
+		stringVal := plan.TrustManagerProvider.ValueString()
+		addRequest.TrustManagerProvider = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -165,10 +184,7 @@ func (r *syslogExternalServerResource) Create(ctx context.Context, req resource.
 	addRequest := client.NewAddSyslogExternalServerRequest(plan.Id.ValueString(),
 		[]client.EnumsyslogExternalServerSchemaUrn{client.ENUMSYSLOGEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSYSLOG},
 		plan.ServerHostName.ValueString(),
-		*transportMechanism,
-		plan.ConnectTimeout.ValueString(),
-		plan.MaxConnectionAge.ValueString(),
-		plan.TrustManagerProvider.ValueString())
+		*transportMechanism)
 	addOptionalSyslogExternalServerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()

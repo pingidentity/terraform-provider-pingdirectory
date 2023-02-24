@@ -18,7 +18,6 @@ Manages a Ldif Export Recurring Task.
 ### Required
 
 - `id` (String) Name of this object.
-- `ldif_directory` (String) The directory in which LDIF export files will be placed. The directory must already exist.
 
 ### Optional
 
@@ -35,6 +34,7 @@ Manages a Ldif Export Recurring Task.
 - `encrypt` (Boolean) Indicates whether to encrypt the LDIF data as it exported.
 - `encryption_settings_definition_id` (String) The ID of an encryption settings definition to use to obtain the LDIF export encryption key.
 - `exclude_backend_id` (Set of String) The backend ID for a backend to be excluded from the export.
+- `ldif_directory` (String) The directory in which LDIF export files will be placed. The directory must already exist.
 - `max_megabytes_per_second` (Number) The maximum rate, in megabytes per second, at which LDIF exports should be written.
 - `retain_previous_ldif_export_age` (String) The minimum age of previous LDIF exports that should be preserved after a new export completes successfully.
 - `retain_previous_ldif_export_count` (Number) The minimum number of previous LDIF exports that should be preserved after a new export completes successfully.

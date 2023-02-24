@@ -75,7 +75,8 @@ func (r *dnMapperPluginResource) Schema(ctx context.Context, req resource.Schema
 		Attributes: map[string]schema.Attribute{
 			"plugin_type": schema.SetAttribute{
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"source_dn": schema.StringAttribute{
@@ -88,7 +89,8 @@ func (r *dnMapperPluginResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"enable_attribute_mapping": schema.BoolAttribute{
 				Description: "Indicates whether DN mapping should be applied to the values of attributes with appropriate syntaxes.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"map_attribute": schema.SetAttribute{
 				Description: "Specifies a set of specific attributes for which DN mapping should be applied. This will only be applicable if the enable-attribute-mapping property has a value of \"true\". Any attributes listed must be defined in the server schema with either the distinguished name syntax or the name and optional UID syntax.",
@@ -98,11 +100,13 @@ func (r *dnMapperPluginResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"enable_control_mapping": schema.BoolAttribute{
 				Description: "Indicates whether DN mapping should be applied to DNs that may be present in specific controls. DN mapping will only be applied for control types which are specifically supported by the DN mapper plugin.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"always_map_responses": schema.BoolAttribute{
 				Description: "Indicates whether DNs in response messages containing the target DN should always be remapped back to the source DN. If this is \"false\", then mapping will be performed for a response message only if one or more elements of the associated request are mapped. Otherwise, the mapping will be performed for all responses regardless of whether the mapping was applied to the request.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -124,11 +128,36 @@ func (r *dnMapperPluginResource) Schema(ctx context.Context, req resource.Schema
 }
 
 // Add optional fields to create request
-func addOptionalDnMapperPluginFields(ctx context.Context, addRequest *client.AddDnMapperPluginRequest, plan dnMapperPluginResourceModel) {
+func addOptionalDnMapperPluginFields(ctx context.Context, addRequest *client.AddDnMapperPluginRequest, plan dnMapperPluginResourceModel) error {
+	if internaltypes.IsDefined(plan.PluginType) {
+		var slice []string
+		plan.PluginType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpluginPluginTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpluginPluginTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.PluginType = enumSlice
+	}
+	if internaltypes.IsDefined(plan.EnableAttributeMapping) {
+		boolVal := plan.EnableAttributeMapping.ValueBool()
+		addRequest.EnableAttributeMapping = &boolVal
+	}
 	if internaltypes.IsDefined(plan.MapAttribute) {
 		var slice []string
 		plan.MapAttribute.ElementsAs(ctx, &slice, false)
 		addRequest.MapAttribute = slice
+	}
+	if internaltypes.IsDefined(plan.EnableControlMapping) {
+		boolVal := plan.EnableControlMapping.ValueBool()
+		addRequest.EnableControlMapping = &boolVal
+	}
+	if internaltypes.IsDefined(plan.AlwaysMapResponses) {
+		boolVal := plan.AlwaysMapResponses.ValueBool()
+		addRequest.AlwaysMapResponses = &boolVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -139,6 +168,7 @@ func addOptionalDnMapperPluginFields(ctx context.Context, addRequest *client.Add
 		boolVal := plan.InvokeForInternalOperations.ValueBool()
 		addRequest.InvokeForInternalOperations = &boolVal
 	}
+	return nil
 }
 
 // Read a DnMapperPluginResponse object into the model struct
@@ -184,18 +214,16 @@ func (r *dnMapperPluginResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	var PluginTypeSlice []client.EnumpluginPluginTypeProp
-	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
 	addRequest := client.NewAddDnMapperPluginRequest(plan.Id.ValueString(),
 		[]client.EnumdnMapperPluginSchemaUrn{client.ENUMDNMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDN_MAPPER},
-		PluginTypeSlice,
 		plan.SourceDN.ValueString(),
 		plan.TargetDN.ValueString(),
-		plan.EnableAttributeMapping.ValueBool(),
-		plan.EnableControlMapping.ValueBool(),
-		plan.AlwaysMapResponses.ValueBool(),
 		plan.Enabled.ValueBool())
-	addOptionalDnMapperPluginFields(ctx, addRequest, plan)
+	err := addOptionalDnMapperPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Dn Mapper Plugin", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

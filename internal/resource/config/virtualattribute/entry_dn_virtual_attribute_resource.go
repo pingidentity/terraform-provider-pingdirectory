@@ -82,7 +82,8 @@ func (r *entryDnVirtualAttributeResource) Schema(ctx context.Context, req resour
 			},
 			"attribute_type": schema.StringAttribute{
 				Description: "Specifies the attribute type for the attribute whose values are to be dynamically assigned by the virtual attribute.",
-				Required:    true,
+				Optional:    true,
+				Computed:    true,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Virtual Attribute",
@@ -150,6 +151,11 @@ func addOptionalEntryDnVirtualAttributeFields(ctx context.Context, addRequest *c
 			return err
 		}
 		addRequest.ConflictBehavior = conflictBehavior
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AttributeType) {
+		stringVal := plan.AttributeType.ValueString()
+		addRequest.AttributeType = &stringVal
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -249,7 +255,6 @@ func (r *entryDnVirtualAttributeResource) Create(ctx context.Context, req resour
 
 	addRequest := client.NewAddEntryDnVirtualAttributeRequest(plan.Id.ValueString(),
 		[]client.EnumentryDnVirtualAttributeSchemaUrn{client.ENUMENTRYDNVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEENTRY_DN},
-		plan.AttributeType.ValueString(),
 		plan.Enabled.ValueBool())
 	err := addOptionalEntryDnVirtualAttributeFields(ctx, addRequest, plan)
 	if err != nil {

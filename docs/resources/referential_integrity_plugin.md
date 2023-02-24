@@ -20,7 +20,6 @@ Manages a Referential Integrity Plugin.
 - `attribute_type` (Set of String) Specifies the attribute types for which referential integrity is to be maintained.
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
-- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 
 ### Optional
 
@@ -28,6 +27,7 @@ Manages a Referential Integrity Plugin.
 - `description` (String) A description for this Plugin
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `log_file` (String) Specifies the log file location where the update records are written when the plug-in is in background-mode processing.
+- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `update_interval` (String) Specifies the interval in seconds when referential integrity updates are made.
 
 ### Read-Only
