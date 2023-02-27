@@ -113,7 +113,8 @@ func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *c
 func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAwsExternalServerResponse, state *amazonAwsExternalServerResourceModel, expectedValues *amazonAwsExternalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))
-	state.AwsSecretAccessKey = internaltypes.StringTypeOrNil(r.AwsSecretAccessKey, internaltypes.IsEmptyString(expectedValues.AwsSecretAccessKey))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
 	state.AwsRegionName = types.StringValue(r.AwsRegionName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

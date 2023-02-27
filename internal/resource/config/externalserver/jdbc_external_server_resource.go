@@ -215,7 +215,8 @@ func readJdbcExternalServerResponse(ctx context.Context, r *client.JdbcExternalS
 	state.ServerHostName = internaltypes.StringTypeOrNil(r.ServerHostName, internaltypes.IsEmptyString(expectedValues.ServerHostName))
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.UserName = internaltypes.StringTypeOrNil(r.UserName, internaltypes.IsEmptyString(expectedValues.UserName))
-	state.Password = internaltypes.StringTypeOrNil(r.Password, internaltypes.IsEmptyString(expectedValues.Password))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ValidationQuery = internaltypes.StringTypeOrNil(r.ValidationQuery, internaltypes.IsEmptyString(expectedValues.ValidationQuery))
 	state.ValidationQueryTimeout = internaltypes.StringTypeOrNil(r.ValidationQueryTimeout, internaltypes.IsEmptyString(expectedValues.ValidationQueryTimeout))

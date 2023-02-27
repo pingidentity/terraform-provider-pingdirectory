@@ -132,7 +132,8 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	state.TrustStorePin = internaltypes.StringTypeOrNil(r.TrustStorePin, internaltypes.IsEmptyString(expectedValues.TrustStorePin))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
