@@ -86,9 +86,9 @@ func addOptionalRootDseRequestCriteriaFields(ctx context.Context, addRequest *cl
 	if internaltypes.IsDefined(plan.OperationType) {
 		var slice []string
 		plan.OperationType.ElementsAs(ctx, &slice, false)
-		enumSlice := make([]client.EnumrequestCriteriaOperationTypeProp, len(slice))
+		enumSlice := make([]client.EnumrequestCriteriaRootDseOperationTypeProp, len(slice))
 		for i := 0; i < len(slice); i++ {
-			enumVal, err := client.NewEnumrequestCriteriaOperationTypePropFromValue(slice[i])
+			enumVal, err := client.NewEnumrequestCriteriaRootDseOperationTypePropFromValue(slice[i])
 			if err != nil {
 				return err
 			}
@@ -108,7 +108,7 @@ func addOptionalRootDseRequestCriteriaFields(ctx context.Context, addRequest *cl
 func readRootDseRequestCriteriaResponse(ctx context.Context, r *client.RootDseRequestCriteriaResponse, state *rootDseRequestCriteriaResourceModel, expectedValues *rootDseRequestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.OperationType = internaltypes.GetStringSet(
-		client.StringSliceEnumrequestCriteriaOperationTypeProp(r.OperationType))
+		client.StringSliceEnumrequestCriteriaRootDseOperationTypeProp(r.OperationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }

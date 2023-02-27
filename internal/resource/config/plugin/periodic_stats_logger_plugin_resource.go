@@ -325,7 +325,7 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PerApplicationLDAPStats) {
-		perApplicationLDAPStats, err := client.NewEnumpluginPerApplicationLDAPStatsPropFromValue(plan.PerApplicationLDAPStats.ValueString())
+		perApplicationLDAPStats, err := client.NewEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsPropFromValue(plan.PerApplicationLDAPStats.ValueString())
 		if err != nil {
 			return err
 		}
@@ -466,7 +466,7 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.HistogramOpType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginHistogramOpTypeProp(r.HistogramOpType))
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
+		client.StringPointerEnumpluginPeriodicStatsLoggerPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), internaltypes.IsEmptyString(expectedValues.PerApplicationLDAPStats))
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), internaltypes.IsEmptyString(expectedValues.StatusSummaryInfo))
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
