@@ -11,6 +11,7 @@ import (
 
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
@@ -268,6 +269,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		accountstatusnotificationhandler.NewMultiPartEmailAccountStatusNotificationHandlerResource,
 		accountstatusnotificationhandler.NewSmtpAccountStatusNotificationHandlerResource,
 		accountstatusnotificationhandler.NewThirdPartyAccountStatusNotificationHandlerResource,
+		accesstokenvalidator.NewJwtAccessTokenValidatorResource,
+		accesstokenvalidator.NewMockAccessTokenValidatorResource,
+		accesstokenvalidator.NewPingFederateAccessTokenValidatorResource,
+		accesstokenvalidator.NewThirdPartyAccessTokenValidatorResource,
 		backend.NewAlarmBackendResource,
 		backend.NewAlertBackendResource,
 		backend.NewBackupBackendResource,
