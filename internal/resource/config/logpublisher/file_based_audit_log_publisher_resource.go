@@ -392,7 +392,7 @@ func addOptionalFileBasedAuditLogPublisherFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SoftDeleteEntryAuditBehavior) {
-		softDeleteEntryAuditBehavior, err := client.NewEnumlogPublisherSoftDeleteEntryAuditBehaviorPropFromValue(plan.SoftDeleteEntryAuditBehavior.ValueString())
+		softDeleteEntryAuditBehavior, err := client.NewEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorPropFromValue(plan.SoftDeleteEntryAuditBehavior.ValueString())
 		if err != nil {
 			return err
 		}
@@ -517,7 +517,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 	state.IncludeReplicationChangeID = internaltypes.BoolTypeOrNil(r.IncludeReplicationChangeID)
 	state.UseReversibleForm = internaltypes.BoolTypeOrNil(r.UseReversibleForm)
 	state.SoftDeleteEntryAuditBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogPublisherSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
+		client.StringPointerEnumlogPublisherFileBasedAuditSoftDeleteEntryAuditBehaviorProp(r.SoftDeleteEntryAuditBehavior), internaltypes.IsEmptyString(expectedValues.SoftDeleteEntryAuditBehavior))
 	state.IncludeRequestControls = internaltypes.BoolTypeOrNil(r.IncludeRequestControls)
 	state.IncludeOperationPurposeRequestControl = internaltypes.BoolTypeOrNil(r.IncludeOperationPurposeRequestControl)
 	state.IncludeIntermediateClientRequestControl = internaltypes.BoolTypeOrNil(r.IncludeIntermediateClientRequestControl)

@@ -175,7 +175,7 @@ func readStatsCollectorPluginResponse(ctx context.Context, r *client.StatsCollec
 	state.ServerInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginServerInfoProp(r.ServerInfo), true)
 	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
+		client.StringPointerEnumpluginStatsCollectorPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), true)
 	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), true)
 	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
