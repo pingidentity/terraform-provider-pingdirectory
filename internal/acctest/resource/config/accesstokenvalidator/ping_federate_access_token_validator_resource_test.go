@@ -63,12 +63,13 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 			},
 			{
 				// Test importing the resource
-				Config:        testAccPingFederateAccessTokenValidatorResource(resourceName, updatedResourceModel),
-				ResourceName:  "pingdirectory_ping_federate_access_token_validator." + resourceName,
-				ImportStateId: updatedResourceModel.id,
-				ImportState:   true,
-				// Can't verify import state since we are importing a sensitive attribute that PD won't return
-				ImportStateVerifyIgnore: []string{"last_updated"},
+				Config:            testAccPingFederateAccessTokenValidatorResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_ping_federate_access_token_validator." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
+				// Can't verify import state for a sensitive attribute that PD won't return
+				ImportStateVerifyIgnore: []string{"last_updated", "client_secret"},
 			},
 		},
 	})
