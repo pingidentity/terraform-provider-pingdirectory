@@ -161,14 +161,15 @@ func (r *trustStoreBackendResource) Schema(ctx context.Context, req resource.Sch
 }
 
 // Read a TrustStoreBackendResponse object into the model struct
-func readTrustStoreBackendResponse(ctx context.Context, r *client.TrustStoreBackendResponse, state *trustStoreBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readTrustStoreBackendResponse(ctx context.Context, r *client.TrustStoreBackendResponse, state *trustStoreBackendResourceModel, expectedValues *trustStoreBackendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, true)
-	state.TrustStorePin = internaltypes.StringTypeOrNil(r.TrustStorePin, true)
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, true)
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, true)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
@@ -228,7 +229,7 @@ func (r *trustStoreBackendResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state trustStoreBackendResourceModel
-	readTrustStoreBackendResponse(ctx, readResponse.TrustStoreBackendResponse, &state, &resp.Diagnostics)
+	readTrustStoreBackendResponse(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
@@ -251,7 +252,7 @@ func (r *trustStoreBackendResource) Create(ctx context.Context, req resource.Cre
 		}
 
 		// Read the response
-		readTrustStoreBackendResponse(ctx, updateResponse.TrustStoreBackendResponse, &state, &resp.Diagnostics)
+		readTrustStoreBackendResponse(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -287,7 +288,7 @@ func (r *trustStoreBackendResource) Read(ctx context.Context, req resource.ReadR
 	}
 
 	// Read the response into the state
-	readTrustStoreBackendResponse(ctx, readResponse.TrustStoreBackendResponse, &state, &resp.Diagnostics)
+	readTrustStoreBackendResponse(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -333,7 +334,7 @@ func (r *trustStoreBackendResource) Update(ctx context.Context, req resource.Upd
 		}
 
 		// Read the response
-		readTrustStoreBackendResponse(ctx, updateResponse.TrustStoreBackendResponse, &state, &resp.Diagnostics)
+		readTrustStoreBackendResponse(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

@@ -458,7 +458,8 @@ func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminU
 	state.Id = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Password = internaltypes.StringTypeOrNil(r.Password, internaltypes.IsEmptyString(expectedValues.Password))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.Password = expectedValues.Password
 	state.FirstName = internaltypes.GetStringSet(r.FirstName)
 	state.LastName = internaltypes.GetStringSet(r.LastName)
 	state.UserID = internaltypes.StringTypeOrNil(r.UserID, internaltypes.IsEmptyString(expectedValues.UserID))

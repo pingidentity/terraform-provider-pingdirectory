@@ -175,7 +175,8 @@ func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalS
 	state.SmtpSecurity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerSmtpSecurityProp(r.SmtpSecurity), internaltypes.IsEmptyString(expectedValues.SmtpSecurity))
 	state.UserName = internaltypes.StringTypeOrNil(r.UserName, internaltypes.IsEmptyString(expectedValues.UserName))
-	state.Password = internaltypes.StringTypeOrNil(r.Password, internaltypes.IsEmptyString(expectedValues.Password))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.SmtpTimeout = internaltypes.StringTypeOrNil(r.SmtpTimeout, internaltypes.IsEmptyString(expectedValues.SmtpTimeout))
 	config.CheckMismatchedPDFormattedAttributes("smtp_timeout",

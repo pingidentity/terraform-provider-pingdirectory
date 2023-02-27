@@ -326,7 +326,8 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.ServerPort = types.Int64Value(int64(r.ServerPort))
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	state.Password = internaltypes.StringTypeOrNil(r.Password, internaltypes.IsEmptyString(expectedValues.Password))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())

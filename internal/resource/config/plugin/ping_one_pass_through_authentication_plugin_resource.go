@@ -270,7 +270,8 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
-	state.OAuthClientSecret = internaltypes.StringTypeOrNil(r.OAuthClientSecret, internaltypes.IsEmptyString(expectedValues.OAuthClientSecret))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.OAuthClientSecret = expectedValues.OAuthClientSecret
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)

@@ -139,7 +139,8 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 	state.Id = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
-	state.TrustStorePin = internaltypes.StringTypeOrNil(r.TrustStorePin, internaltypes.IsEmptyString(expectedValues.TrustStorePin))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 	state.Enabled = types.BoolValue(r.Enabled)

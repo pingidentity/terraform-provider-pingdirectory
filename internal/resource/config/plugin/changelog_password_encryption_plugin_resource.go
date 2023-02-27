@@ -108,9 +108,10 @@ func (r *changelogPasswordEncryptionPluginResource) Schema(ctx context.Context, 
 }
 
 // Read a ChangelogPasswordEncryptionPluginResponse object into the model struct
-func readChangelogPasswordEncryptionPluginResponse(ctx context.Context, r *client.ChangelogPasswordEncryptionPluginResponse, state *changelogPasswordEncryptionPluginResourceModel, diagnostics *diag.Diagnostics) {
+func readChangelogPasswordEncryptionPluginResponse(ctx context.Context, r *client.ChangelogPasswordEncryptionPluginResponse, state *changelogPasswordEncryptionPluginResourceModel, expectedValues *changelogPasswordEncryptionPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ChangelogPasswordEncryptionKey = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKey, true)
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.ChangelogPasswordEncryptionKey = expectedValues.ChangelogPasswordEncryptionKey
 	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, true)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
@@ -160,7 +161,7 @@ func (r *changelogPasswordEncryptionPluginResource) Create(ctx context.Context, 
 
 	// Read the existing configuration
 	var state changelogPasswordEncryptionPluginResourceModel
-	readChangelogPasswordEncryptionPluginResponse(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &resp.Diagnostics)
+	readChangelogPasswordEncryptionPluginResponse(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
@@ -183,7 +184,7 @@ func (r *changelogPasswordEncryptionPluginResource) Create(ctx context.Context, 
 		}
 
 		// Read the response
-		readChangelogPasswordEncryptionPluginResponse(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &resp.Diagnostics)
+		readChangelogPasswordEncryptionPluginResponse(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -219,7 +220,7 @@ func (r *changelogPasswordEncryptionPluginResource) Read(ctx context.Context, re
 	}
 
 	// Read the response into the state
-	readChangelogPasswordEncryptionPluginResponse(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &resp.Diagnostics)
+	readChangelogPasswordEncryptionPluginResponse(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &state, &resp.Diagnostics)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -265,7 +266,7 @@ func (r *changelogPasswordEncryptionPluginResource) Update(ctx context.Context, 
 		}
 
 		// Read the response
-		readChangelogPasswordEncryptionPluginResponse(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &resp.Diagnostics)
+		readChangelogPasswordEncryptionPluginResponse(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
