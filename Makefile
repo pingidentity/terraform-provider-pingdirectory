@@ -27,7 +27,7 @@ test:
 
 starttestcontainer:
 # Start a PingDirectory instance locally to test against
-	docker run --name pingdirectory_terraform_acceptance_test \
+	docker run --name pingdirectory_terraform_provider_container \
 		-d -p 1443:1443 \
 		-d -p 1389:1389 \
 		-e TAIL_LOG_FILES= \
@@ -36,17 +36,17 @@ starttestcontainer:
 # Wait for the instance to become ready
 	sleep 1
 	duration=0
-	while (( duration < 240 )) && ! docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available"; \
+	while (( duration < 240 )) && ! docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available"; \
 	do \
 	    duration=$$((duration+1)); \
 		sleep 1; \
 	done
 # Fail if the container didn't become ready in time
-	docker logs pingdirectory_terraform_acceptance_test 2>&1 | grep -q "Setting Server to Available" || \
-		{ echo "PingDirectory container did not become ready in time. Logs:"; docker logs pingdirectory_terraform_acceptance_test; exit 1; }
+	docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available" || \
+		{ echo "PingDirectory container did not become ready in time. Logs:"; docker logs pingdirectory_terraform_provider_container; exit 1; }
 
 removetestcontainer:
-	docker rm -f pingdirectory_terraform_acceptance_test    
+	docker rm -f pingdirectory_terraform_provider_container    
 
 testacc:
 	PINGDIRECTORY_PROVIDER_HTTPS_HOST=https://localhost:1443 \
