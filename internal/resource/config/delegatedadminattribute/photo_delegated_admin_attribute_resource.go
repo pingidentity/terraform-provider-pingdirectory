@@ -151,9 +151,9 @@ func addOptionalPhotoDelegatedAdminAttributeFields(ctx context.Context, addReque
 	if internaltypes.IsDefined(plan.AllowedMIMEType) {
 		var slice []string
 		plan.AllowedMIMEType.ElementsAs(ctx, &slice, false)
-		enumSlice := make([]client.EnumdelegatedAdminAttributeAllowedMIMETypeProp, len(slice))
+		enumSlice := make([]client.EnumdelegatedAdminAttributePhotoAllowedMIMETypeProp, len(slice))
 		for i := 0; i < len(slice); i++ {
-			enumVal, err := client.NewEnumdelegatedAdminAttributeAllowedMIMETypePropFromValue(slice[i])
+			enumVal, err := client.NewEnumdelegatedAdminAttributePhotoAllowedMIMETypePropFromValue(slice[i])
 			if err != nil {
 				return err
 			}
@@ -213,7 +213,7 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 	state.Id = types.StringValue(r.Id)
 	state.RestResourceTypeName = expectedValues.RestResourceTypeName
 	state.AllowedMIMEType = internaltypes.GetStringSet(
-		client.StringSliceEnumdelegatedAdminAttributeAllowedMIMETypeProp(r.AllowedMIMEType))
+		client.StringSliceEnumdelegatedAdminAttributePhotoAllowedMIMETypeProp(r.AllowedMIMEType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.DisplayName = types.StringValue(r.DisplayName)

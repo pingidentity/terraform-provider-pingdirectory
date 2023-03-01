@@ -151,9 +151,9 @@ func addOptionalCertificateDelegatedAdminAttributeFields(ctx context.Context, ad
 	if internaltypes.IsDefined(plan.AllowedMIMEType) {
 		var slice []string
 		plan.AllowedMIMEType.ElementsAs(ctx, &slice, false)
-		enumSlice := make([]client.EnumdelegatedAdminAttributeAllowedMIMETypeProp, len(slice))
+		enumSlice := make([]client.EnumdelegatedAdminAttributeCertificateAllowedMIMETypeProp, len(slice))
 		for i := 0; i < len(slice); i++ {
-			enumVal, err := client.NewEnumdelegatedAdminAttributeAllowedMIMETypePropFromValue(slice[i])
+			enumVal, err := client.NewEnumdelegatedAdminAttributeCertificateAllowedMIMETypePropFromValue(slice[i])
 			if err != nil {
 				return err
 			}
@@ -213,7 +213,7 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 	state.Id = types.StringValue(r.Id)
 	state.RestResourceTypeName = expectedValues.RestResourceTypeName
 	state.AllowedMIMEType = internaltypes.GetStringSet(
-		client.StringSliceEnumdelegatedAdminAttributeAllowedMIMETypeProp(r.AllowedMIMEType))
+		client.StringSliceEnumdelegatedAdminAttributeCertificateAllowedMIMETypeProp(r.AllowedMIMEType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.DisplayName = types.StringValue(r.DisplayName)
