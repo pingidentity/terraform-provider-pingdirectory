@@ -13,8 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const testIdGenericDelegatedAdminAttribute = "MyId"
-const testDelegatedAdminResourceAttributeName = "myGenericDelegatedAdminResourceAttributeName"
+const testAttributeType = "cn"
+const testParentResourceType = "myParentResource"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type genericDelegatedAdminAttributeTestModel struct {
@@ -27,14 +27,14 @@ type genericDelegatedAdminAttributeTestModel struct {
 func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := genericDelegatedAdminAttributeTestModel{
-		restResourceTypeName: testDelegatedAdminResourceAttributeName,
-		attributeType:        "cn",
+		restResourceTypeName: testParentResourceType,
+		attributeType:        testAttributeType,
 		displayName:          "Device Name",
 		displayOrderIndex:    1,
 	}
 	updatedResourceModel := genericDelegatedAdminAttributeTestModel{
-		restResourceTypeName: testDelegatedAdminResourceAttributeName,
-		attributeType:        "cn",
+		restResourceTypeName: testParentResourceType,
+		attributeType:        testAttributeType,
 		displayName:          "Device Name2",
 		displayOrderIndex:    2,
 	}
@@ -103,7 +103,6 @@ func testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(config generic
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
 		response, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, config.attributeType, config.restResourceTypeName).Execute()
-		//response2, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttributeExecute()
 
 		if err != nil {
 			return err
@@ -133,9 +132,9 @@ func testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(config generic
 func testAccCheckGenericDelegatedAdminAttributeDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, testIdGenericDelegatedAdminAttribute, testDelegatedAdminResourceAttributeName).Execute()
+	_, _, err := testClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(ctx, testAttributeType, testParentResourceType).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("Generic Delegated Admin Attribute", testIdGenericDelegatedAdminAttribute)
+		return acctest.ExpectedDestroyError("Generic Delegated Admin Attribute", testAttributeType)
 	}
 	return nil
 }
