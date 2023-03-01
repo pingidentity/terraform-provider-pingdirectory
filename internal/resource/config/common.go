@@ -66,6 +66,40 @@ func AddCommonSchema(s *schema.Schema, idRequired bool) {
 	}
 }
 
+func SetOptionalAttributesToComputed(s *schema.Schema) {
+	for key, attribute := range s.Attributes {
+		// If more attribute types are used by this provider, this method will need to be updated
+		if attribute.IsOptional() {
+			stringAttr, ok := attribute.(schema.StringAttribute)
+			if ok {
+				stringAttr.Computed = true
+				continue
+			}
+			setAttr, ok := attribute.(schema.SetAttribute)
+			if ok {
+				setAttr.Computed = true
+				continue
+			}
+			boolAttr, ok := attribute.(schema.BoolAttribute)
+			if ok {
+				boolAttr.Computed = true
+				continue
+			}
+			intAttr, ok := attribute.(schema.Int64Attribute)
+			if ok {
+				intAttr.Computed = true
+				continue
+			}
+			floatAttr, ok := attribute.(schema.Float64Attribute)
+			if ok {
+				floatAttr.Computed = true
+				continue
+			}
+			panic("No valid schema attribute type found when setting attributes to computed: " + key)
+		}
+	}
+}
+
 // Get the set of required actions from the configuration messages returned by the config API
 func GetRequiredActionsSet(messages client.MetaUrnPingidentitySchemasConfigurationMessages20) (types.Set, diag.Diagnostics) {
 	setValues := make([]attr.Value, len(messages.RequiredActions))
