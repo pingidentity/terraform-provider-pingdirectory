@@ -34,7 +34,7 @@ func TestAccLocalDbIndex(t *testing.T) {
 	updatedResourceModel := localDbIndexTestModel{
 		backendName: testBackendName,
 		attribute:   testIdLocalDbIndex,
-		indexType:   []string{"equality"},
+		indexType:   []string{"substring"},
 	}
 
 	resource.Test(t, resource.TestCase{
