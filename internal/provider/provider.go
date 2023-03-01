@@ -71,7 +71,7 @@ func (p *pingdirectoryProvider) Metadata(_ context.Context, _ provider.MetadataR
 // GetSchema defines the provider-level schema for configuration data.
 func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "PingDirectory POC Provider.",
+		Description: "PingDirectory Terraform Provider.",
 		Attributes: map[string]schema.Attribute{
 			"https_host": schema.StringAttribute{
 				Description: "URI for PingDirectory HTTPS port.",

@@ -272,9 +272,9 @@ func addOptionalSimpleRequestCriteriaFields(ctx context.Context, addRequest *cli
 	if internaltypes.IsDefined(plan.OperationType) {
 		var slice []string
 		plan.OperationType.ElementsAs(ctx, &slice, false)
-		enumSlice := make([]client.EnumrequestCriteriaOperationTypeProp, len(slice))
+		enumSlice := make([]client.EnumrequestCriteriaSimpleOperationTypeProp, len(slice))
 		for i := 0; i < len(slice); i++ {
-			enumVal, err := client.NewEnumrequestCriteriaOperationTypePropFromValue(slice[i])
+			enumVal, err := client.NewEnumrequestCriteriaSimpleOperationTypePropFromValue(slice[i])
 			if err != nil {
 				return err
 			}
@@ -456,7 +456,7 @@ func addOptionalSimpleRequestCriteriaFields(ctx context.Context, addRequest *cli
 func readSimpleRequestCriteriaResponse(ctx context.Context, r *client.SimpleRequestCriteriaResponse, state *simpleRequestCriteriaResourceModel, expectedValues *simpleRequestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.OperationType = internaltypes.GetStringSet(
-		client.StringSliceEnumrequestCriteriaOperationTypeProp(r.OperationType))
+		client.StringSliceEnumrequestCriteriaSimpleOperationTypeProp(r.OperationType))
 	state.OperationOrigin = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaOperationOriginProp(r.OperationOrigin))
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
