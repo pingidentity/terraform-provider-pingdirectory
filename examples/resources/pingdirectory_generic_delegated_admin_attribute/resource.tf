@@ -20,27 +20,27 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_generic_delegated_admin_attribute" "myDelegatedAdminAttributeDevice" {
-  rest_resource_type_name           = pingdirectory_generic_rest_resource_type.myRestResourceTypeDevice.id
-  attribute_type                    = "cn"
-  display_name                      = "Device Name"
-  display_order_index               = 1
+  rest_resource_type_name = pingdirectory_generic_rest_resource_type.myRestResourceTypeDevice.id
+  attribute_type          = "cn"
+  display_name            = "Device Name"
+  display_order_index     = 1
 }
 
 resource "pingdirectory_generic_delegated_admin_attribute" "myDelegatedAdminAttributeSerialNumber" {
-  rest_resource_type_name           = pingdirectory_generic_rest_resource_type.myRestResourceTypeDevice.id
-  attribute_type                    = "serialNumber"
-  display_name                      = "Serial Number"
-  display_order_index               = 2
+  rest_resource_type_name = pingdirectory_generic_rest_resource_type.myRestResourceTypeDevice.id
+  attribute_type          = "serialNumber"
+  display_name            = "Serial Number"
+  display_order_index     = 2
 }
 
 resource "pingdirectory_generic_rest_resource_type" "myRestResourceTypeDevice" {
-  id                                = "device"
-  enabled                           = true
-  resource_endpoint                 = "device"
-  display_name                      = "Device"
-  structural_ldap_objectclass       = "device"
-  search_base_dn                    = "dc=example,dc=com"
-  parent_dn                         = "dc=example,dc=com"
-  search_filter_pattern             = "(cn=*%%*)"
-  primary_display_attribute_type    = "cn"
+  id                             = "device"
+  enabled                        = true
+  resource_endpoint              = "device"
+  display_name                   = "Device"
+  structural_ldap_objectclass    = "device"
+  search_base_dn                 = "dc=example,dc=com"
+  parent_dn                      = "dc=example,dc=com"
+  search_filter_pattern          = "(cn=*%%*)"
+  primary_display_attribute_type = "cn"
 }

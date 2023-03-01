@@ -75,7 +75,7 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 func testAccGenericDelegatedAdminAttributeResource(resourceName string, resourceModel genericDelegatedAdminAttributeTestModel) string {
 	return fmt.Sprintf(`
 		resource "pingdirectory_generic_rest_resource_type" "%[2]s" {
-			id                                = "device"
+			id                                = "%[2]s"
 			enabled                           = true
 			resource_endpoint                 = "device"
 			display_name                      = "Device"
@@ -115,16 +115,16 @@ func testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(config generic
 		if err != nil {
 			return err
 		}
-		//err = acctest.TestAttributesMatchString(resourceType, &config.attributeType, "display-name",
-		//	config.displayName, response.GenericDelegatedAdminAttributeResponse.DisplayName)
-		//if err != nil {
-		//	return err
-		//}
-		//err = acctest.TestAttributesMatchInt(resourceType, &config.attributeType, "display-order-index",
-		//	config.displayOrderIndex, int64(response.GenericDelegatedAdminAttributeResponse.DisplayOrderIndex))
-		//if err != nil {
-		//	return err
-		//}
+		err = acctest.TestAttributesMatchString(resourceType, &config.attributeType, "display-name",
+			config.displayName, response.GenericDelegatedAdminAttributeResponse.DisplayName)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchInt(resourceType, &config.attributeType, "display-order-index",
+			config.displayOrderIndex, int64(response.GenericDelegatedAdminAttributeResponse.DisplayOrderIndex))
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 }
