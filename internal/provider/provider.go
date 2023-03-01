@@ -293,6 +293,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDelegatedAdminRightsResource,
 		config.NewGlobalConfigurationResource,
 		config.NewHttpServletCrossOriginPolicyResource,
+		config.NewLocalDbIndexResource,
 		config.NewLocationResource,
 		config.NewRootDnResource,
 		config.NewRootDnUserResource,
