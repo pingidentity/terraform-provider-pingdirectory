@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &groovyScriptedHttpServletExtensionResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedHttpServletExtensionResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedHttpServletExtensionResource{}
+	_ resource.Resource                = &defaultGroovyScriptedHttpServletExtensionResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedHttpServletExtensionResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedHttpServletExtensionResource{}
 )
 
 // Create a Groovy Scripted Http Servlet Extension resource
@@ -29,8 +32,18 @@ func NewGroovyScriptedHttpServletExtensionResource() resource.Resource {
 	return &groovyScriptedHttpServletExtensionResource{}
 }
 
+func NewDefaultGroovyScriptedHttpServletExtensionResource() resource.Resource {
+	return &defaultGroovyScriptedHttpServletExtensionResource{}
+}
+
 // groovyScriptedHttpServletExtensionResource is the resource implementation.
 type groovyScriptedHttpServletExtensionResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedHttpServletExtensionResource is the resource implementation.
+type defaultGroovyScriptedHttpServletExtensionResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *groovyScriptedHttpServletExtensionResource) Metadata(_ context.Context,
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_http_servlet_extension"
 }
 
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_http_servlet_extension"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -66,6 +93,14 @@ type groovyScriptedHttpServletExtensionResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedHttpServletExtensionSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedHttpServletExtensionSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
@@ -102,6 +137,9 @@ func (r *groovyScriptedHttpServletExtensionResource) Schema(ctx context.Context,
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -209,8 +247,79 @@ func (r *groovyScriptedHttpServletExtensionResource) Create(ctx context.Context,
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedHttpServletExtensionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Http Servlet Extension", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedHttpServletExtensionResourceModel
+	readGroovyScriptedHttpServletExtensionResponse(ctx, readResponse.GroovyScriptedHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedHttpServletExtensionOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Http Servlet Extension", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedHttpServletExtensionResponse(ctx, updateResponse.GroovyScriptedHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedHttpServletExtension(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedHttpServletExtensionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -219,8 +328,8 @@ func (r *groovyScriptedHttpServletExtensionResource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Http Servlet Extension", err, httpResp)
 		return
@@ -245,6 +354,14 @@ func (r *groovyScriptedHttpServletExtensionResource) Read(ctx context.Context, r
 
 // Update a resource
 func (r *groovyScriptedHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedHttpServletExtension(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedHttpServletExtensionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -256,8 +373,8 @@ func (r *groovyScriptedHttpServletExtensionResource) Update(ctx context.Context,
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedHttpServletExtensionOperations(plan, state)
@@ -266,7 +383,7 @@ func (r *groovyScriptedHttpServletExtensionResource) Update(ctx context.Context,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Http Servlet Extension", err, httpResp)
 			return
@@ -294,6 +411,12 @@ func (r *groovyScriptedHttpServletExtensionResource) Update(ctx context.Context,
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedHttpServletExtensionResourceModel
@@ -312,6 +435,14 @@ func (r *groovyScriptedHttpServletExtensionResource) Delete(ctx context.Context,
 }
 
 func (r *groovyScriptedHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedHttpServletExtension(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedHttpServletExtension(ctx, req, resp)
+}
+
+func importGroovyScriptedHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

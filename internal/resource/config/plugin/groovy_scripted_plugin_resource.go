@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &groovyScriptedPluginResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedPluginResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedPluginResource{}
+	_ resource.Resource                = &defaultGroovyScriptedPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedPluginResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedPluginResource{}
 )
 
 // Create a Groovy Scripted Plugin resource
@@ -29,8 +32,18 @@ func NewGroovyScriptedPluginResource() resource.Resource {
 	return &groovyScriptedPluginResource{}
 }
 
+func NewDefaultGroovyScriptedPluginResource() resource.Resource {
+	return &defaultGroovyScriptedPluginResource{}
+}
+
 // groovyScriptedPluginResource is the resource implementation.
 type groovyScriptedPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedPluginResource is the resource implementation.
+type defaultGroovyScriptedPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *groovyScriptedPluginResource) Metadata(_ context.Context, req resource.
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_plugin"
 }
 
+func (r *defaultGroovyScriptedPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +94,14 @@ type groovyScriptedPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedPluginSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -105,6 +140,9 @@ func (r *groovyScriptedPluginResource) Schema(ctx context.Context, req resource.
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -213,8 +251,79 @@ func (r *groovyScriptedPluginResource) Create(ctx context.Context, req resource.
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedPluginResourceModel
+	readGroovyScriptedPluginResponse(ctx, readResponse.GroovyScriptedPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedPluginResponse(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -223,8 +332,8 @@ func (r *groovyScriptedPluginResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Plugin", err, httpResp)
 		return
@@ -249,6 +358,14 @@ func (r *groovyScriptedPluginResource) Read(ctx context.Context, req resource.Re
 
 // Update a resource
 func (r *groovyScriptedPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -260,8 +377,8 @@ func (r *groovyScriptedPluginResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedPluginOperations(plan, state)
@@ -270,7 +387,7 @@ func (r *groovyScriptedPluginResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Plugin", err, httpResp)
 			return
@@ -298,6 +415,12 @@ func (r *groovyScriptedPluginResource) Update(ctx context.Context, req resource.
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedPluginResourceModel
@@ -316,6 +439,14 @@ func (r *groovyScriptedPluginResource) Delete(ctx context.Context, req resource.
 }
 
 func (r *groovyScriptedPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedPlugin(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedPlugin(ctx, req, resp)
+}
+
+func importGroovyScriptedPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

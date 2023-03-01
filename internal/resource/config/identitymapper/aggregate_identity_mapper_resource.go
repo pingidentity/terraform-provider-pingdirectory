@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &aggregateIdentityMapperResource{}
 	_ resource.ResourceWithConfigure   = &aggregateIdentityMapperResource{}
 	_ resource.ResourceWithImportState = &aggregateIdentityMapperResource{}
+	_ resource.Resource                = &defaultAggregateIdentityMapperResource{}
+	_ resource.ResourceWithConfigure   = &defaultAggregateIdentityMapperResource{}
+	_ resource.ResourceWithImportState = &defaultAggregateIdentityMapperResource{}
 )
 
 // Create a Aggregate Identity Mapper resource
@@ -29,8 +32,18 @@ func NewAggregateIdentityMapperResource() resource.Resource {
 	return &aggregateIdentityMapperResource{}
 }
 
+func NewDefaultAggregateIdentityMapperResource() resource.Resource {
+	return &defaultAggregateIdentityMapperResource{}
+}
+
 // aggregateIdentityMapperResource is the resource implementation.
 type aggregateIdentityMapperResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultAggregateIdentityMapperResource is the resource implementation.
+type defaultAggregateIdentityMapperResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *aggregateIdentityMapperResource) Metadata(_ context.Context, req resour
 	resp.TypeName = req.ProviderTypeName + "_aggregate_identity_mapper"
 }
 
+func (r *defaultAggregateIdentityMapperResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_aggregate_identity_mapper"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *aggregateIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultAggregateIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +91,14 @@ type aggregateIdentityMapperResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *aggregateIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	aggregateIdentityMapperSchema(ctx, req, resp, false)
+}
+
+func (r *defaultAggregateIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	aggregateIdentityMapperSchema(ctx, req, resp, true)
+}
+
+func aggregateIdentityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Aggregate Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
@@ -90,6 +125,9 @@ func (r *aggregateIdentityMapperResource) Schema(ctx context.Context, req resour
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -183,8 +221,79 @@ func (r *aggregateIdentityMapperResource) Create(ctx context.Context, req resour
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultAggregateIdentityMapperResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan aggregateIdentityMapperResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Aggregate Identity Mapper", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state aggregateIdentityMapperResourceModel
+	readAggregateIdentityMapperResponse(ctx, readResponse.AggregateIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createAggregateIdentityMapperOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Aggregate Identity Mapper", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readAggregateIdentityMapperResponse(ctx, updateResponse.AggregateIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *aggregateIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAggregateIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAggregateIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAggregateIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAggregateIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state aggregateIdentityMapperResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -193,8 +302,8 @@ func (r *aggregateIdentityMapperResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Aggregate Identity Mapper", err, httpResp)
 		return
@@ -219,6 +328,14 @@ func (r *aggregateIdentityMapperResource) Read(ctx context.Context, req resource
 
 // Update a resource
 func (r *aggregateIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAggregateIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAggregateIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAggregateIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAggregateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan aggregateIdentityMapperResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -230,8 +347,8 @@ func (r *aggregateIdentityMapperResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state aggregateIdentityMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.IdentityMapperApi.UpdateIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAggregateIdentityMapperOperations(plan, state)
@@ -240,7 +357,7 @@ func (r *aggregateIdentityMapperResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Aggregate Identity Mapper", err, httpResp)
 			return
@@ -268,6 +385,12 @@ func (r *aggregateIdentityMapperResource) Update(ctx context.Context, req resour
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultAggregateIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *aggregateIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state aggregateIdentityMapperResourceModel
@@ -286,6 +409,14 @@ func (r *aggregateIdentityMapperResource) Delete(ctx context.Context, req resour
 }
 
 func (r *aggregateIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAggregateIdentityMapper(ctx, req, resp)
+}
+
+func (r *defaultAggregateIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAggregateIdentityMapper(ctx, req, resp)
+}
+
+func importAggregateIdentityMapper(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

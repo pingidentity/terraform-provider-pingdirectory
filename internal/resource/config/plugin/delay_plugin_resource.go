@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &delayPluginResource{}
 	_ resource.ResourceWithConfigure   = &delayPluginResource{}
 	_ resource.ResourceWithImportState = &delayPluginResource{}
+	_ resource.Resource                = &defaultDelayPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultDelayPluginResource{}
+	_ resource.ResourceWithImportState = &defaultDelayPluginResource{}
 )
 
 // Create a Delay Plugin resource
@@ -29,8 +32,18 @@ func NewDelayPluginResource() resource.Resource {
 	return &delayPluginResource{}
 }
 
+func NewDefaultDelayPluginResource() resource.Resource {
+	return &defaultDelayPluginResource{}
+}
+
 // delayPluginResource is the resource implementation.
 type delayPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultDelayPluginResource is the resource implementation.
+type defaultDelayPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *delayPluginResource) Metadata(_ context.Context, req resource.MetadataR
 	resp.TypeName = req.ProviderTypeName + "_delay_plugin"
 }
 
+func (r *defaultDelayPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_delay_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *delayPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultDelayPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +94,14 @@ type delayPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *delayPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	delayPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultDelayPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	delayPluginSchema(ctx, req, resp, true)
+}
+
+func delayPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Delay Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -104,6 +139,9 @@ func (r *delayPluginResource) Schema(ctx context.Context, req resource.SchemaReq
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -229,8 +267,79 @@ func (r *delayPluginResource) Create(ctx context.Context, req resource.CreateReq
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultDelayPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan delayPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delay Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state delayPluginResourceModel
+	readDelayPluginResponse(ctx, readResponse.DelayPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createDelayPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delay Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readDelayPluginResponse(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *delayPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelayPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDelayPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelayPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readDelayPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state delayPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -239,8 +348,8 @@ func (r *delayPluginResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delay Plugin", err, httpResp)
 		return
@@ -265,6 +374,14 @@ func (r *delayPluginResource) Read(ctx context.Context, req resource.ReadRequest
 
 // Update a resource
 func (r *delayPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelayPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDelayPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelayPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateDelayPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan delayPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -276,8 +393,8 @@ func (r *delayPluginResource) Update(ctx context.Context, req resource.UpdateReq
 	// Get the current state to see how any attributes are changing
 	var state delayPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDelayPluginOperations(plan, state)
@@ -286,7 +403,7 @@ func (r *delayPluginResource) Update(ctx context.Context, req resource.UpdateReq
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delay Plugin", err, httpResp)
 			return
@@ -314,6 +431,12 @@ func (r *delayPluginResource) Update(ctx context.Context, req resource.UpdateReq
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultDelayPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *delayPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state delayPluginResourceModel
@@ -332,6 +455,14 @@ func (r *delayPluginResource) Delete(ctx context.Context, req resource.DeleteReq
 }
 
 func (r *delayPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDelayPlugin(ctx, req, resp)
+}
+
+func (r *defaultDelayPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDelayPlugin(ctx, req, resp)
+}
+
+func importDelayPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

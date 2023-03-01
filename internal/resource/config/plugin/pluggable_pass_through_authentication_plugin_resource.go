@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &pluggablePassThroughAuthenticationPluginResource{}
 	_ resource.ResourceWithConfigure   = &pluggablePassThroughAuthenticationPluginResource{}
 	_ resource.ResourceWithImportState = &pluggablePassThroughAuthenticationPluginResource{}
+	_ resource.Resource                = &defaultPluggablePassThroughAuthenticationPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultPluggablePassThroughAuthenticationPluginResource{}
+	_ resource.ResourceWithImportState = &defaultPluggablePassThroughAuthenticationPluginResource{}
 )
 
 // Create a Pluggable Pass Through Authentication Plugin resource
@@ -29,8 +32,18 @@ func NewPluggablePassThroughAuthenticationPluginResource() resource.Resource {
 	return &pluggablePassThroughAuthenticationPluginResource{}
 }
 
+func NewDefaultPluggablePassThroughAuthenticationPluginResource() resource.Resource {
+	return &defaultPluggablePassThroughAuthenticationPluginResource{}
+}
+
 // pluggablePassThroughAuthenticationPluginResource is the resource implementation.
 type pluggablePassThroughAuthenticationPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPluggablePassThroughAuthenticationPluginResource is the resource implementation.
+type defaultPluggablePassThroughAuthenticationPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Metadata(_ context.Co
 	resp.TypeName = req.ProviderTypeName + "_pluggable_pass_through_authentication_plugin"
 }
 
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_pluggable_pass_through_authentication_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *pluggablePassThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -73,6 +100,14 @@ type pluggablePassThroughAuthenticationPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *pluggablePassThroughAuthenticationPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pluggablePassThroughAuthenticationPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pluggablePassThroughAuthenticationPluginSchema(ctx, req, resp, true)
+}
+
+func pluggablePassThroughAuthenticationPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Pluggable Pass Through Authentication Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -140,6 +175,9 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Schema(ctx context.Co
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -301,8 +339,79 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Create(ctx context.Co
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan pluggablePassThroughAuthenticationPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pluggable Pass Through Authentication Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state pluggablePassThroughAuthenticationPluginResourceModel
+	readPluggablePassThroughAuthenticationPluginResponse(ctx, readResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPluggablePassThroughAuthenticationPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Pluggable Pass Through Authentication Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPluggablePassThroughAuthenticationPluginResponse(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *pluggablePassThroughAuthenticationPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPluggablePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPluggablePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPluggablePassThroughAuthenticationPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state pluggablePassThroughAuthenticationPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -311,8 +420,8 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Read(ctx context.Cont
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pluggable Pass Through Authentication Plugin", err, httpResp)
 		return
@@ -337,6 +446,14 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Read(ctx context.Cont
 
 // Update a resource
 func (r *pluggablePassThroughAuthenticationPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePluggablePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePluggablePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePluggablePassThroughAuthenticationPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan pluggablePassThroughAuthenticationPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -348,8 +465,8 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Update(ctx context.Co
 	// Get the current state to see how any attributes are changing
 	var state pluggablePassThroughAuthenticationPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPluggablePassThroughAuthenticationPluginOperations(plan, state)
@@ -358,7 +475,7 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Update(ctx context.Co
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Pluggable Pass Through Authentication Plugin", err, httpResp)
 			return
@@ -386,6 +503,12 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Update(ctx context.Co
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *pluggablePassThroughAuthenticationPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state pluggablePassThroughAuthenticationPluginResourceModel
@@ -404,6 +527,14 @@ func (r *pluggablePassThroughAuthenticationPluginResource) Delete(ctx context.Co
 }
 
 func (r *pluggablePassThroughAuthenticationPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPluggablePassThroughAuthenticationPlugin(ctx, req, resp)
+}
+
+func (r *defaultPluggablePassThroughAuthenticationPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPluggablePassThroughAuthenticationPlugin(ctx, req, resp)
+}
+
+func importPluggablePassThroughAuthenticationPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

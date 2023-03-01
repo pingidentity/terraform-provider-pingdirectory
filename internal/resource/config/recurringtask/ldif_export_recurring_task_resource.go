@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &ldifExportRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &ldifExportRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &ldifExportRecurringTaskResource{}
+	_ resource.Resource                = &defaultLdifExportRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultLdifExportRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultLdifExportRecurringTaskResource{}
 )
 
 // Create a Ldif Export Recurring Task resource
@@ -29,8 +32,18 @@ func NewLdifExportRecurringTaskResource() resource.Resource {
 	return &ldifExportRecurringTaskResource{}
 }
 
+func NewDefaultLdifExportRecurringTaskResource() resource.Resource {
+	return &defaultLdifExportRecurringTaskResource{}
+}
+
 // ldifExportRecurringTaskResource is the resource implementation.
 type ldifExportRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLdifExportRecurringTaskResource is the resource implementation.
+type defaultLdifExportRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *ldifExportRecurringTaskResource) Metadata(_ context.Context, req resour
 	resp.TypeName = req.ProviderTypeName + "_ldif_export_recurring_task"
 }
 
+func (r *defaultLdifExportRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_ldif_export_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *ldifExportRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultLdifExportRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -78,6 +105,14 @@ type ldifExportRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *ldifExportRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	ldifExportRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLdifExportRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	ldifExportRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func ldifExportRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Ldif Export Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -177,6 +212,9 @@ func (r *ldifExportRecurringTaskResource) Schema(ctx context.Context, req resour
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -365,8 +403,79 @@ func (r *ldifExportRecurringTaskResource) Create(ctx context.Context, req resour
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLdifExportRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan ldifExportRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldif Export Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state ldifExportRecurringTaskResourceModel
+	readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createLdifExportRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ldif Export Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readLdifExportRecurringTaskResponse(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *ldifExportRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLdifExportRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLdifExportRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLdifExportRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLdifExportRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state ldifExportRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -375,8 +484,8 @@ func (r *ldifExportRecurringTaskResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldif Export Recurring Task", err, httpResp)
 		return
@@ -401,6 +510,14 @@ func (r *ldifExportRecurringTaskResource) Read(ctx context.Context, req resource
 
 // Update a resource
 func (r *ldifExportRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLdifExportRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLdifExportRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLdifExportRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLdifExportRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan ldifExportRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -412,8 +529,8 @@ func (r *ldifExportRecurringTaskResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state ldifExportRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLdifExportRecurringTaskOperations(plan, state)
@@ -422,7 +539,7 @@ func (r *ldifExportRecurringTaskResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ldif Export Recurring Task", err, httpResp)
 			return
@@ -450,6 +567,12 @@ func (r *ldifExportRecurringTaskResource) Update(ctx context.Context, req resour
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLdifExportRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *ldifExportRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state ldifExportRecurringTaskResourceModel
@@ -468,6 +591,14 @@ func (r *ldifExportRecurringTaskResource) Delete(ctx context.Context, req resour
 }
 
 func (r *ldifExportRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLdifExportRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultLdifExportRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLdifExportRecurringTask(ctx, req, resp)
+}
+
+func importLdifExportRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

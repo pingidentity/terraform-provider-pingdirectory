@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &activeDirectoryExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &activeDirectoryExternalServerResource{}
 	_ resource.ResourceWithImportState = &activeDirectoryExternalServerResource{}
+	_ resource.Resource                = &defaultActiveDirectoryExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultActiveDirectoryExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultActiveDirectoryExternalServerResource{}
 )
 
 // Create a Active Directory External Server resource
@@ -29,8 +32,18 @@ func NewActiveDirectoryExternalServerResource() resource.Resource {
 	return &activeDirectoryExternalServerResource{}
 }
 
+func NewDefaultActiveDirectoryExternalServerResource() resource.Resource {
+	return &defaultActiveDirectoryExternalServerResource{}
+}
+
 // activeDirectoryExternalServerResource is the resource implementation.
 type activeDirectoryExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultActiveDirectoryExternalServerResource is the resource implementation.
+type defaultActiveDirectoryExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *activeDirectoryExternalServerResource) Metadata(_ context.Context, req 
 	resp.TypeName = req.ProviderTypeName + "_active_directory_external_server"
 }
 
+func (r *defaultActiveDirectoryExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_active_directory_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *activeDirectoryExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultActiveDirectoryExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -81,6 +108,14 @@ type activeDirectoryExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *activeDirectoryExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	activeDirectoryExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultActiveDirectoryExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	activeDirectoryExternalServerSchema(ctx, req, resp, true)
+}
+
+func activeDirectoryExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Active Directory External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -186,6 +221,9 @@ func (r *activeDirectoryExternalServerResource) Schema(ctx context.Context, req 
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -428,8 +466,79 @@ func (r *activeDirectoryExternalServerResource) Create(ctx context.Context, req 
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultActiveDirectoryExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan activeDirectoryExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Active Directory External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state activeDirectoryExternalServerResourceModel
+	readActiveDirectoryExternalServerResponse(ctx, readResponse.ActiveDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createActiveDirectoryExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Active Directory External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readActiveDirectoryExternalServerResponse(ctx, updateResponse.ActiveDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *activeDirectoryExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readActiveDirectoryExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultActiveDirectoryExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readActiveDirectoryExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readActiveDirectoryExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state activeDirectoryExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -438,8 +547,8 @@ func (r *activeDirectoryExternalServerResource) Read(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Active Directory External Server", err, httpResp)
 		return
@@ -464,6 +573,14 @@ func (r *activeDirectoryExternalServerResource) Read(ctx context.Context, req re
 
 // Update a resource
 func (r *activeDirectoryExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateActiveDirectoryExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultActiveDirectoryExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateActiveDirectoryExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateActiveDirectoryExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan activeDirectoryExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -475,8 +592,8 @@ func (r *activeDirectoryExternalServerResource) Update(ctx context.Context, req 
 	// Get the current state to see how any attributes are changing
 	var state activeDirectoryExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createActiveDirectoryExternalServerOperations(plan, state)
@@ -485,7 +602,7 @@ func (r *activeDirectoryExternalServerResource) Update(ctx context.Context, req 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Active Directory External Server", err, httpResp)
 			return
@@ -513,6 +630,12 @@ func (r *activeDirectoryExternalServerResource) Update(ctx context.Context, req 
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultActiveDirectoryExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *activeDirectoryExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state activeDirectoryExternalServerResourceModel
@@ -531,6 +654,14 @@ func (r *activeDirectoryExternalServerResource) Delete(ctx context.Context, req 
 }
 
 func (r *activeDirectoryExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importActiveDirectoryExternalServer(ctx, req, resp)
+}
+
+func (r *defaultActiveDirectoryExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importActiveDirectoryExternalServer(ctx, req, resp)
+}
+
+func importActiveDirectoryExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

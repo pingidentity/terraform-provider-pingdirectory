@@ -24,6 +24,9 @@ var (
 	_ resource.Resource                = &consentDefinitionLocalizationResource{}
 	_ resource.ResourceWithConfigure   = &consentDefinitionLocalizationResource{}
 	_ resource.ResourceWithImportState = &consentDefinitionLocalizationResource{}
+	_ resource.Resource                = &defaultConsentDefinitionLocalizationResource{}
+	_ resource.ResourceWithConfigure   = &defaultConsentDefinitionLocalizationResource{}
+	_ resource.ResourceWithImportState = &defaultConsentDefinitionLocalizationResource{}
 )
 
 // Create a Consent Definition Localization resource
@@ -31,8 +34,18 @@ func NewConsentDefinitionLocalizationResource() resource.Resource {
 	return &consentDefinitionLocalizationResource{}
 }
 
+func NewDefaultConsentDefinitionLocalizationResource() resource.Resource {
+	return &defaultConsentDefinitionLocalizationResource{}
+}
+
 // consentDefinitionLocalizationResource is the resource implementation.
 type consentDefinitionLocalizationResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultConsentDefinitionLocalizationResource is the resource implementation.
+type defaultConsentDefinitionLocalizationResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -42,8 +55,22 @@ func (r *consentDefinitionLocalizationResource) Metadata(_ context.Context, req 
 	resp.TypeName = req.ProviderTypeName + "_consent_definition_localization"
 }
 
+func (r *defaultConsentDefinitionLocalizationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_consent_definition_localization"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *consentDefinitionLocalizationResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultConsentDefinitionLocalizationResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -68,6 +95,14 @@ type consentDefinitionLocalizationResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *consentDefinitionLocalizationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	consentDefinitionLocalizationSchema(ctx, req, resp, false)
+}
+
+func (r *defaultConsentDefinitionLocalizationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	consentDefinitionLocalizationSchema(ctx, req, resp, true)
+}
+
+func consentDefinitionLocalizationSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Consent Definition Localization.",
 		Attributes: map[string]schema.Attribute{
@@ -104,6 +139,9 @@ func (r *consentDefinitionLocalizationResource) Schema(ctx context.Context, req 
 		},
 	}
 	AddCommonSchema(&schema, false)
+	if setOptionalToComputed {
+		SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -191,8 +229,79 @@ func (r *consentDefinitionLocalizationResource) Create(ctx context.Context, req 
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultConsentDefinitionLocalizationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan consentDefinitionLocalizationResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state consentDefinitionLocalizationResourceModel
+	readConsentDefinitionLocalizationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalization(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())
+	ops := createConsentDefinitionLocalizationOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalizationExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition Localization", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readConsentDefinitionLocalizationResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *consentDefinitionLocalizationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultConsentDefinitionLocalizationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readConsentDefinitionLocalization(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state consentDefinitionLocalizationResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -201,8 +310,8 @@ func (r *consentDefinitionLocalizationResource) Read(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationApi.GetConsentDefinitionLocalization(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Locale.ValueString(), state.ConsentDefinitionName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition Localization", err, httpResp)
 		return
@@ -227,6 +336,14 @@ func (r *consentDefinitionLocalizationResource) Read(ctx context.Context, req re
 
 // Update a resource
 func (r *consentDefinitionLocalizationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultConsentDefinitionLocalizationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateConsentDefinitionLocalization(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateConsentDefinitionLocalization(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan consentDefinitionLocalizationResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -238,8 +355,8 @@ func (r *consentDefinitionLocalizationResource) Update(ctx context.Context, req 
 	// Get the current state to see how any attributes are changing
 	var state consentDefinitionLocalizationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalization(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())
+	updateRequest := apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalization(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConsentDefinitionLocalizationOperations(plan, state)
@@ -248,7 +365,7 @@ func (r *consentDefinitionLocalizationResource) Update(ctx context.Context, req 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalizationExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalizationExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition Localization", err, httpResp)
 			return
@@ -276,6 +393,12 @@ func (r *consentDefinitionLocalizationResource) Update(ctx context.Context, req 
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultConsentDefinitionLocalizationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *consentDefinitionLocalizationResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state consentDefinitionLocalizationResourceModel
@@ -294,6 +417,14 @@ func (r *consentDefinitionLocalizationResource) Delete(ctx context.Context, req 
 }
 
 func (r *consentDefinitionLocalizationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importConsentDefinitionLocalization(ctx, req, resp)
+}
+
+func (r *defaultConsentDefinitionLocalizationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importConsentDefinitionLocalization(ctx, req, resp)
+}
+
+func importConsentDefinitionLocalization(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	split := strings.Split(req.ID, "/")
 	if len(split) != 2 {
 		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [consent-definition-name]/[consent-definition-localization-locale]. Got: "+req.ID)

@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &syslogJsonAuditLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &syslogJsonAuditLogPublisherResource{}
 	_ resource.ResourceWithImportState = &syslogJsonAuditLogPublisherResource{}
+	_ resource.Resource                = &defaultSyslogJsonAuditLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultSyslogJsonAuditLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultSyslogJsonAuditLogPublisherResource{}
 )
 
 // Create a Syslog Json Audit Log Publisher resource
@@ -29,8 +32,18 @@ func NewSyslogJsonAuditLogPublisherResource() resource.Resource {
 	return &syslogJsonAuditLogPublisherResource{}
 }
 
+func NewDefaultSyslogJsonAuditLogPublisherResource() resource.Resource {
+	return &defaultSyslogJsonAuditLogPublisherResource{}
+}
+
 // syslogJsonAuditLogPublisherResource is the resource implementation.
 type syslogJsonAuditLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSyslogJsonAuditLogPublisherResource is the resource implementation.
+type defaultSyslogJsonAuditLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *syslogJsonAuditLogPublisherResource) Metadata(_ context.Context, req re
 	resp.TypeName = req.ProviderTypeName + "_syslog_json_audit_log_publisher"
 }
 
+func (r *defaultSyslogJsonAuditLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_syslog_json_audit_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *syslogJsonAuditLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSyslogJsonAuditLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -91,6 +118,14 @@ type syslogJsonAuditLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *syslogJsonAuditLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogJsonAuditLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSyslogJsonAuditLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogJsonAuditLogPublisherSchema(ctx, req, resp, true)
+}
+
+func syslogJsonAuditLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Syslog Json Audit Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -249,6 +284,9 @@ func (r *syslogJsonAuditLogPublisherResource) Schema(ctx context.Context, req re
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -531,8 +569,79 @@ func (r *syslogJsonAuditLogPublisherResource) Create(ctx context.Context, req re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSyslogJsonAuditLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan syslogJsonAuditLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Json Audit Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state syslogJsonAuditLogPublisherResourceModel
+	readSyslogJsonAuditLogPublisherResponse(ctx, readResponse.SyslogJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSyslogJsonAuditLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Json Audit Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSyslogJsonAuditLogPublisherResponse(ctx, updateResponse.SyslogJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *syslogJsonAuditLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogJsonAuditLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogJsonAuditLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogJsonAuditLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSyslogJsonAuditLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state syslogJsonAuditLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -541,8 +650,8 @@ func (r *syslogJsonAuditLogPublisherResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Json Audit Log Publisher", err, httpResp)
 		return
@@ -567,6 +676,14 @@ func (r *syslogJsonAuditLogPublisherResource) Read(ctx context.Context, req reso
 
 // Update a resource
 func (r *syslogJsonAuditLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogJsonAuditLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogJsonAuditLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogJsonAuditLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSyslogJsonAuditLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan syslogJsonAuditLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -578,8 +695,8 @@ func (r *syslogJsonAuditLogPublisherResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state syslogJsonAuditLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSyslogJsonAuditLogPublisherOperations(plan, state)
@@ -588,7 +705,7 @@ func (r *syslogJsonAuditLogPublisherResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Json Audit Log Publisher", err, httpResp)
 			return
@@ -616,6 +733,12 @@ func (r *syslogJsonAuditLogPublisherResource) Update(ctx context.Context, req re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSyslogJsonAuditLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *syslogJsonAuditLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state syslogJsonAuditLogPublisherResourceModel
@@ -634,6 +757,14 @@ func (r *syslogJsonAuditLogPublisherResource) Delete(ctx context.Context, req re
 }
 
 func (r *syslogJsonAuditLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogJsonAuditLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultSyslogJsonAuditLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogJsonAuditLogPublisher(ctx, req, resp)
+}
+
+func importSyslogJsonAuditLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

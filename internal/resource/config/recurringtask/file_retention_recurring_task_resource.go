@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &fileRetentionRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &fileRetentionRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &fileRetentionRecurringTaskResource{}
+	_ resource.Resource                = &defaultFileRetentionRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultFileRetentionRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultFileRetentionRecurringTaskResource{}
 )
 
 // Create a File Retention Recurring Task resource
@@ -29,8 +32,18 @@ func NewFileRetentionRecurringTaskResource() resource.Resource {
 	return &fileRetentionRecurringTaskResource{}
 }
 
+func NewDefaultFileRetentionRecurringTaskResource() resource.Resource {
+	return &defaultFileRetentionRecurringTaskResource{}
+}
+
 // fileRetentionRecurringTaskResource is the resource implementation.
 type fileRetentionRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultFileRetentionRecurringTaskResource is the resource implementation.
+type defaultFileRetentionRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *fileRetentionRecurringTaskResource) Metadata(_ context.Context, req res
 	resp.TypeName = req.ProviderTypeName + "_file_retention_recurring_task"
 }
 
+func (r *defaultFileRetentionRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_file_retention_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *fileRetentionRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultFileRetentionRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -74,6 +101,14 @@ type fileRetentionRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *fileRetentionRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileRetentionRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultFileRetentionRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileRetentionRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func fileRetentionRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a File Retention Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -146,6 +181,9 @@ func (r *fileRetentionRecurringTaskResource) Schema(ctx context.Context, req res
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -305,8 +343,79 @@ func (r *fileRetentionRecurringTaskResource) Create(ctx context.Context, req res
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultFileRetentionRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan fileRetentionRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Retention Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state fileRetentionRecurringTaskResourceModel
+	readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createFileRetentionRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Retention Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readFileRetentionRecurringTaskResponse(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *fileRetentionRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileRetentionRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileRetentionRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileRetentionRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readFileRetentionRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state fileRetentionRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -315,8 +424,8 @@ func (r *fileRetentionRecurringTaskResource) Read(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Retention Recurring Task", err, httpResp)
 		return
@@ -341,6 +450,14 @@ func (r *fileRetentionRecurringTaskResource) Read(ctx context.Context, req resou
 
 // Update a resource
 func (r *fileRetentionRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileRetentionRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileRetentionRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileRetentionRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateFileRetentionRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan fileRetentionRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -352,8 +469,8 @@ func (r *fileRetentionRecurringTaskResource) Update(ctx context.Context, req res
 	// Get the current state to see how any attributes are changing
 	var state fileRetentionRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createFileRetentionRecurringTaskOperations(plan, state)
@@ -362,7 +479,7 @@ func (r *fileRetentionRecurringTaskResource) Update(ctx context.Context, req res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Retention Recurring Task", err, httpResp)
 			return
@@ -390,6 +507,12 @@ func (r *fileRetentionRecurringTaskResource) Update(ctx context.Context, req res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultFileRetentionRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *fileRetentionRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state fileRetentionRecurringTaskResourceModel
@@ -408,6 +531,14 @@ func (r *fileRetentionRecurringTaskResource) Delete(ctx context.Context, req res
 }
 
 func (r *fileRetentionRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileRetentionRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultFileRetentionRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileRetentionRecurringTask(ctx, req, resp)
+}
+
+func importFileRetentionRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

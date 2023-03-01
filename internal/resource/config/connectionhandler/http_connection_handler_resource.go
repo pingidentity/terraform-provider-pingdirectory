@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &httpConnectionHandlerResource{}
 	_ resource.ResourceWithConfigure   = &httpConnectionHandlerResource{}
 	_ resource.ResourceWithImportState = &httpConnectionHandlerResource{}
+	_ resource.Resource                = &defaultHttpConnectionHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultHttpConnectionHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultHttpConnectionHandlerResource{}
 )
 
 // Create a Http Connection Handler resource
@@ -29,8 +32,18 @@ func NewHttpConnectionHandlerResource() resource.Resource {
 	return &httpConnectionHandlerResource{}
 }
 
+func NewDefaultHttpConnectionHandlerResource() resource.Resource {
+	return &defaultHttpConnectionHandlerResource{}
+}
+
 // httpConnectionHandlerResource is the resource implementation.
 type httpConnectionHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultHttpConnectionHandlerResource is the resource implementation.
+type defaultHttpConnectionHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *httpConnectionHandlerResource) Metadata(_ context.Context, req resource
 	resp.TypeName = req.ProviderTypeName + "_http_connection_handler"
 }
 
+func (r *defaultHttpConnectionHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_http_connection_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *httpConnectionHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultHttpConnectionHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -88,6 +115,14 @@ type httpConnectionHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *httpConnectionHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	httpConnectionHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultHttpConnectionHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	httpConnectionHandlerSchema(ctx, req, resp, true)
+}
+
+func httpConnectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Http Connection Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -236,6 +271,9 @@ func (r *httpConnectionHandlerResource) Schema(ctx context.Context, req resource
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -496,8 +534,79 @@ func (r *httpConnectionHandlerResource) Create(ctx context.Context, req resource
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultHttpConnectionHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan httpConnectionHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Connection Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state httpConnectionHandlerResourceModel
+	readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createHttpConnectionHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Connection Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readHttpConnectionHandlerResponse(ctx, updateResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *httpConnectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpConnectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readHttpConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state httpConnectionHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -506,8 +615,8 @@ func (r *httpConnectionHandlerResource) Read(ctx context.Context, req resource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ConnectionHandlerApi.GetConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Connection Handler", err, httpResp)
 		return
@@ -532,6 +641,14 @@ func (r *httpConnectionHandlerResource) Read(ctx context.Context, req resource.R
 
 // Update a resource
 func (r *httpConnectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpConnectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateHttpConnectionHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan httpConnectionHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -543,8 +660,8 @@ func (r *httpConnectionHandlerResource) Update(ctx context.Context, req resource
 	// Get the current state to see how any attributes are changing
 	var state httpConnectionHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createHttpConnectionHandlerOperations(plan, state)
@@ -553,7 +670,7 @@ func (r *httpConnectionHandlerResource) Update(ctx context.Context, req resource
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Connection Handler", err, httpResp)
 			return
@@ -581,6 +698,12 @@ func (r *httpConnectionHandlerResource) Update(ctx context.Context, req resource
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultHttpConnectionHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *httpConnectionHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state httpConnectionHandlerResourceModel
@@ -599,6 +722,14 @@ func (r *httpConnectionHandlerResource) Delete(ctx context.Context, req resource
 }
 
 func (r *httpConnectionHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importHttpConnectionHandler(ctx, req, resp)
+}
+
+func (r *defaultHttpConnectionHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importHttpConnectionHandler(ctx, req, resp)
+}
+
+func importHttpConnectionHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

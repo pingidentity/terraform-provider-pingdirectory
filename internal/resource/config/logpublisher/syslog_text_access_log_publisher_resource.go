@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &syslogTextAccessLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &syslogTextAccessLogPublisherResource{}
 	_ resource.ResourceWithImportState = &syslogTextAccessLogPublisherResource{}
+	_ resource.Resource                = &defaultSyslogTextAccessLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultSyslogTextAccessLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultSyslogTextAccessLogPublisherResource{}
 )
 
 // Create a Syslog Text Access Log Publisher resource
@@ -29,8 +32,18 @@ func NewSyslogTextAccessLogPublisherResource() resource.Resource {
 	return &syslogTextAccessLogPublisherResource{}
 }
 
+func NewDefaultSyslogTextAccessLogPublisherResource() resource.Resource {
+	return &defaultSyslogTextAccessLogPublisherResource{}
+}
+
 // syslogTextAccessLogPublisherResource is the resource implementation.
 type syslogTextAccessLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSyslogTextAccessLogPublisherResource is the resource implementation.
+type defaultSyslogTextAccessLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *syslogTextAccessLogPublisherResource) Metadata(_ context.Context, req r
 	resp.TypeName = req.ProviderTypeName + "_syslog_text_access_log_publisher"
 }
 
+func (r *defaultSyslogTextAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_syslog_text_access_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *syslogTextAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSyslogTextAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -111,6 +138,14 @@ type syslogTextAccessLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *syslogTextAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogTextAccessLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSyslogTextAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogTextAccessLogPublisherSchema(ctx, req, resp, true)
+}
+
+func syslogTextAccessLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Syslog Text Access Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -364,6 +399,9 @@ func (r *syslogTextAccessLogPublisherResource) Schema(ctx context.Context, req r
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -767,8 +805,79 @@ func (r *syslogTextAccessLogPublisherResource) Create(ctx context.Context, req r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSyslogTextAccessLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan syslogTextAccessLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Text Access Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state syslogTextAccessLogPublisherResourceModel
+	readSyslogTextAccessLogPublisherResponse(ctx, readResponse.SyslogTextAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSyslogTextAccessLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Text Access Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSyslogTextAccessLogPublisherResponse(ctx, updateResponse.SyslogTextAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *syslogTextAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogTextAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogTextAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogTextAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSyslogTextAccessLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state syslogTextAccessLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -777,8 +886,8 @@ func (r *syslogTextAccessLogPublisherResource) Read(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Text Access Log Publisher", err, httpResp)
 		return
@@ -803,6 +912,14 @@ func (r *syslogTextAccessLogPublisherResource) Read(ctx context.Context, req res
 
 // Update a resource
 func (r *syslogTextAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogTextAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogTextAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogTextAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSyslogTextAccessLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan syslogTextAccessLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -814,8 +931,8 @@ func (r *syslogTextAccessLogPublisherResource) Update(ctx context.Context, req r
 	// Get the current state to see how any attributes are changing
 	var state syslogTextAccessLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSyslogTextAccessLogPublisherOperations(plan, state)
@@ -824,7 +941,7 @@ func (r *syslogTextAccessLogPublisherResource) Update(ctx context.Context, req r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Text Access Log Publisher", err, httpResp)
 			return
@@ -852,6 +969,12 @@ func (r *syslogTextAccessLogPublisherResource) Update(ctx context.Context, req r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSyslogTextAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *syslogTextAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state syslogTextAccessLogPublisherResourceModel
@@ -870,6 +993,14 @@ func (r *syslogTextAccessLogPublisherResource) Delete(ctx context.Context, req r
 }
 
 func (r *syslogTextAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogTextAccessLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultSyslogTextAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogTextAccessLogPublisher(ctx, req, resp)
+}
+
+func importSyslogTextAccessLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

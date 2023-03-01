@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &regularExpressionIdentityMapperResource{}
 	_ resource.ResourceWithConfigure   = &regularExpressionIdentityMapperResource{}
 	_ resource.ResourceWithImportState = &regularExpressionIdentityMapperResource{}
+	_ resource.Resource                = &defaultRegularExpressionIdentityMapperResource{}
+	_ resource.ResourceWithConfigure   = &defaultRegularExpressionIdentityMapperResource{}
+	_ resource.ResourceWithImportState = &defaultRegularExpressionIdentityMapperResource{}
 )
 
 // Create a Regular Expression Identity Mapper resource
@@ -29,8 +32,18 @@ func NewRegularExpressionIdentityMapperResource() resource.Resource {
 	return &regularExpressionIdentityMapperResource{}
 }
 
+func NewDefaultRegularExpressionIdentityMapperResource() resource.Resource {
+	return &defaultRegularExpressionIdentityMapperResource{}
+}
+
 // regularExpressionIdentityMapperResource is the resource implementation.
 type regularExpressionIdentityMapperResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultRegularExpressionIdentityMapperResource is the resource implementation.
+type defaultRegularExpressionIdentityMapperResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *regularExpressionIdentityMapperResource) Metadata(_ context.Context, re
 	resp.TypeName = req.ProviderTypeName + "_regular_expression_identity_mapper"
 }
 
+func (r *defaultRegularExpressionIdentityMapperResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_regular_expression_identity_mapper"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *regularExpressionIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultRegularExpressionIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +94,14 @@ type regularExpressionIdentityMapperResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *regularExpressionIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	regularExpressionIdentityMapperSchema(ctx, req, resp, false)
+}
+
+func (r *defaultRegularExpressionIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	regularExpressionIdentityMapperSchema(ctx, req, resp, true)
+}
+
+func regularExpressionIdentityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Regular Expression Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
@@ -106,6 +141,9 @@ func (r *regularExpressionIdentityMapperResource) Schema(ctx context.Context, re
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -216,8 +254,79 @@ func (r *regularExpressionIdentityMapperResource) Create(ctx context.Context, re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultRegularExpressionIdentityMapperResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan regularExpressionIdentityMapperResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Regular Expression Identity Mapper", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state regularExpressionIdentityMapperResourceModel
+	readRegularExpressionIdentityMapperResponse(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createRegularExpressionIdentityMapperOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Regular Expression Identity Mapper", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readRegularExpressionIdentityMapperResponse(ctx, updateResponse.RegularExpressionIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *regularExpressionIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRegularExpressionIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRegularExpressionIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRegularExpressionIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readRegularExpressionIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state regularExpressionIdentityMapperResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -226,8 +335,8 @@ func (r *regularExpressionIdentityMapperResource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Regular Expression Identity Mapper", err, httpResp)
 		return
@@ -252,6 +361,14 @@ func (r *regularExpressionIdentityMapperResource) Read(ctx context.Context, req 
 
 // Update a resource
 func (r *regularExpressionIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRegularExpressionIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRegularExpressionIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRegularExpressionIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateRegularExpressionIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan regularExpressionIdentityMapperResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -263,8 +380,8 @@ func (r *regularExpressionIdentityMapperResource) Update(ctx context.Context, re
 	// Get the current state to see how any attributes are changing
 	var state regularExpressionIdentityMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.IdentityMapperApi.UpdateIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createRegularExpressionIdentityMapperOperations(plan, state)
@@ -273,7 +390,7 @@ func (r *regularExpressionIdentityMapperResource) Update(ctx context.Context, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Regular Expression Identity Mapper", err, httpResp)
 			return
@@ -301,6 +418,12 @@ func (r *regularExpressionIdentityMapperResource) Update(ctx context.Context, re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultRegularExpressionIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *regularExpressionIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state regularExpressionIdentityMapperResourceModel
@@ -319,6 +442,14 @@ func (r *regularExpressionIdentityMapperResource) Delete(ctx context.Context, re
 }
 
 func (r *regularExpressionIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importRegularExpressionIdentityMapper(ctx, req, resp)
+}
+
+func (r *defaultRegularExpressionIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importRegularExpressionIdentityMapper(ctx, req, resp)
+}
+
+func importRegularExpressionIdentityMapper(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

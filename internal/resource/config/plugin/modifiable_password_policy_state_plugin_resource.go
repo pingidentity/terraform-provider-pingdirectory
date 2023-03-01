@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &modifiablePasswordPolicyStatePluginResource{}
 	_ resource.ResourceWithConfigure   = &modifiablePasswordPolicyStatePluginResource{}
 	_ resource.ResourceWithImportState = &modifiablePasswordPolicyStatePluginResource{}
+	_ resource.Resource                = &defaultModifiablePasswordPolicyStatePluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultModifiablePasswordPolicyStatePluginResource{}
+	_ resource.ResourceWithImportState = &defaultModifiablePasswordPolicyStatePluginResource{}
 )
 
 // Create a Modifiable Password Policy State Plugin resource
@@ -29,8 +32,18 @@ func NewModifiablePasswordPolicyStatePluginResource() resource.Resource {
 	return &modifiablePasswordPolicyStatePluginResource{}
 }
 
+func NewDefaultModifiablePasswordPolicyStatePluginResource() resource.Resource {
+	return &defaultModifiablePasswordPolicyStatePluginResource{}
+}
+
 // modifiablePasswordPolicyStatePluginResource is the resource implementation.
 type modifiablePasswordPolicyStatePluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultModifiablePasswordPolicyStatePluginResource is the resource implementation.
+type defaultModifiablePasswordPolicyStatePluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *modifiablePasswordPolicyStatePluginResource) Metadata(_ context.Context
 	resp.TypeName = req.ProviderTypeName + "_modifiable_password_policy_state_plugin"
 }
 
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_modifiable_password_policy_state_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *modifiablePasswordPolicyStatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +91,14 @@ type modifiablePasswordPolicyStatePluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *modifiablePasswordPolicyStatePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	modifiablePasswordPolicyStatePluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	modifiablePasswordPolicyStatePluginSchema(ctx, req, resp, true)
+}
+
+func modifiablePasswordPolicyStatePluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Modifiable Password Policy State Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -90,6 +125,9 @@ func (r *modifiablePasswordPolicyStatePluginResource) Schema(ctx context.Context
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -183,8 +221,79 @@ func (r *modifiablePasswordPolicyStatePluginResource) Create(ctx context.Context
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan modifiablePasswordPolicyStatePluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Modifiable Password Policy State Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state modifiablePasswordPolicyStatePluginResourceModel
+	readModifiablePasswordPolicyStatePluginResponse(ctx, readResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createModifiablePasswordPolicyStatePluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Modifiable Password Policy State Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readModifiablePasswordPolicyStatePluginResponse(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *modifiablePasswordPolicyStatePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readModifiablePasswordPolicyStatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readModifiablePasswordPolicyStatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readModifiablePasswordPolicyStatePlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state modifiablePasswordPolicyStatePluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -193,8 +302,8 @@ func (r *modifiablePasswordPolicyStatePluginResource) Read(ctx context.Context, 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Modifiable Password Policy State Plugin", err, httpResp)
 		return
@@ -219,6 +328,14 @@ func (r *modifiablePasswordPolicyStatePluginResource) Read(ctx context.Context, 
 
 // Update a resource
 func (r *modifiablePasswordPolicyStatePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateModifiablePasswordPolicyStatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateModifiablePasswordPolicyStatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateModifiablePasswordPolicyStatePlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan modifiablePasswordPolicyStatePluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -230,8 +347,8 @@ func (r *modifiablePasswordPolicyStatePluginResource) Update(ctx context.Context
 	// Get the current state to see how any attributes are changing
 	var state modifiablePasswordPolicyStatePluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createModifiablePasswordPolicyStatePluginOperations(plan, state)
@@ -240,7 +357,7 @@ func (r *modifiablePasswordPolicyStatePluginResource) Update(ctx context.Context
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Modifiable Password Policy State Plugin", err, httpResp)
 			return
@@ -268,6 +385,12 @@ func (r *modifiablePasswordPolicyStatePluginResource) Update(ctx context.Context
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultModifiablePasswordPolicyStatePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *modifiablePasswordPolicyStatePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state modifiablePasswordPolicyStatePluginResourceModel
@@ -286,6 +409,14 @@ func (r *modifiablePasswordPolicyStatePluginResource) Delete(ctx context.Context
 }
 
 func (r *modifiablePasswordPolicyStatePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importModifiablePasswordPolicyStatePlugin(ctx, req, resp)
+}
+
+func (r *defaultModifiablePasswordPolicyStatePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importModifiablePasswordPolicyStatePlugin(ctx, req, resp)
+}
+
+func importModifiablePasswordPolicyStatePlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

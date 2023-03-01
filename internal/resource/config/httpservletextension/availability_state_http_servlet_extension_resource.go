@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &availabilityStateHttpServletExtensionResource{}
 	_ resource.ResourceWithConfigure   = &availabilityStateHttpServletExtensionResource{}
 	_ resource.ResourceWithImportState = &availabilityStateHttpServletExtensionResource{}
+	_ resource.Resource                = &defaultAvailabilityStateHttpServletExtensionResource{}
+	_ resource.ResourceWithConfigure   = &defaultAvailabilityStateHttpServletExtensionResource{}
+	_ resource.ResourceWithImportState = &defaultAvailabilityStateHttpServletExtensionResource{}
 )
 
 // Create a Availability State Http Servlet Extension resource
@@ -29,8 +32,18 @@ func NewAvailabilityStateHttpServletExtensionResource() resource.Resource {
 	return &availabilityStateHttpServletExtensionResource{}
 }
 
+func NewDefaultAvailabilityStateHttpServletExtensionResource() resource.Resource {
+	return &defaultAvailabilityStateHttpServletExtensionResource{}
+}
+
 // availabilityStateHttpServletExtensionResource is the resource implementation.
 type availabilityStateHttpServletExtensionResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultAvailabilityStateHttpServletExtensionResource is the resource implementation.
+type defaultAvailabilityStateHttpServletExtensionResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *availabilityStateHttpServletExtensionResource) Metadata(_ context.Conte
 	resp.TypeName = req.ProviderTypeName + "_availability_state_http_servlet_extension"
 }
 
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_availability_state_http_servlet_extension"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *availabilityStateHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -71,6 +98,14 @@ type availabilityStateHttpServletExtensionResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *availabilityStateHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	availabilityStateHttpServletExtensionSchema(ctx, req, resp, false)
+}
+
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	availabilityStateHttpServletExtensionSchema(ctx, req, resp, true)
+}
+
+func availabilityStateHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Availability State Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
@@ -126,6 +161,9 @@ func (r *availabilityStateHttpServletExtensionResource) Schema(ctx context.Conte
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -254,8 +292,79 @@ func (r *availabilityStateHttpServletExtensionResource) Create(ctx context.Conte
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan availabilityStateHttpServletExtensionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Availability State Http Servlet Extension", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state availabilityStateHttpServletExtensionResourceModel
+	readAvailabilityStateHttpServletExtensionResponse(ctx, readResponse.AvailabilityStateHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createAvailabilityStateHttpServletExtensionOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Availability State Http Servlet Extension", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readAvailabilityStateHttpServletExtensionResponse(ctx, updateResponse.AvailabilityStateHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *availabilityStateHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAvailabilityStateHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAvailabilityStateHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAvailabilityStateHttpServletExtension(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state availabilityStateHttpServletExtensionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -264,8 +373,8 @@ func (r *availabilityStateHttpServletExtensionResource) Read(ctx context.Context
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Availability State Http Servlet Extension", err, httpResp)
 		return
@@ -290,6 +399,14 @@ func (r *availabilityStateHttpServletExtensionResource) Read(ctx context.Context
 
 // Update a resource
 func (r *availabilityStateHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAvailabilityStateHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAvailabilityStateHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAvailabilityStateHttpServletExtension(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan availabilityStateHttpServletExtensionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -301,8 +418,8 @@ func (r *availabilityStateHttpServletExtensionResource) Update(ctx context.Conte
 	// Get the current state to see how any attributes are changing
 	var state availabilityStateHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAvailabilityStateHttpServletExtensionOperations(plan, state)
@@ -311,7 +428,7 @@ func (r *availabilityStateHttpServletExtensionResource) Update(ctx context.Conte
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Availability State Http Servlet Extension", err, httpResp)
 			return
@@ -339,6 +456,12 @@ func (r *availabilityStateHttpServletExtensionResource) Update(ctx context.Conte
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultAvailabilityStateHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *availabilityStateHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state availabilityStateHttpServletExtensionResourceModel
@@ -357,6 +480,14 @@ func (r *availabilityStateHttpServletExtensionResource) Delete(ctx context.Conte
 }
 
 func (r *availabilityStateHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAvailabilityStateHttpServletExtension(ctx, req, resp)
+}
+
+func (r *defaultAvailabilityStateHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAvailabilityStateHttpServletExtension(ctx, req, resp)
+}
+
+func importAvailabilityStateHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

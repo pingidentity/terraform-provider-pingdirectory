@@ -24,6 +24,9 @@ var (
 	_ resource.Resource                = &localDbIndexResource{}
 	_ resource.ResourceWithConfigure   = &localDbIndexResource{}
 	_ resource.ResourceWithImportState = &localDbIndexResource{}
+	_ resource.Resource                = &defaultLocalDbIndexResource{}
+	_ resource.ResourceWithConfigure   = &defaultLocalDbIndexResource{}
+	_ resource.ResourceWithImportState = &defaultLocalDbIndexResource{}
 )
 
 // Create a Local Db Index resource
@@ -31,8 +34,18 @@ func NewLocalDbIndexResource() resource.Resource {
 	return &localDbIndexResource{}
 }
 
+func NewDefaultLocalDbIndexResource() resource.Resource {
+	return &defaultLocalDbIndexResource{}
+}
+
 // localDbIndexResource is the resource implementation.
 type localDbIndexResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLocalDbIndexResource is the resource implementation.
+type defaultLocalDbIndexResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -42,8 +55,22 @@ func (r *localDbIndexResource) Metadata(_ context.Context, req resource.Metadata
 	resp.TypeName = req.ProviderTypeName + "_local_db_index"
 }
 
+func (r *defaultLocalDbIndexResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_local_db_index"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *localDbIndexResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultLocalDbIndexResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -74,6 +101,14 @@ type localDbIndexResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *localDbIndexResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	localDbIndexSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLocalDbIndexResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	localDbIndexSchema(ctx, req, resp, true)
+}
+
+func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Local Db Index.",
 		Attributes: map[string]schema.Attribute{
@@ -145,6 +180,9 @@ func (r *localDbIndexResource) Schema(ctx context.Context, req resource.SchemaRe
 		},
 	}
 	AddCommonSchema(&schema, false)
+	if setOptionalToComputed {
+		SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -287,8 +325,79 @@ func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRe
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan localDbIndexResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.GetLocalDbIndex(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state localDbIndexResourceModel
+	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
+	ops := createLocalDbIndexOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Index", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readLocalDbIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *localDbIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLocalDbIndex(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state localDbIndexResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -297,8 +406,8 @@ func (r *localDbIndexResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.GetLocalDbIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LocalDbIndexApi.GetLocalDbIndex(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
 		return
@@ -323,6 +432,14 @@ func (r *localDbIndexResource) Read(ctx context.Context, req resource.ReadReques
 
 // Update a resource
 func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLocalDbIndex(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan localDbIndexResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -334,8 +451,8 @@ func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state localDbIndexResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
+	updateRequest := apiClient.LocalDbIndexApi.UpdateLocalDbIndex(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocalDbIndexOperations(plan, state)
@@ -344,7 +461,7 @@ func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Index", err, httpResp)
 			return
@@ -372,6 +489,12 @@ func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRe
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLocalDbIndexResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *localDbIndexResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state localDbIndexResourceModel
@@ -390,6 +513,14 @@ func (r *localDbIndexResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *localDbIndexResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLocalDbIndex(ctx, req, resp)
+}
+
+func (r *defaultLocalDbIndexResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLocalDbIndex(ctx, req, resp)
+}
+
+func importLocalDbIndex(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	split := strings.Split(req.ID, "/")
 	if len(split) != 2 {
 		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [backend-name]/[local-db-index-attribute]. Got: "+req.ID)

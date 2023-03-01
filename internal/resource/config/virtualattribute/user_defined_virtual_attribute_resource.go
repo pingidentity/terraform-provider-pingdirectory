@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &userDefinedVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &userDefinedVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &userDefinedVirtualAttributeResource{}
+	_ resource.Resource                = &defaultUserDefinedVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultUserDefinedVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultUserDefinedVirtualAttributeResource{}
 )
 
 // Create a User Defined Virtual Attribute resource
@@ -29,8 +32,18 @@ func NewUserDefinedVirtualAttributeResource() resource.Resource {
 	return &userDefinedVirtualAttributeResource{}
 }
 
+func NewDefaultUserDefinedVirtualAttributeResource() resource.Resource {
+	return &defaultUserDefinedVirtualAttributeResource{}
+}
+
 // userDefinedVirtualAttributeResource is the resource implementation.
 type userDefinedVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultUserDefinedVirtualAttributeResource is the resource implementation.
+type defaultUserDefinedVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *userDefinedVirtualAttributeResource) Metadata(_ context.Context, req re
 	resp.TypeName = req.ProviderTypeName + "_user_defined_virtual_attribute"
 }
 
+func (r *defaultUserDefinedVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_user_defined_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *userDefinedVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultUserDefinedVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -73,6 +100,14 @@ type userDefinedVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *userDefinedVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	userDefinedVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultUserDefinedVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	userDefinedVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func userDefinedVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a User Defined Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -144,6 +179,9 @@ func (r *userDefinedVirtualAttributeResource) Schema(ctx context.Context, req re
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -304,8 +342,79 @@ func (r *userDefinedVirtualAttributeResource) Create(ctx context.Context, req re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultUserDefinedVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan userDefinedVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the User Defined Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state userDefinedVirtualAttributeResourceModel
+	readUserDefinedVirtualAttributeResponse(ctx, readResponse.UserDefinedVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createUserDefinedVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the User Defined Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readUserDefinedVirtualAttributeResponse(ctx, updateResponse.UserDefinedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *userDefinedVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUserDefinedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUserDefinedVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUserDefinedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readUserDefinedVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state userDefinedVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -314,8 +423,8 @@ func (r *userDefinedVirtualAttributeResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the User Defined Virtual Attribute", err, httpResp)
 		return
@@ -340,6 +449,14 @@ func (r *userDefinedVirtualAttributeResource) Read(ctx context.Context, req reso
 
 // Update a resource
 func (r *userDefinedVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUserDefinedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUserDefinedVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUserDefinedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateUserDefinedVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan userDefinedVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -351,8 +468,8 @@ func (r *userDefinedVirtualAttributeResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state userDefinedVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createUserDefinedVirtualAttributeOperations(plan, state)
@@ -361,7 +478,7 @@ func (r *userDefinedVirtualAttributeResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the User Defined Virtual Attribute", err, httpResp)
 			return
@@ -389,6 +506,12 @@ func (r *userDefinedVirtualAttributeResource) Update(ctx context.Context, req re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultUserDefinedVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *userDefinedVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state userDefinedVirtualAttributeResourceModel
@@ -407,6 +530,14 @@ func (r *userDefinedVirtualAttributeResource) Delete(ctx context.Context, req re
 }
 
 func (r *userDefinedVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importUserDefinedVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultUserDefinedVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importUserDefinedVirtualAttribute(ctx, req, resp)
+}
+
+func importUserDefinedVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

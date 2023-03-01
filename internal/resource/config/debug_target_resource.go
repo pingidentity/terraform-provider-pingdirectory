@@ -24,6 +24,9 @@ var (
 	_ resource.Resource                = &debugTargetResource{}
 	_ resource.ResourceWithConfigure   = &debugTargetResource{}
 	_ resource.ResourceWithImportState = &debugTargetResource{}
+	_ resource.Resource                = &defaultDebugTargetResource{}
+	_ resource.ResourceWithConfigure   = &defaultDebugTargetResource{}
+	_ resource.ResourceWithImportState = &defaultDebugTargetResource{}
 )
 
 // Create a Debug Target resource
@@ -31,8 +34,18 @@ func NewDebugTargetResource() resource.Resource {
 	return &debugTargetResource{}
 }
 
+func NewDefaultDebugTargetResource() resource.Resource {
+	return &defaultDebugTargetResource{}
+}
+
 // debugTargetResource is the resource implementation.
 type debugTargetResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultDebugTargetResource is the resource implementation.
+type defaultDebugTargetResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -42,8 +55,22 @@ func (r *debugTargetResource) Metadata(_ context.Context, req resource.MetadataR
 	resp.TypeName = req.ProviderTypeName + "_debug_target"
 }
 
+func (r *defaultDebugTargetResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_debug_target"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *debugTargetResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultDebugTargetResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -71,6 +98,14 @@ type debugTargetResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *debugTargetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	debugTargetSchema(ctx, req, resp, false)
+}
+
+func (r *defaultDebugTargetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	debugTargetSchema(ctx, req, resp, true)
+}
+
+func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Debug Target.",
 		Attributes: map[string]schema.Attribute{
@@ -125,6 +160,9 @@ func (r *debugTargetResource) Schema(ctx context.Context, req resource.SchemaReq
 		},
 	}
 	AddCommonSchema(&schema, false)
+	if setOptionalToComputed {
+		SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -256,8 +294,79 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan debugTargetResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.DebugTargetApi.GetDebugTarget(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state debugTargetResourceModel
+	readDebugTargetResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
+	ops := createDebugTargetOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Target", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readDebugTargetResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *debugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDebugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state debugTargetResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -266,8 +375,8 @@ func (r *debugTargetResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DebugTargetApi.GetDebugTarget(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.DebugTargetApi.GetDebugTarget(
+		ProviderBasicAuthContext(ctx, providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
 		return
@@ -292,6 +401,14 @@ func (r *debugTargetResource) Read(ctx context.Context, req resource.ReadRequest
 
 // Update a resource
 func (r *debugTargetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDebugTargetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan debugTargetResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -303,8 +420,8 @@ func (r *debugTargetResource) Update(ctx context.Context, req resource.UpdateReq
 	// Get the current state to see how any attributes are changing
 	var state debugTargetResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
+	updateRequest := apiClient.DebugTargetApi.UpdateDebugTarget(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDebugTargetOperations(plan, state)
@@ -313,7 +430,7 @@ func (r *debugTargetResource) Update(ctx context.Context, req resource.UpdateReq
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Target", err, httpResp)
 			return
@@ -341,6 +458,12 @@ func (r *debugTargetResource) Update(ctx context.Context, req resource.UpdateReq
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultDebugTargetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state debugTargetResourceModel
@@ -359,6 +482,14 @@ func (r *debugTargetResource) Delete(ctx context.Context, req resource.DeleteReq
 }
 
 func (r *debugTargetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDebugTarget(ctx, req, resp)
+}
+
+func (r *defaultDebugTargetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDebugTarget(ctx, req, resp)
+}
+
+func importDebugTarget(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	split := strings.Split(req.ID, "/")
 	if len(split) != 2 {
 		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [log-publisher-name]/[debug-target-debug-scope]. Got: "+req.ID)

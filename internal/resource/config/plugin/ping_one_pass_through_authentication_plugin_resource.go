@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &pingOnePassThroughAuthenticationPluginResource{}
 	_ resource.ResourceWithConfigure   = &pingOnePassThroughAuthenticationPluginResource{}
 	_ resource.ResourceWithImportState = &pingOnePassThroughAuthenticationPluginResource{}
+	_ resource.Resource                = &defaultPingOnePassThroughAuthenticationPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultPingOnePassThroughAuthenticationPluginResource{}
+	_ resource.ResourceWithImportState = &defaultPingOnePassThroughAuthenticationPluginResource{}
 )
 
 // Create a Ping One Pass Through Authentication Plugin resource
@@ -29,8 +32,18 @@ func NewPingOnePassThroughAuthenticationPluginResource() resource.Resource {
 	return &pingOnePassThroughAuthenticationPluginResource{}
 }
 
+func NewDefaultPingOnePassThroughAuthenticationPluginResource() resource.Resource {
+	return &defaultPingOnePassThroughAuthenticationPluginResource{}
+}
+
 // pingOnePassThroughAuthenticationPluginResource is the resource implementation.
 type pingOnePassThroughAuthenticationPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPingOnePassThroughAuthenticationPluginResource is the resource implementation.
+type defaultPingOnePassThroughAuthenticationPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Metadata(_ context.Cont
 	resp.TypeName = req.ProviderTypeName + "_ping_one_pass_through_authentication_plugin"
 }
 
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_ping_one_pass_through_authentication_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *pingOnePassThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -81,6 +108,14 @@ type pingOnePassThroughAuthenticationPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *pingOnePassThroughAuthenticationPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pingOnePassThroughAuthenticationPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pingOnePassThroughAuthenticationPluginSchema(ctx, req, resp, true)
+}
+
+func pingOnePassThroughAuthenticationPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Ping One Pass Through Authentication Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -183,6 +218,9 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Schema(ctx context.Cont
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -385,8 +423,79 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Create(ctx context.Cont
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan pingOnePassThroughAuthenticationPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ping One Pass Through Authentication Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state pingOnePassThroughAuthenticationPluginResourceModel
+	readPingOnePassThroughAuthenticationPluginResponse(ctx, readResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPingOnePassThroughAuthenticationPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ping One Pass Through Authentication Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPingOnePassThroughAuthenticationPluginResponse(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *pingOnePassThroughAuthenticationPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPingOnePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPingOnePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPingOnePassThroughAuthenticationPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state pingOnePassThroughAuthenticationPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -395,8 +504,8 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Read(ctx context.Contex
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ping One Pass Through Authentication Plugin", err, httpResp)
 		return
@@ -421,6 +530,14 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Read(ctx context.Contex
 
 // Update a resource
 func (r *pingOnePassThroughAuthenticationPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePingOnePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePingOnePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePingOnePassThroughAuthenticationPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan pingOnePassThroughAuthenticationPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -432,8 +549,8 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Update(ctx context.Cont
 	// Get the current state to see how any attributes are changing
 	var state pingOnePassThroughAuthenticationPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPingOnePassThroughAuthenticationPluginOperations(plan, state)
@@ -442,7 +559,7 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Update(ctx context.Cont
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ping One Pass Through Authentication Plugin", err, httpResp)
 			return
@@ -470,6 +587,12 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Update(ctx context.Cont
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *pingOnePassThroughAuthenticationPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state pingOnePassThroughAuthenticationPluginResourceModel
@@ -488,6 +611,14 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Delete(ctx context.Cont
 }
 
 func (r *pingOnePassThroughAuthenticationPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPingOnePassThroughAuthenticationPlugin(ctx, req, resp)
+}
+
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPingOnePassThroughAuthenticationPlugin(ctx, req, resp)
+}
+
+func importPingOnePassThroughAuthenticationPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

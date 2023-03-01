@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &syslogJsonHttpOperationLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &syslogJsonHttpOperationLogPublisherResource{}
 	_ resource.ResourceWithImportState = &syslogJsonHttpOperationLogPublisherResource{}
+	_ resource.Resource                = &defaultSyslogJsonHttpOperationLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultSyslogJsonHttpOperationLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultSyslogJsonHttpOperationLogPublisherResource{}
 )
 
 // Create a Syslog Json Http Operation Log Publisher resource
@@ -29,8 +32,18 @@ func NewSyslogJsonHttpOperationLogPublisherResource() resource.Resource {
 	return &syslogJsonHttpOperationLogPublisherResource{}
 }
 
+func NewDefaultSyslogJsonHttpOperationLogPublisherResource() resource.Resource {
+	return &defaultSyslogJsonHttpOperationLogPublisherResource{}
+}
+
 // syslogJsonHttpOperationLogPublisherResource is the resource implementation.
 type syslogJsonHttpOperationLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSyslogJsonHttpOperationLogPublisherResource is the resource implementation.
+type defaultSyslogJsonHttpOperationLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Metadata(_ context.Context
 	resp.TypeName = req.ProviderTypeName + "_syslog_json_http_operation_log_publisher"
 }
 
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_syslog_json_http_operation_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *syslogJsonHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -88,6 +115,14 @@ type syslogJsonHttpOperationLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *syslogJsonHttpOperationLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogJsonHttpOperationLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogJsonHttpOperationLogPublisherSchema(ctx, req, resp, true)
+}
+
+func syslogJsonHttpOperationLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Syslog Json Http Operation Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -235,6 +270,9 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Schema(ctx context.Context
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -507,8 +545,79 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Create(ctx context.Context
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan syslogJsonHttpOperationLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Json Http Operation Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state syslogJsonHttpOperationLogPublisherResourceModel
+	readSyslogJsonHttpOperationLogPublisherResponse(ctx, readResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSyslogJsonHttpOperationLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Json Http Operation Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSyslogJsonHttpOperationLogPublisherResponse(ctx, updateResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *syslogJsonHttpOperationLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogJsonHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogJsonHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSyslogJsonHttpOperationLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state syslogJsonHttpOperationLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -517,8 +626,8 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Read(ctx context.Context, 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Json Http Operation Log Publisher", err, httpResp)
 		return
@@ -543,6 +652,14 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Read(ctx context.Context, 
 
 // Update a resource
 func (r *syslogJsonHttpOperationLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogJsonHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogJsonHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSyslogJsonHttpOperationLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan syslogJsonHttpOperationLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -554,8 +671,8 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Update(ctx context.Context
 	// Get the current state to see how any attributes are changing
 	var state syslogJsonHttpOperationLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSyslogJsonHttpOperationLogPublisherOperations(plan, state)
@@ -564,7 +681,7 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Update(ctx context.Context
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Json Http Operation Log Publisher", err, httpResp)
 			return
@@ -592,6 +709,12 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Update(ctx context.Context
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *syslogJsonHttpOperationLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state syslogJsonHttpOperationLogPublisherResourceModel
@@ -610,6 +733,14 @@ func (r *syslogJsonHttpOperationLogPublisherResource) Delete(ctx context.Context
 }
 
 func (r *syslogJsonHttpOperationLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogJsonHttpOperationLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultSyslogJsonHttpOperationLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogJsonHttpOperationLogPublisher(ctx, req, resp)
+}
+
+func importSyslogJsonHttpOperationLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

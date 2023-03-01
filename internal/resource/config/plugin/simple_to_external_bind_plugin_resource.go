@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &simpleToExternalBindPluginResource{}
 	_ resource.ResourceWithConfigure   = &simpleToExternalBindPluginResource{}
 	_ resource.ResourceWithImportState = &simpleToExternalBindPluginResource{}
+	_ resource.Resource                = &defaultSimpleToExternalBindPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultSimpleToExternalBindPluginResource{}
+	_ resource.ResourceWithImportState = &defaultSimpleToExternalBindPluginResource{}
 )
 
 // Create a Simple To External Bind Plugin resource
@@ -29,8 +32,18 @@ func NewSimpleToExternalBindPluginResource() resource.Resource {
 	return &simpleToExternalBindPluginResource{}
 }
 
+func NewDefaultSimpleToExternalBindPluginResource() resource.Resource {
+	return &defaultSimpleToExternalBindPluginResource{}
+}
+
 // simpleToExternalBindPluginResource is the resource implementation.
 type simpleToExternalBindPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSimpleToExternalBindPluginResource is the resource implementation.
+type defaultSimpleToExternalBindPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *simpleToExternalBindPluginResource) Metadata(_ context.Context, req res
 	resp.TypeName = req.ProviderTypeName + "_simple_to_external_bind_plugin"
 }
 
+func (r *defaultSimpleToExternalBindPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_simple_to_external_bind_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *simpleToExternalBindPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSimpleToExternalBindPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +91,14 @@ type simpleToExternalBindPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *simpleToExternalBindPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	simpleToExternalBindPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSimpleToExternalBindPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	simpleToExternalBindPluginSchema(ctx, req, resp, true)
+}
+
+func simpleToExternalBindPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Simple To External Bind Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -86,6 +121,9 @@ func (r *simpleToExternalBindPluginResource) Schema(ctx context.Context, req res
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -179,8 +217,79 @@ func (r *simpleToExternalBindPluginResource) Create(ctx context.Context, req res
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSimpleToExternalBindPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan simpleToExternalBindPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Simple To External Bind Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state simpleToExternalBindPluginResourceModel
+	readSimpleToExternalBindPluginResponse(ctx, readResponse.SimpleToExternalBindPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSimpleToExternalBindPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Simple To External Bind Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSimpleToExternalBindPluginResponse(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *simpleToExternalBindPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSimpleToExternalBindPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSimpleToExternalBindPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSimpleToExternalBindPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSimpleToExternalBindPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state simpleToExternalBindPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -189,8 +298,8 @@ func (r *simpleToExternalBindPluginResource) Read(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Simple To External Bind Plugin", err, httpResp)
 		return
@@ -215,6 +324,14 @@ func (r *simpleToExternalBindPluginResource) Read(ctx context.Context, req resou
 
 // Update a resource
 func (r *simpleToExternalBindPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSimpleToExternalBindPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSimpleToExternalBindPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSimpleToExternalBindPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSimpleToExternalBindPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan simpleToExternalBindPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -226,8 +343,8 @@ func (r *simpleToExternalBindPluginResource) Update(ctx context.Context, req res
 	// Get the current state to see how any attributes are changing
 	var state simpleToExternalBindPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSimpleToExternalBindPluginOperations(plan, state)
@@ -236,7 +353,7 @@ func (r *simpleToExternalBindPluginResource) Update(ctx context.Context, req res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Simple To External Bind Plugin", err, httpResp)
 			return
@@ -264,6 +381,12 @@ func (r *simpleToExternalBindPluginResource) Update(ctx context.Context, req res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSimpleToExternalBindPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *simpleToExternalBindPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state simpleToExternalBindPluginResourceModel
@@ -282,6 +405,14 @@ func (r *simpleToExternalBindPluginResource) Delete(ctx context.Context, req res
 }
 
 func (r *simpleToExternalBindPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSimpleToExternalBindPlugin(ctx, req, resp)
+}
+
+func (r *defaultSimpleToExternalBindPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSimpleToExternalBindPlugin(ctx, req, resp)
+}
+
+func importSimpleToExternalBindPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

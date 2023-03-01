@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &isMemberOfVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &isMemberOfVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &isMemberOfVirtualAttributeResource{}
+	_ resource.Resource                = &defaultIsMemberOfVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultIsMemberOfVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultIsMemberOfVirtualAttributeResource{}
 )
 
 // Create a Is Member Of Virtual Attribute resource
@@ -29,8 +32,18 @@ func NewIsMemberOfVirtualAttributeResource() resource.Resource {
 	return &isMemberOfVirtualAttributeResource{}
 }
 
+func NewDefaultIsMemberOfVirtualAttributeResource() resource.Resource {
+	return &defaultIsMemberOfVirtualAttributeResource{}
+}
+
 // isMemberOfVirtualAttributeResource is the resource implementation.
 type isMemberOfVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultIsMemberOfVirtualAttributeResource is the resource implementation.
+type defaultIsMemberOfVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *isMemberOfVirtualAttributeResource) Metadata(_ context.Context, req res
 	resp.TypeName = req.ProviderTypeName + "_is_member_of_virtual_attribute"
 }
 
+func (r *defaultIsMemberOfVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_is_member_of_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *isMemberOfVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultIsMemberOfVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -75,6 +102,14 @@ type isMemberOfVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *isMemberOfVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	isMemberOfVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultIsMemberOfVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	isMemberOfVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func isMemberOfVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Is Member Of Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -156,6 +191,9 @@ func (r *isMemberOfVirtualAttributeResource) Schema(ctx context.Context, req res
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -339,8 +377,79 @@ func (r *isMemberOfVirtualAttributeResource) Create(ctx context.Context, req res
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultIsMemberOfVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan isMemberOfVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Is Member Of Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state isMemberOfVirtualAttributeResourceModel
+	readIsMemberOfVirtualAttributeResponse(ctx, readResponse.IsMemberOfVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createIsMemberOfVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Is Member Of Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readIsMemberOfVirtualAttributeResponse(ctx, updateResponse.IsMemberOfVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *isMemberOfVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readIsMemberOfVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultIsMemberOfVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readIsMemberOfVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readIsMemberOfVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state isMemberOfVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -349,8 +458,8 @@ func (r *isMemberOfVirtualAttributeResource) Read(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Is Member Of Virtual Attribute", err, httpResp)
 		return
@@ -375,6 +484,14 @@ func (r *isMemberOfVirtualAttributeResource) Read(ctx context.Context, req resou
 
 // Update a resource
 func (r *isMemberOfVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateIsMemberOfVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultIsMemberOfVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateIsMemberOfVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateIsMemberOfVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan isMemberOfVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -386,8 +503,8 @@ func (r *isMemberOfVirtualAttributeResource) Update(ctx context.Context, req res
 	// Get the current state to see how any attributes are changing
 	var state isMemberOfVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createIsMemberOfVirtualAttributeOperations(plan, state)
@@ -396,7 +513,7 @@ func (r *isMemberOfVirtualAttributeResource) Update(ctx context.Context, req res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Is Member Of Virtual Attribute", err, httpResp)
 			return
@@ -424,6 +541,12 @@ func (r *isMemberOfVirtualAttributeResource) Update(ctx context.Context, req res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultIsMemberOfVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *isMemberOfVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state isMemberOfVirtualAttributeResourceModel
@@ -442,6 +565,14 @@ func (r *isMemberOfVirtualAttributeResource) Delete(ctx context.Context, req res
 }
 
 func (r *isMemberOfVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importIsMemberOfVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultIsMemberOfVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importIsMemberOfVirtualAttribute(ctx, req, resp)
+}
+
+func importIsMemberOfVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

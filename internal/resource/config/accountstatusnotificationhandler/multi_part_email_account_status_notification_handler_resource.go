@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &multiPartEmailAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithConfigure   = &multiPartEmailAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithImportState = &multiPartEmailAccountStatusNotificationHandlerResource{}
+	_ resource.Resource                = &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
 )
 
 // Create a Multi Part Email Account Status Notification Handler resource
@@ -29,8 +32,18 @@ func NewMultiPartEmailAccountStatusNotificationHandlerResource() resource.Resour
 	return &multiPartEmailAccountStatusNotificationHandlerResource{}
 }
 
+func NewDefaultMultiPartEmailAccountStatusNotificationHandlerResource() resource.Resource {
+	return &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
+}
+
 // multiPartEmailAccountStatusNotificationHandlerResource is the resource implementation.
 type multiPartEmailAccountStatusNotificationHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultMultiPartEmailAccountStatusNotificationHandlerResource is the resource implementation.
+type defaultMultiPartEmailAccountStatusNotificationHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Metadata(_ cont
 	resp.TypeName = req.ProviderTypeName + "_multi_part_email_account_status_notification_handler"
 }
 
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_multi_part_email_account_status_notification_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,6 +109,14 @@ type multiPartEmailAccountStatusNotificationHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	multiPartEmailAccountStatusNotificationHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	multiPartEmailAccountStatusNotificationHandlerSchema(ctx, req, resp, true)
+}
+
+func multiPartEmailAccountStatusNotificationHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Multi Part Email Account Status Notification Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -196,6 +231,9 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx cont
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -414,8 +452,79 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Create(ctx cont
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan multiPartEmailAccountStatusNotificationHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Multi Part Email Account Status Notification Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
+	readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, readResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createMultiPartEmailAccountStatusNotificationHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Multi Part Email Account Status Notification Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, updateResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -424,8 +533,8 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Read(ctx contex
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Multi Part Email Account Status Notification Handler", err, httpResp)
 		return
@@ -450,6 +559,14 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Read(ctx contex
 
 // Update a resource
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan multiPartEmailAccountStatusNotificationHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -461,8 +578,8 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx cont
 	// Get the current state to see how any attributes are changing
 	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMultiPartEmailAccountStatusNotificationHandlerOperations(plan, state)
@@ -471,7 +588,7 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx cont
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Multi Part Email Account Status Notification Handler", err, httpResp)
 			return
@@ -499,6 +616,12 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx cont
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
@@ -517,6 +640,14 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Delete(ctx cont
 }
 
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func importMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

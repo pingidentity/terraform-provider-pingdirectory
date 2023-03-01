@@ -2,10 +2,10 @@
 
 set -e
 
-#if test -z "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"; then
-#	echo "No endpoint specified with PINGDIRECTORY_ENDPOINT_TO_GENERATE environment variable. Exiting."
-#	exit 0
-#fi
+if test -z "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"; then
+	echo "No endpoint specified with PINGDIRECTORY_ENDPOINT_TO_GENERATE environment variable. Exiting."
+	exit 0
+fi
 
 echo "Generating resource files"
 
@@ -39,7 +39,7 @@ docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting S
 java -jar ./bin/pingdirectory-openapi-generator.jar \
     --generateMode terraform \
     --targetDirectory ./ \
-    --endpoint access-control-handler --endpoint account-status-notification-handler --endpoint access-token-validator --endpoint backend --endpoint consent-definition --endpoint consent-definition-localization --endpoint consent-service --endpoint debug-target --endpoint delegated-admin-resource-rights --endpoint delegated-admin-rights --endpoint global-configuration --endpoint http-servlet-cross-origin-policy --endpoint local-db-index --endpoint root-dn --endpoint topology-admin-user --endpoint connection-criteria --endpoint connection-handler --endpoint delegated-admin-attribute --endpoint external-server --endpoint gauge --endpoint http-servlet-extension --endpoint identity-mapper --endpoint log-publisher --endpoint plugin --endpoint recurring-task --endpoint request-criteria --endpoint rest-resource-type --endpoint server-instance --endpoint trust-manager-provider --endpoint virtual-attribute --onlyGenerateResources true
+    --endpoint "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"
 
 # Remove the PD container
 echo "Stopping and removing PingDirectory container"

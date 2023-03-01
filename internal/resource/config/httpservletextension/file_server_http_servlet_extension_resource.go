@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &fileServerHttpServletExtensionResource{}
 	_ resource.ResourceWithConfigure   = &fileServerHttpServletExtensionResource{}
 	_ resource.ResourceWithImportState = &fileServerHttpServletExtensionResource{}
+	_ resource.Resource                = &defaultFileServerHttpServletExtensionResource{}
+	_ resource.ResourceWithConfigure   = &defaultFileServerHttpServletExtensionResource{}
+	_ resource.ResourceWithImportState = &defaultFileServerHttpServletExtensionResource{}
 )
 
 // Create a File Server Http Servlet Extension resource
@@ -29,8 +32,18 @@ func NewFileServerHttpServletExtensionResource() resource.Resource {
 	return &fileServerHttpServletExtensionResource{}
 }
 
+func NewDefaultFileServerHttpServletExtensionResource() resource.Resource {
+	return &defaultFileServerHttpServletExtensionResource{}
+}
+
 // fileServerHttpServletExtensionResource is the resource implementation.
 type fileServerHttpServletExtensionResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultFileServerHttpServletExtensionResource is the resource implementation.
+type defaultFileServerHttpServletExtensionResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *fileServerHttpServletExtensionResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_file_server_http_servlet_extension"
 }
 
+func (r *defaultFileServerHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_file_server_http_servlet_extension"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *fileServerHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -77,6 +104,14 @@ type fileServerHttpServletExtensionResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileServerHttpServletExtensionSchema(ctx, req, resp, false)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileServerHttpServletExtensionSchema(ctx, req, resp, true)
+}
+
+func fileServerHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a File Server Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
@@ -171,6 +206,9 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -362,8 +400,79 @@ func (r *fileServerHttpServletExtensionResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultFileServerHttpServletExtensionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan fileServerHttpServletExtensionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Server Http Servlet Extension", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state fileServerHttpServletExtensionResourceModel
+	readFileServerHttpServletExtensionResponse(ctx, readResponse.FileServerHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createFileServerHttpServletExtensionOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Server Http Servlet Extension", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readFileServerHttpServletExtensionResponse(ctx, updateResponse.FileServerHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *fileServerHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readFileServerHttpServletExtension(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state fileServerHttpServletExtensionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -372,8 +481,8 @@ func (r *fileServerHttpServletExtensionResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Server Http Servlet Extension", err, httpResp)
 		return
@@ -398,6 +507,14 @@ func (r *fileServerHttpServletExtensionResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateFileServerHttpServletExtension(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan fileServerHttpServletExtensionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -409,8 +526,8 @@ func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state fileServerHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createFileServerHttpServletExtensionOperations(plan, state)
@@ -419,7 +536,7 @@ func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Server Http Servlet Extension", err, httpResp)
 			return
@@ -447,6 +564,12 @@ func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultFileServerHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *fileServerHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state fileServerHttpServletExtensionResourceModel
@@ -465,6 +588,14 @@ func (r *fileServerHttpServletExtensionResource) Delete(ctx context.Context, req
 }
 
 func (r *fileServerHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileServerHttpServletExtension(ctx, req, resp)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileServerHttpServletExtension(ctx, req, resp)
+}
+
+func importFileServerHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

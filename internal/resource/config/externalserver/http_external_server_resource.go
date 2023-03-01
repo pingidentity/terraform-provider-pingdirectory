@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &httpExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &httpExternalServerResource{}
 	_ resource.ResourceWithImportState = &httpExternalServerResource{}
+	_ resource.Resource                = &defaultHttpExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultHttpExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultHttpExternalServerResource{}
 )
 
 // Create a Http External Server resource
@@ -29,8 +32,18 @@ func NewHttpExternalServerResource() resource.Resource {
 	return &httpExternalServerResource{}
 }
 
+func NewDefaultHttpExternalServerResource() resource.Resource {
+	return &defaultHttpExternalServerResource{}
+}
+
 // httpExternalServerResource is the resource implementation.
 type httpExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultHttpExternalServerResource is the resource implementation.
+type defaultHttpExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *httpExternalServerResource) Metadata(_ context.Context, req resource.Me
 	resp.TypeName = req.ProviderTypeName + "_http_external_server"
 }
 
+func (r *defaultHttpExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_http_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *httpExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultHttpExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -68,6 +95,14 @@ type httpExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *httpExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	httpExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultHttpExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	httpExternalServerSchema(ctx, req, resp, true)
+}
+
+func httpExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Http External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -112,6 +147,9 @@ func (r *httpExternalServerResource) Schema(ctx context.Context, req resource.Sc
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -246,8 +284,79 @@ func (r *httpExternalServerResource) Create(ctx context.Context, req resource.Cr
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultHttpExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan httpExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state httpExternalServerResourceModel
+	readHttpExternalServerResponse(ctx, readResponse.HttpExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createHttpExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readHttpExternalServerResponse(ctx, updateResponse.HttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *httpExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readHttpExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state httpExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -256,8 +365,8 @@ func (r *httpExternalServerResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http External Server", err, httpResp)
 		return
@@ -282,6 +391,14 @@ func (r *httpExternalServerResource) Read(ctx context.Context, req resource.Read
 
 // Update a resource
 func (r *httpExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateHttpExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan httpExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -293,8 +410,8 @@ func (r *httpExternalServerResource) Update(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state httpExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createHttpExternalServerOperations(plan, state)
@@ -303,7 +420,7 @@ func (r *httpExternalServerResource) Update(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http External Server", err, httpResp)
 			return
@@ -331,6 +448,12 @@ func (r *httpExternalServerResource) Update(ctx context.Context, req resource.Up
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultHttpExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *httpExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state httpExternalServerResourceModel
@@ -349,6 +472,14 @@ func (r *httpExternalServerResource) Delete(ctx context.Context, req resource.De
 }
 
 func (r *httpExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importHttpExternalServer(ctx, req, resp)
+}
+
+func (r *defaultHttpExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importHttpExternalServer(ctx, req, resp)
+}
+
+func importHttpExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

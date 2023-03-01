@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &collectSupportDataRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &collectSupportDataRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &collectSupportDataRecurringTaskResource{}
+	_ resource.Resource                = &defaultCollectSupportDataRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultCollectSupportDataRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultCollectSupportDataRecurringTaskResource{}
 )
 
 // Create a Collect Support Data Recurring Task resource
@@ -29,8 +32,18 @@ func NewCollectSupportDataRecurringTaskResource() resource.Resource {
 	return &collectSupportDataRecurringTaskResource{}
 }
 
+func NewDefaultCollectSupportDataRecurringTaskResource() resource.Resource {
+	return &defaultCollectSupportDataRecurringTaskResource{}
+}
+
 // collectSupportDataRecurringTaskResource is the resource implementation.
 type collectSupportDataRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultCollectSupportDataRecurringTaskResource is the resource implementation.
+type defaultCollectSupportDataRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *collectSupportDataRecurringTaskResource) Metadata(_ context.Context, re
 	resp.TypeName = req.ProviderTypeName + "_collect_support_data_recurring_task"
 }
 
+func (r *defaultCollectSupportDataRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_collect_support_data_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *collectSupportDataRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -85,6 +112,14 @@ type collectSupportDataRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	collectSupportDataRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	collectSupportDataRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func collectSupportDataRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Collect Support Data Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -215,6 +250,9 @@ func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, re
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -459,8 +497,79 @@ func (r *collectSupportDataRecurringTaskResource) Create(ctx context.Context, re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultCollectSupportDataRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan collectSupportDataRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Collect Support Data Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state collectSupportDataRecurringTaskResourceModel
+	readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createCollectSupportDataRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Collect Support Data Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *collectSupportDataRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readCollectSupportDataRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state collectSupportDataRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -469,8 +578,8 @@ func (r *collectSupportDataRecurringTaskResource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Collect Support Data Recurring Task", err, httpResp)
 		return
@@ -495,6 +604,14 @@ func (r *collectSupportDataRecurringTaskResource) Read(ctx context.Context, req 
 
 // Update a resource
 func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateCollectSupportDataRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan collectSupportDataRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -506,8 +623,8 @@ func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, re
 	// Get the current state to see how any attributes are changing
 	var state collectSupportDataRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCollectSupportDataRecurringTaskOperations(plan, state)
@@ -516,7 +633,7 @@ func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Collect Support Data Recurring Task", err, httpResp)
 			return
@@ -544,6 +661,12 @@ func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultCollectSupportDataRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *collectSupportDataRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state collectSupportDataRecurringTaskResourceModel
@@ -562,6 +685,14 @@ func (r *collectSupportDataRecurringTaskResource) Delete(ctx context.Context, re
 }
 
 func (r *collectSupportDataRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importCollectSupportDataRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importCollectSupportDataRecurringTask(ctx, req, resp)
+}
+
+func importCollectSupportDataRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

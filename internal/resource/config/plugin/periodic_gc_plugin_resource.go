@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &periodicGcPluginResource{}
 	_ resource.ResourceWithConfigure   = &periodicGcPluginResource{}
 	_ resource.ResourceWithImportState = &periodicGcPluginResource{}
+	_ resource.Resource                = &defaultPeriodicGcPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultPeriodicGcPluginResource{}
+	_ resource.ResourceWithImportState = &defaultPeriodicGcPluginResource{}
 )
 
 // Create a Periodic Gc Plugin resource
@@ -29,8 +32,18 @@ func NewPeriodicGcPluginResource() resource.Resource {
 	return &periodicGcPluginResource{}
 }
 
+func NewDefaultPeriodicGcPluginResource() resource.Resource {
+	return &defaultPeriodicGcPluginResource{}
+}
+
 // periodicGcPluginResource is the resource implementation.
 type periodicGcPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPeriodicGcPluginResource is the resource implementation.
+type defaultPeriodicGcPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *periodicGcPluginResource) Metadata(_ context.Context, req resource.Meta
 	resp.TypeName = req.ProviderTypeName + "_periodic_gc_plugin"
 }
 
+func (r *defaultPeriodicGcPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_periodic_gc_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *periodicGcPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPeriodicGcPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -68,6 +95,14 @@ type periodicGcPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *periodicGcPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	periodicGcPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPeriodicGcPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	periodicGcPluginSchema(ctx, req, resp, true)
+}
+
+func periodicGcPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Periodic Gc Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -114,6 +149,9 @@ func (r *periodicGcPluginResource) Schema(ctx context.Context, req resource.Sche
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -259,8 +297,79 @@ func (r *periodicGcPluginResource) Create(ctx context.Context, req resource.Crea
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPeriodicGcPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan periodicGcPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Periodic Gc Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state periodicGcPluginResourceModel
+	readPeriodicGcPluginResponse(ctx, readResponse.PeriodicGcPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPeriodicGcPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Periodic Gc Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPeriodicGcPluginResponse(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *periodicGcPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPeriodicGcPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPeriodicGcPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPeriodicGcPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPeriodicGcPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state periodicGcPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -269,8 +378,8 @@ func (r *periodicGcPluginResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Periodic Gc Plugin", err, httpResp)
 		return
@@ -295,6 +404,14 @@ func (r *periodicGcPluginResource) Read(ctx context.Context, req resource.ReadRe
 
 // Update a resource
 func (r *periodicGcPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePeriodicGcPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPeriodicGcPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePeriodicGcPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePeriodicGcPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan periodicGcPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -306,8 +423,8 @@ func (r *periodicGcPluginResource) Update(ctx context.Context, req resource.Upda
 	// Get the current state to see how any attributes are changing
 	var state periodicGcPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPeriodicGcPluginOperations(plan, state)
@@ -316,7 +433,7 @@ func (r *periodicGcPluginResource) Update(ctx context.Context, req resource.Upda
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Periodic Gc Plugin", err, httpResp)
 			return
@@ -344,6 +461,12 @@ func (r *periodicGcPluginResource) Update(ctx context.Context, req resource.Upda
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPeriodicGcPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *periodicGcPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state periodicGcPluginResourceModel
@@ -362,6 +485,14 @@ func (r *periodicGcPluginResource) Delete(ctx context.Context, req resource.Dele
 }
 
 func (r *periodicGcPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPeriodicGcPlugin(ctx, req, resp)
+}
+
+func (r *defaultPeriodicGcPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPeriodicGcPlugin(ctx, req, resp)
+}
+
+func importPeriodicGcPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

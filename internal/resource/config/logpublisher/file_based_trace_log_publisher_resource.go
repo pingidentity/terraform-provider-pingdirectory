@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &fileBasedTraceLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &fileBasedTraceLogPublisherResource{}
 	_ resource.ResourceWithImportState = &fileBasedTraceLogPublisherResource{}
+	_ resource.Resource                = &defaultFileBasedTraceLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultFileBasedTraceLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultFileBasedTraceLogPublisherResource{}
 )
 
 // Create a File Based Trace Log Publisher resource
@@ -29,8 +32,18 @@ func NewFileBasedTraceLogPublisherResource() resource.Resource {
 	return &fileBasedTraceLogPublisherResource{}
 }
 
+func NewDefaultFileBasedTraceLogPublisherResource() resource.Resource {
+	return &defaultFileBasedTraceLogPublisherResource{}
+}
+
 // fileBasedTraceLogPublisherResource is the resource implementation.
 type fileBasedTraceLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultFileBasedTraceLogPublisherResource is the resource implementation.
+type defaultFileBasedTraceLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *fileBasedTraceLogPublisherResource) Metadata(_ context.Context, req res
 	resp.TypeName = req.ProviderTypeName + "_file_based_trace_log_publisher"
 }
 
+func (r *defaultFileBasedTraceLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_file_based_trace_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *fileBasedTraceLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultFileBasedTraceLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -88,6 +115,14 @@ type fileBasedTraceLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *fileBasedTraceLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileBasedTraceLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultFileBasedTraceLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileBasedTraceLogPublisherSchema(ctx, req, resp, true)
+}
+
+func fileBasedTraceLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a File Based Trace Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -243,6 +278,9 @@ func (r *fileBasedTraceLogPublisherResource) Schema(ctx context.Context, req res
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -583,8 +621,79 @@ func (r *fileBasedTraceLogPublisherResource) Create(ctx context.Context, req res
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultFileBasedTraceLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan fileBasedTraceLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Based Trace Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state fileBasedTraceLogPublisherResourceModel
+	readFileBasedTraceLogPublisherResponse(ctx, readResponse.FileBasedTraceLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createFileBasedTraceLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Based Trace Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readFileBasedTraceLogPublisherResponse(ctx, updateResponse.FileBasedTraceLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *fileBasedTraceLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileBasedTraceLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileBasedTraceLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileBasedTraceLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readFileBasedTraceLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state fileBasedTraceLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -593,8 +702,8 @@ func (r *fileBasedTraceLogPublisherResource) Read(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Based Trace Log Publisher", err, httpResp)
 		return
@@ -619,6 +728,14 @@ func (r *fileBasedTraceLogPublisherResource) Read(ctx context.Context, req resou
 
 // Update a resource
 func (r *fileBasedTraceLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileBasedTraceLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileBasedTraceLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileBasedTraceLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateFileBasedTraceLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan fileBasedTraceLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -630,8 +747,8 @@ func (r *fileBasedTraceLogPublisherResource) Update(ctx context.Context, req res
 	// Get the current state to see how any attributes are changing
 	var state fileBasedTraceLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createFileBasedTraceLogPublisherOperations(plan, state)
@@ -640,7 +757,7 @@ func (r *fileBasedTraceLogPublisherResource) Update(ctx context.Context, req res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Based Trace Log Publisher", err, httpResp)
 			return
@@ -668,6 +785,12 @@ func (r *fileBasedTraceLogPublisherResource) Update(ctx context.Context, req res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultFileBasedTraceLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *fileBasedTraceLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state fileBasedTraceLogPublisherResourceModel
@@ -686,6 +809,14 @@ func (r *fileBasedTraceLogPublisherResource) Delete(ctx context.Context, req res
 }
 
 func (r *fileBasedTraceLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileBasedTraceLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultFileBasedTraceLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileBasedTraceLogPublisher(ctx, req, resp)
+}
+
+func importFileBasedTraceLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

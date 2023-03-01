@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &syslogBasedErrorLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &syslogBasedErrorLogPublisherResource{}
 	_ resource.ResourceWithImportState = &syslogBasedErrorLogPublisherResource{}
+	_ resource.Resource                = &defaultSyslogBasedErrorLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultSyslogBasedErrorLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultSyslogBasedErrorLogPublisherResource{}
 )
 
 // Create a Syslog Based Error Log Publisher resource
@@ -29,8 +32,18 @@ func NewSyslogBasedErrorLogPublisherResource() resource.Resource {
 	return &syslogBasedErrorLogPublisherResource{}
 }
 
+func NewDefaultSyslogBasedErrorLogPublisherResource() resource.Resource {
+	return &defaultSyslogBasedErrorLogPublisherResource{}
+}
+
 // syslogBasedErrorLogPublisherResource is the resource implementation.
 type syslogBasedErrorLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSyslogBasedErrorLogPublisherResource is the resource implementation.
+type defaultSyslogBasedErrorLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *syslogBasedErrorLogPublisherResource) Metadata(_ context.Context, req r
 	resp.TypeName = req.ProviderTypeName + "_syslog_based_error_log_publisher"
 }
 
+func (r *defaultSyslogBasedErrorLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_syslog_based_error_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *syslogBasedErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSyslogBasedErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -71,6 +98,14 @@ type syslogBasedErrorLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *syslogBasedErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogBasedErrorLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSyslogBasedErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogBasedErrorLogPublisherSchema(ctx, req, resp, true)
+}
+
+func syslogBasedErrorLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Syslog Based Error Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -132,6 +167,9 @@ func (r *syslogBasedErrorLogPublisherResource) Schema(ctx context.Context, req r
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -287,8 +325,79 @@ func (r *syslogBasedErrorLogPublisherResource) Create(ctx context.Context, req r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSyslogBasedErrorLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan syslogBasedErrorLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Based Error Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state syslogBasedErrorLogPublisherResourceModel
+	readSyslogBasedErrorLogPublisherResponse(ctx, readResponse.SyslogBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSyslogBasedErrorLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Based Error Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSyslogBasedErrorLogPublisherResponse(ctx, updateResponse.SyslogBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *syslogBasedErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogBasedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogBasedErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogBasedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSyslogBasedErrorLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state syslogBasedErrorLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -297,8 +406,8 @@ func (r *syslogBasedErrorLogPublisherResource) Read(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Based Error Log Publisher", err, httpResp)
 		return
@@ -323,6 +432,14 @@ func (r *syslogBasedErrorLogPublisherResource) Read(ctx context.Context, req res
 
 // Update a resource
 func (r *syslogBasedErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogBasedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogBasedErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogBasedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSyslogBasedErrorLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan syslogBasedErrorLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -334,8 +451,8 @@ func (r *syslogBasedErrorLogPublisherResource) Update(ctx context.Context, req r
 	// Get the current state to see how any attributes are changing
 	var state syslogBasedErrorLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSyslogBasedErrorLogPublisherOperations(plan, state)
@@ -344,7 +461,7 @@ func (r *syslogBasedErrorLogPublisherResource) Update(ctx context.Context, req r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Based Error Log Publisher", err, httpResp)
 			return
@@ -372,6 +489,12 @@ func (r *syslogBasedErrorLogPublisherResource) Update(ctx context.Context, req r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSyslogBasedErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *syslogBasedErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state syslogBasedErrorLogPublisherResourceModel
@@ -390,6 +513,14 @@ func (r *syslogBasedErrorLogPublisherResource) Delete(ctx context.Context, req r
 }
 
 func (r *syslogBasedErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogBasedErrorLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultSyslogBasedErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogBasedErrorLogPublisher(ctx, req, resp)
+}
+
+func importSyslogBasedErrorLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

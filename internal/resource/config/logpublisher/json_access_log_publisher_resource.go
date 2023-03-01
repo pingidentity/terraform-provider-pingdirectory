@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &jsonAccessLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &jsonAccessLogPublisherResource{}
 	_ resource.ResourceWithImportState = &jsonAccessLogPublisherResource{}
+	_ resource.Resource                = &defaultJsonAccessLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultJsonAccessLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultJsonAccessLogPublisherResource{}
 )
 
 // Create a Json Access Log Publisher resource
@@ -29,8 +32,18 @@ func NewJsonAccessLogPublisherResource() resource.Resource {
 	return &jsonAccessLogPublisherResource{}
 }
 
+func NewDefaultJsonAccessLogPublisherResource() resource.Resource {
+	return &defaultJsonAccessLogPublisherResource{}
+}
+
 // jsonAccessLogPublisherResource is the resource implementation.
 type jsonAccessLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultJsonAccessLogPublisherResource is the resource implementation.
+type defaultJsonAccessLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *jsonAccessLogPublisherResource) Metadata(_ context.Context, req resourc
 	resp.TypeName = req.ProviderTypeName + "_json_access_log_publisher"
 }
 
+func (r *defaultJsonAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_json_access_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *jsonAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultJsonAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -118,6 +145,14 @@ type jsonAccessLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *jsonAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jsonAccessLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultJsonAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jsonAccessLogPublisherSchema(ctx, req, resp, true)
+}
+
+func jsonAccessLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Json Access Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -407,6 +442,9 @@ func (r *jsonAccessLogPublisherResource) Schema(ctx context.Context, req resourc
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -851,8 +889,79 @@ func (r *jsonAccessLogPublisherResource) Create(ctx context.Context, req resourc
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultJsonAccessLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan jsonAccessLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Access Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state jsonAccessLogPublisherResourceModel
+	readJsonAccessLogPublisherResponse(ctx, readResponse.JsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createJsonAccessLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Access Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readJsonAccessLogPublisherResponse(ctx, updateResponse.JsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *jsonAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJsonAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJsonAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJsonAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readJsonAccessLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state jsonAccessLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -861,8 +970,8 @@ func (r *jsonAccessLogPublisherResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Access Log Publisher", err, httpResp)
 		return
@@ -887,6 +996,14 @@ func (r *jsonAccessLogPublisherResource) Read(ctx context.Context, req resource.
 
 // Update a resource
 func (r *jsonAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJsonAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJsonAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJsonAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateJsonAccessLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan jsonAccessLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -898,8 +1015,8 @@ func (r *jsonAccessLogPublisherResource) Update(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state jsonAccessLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJsonAccessLogPublisherOperations(plan, state)
@@ -908,7 +1025,7 @@ func (r *jsonAccessLogPublisherResource) Update(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Access Log Publisher", err, httpResp)
 			return
@@ -936,6 +1053,12 @@ func (r *jsonAccessLogPublisherResource) Update(ctx context.Context, req resourc
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultJsonAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *jsonAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state jsonAccessLogPublisherResourceModel
@@ -954,6 +1077,14 @@ func (r *jsonAccessLogPublisherResource) Delete(ctx context.Context, req resourc
 }
 
 func (r *jsonAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJsonAccessLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultJsonAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJsonAccessLogPublisher(ctx, req, resp)
+}
+
+func importJsonAccessLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

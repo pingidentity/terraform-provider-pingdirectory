@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &thirdPartyRequestCriteriaResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyRequestCriteriaResource{}
 	_ resource.ResourceWithImportState = &thirdPartyRequestCriteriaResource{}
+	_ resource.Resource                = &defaultThirdPartyRequestCriteriaResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyRequestCriteriaResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyRequestCriteriaResource{}
 )
 
 // Create a Third Party Request Criteria resource
@@ -29,8 +32,18 @@ func NewThirdPartyRequestCriteriaResource() resource.Resource {
 	return &thirdPartyRequestCriteriaResource{}
 }
 
+func NewDefaultThirdPartyRequestCriteriaResource() resource.Resource {
+	return &defaultThirdPartyRequestCriteriaResource{}
+}
+
 // thirdPartyRequestCriteriaResource is the resource implementation.
 type thirdPartyRequestCriteriaResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyRequestCriteriaResource is the resource implementation.
+type defaultThirdPartyRequestCriteriaResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *thirdPartyRequestCriteriaResource) Metadata(_ context.Context, req reso
 	resp.TypeName = req.ProviderTypeName + "_third_party_request_criteria"
 }
 
+func (r *defaultThirdPartyRequestCriteriaResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_request_criteria"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyRequestCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyRequestCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -63,6 +90,14 @@ type thirdPartyRequestCriteriaResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyRequestCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyRequestCriteriaSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyRequestCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyRequestCriteriaSchema(ctx, req, resp, true)
+}
+
+func thirdPartyRequestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Request Criteria.",
 		Attributes: map[string]schema.Attribute{
@@ -83,6 +118,9 @@ func (r *thirdPartyRequestCriteriaResource) Schema(ctx context.Context, req reso
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -169,8 +207,79 @@ func (r *thirdPartyRequestCriteriaResource) Create(ctx context.Context, req reso
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyRequestCriteriaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyRequestCriteriaResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Request Criteria", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyRequestCriteriaResourceModel
+	readThirdPartyRequestCriteriaResponse(ctx, readResponse.ThirdPartyRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyRequestCriteriaOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Request Criteria", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyRequestCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyRequestCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyRequestCriteriaResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -179,8 +288,8 @@ func (r *thirdPartyRequestCriteriaResource) Read(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RequestCriteriaApi.GetRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Request Criteria", err, httpResp)
 		return
@@ -205,6 +314,14 @@ func (r *thirdPartyRequestCriteriaResource) Read(ctx context.Context, req resour
 
 // Update a resource
 func (r *thirdPartyRequestCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyRequestCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyRequestCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -216,8 +333,8 @@ func (r *thirdPartyRequestCriteriaResource) Update(ctx context.Context, req reso
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyRequestCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RequestCriteriaApi.UpdateRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyRequestCriteriaOperations(plan, state)
@@ -226,7 +343,7 @@ func (r *thirdPartyRequestCriteriaResource) Update(ctx context.Context, req reso
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Request Criteria", err, httpResp)
 			return
@@ -254,6 +371,12 @@ func (r *thirdPartyRequestCriteriaResource) Update(ctx context.Context, req reso
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyRequestCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyRequestCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyRequestCriteriaResourceModel
@@ -272,6 +395,14 @@ func (r *thirdPartyRequestCriteriaResource) Delete(ctx context.Context, req reso
 }
 
 func (r *thirdPartyRequestCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyRequestCriteria(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyRequestCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyRequestCriteria(ctx, req, resp)
+}
+
+func importThirdPartyRequestCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &groovyScriptedVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedVirtualAttributeResource{}
+	_ resource.Resource                = &defaultGroovyScriptedVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedVirtualAttributeResource{}
 )
 
 // Create a Groovy Scripted Virtual Attribute resource
@@ -29,8 +32,18 @@ func NewGroovyScriptedVirtualAttributeResource() resource.Resource {
 	return &groovyScriptedVirtualAttributeResource{}
 }
 
+func NewDefaultGroovyScriptedVirtualAttributeResource() resource.Resource {
+	return &defaultGroovyScriptedVirtualAttributeResource{}
+}
+
 // groovyScriptedVirtualAttributeResource is the resource implementation.
 type groovyScriptedVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedVirtualAttributeResource is the resource implementation.
+type defaultGroovyScriptedVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *groovyScriptedVirtualAttributeResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_virtual_attribute"
 }
 
+func (r *defaultGroovyScriptedVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -74,6 +101,14 @@ type groovyScriptedVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -150,6 +185,9 @@ func (r *groovyScriptedVirtualAttributeResource) Schema(ctx context.Context, req
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -315,8 +353,79 @@ func (r *groovyScriptedVirtualAttributeResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedVirtualAttributeResourceModel
+	readGroovyScriptedVirtualAttributeResponse(ctx, readResponse.GroovyScriptedVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedVirtualAttributeResponse(ctx, updateResponse.GroovyScriptedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -325,8 +434,8 @@ func (r *groovyScriptedVirtualAttributeResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Virtual Attribute", err, httpResp)
 		return
@@ -351,6 +460,14 @@ func (r *groovyScriptedVirtualAttributeResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *groovyScriptedVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -362,8 +479,8 @@ func (r *groovyScriptedVirtualAttributeResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedVirtualAttributeOperations(plan, state)
@@ -372,7 +489,7 @@ func (r *groovyScriptedVirtualAttributeResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Virtual Attribute", err, httpResp)
 			return
@@ -400,6 +517,12 @@ func (r *groovyScriptedVirtualAttributeResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedVirtualAttributeResourceModel
@@ -418,6 +541,14 @@ func (r *groovyScriptedVirtualAttributeResource) Delete(ctx context.Context, req
 }
 
 func (r *groovyScriptedVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedVirtualAttribute(ctx, req, resp)
+}
+
+func importGroovyScriptedVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

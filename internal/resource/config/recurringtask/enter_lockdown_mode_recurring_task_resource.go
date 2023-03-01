@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &enterLockdownModeRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &enterLockdownModeRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &enterLockdownModeRecurringTaskResource{}
+	_ resource.Resource                = &defaultEnterLockdownModeRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultEnterLockdownModeRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultEnterLockdownModeRecurringTaskResource{}
 )
 
 // Create a Enter Lockdown Mode Recurring Task resource
@@ -29,8 +32,18 @@ func NewEnterLockdownModeRecurringTaskResource() resource.Resource {
 	return &enterLockdownModeRecurringTaskResource{}
 }
 
+func NewDefaultEnterLockdownModeRecurringTaskResource() resource.Resource {
+	return &defaultEnterLockdownModeRecurringTaskResource{}
+}
+
 // enterLockdownModeRecurringTaskResource is the resource implementation.
 type enterLockdownModeRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultEnterLockdownModeRecurringTaskResource is the resource implementation.
+type defaultEnterLockdownModeRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *enterLockdownModeRecurringTaskResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_enter_lockdown_mode_recurring_task"
 }
 
+func (r *defaultEnterLockdownModeRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_enter_lockdown_mode_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *enterLockdownModeRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultEnterLockdownModeRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -69,6 +96,14 @@ type enterLockdownModeRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *enterLockdownModeRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	enterLockdownModeRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultEnterLockdownModeRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	enterLockdownModeRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func enterLockdownModeRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Enter Lockdown Mode Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -121,6 +156,9 @@ func (r *enterLockdownModeRecurringTaskResource) Schema(ctx context.Context, req
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -249,8 +287,79 @@ func (r *enterLockdownModeRecurringTaskResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultEnterLockdownModeRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan enterLockdownModeRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Enter Lockdown Mode Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state enterLockdownModeRecurringTaskResourceModel
+	readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createEnterLockdownModeRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Enter Lockdown Mode Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readEnterLockdownModeRecurringTaskResponse(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *enterLockdownModeRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readEnterLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultEnterLockdownModeRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readEnterLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readEnterLockdownModeRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state enterLockdownModeRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -259,8 +368,8 @@ func (r *enterLockdownModeRecurringTaskResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Enter Lockdown Mode Recurring Task", err, httpResp)
 		return
@@ -285,6 +394,14 @@ func (r *enterLockdownModeRecurringTaskResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *enterLockdownModeRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateEnterLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultEnterLockdownModeRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateEnterLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateEnterLockdownModeRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan enterLockdownModeRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -296,8 +413,8 @@ func (r *enterLockdownModeRecurringTaskResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state enterLockdownModeRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createEnterLockdownModeRecurringTaskOperations(plan, state)
@@ -306,7 +423,7 @@ func (r *enterLockdownModeRecurringTaskResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Enter Lockdown Mode Recurring Task", err, httpResp)
 			return
@@ -334,6 +451,12 @@ func (r *enterLockdownModeRecurringTaskResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultEnterLockdownModeRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *enterLockdownModeRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state enterLockdownModeRecurringTaskResourceModel
@@ -352,6 +475,14 @@ func (r *enterLockdownModeRecurringTaskResource) Delete(ctx context.Context, req
 }
 
 func (r *enterLockdownModeRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importEnterLockdownModeRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultEnterLockdownModeRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importEnterLockdownModeRecurringTask(ctx, req, resp)
+}
+
+func importEnterLockdownModeRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

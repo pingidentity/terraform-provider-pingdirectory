@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &debugAccessLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &debugAccessLogPublisherResource{}
 	_ resource.ResourceWithImportState = &debugAccessLogPublisherResource{}
+	_ resource.Resource                = &defaultDebugAccessLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultDebugAccessLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultDebugAccessLogPublisherResource{}
 )
 
 // Create a Debug Access Log Publisher resource
@@ -29,8 +32,18 @@ func NewDebugAccessLogPublisherResource() resource.Resource {
 	return &debugAccessLogPublisherResource{}
 }
 
+func NewDefaultDebugAccessLogPublisherResource() resource.Resource {
+	return &defaultDebugAccessLogPublisherResource{}
+}
+
 // debugAccessLogPublisherResource is the resource implementation.
 type debugAccessLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultDebugAccessLogPublisherResource is the resource implementation.
+type defaultDebugAccessLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *debugAccessLogPublisherResource) Metadata(_ context.Context, req resour
 	resp.TypeName = req.ProviderTypeName + "_debug_access_log_publisher"
 }
 
+func (r *defaultDebugAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_debug_access_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *debugAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultDebugAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -99,6 +126,14 @@ type debugAccessLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *debugAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	debugAccessLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultDebugAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	debugAccessLogPublisherSchema(ctx, req, resp, true)
+}
+
+func debugAccessLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Debug Access Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -295,6 +330,9 @@ func (r *debugAccessLogPublisherResource) Schema(ctx context.Context, req resour
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -625,8 +663,79 @@ func (r *debugAccessLogPublisherResource) Create(ctx context.Context, req resour
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultDebugAccessLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan debugAccessLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Access Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state debugAccessLogPublisherResourceModel
+	readDebugAccessLogPublisherResponse(ctx, readResponse.DebugAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createDebugAccessLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Access Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readDebugAccessLogPublisherResponse(ctx, updateResponse.DebugAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *debugAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDebugAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDebugAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDebugAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readDebugAccessLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state debugAccessLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -635,8 +744,8 @@ func (r *debugAccessLogPublisherResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Access Log Publisher", err, httpResp)
 		return
@@ -661,6 +770,14 @@ func (r *debugAccessLogPublisherResource) Read(ctx context.Context, req resource
 
 // Update a resource
 func (r *debugAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDebugAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDebugAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDebugAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateDebugAccessLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan debugAccessLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -672,8 +789,8 @@ func (r *debugAccessLogPublisherResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state debugAccessLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDebugAccessLogPublisherOperations(plan, state)
@@ -682,7 +799,7 @@ func (r *debugAccessLogPublisherResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Access Log Publisher", err, httpResp)
 			return
@@ -710,6 +827,12 @@ func (r *debugAccessLogPublisherResource) Update(ctx context.Context, req resour
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultDebugAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *debugAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state debugAccessLogPublisherResourceModel
@@ -728,6 +851,14 @@ func (r *debugAccessLogPublisherResource) Delete(ctx context.Context, req resour
 }
 
 func (r *debugAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDebugAccessLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultDebugAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDebugAccessLogPublisher(ctx, req, resp)
+}
+
+func importDebugAccessLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

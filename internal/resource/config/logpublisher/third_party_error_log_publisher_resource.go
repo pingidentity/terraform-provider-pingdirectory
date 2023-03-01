@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &thirdPartyErrorLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyErrorLogPublisherResource{}
 	_ resource.ResourceWithImportState = &thirdPartyErrorLogPublisherResource{}
+	_ resource.Resource                = &defaultThirdPartyErrorLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyErrorLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyErrorLogPublisherResource{}
 )
 
 // Create a Third Party Error Log Publisher resource
@@ -29,8 +32,18 @@ func NewThirdPartyErrorLogPublisherResource() resource.Resource {
 	return &thirdPartyErrorLogPublisherResource{}
 }
 
+func NewDefaultThirdPartyErrorLogPublisherResource() resource.Resource {
+	return &defaultThirdPartyErrorLogPublisherResource{}
+}
+
 // thirdPartyErrorLogPublisherResource is the resource implementation.
 type thirdPartyErrorLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyErrorLogPublisherResource is the resource implementation.
+type defaultThirdPartyErrorLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *thirdPartyErrorLogPublisherResource) Metadata(_ context.Context, req re
 	resp.TypeName = req.ProviderTypeName + "_third_party_error_log_publisher"
 }
 
+func (r *defaultThirdPartyErrorLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_error_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +94,14 @@ type thirdPartyErrorLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyErrorLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyErrorLogPublisherSchema(ctx, req, resp, true)
+}
+
+func thirdPartyErrorLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Error Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -108,6 +143,9 @@ func (r *thirdPartyErrorLogPublisherResource) Schema(ctx context.Context, req re
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -236,8 +274,79 @@ func (r *thirdPartyErrorLogPublisherResource) Create(ctx context.Context, req re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyErrorLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyErrorLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Error Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyErrorLogPublisherResourceModel
+	readThirdPartyErrorLogPublisherResponse(ctx, readResponse.ThirdPartyErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyErrorLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Error Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyErrorLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyErrorLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -246,8 +355,8 @@ func (r *thirdPartyErrorLogPublisherResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Error Log Publisher", err, httpResp)
 		return
@@ -272,6 +381,14 @@ func (r *thirdPartyErrorLogPublisherResource) Read(ctx context.Context, req reso
 
 // Update a resource
 func (r *thirdPartyErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyErrorLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyErrorLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -283,8 +400,8 @@ func (r *thirdPartyErrorLogPublisherResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyErrorLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyErrorLogPublisherOperations(plan, state)
@@ -293,7 +410,7 @@ func (r *thirdPartyErrorLogPublisherResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Error Log Publisher", err, httpResp)
 			return
@@ -321,6 +438,12 @@ func (r *thirdPartyErrorLogPublisherResource) Update(ctx context.Context, req re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyErrorLogPublisherResourceModel
@@ -339,6 +462,14 @@ func (r *thirdPartyErrorLogPublisherResource) Delete(ctx context.Context, req re
 }
 
 func (r *thirdPartyErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyErrorLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyErrorLogPublisher(ctx, req, resp)
+}
+
+func importThirdPartyErrorLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

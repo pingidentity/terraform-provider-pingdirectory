@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &rootDseRequestCriteriaResource{}
 	_ resource.ResourceWithConfigure   = &rootDseRequestCriteriaResource{}
 	_ resource.ResourceWithImportState = &rootDseRequestCriteriaResource{}
+	_ resource.Resource                = &defaultRootDseRequestCriteriaResource{}
+	_ resource.ResourceWithConfigure   = &defaultRootDseRequestCriteriaResource{}
+	_ resource.ResourceWithImportState = &defaultRootDseRequestCriteriaResource{}
 )
 
 // Create a Root Dse Request Criteria resource
@@ -29,8 +32,18 @@ func NewRootDseRequestCriteriaResource() resource.Resource {
 	return &rootDseRequestCriteriaResource{}
 }
 
+func NewDefaultRootDseRequestCriteriaResource() resource.Resource {
+	return &defaultRootDseRequestCriteriaResource{}
+}
+
 // rootDseRequestCriteriaResource is the resource implementation.
 type rootDseRequestCriteriaResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultRootDseRequestCriteriaResource is the resource implementation.
+type defaultRootDseRequestCriteriaResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *rootDseRequestCriteriaResource) Metadata(_ context.Context, req resourc
 	resp.TypeName = req.ProviderTypeName + "_root_dse_request_criteria"
 }
 
+func (r *defaultRootDseRequestCriteriaResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_root_dse_request_criteria"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *rootDseRequestCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultRootDseRequestCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -62,6 +89,14 @@ type rootDseRequestCriteriaResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *rootDseRequestCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	rootDseRequestCriteriaSchema(ctx, req, resp, false)
+}
+
+func (r *defaultRootDseRequestCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	rootDseRequestCriteriaSchema(ctx, req, resp, true)
+}
+
+func rootDseRequestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Root Dse Request Criteria.",
 		Attributes: map[string]schema.Attribute{
@@ -78,6 +113,9 @@ func (r *rootDseRequestCriteriaResource) Schema(ctx context.Context, req resourc
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -175,8 +213,79 @@ func (r *rootDseRequestCriteriaResource) Create(ctx context.Context, req resourc
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultRootDseRequestCriteriaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan rootDseRequestCriteriaResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dse Request Criteria", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state rootDseRequestCriteriaResourceModel
+	readRootDseRequestCriteriaResponse(ctx, readResponse.RootDseRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createRootDseRequestCriteriaOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dse Request Criteria", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readRootDseRequestCriteriaResponse(ctx, updateResponse.RootDseRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *rootDseRequestCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRootDseRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRootDseRequestCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRootDseRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readRootDseRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state rootDseRequestCriteriaResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -185,8 +294,8 @@ func (r *rootDseRequestCriteriaResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RequestCriteriaApi.GetRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dse Request Criteria", err, httpResp)
 		return
@@ -211,6 +320,14 @@ func (r *rootDseRequestCriteriaResource) Read(ctx context.Context, req resource.
 
 // Update a resource
 func (r *rootDseRequestCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRootDseRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRootDseRequestCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRootDseRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateRootDseRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan rootDseRequestCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -222,8 +339,8 @@ func (r *rootDseRequestCriteriaResource) Update(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state rootDseRequestCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RequestCriteriaApi.UpdateRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createRootDseRequestCriteriaOperations(plan, state)
@@ -232,7 +349,7 @@ func (r *rootDseRequestCriteriaResource) Update(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Root Dse Request Criteria", err, httpResp)
 			return
@@ -260,6 +377,12 @@ func (r *rootDseRequestCriteriaResource) Update(ctx context.Context, req resourc
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultRootDseRequestCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *rootDseRequestCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state rootDseRequestCriteriaResourceModel
@@ -278,6 +401,14 @@ func (r *rootDseRequestCriteriaResource) Delete(ctx context.Context, req resourc
 }
 
 func (r *rootDseRequestCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importRootDseRequestCriteria(ctx, req, resp)
+}
+
+func (r *defaultRootDseRequestCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importRootDseRequestCriteria(ctx, req, resp)
+}
+
+func importRootDseRequestCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

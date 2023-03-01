@@ -25,6 +25,9 @@ var (
 	_ resource.Resource                = &photoDelegatedAdminAttributeResource{}
 	_ resource.ResourceWithConfigure   = &photoDelegatedAdminAttributeResource{}
 	_ resource.ResourceWithImportState = &photoDelegatedAdminAttributeResource{}
+	_ resource.Resource                = &defaultPhotoDelegatedAdminAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultPhotoDelegatedAdminAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultPhotoDelegatedAdminAttributeResource{}
 )
 
 // Create a Photo Delegated Admin Attribute resource
@@ -32,8 +35,18 @@ func NewPhotoDelegatedAdminAttributeResource() resource.Resource {
 	return &photoDelegatedAdminAttributeResource{}
 }
 
+func NewDefaultPhotoDelegatedAdminAttributeResource() resource.Resource {
+	return &defaultPhotoDelegatedAdminAttributeResource{}
+}
+
 // photoDelegatedAdminAttributeResource is the resource implementation.
 type photoDelegatedAdminAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPhotoDelegatedAdminAttributeResource is the resource implementation.
+type defaultPhotoDelegatedAdminAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -43,8 +56,22 @@ func (r *photoDelegatedAdminAttributeResource) Metadata(_ context.Context, req r
 	resp.TypeName = req.ProviderTypeName + "_photo_delegated_admin_attribute"
 }
 
+func (r *defaultPhotoDelegatedAdminAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_photo_delegated_admin_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *photoDelegatedAdminAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPhotoDelegatedAdminAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -75,6 +102,14 @@ type photoDelegatedAdminAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *photoDelegatedAdminAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	photoDelegatedAdminAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPhotoDelegatedAdminAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	photoDelegatedAdminAttributeSchema(ctx, req, resp, true)
+}
+
+func photoDelegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Photo Delegated Admin Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -143,6 +178,9 @@ func (r *photoDelegatedAdminAttributeResource) Schema(ctx context.Context, req r
 		},
 	}
 	config.AddCommonSchema(&schema, false)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -300,8 +338,79 @@ func (r *photoDelegatedAdminAttributeResource) Create(ctx context.Context, req r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPhotoDelegatedAdminAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan photoDelegatedAdminAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Photo Delegated Admin Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state photoDelegatedAdminAttributeResourceModel
+	readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
+	ops := createPhotoDelegatedAdminAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Photo Delegated Admin Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPhotoDelegatedAdminAttributeResponse(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *photoDelegatedAdminAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPhotoDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPhotoDelegatedAdminAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPhotoDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPhotoDelegatedAdminAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state photoDelegatedAdminAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -310,8 +419,8 @@ func (r *photoDelegatedAdminAttributeResource) Read(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Photo Delegated Admin Attribute", err, httpResp)
 		return
@@ -336,6 +445,14 @@ func (r *photoDelegatedAdminAttributeResource) Read(ctx context.Context, req res
 
 // Update a resource
 func (r *photoDelegatedAdminAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePhotoDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPhotoDelegatedAdminAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePhotoDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePhotoDelegatedAdminAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan photoDelegatedAdminAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -347,8 +464,8 @@ func (r *photoDelegatedAdminAttributeResource) Update(ctx context.Context, req r
 	// Get the current state to see how any attributes are changing
 	var state photoDelegatedAdminAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
+	updateRequest := apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPhotoDelegatedAdminAttributeOperations(plan, state)
@@ -357,7 +474,7 @@ func (r *photoDelegatedAdminAttributeResource) Update(ctx context.Context, req r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Photo Delegated Admin Attribute", err, httpResp)
 			return
@@ -385,6 +502,12 @@ func (r *photoDelegatedAdminAttributeResource) Update(ctx context.Context, req r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPhotoDelegatedAdminAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *photoDelegatedAdminAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state photoDelegatedAdminAttributeResourceModel
@@ -403,6 +526,14 @@ func (r *photoDelegatedAdminAttributeResource) Delete(ctx context.Context, req r
 }
 
 func (r *photoDelegatedAdminAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPhotoDelegatedAdminAttribute(ctx, req, resp)
+}
+
+func (r *defaultPhotoDelegatedAdminAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPhotoDelegatedAdminAttribute(ctx, req, resp)
+}
+
+func importPhotoDelegatedAdminAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	split := strings.Split(req.ID, "/")
 	if len(split) != 2 {
 		resp.Diagnostics.AddError("Invalid import id for resource", "Expected [rest-resource-type-name]/[delegated-admin-attribute-attribute-type]. Got: "+req.ID)

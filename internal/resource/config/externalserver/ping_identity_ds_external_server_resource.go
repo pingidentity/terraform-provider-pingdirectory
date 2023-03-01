@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &pingIdentityDsExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &pingIdentityDsExternalServerResource{}
 	_ resource.ResourceWithImportState = &pingIdentityDsExternalServerResource{}
+	_ resource.Resource                = &defaultPingIdentityDsExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultPingIdentityDsExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultPingIdentityDsExternalServerResource{}
 )
 
 // Create a Ping Identity Ds External Server resource
@@ -29,8 +32,18 @@ func NewPingIdentityDsExternalServerResource() resource.Resource {
 	return &pingIdentityDsExternalServerResource{}
 }
 
+func NewDefaultPingIdentityDsExternalServerResource() resource.Resource {
+	return &defaultPingIdentityDsExternalServerResource{}
+}
+
 // pingIdentityDsExternalServerResource is the resource implementation.
 type pingIdentityDsExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPingIdentityDsExternalServerResource is the resource implementation.
+type defaultPingIdentityDsExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *pingIdentityDsExternalServerResource) Metadata(_ context.Context, req r
 	resp.TypeName = req.ProviderTypeName + "_ping_identity_ds_external_server"
 }
 
+func (r *defaultPingIdentityDsExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_ping_identity_ds_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *pingIdentityDsExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPingIdentityDsExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,6 +109,14 @@ type pingIdentityDsExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *pingIdentityDsExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pingIdentityDsExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPingIdentityDsExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pingIdentityDsExternalServerSchema(ctx, req, resp, true)
+}
+
+func pingIdentityDsExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Ping Identity Ds External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -192,6 +227,9 @@ func (r *pingIdentityDsExternalServerResource) Schema(ctx context.Context, req r
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -440,8 +478,79 @@ func (r *pingIdentityDsExternalServerResource) Create(ctx context.Context, req r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPingIdentityDsExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan pingIdentityDsExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ping Identity Ds External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state pingIdentityDsExternalServerResourceModel
+	readPingIdentityDsExternalServerResponse(ctx, readResponse.PingIdentityDsExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPingIdentityDsExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ping Identity Ds External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPingIdentityDsExternalServerResponse(ctx, updateResponse.PingIdentityDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *pingIdentityDsExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPingIdentityDsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPingIdentityDsExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPingIdentityDsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPingIdentityDsExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state pingIdentityDsExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -450,8 +559,8 @@ func (r *pingIdentityDsExternalServerResource) Read(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ping Identity Ds External Server", err, httpResp)
 		return
@@ -476,6 +585,14 @@ func (r *pingIdentityDsExternalServerResource) Read(ctx context.Context, req res
 
 // Update a resource
 func (r *pingIdentityDsExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePingIdentityDsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPingIdentityDsExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePingIdentityDsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePingIdentityDsExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan pingIdentityDsExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -487,8 +604,8 @@ func (r *pingIdentityDsExternalServerResource) Update(ctx context.Context, req r
 	// Get the current state to see how any attributes are changing
 	var state pingIdentityDsExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPingIdentityDsExternalServerOperations(plan, state)
@@ -497,7 +614,7 @@ func (r *pingIdentityDsExternalServerResource) Update(ctx context.Context, req r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ping Identity Ds External Server", err, httpResp)
 			return
@@ -525,6 +642,12 @@ func (r *pingIdentityDsExternalServerResource) Update(ctx context.Context, req r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPingIdentityDsExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *pingIdentityDsExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state pingIdentityDsExternalServerResourceModel
@@ -543,6 +666,14 @@ func (r *pingIdentityDsExternalServerResource) Delete(ctx context.Context, req r
 }
 
 func (r *pingIdentityDsExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPingIdentityDsExternalServer(ctx, req, resp)
+}
+
+func (r *defaultPingIdentityDsExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPingIdentityDsExternalServer(ctx, req, resp)
+}
+
+func importPingIdentityDsExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

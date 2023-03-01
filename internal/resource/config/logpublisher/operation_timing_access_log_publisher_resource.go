@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &operationTimingAccessLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &operationTimingAccessLogPublisherResource{}
 	_ resource.ResourceWithImportState = &operationTimingAccessLogPublisherResource{}
+	_ resource.Resource                = &defaultOperationTimingAccessLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultOperationTimingAccessLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultOperationTimingAccessLogPublisherResource{}
 )
 
 // Create a Operation Timing Access Log Publisher resource
@@ -29,8 +32,18 @@ func NewOperationTimingAccessLogPublisherResource() resource.Resource {
 	return &operationTimingAccessLogPublisherResource{}
 }
 
+func NewDefaultOperationTimingAccessLogPublisherResource() resource.Resource {
+	return &defaultOperationTimingAccessLogPublisherResource{}
+}
+
 // operationTimingAccessLogPublisherResource is the resource implementation.
 type operationTimingAccessLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultOperationTimingAccessLogPublisherResource is the resource implementation.
+type defaultOperationTimingAccessLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *operationTimingAccessLogPublisherResource) Metadata(_ context.Context, 
 	resp.TypeName = req.ProviderTypeName + "_operation_timing_access_log_publisher"
 }
 
+func (r *defaultOperationTimingAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_operation_timing_access_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *operationTimingAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultOperationTimingAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -94,6 +121,14 @@ type operationTimingAccessLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *operationTimingAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	operationTimingAccessLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultOperationTimingAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	operationTimingAccessLogPublisherSchema(ctx, req, resp, true)
+}
+
+func operationTimingAccessLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Operation Timing Access Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -265,6 +300,9 @@ func (r *operationTimingAccessLogPublisherResource) Schema(ctx context.Context, 
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -565,8 +603,79 @@ func (r *operationTimingAccessLogPublisherResource) Create(ctx context.Context, 
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultOperationTimingAccessLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan operationTimingAccessLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Operation Timing Access Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state operationTimingAccessLogPublisherResourceModel
+	readOperationTimingAccessLogPublisherResponse(ctx, readResponse.OperationTimingAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createOperationTimingAccessLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Operation Timing Access Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readOperationTimingAccessLogPublisherResponse(ctx, updateResponse.OperationTimingAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *operationTimingAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readOperationTimingAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultOperationTimingAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readOperationTimingAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readOperationTimingAccessLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state operationTimingAccessLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -575,8 +684,8 @@ func (r *operationTimingAccessLogPublisherResource) Read(ctx context.Context, re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Operation Timing Access Log Publisher", err, httpResp)
 		return
@@ -601,6 +710,14 @@ func (r *operationTimingAccessLogPublisherResource) Read(ctx context.Context, re
 
 // Update a resource
 func (r *operationTimingAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateOperationTimingAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultOperationTimingAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateOperationTimingAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateOperationTimingAccessLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan operationTimingAccessLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -612,8 +729,8 @@ func (r *operationTimingAccessLogPublisherResource) Update(ctx context.Context, 
 	// Get the current state to see how any attributes are changing
 	var state operationTimingAccessLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createOperationTimingAccessLogPublisherOperations(plan, state)
@@ -622,7 +739,7 @@ func (r *operationTimingAccessLogPublisherResource) Update(ctx context.Context, 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Operation Timing Access Log Publisher", err, httpResp)
 			return
@@ -650,6 +767,12 @@ func (r *operationTimingAccessLogPublisherResource) Update(ctx context.Context, 
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultOperationTimingAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *operationTimingAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state operationTimingAccessLogPublisherResourceModel
@@ -668,6 +791,14 @@ func (r *operationTimingAccessLogPublisherResource) Delete(ctx context.Context, 
 }
 
 func (r *operationTimingAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importOperationTimingAccessLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultOperationTimingAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importOperationTimingAccessLogPublisher(ctx, req, resp)
+}
+
+func importOperationTimingAccessLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

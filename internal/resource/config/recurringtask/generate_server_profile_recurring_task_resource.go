@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &generateServerProfileRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &generateServerProfileRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &generateServerProfileRecurringTaskResource{}
+	_ resource.Resource                = &defaultGenerateServerProfileRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultGenerateServerProfileRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultGenerateServerProfileRecurringTaskResource{}
 )
 
 // Create a Generate Server Profile Recurring Task resource
@@ -29,8 +32,18 @@ func NewGenerateServerProfileRecurringTaskResource() resource.Resource {
 	return &generateServerProfileRecurringTaskResource{}
 }
 
+func NewDefaultGenerateServerProfileRecurringTaskResource() resource.Resource {
+	return &defaultGenerateServerProfileRecurringTaskResource{}
+}
+
 // generateServerProfileRecurringTaskResource is the resource implementation.
 type generateServerProfileRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGenerateServerProfileRecurringTaskResource is the resource implementation.
+type defaultGenerateServerProfileRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *generateServerProfileRecurringTaskResource) Metadata(_ context.Context,
 	resp.TypeName = req.ProviderTypeName + "_generate_server_profile_recurring_task"
 }
 
+func (r *defaultGenerateServerProfileRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_generate_server_profile_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *generateServerProfileRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGenerateServerProfileRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -72,6 +99,14 @@ type generateServerProfileRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *generateServerProfileRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	generateServerProfileRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGenerateServerProfileRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	generateServerProfileRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func generateServerProfileRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Generate Server Profile Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -140,6 +175,9 @@ func (r *generateServerProfileRecurringTaskResource) Schema(ctx context.Context,
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -286,8 +324,79 @@ func (r *generateServerProfileRecurringTaskResource) Create(ctx context.Context,
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGenerateServerProfileRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan generateServerProfileRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Generate Server Profile Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state generateServerProfileRecurringTaskResourceModel
+	readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGenerateServerProfileRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Generate Server Profile Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGenerateServerProfileRecurringTaskResponse(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *generateServerProfileRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGenerateServerProfileRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGenerateServerProfileRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGenerateServerProfileRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGenerateServerProfileRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state generateServerProfileRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -296,8 +405,8 @@ func (r *generateServerProfileRecurringTaskResource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Generate Server Profile Recurring Task", err, httpResp)
 		return
@@ -322,6 +431,14 @@ func (r *generateServerProfileRecurringTaskResource) Read(ctx context.Context, r
 
 // Update a resource
 func (r *generateServerProfileRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGenerateServerProfileRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGenerateServerProfileRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGenerateServerProfileRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGenerateServerProfileRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan generateServerProfileRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -333,8 +450,8 @@ func (r *generateServerProfileRecurringTaskResource) Update(ctx context.Context,
 	// Get the current state to see how any attributes are changing
 	var state generateServerProfileRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGenerateServerProfileRecurringTaskOperations(plan, state)
@@ -343,7 +460,7 @@ func (r *generateServerProfileRecurringTaskResource) Update(ctx context.Context,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Generate Server Profile Recurring Task", err, httpResp)
 			return
@@ -371,6 +488,12 @@ func (r *generateServerProfileRecurringTaskResource) Update(ctx context.Context,
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGenerateServerProfileRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *generateServerProfileRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state generateServerProfileRecurringTaskResourceModel
@@ -389,6 +512,14 @@ func (r *generateServerProfileRecurringTaskResource) Delete(ctx context.Context,
 }
 
 func (r *generateServerProfileRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGenerateServerProfileRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultGenerateServerProfileRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGenerateServerProfileRecurringTask(ctx, req, resp)
+}
+
+func importGenerateServerProfileRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

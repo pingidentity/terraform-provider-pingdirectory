@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &mockAccessTokenValidatorResource{}
 	_ resource.ResourceWithConfigure   = &mockAccessTokenValidatorResource{}
 	_ resource.ResourceWithImportState = &mockAccessTokenValidatorResource{}
+	_ resource.Resource                = &defaultMockAccessTokenValidatorResource{}
+	_ resource.ResourceWithConfigure   = &defaultMockAccessTokenValidatorResource{}
+	_ resource.ResourceWithImportState = &defaultMockAccessTokenValidatorResource{}
 )
 
 // Create a Mock Access Token Validator resource
@@ -29,8 +32,18 @@ func NewMockAccessTokenValidatorResource() resource.Resource {
 	return &mockAccessTokenValidatorResource{}
 }
 
+func NewDefaultMockAccessTokenValidatorResource() resource.Resource {
+	return &defaultMockAccessTokenValidatorResource{}
+}
+
 // mockAccessTokenValidatorResource is the resource implementation.
 type mockAccessTokenValidatorResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultMockAccessTokenValidatorResource is the resource implementation.
+type defaultMockAccessTokenValidatorResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *mockAccessTokenValidatorResource) Metadata(_ context.Context, req resou
 	resp.TypeName = req.ProviderTypeName + "_mock_access_token_validator"
 }
 
+func (r *defaultMockAccessTokenValidatorResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_mock_access_token_validator"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *mockAccessTokenValidatorResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultMockAccessTokenValidatorResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +94,14 @@ type mockAccessTokenValidatorResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *mockAccessTokenValidatorResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	mockAccessTokenValidatorSchema(ctx, req, resp, false)
+}
+
+func (r *defaultMockAccessTokenValidatorResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	mockAccessTokenValidatorSchema(ctx, req, resp, true)
+}
+
+func mockAccessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Mock Access Token Validator.",
 		Attributes: map[string]schema.Attribute{
@@ -106,6 +141,9 @@ func (r *mockAccessTokenValidatorResource) Schema(ctx context.Context, req resou
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -219,8 +257,79 @@ func (r *mockAccessTokenValidatorResource) Create(ctx context.Context, req resou
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultMockAccessTokenValidatorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan mockAccessTokenValidatorResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mock Access Token Validator", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state mockAccessTokenValidatorResourceModel
+	readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createMockAccessTokenValidatorOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidatorExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Mock Access Token Validator", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readMockAccessTokenValidatorResponse(ctx, updateResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *mockAccessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMockAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMockAccessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMockAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readMockAccessTokenValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state mockAccessTokenValidatorResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -229,8 +338,8 @@ func (r *mockAccessTokenValidatorResource) Read(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mock Access Token Validator", err, httpResp)
 		return
@@ -255,6 +364,14 @@ func (r *mockAccessTokenValidatorResource) Read(ctx context.Context, req resourc
 
 // Update a resource
 func (r *mockAccessTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMockAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMockAccessTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMockAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateMockAccessTokenValidator(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan mockAccessTokenValidatorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -266,8 +383,8 @@ func (r *mockAccessTokenValidatorResource) Update(ctx context.Context, req resou
 	// Get the current state to see how any attributes are changing
 	var state mockAccessTokenValidatorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMockAccessTokenValidatorOperations(plan, state)
@@ -276,7 +393,7 @@ func (r *mockAccessTokenValidatorResource) Update(ctx context.Context, req resou
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Mock Access Token Validator", err, httpResp)
 			return
@@ -304,6 +421,12 @@ func (r *mockAccessTokenValidatorResource) Update(ctx context.Context, req resou
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultMockAccessTokenValidatorResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *mockAccessTokenValidatorResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state mockAccessTokenValidatorResourceModel
@@ -322,6 +445,14 @@ func (r *mockAccessTokenValidatorResource) Delete(ctx context.Context, req resou
 }
 
 func (r *mockAccessTokenValidatorResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMockAccessTokenValidator(ctx, req, resp)
+}
+
+func (r *defaultMockAccessTokenValidatorResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMockAccessTokenValidator(ctx, req, resp)
+}
+
+func importMockAccessTokenValidator(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

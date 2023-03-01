@@ -24,6 +24,9 @@ var (
 	_ resource.Resource                = &localDbBackendResource{}
 	_ resource.ResourceWithConfigure   = &localDbBackendResource{}
 	_ resource.ResourceWithImportState = &localDbBackendResource{}
+	_ resource.Resource                = &defaultLocalDbBackendResource{}
+	_ resource.ResourceWithConfigure   = &defaultLocalDbBackendResource{}
+	_ resource.ResourceWithImportState = &defaultLocalDbBackendResource{}
 )
 
 // Create a Local Db Backend resource
@@ -31,8 +34,18 @@ func NewLocalDbBackendResource() resource.Resource {
 	return &localDbBackendResource{}
 }
 
+func NewDefaultLocalDbBackendResource() resource.Resource {
+	return &defaultLocalDbBackendResource{}
+}
+
 // localDbBackendResource is the resource implementation.
 type localDbBackendResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLocalDbBackendResource is the resource implementation.
+type defaultLocalDbBackendResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -42,8 +55,22 @@ func (r *localDbBackendResource) Metadata(_ context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_local_db_backend"
 }
 
+func (r *defaultLocalDbBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_local_db_backend"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *localDbBackendResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultLocalDbBackendResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -120,6 +147,14 @@ type localDbBackendResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *localDbBackendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	localDbBackendSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLocalDbBackendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	localDbBackendSchema(ctx, req, resp, true)
+}
+
+func localDbBackendSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Local Db Backend.",
 		Attributes: map[string]schema.Attribute{
@@ -418,6 +453,9 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 		},
 	}
 	config.AddCommonSchema(&schema, false)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -936,8 +974,79 @@ func (r *localDbBackendResource) Create(ctx context.Context, req resource.Create
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLocalDbBackendResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan localDbBackendResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Backend", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state localDbBackendResourceModel
+	readLocalDbBackendResponse(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
+	ops := createLocalDbBackendOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Backend", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLocalDbBackend(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state localDbBackendResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -946,8 +1055,8 @@ func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.BackendApi.GetBackend(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Backend", err, httpResp)
 		return
@@ -972,6 +1081,14 @@ func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Update a resource
 func (r *localDbBackendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbBackendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLocalDbBackend(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan localDbBackendResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -983,8 +1100,8 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state localDbBackendResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
+	updateRequest := apiClient.BackendApi.UpdateBackend(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocalDbBackendOperations(plan, state)
@@ -993,7 +1110,7 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.BackendApi.UpdateBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Backend", err, httpResp)
 			return
@@ -1021,6 +1138,12 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLocalDbBackendResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *localDbBackendResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state localDbBackendResourceModel
@@ -1039,6 +1162,14 @@ func (r *localDbBackendResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *localDbBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLocalDbBackend(ctx, req, resp)
+}
+
+func (r *defaultLocalDbBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLocalDbBackend(ctx, req, resp)
+}
+
+func importLocalDbBackend(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to backend_id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

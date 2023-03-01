@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &aggregateRequestCriteriaResource{}
 	_ resource.ResourceWithConfigure   = &aggregateRequestCriteriaResource{}
 	_ resource.ResourceWithImportState = &aggregateRequestCriteriaResource{}
+	_ resource.Resource                = &defaultAggregateRequestCriteriaResource{}
+	_ resource.ResourceWithConfigure   = &defaultAggregateRequestCriteriaResource{}
+	_ resource.ResourceWithImportState = &defaultAggregateRequestCriteriaResource{}
 )
 
 // Create a Aggregate Request Criteria resource
@@ -29,8 +32,18 @@ func NewAggregateRequestCriteriaResource() resource.Resource {
 	return &aggregateRequestCriteriaResource{}
 }
 
+func NewDefaultAggregateRequestCriteriaResource() resource.Resource {
+	return &defaultAggregateRequestCriteriaResource{}
+}
+
 // aggregateRequestCriteriaResource is the resource implementation.
 type aggregateRequestCriteriaResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultAggregateRequestCriteriaResource is the resource implementation.
+type defaultAggregateRequestCriteriaResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *aggregateRequestCriteriaResource) Metadata(_ context.Context, req resou
 	resp.TypeName = req.ProviderTypeName + "_aggregate_request_criteria"
 }
 
+func (r *defaultAggregateRequestCriteriaResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_aggregate_request_criteria"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *aggregateRequestCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultAggregateRequestCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -65,6 +92,14 @@ type aggregateRequestCriteriaResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *aggregateRequestCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	aggregateRequestCriteriaSchema(ctx, req, resp, false)
+}
+
+func (r *defaultAggregateRequestCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	aggregateRequestCriteriaSchema(ctx, req, resp, true)
+}
+
+func aggregateRequestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Aggregate Request Criteria.",
 		Attributes: map[string]schema.Attribute{
@@ -99,6 +134,9 @@ func (r *aggregateRequestCriteriaResource) Schema(ctx context.Context, req resou
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -203,8 +241,79 @@ func (r *aggregateRequestCriteriaResource) Create(ctx context.Context, req resou
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultAggregateRequestCriteriaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan aggregateRequestCriteriaResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Aggregate Request Criteria", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state aggregateRequestCriteriaResourceModel
+	readAggregateRequestCriteriaResponse(ctx, readResponse.AggregateRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createAggregateRequestCriteriaOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Aggregate Request Criteria", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readAggregateRequestCriteriaResponse(ctx, updateResponse.AggregateRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *aggregateRequestCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAggregateRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAggregateRequestCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAggregateRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAggregateRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state aggregateRequestCriteriaResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -213,8 +322,8 @@ func (r *aggregateRequestCriteriaResource) Read(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RequestCriteriaApi.GetRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Aggregate Request Criteria", err, httpResp)
 		return
@@ -239,6 +348,14 @@ func (r *aggregateRequestCriteriaResource) Read(ctx context.Context, req resourc
 
 // Update a resource
 func (r *aggregateRequestCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAggregateRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAggregateRequestCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAggregateRequestCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAggregateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan aggregateRequestCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -250,8 +367,8 @@ func (r *aggregateRequestCriteriaResource) Update(ctx context.Context, req resou
 	// Get the current state to see how any attributes are changing
 	var state aggregateRequestCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RequestCriteriaApi.UpdateRequestCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAggregateRequestCriteriaOperations(plan, state)
@@ -260,7 +377,7 @@ func (r *aggregateRequestCriteriaResource) Update(ctx context.Context, req resou
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RequestCriteriaApi.UpdateRequestCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Aggregate Request Criteria", err, httpResp)
 			return
@@ -288,6 +405,12 @@ func (r *aggregateRequestCriteriaResource) Update(ctx context.Context, req resou
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultAggregateRequestCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *aggregateRequestCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state aggregateRequestCriteriaResourceModel
@@ -306,6 +429,14 @@ func (r *aggregateRequestCriteriaResource) Delete(ctx context.Context, req resou
 }
 
 func (r *aggregateRequestCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAggregateRequestCriteria(ctx, req, resp)
+}
+
+func (r *defaultAggregateRequestCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAggregateRequestCriteria(ctx, req, resp)
+}
+
+func importAggregateRequestCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

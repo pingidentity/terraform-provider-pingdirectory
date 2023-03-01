@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &periodicStatsLoggerPluginResource{}
 	_ resource.ResourceWithConfigure   = &periodicStatsLoggerPluginResource{}
 	_ resource.ResourceWithImportState = &periodicStatsLoggerPluginResource{}
+	_ resource.Resource                = &defaultPeriodicStatsLoggerPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultPeriodicStatsLoggerPluginResource{}
+	_ resource.ResourceWithImportState = &defaultPeriodicStatsLoggerPluginResource{}
 )
 
 // Create a Periodic Stats Logger Plugin resource
@@ -29,8 +32,18 @@ func NewPeriodicStatsLoggerPluginResource() resource.Resource {
 	return &periodicStatsLoggerPluginResource{}
 }
 
+func NewDefaultPeriodicStatsLoggerPluginResource() resource.Resource {
+	return &defaultPeriodicStatsLoggerPluginResource{}
+}
+
 // periodicStatsLoggerPluginResource is the resource implementation.
 type periodicStatsLoggerPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPeriodicStatsLoggerPluginResource is the resource implementation.
+type defaultPeriodicStatsLoggerPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *periodicStatsLoggerPluginResource) Metadata(_ context.Context, req reso
 	resp.TypeName = req.ProviderTypeName + "_periodic_stats_logger_plugin"
 }
 
+func (r *defaultPeriodicStatsLoggerPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_periodic_stats_logger_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *periodicStatsLoggerPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPeriodicStatsLoggerPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -89,6 +116,14 @@ type periodicStatsLoggerPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	periodicStatsLoggerPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPeriodicStatsLoggerPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	periodicStatsLoggerPluginSchema(ctx, req, resp, true)
+}
+
+func periodicStatsLoggerPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Periodic Stats Logger Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -245,6 +280,9 @@ func (r *periodicStatsLoggerPluginResource) Schema(ctx context.Context, req reso
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -588,8 +626,79 @@ func (r *periodicStatsLoggerPluginResource) Create(ctx context.Context, req reso
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPeriodicStatsLoggerPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan periodicStatsLoggerPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Periodic Stats Logger Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state periodicStatsLoggerPluginResourceModel
+	readPeriodicStatsLoggerPluginResponse(ctx, readResponse.PeriodicStatsLoggerPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPeriodicStatsLoggerPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Periodic Stats Logger Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPeriodicStatsLoggerPluginResponse(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *periodicStatsLoggerPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPeriodicStatsLoggerPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPeriodicStatsLoggerPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPeriodicStatsLoggerPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPeriodicStatsLoggerPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state periodicStatsLoggerPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -598,8 +707,8 @@ func (r *periodicStatsLoggerPluginResource) Read(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Periodic Stats Logger Plugin", err, httpResp)
 		return
@@ -624,6 +733,14 @@ func (r *periodicStatsLoggerPluginResource) Read(ctx context.Context, req resour
 
 // Update a resource
 func (r *periodicStatsLoggerPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePeriodicStatsLoggerPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPeriodicStatsLoggerPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePeriodicStatsLoggerPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePeriodicStatsLoggerPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan periodicStatsLoggerPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -635,8 +752,8 @@ func (r *periodicStatsLoggerPluginResource) Update(ctx context.Context, req reso
 	// Get the current state to see how any attributes are changing
 	var state periodicStatsLoggerPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPeriodicStatsLoggerPluginOperations(plan, state)
@@ -645,7 +762,7 @@ func (r *periodicStatsLoggerPluginResource) Update(ctx context.Context, req reso
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Periodic Stats Logger Plugin", err, httpResp)
 			return
@@ -673,6 +790,12 @@ func (r *periodicStatsLoggerPluginResource) Update(ctx context.Context, req reso
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPeriodicStatsLoggerPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *periodicStatsLoggerPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state periodicStatsLoggerPluginResourceModel
@@ -691,6 +814,14 @@ func (r *periodicStatsLoggerPluginResource) Delete(ctx context.Context, req reso
 }
 
 func (r *periodicStatsLoggerPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPeriodicStatsLoggerPlugin(ctx, req, resp)
+}
+
+func (r *defaultPeriodicStatsLoggerPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPeriodicStatsLoggerPlugin(ctx, req, resp)
+}
+
+func importPeriodicStatsLoggerPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

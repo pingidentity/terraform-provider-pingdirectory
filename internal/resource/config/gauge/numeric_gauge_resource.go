@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &numericGaugeResource{}
 	_ resource.ResourceWithConfigure   = &numericGaugeResource{}
 	_ resource.ResourceWithImportState = &numericGaugeResource{}
+	_ resource.Resource                = &defaultNumericGaugeResource{}
+	_ resource.ResourceWithConfigure   = &defaultNumericGaugeResource{}
+	_ resource.ResourceWithImportState = &defaultNumericGaugeResource{}
 )
 
 // Create a Numeric Gauge resource
@@ -29,8 +32,18 @@ func NewNumericGaugeResource() resource.Resource {
 	return &numericGaugeResource{}
 }
 
+func NewDefaultNumericGaugeResource() resource.Resource {
+	return &defaultNumericGaugeResource{}
+}
+
 // numericGaugeResource is the resource implementation.
 type numericGaugeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultNumericGaugeResource is the resource implementation.
+type defaultNumericGaugeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *numericGaugeResource) Metadata(_ context.Context, req resource.Metadata
 	resp.TypeName = req.ProviderTypeName + "_numeric_gauge"
 }
 
+func (r *defaultNumericGaugeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_numeric_gauge"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *numericGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultNumericGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -79,6 +106,14 @@ type numericGaugeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *numericGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	numericGaugeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultNumericGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	numericGaugeSchema(ctx, req, resp, true)
+}
+
+func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Numeric Gauge.",
 		Attributes: map[string]schema.Attribute{
@@ -179,6 +214,9 @@ func (r *numericGaugeResource) Schema(ctx context.Context, req resource.SchemaRe
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -390,8 +428,79 @@ func (r *numericGaugeResource) Create(ctx context.Context, req resource.CreateRe
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan numericGaugeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Numeric Gauge", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state numericGaugeResourceModel
+	readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.GaugeApi.UpdateGauge(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createNumericGaugeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Numeric Gauge", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *numericGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultNumericGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readNumericGauge(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state numericGaugeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -400,8 +509,8 @@ func (r *numericGaugeResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.GaugeApi.GetGauge(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Numeric Gauge", err, httpResp)
 		return
@@ -426,6 +535,14 @@ func (r *numericGaugeResource) Read(ctx context.Context, req resource.ReadReques
 
 // Update a resource
 func (r *numericGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultNumericGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateNumericGauge(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan numericGaugeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -437,8 +554,8 @@ func (r *numericGaugeResource) Update(ctx context.Context, req resource.UpdateRe
 	// Get the current state to see how any attributes are changing
 	var state numericGaugeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.GaugeApi.UpdateGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.GaugeApi.UpdateGauge(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createNumericGaugeOperations(plan, state)
@@ -447,7 +564,7 @@ func (r *numericGaugeResource) Update(ctx context.Context, req resource.UpdateRe
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Numeric Gauge", err, httpResp)
 			return
@@ -475,6 +592,12 @@ func (r *numericGaugeResource) Update(ctx context.Context, req resource.UpdateRe
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultNumericGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *numericGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state numericGaugeResourceModel
@@ -493,6 +616,14 @@ func (r *numericGaugeResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *numericGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importNumericGauge(ctx, req, resp)
+}
+
+func (r *defaultNumericGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importNumericGauge(ctx, req, resp)
+}
+
+func importNumericGauge(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &jdbcBasedAccessLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &jdbcBasedAccessLogPublisherResource{}
 	_ resource.ResourceWithImportState = &jdbcBasedAccessLogPublisherResource{}
+	_ resource.Resource                = &defaultJdbcBasedAccessLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultJdbcBasedAccessLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultJdbcBasedAccessLogPublisherResource{}
 )
 
 // Create a Jdbc Based Access Log Publisher resource
@@ -29,8 +32,18 @@ func NewJdbcBasedAccessLogPublisherResource() resource.Resource {
 	return &jdbcBasedAccessLogPublisherResource{}
 }
 
+func NewDefaultJdbcBasedAccessLogPublisherResource() resource.Resource {
+	return &defaultJdbcBasedAccessLogPublisherResource{}
+}
+
 // jdbcBasedAccessLogPublisherResource is the resource implementation.
 type jdbcBasedAccessLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultJdbcBasedAccessLogPublisherResource is the resource implementation.
+type defaultJdbcBasedAccessLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *jdbcBasedAccessLogPublisherResource) Metadata(_ context.Context, req re
 	resp.TypeName = req.ProviderTypeName + "_jdbc_based_access_log_publisher"
 }
 
+func (r *defaultJdbcBasedAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_jdbc_based_access_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *jdbcBasedAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultJdbcBasedAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -84,6 +111,14 @@ type jdbcBasedAccessLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *jdbcBasedAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jdbcBasedAccessLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultJdbcBasedAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jdbcBasedAccessLogPublisherSchema(ctx, req, resp, true)
+}
+
+func jdbcBasedAccessLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Jdbc Based Access Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -201,6 +236,9 @@ func (r *jdbcBasedAccessLogPublisherResource) Schema(ctx context.Context, req re
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -422,8 +460,79 @@ func (r *jdbcBasedAccessLogPublisherResource) Create(ctx context.Context, req re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultJdbcBasedAccessLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan jdbcBasedAccessLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jdbc Based Access Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state jdbcBasedAccessLogPublisherResourceModel
+	readJdbcBasedAccessLogPublisherResponse(ctx, readResponse.JdbcBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createJdbcBasedAccessLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jdbc Based Access Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readJdbcBasedAccessLogPublisherResponse(ctx, updateResponse.JdbcBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *jdbcBasedAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJdbcBasedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJdbcBasedAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJdbcBasedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readJdbcBasedAccessLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state jdbcBasedAccessLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -432,8 +541,8 @@ func (r *jdbcBasedAccessLogPublisherResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jdbc Based Access Log Publisher", err, httpResp)
 		return
@@ -458,6 +567,14 @@ func (r *jdbcBasedAccessLogPublisherResource) Read(ctx context.Context, req reso
 
 // Update a resource
 func (r *jdbcBasedAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJdbcBasedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJdbcBasedAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJdbcBasedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateJdbcBasedAccessLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan jdbcBasedAccessLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -469,8 +586,8 @@ func (r *jdbcBasedAccessLogPublisherResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state jdbcBasedAccessLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJdbcBasedAccessLogPublisherOperations(plan, state)
@@ -479,7 +596,7 @@ func (r *jdbcBasedAccessLogPublisherResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jdbc Based Access Log Publisher", err, httpResp)
 			return
@@ -507,6 +624,12 @@ func (r *jdbcBasedAccessLogPublisherResource) Update(ctx context.Context, req re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultJdbcBasedAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *jdbcBasedAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state jdbcBasedAccessLogPublisherResourceModel
@@ -525,6 +648,14 @@ func (r *jdbcBasedAccessLogPublisherResource) Delete(ctx context.Context, req re
 }
 
 func (r *jdbcBasedAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJdbcBasedAccessLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultJdbcBasedAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJdbcBasedAccessLogPublisher(ctx, req, resp)
+}
+
+func importJdbcBasedAccessLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

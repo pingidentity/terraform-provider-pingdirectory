@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &staticallyDefinedRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &staticallyDefinedRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &staticallyDefinedRecurringTaskResource{}
+	_ resource.Resource                = &defaultStaticallyDefinedRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultStaticallyDefinedRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultStaticallyDefinedRecurringTaskResource{}
 )
 
 // Create a Statically Defined Recurring Task resource
@@ -29,8 +32,18 @@ func NewStaticallyDefinedRecurringTaskResource() resource.Resource {
 	return &staticallyDefinedRecurringTaskResource{}
 }
 
+func NewDefaultStaticallyDefinedRecurringTaskResource() resource.Resource {
+	return &defaultStaticallyDefinedRecurringTaskResource{}
+}
+
 // staticallyDefinedRecurringTaskResource is the resource implementation.
 type staticallyDefinedRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultStaticallyDefinedRecurringTaskResource is the resource implementation.
+type defaultStaticallyDefinedRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *staticallyDefinedRecurringTaskResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_statically_defined_recurring_task"
 }
 
+func (r *defaultStaticallyDefinedRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_statically_defined_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *staticallyDefinedRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultStaticallyDefinedRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -71,6 +98,14 @@ type staticallyDefinedRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *staticallyDefinedRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	staticallyDefinedRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultStaticallyDefinedRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	staticallyDefinedRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func staticallyDefinedRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Statically Defined Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -134,6 +169,9 @@ func (r *staticallyDefinedRecurringTaskResource) Schema(ctx context.Context, req
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -270,8 +308,79 @@ func (r *staticallyDefinedRecurringTaskResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultStaticallyDefinedRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan staticallyDefinedRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Statically Defined Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state staticallyDefinedRecurringTaskResourceModel
+	readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createStaticallyDefinedRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Statically Defined Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readStaticallyDefinedRecurringTaskResponse(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *staticallyDefinedRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readStaticallyDefinedRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultStaticallyDefinedRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readStaticallyDefinedRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readStaticallyDefinedRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state staticallyDefinedRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -280,8 +389,8 @@ func (r *staticallyDefinedRecurringTaskResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Statically Defined Recurring Task", err, httpResp)
 		return
@@ -306,6 +415,14 @@ func (r *staticallyDefinedRecurringTaskResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *staticallyDefinedRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateStaticallyDefinedRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultStaticallyDefinedRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateStaticallyDefinedRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateStaticallyDefinedRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan staticallyDefinedRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -317,8 +434,8 @@ func (r *staticallyDefinedRecurringTaskResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state staticallyDefinedRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createStaticallyDefinedRecurringTaskOperations(plan, state)
@@ -327,7 +444,7 @@ func (r *staticallyDefinedRecurringTaskResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Statically Defined Recurring Task", err, httpResp)
 			return
@@ -355,6 +472,12 @@ func (r *staticallyDefinedRecurringTaskResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultStaticallyDefinedRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *staticallyDefinedRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state staticallyDefinedRecurringTaskResourceModel
@@ -373,6 +496,14 @@ func (r *staticallyDefinedRecurringTaskResource) Delete(ctx context.Context, req
 }
 
 func (r *staticallyDefinedRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importStaticallyDefinedRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultStaticallyDefinedRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importStaticallyDefinedRecurringTask(ctx, req, resp)
+}
+
+func importStaticallyDefinedRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

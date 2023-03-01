@@ -21,6 +21,9 @@ var (
 	_ resource.Resource                = &topologyAdminUserResource{}
 	_ resource.ResourceWithConfigure   = &topologyAdminUserResource{}
 	_ resource.ResourceWithImportState = &topologyAdminUserResource{}
+	_ resource.Resource                = &defaultTopologyAdminUserResource{}
+	_ resource.ResourceWithConfigure   = &defaultTopologyAdminUserResource{}
+	_ resource.ResourceWithImportState = &defaultTopologyAdminUserResource{}
 )
 
 // Create a Topology Admin User resource
@@ -28,8 +31,18 @@ func NewTopologyAdminUserResource() resource.Resource {
 	return &topologyAdminUserResource{}
 }
 
+func NewDefaultTopologyAdminUserResource() resource.Resource {
+	return &defaultTopologyAdminUserResource{}
+}
+
 // topologyAdminUserResource is the resource implementation.
 type topologyAdminUserResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultTopologyAdminUserResource is the resource implementation.
+type defaultTopologyAdminUserResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -39,8 +52,22 @@ func (r *topologyAdminUserResource) Metadata(_ context.Context, req resource.Met
 	resp.TypeName = req.ProviderTypeName + "_topology_admin_user"
 }
 
+func (r *defaultTopologyAdminUserResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_topology_admin_user"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *topologyAdminUserResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultTopologyAdminUserResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -92,6 +119,14 @@ type topologyAdminUserResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *topologyAdminUserResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	topologyAdminUserSchema(ctx, req, resp, false)
+}
+
+func (r *defaultTopologyAdminUserResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	topologyAdminUserSchema(ctx, req, resp, true)
+}
+
+func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Topology Admin User.",
 		Attributes: map[string]schema.Attribute{
@@ -277,6 +312,9 @@ func (r *topologyAdminUserResource) Schema(ctx context.Context, req resource.Sch
 		},
 	}
 	AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -586,8 +624,79 @@ func (r *topologyAdminUserResource) Create(ctx context.Context, req resource.Cre
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan topologyAdminUserResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state topologyAdminUserResourceModel
+	readTopologyAdminUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createTopologyAdminUserOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUserExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Topology Admin User", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readTopologyAdminUserResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *topologyAdminUserResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultTopologyAdminUserResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state topologyAdminUserResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -596,8 +705,8 @@ func (r *topologyAdminUserResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
 		return
@@ -622,6 +731,14 @@ func (r *topologyAdminUserResource) Read(ctx context.Context, req resource.ReadR
 
 // Update a resource
 func (r *topologyAdminUserResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultTopologyAdminUserResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateTopologyAdminUser(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateTopologyAdminUser(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan topologyAdminUserResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -633,8 +750,8 @@ func (r *topologyAdminUserResource) Update(ctx context.Context, req resource.Upd
 	// Get the current state to see how any attributes are changing
 	var state topologyAdminUserResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createTopologyAdminUserOperations(plan, state)
@@ -643,7 +760,7 @@ func (r *topologyAdminUserResource) Update(ctx context.Context, req resource.Upd
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUserExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TopologyAdminUserApi.UpdateTopologyAdminUserExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Topology Admin User", err, httpResp)
 			return
@@ -671,6 +788,12 @@ func (r *topologyAdminUserResource) Update(ctx context.Context, req resource.Upd
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultTopologyAdminUserResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *topologyAdminUserResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state topologyAdminUserResourceModel
@@ -689,6 +812,14 @@ func (r *topologyAdminUserResource) Delete(ctx context.Context, req resource.Del
 }
 
 func (r *topologyAdminUserResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importTopologyAdminUser(ctx, req, resp)
+}
+
+func (r *defaultTopologyAdminUserResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importTopologyAdminUser(ctx, req, resp)
+}
+
+func importTopologyAdminUser(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &ldapMappedScimHttpServletExtensionResource{}
 	_ resource.ResourceWithConfigure   = &ldapMappedScimHttpServletExtensionResource{}
 	_ resource.ResourceWithImportState = &ldapMappedScimHttpServletExtensionResource{}
+	_ resource.Resource                = &defaultLdapMappedScimHttpServletExtensionResource{}
+	_ resource.ResourceWithConfigure   = &defaultLdapMappedScimHttpServletExtensionResource{}
+	_ resource.ResourceWithImportState = &defaultLdapMappedScimHttpServletExtensionResource{}
 )
 
 // Create a Ldap Mapped Scim Http Servlet Extension resource
@@ -29,8 +32,18 @@ func NewLdapMappedScimHttpServletExtensionResource() resource.Resource {
 	return &ldapMappedScimHttpServletExtensionResource{}
 }
 
+func NewDefaultLdapMappedScimHttpServletExtensionResource() resource.Resource {
+	return &defaultLdapMappedScimHttpServletExtensionResource{}
+}
+
 // ldapMappedScimHttpServletExtensionResource is the resource implementation.
 type ldapMappedScimHttpServletExtensionResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLdapMappedScimHttpServletExtensionResource is the resource implementation.
+type defaultLdapMappedScimHttpServletExtensionResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *ldapMappedScimHttpServletExtensionResource) Metadata(_ context.Context,
 	resp.TypeName = req.ProviderTypeName + "_ldap_mapped_scim_http_servlet_extension"
 }
 
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_ldap_mapped_scim_http_servlet_extension"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *ldapMappedScimHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -84,6 +111,14 @@ type ldapMappedScimHttpServletExtensionResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	ldapMappedScimHttpServletExtensionSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	ldapMappedScimHttpServletExtensionSchema(ctx, req, resp, true)
+}
+
+func ldapMappedScimHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Ldap Mapped Scim Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
@@ -213,6 +248,9 @@ func (r *ldapMappedScimHttpServletExtensionResource) Schema(ctx context.Context,
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -463,8 +501,79 @@ func (r *ldapMappedScimHttpServletExtensionResource) Create(ctx context.Context,
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan ldapMappedScimHttpServletExtensionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Mapped Scim Http Servlet Extension", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state ldapMappedScimHttpServletExtensionResourceModel
+	readLdapMappedScimHttpServletExtensionResponse(ctx, readResponse.LdapMappedScimHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createLdapMappedScimHttpServletExtensionOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ldap Mapped Scim Http Servlet Extension", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readLdapMappedScimHttpServletExtensionResponse(ctx, updateResponse.LdapMappedScimHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *ldapMappedScimHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLdapMappedScimHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLdapMappedScimHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLdapMappedScimHttpServletExtension(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state ldapMappedScimHttpServletExtensionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -473,8 +582,8 @@ func (r *ldapMappedScimHttpServletExtensionResource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Mapped Scim Http Servlet Extension", err, httpResp)
 		return
@@ -499,6 +608,14 @@ func (r *ldapMappedScimHttpServletExtensionResource) Read(ctx context.Context, r
 
 // Update a resource
 func (r *ldapMappedScimHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLdapMappedScimHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLdapMappedScimHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLdapMappedScimHttpServletExtension(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan ldapMappedScimHttpServletExtensionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -510,8 +627,8 @@ func (r *ldapMappedScimHttpServletExtensionResource) Update(ctx context.Context,
 	// Get the current state to see how any attributes are changing
 	var state ldapMappedScimHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLdapMappedScimHttpServletExtensionOperations(plan, state)
@@ -520,7 +637,7 @@ func (r *ldapMappedScimHttpServletExtensionResource) Update(ctx context.Context,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ldap Mapped Scim Http Servlet Extension", err, httpResp)
 			return
@@ -548,6 +665,12 @@ func (r *ldapMappedScimHttpServletExtensionResource) Update(ctx context.Context,
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLdapMappedScimHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *ldapMappedScimHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state ldapMappedScimHttpServletExtensionResourceModel
@@ -566,6 +689,14 @@ func (r *ldapMappedScimHttpServletExtensionResource) Delete(ctx context.Context,
 }
 
 func (r *ldapMappedScimHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLdapMappedScimHttpServletExtension(ctx, req, resp)
+}
+
+func (r *defaultLdapMappedScimHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLdapMappedScimHttpServletExtension(ctx, req, resp)
+}
+
+func importLdapMappedScimHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

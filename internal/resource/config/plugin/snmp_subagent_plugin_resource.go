@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &snmpSubagentPluginResource{}
 	_ resource.ResourceWithConfigure   = &snmpSubagentPluginResource{}
 	_ resource.ResourceWithImportState = &snmpSubagentPluginResource{}
+	_ resource.Resource                = &defaultSnmpSubagentPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultSnmpSubagentPluginResource{}
+	_ resource.ResourceWithImportState = &defaultSnmpSubagentPluginResource{}
 )
 
 // Create a Snmp Subagent Plugin resource
@@ -29,8 +32,18 @@ func NewSnmpSubagentPluginResource() resource.Resource {
 	return &snmpSubagentPluginResource{}
 }
 
+func NewDefaultSnmpSubagentPluginResource() resource.Resource {
+	return &defaultSnmpSubagentPluginResource{}
+}
+
 // snmpSubagentPluginResource is the resource implementation.
 type snmpSubagentPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSnmpSubagentPluginResource is the resource implementation.
+type defaultSnmpSubagentPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *snmpSubagentPluginResource) Metadata(_ context.Context, req resource.Me
 	resp.TypeName = req.ProviderTypeName + "_snmp_subagent_plugin"
 }
 
+func (r *defaultSnmpSubagentPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_snmp_subagent_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *snmpSubagentPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSnmpSubagentPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -70,6 +97,14 @@ type snmpSubagentPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *snmpSubagentPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	snmpSubagentPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSnmpSubagentPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	snmpSubagentPluginSchema(ctx, req, resp, true)
+}
+
+func snmpSubagentPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Snmp Subagent Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -124,6 +159,9 @@ func (r *snmpSubagentPluginResource) Schema(ctx context.Context, req resource.Sc
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -262,8 +300,79 @@ func (r *snmpSubagentPluginResource) Create(ctx context.Context, req resource.Cr
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSnmpSubagentPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan snmpSubagentPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Snmp Subagent Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state snmpSubagentPluginResourceModel
+	readSnmpSubagentPluginResponse(ctx, readResponse.SnmpSubagentPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSnmpSubagentPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Snmp Subagent Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSnmpSubagentPluginResponse(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *snmpSubagentPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSnmpSubagentPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSnmpSubagentPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSnmpSubagentPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSnmpSubagentPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state snmpSubagentPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -272,8 +381,8 @@ func (r *snmpSubagentPluginResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Snmp Subagent Plugin", err, httpResp)
 		return
@@ -298,6 +407,14 @@ func (r *snmpSubagentPluginResource) Read(ctx context.Context, req resource.Read
 
 // Update a resource
 func (r *snmpSubagentPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSnmpSubagentPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSnmpSubagentPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSnmpSubagentPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSnmpSubagentPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan snmpSubagentPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -309,8 +426,8 @@ func (r *snmpSubagentPluginResource) Update(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state snmpSubagentPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSnmpSubagentPluginOperations(plan, state)
@@ -319,7 +436,7 @@ func (r *snmpSubagentPluginResource) Update(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Snmp Subagent Plugin", err, httpResp)
 			return
@@ -347,6 +464,12 @@ func (r *snmpSubagentPluginResource) Update(ctx context.Context, req resource.Up
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSnmpSubagentPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *snmpSubagentPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state snmpSubagentPluginResourceModel
@@ -365,6 +488,14 @@ func (r *snmpSubagentPluginResource) Delete(ctx context.Context, req resource.De
 }
 
 func (r *snmpSubagentPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSnmpSubagentPlugin(ctx, req, resp)
+}
+
+func (r *defaultSnmpSubagentPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSnmpSubagentPlugin(ctx, req, resp)
+}
+
+func importSnmpSubagentPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

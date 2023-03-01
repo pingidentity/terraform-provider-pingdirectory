@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &groovyScriptedIdentityMapperResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedIdentityMapperResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedIdentityMapperResource{}
+	_ resource.Resource                = &defaultGroovyScriptedIdentityMapperResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedIdentityMapperResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedIdentityMapperResource{}
 )
 
 // Create a Groovy Scripted Identity Mapper resource
@@ -29,8 +32,18 @@ func NewGroovyScriptedIdentityMapperResource() resource.Resource {
 	return &groovyScriptedIdentityMapperResource{}
 }
 
+func NewDefaultGroovyScriptedIdentityMapperResource() resource.Resource {
+	return &defaultGroovyScriptedIdentityMapperResource{}
+}
+
 // groovyScriptedIdentityMapperResource is the resource implementation.
 type groovyScriptedIdentityMapperResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedIdentityMapperResource is the resource implementation.
+type defaultGroovyScriptedIdentityMapperResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *groovyScriptedIdentityMapperResource) Metadata(_ context.Context, req r
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_identity_mapper"
 }
 
+func (r *defaultGroovyScriptedIdentityMapperResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_identity_mapper"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +91,14 @@ type groovyScriptedIdentityMapperResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedIdentityMapperSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedIdentityMapperSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedIdentityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
@@ -88,6 +123,9 @@ func (r *groovyScriptedIdentityMapperResource) Schema(ctx context.Context, req r
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -177,8 +215,79 @@ func (r *groovyScriptedIdentityMapperResource) Create(ctx context.Context, req r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedIdentityMapperResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedIdentityMapperResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Identity Mapper", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedIdentityMapperResourceModel
+	readGroovyScriptedIdentityMapperResponse(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedIdentityMapperOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Identity Mapper", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedIdentityMapperResponse(ctx, updateResponse.GroovyScriptedIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedIdentityMapperResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -187,8 +296,8 @@ func (r *groovyScriptedIdentityMapperResource) Read(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Identity Mapper", err, httpResp)
 		return
@@ -213,6 +322,14 @@ func (r *groovyScriptedIdentityMapperResource) Read(ctx context.Context, req res
 
 // Update a resource
 func (r *groovyScriptedIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedIdentityMapperResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -224,8 +341,8 @@ func (r *groovyScriptedIdentityMapperResource) Update(ctx context.Context, req r
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedIdentityMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.IdentityMapperApi.UpdateIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedIdentityMapperOperations(plan, state)
@@ -234,7 +351,7 @@ func (r *groovyScriptedIdentityMapperResource) Update(ctx context.Context, req r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Identity Mapper", err, httpResp)
 			return
@@ -262,6 +379,12 @@ func (r *groovyScriptedIdentityMapperResource) Update(ctx context.Context, req r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedIdentityMapperResourceModel
@@ -280,6 +403,14 @@ func (r *groovyScriptedIdentityMapperResource) Delete(ctx context.Context, req r
 }
 
 func (r *groovyScriptedIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedIdentityMapper(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedIdentityMapper(ctx, req, resp)
+}
+
+func importGroovyScriptedIdentityMapper(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

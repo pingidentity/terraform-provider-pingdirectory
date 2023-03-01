@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &reverseDnJoinVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &reverseDnJoinVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &reverseDnJoinVirtualAttributeResource{}
+	_ resource.Resource                = &defaultReverseDnJoinVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultReverseDnJoinVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultReverseDnJoinVirtualAttributeResource{}
 )
 
 // Create a Reverse Dn Join Virtual Attribute resource
@@ -29,8 +32,18 @@ func NewReverseDnJoinVirtualAttributeResource() resource.Resource {
 	return &reverseDnJoinVirtualAttributeResource{}
 }
 
+func NewDefaultReverseDnJoinVirtualAttributeResource() resource.Resource {
+	return &defaultReverseDnJoinVirtualAttributeResource{}
+}
+
 // reverseDnJoinVirtualAttributeResource is the resource implementation.
 type reverseDnJoinVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultReverseDnJoinVirtualAttributeResource is the resource implementation.
+type defaultReverseDnJoinVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *reverseDnJoinVirtualAttributeResource) Metadata(_ context.Context, req 
 	resp.TypeName = req.ProviderTypeName + "_reverse_dn_join_virtual_attribute"
 }
 
+func (r *defaultReverseDnJoinVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_reverse_dn_join_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *reverseDnJoinVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultReverseDnJoinVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -79,6 +106,14 @@ type reverseDnJoinVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *reverseDnJoinVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	reverseDnJoinVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultReverseDnJoinVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	reverseDnJoinVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func reverseDnJoinVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Reverse Dn Join Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -177,6 +212,9 @@ func (r *reverseDnJoinVirtualAttributeResource) Schema(ctx context.Context, req 
 		},
 	}
 	config.AddCommonSchema(&schema, true)
+	if setOptionalToComputed {
+		config.SetOptionalAttributesToComputed(&schema)
+	}
 	resp.Schema = schema
 }
 
@@ -381,8 +419,79 @@ func (r *reverseDnJoinVirtualAttributeResource) Create(ctx context.Context, req 
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultReverseDnJoinVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan reverseDnJoinVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Reverse Dn Join Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state reverseDnJoinVirtualAttributeResourceModel
+	readReverseDnJoinVirtualAttributeResponse(ctx, readResponse.ReverseDnJoinVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createReverseDnJoinVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Reverse Dn Join Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readReverseDnJoinVirtualAttributeResponse(ctx, updateResponse.ReverseDnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *reverseDnJoinVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readReverseDnJoinVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultReverseDnJoinVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readReverseDnJoinVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readReverseDnJoinVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state reverseDnJoinVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -391,8 +500,8 @@ func (r *reverseDnJoinVirtualAttributeResource) Read(ctx context.Context, req re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Reverse Dn Join Virtual Attribute", err, httpResp)
 		return
@@ -417,6 +526,14 @@ func (r *reverseDnJoinVirtualAttributeResource) Read(ctx context.Context, req re
 
 // Update a resource
 func (r *reverseDnJoinVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateReverseDnJoinVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultReverseDnJoinVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateReverseDnJoinVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateReverseDnJoinVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan reverseDnJoinVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -428,8 +545,8 @@ func (r *reverseDnJoinVirtualAttributeResource) Update(ctx context.Context, req 
 	// Get the current state to see how any attributes are changing
 	var state reverseDnJoinVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createReverseDnJoinVirtualAttributeOperations(plan, state)
@@ -438,7 +555,7 @@ func (r *reverseDnJoinVirtualAttributeResource) Update(ctx context.Context, req 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Reverse Dn Join Virtual Attribute", err, httpResp)
 			return
@@ -466,6 +583,12 @@ func (r *reverseDnJoinVirtualAttributeResource) Update(ctx context.Context, req 
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultReverseDnJoinVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *reverseDnJoinVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state reverseDnJoinVirtualAttributeResourceModel
@@ -484,6 +607,14 @@ func (r *reverseDnJoinVirtualAttributeResource) Delete(ctx context.Context, req 
 }
 
 func (r *reverseDnJoinVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importReverseDnJoinVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultReverseDnJoinVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importReverseDnJoinVirtualAttribute(ctx, req, resp)
+}
+
+func importReverseDnJoinVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
