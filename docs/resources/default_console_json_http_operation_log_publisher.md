@@ -17,12 +17,12 @@ Manages a Console Json Http Operation Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Console JSON HTTP Operation Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Console JSON HTTP Operation Log Publisher is enabled for use.
 - `include_instance_name` (Boolean) Indicates whether log messages should include the instance name for the Directory Server.
 - `include_product_name` (Boolean) Indicates whether log messages should include the product name for the Directory Server.
 - `include_request_details_in_result_messages` (Boolean) Indicates whether result log messages should include all of the elements of request log messages. This may be used to record a single message per operation with details about both the request and response.

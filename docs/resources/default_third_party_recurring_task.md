@@ -17,7 +17,6 @@ Manages a Third Party Recurring Task.
 
 ### Required
 
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Recurring Task.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -31,6 +30,7 @@ Manages a Third Party Recurring Task.
 - `email_on_start` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `email_on_success` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Recurring Task. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Recurring Task.
 
 ### Read-Only
 

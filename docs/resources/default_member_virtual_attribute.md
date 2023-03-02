@@ -17,18 +17,18 @@ Manages a Member Virtual Attribute.
 
 ### Required
 
-- `attribute_type` (String) Specifies the attribute type for the attribute whose values are to be dynamically assigned by the virtual attribute.
-- `enabled` (Boolean) Indicates whether the Virtual Attribute is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `allow_index_conflicts` (Boolean) Indicates whether the server should allow creating or altering this virtual attribute definition even if it conflicts with one or more indexes defined in the server.
 - `allow_retrieving_membership` (Boolean) Indicates whether to handle requests that request all values for the virtual attribute.
+- `attribute_type` (String) Specifies the attribute type for the attribute whose values are to be dynamically assigned by the virtual attribute.
 - `base_dn` (Set of String) Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.
 - `client_connection_policy` (Set of String) Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.
 - `conflict_behavior` (String) Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.
 - `description` (String) A description for this Virtual Attribute
+- `enabled` (Boolean) Indicates whether the Virtual Attribute is enabled for use.
 - `filter` (Set of String) Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.
 - `group_dn` (Set of String) Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.
 - `multiple_virtual_attribute_evaluation_order_index` (Number) Specifies the order in which virtual attribute definitions for the same attribute type will be evaluated when generating values for an entry.

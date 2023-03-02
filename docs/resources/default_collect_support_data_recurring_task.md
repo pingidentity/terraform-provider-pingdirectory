@@ -18,7 +18,6 @@ Manages a Collect Support Data Recurring Task.
 ### Required
 
 - `id` (String) Name of this object.
-- `output_directory` (String) The directory in which the support data archive files will be placed. The path must be a directory, and that directory must already exist. Relative paths will be interpreted as relative to the server root.
 
 ### Optional
 
@@ -40,6 +39,7 @@ Manages a Collect Support Data Recurring Task.
 - `log_duration` (String) The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.
 - `log_file_head_collection_size` (String) The amount of data to collect from the beginning of each log file included in the support data archive.
 - `log_file_tail_collection_size` (String) The amount of data to collect from the end of each log file included in the support data archive.
+- `output_directory` (String) The directory in which the support data archive files will be placed. The path must be a directory, and that directory must already exist. Relative paths will be interpreted as relative to the server root.
 - `report_count` (Number) The number of intervals of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat. A value of zero indicates that these kinds of tools should not be used to collect any information.
 - `report_interval_seconds` (Number) The duration (in seconds) between each interval of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat.
 - `retain_previous_support_data_archive_age` (String) The minimum age of previous support data archives that should be preserved after a new archive is generated.

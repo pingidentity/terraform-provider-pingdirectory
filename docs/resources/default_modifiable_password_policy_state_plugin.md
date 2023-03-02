@@ -17,13 +17,13 @@ Manages a Modifiable Password Policy State Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `base_dn` (Set of String) A base DN that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `filter` (Set of String) A filter that may be used to identify entries that should support the ds-pwp-modifiable-state-json operational attribute.
 
 ### Read-Only

@@ -17,13 +17,13 @@ Manages a Console Json Audit Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Console JSON Audit Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the associated client connection in order for a connect, disconnect, request, or result message to be logged.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Console JSON Audit Log Publisher is enabled for use.
 - `exclude_attribute` (Set of String) Specifies the names of any attribute types that should be excluded from the audit log.
 - `include_instance_name` (Boolean) Indicates whether log messages should include the instance name for the Directory Server.
 - `include_intermediate_client_request_control` (Boolean) Indicates whether to include information about any intermediate client request control that may have been included in the request.

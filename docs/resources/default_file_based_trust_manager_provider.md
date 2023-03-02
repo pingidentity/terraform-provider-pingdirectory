@@ -17,13 +17,13 @@ Manages a File Based Trust Manager Provider.
 
 ### Required
 
-- `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `id` (String) Name of this object.
-- `trust_store_file` (String) Specifies the path to the file containing the trust information. It can be an absolute path or a path that is relative to the Directory Server instance root.
 
 ### Optional
 
+- `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `include_jvm_default_issuers` (Boolean) Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.
+- `trust_store_file` (String) Specifies the path to the file containing the trust information. It can be an absolute path or a path that is relative to the Directory Server instance root.
 - `trust_store_pin` (String, Sensitive) Specifies the clear-text PIN needed to access the File Based Trust Manager Provider.
 - `trust_store_pin_file` (String) Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the File Based Trust Manager Provider.
 - `trust_store_pin_passphrase_provider` (String) The passphrase provider to use to obtain the clear-text PIN needed to access the File Based Trust Manager Provider.

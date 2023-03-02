@@ -17,11 +17,11 @@ Manages a Blind Trust Manager Provider.
 
 ### Required
 
-- `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `include_jvm_default_issuers` (Boolean) Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.
 
 ### Read-Only

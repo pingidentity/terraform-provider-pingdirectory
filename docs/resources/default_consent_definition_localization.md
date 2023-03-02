@@ -18,14 +18,14 @@ Manages a Consent Definition Localization.
 ### Required
 
 - `consent_definition_name` (String) Name of the parent Consent Definition
-- `data_text` (String) Localized text describing the data to be shared.
 - `locale` (String) The locale of this Consent Definition Localization.
-- `purpose_text` (String) Localized text describing how the data is to be used.
-- `version` (String) The version of this Consent Definition Localization, using the format MAJOR.MINOR.
 
 ### Optional
 
+- `data_text` (String) Localized text describing the data to be shared.
+- `purpose_text` (String) Localized text describing how the data is to be used.
 - `title_text` (String) Localized text that may be used to provide a title or summary for a consent request or a granted consent.
+- `version` (String) The version of this Consent Definition Localization, using the format MAJOR.MINOR.
 
 ### Read-Only
 

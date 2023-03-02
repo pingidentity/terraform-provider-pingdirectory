@@ -18,13 +18,13 @@ Manages a Smtp External Server.
 ### Required
 
 - `id` (String) Name of this object.
-- `server_host_name` (String) The host name of the smtp server.
 
 ### Optional
 
 - `description` (String) A description for this External Server
 - `passphrase_provider` (String) The passphrase provider to use to obtain the login password for the specified user.
 - `password` (String, Sensitive) The login password for the specified user name. Both username and password must be supplied if this attribute is set.
+- `server_host_name` (String) The host name of the smtp server.
 - `server_port` (Number) The port number where the smtp server listens for requests.
 - `smtp_connection_properties` (Set of String) Specifies the connection properties for the smtp server.
 - `smtp_security` (String) This property specifies type of connection security to use when connecting to the outgoing mail server.

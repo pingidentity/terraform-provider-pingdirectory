@@ -17,15 +17,15 @@ Manages a Groovy Scripted Http Operation Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
-- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted HTTP Operation Log Publisher.
 
 ### Optional
 
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.
+- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted HTTP Operation Log Publisher.
 
 ### Read-Only
 

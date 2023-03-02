@@ -18,12 +18,11 @@ Manages a Local Db Backend.
 ### Required
 
 - `backend_id` (String) Specifies a name to identify the associated backend.
-- `base_dn` (Set of String) Specifies the base DN(s) for the data that the backend handles.
-- `enabled` (Boolean) Indicates whether the backend is enabled in the server.
 
 ### Optional
 
 - `background_prime` (Boolean) Indicates whether to attempt to perform the prime using a background thread if possible. If background priming is enabled, then the Directory Server may be allowed to accept client connections and process requests while the prime is in progress.
+- `base_dn` (Set of String) Specifies the base DN(s) for the data that the backend handles.
 - `compact_common_parent_dn` (Set of String) Provides a DN of an entry that may be the parent for a large number of entries in the backend. This may be used to help increase the space efficiency when encoding entries for storage.
 - `composite_index_entry_limit` (Number) Specifies the maximum number of entries that are allowed to match a given composite index key before that particular composite index key is no longer maintained.
 - `compress_entries` (Boolean) Indicates whether the backend should attempt to compress entries before storing them in the database.
@@ -45,6 +44,7 @@ Manages a Local Db Backend.
 - `description` (String) A description for this Backend
 - `dn2id_cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the dn2id database, which provides a mapping between normalized entry DNs and the corresponding entry IDs.
 - `dn2uri_cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the dn2uri database, which provides a mapping between a normalized entry DN and a set of referral URLs contained in the associated smart referral entry.
+- `enabled` (Boolean) Indicates whether the backend is enabled in the server.
 - `export_thread_count` (Number) Specifies the number of threads to use for concurrently retrieving and encoding entries during an LDIF export.
 - `external_txn_default_backend_lock_behavior` (String) Specifies the default behavior that should be exhibited by external transactions (e.g., an LDAP transaction or an atomic multi-update operation) with regard to acquiring an exclusive lock in this backend.
 - `hash_entries` (Boolean) Indicates whether to calculate and store a message digest of the entry contents along with the entry data, in order to provide a means of verifying the integrity of the entry data.

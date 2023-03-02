@@ -18,8 +18,6 @@ Manages a Vault External Server.
 ### Required
 
 - `id` (String) Name of this object.
-- `vault_authentication_method` (String) The mechanism used to authenticate to the Vault server.
-- `vault_server_base_uri` (Set of String) The base URL needed to access the Vault server. The base URL should consist of the protocol ("http" or "https"), the server address (resolvable name or IP address), and the port number. For example, "https://vault.example.com:8200/".
 
 ### Optional
 
@@ -27,6 +25,8 @@ Manages a Vault External Server.
 - `trust_store_file` (String) The path to a file containing the information needed to trust the certificate presented by the Vault servers.
 - `trust_store_pin` (String, Sensitive) The passphrase needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.
 - `trust_store_type` (String) The store type for the specified trust store file. The value should likely be one of "JKS", "PKCS12", or "BCFKS".
+- `vault_authentication_method` (String) The mechanism used to authenticate to the Vault server.
+- `vault_server_base_uri` (Set of String) The base URL needed to access the Vault server. The base URL should consist of the protocol ("http" or "https"), the server address (resolvable name or IP address), and the port number. For example, "https://vault.example.com:8200/".
 
 ### Read-Only
 

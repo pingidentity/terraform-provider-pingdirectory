@@ -17,14 +17,14 @@ Manages a Third Party Http Operation Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party HTTP Operation Log Publisher.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party HTTP Operation Log Publisher.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 
 ### Read-Only

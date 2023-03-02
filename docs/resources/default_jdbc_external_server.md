@@ -18,13 +18,13 @@ Manages a Jdbc External Server.
 ### Required
 
 - `id` (String) Name of this object.
-- `jdbc_driver_type` (String) Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.
 
 ### Optional
 
 - `database_name` (String) Specifies which database to connect to. This is ignored if jdbc-driver-url is specified.
 - `description` (String) A description for this External Server
 - `jdbc_connection_properties` (Set of String) Specifies the connection properties for the JDBC datasource.
+- `jdbc_driver_type` (String) Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.
 - `jdbc_driver_url` (String) Specify the complete JDBC URL which will be used instead of the automatic URL format. You must select type 'other' for the jdbc-driver-type.
 - `passphrase_provider` (String) The passphrase provider to use to obtain the login password for the specified user.
 - `password` (String, Sensitive) The login password for the specified user name.

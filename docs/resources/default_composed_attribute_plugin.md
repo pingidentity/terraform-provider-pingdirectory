@@ -17,14 +17,13 @@ Manages a Composed Attribute Plugin.
 
 ### Required
 
-- `attribute_type` (String) The name or OID of the attribute type for which values are to be generated.
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
-- `value_pattern` (Set of String) Specifies a pattern for constructing the values to use for the target attribute type.
 
 ### Optional
 
+- `attribute_type` (String) The name or OID of the attribute type for which values are to be generated.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `exclude_base_dn` (Set of String) The set of base DNs below which composed values will not be generated.
 - `exclude_filter` (Set of String) The set of search filters that identify entries for which composed values will not be generated.
 - `include_base_dn` (Set of String) The set of base DNs below which composed values may be generated.
@@ -39,6 +38,7 @@ Manages a Composed Attribute Plugin.
 - `update_target_attribute_behavior` (String) The behavior to exhibit for modify and modify DN operations that attempt to update the set of values for the target attribute.
 - `updated_entry_newly_matches_criteria_behavior` (String) The behavior to exhibit for modify or modify DN operations that update an entry that previously did not satisfy either the base DN or filter criteria, but now do satisfy that criteria.
 - `updated_entry_no_longer_matches_criteria_behavior` (String) The behavior to exhibit for modify or modify DN operations that update an entry that previously satisfied the base DN and filter criteria, but now no longer satisfies that criteria.
+- `value_pattern` (Set of String) Specifies a pattern for constructing the values to use for the target attribute type.
 
 ### Read-Only
 

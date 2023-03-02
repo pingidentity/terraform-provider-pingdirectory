@@ -17,7 +17,6 @@ Manages a Is Member Of Virtual Attribute.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Virtual Attribute is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -29,6 +28,7 @@ Manages a Is Member Of Virtual Attribute.
 - `conflict_behavior` (String) Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.
 - `description` (String) A description for this Virtual Attribute
 - `direct_memberships_only` (Boolean) Specifies whether to only include groups in which the user is directly associated with and the membership maybe modified via the group entry. Groups in which the user's membership is derived dynamically or through nested groups will not be included.
+- `enabled` (Boolean) Indicates whether the Virtual Attribute is enabled for use.
 - `filter` (Set of String) Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.
 - `group_dn` (Set of String) Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.
 - `included_group_filter` (String) A search filter that will be used to identify which groups should be included in the values of the virtual attribute. With no value defined (which is the default behavior), all groups that contain the target user will be included.

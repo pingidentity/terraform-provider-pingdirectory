@@ -17,7 +17,6 @@ Manages a Exec Recurring Task.
 
 ### Required
 
-- `command_path` (String) The absolute path to the command to execute. It must be an absolute path, the corresponding file must exist, and it must be listed in the config/exec-command-whitelist.txt file.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -28,6 +27,7 @@ Manages a Exec Recurring Task.
 - `cancel_on_task_dependency_failure` (Boolean) Indicates whether an instance of this Recurring Task should be canceled if the task immediately before it in the recurring task chain fails to complete successfully (including if it is canceled by an administrator before it starts or while it is running).
 - `command_arguments` (String) A string containing the arguments to provide to the command. If the command should be run without arguments, this property should be left undefined. If there should be multiple arguments, then they should be separated with spaces.
 - `command_output_file_base_name` (String) The path and base name for a file to which the command output (both standard output and standard error) should be written. This may be left undefined if the command output should not be recorded into a file.
+- `command_path` (String) The absolute path to the command to execute. It must be an absolute path, the corresponding file must exist, and it must be listed in the config/exec-command-whitelist.txt file.
 - `description` (String) A description for this Recurring Task
 - `email_on_failure` (Set of String) The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `email_on_start` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.

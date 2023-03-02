@@ -17,9 +17,7 @@ Manages a Ldap Connection Handler.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `id` (String) Name of this object.
-- `listen_port` (Number) Specifies the port number on which the LDAP Connection Handler will listen for connections from clients.
 
 ### Optional
 
@@ -32,9 +30,11 @@ Manages a Ldap Connection Handler.
 - `close_connections_when_unavailable` (Boolean) Indicates whether all connections associated with this LDAP Connection Handler should be closed and no new connections accepted when the server has determined that it is "unavailable." This allows clients (or a network load balancer) to route requests to another server.
 - `denied_client` (Set of String) Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.
 - `description` (String) A description for this Connection Handler
+- `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `failed_bind_response_delay` (String) Specifies the length of time that the server should delay the response to non-successful bind operations. A value of zero milliseconds indicates that non-successful bind operations should not be delayed.
 - `key_manager_provider` (String) Specifies the name of the key manager that should be used with this LDAP Connection Handler .
 - `listen_address` (Set of String) Specifies the address or set of addresses on which this LDAP Connection Handler should listen for connections from LDAP clients.
+- `listen_port` (Number) Specifies the port number on which the LDAP Connection Handler will listen for connections from clients.
 - `max_blocked_write_time_limit` (String) Specifies the maximum length of time that attempts to write data to LDAP clients should be allowed to block.
 - `max_cancel_handlers` (Number) Specifies the maximum number of threads that are used to process cancel and abandon requests from clients.
 - `max_request_size` (String) Specifies the size of the largest LDAP request message that will be allowed by this LDAP Connection handler.

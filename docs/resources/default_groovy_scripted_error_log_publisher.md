@@ -17,17 +17,17 @@ Manages a Groovy Scripted Error Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
-- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Error Log Publisher.
 
 ### Optional
 
 - `default_severity` (Set of String) Specifies the default severity levels for the logger.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `override_severity` (Set of String) Specifies the override severity levels for the logger based on the category of the messages.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Error Log Publisher. Each configuration property should be given in the form 'name=value'.
+- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Error Log Publisher.
 
 ### Read-Only
 

@@ -17,14 +17,14 @@ Manages a Internal Search Rate Plugin.
 
 ### Required
 
-- `base_dn` (String) Specifies the base DN to use for the searches to perform.
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
-- `filter_prefix` (String) Specifies a prefix which will be used in front of the randomly-selected numeric value in all search filters used. If no upper bound is defined, then this should contain the entire filter string.
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `base_dn` (String) Specifies the base DN to use for the searches to perform.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
+- `filter_prefix` (String) Specifies a prefix which will be used in front of the randomly-selected numeric value in all search filters used. If no upper bound is defined, then this should contain the entire filter string.
 - `filter_suffix` (String) Specifies a suffix which will be used after of the randomly-selected numeric value in all search filters used. If no upper bound is defined, then this should be omitted.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `lower_bound` (Number) Specifies the lower bound for the numeric value which will be inserted into the search filter.

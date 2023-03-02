@@ -17,16 +17,16 @@ Manages a Admin Alert Account Status Notification Handler.
 
 ### Required
 
-- `account_status_notification_type` (Set of String) The types of account status notifications that should result in administrative alerts.
-- `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `account_creation_notification_request_criteria` (String) A request criteria object that identifies which add requests should result in account creation notifications for this handler.
+- `account_status_notification_type` (Set of String) The types of account status notifications that should result in administrative alerts.
 - `account_update_notification_request_criteria` (String) A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.
 - `asynchronous` (Boolean) Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.
 - `description` (String) A description for this Account Status Notification Handler
+- `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
 
 ### Read-Only
 

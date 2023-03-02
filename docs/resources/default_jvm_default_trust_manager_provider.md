@@ -17,8 +17,11 @@ Manages a Jvm Default Trust Manager Provider.
 
 ### Required
 
-- `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `id` (String) Name of this object.
+
+### Optional
+
+- `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 
 ### Read-Only
 

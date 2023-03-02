@@ -17,13 +17,12 @@ Manages a Syslog Json Http Operation Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
-- `syslog_external_server` (Set of String) The syslog server to which messages should be sent.
 
 ### Optional
 
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `include_instance_name` (Boolean) Indicates whether log messages should include the instance name for the Directory Server.
 - `include_product_name` (Boolean) Indicates whether log messages should include the product name for the Directory Server.
 - `include_request_details_in_result_messages` (Boolean) Indicates whether result log messages should include all of the elements of request log messages. This may be used to record a single message per operation with details about both the request and response.
@@ -44,6 +43,7 @@ Manages a Syslog Json Http Operation Log Publisher.
 - `suppressed_request_header_name` (Set of String) Specifies the case-insensitive names of request headers that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-request-headers property has a value of true.
 - `suppressed_request_parameter_name` (Set of String) Specifies the case-insensitive names of request parameters that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-request-parameters property has a value of parameter-names or parameter-names-and-values.
 - `suppressed_response_header_name` (Set of String) Specifies the case-insensitive names of response headers that should be omitted from log messages (e.g., for the purpose of brevity or security). This will only be used if the log-response-headers property has a value of true.
+- `syslog_external_server` (Set of String) The syslog server to which messages should be sent.
 - `syslog_facility` (String) The syslog facility to use for the messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
 - `syslog_message_application_name` (String) The application name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.
 - `syslog_message_host_name` (String) The local host name that will be included in syslog messages that are logged by this Syslog JSON HTTP Operation Log Publisher.

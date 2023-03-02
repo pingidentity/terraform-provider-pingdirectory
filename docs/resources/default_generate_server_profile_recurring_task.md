@@ -18,7 +18,6 @@ Manages a Generate Server Profile Recurring Task.
 ### Required
 
 - `id` (String) Name of this object.
-- `profile_directory` (String) The directory in which the generated server profiles will be placed. The files will be named with the pattern "server-profile-{timestamp}.zip", where "{timestamp}" represents the time that the profile was generated.
 
 ### Optional
 
@@ -31,6 +30,7 @@ Manages a Generate Server Profile Recurring Task.
 - `email_on_start` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `email_on_success` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `include_path` (Set of String) An optional set of additional paths to files within the instance root that should be included in the generated server profile. All paths must be within the instance root, and relative paths will be relative to the instance root.
+- `profile_directory` (String) The directory in which the generated server profiles will be placed. The files will be named with the pattern "server-profile-{timestamp}.zip", where "{timestamp}" represents the time that the profile was generated.
 - `retain_previous_profile_age` (String) The minimum age of previous server profile zip files that should be preserved after a new profile is generated.
 - `retain_previous_profile_count` (Number) The minimum number of previous server profile zip files that should be preserved after a new profile is generated.
 

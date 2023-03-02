@@ -17,7 +17,6 @@ Manages a Multi Part Email Account Status Notification Handler.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -38,6 +37,7 @@ Manages a Multi Part Email Account Status Notification Handler.
 - `asynchronous` (Boolean) Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.
 - `bind_password_failed_validation_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that a user authenticated with a password that failed to satisfy the criteria for one or more of the configured password validators.
 - `description` (String) A description for this Account Status Notification Handler
+- `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
 - `must_change_password_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that a user successfully authenticates to the server but will be required to choose a new password before they will be allowed to perform any other operations.
 - `password_changed_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that a user changes their own password.
 - `password_expired_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an expired password.

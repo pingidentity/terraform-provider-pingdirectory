@@ -18,8 +18,6 @@ Manages a Statically Defined Recurring Task.
 ### Required
 
 - `id` (String) Name of this object.
-- `task_java_class` (String) The fully-qualified name of the Java class that provides the logic for the task to be invoked.
-- `task_object_class` (Set of String) The names or OIDs of the object classes to include in the tasks that are scheduled from this Statically Defined Recurring Task. All object classes must be defined in the server schema, and the combination of object classes must be valid for a task entry.
 
 ### Optional
 
@@ -32,6 +30,8 @@ Manages a Statically Defined Recurring Task.
 - `email_on_start` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `email_on_success` (Set of String) The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.
 - `task_attribute_value` (Set of String) The set of attribute values that should be included in the tasks that are scheduled from this Statically Defined Recurring Task. Each value must be in the form {attribute-type}={value}, where {attribute-type} is the name or OID of an attribute type that is defined in the schema and permitted with the configured set of object classes, and {value} is a value to assign to an attribute with that type. A multivalued attribute can be created by providing multiple name-value pairs with the same name and different values.
+- `task_java_class` (String) The fully-qualified name of the Java class that provides the logic for the task to be invoked.
+- `task_object_class` (Set of String) The names or OIDs of the object classes to include in the tasks that are scheduled from this Statically Defined Recurring Task. All object classes must be defined in the server schema, and the combination of object classes must be valid for a task entry.
 
 ### Read-Only
 

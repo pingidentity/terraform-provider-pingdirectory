@@ -17,11 +17,11 @@ Manages a Http External Server.
 
 ### Required
 
-- `base_url` (String) The base URL of the external server, optionally including port number, for example "https://externalService:9031".
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `base_url` (String) The base URL of the external server, optionally including port number, for example "https://externalService:9031".
 - `connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established before aborting a request to the server.
 - `description` (String) A description for this External Server
 - `hostname_verification_method` (String) The mechanism for checking if the hostname of the HTTP External Server matches the name(s) stored inside the server's X.509 certificate. This is only applicable if SSL is being used for connection security.

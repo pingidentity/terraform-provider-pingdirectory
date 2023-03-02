@@ -17,13 +17,13 @@ Manages a Third Party Request Criteria.
 
 ### Required
 
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Request Criteria.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `description` (String) A description for this Request Criteria
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Request Criteria. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Request Criteria.
 
 ### Read-Only
 

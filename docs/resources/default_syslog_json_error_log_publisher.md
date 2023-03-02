@@ -17,14 +17,13 @@ Manages a Syslog Json Error Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
-- `syslog_external_server` (Set of String) The syslog server to which messages should be sent.
 
 ### Optional
 
 - `default_severity` (Set of String) Specifies the default severity levels for the logger.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `generify_message_strings_when_possible` (Boolean) Indicates whether to use the generified version of the log message string (which may use placeholders like %s for a string or %d for an integer), rather than the version of the message with those placeholders replaced with specific values that would normally be written to the log.
 - `include_instance_name` (Boolean) Indicates whether log messages should include the instance name for the Directory Server.
 - `include_product_name` (Boolean) Indicates whether log messages should include the product name for the Directory Server.
@@ -33,6 +32,7 @@ Manages a Syslog Json Error Log Publisher.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `override_severity` (Set of String) Specifies the override severity levels for the logger based on the category of the messages.
 - `queue_size` (Number) The maximum number of log records that can be stored in the asynchronous queue.
+- `syslog_external_server` (Set of String) The syslog server to which messages should be sent.
 - `syslog_facility` (String) The syslog facility to use for the messages that are logged by this Syslog JSON Error Log Publisher.
 - `syslog_message_application_name` (String) The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.
 - `syslog_message_host_name` (String) The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.

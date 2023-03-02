@@ -18,7 +18,6 @@ Manages a Delegated Admin Resource Rights.
 ### Required
 
 - `delegated_admin_rights_name` (String) Name of the parent Delegated Admin Rights
-- `enabled` (Boolean) Indicates whether these Delegated Admin Resource Rights are enabled.
 - `rest_resource_type` (String) Specifies the resource type applicable to these Delegated Admin Resource Rights.
 
 ### Optional
@@ -26,6 +25,7 @@ Manages a Delegated Admin Resource Rights.
 - `admin_permission` (Set of String) Specifies administrator(s) permissions.
 - `admin_scope` (String) Specifies the scope of these Delegated Admin Resource Rights.
 - `description` (String) A description for this Delegated Admin Resource Rights
+- `enabled` (Boolean) Indicates whether these Delegated Admin Resource Rights are enabled.
 - `resource_subtree` (Set of String) Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.
 - `resources_in_group` (Set of String) Specifies groups whose members can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-groups.
 

@@ -17,16 +17,16 @@ Manages a Third Party Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Plugin.
 - `id` (String) Name of this object.
-- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 
 ### Optional
 
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Plugin. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Plugin.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
+- `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `request_criteria` (String) Specifies a set of request criteria that may be used to indicate that this Third Party Plugin should only be invoked for operations in which the associated request matches this criteria.
 
 ### Read-Only

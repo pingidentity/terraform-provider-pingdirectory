@@ -17,8 +17,6 @@ Manages a Third Party Account Status Notification Handler.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Account Status Notification Handler.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -27,7 +25,9 @@ Manages a Third Party Account Status Notification Handler.
 - `account_update_notification_request_criteria` (String) A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.
 - `asynchronous` (Boolean) Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.
 - `description` (String) A description for this Account Status Notification Handler
+- `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Account Status Notification Handler. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Account Status Notification Handler.
 
 ### Read-Only
 

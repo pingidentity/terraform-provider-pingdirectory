@@ -18,7 +18,6 @@ Manages a Ping Identity Proxy Server External Server.
 ### Required
 
 - `id` (String) Name of this object.
-- `server_host_name` (String) The host name or IP address of the target LDAP server.
 
 ### Optional
 
@@ -39,6 +38,7 @@ Manages a Ping Identity Proxy Server External Server.
 - `min_expired_connection_disconnect_interval` (String) Specifies the minimum length of time that should pass between connection closures as a result of the connections being established for longer than the maximum connection age. This may help avoid cases in which a large number of connections are closed and re-established in a short period of time because of the maximum connection age.
 - `passphrase_provider` (String) The passphrase provider to use to obtain the login password for the specified user.
 - `password` (String, Sensitive) The login password for the specified user.
+- `server_host_name` (String) The host name or IP address of the target LDAP server.
 - `server_port` (Number) The port number on which the server listens for requests.
 - `trust_manager_provider` (String) The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.
 - `use_administrative_operation_control` (Boolean) Indicates whether to include the administrative operation request control in requests sent to this server which are intended for administrative operations (e.g., health checking) rather than requests directly from clients.

@@ -17,18 +17,18 @@ Manages a File Server Http Servlet Extension.
 
 ### Required
 
-- `base_context_path` (String) Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and must represent a valid HTTP context path.
-- `document_root_directory` (String) Specifies the path to the directory on the local filesystem containing the files to be served by this File Server HTTP Servlet Extension. The path must exist, and it must be a directory.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `access_token_validator` (Set of String) The access token validators that may be used to verify the authenticity of an OAuth 2.0 bearer token.
 - `allowed_authentication_type` (Set of String) The types of authentication that may be used to authenticate to the file servlet.
+- `base_context_path` (String) Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and must represent a valid HTTP context path.
 - `correlation_id_response_header` (String) Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are "Correlation-Id", "X-Amzn-Trace-Id", and "X-Request-Id".
 - `cross_origin_policy` (String) The cross-origin request policy to use for the HTTP Servlet Extension.
 - `default_mime_type` (String) Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.
 - `description` (String) A description for this HTTP Servlet Extension
+- `document_root_directory` (String) Specifies the path to the directory on the local filesystem containing the files to be served by this File Server HTTP Servlet Extension. The path must exist, and it must be a directory.
 - `enable_directory_indexing` (Boolean) Indicates whether to generate a default HTML page with a listing of available files if the requested path refers to a directory rather than a file, and that directory does not contain an index file.
 - `id_token_validator` (Set of String) The ID token validators that may be used to verify the authenticity of an of an OpenID Connect ID token.
 - `identity_mapper` (String) The identity mapper that will be used to identify the entry with which a username is associated.

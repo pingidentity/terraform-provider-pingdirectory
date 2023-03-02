@@ -17,7 +17,6 @@ Manages a Jwt Access Token Validator.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether this Access Token Validator is enabled for use in Directory Server.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -29,6 +28,7 @@ Manages a Jwt Access Token Validator.
 - `client_id_claim_name` (String) The name of the token claim that contains the OAuth2 client Id.
 - `clock_skew_grace_period` (String) Specifies the amount of clock skew that is tolerated by the JWT Access Token Validator when evaluating whether a token is within its valid time interval. The duration specified by this parameter will be subtracted from the token's not-before (nbf) time and added to the token's expiration (exp) time, if present, to allow for any time difference between the local server's clock and the token issuer's clock.
 - `description` (String) A description for this Access Token Validator
+- `enabled` (Boolean) Indicates whether this Access Token Validator is enabled for use in Directory Server.
 - `encryption_key_pair` (String) The public-private key pair that is used to encrypt the JWT payload. If specified, the JWT Access Token Validator will use the private key to decrypt the JWT payload, and the public key must be exported to the Authorization Server that is issuing access tokens.
 - `evaluation_order_index` (Number) When multiple JWT Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all JWT Access Token Validators defined within Directory Server but not necessarily contiguous. JWT Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
 - `identity_mapper` (String) Specifies the name of the Identity Mapper that should be used for associating user entries with Bearer token subject names. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.

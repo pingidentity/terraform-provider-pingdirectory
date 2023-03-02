@@ -17,8 +17,6 @@ Manages a Third Party Access Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Access Log Publisher.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -26,7 +24,9 @@ Manages a Third Party Access Log Publisher.
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the associated client connection in order for a connect, disconnect, request, or result message to be logged.
 - `correlate_requests_and_results` (Boolean) Indicates whether to automatically log result messages for any operation in which the corresponding request was logged. In such cases, the result, entry, and reference criteria will be ignored, although the log-responses, log-search-entries, and log-search-references properties will be honored.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Access Log Publisher. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Access Log Publisher.
 - `log_client_certificates` (Boolean) Indicates whether to log information about any client certificates presented to the server.
 - `log_connects` (Boolean) Indicates whether to log information about connections established to the server.
 - `log_disconnects` (Boolean) Indicates whether to log information about connections that have been closed by the client or terminated by the server.

@@ -17,9 +17,7 @@ Manages a Pass Through Authentication Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
-- `server` (Set of String) Specifies the LDAP external server(s) to which authentication attempts should be forwarded.
 
 ### Optional
 
@@ -28,6 +26,7 @@ Manages a Pass Through Authentication Plugin.
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the client associated with the bind request for the bind to be passed through to an alternate server.
 - `description` (String) A description for this Plugin
 - `dn_map` (Set of String) Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `included_local_entry_base_dn` (Set of String) The base DNs for the local users whose authentication attempts may be passed through to an alternate server.
 - `initial_connections` (Number) Specifies the initial number of connections to establish to each external server against which authentication may be attempted.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
@@ -37,6 +36,7 @@ Manages a Pass Through Authentication Plugin.
 - `request_criteria` (String) Specifies a set of request criteria that must match the bind request for the bind to be passed through to an alternate server.
 - `search_base_dn` (String) The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.
 - `search_filter_pattern` (String) A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, "(mail={uid:ldapFilterEscape}@example.com)" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before "@example.com" in the mail attribute in the external server. Note that the "ldapFilterEscape" modifier should almost always be used with attributes specified in the pattern.
+- `server` (Set of String) Specifies the LDAP external server(s) to which authentication attempts should be forwarded.
 - `server_access_mode` (String) Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.
 - `try_local_bind` (Boolean) Indicates whether the bind attempt should first be attempted against the local server. Depending on the value of the override-local-password property, the bind attempt may then be attempted against a remote server if the local bind fails.
 - `update_local_password` (Boolean) Indicates whether the local password value should be updated to the value used in the bind request in the event that the local bind fails but the remote bind succeeds.

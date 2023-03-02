@@ -17,16 +17,16 @@ Manages a Jmx Connection Handler.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `id` (String) Name of this object.
-- `listen_port` (Number) Specifies the port number on which the JMX Connection Handler will listen for connections from clients.
 
 ### Optional
 
 - `allowed_client` (Set of String) Specifies a set of address masks that determines the addresses of the clients that are allowed to establish connections to this connection handler.
 - `denied_client` (Set of String) Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.
 - `description` (String) A description for this Connection Handler
+- `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `key_manager_provider` (String) Specifies the name of the key manager that should be used with this JMX Connection Handler .
+- `listen_port` (Number) Specifies the port number on which the JMX Connection Handler will listen for connections from clients.
 - `ssl_cert_nickname` (String) Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.
 - `use_ssl` (Boolean) Indicates whether the JMX Connection Handler should use SSL.
 

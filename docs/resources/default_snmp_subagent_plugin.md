@@ -17,7 +17,6 @@ Manages a Snmp Subagent Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -27,6 +26,7 @@ Manages a Snmp Subagent Plugin.
 - `connect_retry_max_wait` (String) The maximum amount of time to wait between attempts to establish a connection to the master agent.
 - `context_name` (String) The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `num_worker_threads` (Number) The number of worker threads to use to handle SNMP requests.
 - `ping_interval` (String) The amount of time between consecutive pings sent by the sub-agent on its connection to the master agent. A value of zero disables the sending of pings by the sub-agent.

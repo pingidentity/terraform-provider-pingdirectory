@@ -17,7 +17,6 @@ Manages a Syslog Based Access Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Syslog Based Access Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -27,6 +26,7 @@ Manages a Syslog Based Access Log Publisher.
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the associated client connection in order for a connect, disconnect, request, or result message to be logged.
 - `correlate_requests_and_results` (Boolean) Indicates whether to automatically log result messages for any operation in which the corresponding request was logged. In such cases, the result, entry, and reference criteria will be ignored, although the log-responses, log-search-entries, and log-search-references properties will be honored.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Syslog Based Access Log Publisher is enabled for use.
 - `generify_message_strings_when_possible` (Boolean) Indicates whether to use generified version of certain message strings, including diagnostic messages, additional information messages, authentication failure reasons, and disconnect messages. Generified versions of those strings may use placeholders (like %s for a string or %d for an integer) rather than the version of the string with those placeholders replaced with specific values.
 - `include_add_attribute_names` (Boolean) Indicates whether log messages for add requests should include a list of the names of the attributes included in the entry to add.
 - `include_extended_search_request_details` (Boolean) Indicates whether log messages for search requests should include extended information from the request, including the requested size limit, time limit, alias dereferencing behavior, and types only behavior.

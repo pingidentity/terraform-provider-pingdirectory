@@ -17,9 +17,6 @@ Manages a Purge Expired Data Plugin.
 
 ### Required
 
-- `datetime_attribute` (String) The LDAP attribute that determines when data should be deleted. This could store the expiration time, or it could store the creation time and the expiration-offset property specifies the duration before data is deleted.
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
-- `expiration_offset` (String) The duration to wait after the value specified in datetime-attribute (and optionally datetime-json-field) before purging the data.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -27,9 +24,12 @@ Manages a Purge Expired Data Plugin.
 - `base_dn` (String) Only entries located within the subtree specified by this base DN are eligible for purging.
 - `custom_datetime_format` (String) When the datetime-format property is configured with a value of "custom", this specifies the format (using a string compatible with the java.text.SimpleDateFormat class) that will be used to search for expired data.
 - `custom_timezone` (String) Specifies the time zone to use when generating a date string using the configured custom-datetime-format value. The provided value must be accepted by java.util.TimeZone.getTimeZone.
+- `datetime_attribute` (String) The LDAP attribute that determines when data should be deleted. This could store the expiration time, or it could store the creation time and the expiration-offset property specifies the duration before data is deleted.
 - `datetime_format` (String) Specifies the format of the datetime stored within the entry that determines when data should be purged.
 - `datetime_json_field` (String) The top-level JSON field within the configured datetime-attribute that determines when data should be deleted. This could store the expiration time, or it could store the creation time and the expiration-offset property specifies the duration before data is deleted.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
+- `expiration_offset` (String) The duration to wait after the value specified in datetime-attribute (and optionally datetime-json-field) before purging the data.
 - `filter` (String) Only entries that match this LDAP filter will be eligible for having data purged.
 - `max_updates_per_second` (Number) This setting smooths out the performance impact on the server by throttling the purging to the specified maximum number of updates per second. To avoid a large backlog, this value should be set comfortably above the average rate that expired data is generated. When purge-behavior is set to subtree-delete-entries, then deletion of the entire subtree is considered a single update for the purposes of throttling.
 - `num_delete_threads` (Number) The number of threads used to delete expired entries.

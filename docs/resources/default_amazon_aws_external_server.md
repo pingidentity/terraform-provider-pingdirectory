@@ -17,12 +17,12 @@ Manages a Amazon Aws External Server.
 
 ### Required
 
-- `aws_region_name` (String) The name of the AWS region containing the resources that will be accessed.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided. If this is not provided, then no aws-secret-access-key may be configured, and the server must be running in an EC2 instance that is configured with an IAM role with permission to perform the necessary operations.
+- `aws_region_name` (String) The name of the AWS region containing the resources that will be accessed.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided. If this is not provided, then no aws-access-key-id may be configured, and the server must be running in an EC2 instance that is configured with an IAM role with permission to perform the necessary operations.
 - `description` (String) A description for this External Server
 

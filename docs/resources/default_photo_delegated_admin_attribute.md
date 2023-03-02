@@ -18,7 +18,6 @@ Manages a Photo Delegated Admin Attribute.
 ### Required
 
 - `attribute_type` (String) Specifies the name or OID of the LDAP attribute type.
-- `display_name` (String) A human readable display name for this Delegated Admin Attribute.
 - `rest_resource_type_name` (String) Name of the parent REST Resource Type
 
 ### Optional
@@ -28,6 +27,7 @@ Manages a Photo Delegated Admin Attribute.
 - `attribute_presentation` (String) Indicates how the attribute is presented to the user of the app.
 - `date_time_format` (String) Specifies the format string that is used to present a date and/or time value to the user of the app. This property only applies to LDAP attribute types whose LDAP syntax is GeneralizedTime and is ignored if the attribute type has any other syntax.
 - `description` (String) A description for this Delegated Admin Attribute
+- `display_name` (String) A human readable display name for this Delegated Admin Attribute.
 - `display_order_index` (Number) This property determines a display order for attributes within a given attribute category. Attributes are ordered within their category based on this index from least to greatest.
 - `multi_valued` (Boolean) Indicates whether this Delegated Admin Attribute may have multiple values.
 - `mutability` (String) Specifies the circumstances under which the values of the attribute can be written.

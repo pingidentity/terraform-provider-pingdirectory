@@ -17,14 +17,14 @@ Manages a Third Party Identity Mapper.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
-- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Identity Mapper.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `description` (String) A description for this Identity Mapper
+- `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Identity Mapper. Each configuration property should be given in the form 'name=value'.
+- `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Identity Mapper.
 
 ### Read-Only
 

@@ -17,12 +17,12 @@ Manages a Clean Up Expired Pingfederate Persistent Sessions Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `base_dn` (String) Only entries located within the subtree specified by this base DN are eligible for purging.
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `max_updates_per_second` (Number) This setting smooths out the performance impact on the server by throttling the purging to the specified maximum number of updates per second. To avoid a large backlog, this value should be set comfortably above the average rate that expired data is generated. When purge-behavior is set to subtree-delete-entries, then deletion of the entire subtree is considered a single update for the purposes of throttling.
 - `num_delete_threads` (Number) The number of threads used to delete expired entries.
 - `peer_server_priority_index` (Number) In a replicated environment, this determines the order in which peer servers should attempt to purge data.

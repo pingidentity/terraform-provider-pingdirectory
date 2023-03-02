@@ -17,15 +17,14 @@ Manages a Groovy Scripted Access Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `id` (String) Name of this object.
-- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Access Log Publisher.
 
 ### Optional
 
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the associated client connection in order for a connect, disconnect, request, or result message to be logged.
 - `correlate_requests_and_results` (Boolean) Indicates whether to automatically log result messages for any operation in which the corresponding request was logged. In such cases, the result, entry, and reference criteria will be ignored, although the log-responses, log-search-entries, and log-search-references properties will be honored.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Log Publisher is enabled for use.
 - `log_client_certificates` (Boolean) Indicates whether to log information about any client certificates presented to the server.
 - `log_connects` (Boolean) Indicates whether to log information about connections established to the server.
 - `log_disconnects` (Boolean) Indicates whether to log information about connections that have been closed by the client or terminated by the server.
@@ -39,6 +38,7 @@ Manages a Groovy Scripted Access Log Publisher.
 - `request_criteria` (String) Specifies a set of request criteria that must match the associated operation request in order for a request or result to be logged by this Access Log Publisher.
 - `result_criteria` (String) Specifies a set of result criteria that must match the associated operation result in order for that result to be logged by this Access Log Publisher.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Access Log Publisher. Each configuration property should be given in the form 'name=value'.
+- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Access Log Publisher.
 - `search_entry_criteria` (String) Specifies a set of search entry criteria that must match the associated search result entry in order for that it to be logged by this Access Log Publisher.
 - `search_reference_criteria` (String) Specifies a set of search reference criteria that must match the associated search result reference in order for that it to be logged by this Access Log Publisher.
 - `suppress_internal_operations` (Boolean) Indicates whether internal operations (for example, operations that are initiated by plugins) should be logged along with the operations that are requested by users.

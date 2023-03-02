@@ -17,13 +17,13 @@ Manages a Debug Target.
 
 ### Required
 
-- `debug_level` (String) Specifies the lowest severity level of debug messages to log.
 - `debug_scope` (String) Specifies the fully-qualified Java package, class, or method affected by the settings in this target definition. Use the number character (#) to separate the class name and the method name (that is, com.unboundid.directory.server.core.DirectoryServer#startUp).
 - `log_publisher_name` (String) Name of the parent Log Publisher
 
 ### Optional
 
 - `debug_category` (Set of String) Specifies the debug message categories to be logged.
+- `debug_level` (String) Specifies the lowest severity level of debug messages to log.
 - `description` (String) A description for this Debug Target
 - `include_throwable_cause` (Boolean) Specifies the property to indicate whether to include the cause of exceptions in exception thrown and caught messages.
 - `omit_method_entry_arguments` (Boolean) Specifies the property to indicate whether to include method arguments in debug messages.

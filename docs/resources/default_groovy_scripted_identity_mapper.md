@@ -17,14 +17,14 @@ Manages a Groovy Scripted Identity Mapper.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
 - `id` (String) Name of this object.
-- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Identity Mapper.
 
 ### Optional
 
 - `description` (String) A description for this Identity Mapper
+- `enabled` (Boolean) Indicates whether the Identity Mapper is enabled for use.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Identity Mapper. Each configuration property should be given in the form 'name=value'.
+- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Identity Mapper.
 
 ### Read-Only
 

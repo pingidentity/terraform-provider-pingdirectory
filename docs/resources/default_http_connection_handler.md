@@ -17,9 +17,7 @@ Manages a Http Connection Handler.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `id` (String) Name of this object.
-- `listen_port` (Number) Specifies the port number on which the HTTP Connection Handler will listen for connections from clients.
 
 ### Optional
 
@@ -29,6 +27,7 @@ Manages a Http Connection Handler.
 - `correlation_id_response_header` (String) Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are "Correlation-Id", "X-Amzn-Trace-Id", and "X-Request-Id".
 - `description` (String) A description for this Connection Handler
 - `enable_multipart_mime_parameters` (Boolean) Determines whether request form parameters submitted in multipart/ form-data (RFC 2388) format should be processed as request parameters.
+- `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
 - `http_operation_log_publisher` (Set of String) Specifies the set of HTTP operation loggers that should be used to log information about requests and responses for operations processed through this HTTP Connection Handler.
 - `http_request_header_size` (Number) Specifies the maximum buffer size of an http request including the request uri and all of the request headers.
 - `http_servlet_extension` (Set of String) Specifies information about servlets that will be provided via this connection handler.
@@ -36,6 +35,7 @@ Manages a Http Connection Handler.
 - `keep_stats` (Boolean) Indicates whether to enable statistics collection for this connection handler.
 - `key_manager_provider` (String) Specifies the key manager provider that will be used to obtain the certificate to present to HTTPS clients.
 - `listen_address` (String) Specifies the address on which to listen for connections from HTTP clients. If no value is defined, the server will listen on all addresses on all interfaces.
+- `listen_port` (Number) Specifies the port number on which the HTTP Connection Handler will listen for connections from clients.
 - `low_resources_connection_threshold` (Number) Specifies the number of connections, which if exceeded, places this handler in a low resource state where a different idle time limit is applied on the connections.
 - `low_resources_idle_time_limit` (String) Specifies the maximum idle time for a connection when this handler is in a low resource state as defined by low-resource-connections. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.
 - `num_request_handlers` (Number) Specifies the number of threads that will be used for accepting connections and reading requests from clients.

@@ -17,14 +17,14 @@ Manages a Delay Plugin.
 
 ### Required
 
-- `delay` (String) The delay to inject for operations matching the associated criteria.
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
 - `connection_criteria` (String) Specifies a set of connection criteria used to indicate that only operations from clients matching this criteria should be subject to the configured delay.
+- `delay` (String) The delay to inject for operations matching the associated criteria.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
 - `request_criteria` (String) Specifies a set of request criteria used to indicate that only operations for requests matching this criteria should be subject to the configured delay.

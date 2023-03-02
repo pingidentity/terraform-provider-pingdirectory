@@ -17,10 +17,7 @@ Manages a Dn Mapper Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
-- `source_dn` (String) Specifies the source DN that may appear in client requests which should be remapped to the target DN. Note that the source DN must not be equal to the target DN.
-- `target_dn` (String) Specifies the DN to which the source DN should be mapped. Note that the target DN must not be equal to the source DN.
 
 ### Optional
 
@@ -28,9 +25,12 @@ Manages a Dn Mapper Plugin.
 - `description` (String) A description for this Plugin
 - `enable_attribute_mapping` (Boolean) Indicates whether DN mapping should be applied to the values of attributes with appropriate syntaxes.
 - `enable_control_mapping` (Boolean) Indicates whether DN mapping should be applied to DNs that may be present in specific controls. DN mapping will only be applied for control types which are specifically supported by the DN mapper plugin.
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `map_attribute` (Set of String) Specifies a set of specific attributes for which DN mapping should be applied. This will only be applicable if the enable-attribute-mapping property has a value of "true". Any attributes listed must be defined in the server schema with either the distinguished name syntax or the name and optional UID syntax.
 - `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.
+- `source_dn` (String) Specifies the source DN that may appear in client requests which should be remapped to the target DN. Note that the source DN must not be equal to the target DN.
+- `target_dn` (String) Specifies the DN to which the source DN should be mapped. Note that the target DN must not be equal to the source DN.
 
 ### Read-Only
 

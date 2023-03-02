@@ -17,7 +17,6 @@ Manages a Delegated Admin Rights.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Delegated Admin Rights is enabled.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -25,6 +24,7 @@ Manages a Delegated Admin Rights.
 - `admin_group_dn` (String) Specifies the DN of a group of administrative users who have authority to manage resources. Either admin-user-dn or admin-group-dn must be specified, but not both.
 - `admin_user_dn` (String) Specifies the DN of an administrative user who has authority to manage resources. Either admin-user-dn or admin-group-dn must be specified, but not both.
 - `description` (String) A description for this Delegated Admin Rights
+- `enabled` (Boolean) Indicates whether the Delegated Admin Rights is enabled.
 
 ### Read-Only
 

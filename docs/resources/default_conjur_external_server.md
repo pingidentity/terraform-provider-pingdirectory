@@ -17,13 +17,13 @@ Manages a Conjur External Server.
 
 ### Required
 
-- `conjur_account_name` (String) The name of the account with which the desired secrets are associated.
-- `conjur_authentication_method` (String) The mechanism used to authenticate to the Conjur server.
-- `conjur_server_base_uri` (Set of String) The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol ("http" or "https"), the server address (resolvable name or IP address), and the port number. For example, "https://conjur.example.com:8443/".
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `conjur_account_name` (String) The name of the account with which the desired secrets are associated.
+- `conjur_authentication_method` (String) The mechanism used to authenticate to the Conjur server.
+- `conjur_server_base_uri` (Set of String) The base URL needed to access the CyberArk Conjur server. The base URL should consist of the protocol ("http" or "https"), the server address (resolvable name or IP address), and the port number. For example, "https://conjur.example.com:8443/".
 - `description` (String) A description for this External Server
 - `trust_store_file` (String) The path to a file containing the information needed to trust the certificate presented by the Conjur servers.
 - `trust_store_pin` (String, Sensitive) The PIN needed to access the contents of the trust store. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.

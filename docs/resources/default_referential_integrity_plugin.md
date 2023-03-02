@@ -17,14 +17,14 @@ Manages a Referential Integrity Plugin.
 
 ### Required
 
-- `attribute_type` (Set of String) Specifies the attribute types for which referential integrity is to be maintained.
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
 
+- `attribute_type` (Set of String) Specifies the attribute types for which referential integrity is to be maintained.
 - `base_dn` (Set of String) Specifies the base DN that limits the scope within which referential integrity is maintained.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.
 - `log_file` (String) Specifies the log file location where the update records are written when the plug-in is in background-mode processing.
 - `plugin_type` (Set of String) Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.

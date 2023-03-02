@@ -17,18 +17,18 @@ Manages a Search Shutdown Plugin.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
-- `filter` (String) The filter to use for the search.
 - `id` (String) Name of this object.
-- `output_file` (String) The path of an LDIF file that should be created with the results of the search.
-- `scope` (String) The scope to use for the search.
 
 ### Optional
 
 - `base_dn` (String) The base DN to use for the search.
 - `description` (String) A description for this Plugin
+- `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
+- `filter` (String) The filter to use for the search.
 - `include_attribute` (Set of String) The name of an attribute that should be included in the results. This may include any token which is allowed as a requested attribute in search requests, including the name of an attribute, an asterisk (to indicate all user attributes), a plus sign (to indicate all operational attributes), an object class name preceded with an at symbol (to indicate all attributes associated with that object class), an attribute name preceded by a caret (to indicate that attribute should be excluded), or an object class name preceded by a caret and an at symbol (to indicate that all attributes associated with that object class should be excluded).
+- `output_file` (String) The path of an LDIF file that should be created with the results of the search.
 - `previous_file_extension` (String) An extension that should be appended to the name of an existing output file rather than deleting it. If a file already exists with the full previous file name, then it will be deleted before the current file is renamed to become the previous file.
+- `scope` (String) The scope to use for the search.
 
 ### Read-Only
 

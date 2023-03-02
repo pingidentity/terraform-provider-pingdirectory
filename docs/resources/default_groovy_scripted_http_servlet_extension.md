@@ -18,7 +18,6 @@ Manages a Groovy Scripted Http Servlet Extension.
 ### Required
 
 - `id` (String) Name of this object.
-- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted HTTP Servlet Extension.
 
 ### Optional
 
@@ -27,6 +26,7 @@ Manages a Groovy Scripted Http Servlet Extension.
 - `description` (String) A description for this HTTP Servlet Extension
 - `response_header` (Set of String) Specifies HTTP header fields and values added to response headers for all requests.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted HTTP Servlet Extension. Each configuration property should be given in the form 'name=value'.
+- `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted HTTP Servlet Extension.
 
 ### Read-Only
 

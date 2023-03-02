@@ -17,7 +17,6 @@ Manages a Syslog Based Error Log Publisher.
 
 ### Required
 
-- `enabled` (Boolean) Indicates whether the Syslog Based Error Log Publisher is enabled for use.
 - `id` (String) Name of this object.
 
 ### Optional
@@ -26,6 +25,7 @@ Manages a Syslog Based Error Log Publisher.
 - `auto_flush` (Boolean) Specifies whether to flush the writer after every log record.
 - `default_severity` (Set of String) Specifies the default severity levels for the logger.
 - `description` (String) A description for this Log Publisher
+- `enabled` (Boolean) Indicates whether the Syslog Based Error Log Publisher is enabled for use.
 - `logging_error_behavior` (String) Specifies the behavior that the server should exhibit if an error occurs during logging processing.
 - `override_severity` (Set of String) Specifies the override severity levels for the logger based on the category of the messages.
 - `queue_size` (Number) The maximum number of log records that can be stored in the asynchronous queue.
