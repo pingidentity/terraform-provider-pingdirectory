@@ -142,10 +142,10 @@ func thirdPartyErrorLogPublisherSchema(ctx context.Context, req resource.SchemaR
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 

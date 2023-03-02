@@ -136,10 +136,10 @@ func groovyScriptedHttpServletExtensionSchema(ctx context.Context, req resource.
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 

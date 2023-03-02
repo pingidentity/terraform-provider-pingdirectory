@@ -362,10 +362,10 @@ func adminAlertAccessLogPublisherSchema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 

@@ -174,10 +174,10 @@ func pluggablePassThroughAuthenticationPluginSchema(ctx context.Context, req res
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 

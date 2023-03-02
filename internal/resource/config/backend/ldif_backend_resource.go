@@ -93,8 +93,7 @@ func (r *ldifBackendResource) Schema(ctx context.Context, req resource.SchemaReq
 			},
 			"backend_id": schema.StringAttribute{
 				Description: "Specifies a name to identify the associated backend.",
-				Optional:    true,
-				Computed:    true,
+				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

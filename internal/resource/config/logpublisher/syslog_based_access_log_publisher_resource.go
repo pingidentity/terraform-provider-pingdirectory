@@ -380,10 +380,10 @@ func syslogBasedAccessLogPublisherSchema(ctx context.Context, req resource.Schem
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 

@@ -126,10 +126,10 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
 		SetAllAttributesToOptionalAndComputed(&schema, []string{"unique_id"})
 	}
+	AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 

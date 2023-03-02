@@ -140,10 +140,10 @@ func cleanUpInactivePingfederatePersistentSessionsPluginSchema(ctx context.Conte
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
+	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
 }
 

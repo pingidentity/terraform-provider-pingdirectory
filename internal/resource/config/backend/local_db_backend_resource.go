@@ -452,10 +452,10 @@ func localDbBackendSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"backend_id"})
 	}
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 

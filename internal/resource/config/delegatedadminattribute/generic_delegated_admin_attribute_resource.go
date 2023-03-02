@@ -176,10 +176,10 @@ func genericDelegatedAdminAttributeSchema(ctx context.Context, req resource.Sche
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
 		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"attribute_type", "rest_resource_type_name"})
 	}
+	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
 }
 
