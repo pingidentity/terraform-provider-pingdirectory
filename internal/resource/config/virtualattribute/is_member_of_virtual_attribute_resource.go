@@ -192,7 +192,7 @@ func isMemberOfVirtualAttributeSchema(ctx context.Context, req resource.SchemaRe
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

@@ -313,7 +313,7 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	}
 	AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

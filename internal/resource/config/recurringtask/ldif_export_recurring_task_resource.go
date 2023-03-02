@@ -213,7 +213,7 @@ func ldifExportRecurringTaskSchema(ctx context.Context, req resource.SchemaReque
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

@@ -179,7 +179,7 @@ func certificateDelegatedAdminAttributeSchema(ctx context.Context, req resource.
 	}
 	config.AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"attribute_type", "rest_resource_type_name"})
 	}
 	resp.Schema = schema
 }

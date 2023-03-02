@@ -106,7 +106,7 @@ func locationSchema(ctx context.Context, req resource.SchemaRequest, resp *resou
 	}
 	AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

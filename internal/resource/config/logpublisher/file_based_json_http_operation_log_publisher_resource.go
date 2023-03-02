@@ -326,7 +326,7 @@ func fileBasedJsonHttpOperationLogPublisherSchema(ctx context.Context, req resou
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

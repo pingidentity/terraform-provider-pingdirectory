@@ -162,7 +162,7 @@ func availabilityStateHttpServletExtensionSchema(ctx context.Context, req resour
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

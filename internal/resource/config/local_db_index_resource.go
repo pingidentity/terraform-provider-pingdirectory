@@ -181,7 +181,7 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	}
 	AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"attribute", "backend_name"})
 	}
 	resp.Schema = schema
 }

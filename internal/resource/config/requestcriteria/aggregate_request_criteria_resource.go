@@ -135,7 +135,7 @@ func aggregateRequestCriteriaSchema(ctx context.Context, req resource.SchemaRequ
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

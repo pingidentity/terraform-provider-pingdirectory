@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
 
 // Get attrtype map for the requiredActions returned by the config API
@@ -66,33 +67,48 @@ func AddCommonSchema(s *schema.Schema, idRequired bool) {
 	}
 }
 
-func SetOptionalAttributesToComputed(s *schema.Schema) {
+func SetAllAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []string) {
 	for key, attribute := range s.Attributes {
 		// If more attribute types are used by this provider, this method will need to be updated
-		if attribute.IsOptional() {
+		if !internaltypes.StringSliceContains(exemptAttributes, key) {
 			stringAttr, ok := attribute.(schema.StringAttribute)
 			if ok {
+				stringAttr.Required = false
+				stringAttr.Optional = true
 				stringAttr.Computed = true
+				s.Attributes[key] = stringAttr
 				continue
 			}
 			setAttr, ok := attribute.(schema.SetAttribute)
 			if ok {
+				setAttr.Required = false
+				setAttr.Optional = true
 				setAttr.Computed = true
+				s.Attributes[key] = setAttr
 				continue
 			}
 			boolAttr, ok := attribute.(schema.BoolAttribute)
 			if ok {
+				boolAttr.Required = false
+				boolAttr.Optional = true
 				boolAttr.Computed = true
+				s.Attributes[key] = boolAttr
 				continue
 			}
 			intAttr, ok := attribute.(schema.Int64Attribute)
 			if ok {
+				intAttr.Required = false
+				intAttr.Optional = true
 				intAttr.Computed = true
+				s.Attributes[key] = intAttr
 				continue
 			}
 			floatAttr, ok := attribute.(schema.Float64Attribute)
 			if ok {
+				floatAttr.Required = false
+				floatAttr.Optional = true
 				floatAttr.Computed = true
+				s.Attributes[key] = floatAttr
 				continue
 			}
 			panic("No valid schema attribute type found when setting attributes to computed: " + key)

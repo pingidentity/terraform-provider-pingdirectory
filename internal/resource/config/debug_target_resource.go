@@ -161,7 +161,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 	}
 	AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"debug_scope", "log_publisher_name"})
 	}
 	resp.Schema = schema
 }

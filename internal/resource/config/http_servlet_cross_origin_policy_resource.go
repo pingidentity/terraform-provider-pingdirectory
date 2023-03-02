@@ -146,7 +146,7 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 	}
 	AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

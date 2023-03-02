@@ -141,7 +141,7 @@ func thirdPartyAccessTokenValidatorSchema(ctx context.Context, req resource.Sche
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

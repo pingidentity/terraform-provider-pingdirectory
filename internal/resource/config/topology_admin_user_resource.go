@@ -313,7 +313,7 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

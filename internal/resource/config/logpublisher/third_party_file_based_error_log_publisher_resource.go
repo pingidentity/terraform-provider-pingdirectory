@@ -235,7 +235,7 @@ func thirdPartyFileBasedErrorLogPublisherSchema(ctx context.Context, req resourc
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

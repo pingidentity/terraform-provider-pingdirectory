@@ -121,7 +121,7 @@ func delegatedAdminRightsSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

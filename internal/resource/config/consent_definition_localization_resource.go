@@ -140,7 +140,7 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 	}
 	AddCommonSchema(&schema, false)
 	if setOptionalToComputed {
-		SetOptionalAttributesToComputed(&schema)
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"locale", "consent_definition_name"})
 	}
 	resp.Schema = schema
 }

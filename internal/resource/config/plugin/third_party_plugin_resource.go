@@ -141,7 +141,7 @@ func thirdPartyPluginSchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

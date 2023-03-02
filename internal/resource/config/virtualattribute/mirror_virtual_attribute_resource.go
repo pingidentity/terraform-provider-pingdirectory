@@ -195,7 +195,7 @@ func mirrorVirtualAttributeSchema(ctx context.Context, req resource.SchemaReques
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }

@@ -146,7 +146,7 @@ func searchShutdownPluginSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	config.AddCommonSchema(&schema, true)
 	if setOptionalToComputed {
-		config.SetOptionalAttributesToComputed(&schema)
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	resp.Schema = schema
 }
