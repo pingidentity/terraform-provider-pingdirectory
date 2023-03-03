@@ -1,0 +1,21 @@
+name: Generate CHANGELOG
+on:
+  workflow_dispatch:
+jobs:
+  GenerateChangelog:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: cd scripts && ./scripts/generate-changelog.sh
+      - run: |
+          if [[ `git status --porcelain` ]]; then
+            MSG="Update CHANGELOG.md triggered by ${{ github.actor }}"
+            git config --local user.email changelogbot@pingidentity.com
+            git config --local user.name changelogbot
+            git add CHANGELOG.md
+            git commit -m "$MSG" 
+            git push
+          fi
