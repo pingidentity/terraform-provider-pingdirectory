@@ -12,7 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -24,6 +27,9 @@ var (
 	_ resource.Resource                = &localDbBackendResource{}
 	_ resource.ResourceWithConfigure   = &localDbBackendResource{}
 	_ resource.ResourceWithImportState = &localDbBackendResource{}
+	_ resource.Resource                = &defaultLocalDbBackendResource{}
+	_ resource.ResourceWithConfigure   = &defaultLocalDbBackendResource{}
+	_ resource.ResourceWithImportState = &defaultLocalDbBackendResource{}
 )
 
 // Create a Local Db Backend resource
@@ -31,8 +37,18 @@ func NewLocalDbBackendResource() resource.Resource {
 	return &localDbBackendResource{}
 }
 
+func NewDefaultLocalDbBackendResource() resource.Resource {
+	return &defaultLocalDbBackendResource{}
+}
+
 // localDbBackendResource is the resource implementation.
 type localDbBackendResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLocalDbBackendResource is the resource implementation.
+type defaultLocalDbBackendResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -42,8 +58,22 @@ func (r *localDbBackendResource) Metadata(_ context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_local_db_backend"
 }
 
+func (r *defaultLocalDbBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_local_db_backend"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *localDbBackendResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultLocalDbBackendResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -120,6 +150,14 @@ type localDbBackendResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *localDbBackendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	localDbBackendSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLocalDbBackendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	localDbBackendSchema(ctx, req, resp, true)
+}
+
+func localDbBackendSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Local Db Backend.",
 		Attributes: map[string]schema.Attribute{
@@ -127,6 +165,9 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies the cache mode that should be used when accessing the records in the uncached-id2entry database, which provides a way to store complete or partial encoded entries with a different (and presumably less memory-intensive) cache mode than records written to id2entry.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"uncached_attribute_criteria": schema.StringAttribute{
 				Description: "The criteria that will be used to identify attributes that should be written into the uncached-id2entry database rather than the id2entry database. This will only be used for entries in which the associated uncached-entry-criteria does not indicate that the entire entry should be uncached.",
@@ -140,246 +181,390 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies the behavior that the backend should use when processing write operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"set_degraded_alert_for_untrusted_index": schema.BoolAttribute{
 				Description: "Determines whether the Directory Server enters a DEGRADED state when this Local DB Backend has an index whose contents cannot be trusted.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"return_unavailable_for_untrusted_index": schema.BoolAttribute{
 				Description: "Determines whether the Directory Server returns UNAVAILABLE for any LDAP search operation in this Local DB Backend that would use an index whose contents cannot be trusted.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"process_filters_with_undefined_attribute_types": schema.BoolAttribute{
 				Description: "Determines whether the Directory Server should continue filter processing for LDAP search operations in this Local DB Backend that includes a search filter with an attribute that is not defined in the schema. This will only apply if check-schema is enabled in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"is_private_backend": schema.BoolAttribute{
 				Description: "Indicates whether this backend should be considered a private backend in the server. Private backends are meant for storing server-internal information and should not be used for user or application data.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_directory": schema.StringAttribute{
 				Description: "Specifies the path to the filesystem directory that is used to hold the Berkeley DB Java Edition database files containing the data for this backend. The files for this backend are stored in a sub-directory named after the backend-id.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_directory_permissions": schema.StringAttribute{
 				Description: "Specifies the permissions that should be applied to the directory containing the backend database files and to directories and files created during backup or LDIF export of the backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"compact_common_parent_dn": schema.SetAttribute{
 				Description: "Provides a DN of an entry that may be the parent for a large number of entries in the backend. This may be used to help increase the space efficiency when encoding entries for storage.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"compress_entries": schema.BoolAttribute{
 				Description: "Indicates whether the backend should attempt to compress entries before storing them in the database.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"hash_entries": schema.BoolAttribute{
 				Description: "Indicates whether to calculate and store a message digest of the entry contents along with the entry data, in order to provide a means of verifying the integrity of the entry data.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_num_cleaner_threads": schema.Int64Attribute{
 				Description: "Specifies the number of threads that the backend should maintain to keep the database log files at or near the desired utilization. A value of zero indicates that the number of cleaner threads should be automatically configured based on the number of available CPUs.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_cleaner_min_utilization": schema.Int64Attribute{
 				Description: "Specifies the minimum percentage of \"live\" data that the database cleaner attempts to keep in database log files.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_evictor_critical_percentage": schema.Int64Attribute{
 				Description: "Specifies the percentage over the configured maximum that the database cache is allowed to grow. It is recommended to set this value slightly above zero when the database is too large to fully cache in memory. In this case, a dedicated background evictor thread is used to perform evictions once the cache fills up reducing the possibility that server threads are blocked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_checkpointer_wakeup_interval": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that should pass between checkpoints.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_background_sync_interval": schema.StringAttribute{
 				Description: "Specifies the interval to use when performing background synchronous writes in the database environment in order to smooth overall write performance and increase data durability. A value of \"0 s\" will disable background synchronous writes.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_use_thread_local_handles": schema.BoolAttribute{
 				Description: "Indicates whether to use thread-local database handles to reduce contention in the backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_log_file_max": schema.StringAttribute{
 				Description: "Specifies the maximum size for a database log file.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_logging_level": schema.StringAttribute{
 				Description: "Specifies the log level that should be used by the database when it is writing information into the je.info file.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"je_property": schema.SetAttribute{
 				Description: "Specifies the database and environment properties for the Berkeley DB Java Edition database serving the data for this backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"db_cache_percent": schema.Int64Attribute{
 				Description: "Specifies the percentage of JVM memory to allocate to the database cache.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used for any database for which the cache mode is not explicitly specified. This includes the id2entry database, which stores encoded entries, and all attribute indexes.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"id2entry_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2entry database, which provides a mapping between entry IDs and entry contents. Consider configuring uncached entries or uncached attributes in lieu of changing from the \"cache-keys-and-values\" default value.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"dn2id_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2id database, which provides a mapping between normalized entry DNs and the corresponding entry IDs.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"id2children_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2children database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its immediate children. This index may be used when performing searches with a single-level scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"id2subtree_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the id2subtree database, which provides a mapping between the entry ID of a particular entry and the entry IDs of all of its children to any depth. This index may be used when performing searches with a whole-subtree or subordinate-subtree scope if the search filter cannot be resolved to a small enough candidate list. The size of this database directly depends on the number of entries that have children.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"dn2uri_cache_mode": schema.StringAttribute{
 				Description: "Specifies the cache mode that should be used when accessing the records in the dn2uri database, which provides a mapping between a normalized entry DN and a set of referral URLs contained in the associated smart referral entry.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"prime_method": schema.SetAttribute{
 				Description: "Specifies the method that should be used to prime caches with data for this backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"prime_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use when priming. At present, this applies only to the preload and cursor-across-indexes prime methods.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"prime_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that the backend prime should be allowed to run. A duration of zero seconds indicates that there should not be a time limit.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"prime_all_indexes": schema.BoolAttribute{
 				Description: "Indicates whether to prime all indexes associated with this backend, or to only prime the specified set of indexes (as configured with the system-index-to-prime property for the system indexes, and the prime-index property in the attribute index definition for attribute indexes).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"system_index_to_prime": schema.SetAttribute{
 				Description: "Specifies which system index(es) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"system_index_to_prime_internal_nodes_only": schema.SetAttribute{
 				Description: "Specifies the system index(es) for which internal database nodes only (i.e., the database keys but not values) should be primed when the backend is initialized.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"background_prime": schema.BoolAttribute{
 				Description: "Indicates whether to attempt to perform the prime using a background thread if possible. If background priming is enabled, then the Directory Server may be allowed to accept client connections and process requests while the prime is in progress.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"composite_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that are allowed to match a given composite index key before that particular composite index key is no longer maintained.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"id2children_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2children system index (which keeps track of the immediate children for an entry, to assist in otherwise unindexed searches with a single-level scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"id2subtree_index_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entry IDs to maintain for each entry in the id2subtree system index (which keeps track of all descendants below an entry, to assist in otherwise unindexed searches with a whole-subtree or subordinate subtree scope). A value of 0 means there is no limit, however this could have a big impact on database size on disk and on server performance.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"import_temp_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to hold temporary information during the index post-processing phase of an LDIF import.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"import_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use for concurrent processing during an LDIF import.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"export_thread_count": schema.Int64Attribute{
 				Description: "Specifies the number of threads to use for concurrently retrieving and encoding entries during an LDIF export.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_import_cache_percent": schema.Int64Attribute{
 				Description: "The percentage of JVM memory to allocate to the database cache during import operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"db_txn_write_no_sync": schema.BoolAttribute{
 				Description: "Indicates whether the database should synchronously flush data as it is written to disk.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"deadlock_retry_limit": schema.Int64Attribute{
 				Description: "Specifies the number of times that the server should retry an attempted operation in the backend if a deadlock results from two concurrent requests that interfere with each other in a conflicting manner.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"external_txn_default_backend_lock_behavior": schema.StringAttribute{
 				Description: "Specifies the default behavior that should be exhibited by external transactions (e.g., an LDAP transaction or an atomic multi-update operation) with regard to acquiring an exclusive lock in this backend.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"single_writer_lock_behavior": schema.StringAttribute{
 				Description: "Specifies the condition under which to acquire a single-writer lock to ensure that the associated operation will be the only write in progress at the time the lock is held. The single-writer lock can help avoid problems that result from database lock conflicts that arise between two write operations being processed at the same time in the same backend. This will not have any effect on the read operations processed while the write is in progress.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"subtree_delete_size_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that may be deleted from the backend when using the subtree delete control.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"num_recent_changes": schema.Int64Attribute{
 				Description: "Specifies the number of recent LDAP entry changes per replica for which the backend keeps a record to allow replication to recover in the event that the server is abruptly terminated. Increasing this value can lead to an increased peak server modification rate as well as increased replication throughput.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"offline_process_database_open_timeout": schema.StringAttribute{
 				Description: "Specifies a timeout duration which will be used for opening the database environment by an offline process, such as export-ldif.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"backend_id": schema.StringAttribute{
 				Description: "Specifies a name to identify the associated backend.",
@@ -405,17 +590,26 @@ func (r *localDbBackendResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Determines whether the Directory Server enters a DEGRADED state (and sends a corresponding alert) when this Backend is disabled.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"return_unavailable_when_disabled": schema.BoolAttribute{
 				Description: "Determines whether any LDAP operation that would use this Backend is to return UNAVAILABLE when this Backend is disabled.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"notification_manager": schema.StringAttribute{
 				Description: "Specifies a notification manager for changes resulting from operations processed through this Backend",
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"backend_id"})
 	}
 	config.AddCommonSchema(&schema, false)
 	resp.Schema = schema
@@ -936,8 +1130,79 @@ func (r *localDbBackendResource) Create(ctx context.Context, req resource.Create
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLocalDbBackendResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan localDbBackendResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Backend", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state localDbBackendResourceModel
+	readLocalDbBackendResponse(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
+	ops := createLocalDbBackendOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Backend", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLocalDbBackend(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state localDbBackendResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -946,8 +1211,8 @@ func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.BackendApi.GetBackend(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.BackendID.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Backend", err, httpResp)
 		return
@@ -972,6 +1237,14 @@ func (r *localDbBackendResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Update a resource
 func (r *localDbBackendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbBackendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLocalDbBackend(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan localDbBackendResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -983,8 +1256,8 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state localDbBackendResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
+	updateRequest := apiClient.BackendApi.UpdateBackend(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocalDbBackendOperations(plan, state)
@@ -993,7 +1266,7 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.BackendApi.UpdateBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Backend", err, httpResp)
 			return
@@ -1021,6 +1294,12 @@ func (r *localDbBackendResource) Update(ctx context.Context, req resource.Update
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLocalDbBackendResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *localDbBackendResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state localDbBackendResourceModel
@@ -1039,6 +1318,14 @@ func (r *localDbBackendResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *localDbBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLocalDbBackend(ctx, req, resp)
+}
+
+func (r *defaultLocalDbBackendResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLocalDbBackend(ctx, req, resp)
+}
+
+func importLocalDbBackend(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to backend_id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("backend_id"), req, resp)
 }

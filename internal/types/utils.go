@@ -20,10 +20,20 @@ func IsDefined(value attr.Value) bool {
 	return !value.IsNull() && !value.IsUnknown()
 }
 
-// Check if a slice contains a value
+// Check if an attribute slice contains a value
 func Contains(slice []attr.Value, value attr.Value) bool {
 	for _, element := range slice {
 		if element.Equal(value) {
+			return true
+		}
+	}
+	return false
+}
+
+// Check if a string slice contains a value
+func StringSliceContains(slice []string, value string) bool {
+	for _, element := range slice {
+		if element == value {
 			return true
 		}
 	}

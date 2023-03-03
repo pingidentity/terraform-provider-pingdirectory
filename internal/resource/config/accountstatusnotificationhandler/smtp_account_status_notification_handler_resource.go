@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &smtpAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithConfigure   = &smtpAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithImportState = &smtpAccountStatusNotificationHandlerResource{}
+	_ resource.Resource                = &defaultSmtpAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultSmtpAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultSmtpAccountStatusNotificationHandlerResource{}
 )
 
 // Create a Smtp Account Status Notification Handler resource
@@ -29,8 +36,18 @@ func NewSmtpAccountStatusNotificationHandlerResource() resource.Resource {
 	return &smtpAccountStatusNotificationHandlerResource{}
 }
 
+func NewDefaultSmtpAccountStatusNotificationHandlerResource() resource.Resource {
+	return &defaultSmtpAccountStatusNotificationHandlerResource{}
+}
+
 // smtpAccountStatusNotificationHandlerResource is the resource implementation.
 type smtpAccountStatusNotificationHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSmtpAccountStatusNotificationHandlerResource is the resource implementation.
+type defaultSmtpAccountStatusNotificationHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *smtpAccountStatusNotificationHandlerResource) Metadata(_ context.Contex
 	resp.TypeName = req.ProviderTypeName + "_smtp_account_status_notification_handler"
 }
 
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_smtp_account_status_notification_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *smtpAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -73,6 +104,14 @@ type smtpAccountStatusNotificationHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *smtpAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	smtpAccountStatusNotificationHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	smtpAccountStatusNotificationHandlerSchema(ctx, req, resp, true)
+}
+
+func smtpAccountStatusNotificationHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Smtp Account Status Notification Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -80,6 +119,9 @@ func (r *smtpAccountStatusNotificationHandlerResource) Schema(ctx context.Contex
 				Description: "Specifies which attribute in the user's entries may be used to obtain the email address when notifying the end user.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_address_json_field": schema.StringAttribute{
@@ -94,12 +136,18 @@ func (r *smtpAccountStatusNotificationHandlerResource) Schema(ctx context.Contex
 				Description: "Specifies an email address to which notification messages are sent, either instead of or in addition to the end user for whom the notification has been generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"send_message_without_end_user_address": schema.BoolAttribute{
 				Description: "Indicates whether an email notification message should be generated and sent to the set of notification recipients even if the user entry does not contain any values for any of the email address attributes (that is, in cases when it is not possible to notify the end user).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"sender_address": schema.StringAttribute{
 				Description: "Specifies the email address from which the message is sent. Note that this does not necessarily have to be a legitimate email address.",
@@ -127,18 +175,30 @@ func (r *smtpAccountStatusNotificationHandlerResource) Schema(ctx context.Contex
 				Description: "Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -287,8 +347,79 @@ func (r *smtpAccountStatusNotificationHandlerResource) Create(ctx context.Contex
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan smtpAccountStatusNotificationHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Smtp Account Status Notification Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state smtpAccountStatusNotificationHandlerResourceModel
+	readSmtpAccountStatusNotificationHandlerResponse(ctx, readResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSmtpAccountStatusNotificationHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Smtp Account Status Notification Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSmtpAccountStatusNotificationHandlerResponse(ctx, updateResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *smtpAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSmtpAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSmtpAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSmtpAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state smtpAccountStatusNotificationHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -297,8 +428,8 @@ func (r *smtpAccountStatusNotificationHandlerResource) Read(ctx context.Context,
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Smtp Account Status Notification Handler", err, httpResp)
 		return
@@ -323,6 +454,14 @@ func (r *smtpAccountStatusNotificationHandlerResource) Read(ctx context.Context,
 
 // Update a resource
 func (r *smtpAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSmtpAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSmtpAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSmtpAccountStatusNotificationHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan smtpAccountStatusNotificationHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -334,8 +473,8 @@ func (r *smtpAccountStatusNotificationHandlerResource) Update(ctx context.Contex
 	// Get the current state to see how any attributes are changing
 	var state smtpAccountStatusNotificationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSmtpAccountStatusNotificationHandlerOperations(plan, state)
@@ -344,7 +483,7 @@ func (r *smtpAccountStatusNotificationHandlerResource) Update(ctx context.Contex
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Smtp Account Status Notification Handler", err, httpResp)
 			return
@@ -372,6 +511,12 @@ func (r *smtpAccountStatusNotificationHandlerResource) Update(ctx context.Contex
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *smtpAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state smtpAccountStatusNotificationHandlerResourceModel
@@ -390,6 +535,14 @@ func (r *smtpAccountStatusNotificationHandlerResource) Delete(ctx context.Contex
 }
 
 func (r *smtpAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSmtpAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func (r *defaultSmtpAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSmtpAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func importSmtpAccountStatusNotificationHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

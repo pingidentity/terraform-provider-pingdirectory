@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &uniqueAttributePluginResource{}
 	_ resource.ResourceWithConfigure   = &uniqueAttributePluginResource{}
 	_ resource.ResourceWithImportState = &uniqueAttributePluginResource{}
+	_ resource.Resource                = &defaultUniqueAttributePluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultUniqueAttributePluginResource{}
+	_ resource.ResourceWithImportState = &defaultUniqueAttributePluginResource{}
 )
 
 // Create a Unique Attribute Plugin resource
@@ -29,8 +36,18 @@ func NewUniqueAttributePluginResource() resource.Resource {
 	return &uniqueAttributePluginResource{}
 }
 
+func NewDefaultUniqueAttributePluginResource() resource.Resource {
+	return &defaultUniqueAttributePluginResource{}
+}
+
 // uniqueAttributePluginResource is the resource implementation.
 type uniqueAttributePluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultUniqueAttributePluginResource is the resource implementation.
+type defaultUniqueAttributePluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *uniqueAttributePluginResource) Metadata(_ context.Context, req resource
 	resp.TypeName = req.ProviderTypeName + "_unique_attribute_plugin"
 }
 
+func (r *defaultUniqueAttributePluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_unique_attribute_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *uniqueAttributePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultUniqueAttributePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -69,6 +100,14 @@ type uniqueAttributePluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *uniqueAttributePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	uniqueAttributePluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultUniqueAttributePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	uniqueAttributePluginSchema(ctx, req, resp, true)
+}
+
+func uniqueAttributePluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Unique Attribute Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -76,6 +115,9 @@ func (r *uniqueAttributePluginResource) Schema(ctx context.Context, req resource
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"type": schema.SetAttribute{
@@ -87,17 +129,26 @@ func (r *uniqueAttributePluginResource) Schema(ctx context.Context, req resource
 				Description: "The behavior to exhibit if multiple attribute types are specified.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies a base DN within which the attribute must be unique.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"prevent_conflicts_with_soft_deleted_entries": schema.BoolAttribute{
 				Description: "Indicates whether this Unique Attribute Plugin should reject a change that would result in one or more conflicts, even if those conflicts only exist in soft-deleted entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"filter": schema.StringAttribute{
 				Description: "Specifies the search filter to apply to determine if attribute uniqueness is enforced for the matching entries.",
@@ -115,8 +166,14 @@ func (r *uniqueAttributePluginResource) Schema(ctx context.Context, req resource
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -261,8 +318,79 @@ func (r *uniqueAttributePluginResource) Create(ctx context.Context, req resource
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultUniqueAttributePluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan uniqueAttributePluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Unique Attribute Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state uniqueAttributePluginResourceModel
+	readUniqueAttributePluginResponse(ctx, readResponse.UniqueAttributePluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createUniqueAttributePluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Unique Attribute Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readUniqueAttributePluginResponse(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *uniqueAttributePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUniqueAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUniqueAttributePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUniqueAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readUniqueAttributePlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state uniqueAttributePluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -271,8 +399,8 @@ func (r *uniqueAttributePluginResource) Read(ctx context.Context, req resource.R
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Unique Attribute Plugin", err, httpResp)
 		return
@@ -297,6 +425,14 @@ func (r *uniqueAttributePluginResource) Read(ctx context.Context, req resource.R
 
 // Update a resource
 func (r *uniqueAttributePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUniqueAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUniqueAttributePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUniqueAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateUniqueAttributePlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan uniqueAttributePluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -308,8 +444,8 @@ func (r *uniqueAttributePluginResource) Update(ctx context.Context, req resource
 	// Get the current state to see how any attributes are changing
 	var state uniqueAttributePluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createUniqueAttributePluginOperations(plan, state)
@@ -318,7 +454,7 @@ func (r *uniqueAttributePluginResource) Update(ctx context.Context, req resource
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Unique Attribute Plugin", err, httpResp)
 			return
@@ -346,6 +482,12 @@ func (r *uniqueAttributePluginResource) Update(ctx context.Context, req resource
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultUniqueAttributePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *uniqueAttributePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state uniqueAttributePluginResourceModel
@@ -364,6 +506,14 @@ func (r *uniqueAttributePluginResource) Delete(ctx context.Context, req resource
 }
 
 func (r *uniqueAttributePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importUniqueAttributePlugin(ctx, req, resp)
+}
+
+func (r *defaultUniqueAttributePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importUniqueAttributePlugin(ctx, req, resp)
+}
+
+func importUniqueAttributePlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

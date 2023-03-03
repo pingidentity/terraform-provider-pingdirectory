@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +24,9 @@ var (
 	_ resource.Resource                = &aggregateConnectionCriteriaResource{}
 	_ resource.ResourceWithConfigure   = &aggregateConnectionCriteriaResource{}
 	_ resource.ResourceWithImportState = &aggregateConnectionCriteriaResource{}
+	_ resource.Resource                = &defaultAggregateConnectionCriteriaResource{}
+	_ resource.ResourceWithConfigure   = &defaultAggregateConnectionCriteriaResource{}
+	_ resource.ResourceWithImportState = &defaultAggregateConnectionCriteriaResource{}
 )
 
 // Create a Aggregate Connection Criteria resource
@@ -29,8 +34,18 @@ func NewAggregateConnectionCriteriaResource() resource.Resource {
 	return &aggregateConnectionCriteriaResource{}
 }
 
+func NewDefaultAggregateConnectionCriteriaResource() resource.Resource {
+	return &defaultAggregateConnectionCriteriaResource{}
+}
+
 // aggregateConnectionCriteriaResource is the resource implementation.
 type aggregateConnectionCriteriaResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultAggregateConnectionCriteriaResource is the resource implementation.
+type defaultAggregateConnectionCriteriaResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +55,22 @@ func (r *aggregateConnectionCriteriaResource) Metadata(_ context.Context, req re
 	resp.TypeName = req.ProviderTypeName + "_aggregate_connection_criteria"
 }
 
+func (r *defaultAggregateConnectionCriteriaResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_aggregate_connection_criteria"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *aggregateConnectionCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultAggregateConnectionCriteriaResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -65,6 +94,14 @@ type aggregateConnectionCriteriaResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *aggregateConnectionCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	aggregateConnectionCriteriaSchema(ctx, req, resp, false)
+}
+
+func (r *defaultAggregateConnectionCriteriaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	aggregateConnectionCriteriaSchema(ctx, req, resp, true)
+}
+
+func aggregateConnectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Aggregate Connection Criteria.",
 		Attributes: map[string]schema.Attribute{
@@ -72,24 +109,36 @@ func (r *aggregateConnectionCriteriaResource) Schema(ctx context.Context, req re
 				Description: "Specifies a connection criteria object that must match the associated client connection in order to match the aggregate connection criteria. If one or more all-included connection criteria objects are provided, then a client connection must match all of them in order to match the aggregate connection criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"any_included_connection_criteria": schema.SetAttribute{
 				Description: "Specifies a connection criteria object that may match the associated client connection in order to match the aggregate connection criteria. If one or more any-included connection criteria objects are provided, then a client connection must match at least one of them in order to match the aggregate connection criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"not_all_included_connection_criteria": schema.SetAttribute{
 				Description: "Specifies a connection criteria object that should not match the associated client connection in order to match the aggregate connection criteria. If one or more not-all-included connection criteria objects are provided, then a client connection must not match all of them (that is, it may match zero or more of them, but it must not match all of them) in order to match the aggregate connection criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"none_included_connection_criteria": schema.SetAttribute{
 				Description: "Specifies a connection criteria object that must not match the associated client connection in order to match the aggregate connection criteria. If one or more none-included connection criteria objects are provided, then a client connection must not match any of them in order to match the aggregate connection criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -97,6 +146,9 @@ func (r *aggregateConnectionCriteriaResource) Schema(ctx context.Context, req re
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -203,8 +255,79 @@ func (r *aggregateConnectionCriteriaResource) Create(ctx context.Context, req re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultAggregateConnectionCriteriaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan aggregateConnectionCriteriaResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Aggregate Connection Criteria", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state aggregateConnectionCriteriaResourceModel
+	readAggregateConnectionCriteriaResponse(ctx, readResponse.AggregateConnectionCriteriaResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createAggregateConnectionCriteriaOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteriaExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Aggregate Connection Criteria", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readAggregateConnectionCriteriaResponse(ctx, updateResponse.AggregateConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *aggregateConnectionCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAggregateConnectionCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAggregateConnectionCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAggregateConnectionCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAggregateConnectionCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state aggregateConnectionCriteriaResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -213,8 +336,8 @@ func (r *aggregateConnectionCriteriaResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Aggregate Connection Criteria", err, httpResp)
 		return
@@ -239,6 +362,14 @@ func (r *aggregateConnectionCriteriaResource) Read(ctx context.Context, req reso
 
 // Update a resource
 func (r *aggregateConnectionCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAggregateConnectionCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAggregateConnectionCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAggregateConnectionCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAggregateConnectionCriteria(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan aggregateConnectionCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -250,8 +381,8 @@ func (r *aggregateConnectionCriteriaResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state aggregateConnectionCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAggregateConnectionCriteriaOperations(plan, state)
@@ -260,7 +391,7 @@ func (r *aggregateConnectionCriteriaResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConnectionCriteriaApi.UpdateConnectionCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Aggregate Connection Criteria", err, httpResp)
 			return
@@ -288,6 +419,12 @@ func (r *aggregateConnectionCriteriaResource) Update(ctx context.Context, req re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultAggregateConnectionCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *aggregateConnectionCriteriaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state aggregateConnectionCriteriaResourceModel
@@ -306,6 +443,14 @@ func (r *aggregateConnectionCriteriaResource) Delete(ctx context.Context, req re
 }
 
 func (r *aggregateConnectionCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAggregateConnectionCriteria(ctx, req, resp)
+}
+
+func (r *defaultAggregateConnectionCriteriaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAggregateConnectionCriteria(ctx, req, resp)
+}
+
+func importAggregateConnectionCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

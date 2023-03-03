@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &syslogExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &syslogExternalServerResource{}
 	_ resource.ResourceWithImportState = &syslogExternalServerResource{}
+	_ resource.Resource                = &defaultSyslogExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultSyslogExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultSyslogExternalServerResource{}
 )
 
 // Create a Syslog External Server resource
@@ -29,8 +35,18 @@ func NewSyslogExternalServerResource() resource.Resource {
 	return &syslogExternalServerResource{}
 }
 
+func NewDefaultSyslogExternalServerResource() resource.Resource {
+	return &defaultSyslogExternalServerResource{}
+}
+
 // syslogExternalServerResource is the resource implementation.
 type syslogExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSyslogExternalServerResource is the resource implementation.
+type defaultSyslogExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *syslogExternalServerResource) Metadata(_ context.Context, req resource.
 	resp.TypeName = req.ProviderTypeName + "_syslog_external_server"
 }
 
+func (r *defaultSyslogExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_syslog_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *syslogExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSyslogExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +97,14 @@ type syslogExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *syslogExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSyslogExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogExternalServerSchema(ctx, req, resp, true)
+}
+
+func syslogExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Syslog External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -78,6 +116,9 @@ func (r *syslogExternalServerResource) Schema(ctx context.Context, req resource.
 				Description: "The port on which the syslog server accepts connections.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"transport_mechanism": schema.StringAttribute{
 				Description: "The transport mechanism that should be used when communicating with the syslog server.",
@@ -87,22 +128,34 @@ func (r *syslogExternalServerResource) Schema(ctx context.Context, req resource.
 				Description: "Specifies the maximum length of time to wait for a connection to be established before giving up and considering the server unavailable. This will only be used when communicating with the syslog server over TCP (with or without TLS encryption).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"max_connection_age": schema.StringAttribute{
 				Description: "The maximum length of time that TCP connections should remain established. This will be ignored for UDP-based connections. A zero duration indicates that no maximum age will be imposed.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "A trust manager provider that will be used to determine whether to trust the certificate chain presented by the syslog server when communication is encrypted with TLS. This property will be ignored when not using TLS encryption.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this External Server",
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -223,8 +276,79 @@ func (r *syslogExternalServerResource) Create(ctx context.Context, req resource.
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSyslogExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan syslogExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state syslogExternalServerResourceModel
+	readSyslogExternalServerResponse(ctx, readResponse.SyslogExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSyslogExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSyslogExternalServerResponse(ctx, updateResponse.SyslogExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *syslogExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSyslogExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state syslogExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -233,8 +357,8 @@ func (r *syslogExternalServerResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog External Server", err, httpResp)
 		return
@@ -259,6 +383,14 @@ func (r *syslogExternalServerResource) Read(ctx context.Context, req resource.Re
 
 // Update a resource
 func (r *syslogExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSyslogExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan syslogExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -270,8 +402,8 @@ func (r *syslogExternalServerResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state syslogExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSyslogExternalServerOperations(plan, state)
@@ -280,7 +412,7 @@ func (r *syslogExternalServerResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog External Server", err, httpResp)
 			return
@@ -308,6 +440,12 @@ func (r *syslogExternalServerResource) Update(ctx context.Context, req resource.
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSyslogExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *syslogExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state syslogExternalServerResourceModel
@@ -326,6 +464,14 @@ func (r *syslogExternalServerResource) Delete(ctx context.Context, req resource.
 }
 
 func (r *syslogExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogExternalServer(ctx, req, resp)
+}
+
+func (r *defaultSyslogExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogExternalServer(ctx, req, resp)
+}
+
+func importSyslogExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

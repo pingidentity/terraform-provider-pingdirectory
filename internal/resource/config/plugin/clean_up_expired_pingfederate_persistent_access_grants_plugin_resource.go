@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
 	_ resource.ResourceWithConfigure   = &cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
 	_ resource.ResourceWithImportState = &cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
+	_ resource.Resource                = &defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
+	_ resource.ResourceWithImportState = &defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
 )
 
 // Create a Clean Up Expired Pingfederate Persistent Access Grants Plugin resource
@@ -29,8 +35,18 @@ func NewCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource() resourc
 	return &cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
 }
 
+func NewDefaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource() resource.Resource {
+	return &defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource{}
+}
+
 // cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource is the resource implementation.
 type cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource is the resource implementation.
+type defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Metadat
 	resp.TypeName = req.ProviderTypeName + "_clean_up_expired_pingfederate_persistent_access_grants_plugin"
 }
 
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_clean_up_expired_pingfederate_persistent_access_grants_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -66,6 +96,14 @@ type cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel struct 
 
 // GetSchema defines the schema for the resource.
 func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	cleanUpExpiredPingfederatePersistentAccessGrantsPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	cleanUpExpiredPingfederatePersistentAccessGrantsPluginSchema(ctx, req, resp, true)
+}
+
+func cleanUpExpiredPingfederatePersistentAccessGrantsPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Clean Up Expired Pingfederate Persistent Access Grants Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -73,32 +111,50 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Schema(
 				Description: "This specifies how often the plugin should check for expired data. It also controls the offset of peer servers (see the peer-server-priority-index for more information).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"peer_server_priority_index": schema.Int64Attribute{
 				Description: "In a replicated environment, this determines the order in which peer servers should attempt to purge data.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"base_dn": schema.StringAttribute{
 				Description: "Only entries located within the subtree specified by this base DN are eligible for purging.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"max_updates_per_second": schema.Int64Attribute{
 				Description: "This setting smooths out the performance impact on the server by throttling the purging to the specified maximum number of updates per second. To avoid a large backlog, this value should be set comfortably above the average rate that expired data is generated. When purge-behavior is set to subtree-delete-entries, then deletion of the entire subtree is considered a single update for the purposes of throttling.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"num_delete_threads": schema.Int64Attribute{
 				Description: "The number of threads used to delete expired entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether the plug-in is enabled for use.",
 				Required:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -207,8 +263,79 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Create(
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Clean Up Expired Pingfederate Persistent Access Grants Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel
+	readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx, readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createCleanUpExpiredPingfederatePersistentAccessGrantsPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Clean Up Expired Pingfederate Persistent Access Grants Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -217,8 +344,8 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Read(ct
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Clean Up Expired Pingfederate Persistent Access Grants Plugin", err, httpResp)
 		return
@@ -243,6 +370,14 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Read(ct
 
 // Update a resource
 func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -254,8 +389,8 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Update(
 	// Get the current state to see how any attributes are changing
 	var state cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCleanUpExpiredPingfederatePersistentAccessGrantsPluginOperations(plan, state)
@@ -264,7 +399,7 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Update(
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Clean Up Expired Pingfederate Persistent Access Grants Plugin", err, httpResp)
 			return
@@ -292,6 +427,12 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Update(
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel
@@ -310,6 +451,14 @@ func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) Delete(
 }
 
 func (r *cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx, req, resp)
+}
+
+func (r *defaultCleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx, req, resp)
+}
+
+func importCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

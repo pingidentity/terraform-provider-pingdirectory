@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &groovyScriptedHttpOperationLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedHttpOperationLogPublisherResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedHttpOperationLogPublisherResource{}
+	_ resource.Resource                = &defaultGroovyScriptedHttpOperationLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedHttpOperationLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedHttpOperationLogPublisherResource{}
 )
 
 // Create a Groovy Scripted Http Operation Log Publisher resource
@@ -29,8 +35,18 @@ func NewGroovyScriptedHttpOperationLogPublisherResource() resource.Resource {
 	return &groovyScriptedHttpOperationLogPublisherResource{}
 }
 
+func NewDefaultGroovyScriptedHttpOperationLogPublisherResource() resource.Resource {
+	return &defaultGroovyScriptedHttpOperationLogPublisherResource{}
+}
+
 // groovyScriptedHttpOperationLogPublisherResource is the resource implementation.
 type groovyScriptedHttpOperationLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedHttpOperationLogPublisherResource is the resource implementation.
+type defaultGroovyScriptedHttpOperationLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Metadata(_ context.Con
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_http_operation_log_publisher"
 }
 
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_http_operation_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -65,6 +95,14 @@ type groovyScriptedHttpOperationLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedHttpOperationLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedHttpOperationLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedHttpOperationLogPublisherSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedHttpOperationLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Http Operation Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -76,6 +114,9 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Schema(ctx context.Con
 				Description: "The set of arguments used to customize the behavior for the Scripted HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -90,8 +131,14 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Schema(ctx context.Con
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -199,8 +246,79 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Create(ctx context.Con
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedHttpOperationLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Http Operation Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedHttpOperationLogPublisherResourceModel
+	readGroovyScriptedHttpOperationLogPublisherResponse(ctx, readResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedHttpOperationLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Http Operation Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedHttpOperationLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedHttpOperationLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedHttpOperationLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -209,8 +327,8 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Read(ctx context.Conte
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Http Operation Log Publisher", err, httpResp)
 		return
@@ -235,6 +353,14 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Read(ctx context.Conte
 
 // Update a resource
 func (r *groovyScriptedHttpOperationLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedHttpOperationLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedHttpOperationLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -246,8 +372,8 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Update(ctx context.Con
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedHttpOperationLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedHttpOperationLogPublisherOperations(plan, state)
@@ -256,7 +382,7 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Update(ctx context.Con
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Http Operation Log Publisher", err, httpResp)
 			return
@@ -284,6 +410,12 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Update(ctx context.Con
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedHttpOperationLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedHttpOperationLogPublisherResourceModel
@@ -302,6 +434,14 @@ func (r *groovyScriptedHttpOperationLogPublisherResource) Delete(ctx context.Con
 }
 
 func (r *groovyScriptedHttpOperationLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedHttpOperationLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedHttpOperationLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedHttpOperationLogPublisher(ctx, req, resp)
+}
+
+func importGroovyScriptedHttpOperationLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

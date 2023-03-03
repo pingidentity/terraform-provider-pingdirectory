@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &jdbcExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &jdbcExternalServerResource{}
 	_ resource.ResourceWithImportState = &jdbcExternalServerResource{}
+	_ resource.Resource                = &defaultJdbcExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultJdbcExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultJdbcExternalServerResource{}
 )
 
 // Create a Jdbc External Server resource
@@ -29,8 +35,18 @@ func NewJdbcExternalServerResource() resource.Resource {
 	return &jdbcExternalServerResource{}
 }
 
+func NewDefaultJdbcExternalServerResource() resource.Resource {
+	return &defaultJdbcExternalServerResource{}
+}
+
 // jdbcExternalServerResource is the resource implementation.
 type jdbcExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultJdbcExternalServerResource is the resource implementation.
+type defaultJdbcExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *jdbcExternalServerResource) Metadata(_ context.Context, req resource.Me
 	resp.TypeName = req.ProviderTypeName + "_jdbc_external_server"
 }
 
+func (r *defaultJdbcExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_jdbc_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *jdbcExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultJdbcExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -73,6 +103,14 @@ type jdbcExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *jdbcExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jdbcExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultJdbcExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jdbcExternalServerSchema(ctx, req, resp, true)
+}
+
+func jdbcExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Jdbc External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -117,23 +155,35 @@ func (r *jdbcExternalServerResource) Schema(ctx context.Context, req resource.Sc
 				Description: "Specifies the amount of time to wait for a response from the database when executing the validation query, if one is set. If the timeout is exceeded, the Directory Server will drop the connection and obtain a new one. A value of zero indicates no timeout.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"jdbc_connection_properties": schema.SetAttribute{
 				Description: "Specifies the connection properties for the JDBC datasource.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"transaction_isolation_level": schema.StringAttribute{
 				Description: "This property specifies the default transaction isolation level for connections to this JDBC External Server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this External Server",
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -308,8 +358,79 @@ func (r *jdbcExternalServerResource) Create(ctx context.Context, req resource.Cr
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultJdbcExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan jdbcExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jdbc External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state jdbcExternalServerResourceModel
+	readJdbcExternalServerResponse(ctx, readResponse.JdbcExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createJdbcExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jdbc External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readJdbcExternalServerResponse(ctx, updateResponse.JdbcExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *jdbcExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJdbcExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJdbcExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJdbcExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readJdbcExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state jdbcExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -318,8 +439,8 @@ func (r *jdbcExternalServerResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jdbc External Server", err, httpResp)
 		return
@@ -344,6 +465,14 @@ func (r *jdbcExternalServerResource) Read(ctx context.Context, req resource.Read
 
 // Update a resource
 func (r *jdbcExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJdbcExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJdbcExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJdbcExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateJdbcExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan jdbcExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -355,8 +484,8 @@ func (r *jdbcExternalServerResource) Update(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state jdbcExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJdbcExternalServerOperations(plan, state)
@@ -365,7 +494,7 @@ func (r *jdbcExternalServerResource) Update(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jdbc External Server", err, httpResp)
 			return
@@ -393,6 +522,12 @@ func (r *jdbcExternalServerResource) Update(ctx context.Context, req resource.Up
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultJdbcExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *jdbcExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state jdbcExternalServerResourceModel
@@ -411,6 +546,14 @@ func (r *jdbcExternalServerResource) Delete(ctx context.Context, req resource.De
 }
 
 func (r *jdbcExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJdbcExternalServer(ctx, req, resp)
+}
+
+func (r *defaultJdbcExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJdbcExternalServer(ctx, req, resp)
+}
+
+func importJdbcExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

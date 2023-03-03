@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &adminAlertAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithConfigure   = &adminAlertAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithImportState = &adminAlertAccountStatusNotificationHandlerResource{}
+	_ resource.Resource                = &defaultAdminAlertAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultAdminAlertAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultAdminAlertAccountStatusNotificationHandlerResource{}
 )
 
 // Create a Admin Alert Account Status Notification Handler resource
@@ -29,8 +35,18 @@ func NewAdminAlertAccountStatusNotificationHandlerResource() resource.Resource {
 	return &adminAlertAccountStatusNotificationHandlerResource{}
 }
 
+func NewDefaultAdminAlertAccountStatusNotificationHandlerResource() resource.Resource {
+	return &defaultAdminAlertAccountStatusNotificationHandlerResource{}
+}
+
 // adminAlertAccountStatusNotificationHandlerResource is the resource implementation.
 type adminAlertAccountStatusNotificationHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultAdminAlertAccountStatusNotificationHandlerResource is the resource implementation.
+type defaultAdminAlertAccountStatusNotificationHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Metadata(_ context.
 	resp.TypeName = req.ProviderTypeName + "_admin_alert_account_status_notification_handler"
 }
 
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_admin_alert_account_status_notification_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *adminAlertAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -66,6 +96,14 @@ type adminAlertAccountStatusNotificationHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *adminAlertAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	adminAlertAccountStatusNotificationHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	adminAlertAccountStatusNotificationHandlerSchema(ctx, req, resp, true)
+}
+
+func adminAlertAccountStatusNotificationHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Admin Alert Account Status Notification Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -86,18 +124,30 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Schema(ctx context.
 				Description: "Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -205,8 +255,79 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Create(ctx context.
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan adminAlertAccountStatusNotificationHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Admin Alert Account Status Notification Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state adminAlertAccountStatusNotificationHandlerResourceModel
+	readAdminAlertAccountStatusNotificationHandlerResponse(ctx, readResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createAdminAlertAccountStatusNotificationHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Admin Alert Account Status Notification Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readAdminAlertAccountStatusNotificationHandlerResponse(ctx, updateResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *adminAlertAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAdminAlertAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAdminAlertAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAdminAlertAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state adminAlertAccountStatusNotificationHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -215,8 +336,8 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Read(ctx context.Co
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Admin Alert Account Status Notification Handler", err, httpResp)
 		return
@@ -241,6 +362,14 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Read(ctx context.Co
 
 // Update a resource
 func (r *adminAlertAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAdminAlertAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAdminAlertAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAdminAlertAccountStatusNotificationHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan adminAlertAccountStatusNotificationHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -252,8 +381,8 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Update(ctx context.
 	// Get the current state to see how any attributes are changing
 	var state adminAlertAccountStatusNotificationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAdminAlertAccountStatusNotificationHandlerOperations(plan, state)
@@ -262,7 +391,7 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Update(ctx context.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Admin Alert Account Status Notification Handler", err, httpResp)
 			return
@@ -290,6 +419,12 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Update(ctx context.
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *adminAlertAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state adminAlertAccountStatusNotificationHandlerResourceModel
@@ -308,6 +443,14 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Delete(ctx context.
 }
 
 func (r *adminAlertAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAdminAlertAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAdminAlertAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func importAdminAlertAccountStatusNotificationHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

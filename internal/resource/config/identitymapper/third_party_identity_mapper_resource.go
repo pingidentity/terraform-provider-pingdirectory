@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +24,9 @@ var (
 	_ resource.Resource                = &thirdPartyIdentityMapperResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyIdentityMapperResource{}
 	_ resource.ResourceWithImportState = &thirdPartyIdentityMapperResource{}
+	_ resource.Resource                = &defaultThirdPartyIdentityMapperResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyIdentityMapperResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyIdentityMapperResource{}
 )
 
 // Create a Third Party Identity Mapper resource
@@ -29,8 +34,18 @@ func NewThirdPartyIdentityMapperResource() resource.Resource {
 	return &thirdPartyIdentityMapperResource{}
 }
 
+func NewDefaultThirdPartyIdentityMapperResource() resource.Resource {
+	return &defaultThirdPartyIdentityMapperResource{}
+}
+
 // thirdPartyIdentityMapperResource is the resource implementation.
 type thirdPartyIdentityMapperResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyIdentityMapperResource is the resource implementation.
+type defaultThirdPartyIdentityMapperResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +55,22 @@ func (r *thirdPartyIdentityMapperResource) Metadata(_ context.Context, req resou
 	resp.TypeName = req.ProviderTypeName + "_third_party_identity_mapper"
 }
 
+func (r *defaultThirdPartyIdentityMapperResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_identity_mapper"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyIdentityMapperResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +93,14 @@ type thirdPartyIdentityMapperResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyIdentityMapperSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyIdentityMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyIdentityMapperSchema(ctx, req, resp, true)
+}
+
+func thirdPartyIdentityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
@@ -75,6 +112,9 @@ func (r *thirdPartyIdentityMapperResource) Schema(ctx context.Context, req resou
 				Description: "The set of arguments used to customize the behavior for the Third Party Identity Mapper. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -86,6 +126,9 @@ func (r *thirdPartyIdentityMapperResource) Schema(ctx context.Context, req resou
 				Required:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -177,8 +220,79 @@ func (r *thirdPartyIdentityMapperResource) Create(ctx context.Context, req resou
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyIdentityMapperResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyIdentityMapperResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Identity Mapper", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyIdentityMapperResourceModel
+	readThirdPartyIdentityMapperResponse(ctx, readResponse.ThirdPartyIdentityMapperResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyIdentityMapperOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Identity Mapper", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyIdentityMapperResponse(ctx, updateResponse.ThirdPartyIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyIdentityMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyIdentityMapperResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -187,8 +301,8 @@ func (r *thirdPartyIdentityMapperResource) Read(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Identity Mapper", err, httpResp)
 		return
@@ -213,6 +327,14 @@ func (r *thirdPartyIdentityMapperResource) Read(ctx context.Context, req resourc
 
 // Update a resource
 func (r *thirdPartyIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyIdentityMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyIdentityMapperResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -224,8 +346,8 @@ func (r *thirdPartyIdentityMapperResource) Update(ctx context.Context, req resou
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyIdentityMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.IdentityMapperApi.UpdateIdentityMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyIdentityMapperOperations(plan, state)
@@ -234,7 +356,7 @@ func (r *thirdPartyIdentityMapperResource) Update(ctx context.Context, req resou
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.IdentityMapperApi.UpdateIdentityMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Identity Mapper", err, httpResp)
 			return
@@ -262,6 +384,12 @@ func (r *thirdPartyIdentityMapperResource) Update(ctx context.Context, req resou
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyIdentityMapperResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyIdentityMapperResourceModel
@@ -280,6 +408,14 @@ func (r *thirdPartyIdentityMapperResource) Delete(ctx context.Context, req resou
 }
 
 func (r *thirdPartyIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyIdentityMapper(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyIdentityMapperResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyIdentityMapper(ctx, req, resp)
+}
+
+func importThirdPartyIdentityMapper(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

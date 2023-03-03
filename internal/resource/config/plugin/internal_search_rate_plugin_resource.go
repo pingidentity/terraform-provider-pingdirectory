@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &internalSearchRatePluginResource{}
 	_ resource.ResourceWithConfigure   = &internalSearchRatePluginResource{}
 	_ resource.ResourceWithImportState = &internalSearchRatePluginResource{}
+	_ resource.Resource                = &defaultInternalSearchRatePluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultInternalSearchRatePluginResource{}
+	_ resource.ResourceWithImportState = &defaultInternalSearchRatePluginResource{}
 )
 
 // Create a Internal Search Rate Plugin resource
@@ -29,8 +36,18 @@ func NewInternalSearchRatePluginResource() resource.Resource {
 	return &internalSearchRatePluginResource{}
 }
 
+func NewDefaultInternalSearchRatePluginResource() resource.Resource {
+	return &defaultInternalSearchRatePluginResource{}
+}
+
 // internalSearchRatePluginResource is the resource implementation.
 type internalSearchRatePluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultInternalSearchRatePluginResource is the resource implementation.
+type defaultInternalSearchRatePluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *internalSearchRatePluginResource) Metadata(_ context.Context, req resou
 	resp.TypeName = req.ProviderTypeName + "_internal_search_rate_plugin"
 }
 
+func (r *defaultInternalSearchRatePluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_internal_search_rate_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *internalSearchRatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultInternalSearchRatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -70,6 +101,14 @@ type internalSearchRatePluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *internalSearchRatePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	internalSearchRatePluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultInternalSearchRatePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	internalSearchRatePluginSchema(ctx, req, resp, true)
+}
+
+func internalSearchRatePluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Internal Search Rate Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -77,12 +116,18 @@ func (r *internalSearchRatePluginResource) Schema(ctx context.Context, req resou
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"num_threads": schema.Int64Attribute{
 				Description: "Specifies the number of concurrent threads that should be used to process the search operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"base_dn": schema.StringAttribute{
 				Description: "Specifies the base DN to use for the searches to perform.",
@@ -92,6 +137,9 @@ func (r *internalSearchRatePluginResource) Schema(ctx context.Context, req resou
 				Description: "Specifies the lower bound for the numeric value which will be inserted into the search filter.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"upper_bound": schema.Int64Attribute{
 				Description: "Specifies the upper bound for the numeric value which will be inserted into the search filter.",
@@ -117,8 +165,14 @@ func (r *internalSearchRatePluginResource) Schema(ctx context.Context, req resou
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -258,8 +312,79 @@ func (r *internalSearchRatePluginResource) Create(ctx context.Context, req resou
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultInternalSearchRatePluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan internalSearchRatePluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Internal Search Rate Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state internalSearchRatePluginResourceModel
+	readInternalSearchRatePluginResponse(ctx, readResponse.InternalSearchRatePluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createInternalSearchRatePluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Internal Search Rate Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readInternalSearchRatePluginResponse(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *internalSearchRatePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readInternalSearchRatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultInternalSearchRatePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readInternalSearchRatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readInternalSearchRatePlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state internalSearchRatePluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -268,8 +393,8 @@ func (r *internalSearchRatePluginResource) Read(ctx context.Context, req resourc
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Internal Search Rate Plugin", err, httpResp)
 		return
@@ -294,6 +419,14 @@ func (r *internalSearchRatePluginResource) Read(ctx context.Context, req resourc
 
 // Update a resource
 func (r *internalSearchRatePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateInternalSearchRatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultInternalSearchRatePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateInternalSearchRatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateInternalSearchRatePlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan internalSearchRatePluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -305,8 +438,8 @@ func (r *internalSearchRatePluginResource) Update(ctx context.Context, req resou
 	// Get the current state to see how any attributes are changing
 	var state internalSearchRatePluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createInternalSearchRatePluginOperations(plan, state)
@@ -315,7 +448,7 @@ func (r *internalSearchRatePluginResource) Update(ctx context.Context, req resou
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Internal Search Rate Plugin", err, httpResp)
 			return
@@ -343,6 +476,12 @@ func (r *internalSearchRatePluginResource) Update(ctx context.Context, req resou
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultInternalSearchRatePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *internalSearchRatePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state internalSearchRatePluginResourceModel
@@ -361,6 +500,14 @@ func (r *internalSearchRatePluginResource) Delete(ctx context.Context, req resou
 }
 
 func (r *internalSearchRatePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importInternalSearchRatePlugin(ctx, req, resp)
+}
+
+func (r *defaultInternalSearchRatePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importInternalSearchRatePlugin(ctx, req, resp)
+}
+
+func importInternalSearchRatePlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

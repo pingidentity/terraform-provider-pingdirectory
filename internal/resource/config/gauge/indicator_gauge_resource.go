@@ -12,6 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +27,9 @@ var (
 	_ resource.Resource                = &indicatorGaugeResource{}
 	_ resource.ResourceWithConfigure   = &indicatorGaugeResource{}
 	_ resource.ResourceWithImportState = &indicatorGaugeResource{}
+	_ resource.Resource                = &defaultIndicatorGaugeResource{}
+	_ resource.ResourceWithConfigure   = &defaultIndicatorGaugeResource{}
+	_ resource.ResourceWithImportState = &defaultIndicatorGaugeResource{}
 )
 
 // Create a Indicator Gauge resource
@@ -29,8 +37,18 @@ func NewIndicatorGaugeResource() resource.Resource {
 	return &indicatorGaugeResource{}
 }
 
+func NewDefaultIndicatorGaugeResource() resource.Resource {
+	return &defaultIndicatorGaugeResource{}
+}
+
 // indicatorGaugeResource is the resource implementation.
 type indicatorGaugeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultIndicatorGaugeResource is the resource implementation.
+type defaultIndicatorGaugeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +58,22 @@ func (r *indicatorGaugeResource) Metadata(_ context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_indicator_gauge"
 }
 
+func (r *defaultIndicatorGaugeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_indicator_gauge"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *indicatorGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultIndicatorGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -75,6 +107,14 @@ type indicatorGaugeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *indicatorGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	indicatorGaugeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultIndicatorGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	indicatorGaugeSchema(ctx, req, resp, true)
+}
+
+func indicatorGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Indicator Gauge.",
 		Attributes: map[string]schema.Attribute{
@@ -86,21 +126,33 @@ func (r *indicatorGaugeResource) Schema(ctx context.Context, req resource.Schema
 				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"major_value": schema.StringAttribute{
 				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"minor_value": schema.StringAttribute{
 				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"warning_value": schema.StringAttribute{
 				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Gauge",
@@ -110,11 +162,17 @@ func (r *indicatorGaugeResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Indicates whether this Gauge is enabled.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"override_severity": schema.StringAttribute{
 				Description: "When defined, causes this Gauge to assume the specified severity, overriding its computed severity. This is useful for testing alarms generated by Gauges as well as suppressing alarms for known conditions.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_level": schema.StringAttribute{
 				Description: "Specifies the level at which alerts are sent for alarms raised by this Gauge.",
@@ -124,35 +182,56 @@ func (r *indicatorGaugeResource) Schema(ctx context.Context, req resource.Schema
 				Description: "The frequency with which this Gauge is updated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"samples_per_update_interval": schema.Int64Attribute{
 				Description: "Indicates the number of times the monitor data source value will be collected during the update interval.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_resource": schema.SetAttribute{
 				Description: "Specifies set of resources to be monitored.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"exclude_resource": schema.SetAttribute{
 				Description: "Specifies resources to exclude from being monitored.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"server_unavailable_severity_level": schema.StringAttribute{
 				Description: "Specifies the alarm severity level at or above which the server is considered unavailable.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"server_degraded_severity_level": schema.StringAttribute{
 				Description: "Specifies the alarm severity level at or above which the server is considered degraded.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -346,8 +425,79 @@ func (r *indicatorGaugeResource) Create(ctx context.Context, req resource.Create
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultIndicatorGaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan indicatorGaugeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Indicator Gauge", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state indicatorGaugeResourceModel
+	readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.GaugeApi.UpdateGauge(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createIndicatorGaugeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Indicator Gauge", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *indicatorGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readIndicatorGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultIndicatorGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readIndicatorGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readIndicatorGauge(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state indicatorGaugeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -356,8 +506,8 @@ func (r *indicatorGaugeResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.GaugeApi.GetGauge(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Indicator Gauge", err, httpResp)
 		return
@@ -382,6 +532,14 @@ func (r *indicatorGaugeResource) Read(ctx context.Context, req resource.ReadRequ
 
 // Update a resource
 func (r *indicatorGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateIndicatorGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultIndicatorGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateIndicatorGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateIndicatorGauge(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan indicatorGaugeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -393,8 +551,8 @@ func (r *indicatorGaugeResource) Update(ctx context.Context, req resource.Update
 	// Get the current state to see how any attributes are changing
 	var state indicatorGaugeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.GaugeApi.UpdateGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.GaugeApi.UpdateGauge(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createIndicatorGaugeOperations(plan, state)
@@ -403,7 +561,7 @@ func (r *indicatorGaugeResource) Update(ctx context.Context, req resource.Update
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Indicator Gauge", err, httpResp)
 			return
@@ -431,6 +589,12 @@ func (r *indicatorGaugeResource) Update(ctx context.Context, req resource.Update
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultIndicatorGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *indicatorGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state indicatorGaugeResourceModel
@@ -449,6 +613,14 @@ func (r *indicatorGaugeResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *indicatorGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importIndicatorGauge(ctx, req, resp)
+}
+
+func (r *defaultIndicatorGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importIndicatorGauge(ctx, req, resp)
+}
+
+func importIndicatorGauge(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

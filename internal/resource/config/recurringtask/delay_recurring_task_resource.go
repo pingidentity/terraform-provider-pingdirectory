@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &delayRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &delayRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &delayRecurringTaskResource{}
+	_ resource.Resource                = &defaultDelayRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultDelayRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultDelayRecurringTaskResource{}
 )
 
 // Create a Delay Recurring Task resource
@@ -29,8 +36,18 @@ func NewDelayRecurringTaskResource() resource.Resource {
 	return &delayRecurringTaskResource{}
 }
 
+func NewDefaultDelayRecurringTaskResource() resource.Resource {
+	return &defaultDelayRecurringTaskResource{}
+}
+
 // delayRecurringTaskResource is the resource implementation.
 type delayRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultDelayRecurringTaskResource is the resource implementation.
+type defaultDelayRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *delayRecurringTaskResource) Metadata(_ context.Context, req resource.Me
 	resp.TypeName = req.ProviderTypeName + "_delay_recurring_task"
 }
 
+func (r *defaultDelayRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_delay_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *delayRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultDelayRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -75,6 +106,14 @@ type delayRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *delayRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	delayRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultDelayRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	delayRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func delayRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Delay Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -90,6 +129,9 @@ func (r *delayRecurringTaskResource) Schema(ctx context.Context, req resource.Sc
 				Description: "An LDAP URL that provides the criteria for a search request that is expected to return at least one entry. The search will be performed internally, and only the base DN, scope, and filter from the URL will be used; any host, port, or requested attributes included in the URL will be ignored.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"search_interval": schema.StringAttribute{
@@ -108,6 +150,9 @@ func (r *delayRecurringTaskResource) Schema(ctx context.Context, req resource.Sc
 				Description: "The return state to use if a timeout is encountered while waiting for the server work queue to become idle (if the duration-to-wait-for-work-queue-idle property has a value), or if the time specified by the duration-to-wait-for-search-to-return-entries elapses without the associated search returning any entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",
@@ -117,41 +162,65 @@ func (r *delayRecurringTaskResource) Schema(ctx context.Context, req resource.Sc
 				Description: "Indicates whether an instance of this Recurring Task should be canceled if the task immediately before it in the recurring task chain fails to complete successfully (including if it is canceled by an administrator before it starts or while it is running).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"email_on_start": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_on_success": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_on_failure": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"alert_on_start": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_on_success": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_on_failure": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -343,8 +412,79 @@ func (r *delayRecurringTaskResource) Create(ctx context.Context, req resource.Cr
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultDelayRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan delayRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delay Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state delayRecurringTaskResourceModel
+	readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createDelayRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delay Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readDelayRecurringTaskResponse(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *delayRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelayRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDelayRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelayRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readDelayRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state delayRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -353,8 +493,8 @@ func (r *delayRecurringTaskResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delay Recurring Task", err, httpResp)
 		return
@@ -379,6 +519,14 @@ func (r *delayRecurringTaskResource) Read(ctx context.Context, req resource.Read
 
 // Update a resource
 func (r *delayRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelayRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDelayRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelayRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateDelayRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan delayRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -390,8 +538,8 @@ func (r *delayRecurringTaskResource) Update(ctx context.Context, req resource.Up
 	// Get the current state to see how any attributes are changing
 	var state delayRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDelayRecurringTaskOperations(plan, state)
@@ -400,7 +548,7 @@ func (r *delayRecurringTaskResource) Update(ctx context.Context, req resource.Up
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delay Recurring Task", err, httpResp)
 			return
@@ -428,6 +576,12 @@ func (r *delayRecurringTaskResource) Update(ctx context.Context, req resource.Up
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultDelayRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *delayRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state delayRecurringTaskResourceModel
@@ -446,6 +600,14 @@ func (r *delayRecurringTaskResource) Delete(ctx context.Context, req resource.De
 }
 
 func (r *delayRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDelayRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultDelayRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importDelayRecurringTask(ctx, req, resp)
+}
+
+func importDelayRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

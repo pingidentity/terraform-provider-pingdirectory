@@ -11,6 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -21,6 +25,9 @@ var (
 	_ resource.Resource                = &httpServletCrossOriginPolicyResource{}
 	_ resource.ResourceWithConfigure   = &httpServletCrossOriginPolicyResource{}
 	_ resource.ResourceWithImportState = &httpServletCrossOriginPolicyResource{}
+	_ resource.Resource                = &defaultHttpServletCrossOriginPolicyResource{}
+	_ resource.ResourceWithConfigure   = &defaultHttpServletCrossOriginPolicyResource{}
+	_ resource.ResourceWithImportState = &defaultHttpServletCrossOriginPolicyResource{}
 )
 
 // Create a Http Servlet Cross Origin Policy resource
@@ -28,8 +35,18 @@ func NewHttpServletCrossOriginPolicyResource() resource.Resource {
 	return &httpServletCrossOriginPolicyResource{}
 }
 
+func NewDefaultHttpServletCrossOriginPolicyResource() resource.Resource {
+	return &defaultHttpServletCrossOriginPolicyResource{}
+}
+
 // httpServletCrossOriginPolicyResource is the resource implementation.
 type httpServletCrossOriginPolicyResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultHttpServletCrossOriginPolicyResource is the resource implementation.
+type defaultHttpServletCrossOriginPolicyResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -39,8 +56,22 @@ func (r *httpServletCrossOriginPolicyResource) Metadata(_ context.Context, req r
 	resp.TypeName = req.ProviderTypeName + "_http_servlet_cross_origin_policy"
 }
 
+func (r *defaultHttpServletCrossOriginPolicyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_http_servlet_cross_origin_policy"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *httpServletCrossOriginPolicyResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultHttpServletCrossOriginPolicyResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -66,6 +97,14 @@ type httpServletCrossOriginPolicyResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *httpServletCrossOriginPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	httpServletCrossOriginPolicySchema(ctx, req, resp, false)
+}
+
+func (r *defaultHttpServletCrossOriginPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	httpServletCrossOriginPolicySchema(ctx, req, resp, true)
+}
+
+func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Http Servlet Cross Origin Policy.",
 		Attributes: map[string]schema.Attribute{
@@ -77,37 +116,58 @@ func (r *httpServletCrossOriginPolicyResource) Schema(ctx context.Context, req r
 				Description: "A list of HTTP methods allowed for cross-origin access to resources. i.e. one or more of GET, POST, PUT, DELETE, etc.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"cors_allowed_origins": schema.SetAttribute{
 				Description: "A list of origins that are allowed to execute cross-origin requests.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"cors_exposed_headers": schema.SetAttribute{
 				Description: "A list of HTTP headers other than the simple response headers that browsers are allowed to access.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"cors_allowed_headers": schema.SetAttribute{
 				Description: "A list of HTTP headers that are supported by the resource and can be specified in a cross-origin request.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"cors_preflight_max_age": schema.StringAttribute{
 				Description: "The maximum amount of time that a preflight request can be cached by a client.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"cors_allow_credentials": schema.BoolAttribute{
 				Description: "Indicates whether the servlet extension allows CORS requests with username/password credentials.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -227,8 +287,79 @@ func (r *httpServletCrossOriginPolicyResource) Create(ctx context.Context, req r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan httpServletCrossOriginPolicyResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state httpServletCrossOriginPolicyResourceModel
+	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createHttpServletCrossOriginPolicyOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Cross Origin Policy", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readHttpServletCrossOriginPolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *httpServletCrossOriginPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpServletCrossOriginPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readHttpServletCrossOriginPolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state httpServletCrossOriginPolicyResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -237,8 +368,8 @@ func (r *httpServletCrossOriginPolicyResource) Read(ctx context.Context, req res
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
 		return
@@ -263,6 +394,14 @@ func (r *httpServletCrossOriginPolicyResource) Read(ctx context.Context, req res
 
 // Update a resource
 func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpServletCrossOriginPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateHttpServletCrossOriginPolicy(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan httpServletCrossOriginPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -274,8 +413,8 @@ func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req r
 	// Get the current state to see how any attributes are changing
 	var state httpServletCrossOriginPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createHttpServletCrossOriginPolicyOperations(plan, state)
@@ -284,7 +423,7 @@ func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Cross Origin Policy", err, httpResp)
 			return
@@ -312,6 +451,12 @@ func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultHttpServletCrossOriginPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *httpServletCrossOriginPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state httpServletCrossOriginPolicyResourceModel
@@ -330,6 +475,14 @@ func (r *httpServletCrossOriginPolicyResource) Delete(ctx context.Context, req r
 }
 
 func (r *httpServletCrossOriginPolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importHttpServletCrossOriginPolicy(ctx, req, resp)
+}
+
+func (r *defaultHttpServletCrossOriginPolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importHttpServletCrossOriginPolicy(ctx, req, resp)
+}
+
+func importHttpServletCrossOriginPolicy(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

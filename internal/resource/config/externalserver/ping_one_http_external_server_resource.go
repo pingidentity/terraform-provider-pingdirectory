@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +24,9 @@ var (
 	_ resource.Resource                = &pingOneHttpExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &pingOneHttpExternalServerResource{}
 	_ resource.ResourceWithImportState = &pingOneHttpExternalServerResource{}
+	_ resource.Resource                = &defaultPingOneHttpExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultPingOneHttpExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultPingOneHttpExternalServerResource{}
 )
 
 // Create a Ping One Http External Server resource
@@ -29,8 +34,18 @@ func NewPingOneHttpExternalServerResource() resource.Resource {
 	return &pingOneHttpExternalServerResource{}
 }
 
+func NewDefaultPingOneHttpExternalServerResource() resource.Resource {
+	return &defaultPingOneHttpExternalServerResource{}
+}
+
 // pingOneHttpExternalServerResource is the resource implementation.
 type pingOneHttpExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPingOneHttpExternalServerResource is the resource implementation.
+type defaultPingOneHttpExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +55,22 @@ func (r *pingOneHttpExternalServerResource) Metadata(_ context.Context, req reso
 	resp.TypeName = req.ProviderTypeName + "_ping_one_http_external_server"
 }
 
+func (r *defaultPingOneHttpExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_ping_one_http_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *pingOneHttpExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPingOneHttpExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -65,6 +94,14 @@ type pingOneHttpExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *pingOneHttpExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pingOneHttpExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPingOneHttpExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	pingOneHttpExternalServerSchema(ctx, req, resp, true)
+}
+
+func pingOneHttpExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Ping One Http External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -72,27 +109,42 @@ func (r *pingOneHttpExternalServerResource) Schema(ctx context.Context, req reso
 				Description: "The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use for HTTPS connection-level security.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"connect_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for a connection to be established before aborting a request to PingOne.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"response_timeout": schema.StringAttribute{
 				Description: "Specifies the maximum length of time to wait for response data to be read from an established connection before aborting a request to PingOne.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this External Server",
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -212,8 +264,79 @@ func (r *pingOneHttpExternalServerResource) Create(ctx context.Context, req reso
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPingOneHttpExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan pingOneHttpExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ping One Http External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state pingOneHttpExternalServerResourceModel
+	readPingOneHttpExternalServerResponse(ctx, readResponse.PingOneHttpExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPingOneHttpExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ping One Http External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPingOneHttpExternalServerResponse(ctx, updateResponse.PingOneHttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *pingOneHttpExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPingOneHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPingOneHttpExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPingOneHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPingOneHttpExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state pingOneHttpExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -222,8 +345,8 @@ func (r *pingOneHttpExternalServerResource) Read(ctx context.Context, req resour
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ping One Http External Server", err, httpResp)
 		return
@@ -248,6 +371,14 @@ func (r *pingOneHttpExternalServerResource) Read(ctx context.Context, req resour
 
 // Update a resource
 func (r *pingOneHttpExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePingOneHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPingOneHttpExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePingOneHttpExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePingOneHttpExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan pingOneHttpExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -259,8 +390,8 @@ func (r *pingOneHttpExternalServerResource) Update(ctx context.Context, req reso
 	// Get the current state to see how any attributes are changing
 	var state pingOneHttpExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPingOneHttpExternalServerOperations(plan, state)
@@ -269,7 +400,7 @@ func (r *pingOneHttpExternalServerResource) Update(ctx context.Context, req reso
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Ping One Http External Server", err, httpResp)
 			return
@@ -297,6 +428,12 @@ func (r *pingOneHttpExternalServerResource) Update(ctx context.Context, req reso
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPingOneHttpExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *pingOneHttpExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state pingOneHttpExternalServerResourceModel
@@ -315,6 +452,14 @@ func (r *pingOneHttpExternalServerResource) Delete(ctx context.Context, req reso
 }
 
 func (r *pingOneHttpExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPingOneHttpExternalServer(ctx, req, resp)
+}
+
+func (r *defaultPingOneHttpExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPingOneHttpExternalServer(ctx, req, resp)
+}
+
+func importPingOneHttpExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -12,6 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +27,9 @@ var (
 	_ resource.Resource                = &syslogJsonErrorLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &syslogJsonErrorLogPublisherResource{}
 	_ resource.ResourceWithImportState = &syslogJsonErrorLogPublisherResource{}
+	_ resource.Resource                = &defaultSyslogJsonErrorLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultSyslogJsonErrorLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultSyslogJsonErrorLogPublisherResource{}
 )
 
 // Create a Syslog Json Error Log Publisher resource
@@ -29,8 +37,18 @@ func NewSyslogJsonErrorLogPublisherResource() resource.Resource {
 	return &syslogJsonErrorLogPublisherResource{}
 }
 
+func NewDefaultSyslogJsonErrorLogPublisherResource() resource.Resource {
+	return &defaultSyslogJsonErrorLogPublisherResource{}
+}
+
 // syslogJsonErrorLogPublisherResource is the resource implementation.
 type syslogJsonErrorLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultSyslogJsonErrorLogPublisherResource is the resource implementation.
+type defaultSyslogJsonErrorLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +58,22 @@ func (r *syslogJsonErrorLogPublisherResource) Metadata(_ context.Context, req re
 	resp.TypeName = req.ProviderTypeName + "_syslog_json_error_log_publisher"
 }
 
+func (r *defaultSyslogJsonErrorLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_syslog_json_error_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *syslogJsonErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultSyslogJsonErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -76,6 +108,14 @@ type syslogJsonErrorLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *syslogJsonErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogJsonErrorLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultSyslogJsonErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	syslogJsonErrorLogPublisherSchema(ctx, req, resp, true)
+}
+
+func syslogJsonErrorLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Syslog Json Error Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -83,6 +123,9 @@ func (r *syslogJsonErrorLogPublisherResource) Schema(ctx context.Context, req re
 				Description: "Specifies the default severity levels for the logger.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"syslog_external_server": schema.SetAttribute{
@@ -94,56 +137,89 @@ func (r *syslogJsonErrorLogPublisherResource) Schema(ctx context.Context, req re
 				Description: "The syslog facility to use for the messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"syslog_severity": schema.StringAttribute{
 				Description: "The syslog severity to use for the messages that are logged by this Syslog JSON Error Log Publisher. If this is not specified, then the severity for each syslog message will be automatically based on the severity for the associated log message.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"syslog_message_host_name": schema.StringAttribute{
 				Description: "The local host name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"syslog_message_application_name": schema.StringAttribute{
 				Description: "The application name that will be included in syslog messages that are logged by this Syslog JSON Error Log Publisher.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_product_name": schema.BoolAttribute{
 				Description: "Indicates whether log messages should include the product name for the Directory Server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_instance_name": schema.BoolAttribute{
 				Description: "Indicates whether log messages should include the instance name for the Directory Server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_startup_id": schema.BoolAttribute{
 				Description: "Indicates whether log messages should include the startup ID for the Directory Server, which is a value assigned to the server instance at startup and may be used to identify when the server has been restarted.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_thread_id": schema.BoolAttribute{
 				Description: "Indicates whether log messages should include the thread ID for the Directory Server in each log message. This ID can be used to correlate log messages from the same thread within a single log as well as generated by the same thread across different types of log files. More information about the thread with a specific ID can be obtained using the cn=JVM Stack Trace,cn=monitor entry.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"generify_message_strings_when_possible": schema.BoolAttribute{
 				Description: "Indicates whether to use the generified version of the log message string (which may use placeholders like %s for a string or %d for an integer), rather than the version of the message with those placeholders replaced with specific values that would normally be written to the log.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"override_severity": schema.SetAttribute{
 				Description: "Specifies the override severity levels for the logger based on the category of the messages.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -158,8 +234,14 @@ func (r *syslogJsonErrorLogPublisherResource) Schema(ctx context.Context, req re
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -356,8 +438,79 @@ func (r *syslogJsonErrorLogPublisherResource) Create(ctx context.Context, req re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultSyslogJsonErrorLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan syslogJsonErrorLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Json Error Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state syslogJsonErrorLogPublisherResourceModel
+	readSyslogJsonErrorLogPublisherResponse(ctx, readResponse.SyslogJsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createSyslogJsonErrorLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Json Error Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readSyslogJsonErrorLogPublisherResponse(ctx, updateResponse.SyslogJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *syslogJsonErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogJsonErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogJsonErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSyslogJsonErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSyslogJsonErrorLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state syslogJsonErrorLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -366,8 +519,8 @@ func (r *syslogJsonErrorLogPublisherResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Syslog Json Error Log Publisher", err, httpResp)
 		return
@@ -392,6 +545,14 @@ func (r *syslogJsonErrorLogPublisherResource) Read(ctx context.Context, req reso
 
 // Update a resource
 func (r *syslogJsonErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogJsonErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSyslogJsonErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSyslogJsonErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSyslogJsonErrorLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan syslogJsonErrorLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -403,8 +564,8 @@ func (r *syslogJsonErrorLogPublisherResource) Update(ctx context.Context, req re
 	// Get the current state to see how any attributes are changing
 	var state syslogJsonErrorLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSyslogJsonErrorLogPublisherOperations(plan, state)
@@ -413,7 +574,7 @@ func (r *syslogJsonErrorLogPublisherResource) Update(ctx context.Context, req re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Syslog Json Error Log Publisher", err, httpResp)
 			return
@@ -441,6 +602,12 @@ func (r *syslogJsonErrorLogPublisherResource) Update(ctx context.Context, req re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultSyslogJsonErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *syslogJsonErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state syslogJsonErrorLogPublisherResourceModel
@@ -459,6 +626,14 @@ func (r *syslogJsonErrorLogPublisherResource) Delete(ctx context.Context, req re
 }
 
 func (r *syslogJsonErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogJsonErrorLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultSyslogJsonErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importSyslogJsonErrorLogPublisher(ctx, req, resp)
+}
+
+func importSyslogJsonErrorLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

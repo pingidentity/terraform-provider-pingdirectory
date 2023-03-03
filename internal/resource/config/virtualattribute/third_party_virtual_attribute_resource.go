@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &thirdPartyVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &thirdPartyVirtualAttributeResource{}
+	_ resource.Resource                = &defaultThirdPartyVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyVirtualAttributeResource{}
 )
 
 // Create a Third Party Virtual Attribute resource
@@ -29,8 +36,18 @@ func NewThirdPartyVirtualAttributeResource() resource.Resource {
 	return &thirdPartyVirtualAttributeResource{}
 }
 
+func NewDefaultThirdPartyVirtualAttributeResource() resource.Resource {
+	return &defaultThirdPartyVirtualAttributeResource{}
+}
+
 // thirdPartyVirtualAttributeResource is the resource implementation.
 type thirdPartyVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyVirtualAttributeResource is the resource implementation.
+type defaultThirdPartyVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *thirdPartyVirtualAttributeResource) Metadata(_ context.Context, req res
 	resp.TypeName = req.ProviderTypeName + "_third_party_virtual_attribute"
 }
 
+func (r *defaultThirdPartyVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -74,6 +105,14 @@ type thirdPartyVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func thirdPartyVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -85,6 +124,9 @@ func (r *thirdPartyVirtualAttributeResource) Schema(ctx context.Context, req res
 				Description: "The set of arguments used to customize the behavior for the Third Party Virtual Attribute. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -103,35 +145,53 @@ func (r *thirdPartyVirtualAttributeResource) Schema(ctx context.Context, req res
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"group_dn": schema.SetAttribute{
 				Description: "Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"filter": schema.SetAttribute{
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"client_connection_policy": schema.SetAttribute{
 				Description: "Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"conflict_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"require_explicit_request_by_name": schema.BoolAttribute{
 				Description: "Indicates whether attributes of this type must be explicitly included by name in the list of requested attributes. Note that this will only apply to virtual attributes which are associated with an attribute type that is operational. It will be ignored for virtual attributes associated with a non-operational attribute type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"multiple_virtual_attribute_evaluation_order_index": schema.Int64Attribute{
 				Description: "Specifies the order in which virtual attribute definitions for the same attribute type will be evaluated when generating values for an entry.",
@@ -141,13 +201,22 @@ func (r *thirdPartyVirtualAttributeResource) Schema(ctx context.Context, req res
 				Description: "Specifies the behavior that will be exhibited for cases in which multiple virtual attribute definitions apply to the same multivalued attribute type. This will be ignored for single-valued attribute types.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allow_index_conflicts": schema.BoolAttribute{
 				Description: "Indicates whether the server should allow creating or altering this virtual attribute definition even if it conflicts with one or more indexes defined in the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -315,8 +384,79 @@ func (r *thirdPartyVirtualAttributeResource) Create(ctx context.Context, req res
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyVirtualAttributeResourceModel
+	readThirdPartyVirtualAttributeResponse(ctx, readResponse.ThirdPartyVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyVirtualAttributeResponse(ctx, updateResponse.ThirdPartyVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -325,8 +465,8 @@ func (r *thirdPartyVirtualAttributeResource) Read(ctx context.Context, req resou
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Virtual Attribute", err, httpResp)
 		return
@@ -351,6 +491,14 @@ func (r *thirdPartyVirtualAttributeResource) Read(ctx context.Context, req resou
 
 // Update a resource
 func (r *thirdPartyVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -362,8 +510,8 @@ func (r *thirdPartyVirtualAttributeResource) Update(ctx context.Context, req res
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyVirtualAttributeOperations(plan, state)
@@ -372,7 +520,7 @@ func (r *thirdPartyVirtualAttributeResource) Update(ctx context.Context, req res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Virtual Attribute", err, httpResp)
 			return
@@ -400,6 +548,12 @@ func (r *thirdPartyVirtualAttributeResource) Update(ctx context.Context, req res
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyVirtualAttributeResourceModel
@@ -418,6 +572,14 @@ func (r *thirdPartyVirtualAttributeResource) Delete(ctx context.Context, req res
 }
 
 func (r *thirdPartyVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyVirtualAttribute(ctx, req, resp)
+}
+
+func importThirdPartyVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

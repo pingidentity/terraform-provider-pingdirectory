@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &thirdPartyTrustManagerProviderResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyTrustManagerProviderResource{}
 	_ resource.ResourceWithImportState = &thirdPartyTrustManagerProviderResource{}
+	_ resource.Resource                = &defaultThirdPartyTrustManagerProviderResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyTrustManagerProviderResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyTrustManagerProviderResource{}
 )
 
 // Create a Third Party Trust Manager Provider resource
@@ -29,8 +35,18 @@ func NewThirdPartyTrustManagerProviderResource() resource.Resource {
 	return &thirdPartyTrustManagerProviderResource{}
 }
 
+func NewDefaultThirdPartyTrustManagerProviderResource() resource.Resource {
+	return &defaultThirdPartyTrustManagerProviderResource{}
+}
+
 // thirdPartyTrustManagerProviderResource is the resource implementation.
 type thirdPartyTrustManagerProviderResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyTrustManagerProviderResource is the resource implementation.
+type defaultThirdPartyTrustManagerProviderResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *thirdPartyTrustManagerProviderResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_third_party_trust_manager_provider"
 }
 
+func (r *defaultThirdPartyTrustManagerProviderResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_trust_manager_provider"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyTrustManagerProviderResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyTrustManagerProviderResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +94,14 @@ type thirdPartyTrustManagerProviderResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyTrustManagerProviderSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyTrustManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyTrustManagerProviderSchema(ctx, req, resp, true)
+}
+
+func thirdPartyTrustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Trust Manager Provider.",
 		Attributes: map[string]schema.Attribute{
@@ -75,6 +113,9 @@ func (r *thirdPartyTrustManagerProviderResource) Schema(ctx context.Context, req
 				Description: "The set of arguments used to customize the behavior for the Third Party Trust Manager Provider. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"enabled": schema.BoolAttribute{
@@ -85,8 +126,14 @@ func (r *thirdPartyTrustManagerProviderResource) Schema(ctx context.Context, req
 				Description: "Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -177,8 +224,79 @@ func (r *thirdPartyTrustManagerProviderResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyTrustManagerProviderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyTrustManagerProviderResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Trust Manager Provider", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyTrustManagerProviderResourceModel
+	readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyTrustManagerProviderOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Trust Manager Provider", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyTrustManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyTrustManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyTrustManagerProvider(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyTrustManagerProviderResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -187,8 +305,8 @@ func (r *thirdPartyTrustManagerProviderResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Trust Manager Provider", err, httpResp)
 		return
@@ -213,6 +331,14 @@ func (r *thirdPartyTrustManagerProviderResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyTrustManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyTrustManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyTrustManagerProvider(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyTrustManagerProviderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -224,8 +350,8 @@ func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyTrustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyTrustManagerProviderOperations(plan, state)
@@ -234,7 +360,7 @@ func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TrustManagerProviderApi.UpdateTrustManagerProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Trust Manager Provider", err, httpResp)
 			return
@@ -262,6 +388,12 @@ func (r *thirdPartyTrustManagerProviderResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyTrustManagerProviderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyTrustManagerProviderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyTrustManagerProviderResourceModel
@@ -280,6 +412,14 @@ func (r *thirdPartyTrustManagerProviderResource) Delete(ctx context.Context, req
 }
 
 func (r *thirdPartyTrustManagerProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyTrustManagerProvider(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyTrustManagerProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyTrustManagerProvider(ctx, req, resp)
+}
+
+func importThirdPartyTrustManagerProvider(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

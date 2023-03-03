@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &passwordPolicyStateJsonVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &passwordPolicyStateJsonVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &passwordPolicyStateJsonVirtualAttributeResource{}
+	_ resource.Resource                = &defaultPasswordPolicyStateJsonVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultPasswordPolicyStateJsonVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultPasswordPolicyStateJsonVirtualAttributeResource{}
 )
 
 // Create a Password Policy State Json Virtual Attribute resource
@@ -29,8 +35,18 @@ func NewPasswordPolicyStateJsonVirtualAttributeResource() resource.Resource {
 	return &passwordPolicyStateJsonVirtualAttributeResource{}
 }
 
+func NewDefaultPasswordPolicyStateJsonVirtualAttributeResource() resource.Resource {
+	return &defaultPasswordPolicyStateJsonVirtualAttributeResource{}
+}
+
 // passwordPolicyStateJsonVirtualAttributeResource is the resource implementation.
 type passwordPolicyStateJsonVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPasswordPolicyStateJsonVirtualAttributeResource is the resource implementation.
+type defaultPasswordPolicyStateJsonVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Metadata(_ context.Con
 	resp.TypeName = req.ProviderTypeName + "_password_policy_state_json_virtual_attribute"
 }
 
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_password_policy_state_json_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *passwordPolicyStateJsonVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -68,6 +98,14 @@ type passwordPolicyStateJsonVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *passwordPolicyStateJsonVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	passwordPolicyStateJsonVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	passwordPolicyStateJsonVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func passwordPolicyStateJsonVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Password Policy State Json Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -83,36 +121,54 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Schema(ctx context.Con
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"group_dn": schema.SetAttribute{
 				Description: "Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"filter": schema.SetAttribute{
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"client_connection_policy": schema.SetAttribute{
 				Description: "Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"require_explicit_request_by_name": schema.BoolAttribute{
 				Description: "Indicates whether attributes of this type must be explicitly included by name in the list of requested attributes. Note that this will only apply to virtual attributes which are associated with an attribute type that is operational. It will be ignored for virtual attributes associated with a non-operational attribute type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"multiple_virtual_attribute_evaluation_order_index": schema.Int64Attribute{
 				Description: "Specifies the order in which virtual attribute definitions for the same attribute type will be evaluated when generating values for an entry.",
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -234,8 +290,79 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Create(ctx context.Con
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan passwordPolicyStateJsonVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy State Json Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state passwordPolicyStateJsonVirtualAttributeResourceModel
+	readPasswordPolicyStateJsonVirtualAttributeResponse(ctx, readResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPasswordPolicyStateJsonVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Policy State Json Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPasswordPolicyStateJsonVirtualAttributeResponse(ctx, updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *passwordPolicyStateJsonVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPasswordPolicyStateJsonVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPasswordPolicyStateJsonVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPasswordPolicyStateJsonVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state passwordPolicyStateJsonVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -244,8 +371,8 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Read(ctx context.Conte
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy State Json Virtual Attribute", err, httpResp)
 		return
@@ -270,6 +397,14 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Read(ctx context.Conte
 
 // Update a resource
 func (r *passwordPolicyStateJsonVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePasswordPolicyStateJsonVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePasswordPolicyStateJsonVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePasswordPolicyStateJsonVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan passwordPolicyStateJsonVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -281,8 +416,8 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Update(ctx context.Con
 	// Get the current state to see how any attributes are changing
 	var state passwordPolicyStateJsonVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPasswordPolicyStateJsonVirtualAttributeOperations(plan, state)
@@ -291,7 +426,7 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Update(ctx context.Con
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Policy State Json Virtual Attribute", err, httpResp)
 			return
@@ -319,6 +454,12 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Update(ctx context.Con
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *passwordPolicyStateJsonVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state passwordPolicyStateJsonVirtualAttributeResourceModel
@@ -337,6 +478,14 @@ func (r *passwordPolicyStateJsonVirtualAttributeResource) Delete(ctx context.Con
 }
 
 func (r *passwordPolicyStateJsonVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPasswordPolicyStateJsonVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultPasswordPolicyStateJsonVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPasswordPolicyStateJsonVirtualAttribute(ctx, req, resp)
+}
+
+func importPasswordPolicyStateJsonVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

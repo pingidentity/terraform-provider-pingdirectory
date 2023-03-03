@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &groovyScriptedErrorLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedErrorLogPublisherResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedErrorLogPublisherResource{}
+	_ resource.Resource                = &defaultGroovyScriptedErrorLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedErrorLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedErrorLogPublisherResource{}
 )
 
 // Create a Groovy Scripted Error Log Publisher resource
@@ -29,8 +35,18 @@ func NewGroovyScriptedErrorLogPublisherResource() resource.Resource {
 	return &groovyScriptedErrorLogPublisherResource{}
 }
 
+func NewDefaultGroovyScriptedErrorLogPublisherResource() resource.Resource {
+	return &defaultGroovyScriptedErrorLogPublisherResource{}
+}
+
 // groovyScriptedErrorLogPublisherResource is the resource implementation.
 type groovyScriptedErrorLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedErrorLogPublisherResource is the resource implementation.
+type defaultGroovyScriptedErrorLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *groovyScriptedErrorLogPublisherResource) Metadata(_ context.Context, re
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_error_log_publisher"
 }
 
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_error_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +97,14 @@ type groovyScriptedErrorLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedErrorLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedErrorLogPublisherSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedErrorLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Error Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -78,18 +116,27 @@ func (r *groovyScriptedErrorLogPublisherResource) Schema(ctx context.Context, re
 				Description: "The set of arguments used to customize the behavior for the Scripted Error Log Publisher. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"default_severity": schema.SetAttribute{
 				Description: "Specifies the default severity levels for the logger.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"override_severity": schema.SetAttribute{
 				Description: "Specifies the override severity levels for the logger based on the category of the messages.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -104,8 +151,14 @@ func (r *groovyScriptedErrorLogPublisherResource) Schema(ctx context.Context, re
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -236,8 +289,79 @@ func (r *groovyScriptedErrorLogPublisherResource) Create(ctx context.Context, re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedErrorLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Error Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedErrorLogPublisherResourceModel
+	readGroovyScriptedErrorLogPublisherResponse(ctx, readResponse.GroovyScriptedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedErrorLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Error Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedErrorLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedErrorLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -246,8 +370,8 @@ func (r *groovyScriptedErrorLogPublisherResource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Error Log Publisher", err, httpResp)
 		return
@@ -272,6 +396,14 @@ func (r *groovyScriptedErrorLogPublisherResource) Read(ctx context.Context, req 
 
 // Update a resource
 func (r *groovyScriptedErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedErrorLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedErrorLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedErrorLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -283,8 +415,8 @@ func (r *groovyScriptedErrorLogPublisherResource) Update(ctx context.Context, re
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedErrorLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedErrorLogPublisherOperations(plan, state)
@@ -293,7 +425,7 @@ func (r *groovyScriptedErrorLogPublisherResource) Update(ctx context.Context, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Error Log Publisher", err, httpResp)
 			return
@@ -321,6 +453,12 @@ func (r *groovyScriptedErrorLogPublisherResource) Update(ctx context.Context, re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedErrorLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedErrorLogPublisherResourceModel
@@ -339,6 +477,14 @@ func (r *groovyScriptedErrorLogPublisherResource) Delete(ctx context.Context, re
 }
 
 func (r *groovyScriptedErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedErrorLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedErrorLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedErrorLogPublisher(ctx, req, resp)
+}
+
+func importGroovyScriptedErrorLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

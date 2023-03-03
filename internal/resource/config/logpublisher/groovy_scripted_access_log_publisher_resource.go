@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &groovyScriptedAccessLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedAccessLogPublisherResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedAccessLogPublisherResource{}
+	_ resource.Resource                = &defaultGroovyScriptedAccessLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedAccessLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedAccessLogPublisherResource{}
 )
 
 // Create a Groovy Scripted Access Log Publisher resource
@@ -29,8 +36,18 @@ func NewGroovyScriptedAccessLogPublisherResource() resource.Resource {
 	return &groovyScriptedAccessLogPublisherResource{}
 }
 
+func NewDefaultGroovyScriptedAccessLogPublisherResource() resource.Resource {
+	return &defaultGroovyScriptedAccessLogPublisherResource{}
+}
+
 // groovyScriptedAccessLogPublisherResource is the resource implementation.
 type groovyScriptedAccessLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedAccessLogPublisherResource is the resource implementation.
+type defaultGroovyScriptedAccessLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *groovyScriptedAccessLogPublisherResource) Metadata(_ context.Context, r
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_access_log_publisher"
 }
 
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_access_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,6 +113,14 @@ type groovyScriptedAccessLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedAccessLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedAccessLogPublisherSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedAccessLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Access Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -93,67 +132,106 @@ func (r *groovyScriptedAccessLogPublisherResource) Schema(ctx context.Context, r
 				Description: "The set of arguments used to customize the behavior for the Scripted Access Log Publisher. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"log_connects": schema.BoolAttribute{
 				Description: "Indicates whether to log information about connections established to the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_disconnects": schema.BoolAttribute{
 				Description: "Indicates whether to log information about connections that have been closed by the client or terminated by the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_security_negotiation": schema.BoolAttribute{
 				Description: "Indicates whether to log information about the result of any security negotiation (e.g., SSL handshake) processing that has been performed.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_client_certificates": schema.BoolAttribute{
 				Description: "Indicates whether to log information about any client certificates presented to the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_requests": schema.BoolAttribute{
 				Description: "Indicates whether to log information about requests received from clients.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_results": schema.BoolAttribute{
 				Description: "Indicates whether to log information about the results of client requests.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_search_entries": schema.BoolAttribute{
 				Description: "Indicates whether to log information about search result entries sent to the client.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_search_references": schema.BoolAttribute{
 				Description: "Indicates whether to log information about search result references sent to the client.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_intermediate_responses": schema.BoolAttribute{
 				Description: "Indicates whether to log information about intermediate responses sent to the client.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"suppress_internal_operations": schema.BoolAttribute{
 				Description: "Indicates whether internal operations (for example, operations that are initiated by plugins) should be logged along with the operations that are requested by users.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"suppress_replication_operations": schema.BoolAttribute{
 				Description: "Indicates whether access messages that are generated by replication operations should be suppressed.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"correlate_requests_and_results": schema.BoolAttribute{
 				Description: "Indicates whether to automatically log result messages for any operation in which the corresponding request was logged. In such cases, the result, entry, and reference criteria will be ignored, although the log-responses, log-search-entries, and log-search-references properties will be honored.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"connection_criteria": schema.StringAttribute{
 				Description: "Specifies a set of connection criteria that must match the associated client connection in order for a connect, disconnect, request, or result message to be logged.",
@@ -187,8 +265,14 @@ func (r *groovyScriptedAccessLogPublisherResource) Schema(ctx context.Context, r
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -403,8 +487,79 @@ func (r *groovyScriptedAccessLogPublisherResource) Create(ctx context.Context, r
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedAccessLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Access Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedAccessLogPublisherResourceModel
+	readGroovyScriptedAccessLogPublisherResponse(ctx, readResponse.GroovyScriptedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedAccessLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Access Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedAccessLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedAccessLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -413,8 +568,8 @@ func (r *groovyScriptedAccessLogPublisherResource) Read(ctx context.Context, req
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Access Log Publisher", err, httpResp)
 		return
@@ -439,6 +594,14 @@ func (r *groovyScriptedAccessLogPublisherResource) Read(ctx context.Context, req
 
 // Update a resource
 func (r *groovyScriptedAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedAccessLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedAccessLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedAccessLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -450,8 +613,8 @@ func (r *groovyScriptedAccessLogPublisherResource) Update(ctx context.Context, r
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedAccessLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedAccessLogPublisherOperations(plan, state)
@@ -460,7 +623,7 @@ func (r *groovyScriptedAccessLogPublisherResource) Update(ctx context.Context, r
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Access Log Publisher", err, httpResp)
 			return
@@ -488,6 +651,12 @@ func (r *groovyScriptedAccessLogPublisherResource) Update(ctx context.Context, r
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedAccessLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedAccessLogPublisherResourceModel
@@ -506,6 +675,14 @@ func (r *groovyScriptedAccessLogPublisherResource) Delete(ctx context.Context, r
 }
 
 func (r *groovyScriptedAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedAccessLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedAccessLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedAccessLogPublisher(ctx, req, resp)
+}
+
+func importGroovyScriptedAccessLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &referralOnUpdatePluginResource{}
 	_ resource.ResourceWithConfigure   = &referralOnUpdatePluginResource{}
 	_ resource.ResourceWithImportState = &referralOnUpdatePluginResource{}
+	_ resource.Resource                = &defaultReferralOnUpdatePluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultReferralOnUpdatePluginResource{}
+	_ resource.ResourceWithImportState = &defaultReferralOnUpdatePluginResource{}
 )
 
 // Create a Referral On Update Plugin resource
@@ -29,8 +35,18 @@ func NewReferralOnUpdatePluginResource() resource.Resource {
 	return &referralOnUpdatePluginResource{}
 }
 
+func NewDefaultReferralOnUpdatePluginResource() resource.Resource {
+	return &defaultReferralOnUpdatePluginResource{}
+}
+
 // referralOnUpdatePluginResource is the resource implementation.
 type referralOnUpdatePluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultReferralOnUpdatePluginResource is the resource implementation.
+type defaultReferralOnUpdatePluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *referralOnUpdatePluginResource) Metadata(_ context.Context, req resourc
 	resp.TypeName = req.ProviderTypeName + "_referral_on_update_plugin"
 }
 
+func (r *defaultReferralOnUpdatePluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_referral_on_update_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *referralOnUpdatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultReferralOnUpdatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -66,6 +96,14 @@ type referralOnUpdatePluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *referralOnUpdatePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	referralOnUpdatePluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultReferralOnUpdatePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	referralOnUpdatePluginSchema(ctx, req, resp, true)
+}
+
+func referralOnUpdatePluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Referral On Update Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -73,6 +111,9 @@ func (r *referralOnUpdatePluginResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"referral_base_url": schema.SetAttribute{
@@ -84,12 +125,18 @@ func (r *referralOnUpdatePluginResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies a base DN for requests for which to send referrals in response to update operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"invoke_for_internal_operations": schema.BoolAttribute{
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -100,6 +147,9 @@ func (r *referralOnUpdatePluginResource) Schema(ctx context.Context, req resourc
 				Required:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -220,8 +270,79 @@ func (r *referralOnUpdatePluginResource) Create(ctx context.Context, req resourc
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultReferralOnUpdatePluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan referralOnUpdatePluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Referral On Update Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state referralOnUpdatePluginResourceModel
+	readReferralOnUpdatePluginResponse(ctx, readResponse.ReferralOnUpdatePluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createReferralOnUpdatePluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Referral On Update Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readReferralOnUpdatePluginResponse(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *referralOnUpdatePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readReferralOnUpdatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultReferralOnUpdatePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readReferralOnUpdatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readReferralOnUpdatePlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state referralOnUpdatePluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -230,8 +351,8 @@ func (r *referralOnUpdatePluginResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Referral On Update Plugin", err, httpResp)
 		return
@@ -256,6 +377,14 @@ func (r *referralOnUpdatePluginResource) Read(ctx context.Context, req resource.
 
 // Update a resource
 func (r *referralOnUpdatePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateReferralOnUpdatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultReferralOnUpdatePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateReferralOnUpdatePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateReferralOnUpdatePlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan referralOnUpdatePluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -267,8 +396,8 @@ func (r *referralOnUpdatePluginResource) Update(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state referralOnUpdatePluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createReferralOnUpdatePluginOperations(plan, state)
@@ -277,7 +406,7 @@ func (r *referralOnUpdatePluginResource) Update(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Referral On Update Plugin", err, httpResp)
 			return
@@ -305,6 +434,12 @@ func (r *referralOnUpdatePluginResource) Update(ctx context.Context, req resourc
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultReferralOnUpdatePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *referralOnUpdatePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state referralOnUpdatePluginResourceModel
@@ -323,6 +458,14 @@ func (r *referralOnUpdatePluginResource) Delete(ctx context.Context, req resourc
 }
 
 func (r *referralOnUpdatePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importReferralOnUpdatePlugin(ctx, req, resp)
+}
+
+func (r *defaultReferralOnUpdatePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importReferralOnUpdatePlugin(ctx, req, resp)
+}
+
+func importReferralOnUpdatePlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

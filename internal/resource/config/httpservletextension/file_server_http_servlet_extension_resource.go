@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &fileServerHttpServletExtensionResource{}
 	_ resource.ResourceWithConfigure   = &fileServerHttpServletExtensionResource{}
 	_ resource.ResourceWithImportState = &fileServerHttpServletExtensionResource{}
+	_ resource.Resource                = &defaultFileServerHttpServletExtensionResource{}
+	_ resource.ResourceWithConfigure   = &defaultFileServerHttpServletExtensionResource{}
+	_ resource.ResourceWithImportState = &defaultFileServerHttpServletExtensionResource{}
 )
 
 // Create a File Server Http Servlet Extension resource
@@ -29,8 +36,18 @@ func NewFileServerHttpServletExtensionResource() resource.Resource {
 	return &fileServerHttpServletExtensionResource{}
 }
 
+func NewDefaultFileServerHttpServletExtensionResource() resource.Resource {
+	return &defaultFileServerHttpServletExtensionResource{}
+}
+
 // fileServerHttpServletExtensionResource is the resource implementation.
 type fileServerHttpServletExtensionResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultFileServerHttpServletExtensionResource is the resource implementation.
+type defaultFileServerHttpServletExtensionResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *fileServerHttpServletExtensionResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_file_server_http_servlet_extension"
 }
 
+func (r *defaultFileServerHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_file_server_http_servlet_extension"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *fileServerHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -77,6 +108,14 @@ type fileServerHttpServletExtensionResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileServerHttpServletExtensionSchema(ctx, req, resp, false)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	fileServerHttpServletExtensionSchema(ctx, req, resp, true)
+}
+
+func fileServerHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a File Server Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
@@ -92,61 +131,94 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 				Description: "Indicates whether to generate a default HTML page with a listing of available files if the requested path refers to a directory rather than a file, and that directory does not contain an index file.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"index_file": schema.SetAttribute{
 				Description: "Specifies the name of a file whose contents may be returned to the client if the requested path refers to a directory rather than a file.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"mime_types_file": schema.StringAttribute{
 				Description: "Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested file.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_mime_type": schema.StringAttribute{
 				Description: "Specifies the default MIME type to use for the Content-Type header when a mapping cannot be found.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"require_authentication": schema.BoolAttribute{
 				Description: "Indicates whether the servlet extension should only accept requests from authenticated clients.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allowed_authentication_type": schema.SetAttribute{
 				Description: "The types of authentication that may be used to authenticate to the file servlet.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"access_token_validator": schema.SetAttribute{
 				Description: "The access token validators that may be used to verify the authenticity of an OAuth 2.0 bearer token.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"id_token_validator": schema.SetAttribute{
 				Description: "The ID token validators that may be used to verify the authenticity of an of an OpenID Connect ID token.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"require_file_servlet_access_privilege": schema.BoolAttribute{
 				Description: "Indicates whether the servlet extension should only accept requests from authenticated clients that have the file-servlet-access privilege.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"require_group": schema.SetAttribute{
 				Description: "The DN of a group whose members will be permitted to access to the associated files. If multiple group DNs are configured, then anyone who is a member of at least one of those groups will be granted access.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"identity_mapper": schema.StringAttribute{
 				Description: "The identity mapper that will be used to identify the entry with which a username is associated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Extension",
@@ -156,19 +228,31 @@ func (r *fileServerHttpServletExtensionResource) Schema(ctx context.Context, req
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"response_header": schema.SetAttribute{
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -362,8 +446,79 @@ func (r *fileServerHttpServletExtensionResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultFileServerHttpServletExtensionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan fileServerHttpServletExtensionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Server Http Servlet Extension", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state fileServerHttpServletExtensionResourceModel
+	readFileServerHttpServletExtensionResponse(ctx, readResponse.FileServerHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createFileServerHttpServletExtensionOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Server Http Servlet Extension", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readFileServerHttpServletExtensionResponse(ctx, updateResponse.FileServerHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *fileServerHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readFileServerHttpServletExtension(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state fileServerHttpServletExtensionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -372,8 +527,8 @@ func (r *fileServerHttpServletExtensionResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the File Server Http Servlet Extension", err, httpResp)
 		return
@@ -398,6 +553,14 @@ func (r *fileServerHttpServletExtensionResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFileServerHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateFileServerHttpServletExtension(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan fileServerHttpServletExtensionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -409,8 +572,8 @@ func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state fileServerHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createFileServerHttpServletExtensionOperations(plan, state)
@@ -419,7 +582,7 @@ func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the File Server Http Servlet Extension", err, httpResp)
 			return
@@ -447,6 +610,12 @@ func (r *fileServerHttpServletExtensionResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultFileServerHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *fileServerHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state fileServerHttpServletExtensionResourceModel
@@ -465,6 +634,14 @@ func (r *fileServerHttpServletExtensionResource) Delete(ctx context.Context, req
 }
 
 func (r *fileServerHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileServerHttpServletExtension(ctx, req, resp)
+}
+
+func (r *defaultFileServerHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importFileServerHttpServletExtension(ctx, req, resp)
+}
+
+func importFileServerHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

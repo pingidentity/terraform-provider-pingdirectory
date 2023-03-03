@@ -22,6 +22,9 @@ var (
 	_ resource.Resource                = &amazonAwsExternalServerResource{}
 	_ resource.ResourceWithConfigure   = &amazonAwsExternalServerResource{}
 	_ resource.ResourceWithImportState = &amazonAwsExternalServerResource{}
+	_ resource.Resource                = &defaultAmazonAwsExternalServerResource{}
+	_ resource.ResourceWithConfigure   = &defaultAmazonAwsExternalServerResource{}
+	_ resource.ResourceWithImportState = &defaultAmazonAwsExternalServerResource{}
 )
 
 // Create a Amazon Aws External Server resource
@@ -29,8 +32,18 @@ func NewAmazonAwsExternalServerResource() resource.Resource {
 	return &amazonAwsExternalServerResource{}
 }
 
+func NewDefaultAmazonAwsExternalServerResource() resource.Resource {
+	return &defaultAmazonAwsExternalServerResource{}
+}
+
 // amazonAwsExternalServerResource is the resource implementation.
 type amazonAwsExternalServerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultAmazonAwsExternalServerResource is the resource implementation.
+type defaultAmazonAwsExternalServerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +53,22 @@ func (r *amazonAwsExternalServerResource) Metadata(_ context.Context, req resour
 	resp.TypeName = req.ProviderTypeName + "_amazon_aws_external_server"
 }
 
+func (r *defaultAmazonAwsExternalServerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_amazon_aws_external_server"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *amazonAwsExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultAmazonAwsExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -64,6 +91,14 @@ type amazonAwsExternalServerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *amazonAwsExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	amazonAwsExternalServerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultAmazonAwsExternalServerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	amazonAwsExternalServerSchema(ctx, req, resp, true)
+}
+
+func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Amazon Aws External Server.",
 		Attributes: map[string]schema.Attribute{
@@ -85,6 +120,9 @@ func (r *amazonAwsExternalServerResource) Schema(ctx context.Context, req resour
 				Optional:    true,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -181,8 +219,79 @@ func (r *amazonAwsExternalServerResource) Create(ctx context.Context, req resour
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultAmazonAwsExternalServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan amazonAwsExternalServerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Amazon Aws External Server", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state amazonAwsExternalServerResourceModel
+	readAmazonAwsExternalServerResponse(ctx, readResponse.AmazonAwsExternalServerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createAmazonAwsExternalServerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Amazon Aws External Server", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readAmazonAwsExternalServerResponse(ctx, updateResponse.AmazonAwsExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *amazonAwsExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAmazonAwsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAmazonAwsExternalServerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAmazonAwsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAmazonAwsExternalServer(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state amazonAwsExternalServerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -191,8 +300,8 @@ func (r *amazonAwsExternalServerResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Amazon Aws External Server", err, httpResp)
 		return
@@ -217,6 +326,14 @@ func (r *amazonAwsExternalServerResource) Read(ctx context.Context, req resource
 
 // Update a resource
 func (r *amazonAwsExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAmazonAwsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAmazonAwsExternalServerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAmazonAwsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAmazonAwsExternalServer(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan amazonAwsExternalServerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -228,8 +345,8 @@ func (r *amazonAwsExternalServerResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state amazonAwsExternalServerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAmazonAwsExternalServerOperations(plan, state)
@@ -238,7 +355,7 @@ func (r *amazonAwsExternalServerResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ExternalServerApi.UpdateExternalServerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Amazon Aws External Server", err, httpResp)
 			return
@@ -266,6 +383,12 @@ func (r *amazonAwsExternalServerResource) Update(ctx context.Context, req resour
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultAmazonAwsExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *amazonAwsExternalServerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state amazonAwsExternalServerResourceModel
@@ -284,6 +407,14 @@ func (r *amazonAwsExternalServerResource) Delete(ctx context.Context, req resour
 }
 
 func (r *amazonAwsExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAmazonAwsExternalServer(ctx, req, resp)
+}
+
+func (r *defaultAmazonAwsExternalServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importAmazonAwsExternalServer(ctx, req, resp)
+}
+
+func importAmazonAwsExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

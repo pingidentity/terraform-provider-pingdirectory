@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &thirdPartyHttpServletExtensionResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyHttpServletExtensionResource{}
 	_ resource.ResourceWithImportState = &thirdPartyHttpServletExtensionResource{}
+	_ resource.Resource                = &defaultThirdPartyHttpServletExtensionResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyHttpServletExtensionResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyHttpServletExtensionResource{}
 )
 
 // Create a Third Party Http Servlet Extension resource
@@ -29,8 +35,18 @@ func NewThirdPartyHttpServletExtensionResource() resource.Resource {
 	return &thirdPartyHttpServletExtensionResource{}
 }
 
+func NewDefaultThirdPartyHttpServletExtensionResource() resource.Resource {
+	return &defaultThirdPartyHttpServletExtensionResource{}
+}
+
 // thirdPartyHttpServletExtensionResource is the resource implementation.
 type thirdPartyHttpServletExtensionResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyHttpServletExtensionResource is the resource implementation.
+type defaultThirdPartyHttpServletExtensionResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *thirdPartyHttpServletExtensionResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_third_party_http_servlet_extension"
 }
 
+func (r *defaultThirdPartyHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_http_servlet_extension"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyHttpServletExtensionResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -66,6 +96,14 @@ type thirdPartyHttpServletExtensionResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyHttpServletExtensionSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyHttpServletExtensionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyHttpServletExtensionSchema(ctx, req, resp, true)
+}
+
+func thirdPartyHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
@@ -77,6 +115,9 @@ func (r *thirdPartyHttpServletExtensionResource) Schema(ctx context.Context, req
 				Description: "The set of arguments used to customize the behavior for the Third Party HTTP Servlet Extension. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -87,19 +128,31 @@ func (r *thirdPartyHttpServletExtensionResource) Schema(ctx context.Context, req
 				Description: "The cross-origin request policy to use for the HTTP Servlet Extension.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"response_header": schema.SetAttribute{
 				Description: "Specifies HTTP header fields and values added to response headers for all requests.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"correlation_id_response_header": schema.StringAttribute{
 				Description: "Specifies the name of the HTTP response header that will contain a correlation ID value. Example values are \"Correlation-Id\", \"X-Amzn-Trace-Id\", and \"X-Request-Id\".",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -209,8 +262,79 @@ func (r *thirdPartyHttpServletExtensionResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyHttpServletExtensionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyHttpServletExtensionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Http Servlet Extension", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyHttpServletExtensionResourceModel
+	readThirdPartyHttpServletExtensionResponse(ctx, readResponse.ThirdPartyHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyHttpServletExtensionOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Http Servlet Extension", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyHttpServletExtensionResponse(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyHttpServletExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyHttpServletExtension(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyHttpServletExtensionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -219,8 +343,8 @@ func (r *thirdPartyHttpServletExtensionResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.HttpServletExtensionApi.GetHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Http Servlet Extension", err, httpResp)
 		return
@@ -245,6 +369,14 @@ func (r *thirdPartyHttpServletExtensionResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *thirdPartyHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyHttpServletExtensionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyHttpServletExtension(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyHttpServletExtensionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -256,8 +388,8 @@ func (r *thirdPartyHttpServletExtensionResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyHttpServletExtensionOperations(plan, state)
@@ -266,7 +398,7 @@ func (r *thirdPartyHttpServletExtensionResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletExtensionApi.UpdateHttpServletExtensionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Http Servlet Extension", err, httpResp)
 			return
@@ -294,6 +426,12 @@ func (r *thirdPartyHttpServletExtensionResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyHttpServletExtensionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyHttpServletExtensionResourceModel
@@ -312,6 +450,14 @@ func (r *thirdPartyHttpServletExtensionResource) Delete(ctx context.Context, req
 }
 
 func (r *thirdPartyHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyHttpServletExtension(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyHttpServletExtensionResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyHttpServletExtension(ctx, req, resp)
+}
+
+func importThirdPartyHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

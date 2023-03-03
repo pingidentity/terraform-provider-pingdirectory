@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &jmxConnectionHandlerResource{}
 	_ resource.ResourceWithConfigure   = &jmxConnectionHandlerResource{}
 	_ resource.ResourceWithImportState = &jmxConnectionHandlerResource{}
+	_ resource.Resource                = &defaultJmxConnectionHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultJmxConnectionHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultJmxConnectionHandlerResource{}
 )
 
 // Create a Jmx Connection Handler resource
@@ -29,8 +36,18 @@ func NewJmxConnectionHandlerResource() resource.Resource {
 	return &jmxConnectionHandlerResource{}
 }
 
+func NewDefaultJmxConnectionHandlerResource() resource.Resource {
+	return &defaultJmxConnectionHandlerResource{}
+}
+
 // jmxConnectionHandlerResource is the resource implementation.
 type jmxConnectionHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultJmxConnectionHandlerResource is the resource implementation.
+type defaultJmxConnectionHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *jmxConnectionHandlerResource) Metadata(_ context.Context, req resource.
 	resp.TypeName = req.ProviderTypeName + "_jmx_connection_handler"
 }
 
+func (r *defaultJmxConnectionHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_jmx_connection_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *jmxConnectionHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultJmxConnectionHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -68,6 +99,14 @@ type jmxConnectionHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *jmxConnectionHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jmxConnectionHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultJmxConnectionHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	jmxConnectionHandlerSchema(ctx, req, resp, true)
+}
+
+func jmxConnectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Jmx Connection Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -79,11 +118,17 @@ func (r *jmxConnectionHandlerResource) Schema(ctx context.Context, req resource.
 				Description: "Indicates whether the JMX Connection Handler should use SSL.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"ssl_cert_nickname": schema.StringAttribute{
 				Description: "Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"key_manager_provider": schema.StringAttribute{
 				Description: "Specifies the name of the key manager that should be used with this JMX Connection Handler .",
@@ -101,15 +146,24 @@ func (r *jmxConnectionHandlerResource) Schema(ctx context.Context, req resource.
 				Description: "Specifies a set of address masks that determines the addresses of the clients that are allowed to establish connections to this connection handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"denied_client": schema.SetAttribute{
 				Description: "Specifies a set of address masks that determines the addresses of the clients that are not allowed to establish connections to this connection handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -228,8 +282,79 @@ func (r *jmxConnectionHandlerResource) Create(ctx context.Context, req resource.
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultJmxConnectionHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan jmxConnectionHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jmx Connection Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state jmxConnectionHandlerResourceModel
+	readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createJmxConnectionHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jmx Connection Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readJmxConnectionHandlerResponse(ctx, updateResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *jmxConnectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJmxConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJmxConnectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJmxConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readJmxConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state jmxConnectionHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -238,8 +363,8 @@ func (r *jmxConnectionHandlerResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.ConnectionHandlerApi.GetConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Jmx Connection Handler", err, httpResp)
 		return
@@ -264,6 +389,14 @@ func (r *jmxConnectionHandlerResource) Read(ctx context.Context, req resource.Re
 
 // Update a resource
 func (r *jmxConnectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJmxConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJmxConnectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJmxConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateJmxConnectionHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan jmxConnectionHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -275,8 +408,8 @@ func (r *jmxConnectionHandlerResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state jmxConnectionHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createJmxConnectionHandlerOperations(plan, state)
@@ -285,7 +418,7 @@ func (r *jmxConnectionHandlerResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Jmx Connection Handler", err, httpResp)
 			return
@@ -313,6 +446,12 @@ func (r *jmxConnectionHandlerResource) Update(ctx context.Context, req resource.
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultJmxConnectionHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *jmxConnectionHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state jmxConnectionHandlerResourceModel
@@ -331,6 +470,14 @@ func (r *jmxConnectionHandlerResource) Delete(ctx context.Context, req resource.
 }
 
 func (r *jmxConnectionHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJmxConnectionHandler(ctx, req, resp)
+}
+
+func (r *defaultJmxConnectionHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importJmxConnectionHandler(ctx, req, resp)
+}
+
+func importJmxConnectionHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

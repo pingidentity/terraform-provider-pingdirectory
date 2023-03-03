@@ -12,6 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +27,9 @@ var (
 	_ resource.Resource                = &collectSupportDataRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &collectSupportDataRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &collectSupportDataRecurringTaskResource{}
+	_ resource.Resource                = &defaultCollectSupportDataRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultCollectSupportDataRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultCollectSupportDataRecurringTaskResource{}
 )
 
 // Create a Collect Support Data Recurring Task resource
@@ -29,8 +37,18 @@ func NewCollectSupportDataRecurringTaskResource() resource.Resource {
 	return &collectSupportDataRecurringTaskResource{}
 }
 
+func NewDefaultCollectSupportDataRecurringTaskResource() resource.Resource {
+	return &defaultCollectSupportDataRecurringTaskResource{}
+}
+
 // collectSupportDataRecurringTaskResource is the resource implementation.
 type collectSupportDataRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultCollectSupportDataRecurringTaskResource is the resource implementation.
+type defaultCollectSupportDataRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +58,22 @@ func (r *collectSupportDataRecurringTaskResource) Metadata(_ context.Context, re
 	resp.TypeName = req.ProviderTypeName + "_collect_support_data_recurring_task"
 }
 
+func (r *defaultCollectSupportDataRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_collect_support_data_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *collectSupportDataRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -85,6 +117,14 @@ type collectSupportDataRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	collectSupportDataRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	collectSupportDataRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func collectSupportDataRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Collect Support Data Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -100,61 +140,97 @@ func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, re
 				Description: "Indicates whether the support data archive should include information that may be expensive to obtain, and that may temporarily affect the server's performance or responsiveness.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_replication_state_dump": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include a replication state dump, which may be several megabytes in size.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_binary_files": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include binary files that may not have otherwise been included. Note that it may not be possible to obscure or redact sensitive information in binary files.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_extension_source": schema.BoolAttribute{
 				Description: "Indicates whether the support data archive should include the source code (if available) for any third-party extensions that may be installed in the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"use_sequential_mode": schema.BoolAttribute{
 				Description: "Indicates whether to capture support data information sequentially rather than in parallel. Capturing data in sequential mode may reduce the amount of memory that the tool requires to operate, at the cost of taking longer to run.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"security_level": schema.StringAttribute{
 				Description: "The security level to use when deciding which information to include in or exclude from the support data archive, and which included data should be obscured or redacted.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"jstack_count": schema.Int64Attribute{
 				Description: "The number of times to invoke the jstack utility to obtain a stack trace of all threads running in the JVM. A value of zero indicates that the jstack utility should not be invoked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"report_count": schema.Int64Attribute{
 				Description: "The number of intervals of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat. A value of zero indicates that these kinds of tools should not be used to collect any information.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"report_interval_seconds": schema.Int64Attribute{
 				Description: "The duration (in seconds) between each interval of data to collect from tools that use sample-based reporting, like vmstat, iostat, and mpstat.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_duration": schema.StringAttribute{
 				Description: "The maximum age (leading up to the time the collect-support-data tool was invoked) for log content to include in the support data archive.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_file_head_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the beginning of each log file included in the support data archive.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"log_file_tail_collection_size": schema.StringAttribute{
 				Description: "The amount of data to collect from the end of each log file included in the support data archive.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"comment": schema.StringAttribute{
 				Description: "An optional comment to include in a README file within the support data archive.",
@@ -164,11 +240,17 @@ func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, re
 				Description: "The minimum number of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"retain_previous_support_data_archive_age": schema.StringAttribute{
 				Description: "The minimum age of previous support data archives that should be preserved after a new archive is generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task",
@@ -178,41 +260,65 @@ func (r *collectSupportDataRecurringTaskResource) Schema(ctx context.Context, re
 				Description: "Indicates whether an instance of this Recurring Task should be canceled if the task immediately before it in the recurring task chain fails to complete successfully (including if it is canceled by an administrator before it starts or while it is running).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"email_on_start": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_on_success": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_on_failure": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"alert_on_start": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_on_success": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_on_failure": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -459,8 +565,79 @@ func (r *collectSupportDataRecurringTaskResource) Create(ctx context.Context, re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultCollectSupportDataRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan collectSupportDataRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Collect Support Data Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state collectSupportDataRecurringTaskResourceModel
+	readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createCollectSupportDataRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Collect Support Data Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *collectSupportDataRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readCollectSupportDataRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state collectSupportDataRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -469,8 +646,8 @@ func (r *collectSupportDataRecurringTaskResource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Collect Support Data Recurring Task", err, httpResp)
 		return
@@ -495,6 +672,14 @@ func (r *collectSupportDataRecurringTaskResource) Read(ctx context.Context, req 
 
 // Update a resource
 func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCollectSupportDataRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateCollectSupportDataRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan collectSupportDataRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -506,8 +691,8 @@ func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, re
 	// Get the current state to see how any attributes are changing
 	var state collectSupportDataRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCollectSupportDataRecurringTaskOperations(plan, state)
@@ -516,7 +701,7 @@ func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Collect Support Data Recurring Task", err, httpResp)
 			return
@@ -544,6 +729,12 @@ func (r *collectSupportDataRecurringTaskResource) Update(ctx context.Context, re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultCollectSupportDataRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *collectSupportDataRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state collectSupportDataRecurringTaskResourceModel
@@ -562,6 +753,14 @@ func (r *collectSupportDataRecurringTaskResource) Delete(ctx context.Context, re
 }
 
 func (r *collectSupportDataRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importCollectSupportDataRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultCollectSupportDataRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importCollectSupportDataRecurringTask(ctx, req, resp)
+}
+
+func importCollectSupportDataRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

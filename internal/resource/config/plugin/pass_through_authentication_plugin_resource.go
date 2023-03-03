@@ -12,6 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +27,9 @@ var (
 	_ resource.Resource                = &passThroughAuthenticationPluginResource{}
 	_ resource.ResourceWithConfigure   = &passThroughAuthenticationPluginResource{}
 	_ resource.ResourceWithImportState = &passThroughAuthenticationPluginResource{}
+	_ resource.Resource                = &defaultPassThroughAuthenticationPluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultPassThroughAuthenticationPluginResource{}
+	_ resource.ResourceWithImportState = &defaultPassThroughAuthenticationPluginResource{}
 )
 
 // Create a Pass Through Authentication Plugin resource
@@ -29,8 +37,18 @@ func NewPassThroughAuthenticationPluginResource() resource.Resource {
 	return &passThroughAuthenticationPluginResource{}
 }
 
+func NewDefaultPassThroughAuthenticationPluginResource() resource.Resource {
+	return &defaultPassThroughAuthenticationPluginResource{}
+}
+
 // passThroughAuthenticationPluginResource is the resource implementation.
 type passThroughAuthenticationPluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultPassThroughAuthenticationPluginResource is the resource implementation.
+type defaultPassThroughAuthenticationPluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +58,22 @@ func (r *passThroughAuthenticationPluginResource) Metadata(_ context.Context, re
 	resp.TypeName = req.ProviderTypeName + "_pass_through_authentication_plugin"
 }
 
+func (r *defaultPassThroughAuthenticationPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_pass_through_authentication_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *passThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultPassThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -79,6 +111,14 @@ type passThroughAuthenticationPluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	passThroughAuthenticationPluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultPassThroughAuthenticationPluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	passThroughAuthenticationPluginSchema(ctx, req, resp, true)
+}
+
+func passThroughAuthenticationPluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Pass Through Authentication Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -86,6 +126,9 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"server": schema.SetAttribute{
@@ -97,31 +140,49 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 				Description: "Indicates whether the bind attempt should first be attempted against the local server. Depending on the value of the override-local-password property, the bind attempt may then be attempted against a remote server if the local bind fails.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"override_local_password": schema.BoolAttribute{
 				Description: "Indicates whether the bind attempt should be attempted against a remote server in the event that the local bind fails but the local password is present.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"update_local_password": schema.BoolAttribute{
 				Description: "Indicates whether the local password value should be updated to the value used in the bind request in the event that the local bind fails but the remote bind succeeds.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allow_lax_pass_through_authentication_passwords": schema.BoolAttribute{
 				Description: "Indicates whether updates to the local password value should accept passwords that do not meet password policy constraints.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"server_access_mode": schema.StringAttribute{
 				Description: "Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"included_local_entry_base_dn": schema.SetAttribute{
 				Description: "The base DNs for the local users whose authentication attempts may be passed through to an alternate server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"connection_criteria": schema.StringAttribute{
@@ -136,6 +197,9 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 				Description: "Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"bind_dn_pattern": schema.StringAttribute{
@@ -146,6 +210,9 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 				Description: "The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"search_filter_pattern": schema.StringAttribute{
 				Description: "A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, \"(mail={uid:ldapFilterEscape}@example.com)\" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before \"@example.com\" in the mail attribute in the external server. Note that the \"ldapFilterEscape\" modifier should almost always be used with attributes specified in the pattern.",
@@ -155,11 +222,17 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 				Description: "Specifies the initial number of connections to establish to each external server against which authentication may be attempted.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"max_connections": schema.Int64Attribute{
 				Description: "Specifies the maximum number of connections to maintain to each external server against which authentication may be attempted. This value must be greater than or equal to the value for the initial-connections property.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -173,8 +246,14 @@ func (r *passThroughAuthenticationPluginResource) Schema(ctx context.Context, re
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -383,8 +462,79 @@ func (r *passThroughAuthenticationPluginResource) Create(ctx context.Context, re
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultPassThroughAuthenticationPluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan passThroughAuthenticationPluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pass Through Authentication Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state passThroughAuthenticationPluginResourceModel
+	readPassThroughAuthenticationPluginResponse(ctx, readResponse.PassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createPassThroughAuthenticationPluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Pass Through Authentication Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPassThroughAuthenticationPluginResponse(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *passThroughAuthenticationPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPassThroughAuthenticationPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readPassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readPassThroughAuthenticationPlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state passThroughAuthenticationPluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -393,8 +543,8 @@ func (r *passThroughAuthenticationPluginResource) Read(ctx context.Context, req 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pass Through Authentication Plugin", err, httpResp)
 		return
@@ -419,6 +569,14 @@ func (r *passThroughAuthenticationPluginResource) Read(ctx context.Context, req 
 
 // Update a resource
 func (r *passThroughAuthenticationPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPassThroughAuthenticationPluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updatePassThroughAuthenticationPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updatePassThroughAuthenticationPlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan passThroughAuthenticationPluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -430,8 +588,8 @@ func (r *passThroughAuthenticationPluginResource) Update(ctx context.Context, re
 	// Get the current state to see how any attributes are changing
 	var state passThroughAuthenticationPluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPassThroughAuthenticationPluginOperations(plan, state)
@@ -440,7 +598,7 @@ func (r *passThroughAuthenticationPluginResource) Update(ctx context.Context, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Pass Through Authentication Plugin", err, httpResp)
 			return
@@ -468,6 +626,12 @@ func (r *passThroughAuthenticationPluginResource) Update(ctx context.Context, re
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultPassThroughAuthenticationPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *passThroughAuthenticationPluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state passThroughAuthenticationPluginResourceModel
@@ -486,6 +650,14 @@ func (r *passThroughAuthenticationPluginResource) Delete(ctx context.Context, re
 }
 
 func (r *passThroughAuthenticationPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPassThroughAuthenticationPlugin(ctx, req, resp)
+}
+
+func (r *defaultPassThroughAuthenticationPluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importPassThroughAuthenticationPlugin(ctx, req, resp)
+}
+
+func importPassThroughAuthenticationPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

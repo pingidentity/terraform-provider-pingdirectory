@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &identifyReferencesVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &identifyReferencesVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &identifyReferencesVirtualAttributeResource{}
+	_ resource.Resource                = &defaultIdentifyReferencesVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultIdentifyReferencesVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultIdentifyReferencesVirtualAttributeResource{}
 )
 
 // Create a Identify References Virtual Attribute resource
@@ -29,8 +36,18 @@ func NewIdentifyReferencesVirtualAttributeResource() resource.Resource {
 	return &identifyReferencesVirtualAttributeResource{}
 }
 
+func NewDefaultIdentifyReferencesVirtualAttributeResource() resource.Resource {
+	return &defaultIdentifyReferencesVirtualAttributeResource{}
+}
+
 // identifyReferencesVirtualAttributeResource is the resource implementation.
 type identifyReferencesVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultIdentifyReferencesVirtualAttributeResource is the resource implementation.
+type defaultIdentifyReferencesVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *identifyReferencesVirtualAttributeResource) Metadata(_ context.Context,
 	resp.TypeName = req.ProviderTypeName + "_identify_references_virtual_attribute"
 }
 
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_identify_references_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *identifyReferencesVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -74,6 +105,14 @@ type identifyReferencesVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *identifyReferencesVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	identifyReferencesVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	identifyReferencesVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func identifyReferencesVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Identify References Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -86,6 +125,9 @@ func (r *identifyReferencesVirtualAttributeResource) Schema(ctx context.Context,
 				Description: "The base DN that will be used when searching for references to the target entry. If no reference search base DN is specified, the default behavior will be to search below all public naming contexts configured in the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -104,35 +146,53 @@ func (r *identifyReferencesVirtualAttributeResource) Schema(ctx context.Context,
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"group_dn": schema.SetAttribute{
 				Description: "Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"filter": schema.SetAttribute{
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"client_connection_policy": schema.SetAttribute{
 				Description: "Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"conflict_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"require_explicit_request_by_name": schema.BoolAttribute{
 				Description: "Indicates whether attributes of this type must be explicitly included by name in the list of requested attributes. Note that this will only apply to virtual attributes which are associated with an attribute type that is operational. It will be ignored for virtual attributes associated with a non-operational attribute type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"multiple_virtual_attribute_evaluation_order_index": schema.Int64Attribute{
 				Description: "Specifies the order in which virtual attribute definitions for the same attribute type will be evaluated when generating values for an entry.",
@@ -142,13 +202,22 @@ func (r *identifyReferencesVirtualAttributeResource) Schema(ctx context.Context,
 				Description: "Specifies the behavior that will be exhibited for cases in which multiple virtual attribute definitions apply to the same multivalued attribute type. This will be ignored for single-valued attribute types.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allow_index_conflicts": schema.BoolAttribute{
 				Description: "Indicates whether the server should allow creating or altering this virtual attribute definition even if it conflicts with one or more indexes defined in the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -318,8 +387,79 @@ func (r *identifyReferencesVirtualAttributeResource) Create(ctx context.Context,
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan identifyReferencesVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identify References Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state identifyReferencesVirtualAttributeResourceModel
+	readIdentifyReferencesVirtualAttributeResponse(ctx, readResponse.IdentifyReferencesVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createIdentifyReferencesVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Identify References Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readIdentifyReferencesVirtualAttributeResponse(ctx, updateResponse.IdentifyReferencesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *identifyReferencesVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readIdentifyReferencesVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readIdentifyReferencesVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readIdentifyReferencesVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state identifyReferencesVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -328,8 +468,8 @@ func (r *identifyReferencesVirtualAttributeResource) Read(ctx context.Context, r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identify References Virtual Attribute", err, httpResp)
 		return
@@ -354,6 +494,14 @@ func (r *identifyReferencesVirtualAttributeResource) Read(ctx context.Context, r
 
 // Update a resource
 func (r *identifyReferencesVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateIdentifyReferencesVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateIdentifyReferencesVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateIdentifyReferencesVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan identifyReferencesVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -365,8 +513,8 @@ func (r *identifyReferencesVirtualAttributeResource) Update(ctx context.Context,
 	// Get the current state to see how any attributes are changing
 	var state identifyReferencesVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createIdentifyReferencesVirtualAttributeOperations(plan, state)
@@ -375,7 +523,7 @@ func (r *identifyReferencesVirtualAttributeResource) Update(ctx context.Context,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Identify References Virtual Attribute", err, httpResp)
 			return
@@ -403,6 +551,12 @@ func (r *identifyReferencesVirtualAttributeResource) Update(ctx context.Context,
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultIdentifyReferencesVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *identifyReferencesVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state identifyReferencesVirtualAttributeResourceModel
@@ -421,6 +575,14 @@ func (r *identifyReferencesVirtualAttributeResource) Delete(ctx context.Context,
 }
 
 func (r *identifyReferencesVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importIdentifyReferencesVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultIdentifyReferencesVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importIdentifyReferencesVirtualAttribute(ctx, req, resp)
+}
+
+func importIdentifyReferencesVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

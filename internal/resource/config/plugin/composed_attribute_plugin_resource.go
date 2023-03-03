@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &composedAttributePluginResource{}
 	_ resource.ResourceWithConfigure   = &composedAttributePluginResource{}
 	_ resource.ResourceWithImportState = &composedAttributePluginResource{}
+	_ resource.Resource                = &defaultComposedAttributePluginResource{}
+	_ resource.ResourceWithConfigure   = &defaultComposedAttributePluginResource{}
+	_ resource.ResourceWithImportState = &defaultComposedAttributePluginResource{}
 )
 
 // Create a Composed Attribute Plugin resource
@@ -29,8 +36,18 @@ func NewComposedAttributePluginResource() resource.Resource {
 	return &composedAttributePluginResource{}
 }
 
+func NewDefaultComposedAttributePluginResource() resource.Resource {
+	return &defaultComposedAttributePluginResource{}
+}
+
 // composedAttributePluginResource is the resource implementation.
 type composedAttributePluginResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultComposedAttributePluginResource is the resource implementation.
+type defaultComposedAttributePluginResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *composedAttributePluginResource) Metadata(_ context.Context, req resour
 	resp.TypeName = req.ProviderTypeName + "_composed_attribute_plugin"
 }
 
+func (r *defaultComposedAttributePluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_composed_attribute_plugin"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *composedAttributePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultComposedAttributePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -78,6 +109,14 @@ type composedAttributePluginResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *composedAttributePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	composedAttributePluginSchema(ctx, req, resp, false)
+}
+
+func (r *defaultComposedAttributePluginResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	composedAttributePluginSchema(ctx, req, resp, true)
+}
+
+func composedAttributePluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Composed Attribute Plugin.",
 		Attributes: map[string]schema.Attribute{
@@ -85,6 +124,9 @@ func (r *composedAttributePluginResource) Schema(ctx context.Context, req resour
 				Description: "Specifies the set of plug-in types for the plug-in, which specifies the times at which the plug-in is invoked.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"attribute_type": schema.StringAttribute{
@@ -100,65 +142,101 @@ func (r *composedAttributePluginResource) Schema(ctx context.Context, req resour
 				Description: "The behavior to exhibit if the plugin is configured with multiple value patterns.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"multi_valued_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for source attributes that have multiple values.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"target_attribute_exists_during_initial_population_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit if the target attribute exists when initially populating the entry with composed values (whether during an LDIF import, an add operation, or an invocation of the populate composed attribute values task).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"update_source_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update one or more of the source attributes used in any of the value patterns.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"source_attribute_removal_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that update an entry to remove source attributes in such a way that this plugin would no longer generate any composed values for that entry.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"update_target_attribute_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify and modify DN operations that attempt to update the set of values for the target attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"include_base_dn": schema.SetAttribute{
 				Description: "The set of base DNs below which composed values may be generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"exclude_base_dn": schema.SetAttribute{
 				Description: "The set of base DNs below which composed values will not be generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"include_filter": schema.SetAttribute{
 				Description: "The set of search filters that identify entries for which composed values may be generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"exclude_filter": schema.SetAttribute{
 				Description: "The set of search filters that identify entries for which composed values will not be generated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"updated_entry_newly_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously did not satisfy either the base DN or filter criteria, but now do satisfy that criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"updated_entry_no_longer_matches_criteria_behavior": schema.StringAttribute{
 				Description: "The behavior to exhibit for modify or modify DN operations that update an entry that previously satisfied the base DN and filter criteria, but now no longer satisfies that criteria.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Plugin",
@@ -172,8 +250,14 @@ func (r *composedAttributePluginResource) Schema(ctx context.Context, req resour
 				Description: "Indicates whether the plug-in should be invoked for internal operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -406,8 +490,79 @@ func (r *composedAttributePluginResource) Create(ctx context.Context, req resour
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultComposedAttributePluginResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan composedAttributePluginResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Composed Attribute Plugin", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state composedAttributePluginResourceModel
+	readComposedAttributePluginResponse(ctx, readResponse.ComposedAttributePluginResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createComposedAttributePluginOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Composed Attribute Plugin", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readComposedAttributePluginResponse(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *composedAttributePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readComposedAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultComposedAttributePluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readComposedAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readComposedAttributePlugin(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state composedAttributePluginResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -416,8 +571,8 @@ func (r *composedAttributePluginResource) Read(ctx context.Context, req resource
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.PluginApi.GetPlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Composed Attribute Plugin", err, httpResp)
 		return
@@ -442,6 +597,14 @@ func (r *composedAttributePluginResource) Read(ctx context.Context, req resource
 
 // Update a resource
 func (r *composedAttributePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateComposedAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultComposedAttributePluginResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateComposedAttributePlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateComposedAttributePlugin(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan composedAttributePluginResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -453,8 +616,8 @@ func (r *composedAttributePluginResource) Update(ctx context.Context, req resour
 	// Get the current state to see how any attributes are changing
 	var state composedAttributePluginResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.PluginApi.UpdatePlugin(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createComposedAttributePluginOperations(plan, state)
@@ -463,7 +626,7 @@ func (r *composedAttributePluginResource) Update(ctx context.Context, req resour
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.PluginApi.UpdatePluginExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.PluginApi.UpdatePluginExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Composed Attribute Plugin", err, httpResp)
 			return
@@ -491,6 +654,12 @@ func (r *composedAttributePluginResource) Update(ctx context.Context, req resour
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultComposedAttributePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *composedAttributePluginResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state composedAttributePluginResourceModel
@@ -509,6 +678,14 @@ func (r *composedAttributePluginResource) Delete(ctx context.Context, req resour
 }
 
 func (r *composedAttributePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importComposedAttributePlugin(ctx, req, resp)
+}
+
+func (r *defaultComposedAttributePluginResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importComposedAttributePlugin(ctx, req, resp)
+}
+
+func importComposedAttributePlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

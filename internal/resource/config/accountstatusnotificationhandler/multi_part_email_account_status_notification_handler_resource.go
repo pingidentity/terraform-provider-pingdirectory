@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &multiPartEmailAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithConfigure   = &multiPartEmailAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithImportState = &multiPartEmailAccountStatusNotificationHandlerResource{}
+	_ resource.Resource                = &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
 )
 
 // Create a Multi Part Email Account Status Notification Handler resource
@@ -29,8 +35,18 @@ func NewMultiPartEmailAccountStatusNotificationHandlerResource() resource.Resour
 	return &multiPartEmailAccountStatusNotificationHandlerResource{}
 }
 
+func NewDefaultMultiPartEmailAccountStatusNotificationHandlerResource() resource.Resource {
+	return &defaultMultiPartEmailAccountStatusNotificationHandlerResource{}
+}
+
 // multiPartEmailAccountStatusNotificationHandlerResource is the resource implementation.
 type multiPartEmailAccountStatusNotificationHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultMultiPartEmailAccountStatusNotificationHandlerResource is the resource implementation.
+type defaultMultiPartEmailAccountStatusNotificationHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Metadata(_ cont
 	resp.TypeName = req.ProviderTypeName + "_multi_part_email_account_status_notification_handler"
 }
 
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_multi_part_email_account_status_notification_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,6 +112,14 @@ type multiPartEmailAccountStatusNotificationHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	multiPartEmailAccountStatusNotificationHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	multiPartEmailAccountStatusNotificationHandlerSchema(ctx, req, resp, true)
+}
+
+func multiPartEmailAccountStatusNotificationHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Multi Part Email Account Status Notification Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -89,86 +127,137 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx cont
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account becomes temporarily locked as a result of too many authentication failures.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_permanently_failure_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account becomes permanently locked as a result of too many authentication failures.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_idle_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that authentication attempt fails because it has been too long since the user last successfully authenticated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_reset_locked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that authentication attempt fails because the user failed to choose a new password in a timely manner after an administrative reset.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_unlocked_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's account has been unlocked (e.g., by an administrative password reset).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_disabled_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's account is disabled by an administrator.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_enabled_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's account is enabled by an administrator.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_not_yet_active_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an activation time that is in the future.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_expired_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an expiration time that is in the past.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"password_expired_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an expired password.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"password_expiring_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt succeeds, but the user's password is about to expire. This notification will only be generated the first time the user authenticates within the window of time that the server should warn about an upcoming password expiration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"password_reset_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user's password has been reset by an administrator.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"password_changed_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user changes their own password.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_created_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a new account is created in an add request that matches the criteria provided in the account-creation-notification-request-criteria property.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_updated_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that an existing account is updated with a modify or modify DN operation that matches the criteria provided in the account-update-notification-request-criteria property.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"bind_password_failed_validation_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user authenticated with a password that failed to satisfy the criteria for one or more of the configured password validators.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"must_change_password_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a user successfully authenticates to the server but will be required to choose a new password before they will be allowed to perform any other operations.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Account Status Notification Handler",
@@ -182,18 +271,30 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Schema(ctx cont
 				Description: "Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -414,8 +515,79 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Create(ctx cont
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan multiPartEmailAccountStatusNotificationHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Multi Part Email Account Status Notification Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
+	readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, readResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createMultiPartEmailAccountStatusNotificationHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Multi Part Email Account Status Notification Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, updateResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -424,8 +596,8 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Read(ctx contex
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Multi Part Email Account Status Notification Handler", err, httpResp)
 		return
@@ -450,6 +622,14 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Read(ctx contex
 
 // Update a resource
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan multiPartEmailAccountStatusNotificationHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -461,8 +641,8 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx cont
 	// Get the current state to see how any attributes are changing
 	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMultiPartEmailAccountStatusNotificationHandlerOperations(plan, state)
@@ -471,7 +651,7 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx cont
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Multi Part Email Account Status Notification Handler", err, httpResp)
 			return
@@ -499,6 +679,12 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Update(ctx cont
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state multiPartEmailAccountStatusNotificationHandlerResourceModel
@@ -517,6 +703,14 @@ func (r *multiPartEmailAccountStatusNotificationHandlerResource) Delete(ctx cont
 }
 
 func (r *multiPartEmailAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func (r *defaultMultiPartEmailAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMultiPartEmailAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func importMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

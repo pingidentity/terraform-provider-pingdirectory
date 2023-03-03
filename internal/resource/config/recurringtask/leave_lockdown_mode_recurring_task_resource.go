@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &leaveLockdownModeRecurringTaskResource{}
 	_ resource.ResourceWithConfigure   = &leaveLockdownModeRecurringTaskResource{}
 	_ resource.ResourceWithImportState = &leaveLockdownModeRecurringTaskResource{}
+	_ resource.Resource                = &defaultLeaveLockdownModeRecurringTaskResource{}
+	_ resource.ResourceWithConfigure   = &defaultLeaveLockdownModeRecurringTaskResource{}
+	_ resource.ResourceWithImportState = &defaultLeaveLockdownModeRecurringTaskResource{}
 )
 
 // Create a Leave Lockdown Mode Recurring Task resource
@@ -29,8 +35,18 @@ func NewLeaveLockdownModeRecurringTaskResource() resource.Resource {
 	return &leaveLockdownModeRecurringTaskResource{}
 }
 
+func NewDefaultLeaveLockdownModeRecurringTaskResource() resource.Resource {
+	return &defaultLeaveLockdownModeRecurringTaskResource{}
+}
+
 // leaveLockdownModeRecurringTaskResource is the resource implementation.
 type leaveLockdownModeRecurringTaskResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLeaveLockdownModeRecurringTaskResource is the resource implementation.
+type defaultLeaveLockdownModeRecurringTaskResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *leaveLockdownModeRecurringTaskResource) Metadata(_ context.Context, req
 	resp.TypeName = req.ProviderTypeName + "_leave_lockdown_mode_recurring_task"
 }
 
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_leave_lockdown_mode_recurring_task"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *leaveLockdownModeRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -69,6 +99,14 @@ type leaveLockdownModeRecurringTaskResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *leaveLockdownModeRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	leaveLockdownModeRecurringTaskSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	leaveLockdownModeRecurringTaskSchema(ctx, req, resp, true)
+}
+
+func leaveLockdownModeRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Leave Lockdown Mode Recurring Task.",
 		Attributes: map[string]schema.Attribute{
@@ -84,41 +122,65 @@ func (r *leaveLockdownModeRecurringTaskResource) Schema(ctx context.Context, req
 				Description: "Indicates whether an instance of this Recurring Task should be canceled if the task immediately before it in the recurring task chain fails to complete successfully (including if it is canceled by an administrator before it starts or while it is running).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"email_on_start": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task starts running. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_on_success": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent whenever an instance of this Recurring Task completes successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"email_on_failure": schema.SetAttribute{
 				Description: "The email addresses to which a message should be sent if an instance of this Recurring Task fails to complete successfully. If this option is used, then at least one smtp-server must be configured in the global configuration.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"alert_on_start": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task starts running.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_on_success": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task completes successfully.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"alert_on_failure": schema.BoolAttribute{
 				Description: "Indicates whether the server should generate an administrative alert whenever an instance of this Recurring Task fails to complete successfully.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -249,8 +311,79 @@ func (r *leaveLockdownModeRecurringTaskResource) Create(ctx context.Context, req
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan leaveLockdownModeRecurringTaskResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Leave Lockdown Mode Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state leaveLockdownModeRecurringTaskResourceModel
+	readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createLeaveLockdownModeRecurringTaskOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Leave Lockdown Mode Recurring Task", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readLeaveLockdownModeRecurringTaskResponse(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *leaveLockdownModeRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLeaveLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLeaveLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLeaveLockdownModeRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state leaveLockdownModeRecurringTaskResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -259,8 +392,8 @@ func (r *leaveLockdownModeRecurringTaskResource) Read(ctx context.Context, req r
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Leave Lockdown Mode Recurring Task", err, httpResp)
 		return
@@ -285,6 +418,14 @@ func (r *leaveLockdownModeRecurringTaskResource) Read(ctx context.Context, req r
 
 // Update a resource
 func (r *leaveLockdownModeRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLeaveLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLeaveLockdownModeRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLeaveLockdownModeRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan leaveLockdownModeRecurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -296,8 +437,8 @@ func (r *leaveLockdownModeRecurringTaskResource) Update(ctx context.Context, req
 	// Get the current state to see how any attributes are changing
 	var state leaveLockdownModeRecurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLeaveLockdownModeRecurringTaskOperations(plan, state)
@@ -306,7 +447,7 @@ func (r *leaveLockdownModeRecurringTaskResource) Update(ctx context.Context, req
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Leave Lockdown Mode Recurring Task", err, httpResp)
 			return
@@ -334,6 +475,12 @@ func (r *leaveLockdownModeRecurringTaskResource) Update(ctx context.Context, req
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLeaveLockdownModeRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *leaveLockdownModeRecurringTaskResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state leaveLockdownModeRecurringTaskResourceModel
@@ -352,6 +499,14 @@ func (r *leaveLockdownModeRecurringTaskResource) Delete(ctx context.Context, req
 }
 
 func (r *leaveLockdownModeRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLeaveLockdownModeRecurringTask(ctx, req, resp)
+}
+
+func (r *defaultLeaveLockdownModeRecurringTaskResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLeaveLockdownModeRecurringTask(ctx, req, resp)
+}
+
+func importLeaveLockdownModeRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

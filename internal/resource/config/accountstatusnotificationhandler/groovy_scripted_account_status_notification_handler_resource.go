@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &groovyScriptedAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithConfigure   = &groovyScriptedAccountStatusNotificationHandlerResource{}
 	_ resource.ResourceWithImportState = &groovyScriptedAccountStatusNotificationHandlerResource{}
+	_ resource.Resource                = &defaultGroovyScriptedAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithConfigure   = &defaultGroovyScriptedAccountStatusNotificationHandlerResource{}
+	_ resource.ResourceWithImportState = &defaultGroovyScriptedAccountStatusNotificationHandlerResource{}
 )
 
 // Create a Groovy Scripted Account Status Notification Handler resource
@@ -29,8 +36,18 @@ func NewGroovyScriptedAccountStatusNotificationHandlerResource() resource.Resour
 	return &groovyScriptedAccountStatusNotificationHandlerResource{}
 }
 
+func NewDefaultGroovyScriptedAccountStatusNotificationHandlerResource() resource.Resource {
+	return &defaultGroovyScriptedAccountStatusNotificationHandlerResource{}
+}
+
 // groovyScriptedAccountStatusNotificationHandlerResource is the resource implementation.
 type groovyScriptedAccountStatusNotificationHandlerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultGroovyScriptedAccountStatusNotificationHandlerResource is the resource implementation.
+type defaultGroovyScriptedAccountStatusNotificationHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Metadata(_ cont
 	resp.TypeName = req.ProviderTypeName + "_groovy_scripted_account_status_notification_handler"
 }
 
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_groovy_scripted_account_status_notification_handler"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *groovyScriptedAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -67,6 +98,14 @@ type groovyScriptedAccountStatusNotificationHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *groovyScriptedAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedAccountStatusNotificationHandlerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	groovyScriptedAccountStatusNotificationHandlerSchema(ctx, req, resp, true)
+}
+
+func groovyScriptedAccountStatusNotificationHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Groovy Scripted Account Status Notification Handler.",
 		Attributes: map[string]schema.Attribute{
@@ -78,6 +117,9 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Schema(ctx cont
 				Description: "The set of arguments used to customize the behavior for the Scripted Account Status Notification Handler. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -92,18 +134,30 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Schema(ctx cont
 				Description: "Indicates whether the server should attempt to invoke this Account Status Notification Handler in a background thread so that any potentially-expensive processing (e.g., performing network communication to deliver a message) will not delay processing for the operation that triggered the notification.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"account_update_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which modify and modify DN requests should result in account update notifications for this handler.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -215,8 +269,79 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Create(ctx cont
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan groovyScriptedAccountStatusNotificationHandlerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Account Status Notification Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state groovyScriptedAccountStatusNotificationHandlerResourceModel
+	readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, readResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createGroovyScriptedAccountStatusNotificationHandlerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Account Status Notification Handler", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, updateResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *groovyScriptedAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGroovyScriptedAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readGroovyScriptedAccountStatusNotificationHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state groovyScriptedAccountStatusNotificationHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -225,8 +350,8 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Read(ctx contex
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Groovy Scripted Account Status Notification Handler", err, httpResp)
 		return
@@ -251,6 +376,14 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Read(ctx contex
 
 // Update a resource
 func (r *groovyScriptedAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGroovyScriptedAccountStatusNotificationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateGroovyScriptedAccountStatusNotificationHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan groovyScriptedAccountStatusNotificationHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -262,8 +395,8 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Update(ctx cont
 	// Get the current state to see how any attributes are changing
 	var state groovyScriptedAccountStatusNotificationHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroovyScriptedAccountStatusNotificationHandlerOperations(plan, state)
@@ -272,7 +405,7 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Update(ctx cont
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Groovy Scripted Account Status Notification Handler", err, httpResp)
 			return
@@ -300,6 +433,12 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Update(ctx cont
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *groovyScriptedAccountStatusNotificationHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state groovyScriptedAccountStatusNotificationHandlerResourceModel
@@ -318,6 +457,14 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Delete(ctx cont
 }
 
 func (r *groovyScriptedAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGroovyScriptedAccountStatusNotificationHandler(ctx, req, resp)
+}
+
+func importGroovyScriptedAccountStatusNotificationHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

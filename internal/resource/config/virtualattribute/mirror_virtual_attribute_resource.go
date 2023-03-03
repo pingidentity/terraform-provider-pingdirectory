@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &mirrorVirtualAttributeResource{}
 	_ resource.ResourceWithConfigure   = &mirrorVirtualAttributeResource{}
 	_ resource.ResourceWithImportState = &mirrorVirtualAttributeResource{}
+	_ resource.Resource                = &defaultMirrorVirtualAttributeResource{}
+	_ resource.ResourceWithConfigure   = &defaultMirrorVirtualAttributeResource{}
+	_ resource.ResourceWithImportState = &defaultMirrorVirtualAttributeResource{}
 )
 
 // Create a Mirror Virtual Attribute resource
@@ -29,8 +36,18 @@ func NewMirrorVirtualAttributeResource() resource.Resource {
 	return &mirrorVirtualAttributeResource{}
 }
 
+func NewDefaultMirrorVirtualAttributeResource() resource.Resource {
+	return &defaultMirrorVirtualAttributeResource{}
+}
+
 // mirrorVirtualAttributeResource is the resource implementation.
 type mirrorVirtualAttributeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultMirrorVirtualAttributeResource is the resource implementation.
+type defaultMirrorVirtualAttributeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *mirrorVirtualAttributeResource) Metadata(_ context.Context, req resourc
 	resp.TypeName = req.ProviderTypeName + "_mirror_virtual_attribute"
 }
 
+func (r *defaultMirrorVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_mirror_virtual_attribute"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *mirrorVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultMirrorVirtualAttributeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -76,6 +107,14 @@ type mirrorVirtualAttributeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *mirrorVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	mirrorVirtualAttributeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultMirrorVirtualAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	mirrorVirtualAttributeSchema(ctx, req, resp, true)
+}
+
+func mirrorVirtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Mirror Virtual Attribute.",
 		Attributes: map[string]schema.Attribute{
@@ -83,6 +122,9 @@ func (r *mirrorVirtualAttributeResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies the behavior that the server is to exhibit for entries that already contain one or more real values for the associated attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"source_attribute": schema.StringAttribute{
 				Description: "Specifies the source attribute containing the values to use for this virtual attribute.",
@@ -100,6 +142,9 @@ func (r *mirrorVirtualAttributeResource) Schema(ctx context.Context, req resourc
 				Description: "Indicates whether searches performed by this virtual attribute provider should be exempted from access control restrictions.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Virtual Attribute",
@@ -117,30 +162,45 @@ func (r *mirrorVirtualAttributeResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"group_dn": schema.SetAttribute{
 				Description: "Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"filter": schema.SetAttribute{
 				Description: "Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"client_connection_policy": schema.SetAttribute{
 				Description: "Specifies a set of client connection policies for which this Virtual Attribute should be generated. If this is undefined, then this Virtual Attribute will always be generated. If it is associated with one or more client connection policies, then this Virtual Attribute will be generated only for operations requested by clients assigned to one of those client connection policies.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"require_explicit_request_by_name": schema.BoolAttribute{
 				Description: "Indicates whether attributes of this type must be explicitly included by name in the list of requested attributes. Note that this will only apply to virtual attributes which are associated with an attribute type that is operational. It will be ignored for virtual attributes associated with a non-operational attribute type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"multiple_virtual_attribute_evaluation_order_index": schema.Int64Attribute{
 				Description: "Specifies the order in which virtual attribute definitions for the same attribute type will be evaluated when generating values for an entry.",
@@ -150,13 +210,22 @@ func (r *mirrorVirtualAttributeResource) Schema(ctx context.Context, req resourc
 				Description: "Specifies the behavior that will be exhibited for cases in which multiple virtual attribute definitions apply to the same multivalued attribute type. This will be ignored for single-valued attribute types.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"allow_index_conflicts": schema.BoolAttribute{
 				Description: "Indicates whether the server should allow creating or altering this virtual attribute definition even if it conflicts with one or more indexes defined in the server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -337,8 +406,79 @@ func (r *mirrorVirtualAttributeResource) Create(ctx context.Context, req resourc
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultMirrorVirtualAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan mirrorVirtualAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mirror Virtual Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state mirrorVirtualAttributeResourceModel
+	readMirrorVirtualAttributeResponse(ctx, readResponse.MirrorVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createMirrorVirtualAttributeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Mirror Virtual Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readMirrorVirtualAttributeResponse(ctx, updateResponse.MirrorVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *mirrorVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMirrorVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMirrorVirtualAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMirrorVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readMirrorVirtualAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state mirrorVirtualAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -347,8 +487,8 @@ func (r *mirrorVirtualAttributeResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.VirtualAttributeApi.GetVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mirror Virtual Attribute", err, httpResp)
 		return
@@ -373,6 +513,14 @@ func (r *mirrorVirtualAttributeResource) Read(ctx context.Context, req resource.
 
 // Update a resource
 func (r *mirrorVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMirrorVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMirrorVirtualAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMirrorVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateMirrorVirtualAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan mirrorVirtualAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -384,8 +532,8 @@ func (r *mirrorVirtualAttributeResource) Update(ctx context.Context, req resourc
 	// Get the current state to see how any attributes are changing
 	var state mirrorVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMirrorVirtualAttributeOperations(plan, state)
@@ -394,7 +542,7 @@ func (r *mirrorVirtualAttributeResource) Update(ctx context.Context, req resourc
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.VirtualAttributeApi.UpdateVirtualAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Mirror Virtual Attribute", err, httpResp)
 			return
@@ -422,6 +570,12 @@ func (r *mirrorVirtualAttributeResource) Update(ctx context.Context, req resourc
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultMirrorVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *mirrorVirtualAttributeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state mirrorVirtualAttributeResourceModel
@@ -440,6 +594,14 @@ func (r *mirrorVirtualAttributeResource) Delete(ctx context.Context, req resourc
 }
 
 func (r *mirrorVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMirrorVirtualAttribute(ctx, req, resp)
+}
+
+func (r *defaultMirrorVirtualAttributeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMirrorVirtualAttribute(ctx, req, resp)
+}
+
+func importMirrorVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

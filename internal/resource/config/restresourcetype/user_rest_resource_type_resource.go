@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +26,9 @@ var (
 	_ resource.Resource                = &userRestResourceTypeResource{}
 	_ resource.ResourceWithConfigure   = &userRestResourceTypeResource{}
 	_ resource.ResourceWithImportState = &userRestResourceTypeResource{}
+	_ resource.Resource                = &defaultUserRestResourceTypeResource{}
+	_ resource.ResourceWithConfigure   = &defaultUserRestResourceTypeResource{}
+	_ resource.ResourceWithImportState = &defaultUserRestResourceTypeResource{}
 )
 
 // Create a User Rest Resource Type resource
@@ -29,8 +36,18 @@ func NewUserRestResourceTypeResource() resource.Resource {
 	return &userRestResourceTypeResource{}
 }
 
+func NewDefaultUserRestResourceTypeResource() resource.Resource {
+	return &defaultUserRestResourceTypeResource{}
+}
+
 // userRestResourceTypeResource is the resource implementation.
 type userRestResourceTypeResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultUserRestResourceTypeResource is the resource implementation.
+type defaultUserRestResourceTypeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +57,22 @@ func (r *userRestResourceTypeResource) Metadata(_ context.Context, req resource.
 	resp.TypeName = req.ProviderTypeName + "_user_rest_resource_type"
 }
 
+func (r *defaultUserRestResourceTypeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_user_rest_resource_type"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *userRestResourceTypeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultUserRestResourceTypeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,6 +113,14 @@ type userRestResourceTypeResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	userRestResourceTypeSchema(ctx, req, resp, false)
+}
+
+func (r *defaultUserRestResourceTypeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	userRestResourceTypeSchema(ctx, req, resp, true)
+}
+
+func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a User Rest Resource Type.",
 		Attributes: map[string]schema.Attribute{
@@ -89,11 +128,17 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 				Description: "Specifies which attribute category the password belongs to.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"password_display_order_index": schema.Int64Attribute{
 				Description: "This property determines the display order for the password within its attribute category. Attributes are ordered within their category based on this index from least to greatest.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this REST Resource Type",
@@ -115,6 +160,9 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 				Description: "Specifies an auxiliary LDAP object class that should be exposed by this REST Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"search_base_dn": schema.StringAttribute{
@@ -125,6 +173,9 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 				Description: "The set of LDAP filters that define the LDAP entries that should be included in this REST Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"parent_dn": schema.StringAttribute{
@@ -139,22 +190,34 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 				Description: "Specifies a template for a relative DN from the parent resource which identifies the parent entry for a new resource of this type. If this property is not specified then new resources are created immediately below the parent resource or parent DN.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"create_rdn_attribute_type": schema.StringAttribute{
 				Description: "Specifies the name or OID of the LDAP attribute type to be used as the RDN of new resources.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"post_create_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a new resource is created. The values are only set at creation time. Subsequent modifications to attributes in the constructed attribute value-pattern are not propagated here.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"update_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a resource is updated. The constructed values replace any existing values of the attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"display_name": schema.StringAttribute{
@@ -173,23 +236,38 @@ func (r *userRestResourceTypeResource) Schema(ctx context.Context, req resource.
 				Description: "The maximum number of resources that may be returned from a search request.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"delegated_admin_report_size_limit": schema.Int64Attribute{
 				Description: "The maximum number of resources that may be included in a report.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"members_column_name": schema.StringAttribute{
 				Description: "Specifies the name of the group member column that will be displayed in the Delegated Admin UI",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"nonmembers_column_name": schema.StringAttribute{
 				Description: "Specifies the name of the group nonmember column that will be displayed in the Delegated Admin UI",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -396,8 +474,79 @@ func (r *userRestResourceTypeResource) Create(ctx context.Context, req resource.
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultUserRestResourceTypeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan userRestResourceTypeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the User Rest Resource Type", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state userRestResourceTypeResourceModel
+	readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createUserRestResourceTypeOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the User Rest Resource Type", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readUserRestResourceTypeResponse(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *userRestResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUserRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUserRestResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUserRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readUserRestResourceType(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state userRestResourceTypeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -406,8 +555,8 @@ func (r *userRestResourceTypeResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.RestResourceTypeApi.GetRestResourceType(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the User Rest Resource Type", err, httpResp)
 		return
@@ -432,6 +581,14 @@ func (r *userRestResourceTypeResource) Read(ctx context.Context, req resource.Re
 
 // Update a resource
 func (r *userRestResourceTypeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUserRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUserRestResourceTypeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUserRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateUserRestResourceType(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan userRestResourceTypeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -443,8 +600,8 @@ func (r *userRestResourceTypeResource) Update(ctx context.Context, req resource.
 	// Get the current state to see how any attributes are changing
 	var state userRestResourceTypeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RestResourceTypeApi.UpdateRestResourceType(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createUserRestResourceTypeOperations(plan, state)
@@ -453,7 +610,7 @@ func (r *userRestResourceTypeResource) Update(ctx context.Context, req resource.
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the User Rest Resource Type", err, httpResp)
 			return
@@ -481,6 +638,12 @@ func (r *userRestResourceTypeResource) Update(ctx context.Context, req resource.
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultUserRestResourceTypeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *userRestResourceTypeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state userRestResourceTypeResourceModel
@@ -499,6 +662,14 @@ func (r *userRestResourceTypeResource) Delete(ctx context.Context, req resource.
 }
 
 func (r *userRestResourceTypeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importUserRestResourceType(ctx, req, resp)
+}
+
+func (r *defaultUserRestResourceTypeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importUserRestResourceType(ctx, req, resp)
+}
+
+func importUserRestResourceType(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -22,6 +25,9 @@ var (
 	_ resource.Resource                = &thirdPartyHttpOperationLogPublisherResource{}
 	_ resource.ResourceWithConfigure   = &thirdPartyHttpOperationLogPublisherResource{}
 	_ resource.ResourceWithImportState = &thirdPartyHttpOperationLogPublisherResource{}
+	_ resource.Resource                = &defaultThirdPartyHttpOperationLogPublisherResource{}
+	_ resource.ResourceWithConfigure   = &defaultThirdPartyHttpOperationLogPublisherResource{}
+	_ resource.ResourceWithImportState = &defaultThirdPartyHttpOperationLogPublisherResource{}
 )
 
 // Create a Third Party Http Operation Log Publisher resource
@@ -29,8 +35,18 @@ func NewThirdPartyHttpOperationLogPublisherResource() resource.Resource {
 	return &thirdPartyHttpOperationLogPublisherResource{}
 }
 
+func NewDefaultThirdPartyHttpOperationLogPublisherResource() resource.Resource {
+	return &defaultThirdPartyHttpOperationLogPublisherResource{}
+}
+
 // thirdPartyHttpOperationLogPublisherResource is the resource implementation.
 type thirdPartyHttpOperationLogPublisherResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultThirdPartyHttpOperationLogPublisherResource is the resource implementation.
+type defaultThirdPartyHttpOperationLogPublisherResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
@@ -40,8 +56,22 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Metadata(_ context.Context
 	resp.TypeName = req.ProviderTypeName + "_third_party_http_operation_log_publisher"
 }
 
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_third_party_http_operation_log_publisher"
+}
+
 // Configure adds the provider configured client to the resource.
 func (r *thirdPartyHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClient
+}
+
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -65,6 +95,14 @@ type thirdPartyHttpOperationLogPublisherResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *thirdPartyHttpOperationLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyHttpOperationLogPublisherSchema(ctx, req, resp, false)
+}
+
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	thirdPartyHttpOperationLogPublisherSchema(ctx, req, resp, true)
+}
+
+func thirdPartyHttpOperationLogPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Third Party Http Operation Log Publisher.",
 		Attributes: map[string]schema.Attribute{
@@ -76,6 +114,9 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Schema(ctx context.Context
 				Description: "The set of arguments used to customize the behavior for the Third Party HTTP Operation Log Publisher. Each configuration property should be given in the form 'name=value'.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -90,8 +131,14 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Schema(ctx context.Context
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
+	}
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
@@ -199,8 +246,79 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Create(ctx context.Context
 	}
 }
 
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan thirdPartyHttpOperationLogPublisherResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Http Operation Log Publisher", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state thirdPartyHttpOperationLogPublisherResourceModel
+	readThirdPartyHttpOperationLogPublisherResponse(ctx, readResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createThirdPartyHttpOperationLogPublisherOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Http Operation Log Publisher", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readThirdPartyHttpOperationLogPublisherResponse(ctx, updateResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Read resource information
 func (r *thirdPartyHttpOperationLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readThirdPartyHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readThirdPartyHttpOperationLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state thirdPartyHttpOperationLogPublisherResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -209,8 +327,8 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Read(ctx context.Context, 
 		return
 	}
 
-	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Third Party Http Operation Log Publisher", err, httpResp)
 		return
@@ -235,6 +353,14 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Read(ctx context.Context, 
 
 // Update a resource
 func (r *thirdPartyHttpOperationLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateThirdPartyHttpOperationLogPublisher(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateThirdPartyHttpOperationLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan thirdPartyHttpOperationLogPublisherResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -246,8 +372,8 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Update(ctx context.Context
 	// Get the current state to see how any attributes are changing
 	var state thirdPartyHttpOperationLogPublisherResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createThirdPartyHttpOperationLogPublisherOperations(plan, state)
@@ -256,7 +382,7 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Update(ctx context.Context
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogPublisherApi.UpdateLogPublisherExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Third Party Http Operation Log Publisher", err, httpResp)
 			return
@@ -284,6 +410,12 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Update(ctx context.Context
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
 func (r *thirdPartyHttpOperationLogPublisherResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state thirdPartyHttpOperationLogPublisherResourceModel
@@ -302,6 +434,14 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Delete(ctx context.Context
 }
 
 func (r *thirdPartyHttpOperationLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyHttpOperationLogPublisher(ctx, req, resp)
+}
+
+func (r *defaultThirdPartyHttpOperationLogPublisherResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importThirdPartyHttpOperationLogPublisher(ctx, req, resp)
+}
+
+func importThirdPartyHttpOperationLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
