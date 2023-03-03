@@ -15,7 +15,8 @@ jobs:
             MSG="Update CHANGELOG.md triggered by ${{ github.actor }}"
             git config --local user.email changelogbot@pingidentity.com
             git config --local user.name changelogbot
+            git checkout -b changelog-update-$(date +'%B-%d-%Y') 
             git add CHANGELOG.md
             git commit -m "$MSG" 
-            git push
+            git push origin changelog-update-$(date +'%B-%d-%Y')
           fi
