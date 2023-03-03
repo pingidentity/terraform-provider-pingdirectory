@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -124,11 +128,17 @@ func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies which attribute category the password belongs to.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"password_display_order_index": schema.Int64Attribute{
 				Description: "This property determines the display order for the password within its attribute category. Attributes are ordered within their category based on this index from least to greatest.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this REST Resource Type",
@@ -150,6 +160,9 @@ func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies an auxiliary LDAP object class that should be exposed by this REST Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"search_base_dn": schema.StringAttribute{
@@ -160,6 +173,9 @@ func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The set of LDAP filters that define the LDAP entries that should be included in this REST Resource Type.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"parent_dn": schema.StringAttribute{
@@ -174,22 +190,34 @@ func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies a template for a relative DN from the parent resource which identifies the parent entry for a new resource of this type. If this property is not specified then new resources are created immediately below the parent resource or parent DN.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"create_rdn_attribute_type": schema.StringAttribute{
 				Description: "Specifies the name or OID of the LDAP attribute type to be used as the RDN of new resources.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"post_create_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a new resource is created. The values are only set at creation time. Subsequent modifications to attributes in the constructed attribute value-pattern are not propagated here.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"update_constructed_attribute": schema.SetAttribute{
 				Description: "Specifies an attribute whose values are to be constructed when a resource is updated. The constructed values replace any existing values of the attribute.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"display_name": schema.StringAttribute{
@@ -208,21 +236,33 @@ func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "The maximum number of resources that may be returned from a search request.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"delegated_admin_report_size_limit": schema.Int64Attribute{
 				Description: "The maximum number of resources that may be included in a report.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"members_column_name": schema.StringAttribute{
 				Description: "Specifies the name of the group member column that will be displayed in the Delegated Admin UI",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"nonmembers_column_name": schema.StringAttribute{
 				Description: "Specifies the name of the group nonmember column that will be displayed in the Delegated Admin UI",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
