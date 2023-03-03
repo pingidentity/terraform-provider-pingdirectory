@@ -1,10 +1,6 @@
 name: Generate CHANGELOG
 on:
-  push:
-    branches:
-      - "BRASS-790-changelog-generation"
-# on:
-#   workflow_dispatch:
+  workflow_dispatch:
 jobs:
   GenerateChangelog:
     if: github.event_name == 'workflow_dispatch'
