@@ -47,6 +47,8 @@ resource "pingdirectory_consent_service" "defaultConsentService" {
   base_dn                        = "ou=Consents,${var.user_base_dn}"
   bind_dn                        = "cn=consent service account"
   consent_record_identity_mapper = [pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id]
+  # The above attribute must be changed to allow destroying the user-id-identity-mapper object.
+  # consent_record_identity_mapper = []
   service_account_dn             = ["uid=Consent Admin,ou=people,${var.user_base_dn}"]
   unprivileged_consent_scope     = "consent"
   privileged_consent_scope       = "consent_admin"
@@ -55,6 +57,9 @@ resource "pingdirectory_consent_service" "defaultConsentService" {
 resource "pingdirectory_consent_http_servlet_extension" "defaultConsentServletExtension" {
   id              = "Consent"
   identity_mapper = pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id
+  # The above attribute must be changed to allow destroying the user-id-identity-mapper object.
+  # Exact Match is the default identity mapper.
+  # identity_mapper = "Exact Match"
   depends_on = [
     pingdirectory_consent_service.defaultConsentService
   ]

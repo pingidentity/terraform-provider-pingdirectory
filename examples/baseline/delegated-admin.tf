@@ -197,6 +197,8 @@ resource "pingdirectory_delegated_admin_http_servlet_extension" "daServletExtens
   access_token_scope  = "urn:pingidentity:directory-delegated-admin"
   response_header     = ["Cache-Control: no-cache, no-store, must-revalidate", "Expires: 0", "Pragma: no-cache"]
   cross_origin_policy = pingdirectory_http_servlet_cross_origin_policy.daCrossOriginPolicy.id
+  # The above attribute must be removed (by setting to "") to allow destroying the Delegated Admin Cross-Origin Policy object
+  # cross_origin_policy = ""
 }
 
 
