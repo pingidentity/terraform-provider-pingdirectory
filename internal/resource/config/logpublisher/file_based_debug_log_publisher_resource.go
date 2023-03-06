@@ -12,6 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -131,39 +136,60 @@ func fileBasedDebugLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 				Description: "The UNIX permissions of the log files created by this File Based Debug Log Publisher.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the File Based Debug Log Publisher .",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the File Based Debug Log Publisher .",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
 				Description: "Specifies the type of compression (if any) to use for log files that are written.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"sign_log": schema.BoolAttribute{
 				Description: "Indicates whether the log should be cryptographically signed so that the log content cannot be altered in an undetectable manner.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"encrypt_log": schema.BoolAttribute{
 				Description: "Indicates whether log files should be encrypted so that their content is not available to unauthorized users.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
 				Description: "Specifies the ID of the encryption settings definition that should be used to encrypt the data. If this is not provided, the server's preferred encryption settings definition will be used. The \"encryption-settings list\" command can be used to obtain a list of the encryption settings definitions available in the server.",
@@ -173,67 +199,106 @@ func fileBasedDebugLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies whether to append to existing log files.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the File Based Debug Log Publisher will publish records asynchronously.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"auto_flush": schema.BoolAttribute{
 				Description: "Specifies whether to flush the writer after every log record.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"buffer_size": schema.StringAttribute{
 				Description: "Specifies the log file buffer size.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"time_interval": schema.StringAttribute{
 				Description: "Specifies the interval at which to check whether the log files need to be rotated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"timestamp_precision": schema.StringAttribute{
 				Description: "Specifies the smallest time unit to be included in timestamps.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_debug_level": schema.StringAttribute{
 				Description: "The lowest severity level of debug messages to log when none of the defined targets match the message.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_debug_category": schema.SetAttribute{
 				Description: "The debug message categories to be logged when none of the defined targets match the message.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"default_omit_method_entry_arguments": schema.BoolAttribute{
 				Description: "Indicates whether to include method arguments in debug messages logged by default.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_omit_method_return_value": schema.BoolAttribute{
 				Description: "Indicates whether to include the return value in debug messages logged by default.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_include_throwable_cause": schema.BoolAttribute{
 				Description: "Indicates whether to include the cause of exceptions in exception thrown and caught messages logged by default.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"default_throwable_stack_frames": schema.Int64Attribute{
 				Description: "Indicates the number of stack frames to include in the stack trace for method entry and exception thrown messages.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Log Publisher",
@@ -247,6 +312,9 @@ func fileBasedDebugLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}

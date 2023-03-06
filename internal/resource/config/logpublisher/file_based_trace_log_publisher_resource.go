@@ -12,6 +12,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -134,39 +139,60 @@ func fileBasedTraceLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 				Description: "The UNIX permissions of the log files created by this File Based Trace Log Publisher.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"rotation_policy": schema.SetAttribute{
 				Description: "The rotation policy to use for the File Based Trace Log Publisher .",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the File Based Trace Log Publisher .",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
 				Description: "Specifies the type of compression (if any) to use for log files that are written.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"sign_log": schema.BoolAttribute{
 				Description: "Indicates whether the log should be cryptographically signed so that the log content cannot be altered in an undetectable manner.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"encrypt_log": schema.BoolAttribute{
 				Description: "Indicates whether log files should be encrypted so that their content is not available to unauthorized users.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"encryption_settings_definition_id": schema.StringAttribute{
 				Description: "Specifies the ID of the encryption settings definition that should be used to encrypt the data. If this is not provided, the server's preferred encryption settings definition will be used. The \"encryption-settings list\" command can be used to obtain a list of the encryption settings definitions available in the server.",
@@ -176,90 +202,138 @@ func fileBasedTraceLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies whether to append to existing log files.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"buffer_size": schema.StringAttribute{
 				Description: "Specifies the log file buffer size.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"time_interval": schema.StringAttribute{
 				Description: "Specifies the interval at which to check whether the log files need to be rotated.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"asynchronous": schema.BoolAttribute{
 				Description: "Indicates whether the Writer Based Trace Log Publisher will publish records asynchronously.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"queue_size": schema.Int64Attribute{
 				Description: "The maximum number of log records that can be stored in the asynchronous queue.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"max_string_length": schema.Int64Attribute{
 				Description: "Specifies the maximum number of characters that may be included in any string in a log message before that string is truncated and replaced with a placeholder indicating the number of characters that were omitted. This can help prevent extremely long log messages from being written.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"debug_message_type": schema.SetAttribute{
 				Description: "Specifies the debug message types which can be logged. Note that enabling these may result in sensitive information being logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"http_message_type": schema.SetAttribute{
 				Description: "Specifies the HTTP message types which can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"access_token_validator_message_type": schema.SetAttribute{
 				Description: "Specifies the access token validator message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"id_token_validator_message_type": schema.SetAttribute{
 				Description: "Specifies the ID token validator message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"scim_message_type": schema.SetAttribute{
 				Description: "Specifies the SCIM message types which can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"consent_message_type": schema.SetAttribute{
 				Description: "Specifies the consent message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"directory_rest_api_message_type": schema.SetAttribute{
 				Description: "Specifies the Directory REST API message types which can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"extension_message_type": schema.SetAttribute{
 				Description: "Specifies the Server SDK extension message types that can be logged.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"include_path_pattern": schema.SetAttribute{
 				Description: "Specifies a set of HTTP request URL paths to determine whether log messages are included for a HTTP request. Log messages are included for a HTTP request if the request path does not match any exclude-path-pattern, and the request path does match an include-path-pattern (or no include-path-pattern is specified).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"exclude_path_pattern": schema.SetAttribute{
 				Description: "Specifies a set of HTTP request URL paths to determine whether log messages are excluded for a HTTP request. Log messages are included for a HTTP request if the request path does not match any exclude-path-pattern, and the request path does match an include-path-pattern (or no include-path-pattern is specified).",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
@@ -274,6 +348,9 @@ func fileBasedTraceLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 				Description: "Specifies the behavior that the server should exhibit if an error occurs during logging processing.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}

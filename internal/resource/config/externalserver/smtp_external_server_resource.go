@@ -12,6 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
@@ -115,11 +119,17 @@ func smtpExternalServerSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The port number where the smtp server listens for requests.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"smtp_security": schema.StringAttribute{
 				Description: "This property specifies type of connection security to use when connecting to the outgoing mail server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"user_name": schema.StringAttribute{
 				Description: "The name of the login account to use when connecting to the smtp server. Both username and password must be supplied if this attribute is set.",
@@ -138,11 +148,17 @@ func smtpExternalServerSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "Specifies the maximum length of time that a connection or attempted connection to a SMTP server may take.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"smtp_connection_properties": schema.SetAttribute{
 				Description: "Specifies the connection properties for the smtp server.",
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
 				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
