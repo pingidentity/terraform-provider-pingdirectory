@@ -1,4 +1,4 @@
-resource "pingdirectory_dsee_compat_access_control_handler" "defaultAccessControlHandler" {
+resource "pingdirectory_default_dsee_compat_access_control_handler" "defaultAccessControlHandler" {
   global_aci = [
     "(extop=\"1.3.6.1.1.8\")(version 3.0; acl \"Anonymous access to the cancel extended operation as described in RFC 3909\"; allow (read) userdn=\"ldap:///anyone\";)",
     "(extop=\"1.3.6.1.4.1.1466.20037\")(version 3.0; acl \"Anonymous access to the get StartTLS extended request as described in RFC 4511\"; allow (read) userdn=\"ldap:///anyone\";)",
