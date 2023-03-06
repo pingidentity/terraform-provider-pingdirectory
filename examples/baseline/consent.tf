@@ -22,7 +22,7 @@ resource "pingdirectory_exact_match_identity_mapper" "userIdIdentityMapper" {
   id              = "user-id-identity-mapper"
   enabled         = true
   match_attribute = ["cn", "entryUUID", "uid"]
-  match_base_dn   = ["cn=config", "ou=people,dc=example,dc=com"]
+  match_base_dn   = ["cn=config", "ou=people,${var.user_base_dn}"]
 }
 
 resource "pingdirectory_mock_access_token_validator" "mockAccessTokenValidate" {
@@ -44,10 +44,10 @@ resource "pingdirectory_topology_admin_user" "consentInternalServiceAccount" {
 
 resource "pingdirectory_consent_service" "defaultConsentService" {
   enabled                        = true
-  base_dn                        = "ou=Consents,dc=example,dc=com"
+  base_dn                        = "ou=Consents,${var.user_base_dn}"
   bind_dn                        = "cn=consent service account"
   consent_record_identity_mapper = [pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id]
-  service_account_dn             = ["uid=Consent Admin,ou=people,dc=example,dc=com"]
+  service_account_dn             = ["uid=Consent Admin,ou=people,${var.user_base_dn}"]
   unprivileged_consent_scope     = "consent"
   privileged_consent_scope       = "consent_admin"
 }
@@ -55,4 +55,7 @@ resource "pingdirectory_consent_service" "defaultConsentService" {
 resource "pingdirectory_consent_http_servlet_extension" "defaultConsentServletExtension" {
   id              = "Consent"
   identity_mapper = pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id
+  depends_on = [
+    pingdirectory_consent_service.defaultConsentService
+  ]
 }

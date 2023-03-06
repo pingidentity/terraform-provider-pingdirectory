@@ -7,7 +7,7 @@ resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentitiesPlugin"
   attribute_type                                             = "objectClass"
   value_pattern                                              = ["pf-connected-identities"]
   target_attribute_exists_during_initial_population_behavior = "merge-existing-and-composed-values"
-  include_base_dn                                            = ["dc=example,dc=com"]
+  include_base_dn                                            = ["${var.user_base_dn}"]
   include_filter                                             = ["(objectClass=inetOrgPerson)"]
 }
 
@@ -16,7 +16,7 @@ resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentityPlugin" {
   enabled         = true
   attribute_type  = "pf-connected-identity"
   value_pattern   = ["auth-source=pf-local-identity:user-id={uid}"]
-  include_base_dn = ["dc=example,dc=com"]
+  include_base_dn = ["${var.user_base_dn}"]
   include_filter  = ["(objectClass=inetOrgPerson)"]
 }
 
@@ -28,12 +28,12 @@ resource "pingdirectory_user_rest_resource_type" "usersRestResourceType" {
   id                             = "users"
   display_name                   = "Users"
   enabled                        = true
-  search_base_dn                 = "ou=people,dc=example,dc=com"
+  search_base_dn                 = "ou=people,${var.user_base_dn}"
   primary_display_attribute_type = "cn"
   resource_endpoint              = "users"
   search_filter_pattern          = "(|(cn=*%%*)(mail=%%*)(uid=%%*)(sn=*%%*))"
   structural_ldap_objectclass    = "inetOrgPerson"
-  parent_dn                      = "ou=people,dc=example,dc=com"
+  parent_dn                      = "ou=people,${var.user_base_dn}"
   create_rdn_attribute_type      = "uid"
 }
 
@@ -41,12 +41,12 @@ resource "pingdirectory_group_rest_resource_type" "groupsRestResourceType" {
   id                             = "groups"
   display_name                   = "Groups"
   enabled                        = true
-  search_base_dn                 = "ou=groups,dc=example,dc=com"
+  search_base_dn                 = "ou=groups,${var.user_base_dn}"
   primary_display_attribute_type = "cn"
   resource_endpoint              = "groups"
   search_filter_pattern          = "(cn=*%%*)"
   structural_ldap_objectclass    = "groupOfUniqueNames"
-  parent_dn                      = "ou=groups,dc=example,dc=com"
+  parent_dn                      = "ou=groups,${var.user_base_dn}"
 }
 
 #
@@ -112,7 +112,7 @@ resource "pingdirectory_generic_delegated_admin_attribute" "descriptionGroupAttr
 resource "pingdirectory_delegated_admin_rights" "deladminRights" {
   id            = "deladmin"
   enabled       = true
-  admin_user_dn = "uid=administrator,ou=people,dc=example,dc=com"
+  admin_user_dn = "uid=administrator,ou=people,${var.user_base_dn}"
 }
 
 #
@@ -149,14 +149,6 @@ resource "pingdirectory_default_blind_trust_manager_provider" "blindTrustManager
   enabled = true
 }
 
-variable "pingfederate_hostname" {
-  type = string
-}
-
-variable "pingfederate_https_port" {
-  type = string
-}
-
 resource "pingdirectory_http_external_server" "pfExternalServer" {
   id                           = "pingfederate"
   base_url                     = "https://${var.pingfederate_hostname}:${var.pingfederate_https_port}"
@@ -168,7 +160,7 @@ resource "pingdirectory_exact_match_identity_mapper" "entryUUIDMatchMapper" {
   id              = "entryUUIDMatch"
   enabled         = true
   match_attribute = ["entryUUID"]
-  match_base_dn   = ["dc=example,dc=com"]
+  match_base_dn   = ["${var.user_base_dn}"]
 }
 
 resource "pingdirectory_ping_federate_access_token_validator" "pfAccessTokenValidator" {
@@ -215,7 +207,7 @@ resource "pingdirectory_delegated_admin_http_servlet_extension" "daServletExtens
 resource "pingdirectory_simple_request_criteria" "daUserCreationRequestCriteria" {
   id                               = "Delegated Admin User Creation Request Criteria"
   operation_type                   = ["add"]
-  included_target_entry_dn         = ["ou=people,dc=example,dc=com"]
+  included_target_entry_dn         = ["ou=people,${var.user_base_dn}"]
   any_included_target_entry_filter = ["(objectClass=inetOrgPerson)"]
   included_application_name        = ["PingDirectory Delegated Admin"]
 }

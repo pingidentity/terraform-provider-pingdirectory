@@ -19,6 +19,12 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+variable "root_user_dn" {
+  type     = string
+  nullable = false
+  default  = "cn=administrator"
+}
+
 resource "pingdirectory_default_http_connection_handler" "defaultHttpsConnectionHandler" {
   id                        = "HTTPS Connection Handler"
   web_application_extension = []
@@ -51,5 +57,5 @@ resource "pingdirectory_default_file_based_audit_log_publisher" "defaultFileBase
 
 resource "pingdirectory_default_root_dn_user" "defaultRootDnUser" {
   id                = "Directory Manager"
-  alternate_bind_dn = ["cn=administrator"]
+  alternate_bind_dn = ["${var.root_user_dn}"]
 }

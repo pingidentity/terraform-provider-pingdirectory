@@ -18,3 +18,34 @@ provider "pingdirectory" {
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
 }
+
+variable "pingfederate_hostname" {
+  type     = string
+  nullable = false
+  default  = "pingfederate"
+}
+
+variable "pingfederate_https_port" {
+  type     = number
+  nullable = false
+  default  = 9031
+}
+
+variable "root_user_dn" {
+  type     = string
+  nullable = false
+  default  = "cn=administrator"
+}
+
+variable "root_user_password" {
+  type      = string
+  nullable  = false
+  default   = "2FederateM0re"
+  sensitive = true
+}
+
+variable "user_base_dn" {
+  type     = string
+  nullable = false
+  default  = "dc=example,dc=com"
+}

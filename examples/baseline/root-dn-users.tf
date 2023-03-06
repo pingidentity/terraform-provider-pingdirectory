@@ -1,6 +1,6 @@
 resource "pingdirectory_default_root_dn_user" "defaultRootDnUser" {
   id                = "Directory Manager"
-  alternate_bind_dn = ["cn=administrator"]
+  alternate_bind_dn = [var.root_user_dn]
 }
 
 resource "pingdirectory_root_dn_user" "syncRootDnUser" {
@@ -8,7 +8,7 @@ resource "pingdirectory_root_dn_user" "syncRootDnUser" {
   alternate_bind_dn               = ["cn=sync", "cn=datasync"]
   inherit_default_root_privileges = false
   privilege                       = ["bypass-acl", "bypass-pw-policy", "config-read", "password-reset", "unindexed-search"]
-  password                        = "2FederateM0re"
+  password                        = var.root_user_password
 }
 
 resource "pingdirectory_root_dn_user" "federateRootDnUser" {
@@ -17,14 +17,14 @@ resource "pingdirectory_root_dn_user" "federateRootDnUser" {
   inherit_default_root_privileges = false
   privilege                       = ["password-reset", "permit-get-password-policy-state-issues", "unindexed-search", "config-read", "proxied-auth"]
   is_proxyable                    = "prohibited"
-  password                        = "2FederateM0re"
+  password                        = var.root_user_password
 }
 
 resource "pingdirectory_root_dn_user" "proxyRootDnUser" {
   id                = "pingdirectoryproxy"
   alternate_bind_dn = ["cn=pingdirectoryproxy", "cn=proxy"]
   privilege         = ["proxied-auth"]
-  password          = "2FederateM0re"
+  password          = var.root_user_password
 }
 
 resource "pingdirectory_root_dn_user" "authorizeRootDnUser" {
@@ -33,5 +33,5 @@ resource "pingdirectory_root_dn_user" "authorizeRootDnUser" {
   inherit_default_root_privileges = false
   privilege                       = ["password-reset", "proxied-auth", "unindexed-search"]
   search_result_entry_limit       = 100000
-  password                        = "2FederateM0re"
+  password                        = var.root_user_password
 }

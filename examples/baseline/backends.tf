@@ -6,5 +6,5 @@ resource "pingdirectory_changelog_backend" "changelogBackend" {
 
 resource "pingdirectory_default_local_db_backend" "defaultUserRootBackend" {
   backend_id               = "userRoot"
-  compact_common_parent_dn = ["ou=people,dc=example,dc=com"]
+  compact_common_parent_dn = ["ou=people,${var.user_base_dn}"]
 }

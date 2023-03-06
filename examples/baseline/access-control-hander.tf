@@ -51,7 +51,7 @@ resource "pingdirectory_dsee_compat_access_control_handler" "defaultAccessContro
     "(target=\"ldap:///cn=monitor\")(targetattr=\"*||+\")(version 3.0; acl \"pingauthorize access to the monitor backend\"; allow(read,search,compare) userdn=\"ldap:///cn=pingauthorize,cn=Root DNs,cn=config\";)",
     "(targetcontrol=\"1.2.840.113556.1.4.1413||1.3.6.1.1.13.2||1.3.6.1.4.1.30221.2.5.2||1.3.6.1.4.1.30221.2.5.40||1.3.6.1.4.1.30221.2.5.44||1.3.6.1.1.12||2.16.840.1.113730.3.4.3\")(version 3.0; acl \"pingauthorize access to selected controls\"; allow (read) userdn=\"ldap:///cn=pingauthorize,cn=Root DNs,cn=config\";)",
     "(targetattr=\"uid||entryUUID||isMemberOf\")(version 3.0; acl \"pingauthorize access to selected attributes\"; allow(all) userdn=\"ldap:///cn=pingauthorize,cn=Root DNs,cn=config\";)",
-    "(target=\"ldap:///ou=people,dc=example,dc=com\")(targetattr=\"*||+\")(version 3.0; acl \"pingauthorize access to user store data\"; allow(all) userdn=\"ldap:///cn=pingauthorize,cn=Root DNs,cn=config\";)",
+    "(target=\"ldap:///ou=people,${var.user_base_dn}\")(targetattr=\"*||+\")(version 3.0; acl \"pingauthorize access to user store data\"; allow(all) userdn=\"ldap:///cn=pingauthorize,cn=Root DNs,cn=config\";)",
     "(extop=\"1.3.6.1.4.1.30221.2.6.17 || 1.3.6.1.4.1.30221.2.6.62\")(version 3.0;acl \"Authenticated access to the multi-update and generate-password extended requests for the Delegated Admin API\"; allow (read) userdn=\"ldap:///all\";)",
     "(targetcontrol=\"1.3.6.1.4.1.4203.1.10.2 || 1.3.6.1.4.1.30221.2.5.40\")(version 3.0;acl \"Authenticated access to the no-op and password validation details request controls for the Delegated Admin API\"; allow (read) userdn=\"ldap:///all\";)"
   ]
