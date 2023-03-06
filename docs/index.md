@@ -62,7 +62,7 @@ resource "pingdirectory_file_based_access_log_publisher" "myNewFileBasedAccessLo
 # Enable the default JMX connection handler
 resource "pingdirectory_default_jmx_connection_handler" "defaultJmxConnHandler" {
   id      = "JMX Connection Handler"
-  enabled = false
+  enabled = true
 }
 
 # Create a custom JMX connection handler
