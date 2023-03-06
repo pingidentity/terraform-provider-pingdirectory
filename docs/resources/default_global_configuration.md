@@ -159,5 +159,5 @@ Import is supported using the following syntax:
 ```shell
 # This resource is singleton, so the value of "id" doesn't matter - it is just a placeholder
 
-terraform import pingdirectory_global_configuration id
+terraform import pingdirectory_default_global_configuration id
 ```
