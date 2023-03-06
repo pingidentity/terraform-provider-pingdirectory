@@ -50,4 +50,4 @@ fi
     
 cat  header.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
 
-rm -rf header.md new_enhancements.md new_resources.md bug_resolutions.md
+rm -r header.md new_enhancements.md new_resources.md bug_resolutions.md
