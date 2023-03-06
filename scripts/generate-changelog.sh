@@ -48,4 +48,6 @@ if [ ${#bugs[@]} -gt 0 ]; then
     printf '\n%s\n' "${bugs[@]}" >> bug_resolutions.md
 fi
     
-cat  header.md new_enhancements.md new_resources.md bug_resolutions.md > CHANGELOG.md
+cat  header.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
+
+rm -rf header.md new_enhancements.md new_resources.md bug_resolutions.md
