@@ -19,12 +19,10 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_global_configuration" "global" {
-  location              = "Docker"
-  encrypt_data          = true
-  sensitive_attribute   = ["Delivered One-Time Password", "TOTP Shared Secret"]
-  tracked_application   = ["Requests by Root Users"]
-  result_code_map       = "Sun DS Compatible Behavior"
-  disabled_privilege    = ["jmx-write", "jmx-read"]
-  maximum_shutdown_time = "4 m"
+resource "pingdirectory_default_directory_server_instance" "mine" {
+  //NOTE This id needs to match the instance name generated for the running instance
+  id                            = "instanceName"
+  jmx_port                      = 1112
+  start_tls_enabled             = true
+  load_balancing_algorithm_name = []
 }

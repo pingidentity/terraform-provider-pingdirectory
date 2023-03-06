@@ -41,7 +41,7 @@ type lastModPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *lastModPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_last_mod_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_last_mod_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

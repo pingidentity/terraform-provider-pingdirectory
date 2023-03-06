@@ -41,7 +41,7 @@ type changeSubscriptionNotificationPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *changeSubscriptionNotificationPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_change_subscription_notification_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_change_subscription_notification_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

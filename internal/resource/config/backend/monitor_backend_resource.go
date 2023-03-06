@@ -41,7 +41,7 @@ type monitorBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *monitorBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_monitor_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_monitor_backend"
 }
 
 // Configure adds the provider configured client to the resource.

@@ -19,11 +19,9 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_consent_service" "myConsentService" {
-  enabled                    = true
-  base_dn                    = "ou=consents,dc=example,dc=com"
-  bind_dn                    = "cn=consent service account"
-  unprivileged_consent_scope = "urn:pingdirectory:consent"
-  privileged_consent_scope   = "urn:pingdirectory:consent_admin"
-  search_size_limit          = 90
+// This set is approximately the minimum set required for you to be able to run
+// 'dsconfig get-root-dn-prop' successfully.  If you remove any of these permissions, 
+// you risk loss of access to the RootDN permission object.
+resource "pingdirectory_default_root_dn" "myrootdn" {
+  default_root_privilege_name = ["bypass-acl", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"]
 }

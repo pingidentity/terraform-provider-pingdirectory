@@ -19,10 +19,11 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_directory_server_instance" "mine" {
-  //NOTE This id needs to match the instance name generated for the running instance
-  id                            = "instanceName"
-  jmx_port                      = 1112
-  start_tls_enabled             = true
-  load_balancing_algorithm_name = []
+resource "pingdirectory_default_consent_service" "myConsentService" {
+  enabled                    = true
+  base_dn                    = "ou=consents,dc=example,dc=com"
+  bind_dn                    = "cn=consent service account"
+  unprivileged_consent_scope = "urn:pingdirectory:consent"
+  privileged_consent_scope   = "urn:pingdirectory:consent_admin"
+  search_size_limit          = 90
 }

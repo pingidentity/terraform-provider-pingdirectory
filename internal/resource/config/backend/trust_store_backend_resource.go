@@ -41,7 +41,7 @@ type trustStoreBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *trustStoreBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_trust_store_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_trust_store_backend"
 }
 
 // Configure adds the provider configured client to the resource.

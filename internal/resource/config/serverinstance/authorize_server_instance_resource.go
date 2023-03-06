@@ -42,7 +42,7 @@ type authorizeServerInstanceResource struct {
 
 // Metadata returns the resource type name.
 func (r *authorizeServerInstanceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_authorize_server_instance"
+	resp.TypeName = req.ProviderTypeName + "_default_authorize_server_instance"
 }
 
 // Configure adds the provider configured client to the resource.

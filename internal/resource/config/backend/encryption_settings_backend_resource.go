@@ -41,7 +41,7 @@ type encryptionSettingsBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *encryptionSettingsBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_encryption_settings_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_encryption_settings_backend"
 }
 
 // Configure adds the provider configured client to the resource.

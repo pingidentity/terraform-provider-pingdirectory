@@ -41,11 +41,11 @@ func TestAccRootDn(t *testing.T) {
 				Config: testAccRootDnResourceDefault(resourceName),
 				Check: resource.ComposeTestCheckFunc(
 					// check if the sample set of test default permissions are present in the state file
-					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionOne),
-					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionTwo),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionOne),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionTwo),
 
 					// check if the permissions reported by PingDirectory match the state file
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultPermissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), defaultPermissionsList),
 				),
 			},
 
@@ -54,7 +54,7 @@ func TestAccRootDn(t *testing.T) {
 				Config: testAccRootDnResource(resourceName, minimumPermissionsList),
 				Check: resource.ComposeTestCheckFunc(
 					// check that the permissions reported by PingDirectory match what was sent
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), minimumPermissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), minimumPermissionsList),
 				),
 			},
 			{
@@ -62,7 +62,7 @@ func TestAccRootDn(t *testing.T) {
 				Config: testAccRootDnResource(resourceName, updatedPermissionsList),
 				Check: resource.ComposeTestCheckFunc(
 					// check that the permissions reported by PingDirectory match what was sent
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), updatedPermissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), updatedPermissionsList),
 				),
 			},
 			{
@@ -70,13 +70,13 @@ func TestAccRootDn(t *testing.T) {
 				Config: testAccRootDnResource(resourceName, defaultPermissionsList),
 				Check: resource.ComposeTestCheckFunc(
 					// check if the permissions reported by PingDirectory match the state file
-					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_root_dn.%s", resourceName), defaultPermissionsList),
+					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), defaultPermissionsList),
 				),
 			},
 			{
 				// Test importing the root dn
 				Config:       testAccRootDnResource(resourceName, defaultPermissionsList),
-				ResourceName: "pingdirectory_root_dn." + resourceName,
+				ResourceName: "pingdirectory_default_root_dn." + resourceName,
 				// The id doesn't matter for singleton config objects
 				ImportStateId:           resourceName,
 				ImportState:             true,
@@ -90,7 +90,7 @@ func TestAccRootDn(t *testing.T) {
 // empty resource object means all values are computed, so it will retrieve defaults from PD
 func testAccRootDnResourceDefault(resourceName string) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_root_dn" "%[1]s" {
+resource "pingdirectory_default_root_dn" "%[1]s" {
 }`, resourceName)
 }
 
@@ -98,7 +98,7 @@ resource "pingdirectory_root_dn" "%[1]s" {
 // only what is in the list should exist after applied
 func testAccRootDnResource(resourceName string, permissionsList []string) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_root_dn" "%[1]s" {
+resource "pingdirectory_default_root_dn" "%[1]s" {
 	default_root_privilege_name = %[2]s
 }`, resourceName, acctest.StringSliceToTerraformString(permissionsList))
 }

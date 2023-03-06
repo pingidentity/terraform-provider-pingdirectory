@@ -19,9 +19,6 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-// This set is approximately the minimum set required for you to be able to run
-// 'dsconfig get-root-dn-prop' successfully.  If you remove any of these permissions, 
-// you risk loss of access to the RootDN permission object.
-resource "pingdirectory_root_dn" "myrootdn" {
-  default_root_privilege_name = ["bypass-acl", "config-read", "config-write", "modify-acl", "privilege-change", "use-admin-session"]
+resource "pingdirectory_default_dsee_compat_access_control_handler" "myDseeCompatAccessControlHandler" {
+  enabled = true
 }

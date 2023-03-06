@@ -39,7 +39,7 @@ type replicationStateDetailVirtualAttributeResource struct {
 
 // Metadata returns the resource type name.
 func (r *replicationStateDetailVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_replication_state_detail_virtual_attribute"
+	resp.TypeName = req.ProviderTypeName + "_default_replication_state_detail_virtual_attribute"
 }
 
 // Configure adds the provider configured client to the resource.

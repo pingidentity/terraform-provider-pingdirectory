@@ -42,7 +42,7 @@ type alertBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *alertBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_alert_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_alert_backend"
 }
 
 // Configure adds the provider configured client to the resource.

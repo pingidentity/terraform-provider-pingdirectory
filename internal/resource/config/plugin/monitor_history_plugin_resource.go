@@ -41,7 +41,7 @@ type monitorHistoryPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *monitorHistoryPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_monitor_history_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_monitor_history_plugin"
 }
 
 // Configure adds the provider configured client to the resource.
