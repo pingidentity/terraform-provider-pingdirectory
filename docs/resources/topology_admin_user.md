@@ -110,6 +110,6 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "topologyAdminUserName" should be the name of the Topology Admin User to be imported
-terraform import pingdirectory_topology_admin_user topologyAdminUserName
+# "topologyAdminUserId" should be the id of the Topology Admin User to be imported
+terraform import pingdirectory_topology_admin_user.myTopologyAdminUser topologyAdminUserId
 ```

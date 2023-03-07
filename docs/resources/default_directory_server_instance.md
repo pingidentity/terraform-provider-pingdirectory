@@ -34,7 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_default_directory_server_instance" "mine" {
+resource "pingdirectory_default_directory_server_instance" "myDirectoryServerInstance" {
   //NOTE This id needs to match the instance name generated for the running instance
   id                            = "instanceName"
   jmx_port                      = 1112
@@ -98,5 +98,5 @@ Import is supported using the following syntax:
 ```shell
 # "instanceName" should be the instance name of the instance to be imported
 
-terraform import pingdirectory_default_directory_server_instance instanceName
+terraform import pingdirectory_default_directory_server_instance.myDirectoryServerInstance instanceName
 ```
