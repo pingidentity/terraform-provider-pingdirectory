@@ -41,7 +41,7 @@ type delegatedAdminHttpServletExtensionResource struct {
 
 // Metadata returns the resource type name.
 func (r *delegatedAdminHttpServletExtensionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_delegated_admin_http_servlet_extension"
+	resp.TypeName = req.ProviderTypeName + "_default_delegated_admin_http_servlet_extension"
 }
 
 // Configure adds the provider configured client to the resource.

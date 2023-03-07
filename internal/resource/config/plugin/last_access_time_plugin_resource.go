@@ -42,7 +42,7 @@ type lastAccessTimePluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *lastAccessTimePluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_last_access_time_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_last_access_time_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

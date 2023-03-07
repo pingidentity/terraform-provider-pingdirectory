@@ -41,7 +41,7 @@ type ldapResultCodeTrackerPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *ldapResultCodeTrackerPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_ldap_result_code_tracker_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_ldap_result_code_tracker_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

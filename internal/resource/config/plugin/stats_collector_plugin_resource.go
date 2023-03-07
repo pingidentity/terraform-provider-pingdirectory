@@ -41,7 +41,7 @@ type statsCollectorPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *statsCollectorPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_stats_collector_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_stats_collector_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

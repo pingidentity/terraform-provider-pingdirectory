@@ -1,4 +1,4 @@
-resource "pingdirectory_changelog_backend" "changelogBackend" {
+resource "pingdirectory_default_changelog_backend" "changelogBackend" {
   backend_id            = "changelog"
   enabled               = true
   changelog_maximum_age = "2 h"

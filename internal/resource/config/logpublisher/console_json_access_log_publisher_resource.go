@@ -41,7 +41,7 @@ type consoleJsonAccessLogPublisherResource struct {
 
 // Metadata returns the resource type name.
 func (r *consoleJsonAccessLogPublisherResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_console_json_access_log_publisher"
+	resp.TypeName = req.ProviderTypeName + "_default_console_json_access_log_publisher"
 }
 
 // Configure adds the provider configured client to the resource.

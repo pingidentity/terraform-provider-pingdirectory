@@ -41,7 +41,7 @@ type globalConfigurationResource struct {
 
 // Metadata returns the resource type name.
 func (r *globalConfigurationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_global_configuration"
+	resp.TypeName = req.ProviderTypeName + "_default_global_configuration"
 }
 
 // Configure adds the provider configured client to the resource.

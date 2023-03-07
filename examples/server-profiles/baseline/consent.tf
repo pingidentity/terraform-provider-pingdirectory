@@ -13,7 +13,7 @@ resource "pingdirectory_consent_definition_localization" "emailConsentDefinition
   purpose_text            = "Join Mailing List"
 }
 
-resource "pingdirectory_directory_rest_api_http_servlet_extension" "defaultDirectoryRestApiExtension" {
+resource "pingdirectory_default_directory_rest_api_http_servlet_extension" "defaultDirectoryRestApiExtension" {
   id                 = "Directory REST API"
   access_token_scope = "ds"
 }
@@ -42,7 +42,7 @@ resource "pingdirectory_topology_admin_user" "consentInternalServiceAccount" {
   privilege                       = ["bypass-acl", "config-read"]
 }
 
-resource "pingdirectory_consent_service" "defaultConsentService" {
+resource "pingdirectory_default_consent_service" "defaultConsentService" {
   enabled                        = true
   base_dn                        = "ou=Consents,${var.user_base_dn}"
   bind_dn                        = "cn=consent service account"
@@ -54,13 +54,13 @@ resource "pingdirectory_consent_service" "defaultConsentService" {
   privileged_consent_scope   = "consent_admin"
 }
 
-resource "pingdirectory_consent_http_servlet_extension" "defaultConsentServletExtension" {
+resource "pingdirectory_default_consent_http_servlet_extension" "defaultConsentServletExtension" {
   id              = "Consent"
   identity_mapper = pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id
   # The above attribute must be changed to allow destroying the user-id-identity-mapper object.
   # Exact Match is the default identity mapper.
   # identity_mapper = "Exact Match"
   depends_on = [
-    pingdirectory_consent_service.defaultConsentService
+    pingdirectory_default_consent_service.defaultConsentService
   ]
 }

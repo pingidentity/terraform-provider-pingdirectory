@@ -42,7 +42,7 @@ type instanceNameVirtualAttributeResource struct {
 
 // Metadata returns the resource type name.
 func (r *instanceNameVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_instance_name_virtual_attribute"
+	resp.TypeName = req.ProviderTypeName + "_default_instance_name_virtual_attribute"
 }
 
 // Configure adds the provider configured client to the resource.

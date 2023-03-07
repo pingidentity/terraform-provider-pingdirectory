@@ -47,10 +47,10 @@ func TestAccGlobalConfiguration(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGlobalConfigurationAttributes(initialResourceModel),
 					// Check some computed attributes are set as expected (PingDirectory defaults)
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_global_configuration.%s", resourceName), "encrypt_backups_by_default", "true"),
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_global_configuration.%s", resourceName), "default_password_policy", "Default Password Policy"),
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_global_configuration.%s", resourceName), "ldap_join_size_limit", "10000"),
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_global_configuration.%s", resourceName), "replication_set_name", ""),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "encrypt_backups_by_default", "true"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "default_password_policy", "Default Password Policy"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "ldap_join_size_limit", "10000"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "replication_set_name", ""),
 				),
 			},
 			{
@@ -70,7 +70,7 @@ func TestAccGlobalConfiguration(t *testing.T) {
 			{
 				// Test importing the global configuration
 				Config:       testAccGlobalConfigurationResource(resourceName, initialResourceModel),
-				ResourceName: "pingdirectory_global_configuration." + resourceName,
+				ResourceName: "pingdirectory_default_global_configuration." + resourceName,
 				// The id doesn't matter for singleton config objects
 				ImportStateId:           resourceName,
 				ImportState:             true,
@@ -83,7 +83,7 @@ func TestAccGlobalConfiguration(t *testing.T) {
 
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_global_configuration" "%[1]s" {
+resource "pingdirectory_default_global_configuration" "%[1]s" {
 	encrypt_data = %[2]t
 	sensitive_attribute = %[3]s
 	result_code_map = "%[4]s"

@@ -42,7 +42,7 @@ type directoryServerInstanceResource struct {
 
 // Metadata returns the resource type name.
 func (r *directoryServerInstanceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_directory_server_instance"
+	resp.TypeName = req.ProviderTypeName + "_default_directory_server_instance"
 }
 
 // Configure adds the provider configured client to the resource.

@@ -41,7 +41,7 @@ type passwordPolicyImportPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *passwordPolicyImportPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_password_policy_import_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_password_policy_import_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

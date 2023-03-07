@@ -41,7 +41,7 @@ type backupBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *backupBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_backup_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_backup_backend"
 }
 
 // Configure adds the provider configured client to the resource.

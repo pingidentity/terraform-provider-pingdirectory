@@ -62,7 +62,7 @@ func TestAccConsentService(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccConsentServiceResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_consent_service." + resourceName,
+				ResourceName:            "pingdirectory_default_consent_service." + resourceName,
 				ImportStateId:           resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -74,7 +74,7 @@ func TestAccConsentService(t *testing.T) {
 
 func testAccConsentServiceResource(resourceName string, resourceModel consentServiceTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_consent_service" "%[1]s" {
+resource "pingdirectory_default_consent_service" "%[1]s" {
 	 enabled = %[2]t
 	 base_dn = "%[3]s"
 	 bind_dn = "%[4]s"

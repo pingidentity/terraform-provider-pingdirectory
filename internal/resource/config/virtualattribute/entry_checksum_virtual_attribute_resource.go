@@ -42,7 +42,7 @@ type entryChecksumVirtualAttributeResource struct {
 
 // Metadata returns the resource type name.
 func (r *entryChecksumVirtualAttributeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_entry_checksum_virtual_attribute"
+	resp.TypeName = req.ProviderTypeName + "_default_entry_checksum_virtual_attribute"
 }
 
 // Configure adds the provider configured client to the resource.

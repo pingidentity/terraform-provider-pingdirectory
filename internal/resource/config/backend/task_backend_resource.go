@@ -42,7 +42,7 @@ type taskBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *taskBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_task_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_task_backend"
 }
 
 // Configure adds the provider configured client to the resource.

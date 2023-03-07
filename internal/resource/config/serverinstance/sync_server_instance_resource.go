@@ -42,7 +42,7 @@ type syncServerInstanceResource struct {
 
 // Metadata returns the resource type name.
 func (r *syncServerInstanceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sync_server_instance"
+	resp.TypeName = req.ProviderTypeName + "_default_sync_server_instance"
 }
 
 // Configure adds the provider configured client to the resource.

@@ -176,7 +176,7 @@ resource "pingdirectory_ping_federate_access_token_validator" "pfAccessTokenVali
 #
 # Complete the configuration of the Delegated Admin API.
 #
-resource "pingdirectory_custom_virtual_attribute" "delegatedAdminPrivilegeVirtualAttribute" {
+resource "pingdirectory_default_custom_virtual_attribute" "delegatedAdminPrivilegeVirtualAttribute" {
   id      = "Delegated Admin Privilege"
   enabled = true
 }
@@ -192,7 +192,7 @@ resource "pingdirectory_http_servlet_cross_origin_policy" "daCrossOriginPolicy" 
   cors_allowed_origins = ["*"]
 }
 
-resource "pingdirectory_delegated_admin_http_servlet_extension" "daServletExtension" {
+resource "pingdirectory_default_delegated_admin_http_servlet_extension" "daServletExtension" {
   id                  = "Delegated Admin"
   access_token_scope  = "urn:pingidentity:directory-delegated-admin"
   response_header     = ["Cache-Control: no-cache, no-store, must-revalidate", "Expires: 0", "Pragma: no-cache"]

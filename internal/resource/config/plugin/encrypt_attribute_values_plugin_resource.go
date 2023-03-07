@@ -41,7 +41,7 @@ type encryptAttributeValuesPluginResource struct {
 
 // Metadata returns the resource type name.
 func (r *encryptAttributeValuesPluginResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_encrypt_attribute_values_plugin"
+	resp.TypeName = req.ProviderTypeName + "_default_encrypt_attribute_values_plugin"
 }
 
 // Configure adds the provider configured client to the resource.

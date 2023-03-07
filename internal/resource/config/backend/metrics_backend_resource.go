@@ -41,7 +41,7 @@ type metricsBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *metricsBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_metrics_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_metrics_backend"
 }
 
 // Configure adds the provider configured client to the resource.
