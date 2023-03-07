@@ -74,25 +74,25 @@ func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaR
 		Description: "PingDirectory Terraform Provider.",
 		Attributes: map[string]schema.Attribute{
 			"https_host": schema.StringAttribute{
-				Description: "URI for PingDirectory HTTPS port.",
+				Description: "URI for PingDirectory HTTPS port. Default value can be set with the `PINGDIRECTORY_PROVIDER_HTTPS_HOST` environment variable.",
 				Optional:    true,
 			},
 			"username": schema.StringAttribute{
-				Description: "Username for PingDirectory admin user.",
+				Description: "Username for PingDirectory admin user. Default value can be set with the `PINGDIRECTORY_PROVIDER_USERNAME` environment variable.",
 				Optional:    true,
 			},
 			"password": schema.StringAttribute{
-				Description: "Password for PingDirectory admin user.",
+				Description: "Password for PingDirectory admin user. Default value can be set with the `PINGDIRECTORY_PROVIDER_PASSWORD` environment variable.",
 				Sensitive:   true,
 				Optional:    true,
 			},
 			"insecure_trust_all_tls": schema.BoolAttribute{
-				Description: "Set to true to trust any certificate when connecting to the PingDirectory server. This is insecure and should not be enabled outside of testing.",
+				Description: "Set to true to trust any certificate when connecting to the PingDirectory server. This is insecure and should not be enabled outside of testing. Default value can be set with the `PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS` environment variable.",
 				Optional:    true,
 			},
 			"ca_certificate_pem_files": schema.SetAttribute{
 				ElementType: types.StringType,
-				Description: "Paths to files containing PEM-encoded certificates to be trusted as root CAs when connecting to the PingDirectory server over HTTPS. If not set, the host's root CA set will be used.",
+				Description: "Paths to files containing PEM-encoded certificates to be trusted as root CAs when connecting to the PingDirectory server over HTTPS. If not set, the host's root CA set will be used. Default value can be set with the `PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES` environment variable, using commas to delimit multiple PEM files if necessary.",
 				Optional:    true,
 			},
 		},

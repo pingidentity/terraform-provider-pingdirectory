@@ -10,14 +10,23 @@ The PingDirectory provider manages the configuration of a PingDirectory server t
 
 ## Providing credentials
 
-The server host, username, and password can either be provided in the Terraform configuration file, or they can be provided via environment variables:
+The server host, username, and password can either be provided in the Terraform configuration file, or they can be provided via environment variables.
 
-```
-PINGDIRECTORY_PROVIDER_HTTPS_HOST
-PINGDIRECTORY_PROVIDER_USERNAME
-PINGDIRECTORY_PROVIDER_PASSWORD
-```
+| Provider attribute | Environment variable              | Syntax |
+| ------------------ | --------------------------------- | ------ |
+| https_host         | PINGDIRECTORY_PROVIDER_HTTPS_HOST | string |
+| username           | PINGDIRECTORY_PROVIDER_USERNAME   | string |
+| password           | PINGDIRECTORY_PROVIDER_PASSWORD   | string |
+
+## Configuring TLS
+
+When connecting with the PingDirectory server over HTTPS, the provider will need to be configured to handle the certificate presented by the server. The provider can be either given a set of CA certificates to trust in PEM format, or it can be configured to insecurely trust all certificates. If neither of these is configured, the host's default root CA certificate set will be trusted.
+
+| Provider attribute       | Environment variable                            | Syntax |
+| ------------------------ | ----------------------------------------------- | ------ |
+| insecure_trust_all_tls   | PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS   | boolean |
+| ca_certificate_pem_files | PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES | set of strings - use , (comma) as a delimter when specifying multiple certificate files via the environment variable |
 
 ## An example managing several config objects
 
-{{ tffile "examples/simple-example/main.tf" }}
+{{ tffile "examples/default-config/main.tf" }}
