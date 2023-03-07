@@ -19,7 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_file_based_trust_manager_provider" "filetest" {
+resource "pingdirectory_file_based_trust_manager_provider" "myFileBasedTrustManagerProvider" {
   id                          = "FileTest"
   enabled                     = true
   trust_store_file            = "config/keystore"

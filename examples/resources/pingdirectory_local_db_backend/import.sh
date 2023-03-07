@@ -1,2 +1,2 @@
-# "schemaBackendName" should be the name of the Schema Backend to be imported
-terraform import pingdirectory_schema_backend schemaBackendName
+# "localDbBackendId" should be the backend_id of the Local Db Backend to be imported
+terraform import pingdirectory_local_db_backend.myLocalDbBackend localDbBackendId
