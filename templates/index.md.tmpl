@@ -25,6 +25,17 @@ The Configuration API requires credentials for basic auth, which must be passed 
 
 Examples duplicating behavior of existing [server profiles](https://github.com/pingidentity/pingidentity-server-profiles) can be found in the `examples/server-profiles` directory.
 
-## An example managing several config objects
+## Basic example and relation to the `dsconfig` tool
 
-{{ tffile "examples/default-config/main.tf" }}
+The following example configures a `Location` object and updates the PingDirectory `Global Configuration`.
+
+Applying this Terraform configuration file will create a `Location` on the PingDirectory server managed by Terraform, and will update the PingDirectory `Global Configuration` to match the defined resource. Terraform can then manage this configuration, rather than using dsconfig commands such as:
+
+```
+dsconfig create-location --location-name MyLocation --set "description:My description"
+dsconfig set-location-prop --location-name MyLocation --set "description:My changed description"
+dsconfig delete-location --location-name MyLocation
+dsconfig set-global-configuration-prop --set encrypt-data:true --set location:MyLocation
+```
+
+{{ tffile "examples/simple-example/main.tf" }}

@@ -10,42 +10,9 @@ The PingDirectory Terraform provider is still in development, and breaking chang
 * Terraform 1.1+
 * Go 1.18+
 
-# Using the PingDirectory Terraform Provider
+# Documentation
 
-The provider can be used to manage PingDirectory servers via the PingDirectory Configuration API. It can replace configuration management that is normally done using the `dsconfig` command-line tool or through dsconfig batch files.
-
-The following example configures a `Location` object and updates the PingDirectory `Global Configuration`.
-
-```
-provider "pingdirectory" {
-  username = "cn=administrator"
-  password = "2FederateM0re"
-  https_host = "https://localhost:1443"
-  # Warning: The insecure_trust_all_tls attribute configures the provider to trust any certificate presented by the PingDirectory server.
-  insecure_trust_all_tls = true
-}
-
-resource "pingdirectory_location" "mylocation" {
-  id = "MyLocation"
-  description = "My description"
-}
-
-resource "pingdirectory_global_configuration" "global" {
-  location = "Docker"
-  encrypt_data = true
-}
-```
-
-Applying this Terraform configuration file will create a `Location` on the PingDirectory server managed by Terraform, and will update the PingDirectory `Global Configuration` to match the defined resource. Terraform can then manage this configuration, rather than using dsconfig commands such as:
-
-```
-dsconfig create-location --location-name MyLocation --set "description:My description"
-dsconfig set-location-prop --location-name MyLocation --set "description:My changed description"
-dsconfig delete-location --location-name MyLocation
-dsconfig set-global-configuration-prop --set encrypt-data:true
-```
-
-The provider represents each different configuration object in PingDirectory as a separate resource. The attributes of each resource align with the attributes managed by `dsconfig`.
+See the [docs](docs/) directory for documentation on how to use the provider and what it is useful for.
 
 See the [examples](examples/) directory for more examples using the provider.
 
@@ -57,7 +24,6 @@ See the [examples](examples/) directory for more examples using the provider.
 Extended documentation can be found at:
 * [PingDirectory Documentation](https://docs.pingidentity.com/r/en-us/pingdirectory-92/pd_ds_landing_page)
 * [Ping Identity Developer Portal](https://developer.pingidentity.com/en.html)
-* Provider documentation coming soon
 
 ## Contributing
 
