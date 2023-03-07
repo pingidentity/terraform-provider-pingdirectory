@@ -54,7 +54,6 @@ func TestClient() *client.APIClient {
 	}
 	httpClient := &http.Client{Transport: tr}
 	clientConfig.HTTPClient = httpClient
-	var linttest
 	return client.NewAPIClient(clientConfig)
 }
 
