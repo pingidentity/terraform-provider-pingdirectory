@@ -42,7 +42,7 @@ type changelogBackendResource struct {
 
 // Metadata returns the resource type name.
 func (r *changelogBackendResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_changelog_backend"
+	resp.TypeName = req.ProviderTypeName + "_default_changelog_backend"
 }
 
 // Configure adds the provider configured client to the resource.

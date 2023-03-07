@@ -38,7 +38,7 @@ type rootDnResource struct {
 
 // Metadata returns the resource type name.
 func (r *rootDnResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_root_dn"
+	resp.TypeName = req.ProviderTypeName + "_default_root_dn"
 }
 
 // Configure adds the provider configured client to the resource.

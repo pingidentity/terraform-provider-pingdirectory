@@ -42,43 +42,33 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_location" "drangleic" {
-  id          = "Drangleic"
-  description = "Seek the king"
+# Disable the default failed operations access logger
+resource "pingdirectory_default_file_based_access_log_publisher" "defaultFileBasedAccessLogPublisher" {
+  id      = "Failed Operations Access Logger"
+  enabled = true
 }
 
-resource "pingdirectory_global_configuration" "global" {
-  location            = "Docker"
-  encrypt_data        = false
-  sensitive_attribute = ["Delivered One-Time Password", "TOTP Shared Secret"]
-  tracked_application = ["Requests by Root Users"]
-  result_code_map     = "Sun DS Compatible Behavior"
-  disabled_privilege  = ["jmx-write", "jmx-read"]
+# Create a custom file based access logger
+resource "pingdirectory_file_based_access_log_publisher" "myNewFileBasedAccessLogPublisher" {
+  id                   = "MyNewFileBasedAccessLogPublisher"
+  log_file             = "logs/example.log"
+  log_file_permissions = "600"
+  rotation_policy      = ["Size Limit Rotation Policy"]
+  retention_policy     = ["File Count Retention Policy"]
+  asynchronous         = true
+  enabled              = false
 }
 
-resource "pingdirectory_blind_trust_manager_provider" "blindtest" {
-  id                          = "Blind Test"
-  enabled                     = true
-  include_jvm_default_issuers = true
+# Enable the default JMX connection handler
+resource "pingdirectory_default_jmx_connection_handler" "defaultJmxConnHandler" {
+  id      = "JMX Connection Handler"
+  enabled = true
 }
 
-resource "pingdirectory_file_based_trust_manager_provider" "filetest" {
-  id                          = "FileTest"
-  enabled                     = true
-  trust_store_file            = "config/keystore"
-  trust_store_type            = "pkcs12"
-  include_jvm_default_issuers = true
-}
-
-resource "pingdirectory_jvm_default_trust_manager_provider" "jvmtest" {
-  id      = "jvmtest"
-  enabled = false
-}
-
-resource "pingdirectory_third_party_trust_manager_provider" "tptest" {
-  id                 = "tptest"
-  enabled            = false
-  extension_class    = "com.unboundid.directory.sdk.common.api.TrustManagerProvider"
-  extension_argument = ["val1=one", "val2=two"]
+# Create a custom JMX connection handler
+resource "pingdirectory_jmx_connection_handler" "myJmxConnHandler" {
+  id          = "MyJmxConnHandler"
+  enabled     = false
+  listen_port = 8888
 }
 ```
