@@ -1,21 +1,41 @@
 #!/bin/bash
 
-resources=()
-data_resources=()
-enhancements=()
 bugs=()
+todos=()
+data_resources=()
+dependencies=()
+documentations=()
+enhancements=()
+resources=()
 
-target_issues=$(sed -e 's/[^0-9]//g' issues_in_release.json )
-for issue_number in $target_issues; do
+target_prs=$(sed -e 's/[^0-9]//g' pull_requests_in_release.json )
+pr_content=$(gh pr list)
+
+for target_pr in $target_prs; do
+    issue_number=$(echo "$pr_content" | grep $target_pr | awk -F "\t" '{print $3}' | awk -F "-" '{print $1}')
     issue_content=$(gh issue view $issue_number)
     issue_title_content=$(echo "$issue_content" | grep -E "title" | awk -F ": " '{print $NF}')
     issue_title=$(echo $issue_title_content | awk -F ": " '{print $NF}')
     issue_label_content=$(echo "$issue_content" | grep -E "labels")
-    issue_label=$(echo $issue_label_content | awk -F " " '{print $NF}')
+    issue_label=$(echo $issue_label_content | awk -F ": " '{print $NF}')
+    issue_label_count=$(echo "$issue_label" | sed -e 's/[,]//g' | wc -w | sed -e "s/ //g")
     
+    if [ $issue_label_count -gt 1 ] ; then
+        issue_label="todo"
+    fi
+
     release_note_content="* \`$issue_title\` (#$issue_number)"
-    
+
     case "$issue_label" in
+        "todo")
+            todos+=("$release_note_content")
+            ;;
+        "dependencies")
+            dependencies+=("$release_note_content")
+            ;;
+        "documentation")
+            documentations+=("$release_note_content")
+            ;;
         "enhancement")
             enhancements+=("$release_note_content")
             ;;
@@ -33,6 +53,21 @@ done
 
 printf '%s\n\n' "# <replace with release version> $(date +'%B %d %Y')" >> header.md
 
+if [ ${#todos[@]} -gt 0 ]; then
+    printf '%s' "### TODO - Multiple categories for issues:" >> todos.md
+    printf '\n%s\n' "${todos[@]}" >> todos.md
+fi
+
+if [ ${#documentations[@]} -gt 0 ]; then
+    printf '%s' "### DOCUMENTATION UPDATES" >> documentations.md
+    printf '\n%s\n' "${documentations[@]}" >> documentations.md
+fi
+
+if [ ${#dependencies[@]} -gt 0 ]; then
+    printf '%s' "### DEPENDENCIES" >> dependencies.md
+    printf '\n%s\n' "${dependencies[@]}" >> dependencies.md
+fi
+
 if [ ${#enhancements[@]} -gt 0 ]; then
     printf '%s' "### ENHANCEMENTS" >> new_enhancements.md
     printf '\n%s\n' "${enhancements[@]}" >> new_enhancements.md
@@ -48,6 +83,6 @@ if [ ${#bugs[@]} -gt 0 ]; then
     printf '\n%s\n' "${bugs[@]}" >> bug_resolutions.md
 fi
     
-cat  header.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
+cat  header.md todos.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
 
-rm -f header.md new_enhancements.md new_resources.md bug_resolutions.md
+rm -f header.md todos.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md

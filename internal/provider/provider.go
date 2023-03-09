@@ -240,6 +240,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 			URL: httpsHost + "/config",
 		},
 	}
+	//#nosec G402
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: insecureTrustAllTls,

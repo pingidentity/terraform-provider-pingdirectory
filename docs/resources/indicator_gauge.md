@@ -86,6 +86,6 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "indicatorGaugeName" should be the name of the Indicator Gauge to be imported
-terraform import pingdirectory_indicator_gauge indicatorGaugeName
+# "indicatorGaugeId" should be the id of the Indicator Gauge to be imported
+terraform import pingdirectory_indicator_gauge.myIndicatorGauge indicatorGaugeId
 ```
