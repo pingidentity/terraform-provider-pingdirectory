@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bugs=()
-conflicts=()
+todos=()
 data_resources=()
 dependencies=()
 documentations=()
@@ -21,14 +21,14 @@ for target_pr in $target_prs; do
     issue_label_count=$(echo "$issue_label" | sed -e 's/[,]//g' | wc -w | sed -e "s/ //g")
     
     if [ $issue_label_count -gt 1 ] ; then
-        issue_label="conflict"
+        issue_label="todo"
     fi
 
     release_note_content="* \`$issue_title\` (#$issue_number)"
 
     case "$issue_label" in
-        "conflict")
-            conflicts+=("$release_note_content")
+        "todo")
+            todos+=("$release_note_content")
             ;;
         "dependencies")
             dependencies+=("$release_note_content")
@@ -53,9 +53,9 @@ done
 
 printf '%s\n\n' "# <replace with release version> $(date +'%B %d %Y')" >> header.md
 
-if [ ${#conflicts[@]} -gt 0 ]; then
-    printf '%s' "### CONFLICTS" >> conflicts.md
-    printf '\n%s\n' "${conflicts[@]}" >> conflicts.md
+if [ ${#todos[@]} -gt 0 ]; then
+    printf '%s' "### TODO - Multiple categories for issues:" >> todos.md
+    printf '\n%s\n' "${todos[@]}" >> todos.md
 fi
 
 if [ ${#documentations[@]} -gt 0 ]; then
@@ -83,6 +83,6 @@ if [ ${#bugs[@]} -gt 0 ]; then
     printf '\n%s\n' "${bugs[@]}" >> bug_resolutions.md
 fi
     
-cat  header.md conflicts.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
+cat  header.md todos.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
 
-rm -f header.md conflicts.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md
+rm -f header.md todos.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md

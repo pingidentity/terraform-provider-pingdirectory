@@ -37,8 +37,8 @@
 - Run **generate-changelog.sh**
 - Edit the generated CHANGELOG.md:
   - Add release version desired in header
-  - Resolve any conflicts in the CONFLICTS type section
-    - Issues are placed in the CONFLICTS section due to having multiple issue types. 
+  - Resolve any issue(s) in the *TODO - Multiple issue categories* section
+    - Issues are placed in the TODO section due to having multiple issue categories assigned. 
     - It is up to the contributor(s) to determine placement for said issue(s) in CHANGELOG.md before committing and merging
 - Push CHANGELOG.md to GitHub and create a PR request to be reviewed
 
