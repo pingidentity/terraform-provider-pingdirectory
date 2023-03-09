@@ -1,0 +1,2 @@
+# "constructedVirtualAttributeId" should be the id of the Constructed Virtual Attribute to be imported
+terraform import pingdirectory_constructed_virtual_attribute.myConstructedVirtualAttribute constructedVirtualAttributeId

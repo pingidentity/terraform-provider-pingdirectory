@@ -1,0 +1,2 @@
+# "groovyScriptedVirtualAttributeId" should be the id of the Groovy Scripted Virtual Attribute to be imported
+terraform import pingdirectory_groovy_scripted_virtual_attribute.myGroovyScriptedVirtualAttribute groovyScriptedVirtualAttributeId

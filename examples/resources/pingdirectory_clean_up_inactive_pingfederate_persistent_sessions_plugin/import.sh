@@ -1,0 +1,2 @@
+# "cleanUpInactivePingfederatePersistentSessionsPluginId" should be the id of the Clean Up Inactive Pingfederate Persistent Sessions Plugin to be imported
+terraform import pingdirectory_clean_up_inactive_pingfederate_persistent_sessions_plugin.myCleanUpInactivePingfederatePersistentSessionsPlugin cleanUpInactivePingfederatePersistentSessionsPluginId

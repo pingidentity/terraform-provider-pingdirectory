@@ -1,0 +1,2 @@
+# "groovyScriptedAccountStatusNotificationHandlerId" should be the id of the Groovy Scripted Account Status Notification Handler to be imported
+terraform import pingdirectory_groovy_scripted_account_status_notification_handler.myGroovyScriptedAccountStatusNotificationHandler groovyScriptedAccountStatusNotificationHandlerId

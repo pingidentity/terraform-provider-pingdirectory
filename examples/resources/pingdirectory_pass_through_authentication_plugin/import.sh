@@ -1,0 +1,2 @@
+# "passThroughAuthenticationPluginId" should be the id of the Pass Through Authentication Plugin to be imported
+terraform import pingdirectory_pass_through_authentication_plugin.myPassThroughAuthenticationPlugin passThroughAuthenticationPluginId

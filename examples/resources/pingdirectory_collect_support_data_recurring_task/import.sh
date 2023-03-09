@@ -1,0 +1,2 @@
+# "collectSupportDataRecurringTaskId" should be the id of the Collect Support Data Recurring Task to be imported
+terraform import pingdirectory_collect_support_data_recurring_task.myCollectSupportDataRecurringTask collectSupportDataRecurringTaskId

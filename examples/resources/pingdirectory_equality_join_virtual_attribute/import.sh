@@ -1,0 +1,2 @@
+# "equalityJoinVirtualAttributeId" should be the id of the Equality Join Virtual Attribute to be imported
+terraform import pingdirectory_equality_join_virtual_attribute.myEqualityJoinVirtualAttribute equalityJoinVirtualAttributeId

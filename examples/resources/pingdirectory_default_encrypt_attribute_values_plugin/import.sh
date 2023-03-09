@@ -1,0 +1,2 @@
+# "encryptAttributeValuesPluginId" should be the id of the Encrypt Attribute Values Plugin to be imported
+terraform import pingdirectory_default_encrypt_attribute_values_plugin.myEncryptAttributeValuesPlugin encryptAttributeValuesPluginId

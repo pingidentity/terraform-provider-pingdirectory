@@ -1,0 +1,2 @@
+# "multiPartEmailAccountStatusNotificationHandlerId" should be the id of the Multi Part Email Account Status Notification Handler to be imported
+terraform import pingdirectory_multi_part_email_account_status_notification_handler.myMultiPartEmailAccountStatusNotificationHandler multiPartEmailAccountStatusNotificationHandlerId

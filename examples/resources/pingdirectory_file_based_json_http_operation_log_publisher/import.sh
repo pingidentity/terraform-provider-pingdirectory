@@ -1,0 +1,2 @@
+# "fileBasedJsonHttpOperationLogPublisherId" should be the id of the File Based Json Http Operation Log Publisher to be imported
+terraform import pingdirectory_file_based_json_http_operation_log_publisher.myFileBasedJsonHttpOperationLogPublisher fileBasedJsonHttpOperationLogPublisherId

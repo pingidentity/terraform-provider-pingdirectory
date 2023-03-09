@@ -1,0 +1,2 @@
+# "groovyScriptedAccessLogPublisherId" should be the id of the Groovy Scripted Access Log Publisher to be imported
+terraform import pingdirectory_groovy_scripted_access_log_publisher.myGroovyScriptedAccessLogPublisher groovyScriptedAccessLogPublisherId

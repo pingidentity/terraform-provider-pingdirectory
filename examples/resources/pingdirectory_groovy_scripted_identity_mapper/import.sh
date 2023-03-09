@@ -1,0 +1,2 @@
+# "groovyScriptedIdentityMapperId" should be the id of the Groovy Scripted Identity Mapper to be imported
+terraform import pingdirectory_groovy_scripted_identity_mapper.myGroovyScriptedIdentityMapper groovyScriptedIdentityMapperId

@@ -1,0 +1,2 @@
+# "subschemaSubentryVirtualAttributeId" should be the id of the Subschema Subentry Virtual Attribute to be imported
+terraform import pingdirectory_default_subschema_subentry_virtual_attribute.mySubschemaSubentryVirtualAttribute subschemaSubentryVirtualAttributeId

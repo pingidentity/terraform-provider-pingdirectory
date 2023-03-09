@@ -1,0 +1,2 @@
+# "encryptionSettingsBackendId" should be the backend_id of the Encryption Settings Backend to be imported
+terraform import pingdirectory_default_encryption_settings_backend.myEncryptionSettingsBackend encryptionSettingsBackendId
