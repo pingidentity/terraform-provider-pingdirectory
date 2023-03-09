@@ -97,6 +97,6 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "simpleConnectionCriteriaName" should be the name of the Simple Connection Criteria to be imported
-terraform import pingdirectory_simple_connection_criteria simpleConnectionCriteriaName
+# "simpleConnectionCriteriaId" should be the id of the Simple Connection Criteria to be imported
+terraform import pingdirectory_simple_connection_criteria.mySimpleConnectionCriteria simpleConnectionCriteriaId
 ```

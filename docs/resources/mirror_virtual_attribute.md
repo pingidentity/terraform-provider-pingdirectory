@@ -88,6 +88,6 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "mirrorVirtualAttributeName" should be the name of the Mirror Virtual Attribute to be imported
-terraform import pingdirectory_mirror_virtual_attribute mirrorVirtualAttributeName
+# "mirrorVirtualAttributeId" should be the id of the Mirror Virtual Attribute to be imported
+terraform import pingdirectory_mirror_virtual_attribute.myMirrorVirtualAttribute mirrorVirtualAttributeId
 ```

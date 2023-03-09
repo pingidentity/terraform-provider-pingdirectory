@@ -83,6 +83,6 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "generateServerProfileRecurringTaskName" should be the name of the Generate Server Profile Recurring Task to be imported
-terraform import pingdirectory_generate_server_profile_recurring_task generateServerProfileRecurringTaskName
+# "generateServerProfileRecurringTaskId" should be the id of the Generate Server Profile Recurring Task to be imported
+terraform import pingdirectory_generate_server_profile_recurring_task.myGenerateServerProfileRecurringTask generateServerProfileRecurringTaskId
 ```

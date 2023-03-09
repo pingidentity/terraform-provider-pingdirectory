@@ -1,2 +1,2 @@
-# "dseeCompatAccessControlHandlerName" should be the name of the Dsee Compat Access Control Handler to be imported
-terraform import pingdirectory_default_dsee_compat_access_control_handler dseeCompatAccessControlHandlerName
+# This resource is singleton, so the value of "id" doesn't matter - it is just a placeholder
+terraform import pingdirectory_default_dsee_compat_access_control_handler.myDseeCompatAccessControlHandler id

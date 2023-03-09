@@ -34,7 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
-resource "pingdirectory_http_connection_handler" "http" {
+resource "pingdirectory_http_connection_handler" "myHttpConnectionHandler" {
   id                     = "example"
   description            = "Description of http connection handler"
   listen_port            = 2443
@@ -103,5 +103,5 @@ Import is supported using the following syntax:
 ```shell
 # "connectionHandlerName" should be the name of the http connection handler to be imported
 
-terraform import pingdirectory_http_connection_handler connectionHandlerName
+terraform import pingdirectory_http_connection_handler.myHttpConnectionHandler connectionHandlerName
 ```
