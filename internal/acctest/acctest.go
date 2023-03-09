@@ -48,6 +48,7 @@ func TestClient() *client.APIClient {
 	}
 	// Trusting all for the acceptance tests, since they run on localhost
 	// May want to incorporate actual trust here in the future.
+	//#nosec G402
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
