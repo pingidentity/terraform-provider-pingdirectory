@@ -1,0 +1,2 @@
+# "thirdPartyTrustManagerProviderId" should be the id of the Third Party Trust Manager Provider to be imported
+terraform import pingdirectory_third_party_trust_manager_provider.myThirdPartyTrustManagerProvider thirdPartyTrustManagerProviderId

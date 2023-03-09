@@ -1,0 +1,2 @@
+# "ldapMappedScimHttpServletExtensionId" should be the id of the Ldap Mapped Scim Http Servlet Extension to be imported
+terraform import pingdirectory_ldap_mapped_scim_http_servlet_extension.myLdapMappedScimHttpServletExtension ldapMappedScimHttpServletExtensionId

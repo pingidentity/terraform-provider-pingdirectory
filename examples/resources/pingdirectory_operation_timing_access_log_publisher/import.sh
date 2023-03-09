@@ -1,0 +1,2 @@
+# "operationTimingAccessLogPublisherId" should be the id of the Operation Timing Access Log Publisher to be imported
+terraform import pingdirectory_operation_timing_access_log_publisher.myOperationTimingAccessLogPublisher operationTimingAccessLogPublisherId

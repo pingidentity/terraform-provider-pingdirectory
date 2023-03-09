@@ -1,0 +1,2 @@
+# "nokiaProxyServerExternalServerId" should be the id of the Nokia Proxy Server External Server to be imported
+terraform import pingdirectory_nokia_proxy_server_external_server.myNokiaProxyServerExternalServer nokiaProxyServerExternalServerId

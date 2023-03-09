@@ -1,0 +1,2 @@
+# "pingIdentityProxyServerExternalServerId" should be the id of the Ping Identity Proxy Server External Server to be imported
+terraform import pingdirectory_ping_identity_proxy_server_external_server.myPingIdentityProxyServerExternalServer pingIdentityProxyServerExternalServerId

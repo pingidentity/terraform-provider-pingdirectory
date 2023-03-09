@@ -1,0 +1,2 @@
+# "entryChecksumVirtualAttributeId" should be the id of the Entry Checksum Virtual Attribute to be imported
+terraform import pingdirectory_default_entry_checksum_virtual_attribute.myEntryChecksumVirtualAttribute entryChecksumVirtualAttributeId

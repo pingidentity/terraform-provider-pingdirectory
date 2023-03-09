@@ -1,0 +1,2 @@
+# "referentialIntegrityPluginId" should be the id of the Referential Integrity Plugin to be imported
+terraform import pingdirectory_referential_integrity_plugin.myReferentialIntegrityPlugin referentialIntegrityPluginId

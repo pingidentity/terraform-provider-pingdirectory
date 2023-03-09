@@ -1,0 +1,2 @@
+# "activeDirectoryExternalServerId" should be the id of the Active Directory External Server to be imported
+terraform import pingdirectory_active_directory_external_server.myActiveDirectoryExternalServer activeDirectoryExternalServerId

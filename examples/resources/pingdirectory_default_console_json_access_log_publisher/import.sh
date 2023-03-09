@@ -1,0 +1,2 @@
+# "consoleJsonAccessLogPublisherId" should be the id of the Console Json Access Log Publisher to be imported
+terraform import pingdirectory_default_console_json_access_log_publisher.myConsoleJsonAccessLogPublisher consoleJsonAccessLogPublisherId
