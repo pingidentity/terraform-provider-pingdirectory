@@ -91,7 +91,7 @@ jobs:
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
   providerlint:
     name: tfproviderlintx
-    needs: [generate]
+    needs: [build, generate]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
