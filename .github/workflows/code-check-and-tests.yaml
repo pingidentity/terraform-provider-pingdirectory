@@ -111,8 +111,8 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - run: make tflint
-  terrafmtlint:
-    name: terrafmtlint
+  terrafmt:
+    name: terrafmt
     needs: [fmt, vet, lint, generate]
     runs-on: ubuntu-latest
     steps:
@@ -121,10 +121,10 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: make terrafmtlintcheck
+      - run: make terrafmtcheck
   acceptance:
     name: Acceptance Tests
-    needs: [fmt, vet, lint, generate, tflint, terrafmtlint, providerlint]
+    needs: [fmt, vet, lint, generate, tflint, terrafmt, providerlint]
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
