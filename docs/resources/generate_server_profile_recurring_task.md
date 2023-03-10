@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_generate_server_profile_recurring_task" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_generate_server_profile_recurring_task" "myGenerateServerProfileRecurringTask" {
   id                            = "MyGenerateServerProfileRecurringTask"
   profile_directory             = "/opt/out/instance"

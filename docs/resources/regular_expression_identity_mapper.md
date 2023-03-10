@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_regular_expression_identity_mapper" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_regular_expression_identity_mapper" "myRegularExpressionIdentityMapper" {
   id            = "MyRegularExpressionIdentityMapper"
   match_pattern = "^([^@]+)@.+$"

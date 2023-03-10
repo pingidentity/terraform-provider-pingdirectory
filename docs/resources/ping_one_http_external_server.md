@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_ping_one_http_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_ping_one_http_external_server" "myPingOneHttpExternalServer" {
   id = "MyPingOneHttpExternalServer"
 }

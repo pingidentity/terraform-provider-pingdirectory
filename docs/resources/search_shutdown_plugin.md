@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_search_shutdown_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_search_shutdown_plugin" "mySearchShutdownPlugin" {
   id          = "MySearchShutdownPlugin"
   scope       = "base"

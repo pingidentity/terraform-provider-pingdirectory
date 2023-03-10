@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_exact_match_identity_mapper" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_exact_match_identity_mapper" "myExactMatchIdentityMapper" {
   id              = "MyExactMatchIdentityMapper"
   match_attribute = ["uid"]

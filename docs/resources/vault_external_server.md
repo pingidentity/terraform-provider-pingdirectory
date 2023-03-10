@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_vault_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_vault_external_server" "myVaultExternalServer" {
   id                          = "MyVaultExternalServer"
   vault_server_base_uri       = ["example.com"]

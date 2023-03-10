@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_mock_access_token_validator" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_mock_access_token_validator" "myMockAccessTokenValidator" {
   id      = "MyMockAccessTokenValidator"
   enabled = false

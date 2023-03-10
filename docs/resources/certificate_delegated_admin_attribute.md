@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_certificate_delegated_admin_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_certificate_delegated_admin_attribute" "myCertificateDelegatedAdminAttribute" {
   rest_resource_type_name = "MyRestResourceType"
   attribute_type          = "myattr"

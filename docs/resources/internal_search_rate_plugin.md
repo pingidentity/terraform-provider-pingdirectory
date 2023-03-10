@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_internal_search_rate_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_internal_search_rate_plugin" "myInternalSearchRatePlugin" {
   id            = "MyInternalSearchRatePlugin"
   plugin_type   = ["shutdown", "startup"]
