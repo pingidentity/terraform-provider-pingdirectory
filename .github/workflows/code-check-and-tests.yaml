@@ -101,7 +101,7 @@ jobs:
           cache: true
       - run: make providerlint
   tflint:
-    name: tfproviderlintx
+    name: tflint
     needs: [fmt, vet, lint, generate]
     runs-on: ubuntu-latest
     steps:
