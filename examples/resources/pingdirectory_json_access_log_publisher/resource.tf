@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_json_access_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_json_access_log_publisher" "myJsonAccessLogPublisher" {
   id       = "MyJsonAccessLogPublisher"
   log_file = "logs/jsonaccess"

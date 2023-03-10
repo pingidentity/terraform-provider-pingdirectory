@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_pluggable_pass_through_authentication_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_pluggable_pass_through_authentication_plugin" "myPluggablePassThroughAuthenticationPlugin" {
   id                                  = "MyPluggablePassThroughAuthenticationPlugin"
   pass_through_authentication_handler = "MyAuthHandler"

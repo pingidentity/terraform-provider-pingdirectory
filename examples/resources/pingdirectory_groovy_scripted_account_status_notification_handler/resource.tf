@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_groovy_scripted_account_status_notification_handler" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_groovy_scripted_account_status_notification_handler" "myGroovyScriptedAccountStatusNotificationHandler" {
   id           = "MyGroovyScriptedAccountStatusNotificationHandler"
   script_class = "com.example.myscriptclass"

@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_entry_dn_virtual_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_entry_dn_virtual_attribute" "myEntryDnVirtualAttribute" {
   id      = "MyEntryDnVirtualAttribute"
   enabled = false

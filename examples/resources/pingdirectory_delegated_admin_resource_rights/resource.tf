@@ -19,12 +19,14 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_delegated_admin_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
   id            = "MyDelegatedAdminRights"
   enabled       = true
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
 
+# Use "pingdirectory_default_user_rest_resource_type" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_user_rest_resource_type" "myUserRestResourceType" {
   id                          = "MyUserRestResourceType"
   enabled                     = true
@@ -33,6 +35,7 @@ resource "pingdirectory_user_rest_resource_type" "myUserRestResourceType" {
   search_base_dn              = "cn=users,dc=test,dc=com"
 }
 
+# Use "pingdirectory_default_delegated_admin_resource_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_delegated_admin_resource_rights" "myDelegatedAdminResourceRights" {
   delegated_admin_rights_name = pingdirectory_delegated_admin_rights.myDelegatedAdminRights.id
   enabled                     = true

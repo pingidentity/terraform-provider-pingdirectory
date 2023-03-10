@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_nokia_ds_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_nokia_ds_external_server" "myNokiaDsExternalServer" {
   id               = "MyNokiaDsExternalServer"
   server_host_name = "example.com"
