@@ -87,7 +87,7 @@ jobs:
       - run: |
           go generate ./...
           git add -N .
-          git diff --compact-summary --exit-code || \
+          git diff --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
   providerlint:
     name: tfproviderlintx
