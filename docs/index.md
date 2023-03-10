@@ -81,6 +81,7 @@ Here is an example showing the differences between default and non-default resou
 
 ```terraform
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
