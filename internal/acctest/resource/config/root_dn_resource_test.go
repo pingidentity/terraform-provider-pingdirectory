@@ -99,7 +99,7 @@ resource "pingdirectory_default_root_dn" "%[1]s" {
 func testAccRootDnResource(resourceName string, permissionsList []string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_root_dn" "%[1]s" {
-	default_root_privilege_name = %[2]s
+  default_root_privilege_name = %[2]s
 }`, resourceName, acctest.StringSliceToTerraformString(permissionsList))
 }
 

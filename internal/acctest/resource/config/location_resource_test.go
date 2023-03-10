@@ -72,15 +72,15 @@ func TestAccLocation(t *testing.T) {
 func testAccLocationResource(resourceName, locationName, description string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_location" "%[1]s" {
-	id = "%[2]s"
-	description = "%[3]s"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName, locationName, description)
 }
 
 func testAccLocationResourceNoDescription(resourceName, locationName string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_location" "%[1]s" {
-	id = "%[2]s"
+  id = "%[2]s"
 }`, resourceName, locationName)
 }
 

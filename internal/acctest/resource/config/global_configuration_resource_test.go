@@ -84,10 +84,10 @@ func TestAccGlobalConfiguration(t *testing.T) {
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_global_configuration" "%[1]s" {
-	encrypt_data = %[2]t
-	sensitive_attribute = %[3]s
-	result_code_map = "%[4]s"
-	size_limit = %[5]d
+  encrypt_data        = %[2]t
+  sensitive_attribute = %[3]s
+  result_code_map     = "%[4]s"
+  size_limit          = %[5]d
 }`, resourceName, resourceModel.encryptData,
 		acctest.StringSliceToTerraformString(resourceModel.sensitiveAttribute),
 		resourceModel.resultCodeMap, resourceModel.sizeLimit)

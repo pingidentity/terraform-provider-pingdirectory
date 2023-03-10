@@ -74,22 +74,22 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 
 func testAccGenericDelegatedAdminAttributeResource(resourceName string, resourceModel genericDelegatedAdminAttributeTestModel) string {
 	return fmt.Sprintf(`
-		resource "pingdirectory_generic_rest_resource_type" "%[2]s" {
-			id                                = "%[2]s"
-			enabled                           = true
-			resource_endpoint                 = "device"
-			display_name                      = "Device"
-			structural_ldap_objectclass       = "device"
-			search_base_dn                    = "dc=example,dc=com"
-			parent_dn                         = "dc=example,dc=com"
-			search_filter_pattern             = "(cn=*%%%%*)"
-			primary_display_attribute_type    = "cn"
+resource "pingdirectory_generic_rest_resource_type" "%[2]s" {
+  id                             = "%[2]s"
+  enabled                        = true
+  resource_endpoint              = "device"
+  display_name                   = "Device"
+  structural_ldap_objectclass    = "device"
+  search_base_dn                 = "dc=example,dc=com"
+  parent_dn                      = "dc=example,dc=com"
+  search_filter_pattern          = "(cn=*%%%%*)"
+  primary_display_attribute_type = "cn"
 }
-		resource "pingdirectory_generic_delegated_admin_attribute" "%[1]s" {
-        	rest_resource_type_name = pingdirectory_generic_rest_resource_type.%[2]s.id
-	        attribute_type = "%[3]s"
-	        display_name = "%[4]s"
-	        display_order_index = %[5]d
+resource "pingdirectory_generic_delegated_admin_attribute" "%[1]s" {
+  rest_resource_type_name = pingdirectory_generic_rest_resource_type.%[2]s.id
+  attribute_type          = "%[3]s"
+  display_name            = "%[4]s"
+  display_order_index     = %[5]d
 }`, resourceName,
 		resourceModel.restResourceTypeName,
 		resourceModel.attributeType,

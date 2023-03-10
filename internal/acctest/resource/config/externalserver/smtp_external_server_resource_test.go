@@ -70,9 +70,9 @@ func TestAccSmtpExternalServer(t *testing.T) {
 func testAccSmtpExternalServerResource(resourceName string, resourceModel smtpExternalServerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_smtp_external_server" "%[1]s" {
-	 id = "%[2]s"
-	 server_host_name = "%[3]s"
-	 server_port = %[4]d
+  id               = "%[2]s"
+  server_host_name = "%[3]s"
+  server_port      = %[4]d
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.serverHostName,

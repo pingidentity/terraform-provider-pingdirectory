@@ -87,15 +87,15 @@ func TestAccTopologyAdminUser(t *testing.T) {
 func testAccTopologyAdminUserResource(resourceName string, resourceModel topologyAdminUserTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_topology_admin_user" "%[1]s" {
-	 id = "%[2]s"
-	 inherit_default_root_privileges = %[3]t
-	 search_result_entry_limit = %[4]d
-	 time_limit_seconds = %[5]d
-	 look_through_entry_limit = %[6]d
-	 idle_time_limit_seconds = %[7]d
-	 password_policy = "%[8]s"
-	 require_secure_authentication = %[9]t
-	 require_secure_connections = %[10]t
+  id                              = "%[2]s"
+  inherit_default_root_privileges = %[3]t
+  search_result_entry_limit       = %[4]d
+  time_limit_seconds              = %[5]d
+  look_through_entry_limit        = %[6]d
+  idle_time_limit_seconds         = %[7]d
+  password_policy                 = "%[8]s"
+  require_secure_authentication   = %[9]t
+  require_secure_connections      = %[10]t
 }`, resourceName, resourceModel.id,
 		resourceModel.inheritDefaultRootPrivileges,
 		resourceModel.searchResultEntryLimit,

@@ -72,8 +72,8 @@ func TestAccDefaultLocation(t *testing.T) {
 func testAccDefaultLocationResource(resourceName string, resourceModel defaultLocationTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_location" "%[1]s" {
-	 id = "%[2]s"
-	 description = "%[3]s"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName, resourceModel.id,
 		resourceModel.description)
 }
@@ -154,8 +154,8 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 func testAccDefaultLogPublisherResource(resourceName string, resourceModel defaultLogPublisherTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_file_based_audit_log_publisher" "%[1]s" {
-	 id = "%[2]s"
-	 enabled = "%[3]t"
+  id      = "%[2]s"
+  enabled = "%[3]t"
 }`, resourceName, resourceModel.id,
 		resourceModel.enabled)
 }

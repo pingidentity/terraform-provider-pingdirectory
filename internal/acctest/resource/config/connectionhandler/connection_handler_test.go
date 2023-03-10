@@ -78,10 +78,10 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 func testAccHttpConnectionHandler(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_http_connection_handler" "%[1]s" {
-	id = "%[2]s"
-	listen_port = %[3]d
-	enabled = %[4]t
-	http_servlet_extension = %[5]s
+  id                     = "%[2]s"
+  listen_port            = %[3]d
+  enabled                = %[4]t
+  http_servlet_extension = %[5]s
 }`, resourceName, resourceModel.id, resourceModel.listenPort, resourceModel.enabled,
 		acctest.StringSliceToTerraformString(resourceModel.httpServletExtension))
 }

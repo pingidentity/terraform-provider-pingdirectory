@@ -73,9 +73,9 @@ func TestAccLocalDbIndex(t *testing.T) {
 func testAccLocalDbIndexResource(resourceName string, resourceModel localDbIndexTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_local_db_index" "%[1]s" {
-	 backend_name = "%[2]s"
-	 attribute = "%[3]s"
-	 index_type = %[4]s
+  backend_name = "%[2]s"
+  attribute    = "%[3]s"
+  index_type   = %[4]s
 }`, resourceName,
 		resourceModel.backendName,
 		resourceModel.attribute,

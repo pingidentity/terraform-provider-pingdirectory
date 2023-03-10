@@ -70,9 +70,9 @@ func TestAccDebugTarget(t *testing.T) {
 func testAccDebugTargetResource(resourceName string, resourceModel debugTargetTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_debug_target" "%[1]s" {
-	 log_publisher_name = "%[2]s"
-	 debug_scope = "%[3]s"
-	 debug_level = "%[4]s"
+  log_publisher_name = "%[2]s"
+  debug_scope        = "%[3]s"
+  debug_level        = "%[4]s"
 }`, resourceName,
 		resourceModel.logPublisherName,
 		resourceModel.debugScope,

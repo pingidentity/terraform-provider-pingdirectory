@@ -71,9 +71,9 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 func testAccSimpleConnectionCriteriaResource(resourceName string, resourceModel simpleConnectionCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_simple_connection_criteria" "%[1]s" {
-	 id = "%[2]s"
-	 description  = "%[3]s"
-	 user_auth_type = %[4]s
+  id             = "%[2]s"
+  description    = "%[3]s"
+  user_auth_type = %[4]s
 }`, resourceName, resourceModel.id, resourceModel.description, acctest.StringSliceToTerraformString(resourceModel.user_auth_type))
 }
 

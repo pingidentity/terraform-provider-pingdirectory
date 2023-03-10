@@ -66,8 +66,8 @@ func TestAccConsentDefinition(t *testing.T) {
 func testAccConsentDefinitionResource(resourceName string, resourceModel consentDefinitionTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_consent_definition" "%[1]s" {
-	 unique_id = "%[2]s"
-	 display_name = "%[3]s"
+  unique_id    = "%[2]s"
+  display_name = "%[3]s"
 }`, resourceName,
 		resourceModel.uniqueId,
 		resourceModel.displayName)

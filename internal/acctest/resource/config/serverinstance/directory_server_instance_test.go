@@ -84,10 +84,10 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_directory_server_instance" "%[1]s" {
-	id = "%[2]s"
-	server_instance_name = "%[2]s"
-	jmx_port = %[3]d
-	start_tls_enabled = %[4]t
+  id                   = "%[2]s"
+  server_instance_name = "%[2]s"
+  jmx_port             = %[3]d
+  start_tls_enabled    = %[4]t
 }`, resourceName, instanceName, resourceModel.jmxPort, resourceModel.startTlsEnabled)
 }
 

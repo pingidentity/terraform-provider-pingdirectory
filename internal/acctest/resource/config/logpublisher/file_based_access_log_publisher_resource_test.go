@@ -81,13 +81,13 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 func testAccFileBasedAccessLogPublisherResource(resourceName string, resourceModel fileBasedAccessLogPublisherTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_file_based_access_log_publisher" "%[1]s" {
-	 id = "%[2]s"
-	 log_file = "%[3]s"
-	 log_file_permissions = "%[4]s"
-	 rotation_policy = %[5]s
-	 retention_policy = %[6]s
-	 asynchronous = %[7]t
-	 enabled = %[8]t
+  id                   = "%[2]s"
+  log_file             = "%[3]s"
+  log_file_permissions = "%[4]s"
+  rotation_policy      = %[5]s
+  retention_policy     = %[6]s
+  asynchronous         = %[7]t
+  enabled              = %[8]t
 }`, resourceName, resourceModel.id,
 		resourceModel.logFile,
 		resourceModel.logFilePermissions,

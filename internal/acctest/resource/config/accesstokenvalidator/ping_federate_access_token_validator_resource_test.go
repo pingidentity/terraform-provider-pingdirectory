@@ -78,11 +78,11 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 func testAccPingFederateAccessTokenValidatorResource(resourceName string, resourceModel pingFederateAccessTokenValidatorTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_ping_federate_access_token_validator" "%[1]s" {
-	 id = "%[2]s"
-	 client_id = "%[3]s"
-	 client_secret = "%[4]s"
-	 authorization_server = "%[5]s"
-	 enabled = %[6]t
+  id                   = "%[2]s"
+  client_id            = "%[3]s"
+  client_secret        = "%[4]s"
+  authorization_server = "%[5]s"
+  enabled              = %[6]t
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.clientId,

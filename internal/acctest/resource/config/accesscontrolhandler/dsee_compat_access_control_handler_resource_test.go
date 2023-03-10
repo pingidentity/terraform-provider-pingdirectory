@@ -59,7 +59,7 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 func testAccDseeCompatAccessControlHandlerResource(resourceName string, resourceModel dseeCompatAccessControlHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_dsee_compat_access_control_handler" "%[1]s" {
-	 enabled = %[2]t
+  enabled = %[2]t
 }`, resourceName, resourceModel.enabled)
 }
 

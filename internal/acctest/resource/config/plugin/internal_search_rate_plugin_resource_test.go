@@ -82,13 +82,13 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 func testAccInternalSearchRatePluginResource(resourceName string, resourceModel internalSearchRatePluginTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_internal_search_rate_plugin" "%[1]s" {
-	 id = "%[2]s"
-	 description = "%[3]s"
-	 plugin_type = %[4]s
-	 num_threads = %[5]d
-	 base_dn = "%[6]s"
-	 filter_prefix = "%[7]s"
-	 enabled = %[8]t
+  id            = "%[2]s"
+  description   = "%[3]s"
+  plugin_type   = %[4]s
+  num_threads   = %[5]d
+  base_dn       = "%[6]s"
+  filter_prefix = "%[7]s"
+  enabled       = %[8]t
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

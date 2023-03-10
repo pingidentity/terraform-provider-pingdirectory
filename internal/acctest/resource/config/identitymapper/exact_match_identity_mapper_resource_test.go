@@ -69,9 +69,9 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 func testAccExactMatchIdentityMapperResource(resourceName string, resourceModel exactMatchIdentityMapperTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_exact_match_identity_mapper" "%[1]s" {
-	 id = "%[2]s"
-	 match_attribute = %[3]s
-	 enabled = %[4]t
+  id              = "%[2]s"
+  match_attribute = %[3]s
+  enabled         = %[4]t
 }`, resourceName, resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.matchAttribute),
 		resourceModel.enabled)

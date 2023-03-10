@@ -66,8 +66,8 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 func testAccHttpServletCrossOriginPolicyResource(resourceName string, resourceModel httpServletCrossOriginPolicyTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_http_servlet_cross_origin_policy" "%[1]s" {
-	 id = "%[2]s"
-	 cors_allowed_headers = %[3]s
+  id                   = "%[2]s"
+  cors_allowed_headers = %[3]s
 }`, resourceName,
 		resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.corsAllowedHeaders))
