@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint terrafmtlint tflint providerlint
+.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint terrafmt terrafmtcheck tflint providerlint
 
 default: install
 
@@ -72,17 +72,17 @@ providerlint:
 tflint:
 	go run github.com/terraform-linters/tflint --recursive --disable-rule=terraform_required_providers
 
-terrafmtlint:
+terrafmt:
 	find ./internal/acctest -type f -name '*_test.go' \
 		| sort -u \
 		| xargs -I {} go run github.com/katbyte/terrafmt -f fmt {} -v
 		
-terrafmtlintcheck:
+terrafmtcheck:
 	find ./internal/acctest -type f -name '*_test.go' \
-			| sort -u \
-			| xargs -I {} terrafmtlint diff -f --check --fmtcompat {} ; if [ $$? -ne 0 ]; then \
-			echo ""; \
-			echo "terrafmt found bad formatting of HCL embedded in the test scripts. Please run "; \
-			echo "\"make terrafmt\" before submitting the code for review."; \
-			exit 1; \
-		fi
+		| sort -u \
+		| xargs -I {} go run github.com/katbyte/terrafmt diff -f --check --fmtcompat {} ; if [ $$? -ne 0 ]; then \
+		echo ""; \
+		echo "terrafmt found bad formatting of HCL embedded in the test scripts. Please run "; \
+		echo "\"make terrafmt\" before submitting the code for review."; \
+		exit 1; \
+	fi
