@@ -135,7 +135,7 @@ jobs:
       - run: make importfmtlint
   acceptance:
     name: Acceptance Tests
-    needs: [fmt, vet, lint, generate, tflint, terrafmt, importfmtlint, providerlint]
+    needs: [fmt, vet, lint, generate, tflint, terrafmt, importfmt, providerlint]
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
