@@ -122,9 +122,20 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - run: make terrafmtcheck
+  importfmt:
+    name: importfmt
+    needs: [fmt, vet, lint, generate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make importfmtlint
   acceptance:
     name: Acceptance Tests
-    needs: [fmt, vet, lint, generate, tflint, terrafmt, providerlint]
+    needs: [fmt, vet, lint, generate, tflint, terrafmt, importfmtlint, providerlint]
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:

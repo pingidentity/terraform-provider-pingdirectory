@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint terrafmt terrafmtcheck tflint providerlint
+.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint terrafmt terrafmtcheck tflint providerlint importfmtlint
 
 default: install
 
@@ -86,3 +86,6 @@ terrafmtcheck:
 		echo "\"make terrafmt\" before submitting the code for review."; \
 		exit 1; \
 	fi
+
+importfmtlint:
+	go run github.com/pavius/impi/cmd/impi --local . --scheme stdThirdPartyLocal ./...
