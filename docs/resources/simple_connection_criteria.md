@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_simple_connection_criteria" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_simple_connection_criteria" "mySimpleConnectionCriteria" {
   id             = "MySimpleConnectionCriteria"
   description    = "Simple connection example"

@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_syslog_text_error_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_syslog_text_error_log_publisher" "mySyslogTextErrorLogPublisher" {
   id                     = "MySyslogTextErrorLogPublisher"
   syslog_external_server = ["example.com"]

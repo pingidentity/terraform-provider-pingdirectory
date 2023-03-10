@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_amazon_aws_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_amazon_aws_external_server" "myAmazonAwsExternalServer" {
   id              = "MyAmazonAwsExternalServer"
   aws_region_name = "us-east-2"

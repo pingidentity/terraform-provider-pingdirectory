@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_indicator_gauge" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_indicator_gauge" "myIndicatorGauge" {
   id                = "MyIndicatorGauge"
   gauge_data_source = "Replication Connection Status"

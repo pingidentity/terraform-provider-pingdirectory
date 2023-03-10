@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_admin_alert_access_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_admin_alert_access_log_publisher" "myAdminAlertAccessLogPublisher" {
   id      = "MyAdminAlertAccessLogPublisher"
   enabled = false

@@ -34,11 +34,13 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_consent_definition" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_consent_definition" "myConsentDefinition" {
   unique_id    = "myConsentDefinition"
   display_name = "example display name"
 }
 
+# Use "pingdirectory_default_consent_definition_localization" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_consent_definition_localization" "myConsentDefinitionLocalization" {
   consent_definition_name = pingdirectory_consent_definition.myConsentDefinition.unique_id
   locale                  = "en-US"

@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_numeric_gauge" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_numeric_gauge" "myNumericGauge" {
   id                = "MyNumericGauge"
   gauge_data_source = "Active Cleaner Threads (Percent)"

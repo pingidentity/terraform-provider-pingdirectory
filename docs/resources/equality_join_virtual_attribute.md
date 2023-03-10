@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_equality_join_virtual_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_equality_join_virtual_attribute" "myEqualityJoinVirtualAttribute" {
   id                    = "MyEqualityJoinVirtualAttribute"
   join_source_attribute = "cn"

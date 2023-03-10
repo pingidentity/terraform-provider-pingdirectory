@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_debug_access_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_debug_access_log_publisher" "myDebugAccessLogPublisher" {
   id       = "MyDebugAccessLogPublisher"
   log_file = "logs/mydebuglog"

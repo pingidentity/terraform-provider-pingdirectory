@@ -34,6 +34,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_oracle_unified_directory_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_oracle_unified_directory_external_server" "myOracleUnifiedDirectoryExternalServer" {
   id               = "MyOracleUnifiedDirectoryExternalServer"
   server_host_name = "example.com"
