@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet lint test starttestcontainer removetestcontainer testacc testacccomplete devcheck
+.PHONY: install generate fmt vet lint test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint providerlint
 
 default: install
 
@@ -58,3 +58,16 @@ testacc:
 testacccomplete: removetestcontainer starttestcontainer testacc
 
 devcheck: generate install lint test testacccomplete
+
+golangcilint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
+
+providerlint: 
+	go run github.com/bflad/tfproviderlint/cmd/tfproviderlintx \
+									-c 1 \
+									-AT001.ignored-filename-suffixes=_test.go \
+									-AT003=false \
+									-R009=false \
+									-XAT001=false \
+									-XR004=false \
+									-XS002=false ./internal/...

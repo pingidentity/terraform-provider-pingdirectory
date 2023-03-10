@@ -72,7 +72,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
+      - run: make golangcilint
   generate:
     name: go generate
     needs: [build]
@@ -89,9 +89,20 @@ jobs:
           git add -N .
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
+  providerlint:
+    name: tfproviderlintx
+    needs: [generate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make providerlint
   acceptance:
     name: Acceptance Tests
-    needs: [fmt, vet, lint, generate]
+    needs: [fmt, vet, lint, generate, providerlint]
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
