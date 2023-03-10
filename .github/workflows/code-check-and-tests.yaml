@@ -100,6 +100,17 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - run: make providerlint
+  tflint:
+    name: tfproviderlintx
+    needs: [fmt, vet, lint, generate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make tflint
   acceptance:
     name: Acceptance Tests
     needs: [fmt, vet, lint, generate, providerlint]

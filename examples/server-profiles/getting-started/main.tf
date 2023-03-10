@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
@@ -57,5 +58,5 @@ resource "pingdirectory_default_file_based_audit_log_publisher" "defaultFileBase
 
 resource "pingdirectory_default_root_dn_user" "defaultRootDnUser" {
   id                = "Directory Manager"
-  alternate_bind_dn = ["${var.root_user_dn}"]
+  alternate_bind_dn = [var.root_user_dn]
 }

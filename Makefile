@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet lint test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint providerlint
+.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint tflint providerlint
 
 default: install
 
@@ -18,9 +18,6 @@ fmt:
 
 vet:
 	go vet ./...
-
-lint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
 test:
 	go test -parallel=4 ./...
@@ -57,7 +54,7 @@ testacc:
 
 testacccomplete: removetestcontainer starttestcontainer testacc
 
-devcheck: generate install lint test testacccomplete
+devcheck: generate install golangcilint test testacccomplete
 
 golangcilint:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
@@ -71,3 +68,6 @@ providerlint:
 									-XAT001=false \
 									-XR004=false \
 									-XS002=false ./internal/...
+
+tflint:
+	go run github.com/terraform-linters/tflint --recursive --disable-rule=terraform_required_providers

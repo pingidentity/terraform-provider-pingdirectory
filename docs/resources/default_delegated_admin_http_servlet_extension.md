@@ -14,6 +14,7 @@ Manages a Delegated Admin Http Servlet Extension.
 
 ```terraform
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"

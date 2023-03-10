@@ -14,6 +14,7 @@ Manages a Trust Store Backend.
 
 ```terraform
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"

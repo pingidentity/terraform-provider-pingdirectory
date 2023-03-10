@@ -14,6 +14,7 @@ Manages a Member Virtual Attribute.
 
 ```terraform
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
