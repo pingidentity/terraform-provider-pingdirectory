@@ -23,10 +23,10 @@ provider "pingdirectory" {
 # Disable the default failed operations access logger
 resource "pingdirectory_default_file_based_access_log_publisher" "defaultFileBasedAccessLogPublisher" {
   id      = "Failed Operations Access Logger"
-  enabled = true
+  enabled = false
 }
 
-# Create a custom file based access logger
+# Create a new custom file based access logger
 resource "pingdirectory_file_based_access_log_publisher" "myNewFileBasedAccessLogPublisher" {
   id                   = "MyNewFileBasedAccessLogPublisher"
   log_file             = "logs/example.log"
@@ -43,7 +43,7 @@ resource "pingdirectory_default_jmx_connection_handler" "defaultJmxConnHandler" 
   enabled = true
 }
 
-# Create a custom JMX connection handler
+# Create a new custom JMX connection handler
 resource "pingdirectory_jmx_connection_handler" "myJmxConnHandler" {
   id          = "MyJmxConnHandler"
   enabled     = false

@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_ldif_export_recurring_task" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_ldif_export_recurring_task" "myLdifExportRecurringTask" {
   id = "MyLdifExportRecurringTask"
 }

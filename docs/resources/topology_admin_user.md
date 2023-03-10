@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_topology_admin_user" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_topology_admin_user" "myuser" {
   id                              = "my_topology_admin_user"
   inherit_default_root_privileges = true

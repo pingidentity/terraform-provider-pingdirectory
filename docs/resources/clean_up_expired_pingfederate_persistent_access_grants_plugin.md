@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_clean_up_expired_pingfederate_persistent_access_grants_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_clean_up_expired_pingfederate_persistent_access_grants_plugin" "myCleanUpExpiredPingfederatePersistentAccessGrantsPlugin" {
   id      = "MyCleanUpExpiredPingfederatePersistentAccessGrantsPlugin"
   enabled = false

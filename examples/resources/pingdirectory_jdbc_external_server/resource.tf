@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_jdbc_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_jdbc_external_server" "myJdbcExternalServer" {
   id               = "MyJdbcExternalServer"
   jdbc_driver_type = "mysql"

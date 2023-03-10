@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_admin_alert_account_status_notification_handler" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_admin_alert_account_status_notification_handler" "myAdminAlertAccountStatusNotificationHandler" {
   id                               = "MyAdminAlertAccountStatusNotificationHandler"
   account_status_notification_type = ["account-created"]

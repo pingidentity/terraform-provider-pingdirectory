@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_third_party_request_criteria" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_third_party_request_criteria" "myThirdPartyRequestCriteria" {
   id              = "MyThirdPartyRequestCriteria"
   extension_class = "com.example.myclass"

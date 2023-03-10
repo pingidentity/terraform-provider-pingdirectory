@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_aggregate_identity_mapper" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_aggregate_identity_mapper" "myAggregateIdentityMapper" {
   id      = "MyAggregateIdentityMapper"
   enabled = false

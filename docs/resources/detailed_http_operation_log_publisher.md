@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_detailed_http_operation_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_detailed_http_operation_log_publisher" "myDetailedHttpOperationLogPublisher" {
   id       = "MyDetailedHttpOperationLogPublisher"
   log_file = "logs/detailedlog"

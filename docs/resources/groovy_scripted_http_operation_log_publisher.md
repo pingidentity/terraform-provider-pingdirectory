@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_groovy_scripted_http_operation_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_groovy_scripted_http_operation_log_publisher" "myGroovyScriptedHttpOperationLogPublisher" {
   id           = "MyGroovyScriptedHttpOperationLogPublisher"
   script_class = "com.example.myscriptclass"

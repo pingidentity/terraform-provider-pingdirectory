@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_conjur_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_conjur_external_server" "myConjurExternalServer" {
   id                           = "MyConjurExternalServer"
   conjur_server_base_uri       = "example.com"

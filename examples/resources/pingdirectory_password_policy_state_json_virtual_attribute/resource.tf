@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_password_policy_state_json_virtual_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_password_policy_state_json_virtual_attribute" "myPasswordPolicyStateJsonVirtualAttribute" {
   id      = "MyPasswordPolicyStateJsonVirtualAttribute"
   enabled = false

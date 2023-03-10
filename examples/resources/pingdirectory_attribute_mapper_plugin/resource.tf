@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_attribute_mapper_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_attribute_mapper_plugin" "myAttributeMapperPlugin" {
   id               = "MyAttributeMapperPlugin"
   source_attribute = "cn"

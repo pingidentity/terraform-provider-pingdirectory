@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_jvm_default_trust_manager_provider" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_jvm_default_trust_manager_provider" "myJvmDefaultTrustManagerProvider" {
   id      = "MyJvmDefaultTrustManagerProvider"
   enabled = false

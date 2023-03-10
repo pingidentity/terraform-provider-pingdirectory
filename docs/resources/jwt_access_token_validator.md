@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_jwt_access_token_validator" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_jwt_access_token_validator" "myJwtAccessTokenValidator" {
   id      = "MyJwtAccessTokenValidator"
   enabled = false

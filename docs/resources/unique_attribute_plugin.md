@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_unique_attribute_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_unique_attribute_plugin" "myUniqueAttributePlugin" {
   id      = "MyUniqueAttributePlugin"
   type    = ["cn"]

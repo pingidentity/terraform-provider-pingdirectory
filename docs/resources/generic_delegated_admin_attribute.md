@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_generic_delegated_admin_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_generic_delegated_admin_attribute" "myDelegatedAdminAttributeDevice" {
   rest_resource_type_name = pingdirectory_generic_rest_resource_type.myRestResourceTypeDevice.id
   attribute_type          = "cn"
@@ -42,6 +43,7 @@ resource "pingdirectory_generic_delegated_admin_attribute" "myDelegatedAdminAttr
   display_order_index     = 1
 }
 
+# Use "pingdirectory_default_generic_delegated_admin_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_generic_delegated_admin_attribute" "myDelegatedAdminAttributeSerialNumber" {
   rest_resource_type_name = pingdirectory_generic_rest_resource_type.myRestResourceTypeDevice.id
   attribute_type          = "serialNumber"
@@ -49,6 +51,7 @@ resource "pingdirectory_generic_delegated_admin_attribute" "myDelegatedAdminAttr
   display_order_index     = 2
 }
 
+# Use "pingdirectory_default_generic_rest_resource_type" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_generic_rest_resource_type" "myRestResourceTypeDevice" {
   id                             = "device"
   enabled                        = true

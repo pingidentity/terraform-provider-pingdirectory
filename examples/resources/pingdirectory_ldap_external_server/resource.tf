@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_ldap_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_ldap_external_server" "myLdapExternalServer" {
   id               = "MyLdapExternalServer"
   server_host_name = "example.com"

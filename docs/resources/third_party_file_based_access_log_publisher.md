@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_third_party_file_based_access_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_third_party_file_based_access_log_publisher" "myThirdPartyFileBasedAccessLogPublisher" {
   id              = "MyThirdPartyFileBasedAccessLogPublisher"
   log_file        = "logs/mythirdpartyaccess"

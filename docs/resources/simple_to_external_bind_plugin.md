@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_simple_to_external_bind_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_simple_to_external_bind_plugin" "mySimpleToExternalBindPlugin" {
   id      = "MySimpleToExternalBindPlugin"
   enabled = false

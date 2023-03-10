@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_groovy_scripted_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_groovy_scripted_plugin" "myGroovyScriptedPlugin" {
   id           = "MyGroovyScriptedPlugin"
   script_class = "com.example.myscriptclass"

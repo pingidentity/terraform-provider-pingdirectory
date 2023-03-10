@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_ping_one_pass_through_authentication_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_ping_one_pass_through_authentication_plugin" "myPingOnePassThroughAuthenticationPlugin" {
   id                             = "MyPingOnePassThroughAuthenticationPlugin"
   api_url                        = "example.com/api"

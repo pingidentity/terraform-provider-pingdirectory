@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_groovy_scripted_file_based_error_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_groovy_scripted_file_based_error_log_publisher" "myGroovyScriptedFileBasedErrorLogPublisher" {
   id           = "MyGroovyScriptedFileBasedErrorLogPublisher"
   script_class = "com.example.myscriptclass"

@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_snmp_subagent_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_snmp_subagent_plugin" "mySnmpSubagentPlugin" {
   id      = "MySnmpSubagentPlugin"
   enabled = false

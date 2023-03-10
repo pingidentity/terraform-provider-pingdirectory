@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_delegated_admin_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
   id            = "MyDelegatedAdminRights"
   enabled       = true

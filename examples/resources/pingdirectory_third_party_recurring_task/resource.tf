@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_third_party_recurring_task" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_third_party_recurring_task" "myThirdPartyRecurringTask" {
   id              = "MyThirdPartyRecurringTask"
   extension_class = "com.example.myclass"

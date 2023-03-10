@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_root_dn_user" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_root_dn_user" "myRootDnUser" {
   id                              = "MyRootDnUser"
   inherit_default_root_privileges = true

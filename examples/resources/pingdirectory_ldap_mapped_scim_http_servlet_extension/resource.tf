@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_ldap_mapped_scim_http_servlet_extension" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_ldap_mapped_scim_http_servlet_extension" "myLdapMappedScimHttpServletExtension" {
   id = "MyLdapMappedScimHttpServletExtension"
 }

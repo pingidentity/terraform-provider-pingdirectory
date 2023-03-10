@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_composed_attribute_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_composed_attribute_plugin" "myComposedAttributePlugin" {
   id             = "MyComposedAttributePlugin"
   attribute_type = "myattr"

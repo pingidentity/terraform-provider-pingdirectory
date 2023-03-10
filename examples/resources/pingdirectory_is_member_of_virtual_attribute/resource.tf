@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_is_member_of_virtual_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_is_member_of_virtual_attribute" "myIsMemberOfVirtualAttribute" {
   id      = "MyIsMemberOfVirtualAttribute"
   enabled = false

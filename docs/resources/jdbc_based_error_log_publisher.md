@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_jdbc_based_error_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_jdbc_based_error_log_publisher" "myJdbcBasedErrorLogPublisher" {
   id                = "MyJdbcBasedErrorLogPublisher"
   server            = "exampleServer"

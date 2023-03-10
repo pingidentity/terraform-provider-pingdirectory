@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_referral_on_update_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_referral_on_update_plugin" "myReferralOnUpdatePlugin" {
   id                = "MyReferralOnUpdatePlugin"
   referral_base_url = ["example.com"]

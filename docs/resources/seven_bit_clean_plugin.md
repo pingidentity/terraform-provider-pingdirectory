@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_seven_bit_clean_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_seven_bit_clean_plugin" "mySevenBitCleanPlugin" {
   id      = "MySevenBitCleanPlugin"
   enabled = false

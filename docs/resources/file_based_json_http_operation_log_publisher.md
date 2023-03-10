@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_file_based_json_http_operation_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_file_based_json_http_operation_log_publisher" "myFileBasedJsonHttpOperationLogPublisher" {
   id       = "MyFileBasedJsonHttpOperationLogPublisher"
   log_file = "logs/myjsonhttplog"

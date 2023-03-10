@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_opendj_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_opendj_external_server" "myOpendjExternalServer" {
   id               = "MyOpendjExternalServer"
   server_host_name = "example.com"

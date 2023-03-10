@@ -35,6 +35,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_clean_up_inactive_pingfederate_persistent_sessions_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_clean_up_inactive_pingfederate_persistent_sessions_plugin" "myCleanUpInactivePingfederatePersistentSessionsPlugin" {
   id                = "MyCleanUpInactivePingfederatePersistentSessionsPlugin"
   expiration_offset = "1 h"

@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_syslog_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_syslog_external_server" "mySyslogExternalServer" {
   id                  = "MySyslogExternalServer"
   server_host_name    = "example.com"

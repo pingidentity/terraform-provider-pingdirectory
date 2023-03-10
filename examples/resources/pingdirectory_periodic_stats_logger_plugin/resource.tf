@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_periodic_stats_logger_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_periodic_stats_logger_plugin" "myPeriodicStatsLoggerPlugin" {
   id       = "MyPeriodicStatsLoggerPlugin"
   log_file = "logs/mystats"

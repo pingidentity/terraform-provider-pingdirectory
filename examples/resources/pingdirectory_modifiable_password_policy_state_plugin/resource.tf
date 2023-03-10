@@ -20,6 +20,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_modifiable_password_policy_state_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_modifiable_password_policy_state_plugin" "myModifiablePasswordPolicyStatePlugin" {
   id      = "MyModifiablePasswordPolicyStatePlugin"
   enabled = false
