@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_smtp_account_status_notification_handler" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_smtp_account_status_notification_handler" "mySmtpAccountStatusNotificationHandler" {
   id                                    = "MySmtpAccountStatusNotificationHandler"
   send_message_without_end_user_address = false

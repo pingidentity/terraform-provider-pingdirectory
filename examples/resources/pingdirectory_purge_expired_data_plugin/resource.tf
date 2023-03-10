@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_purge_expired_data_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_purge_expired_data_plugin" "myPurgeExpiredDataPlugin" {
   id                 = "MyPurgeExpiredDataPlugin"
   datetime_attribute = "time"

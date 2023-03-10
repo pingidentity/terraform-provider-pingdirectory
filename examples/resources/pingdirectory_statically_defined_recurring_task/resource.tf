@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_statically_defined_recurring_task" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_statically_defined_recurring_task" "myStaticallyDefinedRecurringTask" {
   id                = "MyStaticallyDefinedRecurringTask"
   task_java_class   = "com.example.mytaskclass"

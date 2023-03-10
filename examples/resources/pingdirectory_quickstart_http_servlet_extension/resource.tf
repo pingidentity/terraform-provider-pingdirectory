@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_quickstart_http_servlet_extension" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_quickstart_http_servlet_extension" "myQuickstartHttpServletExtension" {
   id          = "MyQuickstartHttpServletExtension"
   description = "Example Quickstart Http Servlet Extension"

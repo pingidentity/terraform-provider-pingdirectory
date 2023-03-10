@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_enter_lockdown_mode_recurring_task" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_enter_lockdown_mode_recurring_task" "myEnterLockdownModeRecurringTask" {
   id = "MyEnterLockdownModeRecurringTask"
 }

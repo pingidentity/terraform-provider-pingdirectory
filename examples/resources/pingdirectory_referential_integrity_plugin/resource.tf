@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_referential_integrity_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_referential_integrity_plugin" "myReferentialIntegrityPlugin" {
   id             = "MyReferentialIntegrityPlugin"
   attribute_type = ["cn"]

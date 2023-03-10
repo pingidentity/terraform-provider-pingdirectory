@@ -39,3 +39,15 @@ dsconfig set-global-configuration-prop --set encrypt-data:true --set location:My
 ```
 
 {{ tffile "examples/simple-example/main.tf" }}
+
+## Default resources
+
+PingDirectory comes with many default values configured out of the box. To make adopting these pre-configured values easier, resources in the provider support a "default_" prefix which allows adopting default resources from the PingDirectory server without having to specify every attribute to match the default configuration that PingDirectory provides. When using "default_" resources, any optional values that are not specified in your HCL code will be computed based on the values that PingDirectory provides. Required values must still be specified when using "default_".
+
+When using the "default_" prefix, the configuration object being managed must already exist on the PingDirectory server prior to being managed by the provider. The provider will not create the configuration object.
+
+When destroying default resources, the provider will stop managing the resource and remove it from state, but it will not destroy the resource in the PingDirectory configuration.
+
+Here is an example showing the differences between default and non-default resources.
+
+{{ tffile "examples/default-config/main.tf" }}

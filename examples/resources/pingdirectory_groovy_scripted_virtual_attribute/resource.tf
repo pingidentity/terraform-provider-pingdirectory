@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_groovy_scripted_virtual_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_groovy_scripted_virtual_attribute" "myGroovyScriptedVirtualAttribute" {
   id             = "MyGroovyScriptedVirtualAttribute"
   script_class   = "com.example.myscriptclass"

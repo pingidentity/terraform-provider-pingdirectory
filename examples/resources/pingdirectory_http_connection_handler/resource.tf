@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_http_connection_handler" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_http_connection_handler" "myHttpConnectionHandler" {
   id                     = "example"
   description            = "Description of http connection handler"

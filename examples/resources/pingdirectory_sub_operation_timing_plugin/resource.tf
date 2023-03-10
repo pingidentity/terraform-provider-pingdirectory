@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_sub_operation_timing_plugin" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_sub_operation_timing_plugin" "mySubOperationTimingPlugin" {
   id      = "MySubOperationTimingPlugin"
   enabled = false

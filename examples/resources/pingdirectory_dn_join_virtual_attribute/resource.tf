@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_dn_join_virtual_attribute" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_dn_join_virtual_attribute" "myDnJoinVirtualAttribute" {
   id                = "MyDnJoinVirtualAttribute"
   join_dn_attribute = "sn"

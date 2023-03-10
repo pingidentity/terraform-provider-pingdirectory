@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_multi_part_email_account_status_notification_handler" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_multi_part_email_account_status_notification_handler" "myMultiPartEmailAccountStatusNotificationHandler" {
   id      = "MyMultiPartEmailAccountStatusNotificationHandler"
   enabled = false

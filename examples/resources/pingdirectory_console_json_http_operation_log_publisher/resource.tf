@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_console_json_http_operation_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_console_json_http_operation_log_publisher" "myConsoleJsonHttpOperationLogPublisher" {
   id      = "MyConsoleJsonHttpOperationLogPublisher"
   enabled = false

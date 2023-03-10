@@ -19,6 +19,7 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
 }
 
+# Use "pingdirectory_default_syslog_json_error_log_publisher" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_syslog_json_error_log_publisher" "mySyslogJsonErrorLogPublisher" {
   id                     = "MySyslogJsonErrorLogPublisher"
   syslog_external_server = "example.com"
