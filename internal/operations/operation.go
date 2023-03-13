@@ -31,6 +31,7 @@ func validateOperationPath(path string) {
 	// Paths must only contain lowercase letters, dashes and digits
 	for _, c := range path {
 		if !unicode.IsLower(c) && c != '-' && !unicode.IsDigit(c) {
+			//lintignore:R009
 			panic("Non-lowercase, non-dash character and non-digit '" + string(c) + "' included in Operation path: '" + path + "'")
 		}
 	}
