@@ -89,7 +89,18 @@ jobs:
           git add -N .
           git diff --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
-  providerlint:
+  importfmt:
+    name: importfmt
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make importfmtlint
+  tfproviderlint:
     name: tfproviderlintx
     needs: [fmt, vet, lint, generate]
     runs-on: ubuntu-latest
@@ -99,7 +110,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: make providerlint
+      - run: make tfproviderlint
   tflint:
     name: tflint
     needs: [fmt, vet, lint, generate]
@@ -121,18 +132,15 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: make terrafmtcheck
-  importfmt:
-    name: importfmt
-    needs: [fmt, vet, lint, generate]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - run: make importfmtlint
+      - run: |
+          find ./internal/acctest -type f -name '*_test.go' \
+          | sort -u \
+          | xargs -I {} go run github.com/katbyte/terrafmt diff -f --check --fmtcompat {} ; if [ $$? -ne 0 ]; then \
+          echo ""; \
+          echo "terrafmt found bad formatting of HCL embedded in the test scripts. Please run "; \
+          echo "\"make terrafmtlint\" before submitting the code for review."; \
+          exit 1; \
+          fi
   acceptance:
     name: Acceptance Tests
     needs: [fmt, vet, lint, generate, tflint, terrafmt, importfmt, providerlint]

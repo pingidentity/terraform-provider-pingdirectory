@@ -54,12 +54,12 @@ testacc:
 
 testacccomplete: removetestcontainer starttestcontainer testacc
 
-devcheck: generate install golangcilint providerlint terrafmtlint tflint test testacccomplete
+devcheck: generate install golangcilint tfproviderlint tflint terrafmtlint importfmtlint test testacccomplete
 
 golangcilint:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
 
-providerlint: 
+tfproviderlint: 
 	go run github.com/bflad/tfproviderlint/cmd/tfproviderlintx \
 									-c 1 \
 									-AT001.ignored-filename-suffixes=_test.go \
@@ -67,25 +67,16 @@ providerlint:
 									-R009=false \
 									-XAT001=false \
 									-XR004=false \
-									-XS002=false ./internal/...
+									-XS002=false ./...
 
+#TODO => remove the disable-rule once this provider is published
 tflint:
 	go run github.com/terraform-linters/tflint --recursive --disable-rule=terraform_required_providers
 
-terrafmt:
+terrafmtlint:
 	find ./internal/acctest -type f -name '*_test.go' \
 		| sort -u \
 		| xargs -I {} go run github.com/katbyte/terrafmt -f fmt {} -v
-		
-terrafmtcheck:
-	find ./internal/acctest -type f -name '*_test.go' \
-		| sort -u \
-		| xargs -I {} go run github.com/katbyte/terrafmt diff -f --check --fmtcompat {} ; if [ $$? -ne 0 ]; then \
-		echo ""; \
-		echo "terrafmt found bad formatting of HCL embedded in the test scripts. Please run "; \
-		echo "\"make terrafmt\" before submitting the code for review."; \
-		exit 1; \
-	fi
 
 importfmtlint:
 	go run github.com/pavius/impi/cmd/impi --local . --scheme stdThirdPartyLocal ./...
