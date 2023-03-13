@@ -29,7 +29,7 @@ starttestcontainer:
 		-d -p 1389:1389 \
 		-e TAIL_LOG_FILES= \
 		--env-file "${HOME}/.pingidentity/config" \
-		pingidentity/pingdirectory:$${PINGDIRECTORY_TAG:-9.1.0.0-latest}
+		pingidentity/pingdirectory:$${PINGDIRECTORY_TAG:-9.2.0.0-latest}
 # Wait for the instance to become ready
 	sleep 1
 	duration=0
