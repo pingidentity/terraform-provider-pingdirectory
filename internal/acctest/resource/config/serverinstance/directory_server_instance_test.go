@@ -5,13 +5,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Some attributes to test with
@@ -84,10 +83,10 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_directory_server_instance" "%[1]s" {
-	id = "%[2]s"
-	server_instance_name = "%[2]s"
-	jmx_port = %[3]d
-	start_tls_enabled = %[4]t
+  id                   = "%[2]s"
+  server_instance_name = "%[2]s"
+  jmx_port             = %[3]d
+  start_tls_enabled    = %[4]t
 }`, resourceName, instanceName, resourceModel.jmxPort, resourceModel.startTlsEnabled)
 }
 

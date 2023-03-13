@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdConsentDefinition = "MyId"
@@ -66,8 +65,8 @@ func TestAccConsentDefinition(t *testing.T) {
 func testAccConsentDefinitionResource(resourceName string, resourceModel consentDefinitionTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_consent_definition" "%[1]s" {
-	 unique_id = "%[2]s"
-	 display_name = "%[3]s"
+  unique_id    = "%[2]s"
+  display_name = "%[3]s"
 }`, resourceName,
 		resourceModel.uniqueId,
 		resourceModel.displayName)

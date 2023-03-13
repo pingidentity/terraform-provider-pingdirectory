@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdConsentDefinitionLocalization = "en-US"
@@ -75,16 +74,16 @@ func TestAccConsentDefinitionLocalization(t *testing.T) {
 
 func testAccConsentDefinitionLocalizationResource(resourceName string, resourceModel consentDefinitionLocalizationTestModel) string {
 	return fmt.Sprintf(`
-	resource "pingdirectory_consent_definition" "%[2]s" {
-		unique_id = "%[2]s"
-		display_name = "example display name"
+resource "pingdirectory_consent_definition" "%[2]s" {
+  unique_id    = "%[2]s"
+  display_name = "example display name"
 }
-	resource "pingdirectory_consent_definition_localization" "%[1]s" {
-		consent_definition_name = pingdirectory_consent_definition.%[2]s.unique_id
-		locale = "%[3]s"
-		version = "%[4]s"
-		data_text = "%[5]s"
-		purpose_text = "%[6]s"
+resource "pingdirectory_consent_definition_localization" "%[1]s" {
+  consent_definition_name = pingdirectory_consent_definition.%[2]s.unique_id
+  locale                  = "%[3]s"
+  version                 = "%[4]s"
+  data_text               = "%[5]s"
+  purpose_text            = "%[6]s"
 }`, resourceName,
 		resourceModel.consentDefinitionName,
 		resourceModel.locale,

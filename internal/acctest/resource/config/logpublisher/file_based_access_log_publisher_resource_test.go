@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdFileBasedAccessLogPublisher = "MyId"
@@ -81,13 +80,13 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 func testAccFileBasedAccessLogPublisherResource(resourceName string, resourceModel fileBasedAccessLogPublisherTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_file_based_access_log_publisher" "%[1]s" {
-	 id = "%[2]s"
-	 log_file = "%[3]s"
-	 log_file_permissions = "%[4]s"
-	 rotation_policy = %[5]s
-	 retention_policy = %[6]s
-	 asynchronous = %[7]t
-	 enabled = %[8]t
+  id                   = "%[2]s"
+  log_file             = "%[3]s"
+  log_file_permissions = "%[4]s"
+  rotation_policy      = %[5]s
+  retention_policy     = %[6]s
+  asynchronous         = %[7]t
+  enabled              = %[8]t
 }`, resourceName, resourceModel.id,
 		resourceModel.logFile,
 		resourceModel.logFilePermissions,

@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdLocalDbIndex = "dc"
@@ -73,9 +72,9 @@ func TestAccLocalDbIndex(t *testing.T) {
 func testAccLocalDbIndexResource(resourceName string, resourceModel localDbIndexTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_local_db_index" "%[1]s" {
-	 backend_name = "%[2]s"
-	 attribute = "%[3]s"
-	 index_type = %[4]s
+  backend_name = "%[2]s"
+  attribute    = "%[3]s"
+  index_type   = %[4]s
 }`, resourceName,
 		resourceModel.backendName,
 		resourceModel.attribute,

@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdLocalDbBackend = "MyLocalDbBackend"
@@ -78,12 +77,12 @@ func TestAccLocalDbBackend(t *testing.T) {
 func testAccLocalDbBackendResource(resourceName string, resourceModel localDbBackendTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_local_db_backend" "%[1]s" {
-	 backend_id = "%[2]s"
-	 base_dn = %[3]s
-	 writability_mode = "%[4]s"
-	 db_directory = "%[5]s"
-	 import_temp_directory = "%[6]s"
-	 enabled = %[7]t
+  backend_id            = "%[2]s"
+  base_dn               = %[3]s
+  writability_mode      = "%[4]s"
+  db_directory          = "%[5]s"
+  import_temp_directory = "%[6]s"
+  enabled               = %[7]t
 }`, resourceName,
 		resourceModel.backendId,
 		acctest.StringSliceToTerraformString(resourceModel.baseDn),

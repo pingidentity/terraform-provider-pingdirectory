@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdRootDnUser = "MyId"
@@ -87,15 +86,15 @@ func TestAccRootDnUser(t *testing.T) {
 func testAccRootDnUserResource(resourceName string, resourceModel rootDnUserTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_root_dn_user" "%[1]s" {
-	 id = "%[2]s"
-	 inherit_default_root_privileges = %[3]t
-	 search_result_entry_limit = %[4]d
-	 time_limit_seconds = %[5]d
-	 look_through_entry_limit = %[6]d
-	 idle_time_limit_seconds = %[7]d
-	 password_policy = "%[8]s"
-	 require_secure_authentication = %[9]t
-	 require_secure_connections = %[10]t
+  id                              = "%[2]s"
+  inherit_default_root_privileges = %[3]t
+  search_result_entry_limit       = %[4]d
+  time_limit_seconds              = %[5]d
+  look_through_entry_limit        = %[6]d
+  idle_time_limit_seconds         = %[7]d
+  password_policy                 = "%[8]s"
+  require_secure_authentication   = %[9]t
+  require_secure_connections      = %[10]t
 }`, resourceName, resourceModel.id,
 		resourceModel.inheritDefaultRootPrivileges,
 		resourceModel.searchResultEntryLimit,

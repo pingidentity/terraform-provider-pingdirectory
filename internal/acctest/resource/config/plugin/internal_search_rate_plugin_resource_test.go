@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdInternalSearchRatePlugin = "MyId"
@@ -82,13 +81,13 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 func testAccInternalSearchRatePluginResource(resourceName string, resourceModel internalSearchRatePluginTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_internal_search_rate_plugin" "%[1]s" {
-	 id = "%[2]s"
-	 description = "%[3]s"
-	 plugin_type = %[4]s
-	 num_threads = %[5]d
-	 base_dn = "%[6]s"
-	 filter_prefix = "%[7]s"
-	 enabled = %[8]t
+  id            = "%[2]s"
+  description   = "%[3]s"
+  plugin_type   = %[4]s
+  num_threads   = %[5]d
+  base_dn       = "%[6]s"
+  filter_prefix = "%[7]s"
+  enabled       = %[8]t
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

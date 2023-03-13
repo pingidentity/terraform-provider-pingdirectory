@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Attributes to test with. Add optional properties to test here if desired.
@@ -59,7 +58,7 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 func testAccDseeCompatAccessControlHandlerResource(resourceName string, resourceModel dseeCompatAccessControlHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_dsee_compat_access_control_handler" "%[1]s" {
-	 enabled = %[2]t
+  enabled = %[2]t
 }`, resourceName, resourceModel.enabled)
 }
 

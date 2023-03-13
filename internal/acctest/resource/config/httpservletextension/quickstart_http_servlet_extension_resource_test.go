@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdQuickstartHttpServletExtension = "MyId"
@@ -66,8 +65,8 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 func testAccQuickstartHttpServletExtensionResource(resourceName string, resourceModel quickstartHttpServletExtensionTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_quickstart_http_servlet_extension" "%[1]s" {
-	 id = "%[2]s"
-	 description = "%[3]s"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName, resourceModel.id, resourceModel.description)
 }
 

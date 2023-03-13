@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdHttpServletCrossOriginPolicy = "MyId"
@@ -66,8 +65,8 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 func testAccHttpServletCrossOriginPolicyResource(resourceName string, resourceModel httpServletCrossOriginPolicyTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_http_servlet_cross_origin_policy" "%[1]s" {
-	 id = "%[2]s"
-	 cors_allowed_headers = %[3]s
+  id                   = "%[2]s"
+  cors_allowed_headers = %[3]s
 }`, resourceName,
 		resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.corsAllowedHeaders))

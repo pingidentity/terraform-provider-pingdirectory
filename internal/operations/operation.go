@@ -5,11 +5,10 @@ import (
 	"strconv"
 	"unicode"
 
-	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
 
 // Log operations used during an update
@@ -32,6 +31,7 @@ func validateOperationPath(path string) {
 	// Paths must only contain lowercase letters, dashes and digits
 	for _, c := range path {
 		if !unicode.IsLower(c) && c != '-' && !unicode.IsDigit(c) {
+			//lintignore:R009
 			panic("Non-lowercase, non-dash character and non-digit '" + string(c) + "' included in Operation path: '" + path + "'")
 		}
 	}

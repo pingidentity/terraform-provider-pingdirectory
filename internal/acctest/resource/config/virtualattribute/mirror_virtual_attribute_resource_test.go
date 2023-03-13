@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdMirrorVirtualAttribute = "MyId"
@@ -72,10 +71,10 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 func testAccMirrorVirtualAttributeResource(resourceName string, resourceModel mirrorVirtualAttributeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_mirror_virtual_attribute" "%[1]s" {
-	 id = "%[2]s"
-	 source_attribute = "%[3]s"
-	 enabled = %[4]t
-	 attribute_type = "%[5]s"
+  id               = "%[2]s"
+  source_attribute = "%[3]s"
+  enabled          = %[4]t
+  attribute_type   = "%[5]s"
 }`, resourceName, resourceModel.id,
 		resourceModel.sourceAttribute,
 		resourceModel.enabled,

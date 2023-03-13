@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdDebugTarget = "com.example.MyClass"
@@ -70,9 +69,9 @@ func TestAccDebugTarget(t *testing.T) {
 func testAccDebugTargetResource(resourceName string, resourceModel debugTargetTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_debug_target" "%[1]s" {
-	 log_publisher_name = "%[2]s"
-	 debug_scope = "%[3]s"
-	 debug_level = "%[4]s"
+  log_publisher_name = "%[2]s"
+  debug_scope        = "%[3]s"
+  debug_level        = "%[4]s"
 }`, resourceName,
 		resourceModel.logPublisherName,
 		resourceModel.debugScope,

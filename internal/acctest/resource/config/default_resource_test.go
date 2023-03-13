@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const defaultLocationId = "Docker"
@@ -72,8 +71,8 @@ func TestAccDefaultLocation(t *testing.T) {
 func testAccDefaultLocationResource(resourceName string, resourceModel defaultLocationTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_location" "%[1]s" {
-	 id = "%[2]s"
-	 description = "%[3]s"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName, resourceModel.id,
 		resourceModel.description)
 }
@@ -154,8 +153,8 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 func testAccDefaultLogPublisherResource(resourceName string, resourceModel defaultLogPublisherTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_file_based_audit_log_publisher" "%[1]s" {
-	 id = "%[2]s"
-	 enabled = "%[3]t"
+  id      = "%[2]s"
+  enabled = "%[3]t"
 }`, resourceName, resourceModel.id,
 		resourceModel.enabled)
 }

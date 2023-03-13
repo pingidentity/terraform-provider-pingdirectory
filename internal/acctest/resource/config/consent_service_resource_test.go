@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Attributes to test with. Add optional properties to test here if desired.
@@ -75,12 +74,12 @@ func TestAccConsentService(t *testing.T) {
 func testAccConsentServiceResource(resourceName string, resourceModel consentServiceTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_consent_service" "%[1]s" {
-	 enabled = %[2]t
-	 base_dn = "%[3]s"
-	 bind_dn = "%[4]s"
-	 unprivileged_consent_scope = "%[5]s"
-	 privileged_consent_scope = "%[6]s"
-	 search_size_limit =  %[7]d
+  enabled                    = %[2]t
+  base_dn                    = "%[3]s"
+  bind_dn                    = "%[4]s"
+  unprivileged_consent_scope = "%[5]s"
+  privileged_consent_scope   = "%[6]s"
+  search_size_limit          = %[7]d
 }`, resourceName,
 		resourceModel.enabled,
 		resourceModel.base_dn,

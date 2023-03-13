@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdDelegatedAdminResourceRights = "MyId"
@@ -74,23 +72,23 @@ func TestAccDelegatedAdminResourceRights(t *testing.T) {
 
 func testAccDelegatedAdminResourceRightsResource(resourceName string, resourceModel delegatedAdminResourceRightsTestModel) string {
 	return fmt.Sprintf(`
-	resource "pingdirectory_user_rest_resource_type" "%[4]s" {
-		id                          = "%[4]s"
-		enabled                     = true
-		resource_endpoint           = "userRestResource"
-		structural_ldap_objectclass = "inetOrgPerson"
-		search_base_dn              = "cn=users,dc=test,dc=com"
+resource "pingdirectory_user_rest_resource_type" "%[4]s" {
+  id                          = "%[4]s"
+  enabled                     = true
+  resource_endpoint           = "userRestResource"
+  structural_ldap_objectclass = "inetOrgPerson"
+  search_base_dn              = "cn=users,dc=test,dc=com"
 }
-	resource "pingdirectory_delegated_admin_rights" "%[2]s" {
-		id            = "%[2]s"
-		enabled       = true
-		admin_user_dn = "cn=admin-users,dc=test,dc=com"
+resource "pingdirectory_delegated_admin_rights" "%[2]s" {
+  id            = "%[2]s"
+  enabled       = true
+  admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
-	resource "pingdirectory_delegated_admin_resource_rights" "%[1]s" {
-		delegated_admin_rights_name = pingdirectory_delegated_admin_rights.%[2]s.id
-		admin_permission = %[5]s
-		enabled = %[3]t
-		rest_resource_type = pingdirectory_user_rest_resource_type.%[4]s.id
+resource "pingdirectory_delegated_admin_resource_rights" "%[1]s" {
+  delegated_admin_rights_name = pingdirectory_delegated_admin_rights.%[2]s.id
+  admin_permission            = %[5]s
+  enabled                     = %[3]t
+  rest_resource_type          = pingdirectory_user_rest_resource_type.%[4]s.id
 }`, resourceName,
 		resourceModel.delegatedAdminRightsName,
 		resourceModel.enabled,

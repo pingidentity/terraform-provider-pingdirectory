@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Some attributes to test with
@@ -78,10 +77,10 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 func testAccHttpConnectionHandler(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_http_connection_handler" "%[1]s" {
-	id = "%[2]s"
-	listen_port = %[3]d
-	enabled = %[4]t
-	http_servlet_extension = %[5]s
+  id                     = "%[2]s"
+  listen_port            = %[3]d
+  enabled                = %[4]t
+  http_servlet_extension = %[5]s
 }`, resourceName, resourceModel.id, resourceModel.listenPort, resourceModel.enabled,
 		acctest.StringSliceToTerraformString(resourceModel.httpServletExtension))
 }

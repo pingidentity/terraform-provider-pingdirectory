@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const tmpName = "mytrustmanagerprovider"
@@ -168,36 +167,36 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 func testAccBlindTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
-	id = "%[2]s"
-	enabled = %[3]t
+  id      = "%[2]s"
+  enabled = %[3]t
 }`, resourceName, providerName, enabled)
 }
 
 func testAccFileBasedTrustManagerProviderResource(resourceName, providerName string, enabled bool, trustStoreFile, trustStoreType string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
-	id = "%[2]s"
-	enabled = %[3]t
-	trust_store_file = "%[4]s"
-	trust_store_type = "%[5]s"
+  id               = "%[2]s"
+  enabled          = %[3]t
+  trust_store_file = "%[4]s"
+  trust_store_type = "%[5]s"
 }`, resourceName, providerName, enabled, trustStoreFile, trustStoreType)
 }
 
 func testAccJvmDefaultTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
-	id = "%[2]s"
-	enabled = %[3]t
+  id      = "%[2]s"
+  enabled = %[3]t
 }`, resourceName, providerName, enabled)
 }
 
 func testAccThirdPartyTrustManagerProviderResource(resourceName, providerName string, enabled bool, extensionClass string, extensionArgument []string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_third_party_trust_manager_provider" "%[1]s" {
-	id = "%[2]s"
-	enabled = %[3]t
-	extension_class = "%[4]s"
-	extension_argument = %[5]s
+  id                 = "%[2]s"
+  enabled            = %[3]t
+  extension_class    = "%[4]s"
+  extension_argument = %[5]s
 }`, resourceName, providerName, enabled, extensionClass, acctest.StringSliceToTerraformString(extensionArgument))
 }
 

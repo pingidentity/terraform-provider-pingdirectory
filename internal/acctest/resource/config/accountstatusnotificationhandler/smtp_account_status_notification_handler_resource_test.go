@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdSmtpAccountStatusNotificationHandler = "MyId"
@@ -81,13 +80,13 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 func testAccSmtpAccountStatusNotificationHandlerResource(resourceName string, resourceModel smtpAccountStatusNotificationHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_smtp_account_status_notification_handler" "%[1]s" {
-	 id = "%[2]s"
-	 send_message_without_end_user_address = %[3]t
-	 recipient_address = %[4]s
-	 sender_address = "%[5]s"
-	 message_subject = %[6]s
-	 message_template_file = %[7]s
-	 enabled = %[8]t
+  id                                    = "%[2]s"
+  send_message_without_end_user_address = %[3]t
+  recipient_address                     = %[4]s
+  sender_address                        = "%[5]s"
+  message_subject                       = %[6]s
+  message_template_file                 = %[7]s
+  enabled                               = %[8]t
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.sendMessageWithoutEndUserAddress,

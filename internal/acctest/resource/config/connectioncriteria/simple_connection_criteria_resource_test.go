@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdSimpleConnectionCriteria = "MyId"
@@ -71,9 +70,9 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 func testAccSimpleConnectionCriteriaResource(resourceName string, resourceModel simpleConnectionCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_simple_connection_criteria" "%[1]s" {
-	 id = "%[2]s"
-	 description  = "%[3]s"
-	 user_auth_type = %[4]s
+  id             = "%[2]s"
+  description    = "%[3]s"
+  user_auth_type = %[4]s
 }`, resourceName, resourceModel.id, resourceModel.description, acctest.StringSliceToTerraformString(resourceModel.user_auth_type))
 }
 

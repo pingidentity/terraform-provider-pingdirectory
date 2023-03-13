@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Testing will do four things
@@ -99,7 +98,7 @@ resource "pingdirectory_default_root_dn" "%[1]s" {
 func testAccRootDnResource(resourceName string, permissionsList []string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_root_dn" "%[1]s" {
-	default_root_privilege_name = %[2]s
+  default_root_privilege_name = %[2]s
 }`, resourceName, acctest.StringSliceToTerraformString(permissionsList))
 }
 

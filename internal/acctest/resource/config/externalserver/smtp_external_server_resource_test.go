@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdSmtpExternalServer = "MyId"
@@ -70,9 +69,9 @@ func TestAccSmtpExternalServer(t *testing.T) {
 func testAccSmtpExternalServerResource(resourceName string, resourceModel smtpExternalServerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_smtp_external_server" "%[1]s" {
-	 id = "%[2]s"
-	 server_host_name = "%[3]s"
-	 server_port = %[4]d
+  id               = "%[2]s"
+  server_host_name = "%[3]s"
+  server_port      = %[4]d
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.serverHostName,

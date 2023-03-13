@@ -72,7 +72,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
+      - run: make golangcilint
   generate:
     name: go generate
     needs: [build]
@@ -87,11 +87,63 @@ jobs:
       - run: |
           go generate ./...
           git add -N .
-          git diff --compact-summary --exit-code || \
+          git diff --exit-code || \
             (echo; echo "Unexpected difference after code generation. Run 'make generate' command and commit."; exit 1)
+  importfmt:
+    name: importfmt
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make importfmtlint
+  tfproviderlint:
+    name: tfproviderlintx
+    needs: [fmt, vet, lint, generate, importfmt]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make tfproviderlint
+  tflint:
+    name: tflint
+    needs: [fmt, vet, lint, generate, importfmt]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make tflint
+  terrafmt:
+    name: terrafmt
+    needs: [fmt, vet, lint, generate, importfmt]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: |
+          find ./internal/acctest -type f -name '*_test.go' \
+          | sort -u \
+          | xargs -I {} go run github.com/katbyte/terrafmt diff -f --check --fmtcompat {} ; if [ $$? -ne 0 ]; then \
+          echo ""; \
+          echo "terrafmt found bad formatting of HCL embedded in the test scripts. Please run "; \
+          echo "\"make terrafmtlint\" before submitting the code for review."; \
+          exit 1; \
+          fi
   acceptance:
     name: Acceptance Tests
-    needs: [fmt, vet, lint, generate]
+    needs: [fmt, vet, lint, generate, importfmt, tfproviderlint, tflint, terrafmt]
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:

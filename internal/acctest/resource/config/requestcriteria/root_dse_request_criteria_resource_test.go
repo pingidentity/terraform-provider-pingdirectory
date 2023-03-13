@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdRootDseRequestCriteria = "MyId"
@@ -67,8 +66,8 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 func testAccRootDseRequestCriteriaResource(resourceName string, resourceModel rootDseRequestCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_root_dse_request_criteria" "%[1]s" {
-	 id = "%[2]s"
-	 description = "%[3]s"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName, resourceModel.id, resourceModel.description)
 }
 

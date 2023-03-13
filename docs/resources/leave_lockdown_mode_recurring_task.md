@@ -14,6 +14,7 @@ Manages a Leave Lockdown Mode Recurring Task.
 
 ```terraform
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"

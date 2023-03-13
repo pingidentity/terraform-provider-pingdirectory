@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdDelegatedAdminRights = "MyId"
@@ -69,9 +68,9 @@ func TestAccDelegatedAdminRights(t *testing.T) {
 func testAccDelegatedAdminRightsResource(resourceName string, resourceModel delegatedAdminRightsTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_delegated_admin_rights" "%[1]s" {
-	 id = "%[2]s"
-	 enabled = %[3]t
-	 admin_user_dn = "%[4]s"
+  id            = "%[2]s"
+  enabled       = %[3]t
+  admin_user_dn = "%[4]s"
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled,

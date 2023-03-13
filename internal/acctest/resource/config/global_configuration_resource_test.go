@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Some global configuration attributes to test with
@@ -84,10 +83,10 @@ func TestAccGlobalConfiguration(t *testing.T) {
 func testAccGlobalConfigurationResource(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_global_configuration" "%[1]s" {
-	encrypt_data = %[2]t
-	sensitive_attribute = %[3]s
-	result_code_map = "%[4]s"
-	size_limit = %[5]d
+  encrypt_data        = %[2]t
+  sensitive_attribute = %[3]s
+  result_code_map     = "%[4]s"
+  size_limit          = %[5]d
 }`, resourceName, resourceModel.encryptData,
 		acctest.StringSliceToTerraformString(resourceModel.sensitiveAttribute),
 		resourceModel.resultCodeMap, resourceModel.sizeLimit)

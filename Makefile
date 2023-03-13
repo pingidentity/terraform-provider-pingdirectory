@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet lint test starttestcontainer removetestcontainer testacc testacccomplete devcheck
+.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint terrafmt terrafmtcheck tflint providerlint importfmtlint
 
 default: install
 
@@ -18,9 +18,6 @@ fmt:
 
 vet:
 	go vet ./...
-
-lint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
 test:
 	go test -parallel=4 ./...
@@ -57,4 +54,28 @@ testacc:
 
 testacccomplete: removetestcontainer starttestcontainer testacc
 
-devcheck: generate install lint test testacccomplete
+devcheck: generate install golangcilint tfproviderlint tflint terrafmtlint importfmtlint test testacccomplete
+
+golangcilint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
+
+tfproviderlint: 
+	go run github.com/bflad/tfproviderlint/cmd/tfproviderlintx \
+									-c 1 \
+									-AT001.ignored-filename-suffixes=_test.go \
+									-AT003=false \
+									-XAT001=false \
+									-XR004=false \
+									-XS002=false ./...
+
+#TODO => remove the disable-rule once this provider is published
+tflint:
+	go run github.com/terraform-linters/tflint --recursive --disable-rule=terraform_required_providers
+
+terrafmtlint:
+	find ./internal/acctest -type f -name '*_test.go' \
+		| sort -u \
+		| xargs -I {} go run github.com/katbyte/terrafmt -f fmt {} -v
+
+importfmtlint:
+	go run github.com/pavius/impi/cmd/impi --local . --scheme stdThirdPartyLocal ./...

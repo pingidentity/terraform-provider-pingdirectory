@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdExactMatchIdentityMapper = "MyId"
@@ -69,9 +68,9 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 func testAccExactMatchIdentityMapperResource(resourceName string, resourceModel exactMatchIdentityMapperTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_exact_match_identity_mapper" "%[1]s" {
-	 id = "%[2]s"
-	 match_attribute = %[3]s
-	 enabled = %[4]t
+  id              = "%[2]s"
+  match_attribute = %[3]s
+  enabled         = %[4]t
 }`, resourceName, resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.matchAttribute),
 		resourceModel.enabled)

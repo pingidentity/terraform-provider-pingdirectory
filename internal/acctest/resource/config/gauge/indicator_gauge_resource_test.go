@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdIndicatorGauge = "MyId"
@@ -69,9 +68,9 @@ func TestAccIndicatorGauge(t *testing.T) {
 func testAccIndicatorGaugeResource(resourceName string, resourceModel indicatorGaugeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_indicator_gauge" "%[1]s" {
-	 id = "%[2]s"
-	 gauge_data_source = "%[3]s"
-	 enabled = %[4]t
+  id                = "%[2]s"
+  gauge_data_source = "%[3]s"
+  enabled           = %[4]t
 }`, resourceName, resourceModel.id,
 		resourceModel.gaugeDataSource,
 		resourceModel.enabled)

@@ -5,9 +5,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 // Run "go generate" to format example terraform files, generate the docs for the registry/website, and

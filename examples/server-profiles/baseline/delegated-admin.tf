@@ -7,7 +7,7 @@ resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentitiesPlugin"
   attribute_type                                             = "objectClass"
   value_pattern                                              = ["pf-connected-identities"]
   target_attribute_exists_during_initial_population_behavior = "merge-existing-and-composed-values"
-  include_base_dn                                            = ["${var.user_base_dn}"]
+  include_base_dn                                            = [var.user_base_dn]
   include_filter                                             = ["(objectClass=inetOrgPerson)"]
 }
 
@@ -16,7 +16,7 @@ resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentityPlugin" {
   enabled         = true
   attribute_type  = "pf-connected-identity"
   value_pattern   = ["auth-source=pf-local-identity:user-id={uid}"]
-  include_base_dn = ["${var.user_base_dn}"]
+  include_base_dn = [var.user_base_dn]
   include_filter  = ["(objectClass=inetOrgPerson)"]
 }
 
@@ -160,7 +160,7 @@ resource "pingdirectory_exact_match_identity_mapper" "entryUUIDMatchMapper" {
   id              = "entryUUIDMatch"
   enabled         = true
   match_attribute = ["entryUUID"]
-  match_base_dn   = ["${var.user_base_dn}"]
+  match_base_dn   = [var.user_base_dn]
 }
 
 resource "pingdirectory_ping_federate_access_token_validator" "pfAccessTokenValidator" {

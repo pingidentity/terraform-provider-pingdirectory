@@ -4,10 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
-	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -18,6 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
 
 // Ensure the implementation satisfies the expected interfaces.

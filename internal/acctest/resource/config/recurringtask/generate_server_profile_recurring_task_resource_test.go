@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdGenerateServerProfileRecurringTask = "MyId"
@@ -69,9 +68,9 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 func testAccGenerateServerProfileRecurringTaskResource(resourceName string, resourceModel generateServerProfileRecurringTaskTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_generate_server_profile_recurring_task" "%[1]s" {
-	 id = "%[2]s"
-	 profile_directory = "%[3]s"
-	 retain_previous_profile_count = "%[4]d"
+  id                            = "%[2]s"
+  profile_directory             = "%[3]s"
+  retain_previous_profile_count = "%[4]d"
 }`, resourceName, resourceModel.id,
 		resourceModel.profileDirectory, resourceModel.retainPreviousProfileCount)
 }

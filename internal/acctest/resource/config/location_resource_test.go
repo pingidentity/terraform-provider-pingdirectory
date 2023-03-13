@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const locationName = "Hoenn"
@@ -72,15 +71,15 @@ func TestAccLocation(t *testing.T) {
 func testAccLocationResource(resourceName, locationName, description string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_location" "%[1]s" {
-	id = "%[2]s"
-	description = "%[3]s"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName, locationName, description)
 }
 
 func testAccLocationResourceNoDescription(resourceName, locationName string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_location" "%[1]s" {
-	id = "%[2]s"
+  id = "%[2]s"
 }`, resourceName, locationName)
 }
 

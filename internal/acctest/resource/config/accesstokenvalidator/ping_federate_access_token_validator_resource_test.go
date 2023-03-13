@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
 const testIdPingFederateAccessTokenValidator = "MyId"
@@ -78,11 +77,11 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 func testAccPingFederateAccessTokenValidatorResource(resourceName string, resourceModel pingFederateAccessTokenValidatorTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_ping_federate_access_token_validator" "%[1]s" {
-	 id = "%[2]s"
-	 client_id = "%[3]s"
-	 client_secret = "%[4]s"
-	 authorization_server = "%[5]s"
-	 enabled = %[6]t
+  id                   = "%[2]s"
+  client_id            = "%[3]s"
+  client_secret        = "%[4]s"
+  authorization_server = "%[5]s"
+  enabled              = %[6]t
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.clientId,

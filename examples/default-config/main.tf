@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
@@ -48,4 +49,3 @@ resource "pingdirectory_jmx_connection_handler" "myJmxConnHandler" {
   enabled     = false
   listen_port = 8888
 }
-
