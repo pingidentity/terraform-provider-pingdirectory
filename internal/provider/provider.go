@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"net/http"
 	"os"
 	"strconv"
@@ -47,6 +48,7 @@ type pingdirectoryProviderModel struct {
 	Password              types.String `tfsdk:"password"`
 	InsecureTrustAllTls   types.Bool   `tfsdk:"insecure_trust_all_tls"`
 	CACertificatePEMFiles types.Set    `tfsdk:"ca_certificate_pem_files"`
+	PingDirectoryVersion  types.String `tfsdk:"pingdirectory_version"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -92,6 +94,10 @@ func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaR
 			"ca_certificate_pem_files": schema.SetAttribute{
 				ElementType: types.StringType,
 				Description: "Paths to files containing PEM-encoded certificates to be trusted as root CAs when connecting to the PingDirectory server over HTTPS. If not set, the host's root CA set will be used. Default value can be set with the `PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES` environment variable, using commas to delimit multiple PEM files if necessary.",
+				Optional:    true,
+			},
+			"pingdirectory_version": schema.StringAttribute{
+				Description: "Version of the PingDirectory server being configured. Default value can be set with the `PINGDIRECTORY_PROVIDER_PINGDIRECTORY_VERSION` environment variable.",
 				Optional:    true,
 			},
 		},
@@ -176,9 +182,29 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		}
 	}
 
+	var pingdirectoryVersion string
+	var err error
+	if !config.PingDirectoryVersion.IsUnknown() && !config.PingDirectoryVersion.IsNull() {
+		pingdirectoryVersion = config.PingDirectoryVersion.ValueString()
+	} else {
+		pingdirectoryVersion = os.Getenv("PINGDIRECTORY_PROVIDER_PINGDIRECTORY_VERSION")
+	}
+
+	if pingdirectoryVersion == "" {
+		resp.Diagnostics.AddError(
+			"Unable to find PingDirectory version",
+			"pingdirectory_version cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_PINGDIRECTORY_VERSION environment variable.",
+		)
+	} else {
+		// Validate the PingDirectory version
+		pingdirectoryVersion, err = parsePingDirectoryVersion(pingdirectoryVersion)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to parse PingDirectory version", err.Error())
+		}
+	}
+
 	// Optional attributes
 	var insecureTrustAllTls bool
-	var err error
 	if !config.InsecureTrustAllTls.IsUnknown() && !config.InsecureTrustAllTls.IsNull() {
 		insecureTrustAllTls = config.InsecureTrustAllTls.ValueBool()
 	} else {
@@ -228,17 +254,12 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// type Configure methods.
 	var resourceConfig internaltypes.ResourceConfiguration
 	providerConfig := internaltypes.ProviderConfiguration{
-		HttpsHost: httpsHost,
-		Username:  username,
-		Password:  password,
+		HttpsHost:            httpsHost,
+		Username:             username,
+		Password:             password,
+		PingDirectoryVersion: pingdirectoryVersion,
 	}
 	resourceConfig.ProviderConfig = providerConfig
-	clientConfig9100 := client9100.NewConfiguration()
-	clientConfig9100.Servers = client9100.ServerConfigurations{
-		{
-			URL: httpsHost + "/config",
-		},
-	}
 	//#nosec G402
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -247,19 +268,27 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		},
 	}
 	httpClient := &http.Client{Transport: tr}
-	clientConfig9100.HTTPClient = httpClient
-	resourceConfig.ApiClientV9100 = client9100.NewAPIClient(clientConfig9100)
-
-	clientConfig9200 := client9200.NewConfiguration()
-	clientConfig9200.Servers = client9200.ServerConfigurations{
-		{
-			URL: httpsHost + "/config",
-		},
+	if pingdirectoryVersion == internaltypes.PingDirectory9100 {
+		clientConfig9100 := client9100.NewConfiguration()
+		clientConfig9100.Servers = client9100.ServerConfigurations{
+			{
+				URL: httpsHost + "/config",
+			},
+		}
+		clientConfig9100.HTTPClient = httpClient
+		resourceConfig.ApiClientV9100 = client9100.NewAPIClient(clientConfig9100)
+	} else {
+		clientConfig9200 := client9200.NewConfiguration()
+		clientConfig9200.Servers = client9200.ServerConfigurations{
+			{
+				URL: httpsHost + "/config",
+			},
+		}
+		clientConfig9200.HTTPClient = httpClient
+		resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
 	}
-	clientConfig9200.HTTPClient = httpClient
-	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
-	resp.ResourceData = resourceConfig
 
+	resp.ResourceData = resourceConfig
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
 }
 
@@ -635,4 +664,54 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		virtualattribute.NewThirdPartyVirtualAttributeResource,
 		virtualattribute.NewUserDefinedVirtualAttributeResource,
 	}
+}
+
+func parsePingDirectoryVersion(versionString string) (string, error) {
+	var err error
+	versionParsed := false
+	if len(versionString) != 0 {
+		versionDigits := strings.Split(versionString, ".")
+		// Expect a version like "x.x" or "x.x.x.x"
+		// If only two digits are supplied, the last two will be assumed to be "0.0"
+		if len(versionDigits) != 2 && len(versionDigits) != 4 {
+			err = errors.New("Failed to parse PingDirectory version '" + versionString + "', Expected either two digits (i.e. '9.1') or four digits (i.e. '9.1.0.0')")
+		} else {
+			digitOne, err := strconv.ParseInt(versionDigits[0], 10, 64)
+			if err != nil {
+				return versionString, errors.New("Failed to parse first digit of PingDirectory version '" + versionString + "': " + err.Error())
+			}
+			digitTwo, err := strconv.ParseInt(versionDigits[1], 10, 64)
+			if err != nil {
+				return versionString, errors.New("Failed to parse second digit of PingDirectory version '" + versionString + "': " + err.Error())
+			}
+			digitThree := int64(0)
+			digitFour := int64(0)
+			if len(versionDigits) == 4 {
+				digitThree, err = strconv.ParseInt(versionDigits[2], 10, 64)
+				if err != nil {
+					return versionString, errors.New("Failed to parse third digit of PingDirectory version '" + versionString + "': " + err.Error())
+				}
+				digitFour, err = strconv.ParseInt(versionDigits[3], 10, 64)
+				if err != nil {
+					return versionString, errors.New("Failed to parse fourth digit of PingDirectory version '" + versionString + "': " + err.Error())
+				}
+			}
+
+			// Check for supported versions
+			if digitOne == 9 {
+				if digitTwo == 1 && digitThree == 0 && digitFour == 0 {
+					versionString = internaltypes.PingDirectory9100
+					versionParsed = true
+				} else if digitTwo == 2 && digitThree == 0 && digitFour == 0 {
+					versionString = internaltypes.PingDirectory9200
+					versionParsed = true
+				}
+			}
+
+			if !versionParsed {
+				return versionString, errors.New("Unsupported PingDirectory version: " + versionString)
+			}
+		}
+	}
+	return versionString, err
 }
