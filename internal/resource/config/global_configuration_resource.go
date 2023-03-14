@@ -882,6 +882,30 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 	resp.Schema = schema
 }
 
+// Validate that no unsupported attributes are being used by this resource
+func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// Check what version we are running
+	if r.providerConfig.PingDirectoryVersion == internaltypes.PingDirectory9200 {
+		// Everything is supported in 9.2, no plan validation necessary
+		return
+	}
+	var model globalConfigurationResourceModel
+	req.Plan.Get(ctx, &model)
+	if !model.UnauthenticatedSizeLimit.IsNull() && !model.UnauthenticatedSizeLimit.IsUnknown() {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
+	}
+	// Empty strings don't count as being set
+	if !model.UnauthenticatedTimeLimit.IsNull() && !model.UnauthenticatedTimeLimit.IsUnknown() && model.UnauthenticatedTimeLimit.ValueString() != "" {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
+	}
+	if !model.UnauthenticatedIdleTimeLimit.IsNull() && !model.UnauthenticatedIdleTimeLimit.IsUnknown() && model.UnauthenticatedIdleTimeLimit.ValueString() != "" {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
+	}
+	if !model.UnauthenticatedLookthroughLimit.IsNull() && !model.UnauthenticatedLookthroughLimit.IsUnknown() {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
+	}
+}
+
 // Read a GlobalConfigurationResponse object into the model struct
 func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel, expectedValues *globalConfigurationResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework

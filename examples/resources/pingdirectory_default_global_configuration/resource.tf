@@ -29,5 +29,5 @@ resource "pingdirectory_default_global_configuration" "global" {
   result_code_map       = "Sun DS Compatible Behavior"
   disabled_privilege    = ["jmx-write", "jmx-read"]
   maximum_shutdown_time = "4 m"
-  # unauthenticated_size_limit = 2005
+  #unauthenticated_size_limit = 2005
 }
