@@ -268,6 +268,16 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		},
 	}
 	httpClient := &http.Client{Transport: tr}
+	// Always create a client for the most recent version, since it is
+	// the default used by resources that are compatible with multiple versions
+	clientConfig9200 := client9200.NewConfiguration()
+	clientConfig9200.Servers = client9200.ServerConfigurations{
+		{
+			URL: httpsHost + "/config",
+		},
+	}
+	clientConfig9200.HTTPClient = httpClient
+	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
 	if pingdirectoryVersion == internaltypes.PingDirectory9100 {
 		clientConfig9100 := client9100.NewConfiguration()
 		clientConfig9100.Servers = client9100.ServerConfigurations{
@@ -277,15 +287,6 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		}
 		clientConfig9100.HTTPClient = httpClient
 		resourceConfig.ApiClientV9100 = client9100.NewAPIClient(clientConfig9100)
-	} else {
-		clientConfig9200 := client9200.NewConfiguration()
-		clientConfig9200.Servers = client9200.ServerConfigurations{
-			{
-				URL: httpsHost + "/config",
-			},
-		}
-		clientConfig9200.HTTPClient = httpClient
-		resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
 	}
 
 	resp.ResourceData = resourceConfig
