@@ -69,7 +69,7 @@ func (r *fileBasedJsonHttpOperationLogPublisherResource) Configure(_ context.Con
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultFileBasedJsonHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -79,7 +79,7 @@ func (r *defaultFileBasedJsonHttpOperationLogPublisherResource) Configure(_ cont
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type fileBasedJsonHttpOperationLogPublisherResourceModel struct {

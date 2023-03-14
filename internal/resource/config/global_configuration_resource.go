@@ -51,7 +51,7 @@ func (r *globalConfigurationResource) Configure(_ context.Context, req resource.
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type globalConfigurationResourceModel struct {
@@ -87,9 +87,13 @@ type globalConfigurationResourceModel struct {
 	AllowInsecureLocalJMXConnections                               types.Bool   `tfsdk:"allow_insecure_local_jmx_connections"`
 	DefaultInternalOperationClientConnectionPolicy                 types.String `tfsdk:"default_internal_operation_client_connection_policy"`
 	SizeLimit                                                      types.Int64  `tfsdk:"size_limit"`
+	UnauthenticatedSizeLimit                                       types.Int64  `tfsdk:"unauthenticated_size_limit"`
 	TimeLimit                                                      types.String `tfsdk:"time_limit"`
+	UnauthenticatedTimeLimit                                       types.String `tfsdk:"unauthenticated_time_limit"`
 	IdleTimeLimit                                                  types.String `tfsdk:"idle_time_limit"`
+	UnauthenticatedIdleTimeLimit                                   types.String `tfsdk:"unauthenticated_idle_time_limit"`
 	LookthroughLimit                                               types.Int64  `tfsdk:"lookthrough_limit"`
+	UnauthenticatedLookthroughLimit                                types.Int64  `tfsdk:"unauthenticated_lookthrough_limit"`
 	LdapJoinSizeLimit                                              types.Int64  `tfsdk:"ldap_join_size_limit"`
 	MaximumConcurrentConnections                                   types.Int64  `tfsdk:"maximum_concurrent_connections"`
 	MaximumConcurrentConnectionsPerIPAddress                       types.Int64  `tfsdk:"maximum_concurrent_connections_per_ip_address"`
@@ -364,7 +368,15 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"size_limit": schema.Int64Attribute{
-				Description: "Specifies the maximum number of entries that the Directory Server should return to the client during a search operation.",
+				Description: "Specifies the maximum number of entries that the Directory Server should return to clients by default when processing a search operation.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"unauthenticated_size_limit": schema.Int64Attribute{
+				Description: "The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -379,6 +391,14 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"unauthenticated_time_limit": schema.StringAttribute{
+				Description: "The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"idle_time_limit": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that a client connection may remain established since its last completed operation.",
 				Optional:    true,
@@ -387,8 +407,24 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"unauthenticated_idle_time_limit": schema.StringAttribute{
+				Description: "The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"lookthrough_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that the Directory Server should \"look through\" in the course of processing a search request.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"unauthenticated_lookthrough_limit": schema.Int64Attribute{
+				Description: "The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -879,13 +915,21 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.AllowInsecureLocalJMXConnections = internaltypes.BoolTypeOrNil(r.AllowInsecureLocalJMXConnections)
 	state.DefaultInternalOperationClientConnectionPolicy = internaltypes.StringTypeOrNil(r.DefaultInternalOperationClientConnectionPolicy, true)
 	state.SizeLimit = internaltypes.Int64TypeOrNil(r.SizeLimit)
+	state.UnauthenticatedSizeLimit = internaltypes.Int64TypeOrNil(r.UnauthenticatedSizeLimit)
 	state.TimeLimit = internaltypes.StringTypeOrNil(r.TimeLimit, true)
 	CheckMismatchedPDFormattedAttributes("time_limit",
 		expectedValues.TimeLimit, state.TimeLimit, diagnostics)
+	state.UnauthenticatedTimeLimit = internaltypes.StringTypeOrNil(r.UnauthenticatedTimeLimit, true)
+	CheckMismatchedPDFormattedAttributes("unauthenticated_time_limit",
+		expectedValues.UnauthenticatedTimeLimit, state.UnauthenticatedTimeLimit, diagnostics)
 	state.IdleTimeLimit = internaltypes.StringTypeOrNil(r.IdleTimeLimit, true)
 	CheckMismatchedPDFormattedAttributes("idle_time_limit",
 		expectedValues.IdleTimeLimit, state.IdleTimeLimit, diagnostics)
+	state.UnauthenticatedIdleTimeLimit = internaltypes.StringTypeOrNil(r.UnauthenticatedIdleTimeLimit, true)
+	CheckMismatchedPDFormattedAttributes("unauthenticated_idle_time_limit",
+		expectedValues.UnauthenticatedIdleTimeLimit, state.UnauthenticatedIdleTimeLimit, diagnostics)
 	state.LookthroughLimit = internaltypes.Int64TypeOrNil(r.LookthroughLimit)
+	state.UnauthenticatedLookthroughLimit = internaltypes.Int64TypeOrNil(r.UnauthenticatedLookthroughLimit)
 	state.LdapJoinSizeLimit = internaltypes.Int64TypeOrNil(r.LdapJoinSizeLimit)
 	state.MaximumConcurrentConnections = internaltypes.Int64TypeOrNil(r.MaximumConcurrentConnections)
 	state.MaximumConcurrentConnectionsPerIPAddress = internaltypes.Int64TypeOrNil(r.MaximumConcurrentConnectionsPerIPAddress)
@@ -1003,9 +1047,13 @@ func createGlobalConfigurationOperations(plan globalConfigurationResourceModel, 
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowInsecureLocalJMXConnections, state.AllowInsecureLocalJMXConnections, "allow-insecure-local-jmx-connections")
 	operations.AddStringOperationIfNecessary(&ops, plan.DefaultInternalOperationClientConnectionPolicy, state.DefaultInternalOperationClientConnectionPolicy, "default-internal-operation-client-connection-policy")
 	operations.AddInt64OperationIfNecessary(&ops, plan.SizeLimit, state.SizeLimit, "size-limit")
+	operations.AddInt64OperationIfNecessary(&ops, plan.UnauthenticatedSizeLimit, state.UnauthenticatedSizeLimit, "unauthenticated-size-limit")
 	operations.AddStringOperationIfNecessary(&ops, plan.TimeLimit, state.TimeLimit, "time-limit")
+	operations.AddStringOperationIfNecessary(&ops, plan.UnauthenticatedTimeLimit, state.UnauthenticatedTimeLimit, "unauthenticated-time-limit")
 	operations.AddStringOperationIfNecessary(&ops, plan.IdleTimeLimit, state.IdleTimeLimit, "idle-time-limit")
+	operations.AddStringOperationIfNecessary(&ops, plan.UnauthenticatedIdleTimeLimit, state.UnauthenticatedIdleTimeLimit, "unauthenticated-idle-time-limit")
 	operations.AddInt64OperationIfNecessary(&ops, plan.LookthroughLimit, state.LookthroughLimit, "lookthrough-limit")
+	operations.AddInt64OperationIfNecessary(&ops, plan.UnauthenticatedLookthroughLimit, state.UnauthenticatedLookthroughLimit, "unauthenticated-lookthrough-limit")
 	operations.AddInt64OperationIfNecessary(&ops, plan.LdapJoinSizeLimit, state.LdapJoinSizeLimit, "ldap-join-size-limit")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnections, state.MaximumConcurrentConnections, "maximum-concurrent-connections")
 	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumConcurrentConnectionsPerIPAddress, state.MaximumConcurrentConnectionsPerIPAddress, "maximum-concurrent-connections-per-ip-address")

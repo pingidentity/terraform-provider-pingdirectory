@@ -66,7 +66,7 @@ func (r *modifiablePasswordPolicyStatePluginResource) Configure(_ context.Contex
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultModifiablePasswordPolicyStatePluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -76,7 +76,7 @@ func (r *defaultModifiablePasswordPolicyStatePluginResource) Configure(_ context
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type modifiablePasswordPolicyStatePluginResourceModel struct {

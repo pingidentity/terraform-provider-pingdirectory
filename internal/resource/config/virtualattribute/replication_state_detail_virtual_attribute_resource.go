@@ -49,7 +49,7 @@ func (r *replicationStateDetailVirtualAttributeResource) Configure(_ context.Con
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type replicationStateDetailVirtualAttributeResourceModel struct {

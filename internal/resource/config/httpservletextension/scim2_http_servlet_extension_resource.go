@@ -51,7 +51,7 @@ func (r *scim2HttpServletExtensionResource) Configure(_ context.Context, req res
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type scim2HttpServletExtensionResourceModel struct {

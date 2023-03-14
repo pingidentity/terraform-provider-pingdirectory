@@ -50,7 +50,7 @@ func (r *profilerPluginResource) Configure(_ context.Context, req resource.Confi
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type profilerPluginResourceModel struct {

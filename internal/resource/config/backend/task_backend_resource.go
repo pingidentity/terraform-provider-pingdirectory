@@ -52,7 +52,7 @@ func (r *taskBackendResource) Configure(_ context.Context, req resource.Configur
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type taskBackendResourceModel struct {

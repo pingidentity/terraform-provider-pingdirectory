@@ -68,7 +68,7 @@ func (r *syslogJsonAccessLogPublisherResource) Configure(_ context.Context, req 
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultSyslogJsonAccessLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -78,7 +78,7 @@ func (r *defaultSyslogJsonAccessLogPublisherResource) Configure(_ context.Contex
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type syslogJsonAccessLogPublisherResourceModel struct {

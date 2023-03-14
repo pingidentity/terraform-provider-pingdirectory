@@ -67,7 +67,7 @@ func (r *adminAlertAccountStatusNotificationHandlerResource) Configure(_ context
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -77,7 +77,7 @@ func (r *defaultAdminAlertAccountStatusNotificationHandlerResource) Configure(_ 
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type adminAlertAccountStatusNotificationHandlerResourceModel struct {

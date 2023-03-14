@@ -52,7 +52,7 @@ func (r *customVirtualAttributeResource) Configure(_ context.Context, req resour
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type customVirtualAttributeResourceModel struct {

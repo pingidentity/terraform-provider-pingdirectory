@@ -68,7 +68,7 @@ func (r *groovyScriptedAccountStatusNotificationHandlerResource) Configure(_ con
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -78,7 +78,7 @@ func (r *defaultGroovyScriptedAccountStatusNotificationHandlerResource) Configur
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type groovyScriptedAccountStatusNotificationHandlerResourceModel struct {

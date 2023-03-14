@@ -67,7 +67,7 @@ func (r *thirdPartyHttpOperationLogPublisherResource) Configure(_ context.Contex
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultThirdPartyHttpOperationLogPublisherResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -77,7 +77,7 @@ func (r *defaultThirdPartyHttpOperationLogPublisherResource) Configure(_ context
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type thirdPartyHttpOperationLogPublisherResourceModel struct {

@@ -51,7 +51,7 @@ func (r *passwordPolicyImportPluginResource) Configure(_ context.Context, req re
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type passwordPolicyImportPluginResourceModel struct {

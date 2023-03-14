@@ -52,7 +52,7 @@ func (r *changelogBackendResource) Configure(_ context.Context, req resource.Con
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type changelogBackendResourceModel struct {

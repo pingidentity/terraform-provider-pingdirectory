@@ -52,7 +52,7 @@ func (r *directoryServerInstanceResource) Configure(_ context.Context, req resou
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type directoryServerInstanceResourceModel struct {
