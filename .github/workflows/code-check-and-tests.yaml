@@ -20,7 +20,7 @@ jobs:
 # Ensure the project can build first
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
@@ -39,7 +39,7 @@ jobs:
   fmt:
     name: go fmt
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -54,7 +54,7 @@ jobs:
   vet:
     name: go vet
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -65,7 +65,7 @@ jobs:
   lint:
     name: golangcli-lint
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -76,7 +76,7 @@ jobs:
   generate:
     name: go generate
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -92,7 +92,7 @@ jobs:
   importfmt:
     name: importfmt
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -103,7 +103,7 @@ jobs:
   tfproviderlint:
     name: tfproviderlintx
     needs: [fmt, vet, lint, generate, importfmt]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -114,7 +114,7 @@ jobs:
   tflint:
     name: tflint
     needs: [fmt, vet, lint, generate, importfmt]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -125,7 +125,7 @@ jobs:
   terrafmt:
     name: terrafmt
     needs: [fmt, vet, lint, generate, importfmt]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -145,7 +145,7 @@ jobs:
     name: Acceptance Tests
     needs: [fmt, vet, lint, generate, importfmt, tfproviderlint, tflint, terrafmt]
     if: ${{ github.actor != 'dependabot[bot]' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3

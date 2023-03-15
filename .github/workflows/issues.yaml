@@ -11,7 +11,7 @@ jobs:
   issue_created:
     name: Issue Created
     if: ${{ github.event_name == 'issues' && github.event.action == 'opened' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - run: |
