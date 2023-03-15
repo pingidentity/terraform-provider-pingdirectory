@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
@@ -20,5 +21,5 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_audit_data_security_recurring_task" "myAuditDataSecurityRecurringTask" {
-  id                            = "MyAuditDataSecurityRecurringTask"
+  id = "MyAuditDataSecurityRecurringTask"
 }

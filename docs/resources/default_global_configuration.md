@@ -33,6 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  pingdirectory_version  = "9.1.0.0"
 }
 
 resource "pingdirectory_default_global_configuration" "global" {
@@ -123,7 +124,7 @@ resource "pingdirectory_default_global_configuration" "global" {
 - `sensitive_attribute` (Set of String) Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.
 - `server_error_result_code` (Number) Specifies the numeric value of the result code when request processing fails due to an internal server error.
 - `single_structural_objectclass_behavior` (String) Specifies how the Directory Server should handle operations for an entry does not contain a structural object class, or for an entry that contains multiple structural classes.
-- `size_limit` (Number) Specifies the maximum number of entries that the Directory Server should return to the client during a search operation.
+- `size_limit` (Number) Specifies the maximum number of entries that the Directory Server should return to clients by default when processing a search operation.
 - `smtp_connection_health_check_interval` (String) The length of time between checks to ensure that available SMTP connections are still valid.
 - `smtp_server` (Set of String) Specifies the set of servers that will be used to send email messages. The order in which the servers are listed indicates the order in which the Directory Server will attempt to use them in the course of sending a message. The first attempt will always go to the server at the top of the list, and servers further down the list will only be used if none of the servers listed above it were able to successfully send the message.
 - `soft_delete_policy` (String) Specifies the soft delete policy that will be used by default for delete operations. Soft delete operations introduce the ability to control the server behavior of the delete operation. Instead of performing a permanent delete of an entry, deleted entries can be retained as soft deleted entries by their entryUUID values and are available for undelete at a later time. In addition to a soft delete policy enabling soft deletes, delete operations sent to the server must have the soft delete request control present with sufficient access privileges to access the soft delete request control.
@@ -132,6 +133,10 @@ resource "pingdirectory_default_global_configuration" "global" {
 - `subtree_accessibility_alert_time_limit` (String) Specifies the length of time that a subtree may remain hidden or read-only before an administrative alert is sent.
 - `time_limit` (String) Specifies the maximum length of time that the Directory Server should be allowed to spend processing a search operation.
 - `tracked_application` (Set of String) Specifies criteria for identifying specific applications that access the server to enable tracking throughput and latency of LDAP operations issued by an application.
+- `unauthenticated_idle_time_limit` (String) The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections.
+- `unauthenticated_lookthrough_limit` (Number) The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections.
+- `unauthenticated_size_limit` (Number) The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections.
+- `unauthenticated_time_limit` (String) The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections.
 - `unrecoverable_database_error_mode` (String) Specifies the action which should be taken for any database that experiences an unrecoverable error. Action applies to local database backends and the replication recent changes database.
 - `verify_entry_digests` (Boolean) Indicates whether the digest should always be verified whenever an entry containing a digest is decoded. If this is "true", then if a digest exists, it will always be verified. Otherwise, the digest will be written when encoding entries but ignored when decoding entries but may still be available for other verification processing.
 - `warn_for_backends_with_multiple_base_dns` (Boolean) Indicates whether the server should issue a warning when enabling a backend that contains multiple base DNs.

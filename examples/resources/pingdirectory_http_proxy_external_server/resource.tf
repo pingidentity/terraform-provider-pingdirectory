@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
@@ -20,7 +21,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_http_proxy_external_server" "myHttpProxyExternalServer" {
-  id                            = "MyHttpProxyExternalServer"
-  server_host_name                      = "example.com"
-  server_port                      = 1234
+  id               = "MyHttpProxyExternalServer"
+  server_host_name = "example.com"
+  server_port      = 1234
 }

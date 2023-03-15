@@ -18,7 +18,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  pingdirectory_version = "9.1.0.0"
+  pingdirectory_version  = "9.1.0.0"
 }
 
 resource "pingdirectory_default_global_configuration" "global" {
@@ -29,5 +29,4 @@ resource "pingdirectory_default_global_configuration" "global" {
   result_code_map       = "Sun DS Compatible Behavior"
   disabled_privilege    = ["jmx-write", "jmx-read"]
   maximum_shutdown_time = "4 m"
-  #unauthenticated_size_limit = 2005
 }

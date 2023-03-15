@@ -68,6 +68,7 @@ resource "pingdirectory_ping_one_pass_through_authentication_plugin" "myPingOneP
 - `allow_lax_pass_through_authentication_passwords` (Boolean) Indicates whether to overwrite the user's local password even if the password used to authenticate to the PingOne service would have failed validation if the user attempted to set it directly.
 - `connection_criteria` (String) A reference to connection criteria that will be used to indicate which bind requests should be passed through to the PingOne service.
 - `description` (String) A description for this Plugin
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.
 - `ignored_password_policy_state_error_condition` (Set of String) A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true.
 - `included_local_entry_base_dn` (Set of String) The base DNs for the local users whose authentication attempts may be passed through to the PingOne service.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.

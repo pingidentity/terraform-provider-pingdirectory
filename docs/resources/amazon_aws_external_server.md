@@ -33,6 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  pingdirectory_version  = "9.1.0.0"
 }
 
 # Use "pingdirectory_default_amazon_aws_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
@@ -52,9 +53,11 @@ resource "pingdirectory_amazon_aws_external_server" "myAmazonAwsExternalServer" 
 
 ### Optional
 
-- `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided. If this is not provided, then no aws-secret-access-key may be configured, and the server must be running in an EC2 instance that is configured with an IAM role with permission to perform the necessary operations.
-- `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided. If this is not provided, then no aws-access-key-id may be configured, and the server must be running in an EC2 instance that is configured with an IAM role with permission to perform the necessary operations.
+- `authentication_method` (String) The mechanism to use to authenticate to AWS.
+- `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.
+- `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided.
 - `description` (String) A description for this External Server
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service.
 
 ### Read-Only
 

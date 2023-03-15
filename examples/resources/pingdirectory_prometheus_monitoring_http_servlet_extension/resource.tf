@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
@@ -20,5 +21,5 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_prometheus_monitoring_http_servlet_extension" "myPrometheusMonitoringHttpServletExtension" {
-  id                            = "MyPrometheusMonitoringHttpServletExtension"
+  id = "MyPrometheusMonitoringHttpServletExtension"
 }
