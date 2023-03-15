@@ -48,7 +48,7 @@ type pingdirectoryProviderModel struct {
 	Password              types.String `tfsdk:"password"`
 	InsecureTrustAllTls   types.Bool   `tfsdk:"insecure_trust_all_tls"`
 	CACertificatePEMFiles types.Set    `tfsdk:"ca_certificate_pem_files"`
-	PingDirectoryVersion  types.String `tfsdk:"pingdirectory_version"`
+	ServerVersion         types.String `tfsdk:"server_version"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -96,8 +96,8 @@ func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaR
 				Description: "Paths to files containing PEM-encoded certificates to be trusted as root CAs when connecting to the PingDirectory server over HTTPS. If not set, the host's root CA set will be used. Default value can be set with the `PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES` environment variable, using commas to delimit multiple PEM files if necessary.",
 				Optional:    true,
 			},
-			"pingdirectory_version": schema.StringAttribute{
-				Description: "Version of the PingDirectory server being configured. Default value can be set with the `PINGDIRECTORY_PROVIDER_PINGDIRECTORY_VERSION` environment variable.",
+			"server_version": schema.StringAttribute{
+				Description: "Version of the PingDirectory server being configured. Default value can be set with the `PINGDIRECTORY_PROVIDER_SERVER_VERSION` environment variable.",
 				Optional:    true,
 			},
 		},
@@ -182,22 +182,22 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		}
 	}
 
-	var pingdirectoryVersion string
+	var serverVersion string
 	var err error
-	if !config.PingDirectoryVersion.IsUnknown() && !config.PingDirectoryVersion.IsNull() {
-		pingdirectoryVersion = config.PingDirectoryVersion.ValueString()
+	if !config.ServerVersion.IsUnknown() && !config.ServerVersion.IsNull() {
+		serverVersion = config.ServerVersion.ValueString()
 	} else {
-		pingdirectoryVersion = os.Getenv("PINGDIRECTORY_PROVIDER_PINGDIRECTORY_VERSION")
+		serverVersion = os.Getenv("PINGDIRECTORY_PROVIDER_SERVER_VERSION")
 	}
 
-	if pingdirectoryVersion == "" {
+	if serverVersion == "" {
 		resp.Diagnostics.AddError(
 			"Unable to find PingDirectory version",
-			"pingdirectory_version cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_PINGDIRECTORY_VERSION environment variable.",
+			"server_version cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_SERVER_VERSION environment variable.",
 		)
 	} else {
 		// Validate the PingDirectory version
-		pingdirectoryVersion, err = version.Parse(pingdirectoryVersion)
+		serverVersion, err = version.Parse(serverVersion)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to parse PingDirectory version", err.Error())
 		}
@@ -254,10 +254,10 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// type Configure methods.
 	var resourceConfig internaltypes.ResourceConfiguration
 	providerConfig := internaltypes.ProviderConfiguration{
-		HttpsHost:            httpsHost,
-		Username:             username,
-		Password:             password,
-		PingDirectoryVersion: pingdirectoryVersion,
+		HttpsHost:     httpsHost,
+		Username:      username,
+		Password:      password,
+		ServerVersion: serverVersion,
 	}
 	resourceConfig.ProviderConfig = providerConfig
 	//#nosec G402
@@ -278,7 +278,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	}
 	clientConfig9200.HTTPClient = httpClient
 	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
-	if pingdirectoryVersion == version.PingDirectory9100 {
+	if serverVersion == version.PingDirectory9100 {
 		clientConfig9100 := client9100.NewConfiguration()
 		clientConfig9100.Servers = client9100.ServerConfigurations{
 			{

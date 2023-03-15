@@ -145,13 +145,13 @@ func httpProxyExternalServerSchema(ctx context.Context, req resource.SchemaReque
 // Validate that this resource is being used with a compatible PingDirectory version
 func (r *httpProxyExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.PingDirectoryVersion, "pingdirectory_http_proxy_external_server")
+		r.providerConfig.ServerVersion, "pingdirectory_http_proxy_external_server")
 }
 
 // Validate that this resource is being used with a compatible PingDirectory version
 func (r *defaultHttpProxyExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.PingDirectoryVersion, "pingdirectory_default_http_proxy_external_server")
+		r.providerConfig.ServerVersion, "pingdirectory_default_http_proxy_external_server")
 }
 
 // Add optional fields to create request

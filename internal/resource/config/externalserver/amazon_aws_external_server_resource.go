@@ -150,12 +150,12 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 
 // Validate that no unsupported attributes are being used by this resource
 func (r *defaultAmazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	checkUnsupportedAttributesAmazonAwsExternalServer(r.providerConfig.PingDirectoryVersion, ctx, req, resp)
+	checkUnsupportedAttributesAmazonAwsExternalServer(r.providerConfig.ServerVersion, ctx, req, resp)
 }
 
 // Validate that no unsupported attributes are being used by this resource
 func (r *amazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	checkUnsupportedAttributesAmazonAwsExternalServer(r.providerConfig.PingDirectoryVersion, ctx, req, resp)
+	checkUnsupportedAttributesAmazonAwsExternalServer(r.providerConfig.ServerVersion, ctx, req, resp)
 }
 
 func checkUnsupportedAttributesAmazonAwsExternalServer(pdVersion string, ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

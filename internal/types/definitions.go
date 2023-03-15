@@ -7,10 +7,10 @@ import (
 
 // Configuration used by the provider and resources
 type ProviderConfiguration struct {
-	HttpsHost            string
-	Username             string
-	Password             string
-	PingDirectoryVersion string
+	HttpsHost     string
+	Username      string
+	Password      string
+	ServerVersion string
 }
 
 // Configuration passed to resources
