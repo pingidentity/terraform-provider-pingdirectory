@@ -115,7 +115,7 @@ func (r *defaultAuditDataSecurityRecurringTaskResource) Schema(ctx context.Conte
 
 func auditDataSecurityRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Audit Data Security Recurring Task.",
+		Description: "Manages a Audit Data Security Recurring Task. Supported in PingDirectory version 9.2.0.0+",
 		Attributes: map[string]schema.Attribute{
 			"base_output_directory": schema.StringAttribute{
 				Description: "The base directory below which generated reports will be written. Each invocation of the audit-data-security task will create a new subdirectory below this base directory whose name is a timestamp indicating when the report was generated.",

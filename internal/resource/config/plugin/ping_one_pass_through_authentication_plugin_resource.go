@@ -150,7 +150,7 @@ func pingOnePassThroughAuthenticationPluginSchema(ctx context.Context, req resou
 				Required:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{

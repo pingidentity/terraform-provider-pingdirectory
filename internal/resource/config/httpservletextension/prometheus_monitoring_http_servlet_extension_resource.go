@@ -112,7 +112,7 @@ func (r *defaultPrometheusMonitoringHttpServletExtensionResource) Schema(ctx con
 
 func prometheusMonitoringHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Prometheus Monitoring Http Servlet Extension.",
+		Description: "Manages a Prometheus Monitoring Http Servlet Extension. Supported in PingDirectory version 9.2.0.0+",
 		Attributes: map[string]schema.Attribute{
 			"base_context_path": schema.StringAttribute{
 				Description: "Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.",

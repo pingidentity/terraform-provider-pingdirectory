@@ -107,7 +107,7 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 		Description: "Manages a Amazon Aws External Server.",
 		Attributes: map[string]schema.Attribute{
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -115,7 +115,7 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"authentication_method": schema.StringAttribute{
-				Description: "The mechanism to use to authenticate to AWS.",
+				Description: "The mechanism to use to authenticate to AWS. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{

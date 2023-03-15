@@ -377,7 +377,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_size_limit": schema.Int64Attribute{
-				Description: "The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The size limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the size-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -393,7 +393,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_time_limit": schema.StringAttribute{
-				Description: "The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The time limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the time-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -409,7 +409,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_idle_time_limit": schema.StringAttribute{
-				Description: "The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The idle-time-limit limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the idle-time-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -425,7 +425,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				},
 			},
 			"unauthenticated_lookthrough_limit": schema.Int64Attribute{
-				Description: "The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections.",
+				Description: "The lookthrough limit value that will apply for connections from unauthenticated clients. If this is not specified, then the value of the lookthrough-limit property will be applied for both authenticated and unauthenticated connections. Supported in PingDirectory version 9.2.0.0+",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.Int64{
@@ -886,7 +886,12 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 // Validate that no unsupported attributes are being used by this resource
 func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	// Check what version we are running
-	if r.providerConfig.ServerVersion == version.PingDirectory9200 {
+	compare, err := version.Compare(r.providerConfig.ServerVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
 		// Everything is supported in 9.2, no plan validation necessary
 		return
 	}

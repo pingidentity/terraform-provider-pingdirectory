@@ -103,7 +103,7 @@ func (r *defaultHttpProxyExternalServerResource) Schema(ctx context.Context, req
 
 func httpProxyExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Http Proxy External Server.",
+		Description: "Manages a Http Proxy External Server. Supported in PingDirectory version 9.2.0.0+",
 		Attributes: map[string]schema.Attribute{
 			"server_host_name": schema.StringAttribute{
 				Description: "The host name or IP address of the HTTP Proxy External Server.",
