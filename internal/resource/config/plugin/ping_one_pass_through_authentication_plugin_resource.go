@@ -260,12 +260,12 @@ func pingOnePassThroughAuthenticationPluginSchema(ctx context.Context, req resou
 
 // Validate that no unsupported attributes are being used by this resource
 func (r *pingOnePassThroughAuthenticationPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(r.providerConfig.ServerVersion, ctx, req, resp)
+	checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(r.providerConfig.ProductVersion, ctx, req, resp)
 }
 
 // Validate that no unsupported attributes are being used by this resource
 func (r *defaultPingOnePassThroughAuthenticationPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(r.providerConfig.ServerVersion, ctx, req, resp)
+	checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(r.providerConfig.ProductVersion, ctx, req, resp)
 }
 
 func checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(pdVersion string, ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

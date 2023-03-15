@@ -220,13 +220,13 @@ func prometheusMonitoringHttpServletExtensionSchema(ctx context.Context, req res
 // Validate that this resource is being used with a compatible PingDirectory version
 func (r *prometheusMonitoringHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ServerVersion, "pingdirectory_prometheus_monitoring_http_servlet_extension")
+		r.providerConfig.ProductVersion, "pingdirectory_prometheus_monitoring_http_servlet_extension")
 }
 
 // Validate that this resource is being used with a compatible PingDirectory version
 func (r *defaultPrometheusMonitoringHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ServerVersion, "pingdirectory_default_prometheus_monitoring_http_servlet_extension")
+		r.providerConfig.ProductVersion, "pingdirectory_default_prometheus_monitoring_http_servlet_extension")
 }
 
 // Add optional fields to create request

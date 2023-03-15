@@ -243,13 +243,13 @@ func auditDataSecurityRecurringTaskSchema(ctx context.Context, req resource.Sche
 // Validate that this resource is being used with a compatible PingDirectory version
 func (r *auditDataSecurityRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ServerVersion, "pingdirectory_audit_data_security_recurring_task")
+		r.providerConfig.ProductVersion, "pingdirectory_audit_data_security_recurring_task")
 }
 
 // Validate that this resource is being used with a compatible PingDirectory version
 func (r *defaultAuditDataSecurityRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ServerVersion, "pingdirectory_default_audit_data_security_recurring_task")
+		r.providerConfig.ProductVersion, "pingdirectory_default_audit_data_security_recurring_task")
 }
 
 // Add optional fields to create request

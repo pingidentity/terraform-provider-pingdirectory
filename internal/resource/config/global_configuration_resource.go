@@ -886,7 +886,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 // Validate that no unsupported attributes are being used by this resource
 func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	// Check what version we are running
-	compare, err := version.Compare(r.providerConfig.ServerVersion, version.PingDirectory9200)
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -898,17 +898,17 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ServerVersion, "")
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	// Empty strings don't count as being set
 	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ServerVersion, "")
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ServerVersion, "")
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ServerVersion, "")
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 }
 
