@@ -326,14 +326,14 @@ func addOptionalNokiaDsExternalServerFields(ctx context.Context, addRequest *cli
 		addRequest.ConnectionSecurity = connectionSecurity
 	}
 	// Empty strings are treated as equivalent to null
-	//TODO multi-version support
-	/*if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
-		authenticationMethod, err := client.NewEnumexternalServerAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
+	// This enum changed in PD 9.2.0.0 but has the same underlying values, so it shouldn't cause any issues to parse it here
+	if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
+		authenticationMethod, err := client.NewEnumexternalServerNokiaDsAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
 		if err != nil {
 			return err
 		}
 		addRequest.AuthenticationMethod = authenticationMethod
-	}*/
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.HealthCheckConnectTimeout) {
 		stringVal := plan.HealthCheckConnectTimeout.ValueString()
