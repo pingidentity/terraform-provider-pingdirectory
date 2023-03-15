@@ -7,7 +7,7 @@ on:
 jobs:
   issue_creation:
     name: Issue Created
-    if: github.event.issues == "opened"
+    if: ${{ github.event.issues == "opened" }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,7 +15,7 @@ jobs:
 
   issue_updated:
     name: Issue Updated
-    if: github.event.issues == "edited"
+    if: ${{ github.event.issues == "edited" }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
