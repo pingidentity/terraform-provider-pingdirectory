@@ -838,8 +838,6 @@ github.com/pelletier/go-toml v1.9.5/go.mod h1:u1nR/EPcESfeI/szUZKdtJ0xRNbUoANCko
 github.com/pelletier/go-toml/v2 v2.0.5 h1:ipoSadvV8oGUjnUbMub59IDPPwfxF694nG/jwbMiyQg=
 github.com/pelletier/go-toml/v2 v2.0.5/go.mod h1:OMHamSCAODeSsVrwwvcJOaoN0LIUIaFVNZzmWyNfXas=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
-github.com/pingidentity/pingdirectory-go-client/v9100 v9100.12.0 h1:r2RXJeF/0+GbbOP461vKeMyZBHsmUTWR+4RRR/fj8tA=
-github.com/pingidentity/pingdirectory-go-client/v9100 v9100.12.0/go.mod h1:+RwvO29Wk2oM0emGQesp9wjtF8g0BVUoD9HsEMibcOw=
 github.com/pingidentity/pingdirectory-go-client/v9200 v9200.0.0 h1:uWAlXuo5mCdrO2p2sV/1igvb7/O98/UmVkZ19wABbto=
 github.com/pingidentity/pingdirectory-go-client/v9200 v9200.0.0/go.mod h1:JbWZu17qkXj1VhQhzmuyOLFLxLrbzJD2+BhM5tTFX+8=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

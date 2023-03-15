@@ -15,7 +15,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client9100 "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+
+	//client9100 "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
 	client9200 "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
@@ -278,7 +279,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	}
 	clientConfig9200.HTTPClient = httpClient
 	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
-	if productVersion == version.PingDirectory9100 {
+	/*if productVersion == version.PingDirectory9100 {
 		clientConfig9100 := client9100.NewConfiguration()
 		clientConfig9100.Servers = client9100.ServerConfigurations{
 			{
@@ -287,7 +288,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		}
 		clientConfig9100.HTTPClient = httpClient
 		resourceConfig.ApiClientV9100 = client9100.NewAPIClient(clientConfig9100)
-	}
+	}*/
 
 	resp.ResourceData = resourceConfig
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
