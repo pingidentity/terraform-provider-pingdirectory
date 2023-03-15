@@ -1,0 +1,22 @@
+name: Issues Workflow
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened]
+
+jobs:
+  issue_creation:
+    name: Issue Created
+    if: github.event.issues == "opened"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "Issue was created"
+
+  issue_updated:
+    name: Issue Updated
+    if: github.event.issues == "edited"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "Issue was Updated"
