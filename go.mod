@@ -12,7 +12,6 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.25.0
 	github.com/katbyte/terrafmt v0.5.2
 	github.com/pavius/impi v0.0.3
-	//github.com/pingidentity/pingdirectory-go-client/v9100 v9100.12.0
 	github.com/pingidentity/pingdirectory-go-client/v9200 v9200.0.0
 	github.com/terraform-linters/tflint v0.45.0
 )
