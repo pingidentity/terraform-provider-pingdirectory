@@ -33,6 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  server_version         = "9.2.0.0"
 }
 
 // This set is approximately the minimum set required for you to be able to run

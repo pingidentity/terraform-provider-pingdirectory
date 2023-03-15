@@ -38,7 +38,7 @@ provider "pingdirectory" {
 resource "pingdirectory_default_authorize_server_instance" "myAuthorizeServerInstance" {
   id                   = "MyAuthorizeServerInstance"
   server_instance_name = "instance-name"
-  server_version       = "9.1.0.0"
+  server_version       = "9.2.0.0"
 }
 ```
 
