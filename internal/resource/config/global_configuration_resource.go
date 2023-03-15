@@ -18,6 +18,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -885,23 +886,23 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 // Validate that no unsupported attributes are being used by this resource
 func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	// Check what version we are running
-	if r.providerConfig.PingDirectoryVersion == internaltypes.PingDirectory9200 {
+	if r.providerConfig.PingDirectoryVersion == version.PingDirectory9200 {
 		// Everything is supported in 9.2, no plan validation necessary
 		return
 	}
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
-	if !model.UnauthenticatedSizeLimit.IsNull() && !model.UnauthenticatedSizeLimit.IsUnknown() {
+	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
 	}
 	// Empty strings don't count as being set
-	if !model.UnauthenticatedTimeLimit.IsNull() && !model.UnauthenticatedTimeLimit.IsUnknown() && model.UnauthenticatedTimeLimit.ValueString() != "" {
+	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
 	}
-	if !model.UnauthenticatedIdleTimeLimit.IsNull() && !model.UnauthenticatedIdleTimeLimit.IsUnknown() && model.UnauthenticatedIdleTimeLimit.ValueString() != "" {
+	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
 	}
-	if !model.UnauthenticatedLookthroughLimit.IsNull() && !model.UnauthenticatedLookthroughLimit.IsUnknown() {
+	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.PingDirectoryVersion, "")
 	}
 }

@@ -19,9 +19,3 @@ type ResourceConfiguration struct {
 	ApiClientV9100 *client9100.APIClient
 	ApiClientV9200 *client9200.APIClient
 }
-
-// Supported PingDirectory versions
-const (
-	PingDirectory9100 = "9.1.0.0"
-	PingDirectory9200 = "9.2.0.0"
-)

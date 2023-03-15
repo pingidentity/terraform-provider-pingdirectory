@@ -1,5 +1,4 @@
 terraform {
-  required_version = ">=1.1"
   required_providers {
     pingdirectory = {
       source = "pingidentity/pingdirectory"
@@ -18,11 +17,10 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  pingdirectory_version = "9.1.0.0"
 }
 
-# Use "pingdirectory_default_amazon_aws_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
-resource "pingdirectory_amazon_aws_external_server" "myAmazonAwsExternalServer" {
-  id              = "MyAmazonAwsExternalServer"
-  aws_region_name = "us-east-2"
+resource "pingdirectory_http_proxy_external_server" "myHttpProxyExternalServer" {
+  id                            = "MyHttpProxyExternalServer"
+  server_host_name                      = "example.com"
+  server_port                      = 1234
 }

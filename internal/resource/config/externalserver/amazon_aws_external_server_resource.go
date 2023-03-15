@@ -8,12 +8,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -78,14 +81,16 @@ func (r *defaultAmazonAwsExternalServerResource) Configure(_ context.Context, re
 }
 
 type amazonAwsExternalServerResourceModel struct {
-	Id                 types.String `tfsdk:"id"`
-	LastUpdated        types.String `tfsdk:"last_updated"`
-	Notifications      types.Set    `tfsdk:"notifications"`
-	RequiredActions    types.Set    `tfsdk:"required_actions"`
-	AwsAccessKeyID     types.String `tfsdk:"aws_access_key_id"`
-	AwsSecretAccessKey types.String `tfsdk:"aws_secret_access_key"`
-	AwsRegionName      types.String `tfsdk:"aws_region_name"`
-	Description        types.String `tfsdk:"description"`
+	Id                      types.String `tfsdk:"id"`
+	LastUpdated             types.String `tfsdk:"last_updated"`
+	Notifications           types.Set    `tfsdk:"notifications"`
+	RequiredActions         types.Set    `tfsdk:"required_actions"`
+	HttpProxyExternalServer types.String `tfsdk:"http_proxy_external_server"`
+	AuthenticationMethod    types.String `tfsdk:"authentication_method"`
+	AwsAccessKeyID          types.String `tfsdk:"aws_access_key_id"`
+	AwsSecretAccessKey      types.String `tfsdk:"aws_secret_access_key"`
+	AwsRegionName           types.String `tfsdk:"aws_region_name"`
+	Description             types.String `tfsdk:"description"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -101,12 +106,28 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 	schema := schema.Schema{
 		Description: "Manages a Amazon Aws External Server.",
 		Attributes: map[string]schema.Attribute{
+			"http_proxy_external_server": schema.StringAttribute{
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"authentication_method": schema.StringAttribute{
+				Description: "The mechanism to use to authenticate to AWS.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"aws_access_key_id": schema.StringAttribute{
-				Description: "The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided. If this is not provided, then no aws-secret-access-key may be configured, and the server must be running in an EC2 instance that is configured with an IAM role with permission to perform the necessary operations.",
+				Description: "The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.",
 				Optional:    true,
 			},
 			"aws_secret_access_key": schema.StringAttribute{
-				Description: "The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided. If this is not provided, then no aws-access-key-id may be configured, and the server must be running in an EC2 instance that is configured with an IAM role with permission to perform the necessary operations.",
+				Description: "The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided.",
 				Optional:    true,
 				Sensitive:   true,
 			},
@@ -127,8 +148,52 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schema
 }
 
+// Validate that no unsupported attributes are being used by this resource
+func (r *defaultAmazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	CheckUnsupportedAttributes(r.providerConfig.PingDirectoryVersion, ctx, req, resp)
+}
+
+// Validate that no unsupported attributes are being used by this resource
+func (r *amazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	CheckUnsupportedAttributes(r.providerConfig.PingDirectoryVersion, ctx, req, resp)
+}
+
+func CheckUnsupportedAttributes(pdVersion string, ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// Check what version we are running
+	compare, err := version.Compare(pdVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Everything is supported in 9.2, no plan validation necessary
+		return
+	}
+	var model amazonAwsExternalServerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+pdVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
+		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+pdVersion, "")
+	}
+}
+
 // Add optional fields to create request
-func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *client.AddAmazonAwsExternalServerRequest, plan amazonAwsExternalServerResourceModel) {
+func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *client.AddAmazonAwsExternalServerRequest, plan amazonAwsExternalServerResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
+		stringVal := plan.HttpProxyExternalServer.ValueString()
+		addRequest.HttpProxyExternalServer = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
+		authenticationMethod, err := client.NewEnumexternalServerAmazonAwsAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.AuthenticationMethod = authenticationMethod
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AwsAccessKeyID) {
 		stringVal := plan.AwsAccessKeyID.ValueString()
@@ -144,11 +209,15 @@ func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *c
 		stringVal := plan.Description.ValueString()
 		addRequest.Description = &stringVal
 	}
+	return nil
 }
 
 // Read a AmazonAwsExternalServerResponse object into the model struct
 func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAwsExternalServerResponse, state *amazonAwsExternalServerResourceModel, expectedValues *amazonAwsExternalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.AuthenticationMethod = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), internaltypes.IsEmptyString(expectedValues.AuthenticationMethod))
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))
 	// Obscured values aren't returned from the PD Configuration API - just use the expected value
 	state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
@@ -160,6 +229,8 @@ func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAw
 // Create any update operations necessary to make the state match the plan
 func createAmazonAwsExternalServerOperations(plan amazonAwsExternalServerResourceModel, state amazonAwsExternalServerResourceModel) []client.Operation {
 	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
+	operations.AddStringOperationIfNecessary(&ops, plan.AuthenticationMethod, state.AuthenticationMethod, "authentication-method")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsAccessKeyID, state.AwsAccessKeyID, "aws-access-key-id")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsSecretAccessKey, state.AwsSecretAccessKey, "aws-secret-access-key")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsRegionName, state.AwsRegionName, "aws-region-name")
@@ -180,7 +251,11 @@ func (r *amazonAwsExternalServerResource) Create(ctx context.Context, req resour
 	addRequest := client.NewAddAmazonAwsExternalServerRequest(plan.Id.ValueString(),
 		[]client.EnumamazonAwsExternalServerSchemaUrn{client.ENUMAMAZONAWSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERAMAZON_AWS},
 		plan.AwsRegionName.ValueString())
-	addOptionalAmazonAwsExternalServerFields(ctx, addRequest, plan)
+	err := addOptionalAmazonAwsExternalServerFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Amazon Aws External Server", err.Error())
+		return
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {

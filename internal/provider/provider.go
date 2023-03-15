@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"net/http"
 	"os"
 	"strconv"
@@ -39,6 +38,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
@@ -197,7 +197,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		)
 	} else {
 		// Validate the PingDirectory version
-		pingdirectoryVersion, err = parsePingDirectoryVersion(pingdirectoryVersion)
+		pingdirectoryVersion, err = version.Parse(pingdirectoryVersion)
 		if err != nil {
 			resp.Diagnostics.AddError("Failed to parse PingDirectory version", err.Error())
 		}
@@ -278,7 +278,7 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	}
 	clientConfig9200.HTTPClient = httpClient
 	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
-	if pingdirectoryVersion == internaltypes.PingDirectory9100 {
+	if pingdirectoryVersion == version.PingDirectory9100 {
 		clientConfig9100 := client9100.NewConfiguration()
 		clientConfig9100.Servers = client9100.ServerConfigurations{
 			{
@@ -665,54 +665,4 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		virtualattribute.NewThirdPartyVirtualAttributeResource,
 		virtualattribute.NewUserDefinedVirtualAttributeResource,
 	}
-}
-
-func parsePingDirectoryVersion(versionString string) (string, error) {
-	var err error
-	versionParsed := false
-	if len(versionString) != 0 {
-		versionDigits := strings.Split(versionString, ".")
-		// Expect a version like "x.x" or "x.x.x.x"
-		// If only two digits are supplied, the last two will be assumed to be "0.0"
-		if len(versionDigits) != 2 && len(versionDigits) != 4 {
-			err = errors.New("Failed to parse PingDirectory version '" + versionString + "', Expected either two digits (i.e. '9.1') or four digits (i.e. '9.1.0.0')")
-		} else {
-			digitOne, err := strconv.ParseInt(versionDigits[0], 10, 64)
-			if err != nil {
-				return versionString, errors.New("Failed to parse first digit of PingDirectory version '" + versionString + "': " + err.Error())
-			}
-			digitTwo, err := strconv.ParseInt(versionDigits[1], 10, 64)
-			if err != nil {
-				return versionString, errors.New("Failed to parse second digit of PingDirectory version '" + versionString + "': " + err.Error())
-			}
-			digitThree := int64(0)
-			digitFour := int64(0)
-			if len(versionDigits) == 4 {
-				digitThree, err = strconv.ParseInt(versionDigits[2], 10, 64)
-				if err != nil {
-					return versionString, errors.New("Failed to parse third digit of PingDirectory version '" + versionString + "': " + err.Error())
-				}
-				digitFour, err = strconv.ParseInt(versionDigits[3], 10, 64)
-				if err != nil {
-					return versionString, errors.New("Failed to parse fourth digit of PingDirectory version '" + versionString + "': " + err.Error())
-				}
-			}
-
-			// Check for supported versions
-			if digitOne == 9 {
-				if digitTwo == 1 && digitThree == 0 && digitFour == 0 {
-					versionString = internaltypes.PingDirectory9100
-					versionParsed = true
-				} else if digitTwo == 2 && digitThree == 0 && digitFour == 0 {
-					versionString = internaltypes.PingDirectory9200
-					versionParsed = true
-				}
-			}
-
-			if !versionParsed {
-				return versionString, errors.New("Unsupported PingDirectory version: " + versionString)
-			}
-		}
-	}
-	return versionString, err
 }
