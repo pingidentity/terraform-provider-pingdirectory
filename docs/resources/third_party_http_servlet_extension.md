@@ -33,6 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  product_version        = "9.2.0.0"
 }
 
 # Use "pingdirectory_default_third_party_http_servlet_extension" if you are adopting existing configuration from the PingDirectory server into Terraform

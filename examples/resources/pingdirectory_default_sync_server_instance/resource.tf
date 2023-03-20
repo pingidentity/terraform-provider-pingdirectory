@@ -18,10 +18,11 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  product_version        = "9.2.0.0"
 }
 
 resource "pingdirectory_default_sync_server_instance" "mySyncServerInstance" {
   id                   = "MySyncServerInstance"
   server_instance_name = "MySyncServerInstance"
-  server_version       = "9.1.0.0"
+  server_version       = "9.2.0.0"
 }

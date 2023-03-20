@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 )
@@ -22,6 +22,7 @@ func ConfigurationPreCheck(t *testing.T) {
 		"PINGDIRECTORY_PROVIDER_USERNAME",
 		"PINGDIRECTORY_PROVIDER_PASSWORD",
 		"PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS",
+		"PINGDIRECTORY_PROVIDER_PRODUCT_VERSION",
 	}
 
 	errorFound := false

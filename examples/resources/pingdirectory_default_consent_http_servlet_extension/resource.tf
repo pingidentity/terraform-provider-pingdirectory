@@ -18,6 +18,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  product_version        = "9.2.0.0"
 }
 
 resource "pingdirectory_default_consent_http_servlet_extension" "myConsentHttpServletExtension" {

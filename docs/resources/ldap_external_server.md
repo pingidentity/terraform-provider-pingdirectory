@@ -33,12 +33,14 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
+  product_version        = "9.2.0.0"
 }
 
 # Use "pingdirectory_default_ldap_external_server" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_ldap_external_server" "myLdapExternalServer" {
-  id               = "MyLdapExternalServer"
-  server_host_name = "example.com"
+  id                    = "MyLdapExternalServer"
+  server_host_name      = "example.com"
+  authentication_method = "none"
 }
 ```
 

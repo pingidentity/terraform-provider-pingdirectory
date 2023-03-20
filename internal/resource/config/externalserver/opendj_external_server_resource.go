@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -69,7 +69,7 @@ func (r *opendjExternalServerResource) Configure(_ context.Context, req resource
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultOpendjExternalServerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -79,7 +79,7 @@ func (r *defaultOpendjExternalServerResource) Configure(_ context.Context, req r
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type opendjExternalServerResourceModel struct {
@@ -305,8 +305,9 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 		addRequest.ConnectionSecurity = connectionSecurity
 	}
 	// Empty strings are treated as equivalent to null
+	// This enum changed in PD 9.2.0.0 but has the same underlying values, so it shouldn't cause any issues to parse it here
 	if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
-		authenticationMethod, err := client.NewEnumexternalServerAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
+		authenticationMethod, err := client.NewEnumexternalServerOpendjAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
 		if err != nil {
 			return err
 		}

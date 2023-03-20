@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	client9200 "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
@@ -37,6 +37,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // pingdirectoryProviderModel maps provider schema data to a Go type.
@@ -46,6 +47,7 @@ type pingdirectoryProviderModel struct {
 	Password              types.String `tfsdk:"password"`
 	InsecureTrustAllTls   types.Bool   `tfsdk:"insecure_trust_all_tls"`
 	CACertificatePEMFiles types.Set    `tfsdk:"ca_certificate_pem_files"`
+	ProductVersion        types.String `tfsdk:"product_version"`
 }
 
 // Ensure the implementation satisfies the expected interfaces
@@ -91,6 +93,10 @@ func (p *pingdirectoryProvider) Schema(ctx context.Context, req provider.SchemaR
 			"ca_certificate_pem_files": schema.SetAttribute{
 				ElementType: types.StringType,
 				Description: "Paths to files containing PEM-encoded certificates to be trusted as root CAs when connecting to the PingDirectory server over HTTPS. If not set, the host's root CA set will be used. Default value can be set with the `PINGDIRECTORY_PROVIDER_CA_CERTIFICATE_PEM_FILES` environment variable, using commas to delimit multiple PEM files if necessary.",
+				Optional:    true,
+			},
+			"product_version": schema.StringAttribute{
+				Description: "Version of the PingDirectory server being configured. Default value can be set with the `PINGDIRECTORY_PROVIDER_PRODUCT_VERSION` environment variable.",
 				Optional:    true,
 			},
 		},
@@ -175,9 +181,29 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		}
 	}
 
+	var productVersion string
+	var err error
+	if !config.ProductVersion.IsUnknown() && !config.ProductVersion.IsNull() {
+		productVersion = config.ProductVersion.ValueString()
+	} else {
+		productVersion = os.Getenv("PINGDIRECTORY_PROVIDER_PRODUCT_VERSION")
+	}
+
+	if productVersion == "" {
+		resp.Diagnostics.AddError(
+			"Unable to find PingDirectory version",
+			"product_version cannot be an empty string. Either set it in the configuration or use the PINGDIRECTORY_PROVIDER_PRODUCT_VERSION environment variable.",
+		)
+	} else {
+		// Validate the PingDirectory version
+		productVersion, err = version.Parse(productVersion)
+		if err != nil {
+			resp.Diagnostics.AddError("Failed to parse PingDirectory version", err.Error())
+		}
+	}
+
 	// Optional attributes
 	var insecureTrustAllTls bool
-	var err error
 	if !config.InsecureTrustAllTls.IsUnknown() && !config.InsecureTrustAllTls.IsNull() {
 		insecureTrustAllTls = config.InsecureTrustAllTls.ValueBool()
 	} else {
@@ -227,17 +253,12 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	// type Configure methods.
 	var resourceConfig internaltypes.ResourceConfiguration
 	providerConfig := internaltypes.ProviderConfiguration{
-		HttpsHost: httpsHost,
-		Username:  username,
-		Password:  password,
+		HttpsHost:      httpsHost,
+		Username:       username,
+		Password:       password,
+		ProductVersion: productVersion,
 	}
 	resourceConfig.ProviderConfig = providerConfig
-	clientConfig := client.NewConfiguration()
-	clientConfig.Servers = client.ServerConfigurations{
-		{
-			URL: httpsHost + "/config",
-		},
-	}
 	//#nosec G402
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -246,10 +267,18 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 		},
 	}
 	httpClient := &http.Client{Transport: tr}
-	clientConfig.HTTPClient = httpClient
-	resourceConfig.ApiClient = client.NewAPIClient(clientConfig)
-	resp.ResourceData = resourceConfig
+	// Always create a client for the most recent version, since it is
+	// the default used by resources that are compatible with multiple versions
+	clientConfig9200 := client9200.NewConfiguration()
+	clientConfig9200.Servers = client9200.ServerConfigurations{
+		{
+			URL: httpsHost + "/config",
+		},
+	}
+	clientConfig9200.HTTPClient = httpClient
+	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
 
+	resp.ResourceData = resourceConfig
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
 }
 
@@ -347,6 +376,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		externalserver.NewDefaultAmazonAwsExternalServerResource,
 		externalserver.NewDefaultConjurExternalServerResource,
 		externalserver.NewDefaultHttpExternalServerResource,
+		externalserver.NewDefaultHttpProxyExternalServerResource,
 		externalserver.NewDefaultJdbcExternalServerResource,
 		externalserver.NewDefaultLdapExternalServerResource,
 		externalserver.NewDefaultNokiaDsExternalServerResource,
@@ -360,6 +390,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		externalserver.NewDefaultSyslogExternalServerResource,
 		externalserver.NewDefaultVaultExternalServerResource,
 		externalserver.NewHttpExternalServerResource,
+		externalserver.NewHttpProxyExternalServerResource,
 		externalserver.NewJdbcExternalServerResource,
 		externalserver.NewLdapExternalServerResource,
 		externalserver.NewNokiaDsExternalServerResource,
@@ -383,6 +414,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		httpservletextension.NewDefaultFileServerHttpServletExtensionResource,
 		httpservletextension.NewDefaultGroovyScriptedHttpServletExtensionResource,
 		httpservletextension.NewDefaultLdapMappedScimHttpServletExtensionResource,
+		httpservletextension.NewDefaultPrometheusMonitoringHttpServletExtensionResource,
 		httpservletextension.NewDefaultQuickstartHttpServletExtensionResource,
 		httpservletextension.NewDefaultThirdPartyHttpServletExtensionResource,
 		httpservletextension.NewDelegatedAdminHttpServletExtensionResource,
@@ -390,6 +422,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		httpservletextension.NewFileServerHttpServletExtensionResource,
 		httpservletextension.NewGroovyScriptedHttpServletExtensionResource,
 		httpservletextension.NewLdapMappedScimHttpServletExtensionResource,
+		httpservletextension.NewPrometheusMonitoringHttpServletExtensionResource,
 		httpservletextension.NewQuickstartHttpServletExtensionResource,
 		httpservletextension.NewScim2HttpServletExtensionResource,
 		httpservletextension.NewThirdPartyHttpServletExtensionResource,
@@ -540,8 +573,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		plugin.NewSubOperationTimingPluginResource,
 		plugin.NewThirdPartyPluginResource,
 		plugin.NewUniqueAttributePluginResource,
+		recurringtask.NewAuditDataSecurityRecurringTaskResource,
 		recurringtask.NewBackupRecurringTaskResource,
 		recurringtask.NewCollectSupportDataRecurringTaskResource,
+		recurringtask.NewDefaultAuditDataSecurityRecurringTaskResource,
 		recurringtask.NewDefaultBackupRecurringTaskResource,
 		recurringtask.NewDefaultCollectSupportDataRecurringTaskResource,
 		recurringtask.NewDefaultDelayRecurringTaskResource,

@@ -11,12 +11,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9100/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -67,7 +69,7 @@ func (r *pingOnePassThroughAuthenticationPluginResource) Configure(_ context.Con
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 func (r *defaultPingOnePassThroughAuthenticationPluginResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -77,7 +79,7 @@ func (r *defaultPingOnePassThroughAuthenticationPluginResource) Configure(_ cont
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClient
+	r.apiClient = providerCfg.ApiClientV9200
 }
 
 type pingOnePassThroughAuthenticationPluginResourceModel struct {
@@ -91,6 +93,7 @@ type pingOnePassThroughAuthenticationPluginResourceModel struct {
 	OAuthClientSecret                          types.String `tfsdk:"oauth_client_secret"`
 	OAuthClientSecretPassphraseProvider        types.String `tfsdk:"oauth_client_secret_passphrase_provider"`
 	EnvironmentID                              types.String `tfsdk:"environment_id"`
+	HttpProxyExternalServer                    types.String `tfsdk:"http_proxy_external_server"`
 	IncludedLocalEntryBaseDN                   types.Set    `tfsdk:"included_local_entry_base_dn"`
 	ConnectionCriteria                         types.String `tfsdk:"connection_criteria"`
 	RequestCriteria                            types.String `tfsdk:"request_criteria"`
@@ -145,6 +148,14 @@ func pingOnePassThroughAuthenticationPluginSchema(ctx context.Context, req resou
 			"environment_id": schema.StringAttribute{
 				Description: "Specifies the PingOne Environment that will be associated with this PingOne Pass Through Authentication Plugin.",
 				Required:    true,
+			},
+			"http_proxy_external_server": schema.StringAttribute{
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service. Supported in PingDirectory version 9.2.0.0+",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"included_local_entry_base_dn": schema.SetAttribute{
 				Description: "The base DNs for the local users whose authentication attempts may be passed through to the PingOne service.",
@@ -247,6 +258,34 @@ func pingOnePassThroughAuthenticationPluginSchema(ctx context.Context, req resou
 	resp.Schema = schema
 }
 
+// Validate that no unsupported attributes are being used by this resource
+func (r *pingOnePassThroughAuthenticationPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(r.providerConfig.ProductVersion, ctx, req, resp)
+}
+
+// Validate that no unsupported attributes are being used by this resource
+func (r *defaultPingOnePassThroughAuthenticationPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(r.providerConfig.ProductVersion, ctx, req, resp)
+}
+
+func checkUnsupportedAttributesPingOnePassThroughAuthenticationPlugin(pdVersion string, ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// Check what version we are running
+	compare, err := version.Compare(pdVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Everything is supported in 9.2, no plan validation necessary
+		return
+	}
+	var model pingOnePassThroughAuthenticationPluginResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+pdVersion, "")
+	}
+}
+
 // Add optional fields to create request
 func addOptionalPingOnePassThroughAuthenticationPluginFields(ctx context.Context, addRequest *client.AddPingOnePassThroughAuthenticationPluginRequest, plan pingOnePassThroughAuthenticationPluginResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -258,6 +297,11 @@ func addOptionalPingOnePassThroughAuthenticationPluginFields(ctx context.Context
 	if internaltypes.IsNonEmptyString(plan.OAuthClientSecretPassphraseProvider) {
 		stringVal := plan.OAuthClientSecretPassphraseProvider.ValueString()
 		addRequest.OAuthClientSecretPassphraseProvider = &stringVal
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
+		stringVal := plan.HttpProxyExternalServer.ValueString()
+		addRequest.HttpProxyExternalServer = &stringVal
 	}
 	if internaltypes.IsDefined(plan.IncludedLocalEntryBaseDN) {
 		var slice []string
@@ -335,6 +379,7 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.OAuthClientSecret = expectedValues.OAuthClientSecret
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -363,6 +408,7 @@ func createPingOnePassThroughAuthenticationPluginOperations(plan pingOnePassThro
 	operations.AddStringOperationIfNecessary(&ops, plan.OAuthClientSecret, state.OAuthClientSecret, "oauth-client-secret")
 	operations.AddStringOperationIfNecessary(&ops, plan.OAuthClientSecretPassphraseProvider, state.OAuthClientSecretPassphraseProvider, "oauth-client-secret-passphrase-provider")
 	operations.AddStringOperationIfNecessary(&ops, plan.EnvironmentID, state.EnvironmentID, "environment-id")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludedLocalEntryBaseDN, state.IncludedLocalEntryBaseDN, "included-local-entry-base-dn")
 	operations.AddStringOperationIfNecessary(&ops, plan.ConnectionCriteria, state.ConnectionCriteria, "connection-criteria")
 	operations.AddStringOperationIfNecessary(&ops, plan.RequestCriteria, state.RequestCriteria, "request-criteria")
