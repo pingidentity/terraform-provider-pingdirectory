@@ -1,0 +1,24 @@
+name: Scheduled Acceptance Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+     
+jobs:       
+  ping_directory_nine_one:
+    name: Ping Directory 9.1.0.0
+    env:
+      PINGDIRECTORY_TAG: "9.1.0.0-latest"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make testacccomplete
+  ping_directory_nine_two:
+    name: Ping Directory 9.2.0.0
+    env:
+      PINGDIRECTORY_TAG: "9.2.0.0-latest"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make testacccomplete
