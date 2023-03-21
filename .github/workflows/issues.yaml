@@ -24,10 +24,10 @@ jobs:
           curl --silent --location --request POST "$WORKFLOW_URL" \
           --header 'Accept: application/json' \
           --header 'Content-Type: text/plain' \
-          --data-raw '{
+          --data-raw "{
               "action": "$ACTION",
               "description": "$DESCRIPTION",
               "number" : "$NUMBER",
               "title" : "$TITLE",
               "url" : "$URL"
-          }'
+          }"
