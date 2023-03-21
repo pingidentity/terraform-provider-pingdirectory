@@ -8,12 +8,14 @@ documentations=()
 enhancements=()
 resources=()
 
-target_prs=$(sed -e 's/[^0-9]//g' pull_requests_in_release.json )
+milestone=""
+github_repo="pingidentity/terraform-provider-pingdirectory"
+
+milestone_issues=$(gh issue list --milestone "$milestone" --repo "$github_repo" | cut -f1)
 pr_content=$(gh pr list)
 
-for target_pr in $target_prs; do
-    issue_number=$(echo "$pr_content" | grep $target_pr | awk -F "\t" '{print $3}' | awk -F "-" '{print $1}')
-    issue_content=$(gh issue view $issue_number)
+for milestone_issue in $milestone_issues; do
+    issue_content=$(gh issue view $milestone_issue --repo "$github_repo")
     issue_title_content=$(echo "$issue_content" | grep -E "title" | awk -F ": " '{print $NF}')
     issue_title=$(echo $issue_title_content | awk -F ": " '{print $NF}')
     issue_label_content=$(echo "$issue_content" | grep -E "labels")
@@ -24,7 +26,7 @@ for target_pr in $target_prs; do
         issue_label="todo"
     fi
 
-    release_note_content="* \`$issue_title\` (#$issue_number)"
+    release_note_content="* \`$issue_title\` (#$milestone_issue)"
 
     case "$issue_label" in
         "todo")
