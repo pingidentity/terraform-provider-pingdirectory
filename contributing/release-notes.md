@@ -8,13 +8,8 @@
   - This can be done using `brew` on Mac using the command `brew install gh`. For other OS, use the instructions listed [here](https://cli.github.com/manual/installation).
   
 ## Important Note
-- The Pull Request to be included will need to be related to a specific issue branch (Example: 1-test-issue-to-be-resolved)
-  - It is important that the prefixed number ID corresponds to the Issue Number
-- Steps to link issue to a branch:
-  - Navigate to the GitHub issue on the repository
-  - On the right pane under the *Development* section, select *Create a branch*
-  - The *generate-changelog.sh* script will look for the prefixed number for getting issue information from the Pull Request provided in the *pull_requests_in_release.json* file
-
+Issues will need to be assigned to the desired milestone (relating to a release) for this script to work properly.
+  
 ## Development Steps
 - Login to the GitHub via `gh` CLI tool:
   - `gh auth login`
@@ -25,15 +20,7 @@
 - `git pull origin main`
 - `git checkout -b release-notes-<version number>`
 - `cd` to scripts directory
-- Edit the **pull_requests_in_release.json** file to add GitHub Pull Requests you would like to include in the Changelog for Release Notes (example below).
-```
-   {
-     "pull_requests" : [
-       "1",
-       "2" 
-     ]
-   }
-```
+- Edit **milestone** variable to match desired GitHub Milestone ID in the **generate-changelog.sh** file 
 - Run **generate-changelog.sh**
 - Edit the generated CHANGELOG.md:
   - Add release version desired in header
