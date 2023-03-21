@@ -10,7 +10,7 @@ env:
   DESCRIPTION: ${{ github.event.issue.body }}
   NUMBER : ${{ github.event.issue.number }}
   TITLE : ${{ github.event.issue.title }}
-  URL : ${{ github.event.issue.html_url }
+  URL : ${{ github.event.issue.html_url }}
      
 jobs:       
   issue_created:
