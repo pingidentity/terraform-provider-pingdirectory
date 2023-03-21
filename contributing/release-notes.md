@@ -7,6 +7,9 @@
 - GitHub CLI Tool installed
   - This can be done using `brew` on Mac using the command `brew install gh`. For other OS, use the instructions listed [here](https://cli.github.com/manual/installation).
   
+## Important Note
+Issues will need to be assigned to the desired milestone (relating to a release) for this script to work properly.
+  
 ## Development Steps
 - Login to the GitHub via `gh` CLI tool:
   - `gh auth login`
