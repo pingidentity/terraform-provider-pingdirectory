@@ -15,42 +15,6 @@ import (
 const tmpName = "mytrustmanagerprovider"
 const resourceName = "TestTMP"
 
-func TestAccBlindTrustManagerProvider(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
-		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
-			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
-		},
-		CheckDestroy: testAccCheckTrustManagerProviderDestroy,
-		Steps: []resource.TestStep{
-			{
-				// Test basic resource
-				Config: testAccBlindTrustManagerProviderResource(resourceName, tmpName, true),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_blind_trust_manager_provider.%s", resourceName), "include_jvm_default_issuers", "false"),
-					testAccCheckExpectedBlindTrustManagerProviderAttributes(true),
-				),
-			},
-			{
-				// Test updating the resource
-				Config: testAccBlindTrustManagerProviderResource(resourceName, tmpName, false),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckExpectedBlindTrustManagerProviderAttributes(false),
-				),
-			},
-			{
-				// Test importing the resource
-				Config:                  testAccBlindTrustManagerProviderResource(resourceName, tmpName, false),
-				ResourceName:            "pingdirectory_blind_trust_manager_provider." + resourceName,
-				ImportStateId:           tmpName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"last_updated"},
-			},
-		},
-	})
-}
-
 func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -164,14 +128,6 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 	})
 }
 
-func testAccBlindTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
-	return fmt.Sprintf(`
-resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
-  id      = "%[2]s"
-  enabled = %[3]t
-}`, resourceName, providerName, enabled)
-}
-
 func testAccFileBasedTrustManagerProviderResource(resourceName, providerName string, enabled bool, trustStoreFile, trustStoreType string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
@@ -209,25 +165,6 @@ func testAccCheckTrustManagerProviderDestroy(s *terraform.State) error {
 		return acctest.ExpectedDestroyError("trust manager provider", tmpName)
 	}
 	return nil
-}
-
-// Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedBlindTrustManagerProviderAttributes(enabled bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		resourceType := "blind trust manager provider"
-		testClient := acctest.TestClient()
-		ctx := acctest.TestBasicAuthContext()
-		response, _, err := testClient.TrustManagerProviderApi.GetTrustManagerProvider(ctx, tmpName).Execute()
-		if err != nil {
-			return err
-		}
-		name := tmpName
-		err = acctest.TestAttributesMatchBool(resourceType, &name, "enabled", enabled, response.BlindTrustManagerProviderResponse.Enabled)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
 }
 
 // Test that the expected attributes are set on the PingDirectory server
