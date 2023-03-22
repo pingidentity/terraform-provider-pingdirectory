@@ -3,12 +3,12 @@
 page_title: "pingdirectory_http_proxy_external_server Resource - terraform-provider-pingdirectory"
 subcategory: ""
 description: |-
-  Manages a Http Proxy External Server. Supported in PingDirectory version 9.2.0.0+
+  Manages a Http Proxy External Server. Supported in PingDirectory product version 9.2.0.0+.
 ---
 
 # pingdirectory_http_proxy_external_server (Resource)
 
-Manages a Http Proxy External Server. Supported in PingDirectory version 9.2.0.0+
+Manages a Http Proxy External Server. Supported in PingDirectory product version 9.2.0.0+.
 
 ## Example Usage
 

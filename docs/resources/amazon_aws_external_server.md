@@ -53,11 +53,11 @@ resource "pingdirectory_amazon_aws_external_server" "myAmazonAwsExternalServer" 
 
 ### Optional
 
-- `authentication_method` (String) The mechanism to use to authenticate to AWS. Supported in PingDirectory version 9.2.0.0+
+- `authentication_method` (String) The mechanism to use to authenticate to AWS. Supported in PingDirectory product version 9.2.0.0+.
 - `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided.
 - `description` (String) A description for this External Server
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory version 9.2.0.0+
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.
 
 ### Read-Only
 
