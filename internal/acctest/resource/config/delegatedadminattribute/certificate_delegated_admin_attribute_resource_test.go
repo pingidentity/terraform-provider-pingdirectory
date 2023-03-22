@@ -13,7 +13,7 @@ import (
 )
 
 const testCertificateDAAttributeType = "cn"
-const testCertificateDARestResourceTypeName = "myParentResource"
+const testCertificateDARestResourceTypeName = "myParentCertficateRestResource"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type certificateDelegatedAdminAttributeTestModel struct {
