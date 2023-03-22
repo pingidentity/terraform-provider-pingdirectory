@@ -103,7 +103,7 @@ func (r *defaultHttpProxyExternalServerResource) Schema(ctx context.Context, req
 
 func httpProxyExternalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Http Proxy External Server. Supported in PingDirectory version 9.2.0.0+",
+		Description: "Manages a Http Proxy External Server. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"server_host_name": schema.StringAttribute{
 				Description: "The host name or IP address of the HTTP Proxy External Server.",
@@ -142,16 +142,18 @@ func httpProxyExternalServerSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schema
 }
 
-// Validate that this resource is being used with a compatible PingDirectory version
+// Validate that any version restrictions are met in the plan
 func (r *httpProxyExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ProductVersion, "pingdirectory_http_proxy_external_server")
+	modifyPlanHttpProxyExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_proxy_external_server")
 }
 
-// Validate that this resource is being used with a compatible PingDirectory version
 func (r *defaultHttpProxyExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanHttpProxyExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_http_proxy_external_server")
+}
+
+func modifyPlanHttpProxyExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ProductVersion, "pingdirectory_default_http_proxy_external_server")
+		providerConfig.ProductVersion, resourceName)
 }
 
 // Add optional fields to create request

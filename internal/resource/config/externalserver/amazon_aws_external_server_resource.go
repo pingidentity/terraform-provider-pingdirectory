@@ -107,7 +107,7 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 		Description: "Manages a Amazon Aws External Server.",
 		Attributes: map[string]schema.Attribute{
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory version 9.2.0.0+",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -115,7 +115,7 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 				},
 			},
 			"authentication_method": schema.StringAttribute{
-				Description: "The mechanism to use to authenticate to AWS. Supported in PingDirectory version 9.2.0.0+",
+				Description: "The mechanism to use to authenticate to AWS. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -148,34 +148,32 @@ func amazonAwsExternalServerSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schema
 }
 
-// Validate that no unsupported attributes are being used by this resource
-func (r *defaultAmazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	checkUnsupportedAttributesAmazonAwsExternalServer(r.providerConfig.ProductVersion, ctx, req, resp)
-}
-
-// Validate that no unsupported attributes are being used by this resource
+// Validate that any version restrictions are met in the plan
 func (r *amazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	checkUnsupportedAttributesAmazonAwsExternalServer(r.providerConfig.ProductVersion, ctx, req, resp)
+	modifyPlanAmazonAwsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func checkUnsupportedAttributesAmazonAwsExternalServer(pdVersion string, ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	// Check what version we are running
-	compare, err := version.Compare(pdVersion, version.PingDirectory9200)
+func (r *defaultAmazonAwsExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanAmazonAwsExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanAmazonAwsExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
 	}
 	if compare >= 0 {
-		// Everything is supported in 9.2, no plan validation necessary
+		// Every remaining property is supported
 		return
 	}
 	var model amazonAwsExternalServerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+pdVersion, "")
-	}
 	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
-		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+pdVersion, "")
+		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

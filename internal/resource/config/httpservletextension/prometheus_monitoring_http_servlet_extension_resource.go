@@ -112,7 +112,7 @@ func (r *defaultPrometheusMonitoringHttpServletExtensionResource) Schema(ctx con
 
 func prometheusMonitoringHttpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Prometheus Monitoring Http Servlet Extension. Supported in PingDirectory version 9.2.0.0+",
+		Description: "Manages a Prometheus Monitoring Http Servlet Extension. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"base_context_path": schema.StringAttribute{
 				Description: "Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.",
@@ -217,16 +217,18 @@ func prometheusMonitoringHttpServletExtensionSchema(ctx context.Context, req res
 	resp.Schema = schema
 }
 
-// Validate that this resource is being used with a compatible PingDirectory version
+// Validate that any version restrictions are met in the plan
 func (r *prometheusMonitoringHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ProductVersion, "pingdirectory_prometheus_monitoring_http_servlet_extension")
+	modifyPlanPrometheusMonitoringHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_prometheus_monitoring_http_servlet_extension")
 }
 
-// Validate that this resource is being used with a compatible PingDirectory version
 func (r *defaultPrometheusMonitoringHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPrometheusMonitoringHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_prometheus_monitoring_http_servlet_extension")
+}
+
+func modifyPlanPrometheusMonitoringHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ProductVersion, "pingdirectory_default_prometheus_monitoring_http_servlet_extension")
+		providerConfig.ProductVersion, resourceName)
 }
 
 // Add optional fields to create request

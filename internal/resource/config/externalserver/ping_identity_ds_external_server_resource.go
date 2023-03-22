@@ -326,7 +326,6 @@ func addOptionalPingIdentityDsExternalServerFields(ctx context.Context, addReque
 		addRequest.ConnectionSecurity = connectionSecurity
 	}
 	// Empty strings are treated as equivalent to null
-	// This enum changed in PD 9.2.0.0 but has the same underlying values, so it shouldn't cause any issues to parse it here
 	if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
 		authenticationMethod, err := client.NewEnumexternalServerPingIdentityDsAuthenticationMethodPropFromValue(plan.AuthenticationMethod.ValueString())
 		if err != nil {
