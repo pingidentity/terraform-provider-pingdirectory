@@ -29,7 +29,7 @@ Manages a Ping One Pass Through Authentication Plugin.
 - `description` (String) A description for this Plugin
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
 - `environment_id` (String) Specifies the PingOne Environment that will be associated with this PingOne Pass Through Authentication Plugin.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service. Supported in PingDirectory version 9.2.0.0+
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service. Supported in PingDirectory product version 9.2.0.0+.
 - `ignored_password_policy_state_error_condition` (Set of String) A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true.
 - `included_local_entry_base_dn` (Set of String) The base DNs for the local users whose authentication attempts may be passed through to the PingOne service.
 - `invoke_for_internal_operations` (Boolean) Indicates whether the plug-in should be invoked for internal operations.

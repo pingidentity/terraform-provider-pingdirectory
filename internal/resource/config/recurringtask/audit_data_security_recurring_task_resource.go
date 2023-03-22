@@ -115,7 +115,7 @@ func (r *defaultAuditDataSecurityRecurringTaskResource) Schema(ctx context.Conte
 
 func auditDataSecurityRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Audit Data Security Recurring Task. Supported in PingDirectory version 9.2.0.0+",
+		Description: "Manages a Audit Data Security Recurring Task. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"base_output_directory": schema.StringAttribute{
 				Description: "The base directory below which generated reports will be written. Each invocation of the audit-data-security task will create a new subdirectory below this base directory whose name is a timestamp indicating when the report was generated.",
@@ -240,16 +240,18 @@ func auditDataSecurityRecurringTaskSchema(ctx context.Context, req resource.Sche
 	resp.Schema = schema
 }
 
-// Validate that this resource is being used with a compatible PingDirectory version
+// Validate that any version restrictions are met in the plan
 func (r *auditDataSecurityRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ProductVersion, "pingdirectory_audit_data_security_recurring_task")
+	modifyPlanAuditDataSecurityRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_audit_data_security_recurring_task")
 }
 
-// Validate that this resource is being used with a compatible PingDirectory version
 func (r *defaultAuditDataSecurityRecurringTaskResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanAuditDataSecurityRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_audit_data_security_recurring_task")
+}
+
+func modifyPlanAuditDataSecurityRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		r.providerConfig.ProductVersion, "pingdirectory_default_audit_data_security_recurring_task")
+		providerConfig.ProductVersion, resourceName)
 }
 
 // Add optional fields to create request
