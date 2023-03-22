@@ -169,11 +169,11 @@ func modifyPlanAmazonAwsExternalServer(ctx context.Context, req resource.ModifyP
 	}
 	var model amazonAwsExternalServerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
-		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
+		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
