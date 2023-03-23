@@ -12,7 +12,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdUserRestResourceType = "MyId"
+const testIdUserRestResourceType = "MyUserRestResourceTypeId"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type userRestResourceTypeTestModel struct {

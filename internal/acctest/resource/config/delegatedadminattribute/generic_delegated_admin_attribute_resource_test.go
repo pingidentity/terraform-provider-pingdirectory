@@ -13,7 +13,7 @@ import (
 )
 
 const testAttributeType = "cn"
-const testParentResourceType = "myParentResource"
+const testParentResourceType = "myParentGenericResource"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type genericDelegatedAdminAttributeTestModel struct {

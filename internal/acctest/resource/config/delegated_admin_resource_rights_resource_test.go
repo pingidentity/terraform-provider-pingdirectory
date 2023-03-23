@@ -13,7 +13,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdDelegatedAdminResourceRights = "MyId"
+const testIdDelegatedAdminResourceRights = "MyDARightsId"
 const testDelegatedAdminRightsName = "myDelegatedAdminRightsName"
 
 // Attributes to test with. Add optional properties to test here if desired.
