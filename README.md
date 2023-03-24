@@ -12,7 +12,7 @@ The PingDirectory Terraform provider is still in development, and breaking chang
 
 # Documentation
 
-See the [docs](docs/) directory for documentation on how to use the provider and what it is useful for.
+See the [Terraform registry](https://registry.terraform.io/providers/pingidentity/pingdirectory/latest/docs) for documentation on how to use the provider and what it is useful for.
 
 See the [examples](examples/) directory for more examples using the provider.
 
