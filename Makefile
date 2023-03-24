@@ -69,9 +69,8 @@ tfproviderlint:
 									-XR004=false \
 									-XS002=false ./...
 
-#TODO => remove the disable-rule once this provider is published
 tflint:
-	go run github.com/terraform-linters/tflint --recursive --disable-rule=terraform_required_providers
+	go run github.com/terraform-linters/tflint --recursive
 
 terrafmtlint:
 	find ./internal/acctest -type f -name '*_test.go' \
