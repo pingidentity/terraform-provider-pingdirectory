@@ -4,7 +4,7 @@ The PingDirectory Terraform provider is a plugin for [Terraform](https://www.ter
 
 # Disclaimer - Provider in Development
 
-The PingDirectory Terraform provider is still in development, and breaking changes are likely. As such, it is not yet published on the Terraform registry.
+The PingDirectory Terraform provider is still in development, and breaking changes are likely.
 
 ## Requirements
 * Terraform 1.1+
@@ -18,6 +18,7 @@ See the [examples](examples/) directory for more examples using the provider.
 
 ## Useful Links
 
+* [Terraform Registry](https://registry.terraform.io/providers/pingidentity/pingdirectory/latest)
 * [Discuss the PingDirectory Terraform Provider](https://support.pingidentity.com/s/topic/0TO1W000000IF30WAG/pingdevops)
 * [Ping Identity Home](https://www.pingidentity.com/en.html)
 
