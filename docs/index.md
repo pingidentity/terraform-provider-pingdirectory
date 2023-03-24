@@ -48,7 +48,8 @@ terraform {
   required_version = ">=1.1"
   required_providers {
     pingdirectory = {
-      source = "pingidentity/pingdirectory"
+      version = "~> 0.3.0"
+      source  = "pingidentity/pingdirectory"
     }
   }
 }
@@ -89,7 +90,8 @@ terraform {
   required_version = ">=1.1"
   required_providers {
     pingdirectory = {
-      source = "pingidentity/pingdirectory"
+      version = "~> 0.3.0"
+      source  = "pingidentity/pingdirectory"
     }
   }
 }

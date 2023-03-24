@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source = "pingidentity/pingdirectory"
+      source  = "pingidentity/pingdirectory"
     }
   }
 }
