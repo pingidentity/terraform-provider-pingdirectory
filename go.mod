@@ -121,8 +121,8 @@ require (
 	github.com/hashicorp/terraform-exec v0.18.1 // indirect
 	github.com/hashicorp/terraform-json v0.16.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1 // indirect
-	github.com/hashicorp/terraform-registry-address v0.1.0 // indirect
-	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734 // indirect
+	github.com/hashicorp/terraform-registry-address v0.2.0 // indirect
+	github.com/hashicorp/terraform-svchost v0.0.1 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
