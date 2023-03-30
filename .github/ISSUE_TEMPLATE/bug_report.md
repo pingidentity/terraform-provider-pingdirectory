@@ -7,6 +7,12 @@ assignees: ''
 
 ---
 
+### PingDirectory Terraform provider Version
+Check the version you have configured in your .tf files. If you are not running the latest version of the provider, please upgrade because your issue may have already been fixed.
+
+### PingDirectory Version
+Check the version of the PingDirectory server being configured.
+
 ### Terraform Version
 Run `terraform -v` to show the version.
 
@@ -20,13 +26,15 @@ Please list the resources as a list, for example:
 # Copy-paste your Terraform configurations here - for large Terraform configs,
 # please use a service like Dropbox and share a link to the ZIP file. For
 # security, you can also encrypt the files using our GPG public key.
+
+# Remember to replace any account/customer sensitive information in the configuration before submitting the issue
 ```
 
 ### Debug Output
-Please provide a link to a GitHub Gist containing the complete debug output: https://www.terraform.io/docs/internals/debugging.html. Please do NOT paste the debug output in the issue; just paste a link to the Gist.
+Please provide your debug output with `TF_LOG=DEBUG` enabled on your `terraform plan` or `terraform apply`. Please provide a link to a GitHub Gist containing the complete debug output: https://www.terraform.io/docs/internals/debugging.html. Please do NOT paste the debug output in the issue; just paste a link to the Gist.
 
 ### Panic Output
-If Terraform produced a panic, please provide a link to a GitHub Gist containing the output of the `crash.log`.
+If Terraform produced a panic, please provide your debug output from the GO panic
 
 ### Expected Behavior
 What should have happened?
