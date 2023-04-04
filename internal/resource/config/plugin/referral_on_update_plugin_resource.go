@@ -175,13 +175,11 @@ func addOptionalReferralOnUpdatePluginFields(ctx context.Context, addRequest *cl
 		addRequest.BaseDN = slice
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

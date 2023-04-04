@@ -168,13 +168,11 @@ func mockAccessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequ
 func addOptionalMockAccessTokenValidatorFields(ctx context.Context, addRequest *client.AddMockAccessTokenValidatorRequest, plan mockAccessTokenValidatorResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ClientIDClaimName) {
-		stringVal := plan.ClientIDClaimName.ValueString()
-		addRequest.ClientIDClaimName = &stringVal
+		addRequest.ClientIDClaimName = plan.ClientIDClaimName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ScopeClaimName) {
-		stringVal := plan.ScopeClaimName.ValueString()
-		addRequest.ScopeClaimName = &stringVal
+		addRequest.ScopeClaimName = plan.ScopeClaimName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EvaluationOrderIndex) {
 		intVal := int32(plan.EvaluationOrderIndex.ValueInt64())
@@ -182,18 +180,15 @@ func addOptionalMockAccessTokenValidatorFields(ctx context.Context, addRequest *
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IdentityMapper) {
-		stringVal := plan.IdentityMapper.ValueString()
-		addRequest.IdentityMapper = &stringVal
+		addRequest.IdentityMapper = plan.IdentityMapper.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SubjectClaimName) {
-		stringVal := plan.SubjectClaimName.ValueString()
-		addRequest.SubjectClaimName = &stringVal
+		addRequest.SubjectClaimName = plan.SubjectClaimName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

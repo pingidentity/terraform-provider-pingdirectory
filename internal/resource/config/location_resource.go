@@ -114,8 +114,7 @@ func locationSchema(ctx context.Context, req resource.SchemaRequest, resp *resou
 func addOptionalLocationFields(ctx context.Context, addRequest *client.AddLocationRequest, plan locationResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

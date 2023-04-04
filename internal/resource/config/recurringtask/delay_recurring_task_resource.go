@@ -229,13 +229,11 @@ func delayRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, r
 func addOptionalDelayRecurringTaskFields(ctx context.Context, addRequest *client.AddDelayRecurringTaskRequest, plan delayRecurringTaskResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SleepDuration) {
-		stringVal := plan.SleepDuration.ValueString()
-		addRequest.SleepDuration = &stringVal
+		addRequest.SleepDuration = plan.SleepDuration.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DurationToWaitForWorkQueueIdle) {
-		stringVal := plan.DurationToWaitForWorkQueueIdle.ValueString()
-		addRequest.DurationToWaitForWorkQueueIdle = &stringVal
+		addRequest.DurationToWaitForWorkQueueIdle = plan.DurationToWaitForWorkQueueIdle.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.LdapURLForSearchExpectedToReturnEntries) {
 		var slice []string
@@ -244,18 +242,15 @@ func addOptionalDelayRecurringTaskFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchInterval) {
-		stringVal := plan.SearchInterval.ValueString()
-		addRequest.SearchInterval = &stringVal
+		addRequest.SearchInterval = plan.SearchInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchTimeLimit) {
-		stringVal := plan.SearchTimeLimit.ValueString()
-		addRequest.SearchTimeLimit = &stringVal
+		addRequest.SearchTimeLimit = plan.SearchTimeLimit.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DurationToWaitForSearchToReturnEntries) {
-		stringVal := plan.DurationToWaitForSearchToReturnEntries.ValueString()
-		addRequest.DurationToWaitForSearchToReturnEntries = &stringVal
+		addRequest.DurationToWaitForSearchToReturnEntries = plan.DurationToWaitForSearchToReturnEntries.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TaskReturnStateIfTimeoutIsEncountered) {
@@ -267,12 +262,10 @@ func addOptionalDelayRecurringTaskFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CancelOnTaskDependencyFailure) {
-		boolVal := plan.CancelOnTaskDependencyFailure.ValueBool()
-		addRequest.CancelOnTaskDependencyFailure = &boolVal
+		addRequest.CancelOnTaskDependencyFailure = plan.CancelOnTaskDependencyFailure.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailOnStart) {
 		var slice []string
@@ -290,16 +283,13 @@ func addOptionalDelayRecurringTaskFields(ctx context.Context, addRequest *client
 		addRequest.EmailOnFailure = slice
 	}
 	if internaltypes.IsDefined(plan.AlertOnStart) {
-		boolVal := plan.AlertOnStart.ValueBool()
-		addRequest.AlertOnStart = &boolVal
+		addRequest.AlertOnStart = plan.AlertOnStart.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnSuccess) {
-		boolVal := plan.AlertOnSuccess.ValueBool()
-		addRequest.AlertOnSuccess = &boolVal
+		addRequest.AlertOnSuccess = plan.AlertOnSuccess.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnFailure) {
-		boolVal := plan.AlertOnFailure.ValueBool()
-		addRequest.AlertOnFailure = &boolVal
+		addRequest.AlertOnFailure = plan.AlertOnFailure.ValueBoolPointer()
 	}
 	return nil
 }

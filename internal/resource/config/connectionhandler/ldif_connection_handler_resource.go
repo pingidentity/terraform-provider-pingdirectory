@@ -171,18 +171,15 @@ func addOptionalLdifConnectionHandlerFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LdifDirectory) {
-		stringVal := plan.LdifDirectory.ValueString()
-		addRequest.LdifDirectory = &stringVal
+		addRequest.LdifDirectory = plan.LdifDirectory.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PollInterval) {
-		stringVal := plan.PollInterval.ValueString()
-		addRequest.PollInterval = &stringVal
+		addRequest.PollInterval = plan.PollInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

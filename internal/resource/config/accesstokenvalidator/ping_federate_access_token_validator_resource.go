@@ -203,27 +203,22 @@ func pingFederateAccessTokenValidatorSchema(ctx context.Context, req resource.Sc
 func addOptionalPingFederateAccessTokenValidatorFields(ctx context.Context, addRequest *client.AddPingFederateAccessTokenValidatorRequest, plan pingFederateAccessTokenValidatorResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ClientSecret) {
-		stringVal := plan.ClientSecret.ValueString()
-		addRequest.ClientSecret = &stringVal
+		addRequest.ClientSecret = plan.ClientSecret.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ClientSecretPassphraseProvider) {
-		stringVal := plan.ClientSecretPassphraseProvider.ValueString()
-		addRequest.ClientSecretPassphraseProvider = &stringVal
+		addRequest.ClientSecretPassphraseProvider = plan.ClientSecretPassphraseProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeAudParameter) {
-		boolVal := plan.IncludeAudParameter.ValueBool()
-		addRequest.IncludeAudParameter = &boolVal
+		addRequest.IncludeAudParameter = plan.IncludeAudParameter.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccessTokenManagerID) {
-		stringVal := plan.AccessTokenManagerID.ValueString()
-		addRequest.AccessTokenManagerID = &stringVal
+		addRequest.AccessTokenManagerID = plan.AccessTokenManagerID.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EndpointCacheRefresh) {
-		stringVal := plan.EndpointCacheRefresh.ValueString()
-		addRequest.EndpointCacheRefresh = &stringVal
+		addRequest.EndpointCacheRefresh = plan.EndpointCacheRefresh.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EvaluationOrderIndex) {
 		intVal := int32(plan.EvaluationOrderIndex.ValueInt64())
@@ -231,23 +226,19 @@ func addOptionalPingFederateAccessTokenValidatorFields(ctx context.Context, addR
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AuthorizationServer) {
-		stringVal := plan.AuthorizationServer.ValueString()
-		addRequest.AuthorizationServer = &stringVal
+		addRequest.AuthorizationServer = plan.AuthorizationServer.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IdentityMapper) {
-		stringVal := plan.IdentityMapper.ValueString()
-		addRequest.IdentityMapper = &stringVal
+		addRequest.IdentityMapper = plan.IdentityMapper.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SubjectClaimName) {
-		stringVal := plan.SubjectClaimName.ValueString()
-		addRequest.SubjectClaimName = &stringVal
+		addRequest.SubjectClaimName = plan.SubjectClaimName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

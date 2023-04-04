@@ -181,8 +181,7 @@ func jdbcBasedErrorLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 func addOptionalJdbcBasedErrorLogPublisherFields(ctx context.Context, addRequest *client.AddJdbcBasedErrorLogPublisherRequest, plan jdbcBasedErrorLogPublisherResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogTableName) {
-		stringVal := plan.LogTableName.ValueString()
-		addRequest.LogTableName = &stringVal
+		addRequest.LogTableName = plan.LogTableName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
@@ -208,8 +207,7 @@ func addOptionalJdbcBasedErrorLogPublisherFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LoggingErrorBehavior) {

@@ -196,13 +196,11 @@ func snmpSubagentPluginSchema(ctx context.Context, req resource.SchemaRequest, r
 func addOptionalSnmpSubagentPluginFields(ctx context.Context, addRequest *client.AddSnmpSubagentPluginRequest, plan snmpSubagentPluginResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ContextName) {
-		stringVal := plan.ContextName.ValueString()
-		addRequest.ContextName = &stringVal
+		addRequest.ContextName = plan.ContextName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AgentxAddress) {
-		stringVal := plan.AgentxAddress.ValueString()
-		addRequest.AgentxAddress = &stringVal
+		addRequest.AgentxAddress = plan.AgentxAddress.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AgentxPort) {
 		intVal := int32(plan.AgentxPort.ValueInt64())
@@ -214,27 +212,22 @@ func addOptionalSnmpSubagentPluginFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SessionTimeout) {
-		stringVal := plan.SessionTimeout.ValueString()
-		addRequest.SessionTimeout = &stringVal
+		addRequest.SessionTimeout = plan.SessionTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectRetryMaxWait) {
-		stringVal := plan.ConnectRetryMaxWait.ValueString()
-		addRequest.ConnectRetryMaxWait = &stringVal
+		addRequest.ConnectRetryMaxWait = plan.ConnectRetryMaxWait.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PingInterval) {
-		stringVal := plan.PingInterval.ValueString()
-		addRequest.PingInterval = &stringVal
+		addRequest.PingInterval = plan.PingInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 }
 

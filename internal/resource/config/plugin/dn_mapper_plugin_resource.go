@@ -201,8 +201,7 @@ func addOptionalDnMapperPluginFields(ctx context.Context, addRequest *client.Add
 		addRequest.PluginType = enumSlice
 	}
 	if internaltypes.IsDefined(plan.EnableAttributeMapping) {
-		boolVal := plan.EnableAttributeMapping.ValueBool()
-		addRequest.EnableAttributeMapping = &boolVal
+		addRequest.EnableAttributeMapping = plan.EnableAttributeMapping.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MapAttribute) {
 		var slice []string
@@ -210,21 +209,17 @@ func addOptionalDnMapperPluginFields(ctx context.Context, addRequest *client.Add
 		addRequest.MapAttribute = slice
 	}
 	if internaltypes.IsDefined(plan.EnableControlMapping) {
-		boolVal := plan.EnableControlMapping.ValueBool()
-		addRequest.EnableControlMapping = &boolVal
+		addRequest.EnableControlMapping = plan.EnableControlMapping.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlwaysMapResponses) {
-		boolVal := plan.AlwaysMapResponses.ValueBool()
-		addRequest.AlwaysMapResponses = &boolVal
+		addRequest.AlwaysMapResponses = plan.AlwaysMapResponses.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	return nil
 }

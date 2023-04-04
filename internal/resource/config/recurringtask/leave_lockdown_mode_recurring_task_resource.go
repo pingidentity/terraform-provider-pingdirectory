@@ -189,17 +189,14 @@ func leaveLockdownModeRecurringTaskSchema(ctx context.Context, req resource.Sche
 func addOptionalLeaveLockdownModeRecurringTaskFields(ctx context.Context, addRequest *client.AddLeaveLockdownModeRecurringTaskRequest, plan leaveLockdownModeRecurringTaskResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Reason) {
-		stringVal := plan.Reason.ValueString()
-		addRequest.Reason = &stringVal
+		addRequest.Reason = plan.Reason.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CancelOnTaskDependencyFailure) {
-		boolVal := plan.CancelOnTaskDependencyFailure.ValueBool()
-		addRequest.CancelOnTaskDependencyFailure = &boolVal
+		addRequest.CancelOnTaskDependencyFailure = plan.CancelOnTaskDependencyFailure.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailOnStart) {
 		var slice []string
@@ -217,16 +214,13 @@ func addOptionalLeaveLockdownModeRecurringTaskFields(ctx context.Context, addReq
 		addRequest.EmailOnFailure = slice
 	}
 	if internaltypes.IsDefined(plan.AlertOnStart) {
-		boolVal := plan.AlertOnStart.ValueBool()
-		addRequest.AlertOnStart = &boolVal
+		addRequest.AlertOnStart = plan.AlertOnStart.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnSuccess) {
-		boolVal := plan.AlertOnSuccess.ValueBool()
-		addRequest.AlertOnSuccess = &boolVal
+		addRequest.AlertOnSuccess = plan.AlertOnSuccess.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnFailure) {
-		boolVal := plan.AlertOnFailure.ValueBool()
-		addRequest.AlertOnFailure = &boolVal
+		addRequest.AlertOnFailure = plan.AlertOnFailure.ValueBoolPointer()
 	}
 }
 

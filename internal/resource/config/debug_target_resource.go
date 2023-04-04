@@ -199,16 +199,13 @@ func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDeb
 		addRequest.DebugCategory = enumSlice
 	}
 	if internaltypes.IsDefined(plan.OmitMethodEntryArguments) {
-		boolVal := plan.OmitMethodEntryArguments.ValueBool()
-		addRequest.OmitMethodEntryArguments = &boolVal
+		addRequest.OmitMethodEntryArguments = plan.OmitMethodEntryArguments.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.OmitMethodReturnValue) {
-		boolVal := plan.OmitMethodReturnValue.ValueBool()
-		addRequest.OmitMethodReturnValue = &boolVal
+		addRequest.OmitMethodReturnValue = plan.OmitMethodReturnValue.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeThrowableCause) {
-		boolVal := plan.IncludeThrowableCause.ValueBool()
-		addRequest.IncludeThrowableCause = &boolVal
+		addRequest.IncludeThrowableCause = plan.IncludeThrowableCause.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.ThrowableStackFrames) {
 		intVal := int32(plan.ThrowableStackFrames.ValueInt64())
@@ -216,8 +213,7 @@ func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDeb
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

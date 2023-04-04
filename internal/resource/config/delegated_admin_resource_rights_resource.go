@@ -178,8 +178,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 func addOptionalDelegatedAdminResourceRightsFields(ctx context.Context, addRequest *client.AddDelegatedAdminResourceRightsRequest, plan delegatedAdminResourceRightsResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AdminPermission) {
 		var slice []string

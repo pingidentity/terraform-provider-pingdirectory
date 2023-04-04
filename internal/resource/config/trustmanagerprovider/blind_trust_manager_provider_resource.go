@@ -125,8 +125,7 @@ func blindTrustManagerProviderSchema(ctx context.Context, req resource.SchemaReq
 // Add optional fields to create request
 func addOptionalBlindTrustManagerProviderFields(ctx context.Context, addRequest *client.AddBlindTrustManagerProviderRequest, plan blindTrustManagerProviderResourceModel) {
 	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
-		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
-		addRequest.IncludeJVMDefaultIssuers = &boolVal
+		addRequest.IncludeJVMDefaultIssuers = plan.IncludeJVMDefaultIssuers.ValueBoolPointer()
 	}
 }
 

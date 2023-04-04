@@ -258,8 +258,7 @@ func modifyPlanAuditDataSecurityRecurringTask(ctx context.Context, req resource.
 func addOptionalAuditDataSecurityRecurringTaskFields(ctx context.Context, addRequest *client.AddAuditDataSecurityRecurringTaskRequest, plan auditDataSecurityRecurringTaskResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseOutputDirectory) {
-		stringVal := plan.BaseOutputDirectory.ValueString()
-		addRequest.BaseOutputDirectory = &stringVal
+		addRequest.BaseOutputDirectory = plan.BaseOutputDirectory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DataSecurityAuditor) {
 		var slice []string
@@ -282,17 +281,14 @@ func addOptionalAuditDataSecurityRecurringTaskFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousReportAge) {
-		stringVal := plan.RetainPreviousReportAge.ValueString()
-		addRequest.RetainPreviousReportAge = &stringVal
+		addRequest.RetainPreviousReportAge = plan.RetainPreviousReportAge.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CancelOnTaskDependencyFailure) {
-		boolVal := plan.CancelOnTaskDependencyFailure.ValueBool()
-		addRequest.CancelOnTaskDependencyFailure = &boolVal
+		addRequest.CancelOnTaskDependencyFailure = plan.CancelOnTaskDependencyFailure.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailOnStart) {
 		var slice []string
@@ -310,16 +306,13 @@ func addOptionalAuditDataSecurityRecurringTaskFields(ctx context.Context, addReq
 		addRequest.EmailOnFailure = slice
 	}
 	if internaltypes.IsDefined(plan.AlertOnStart) {
-		boolVal := plan.AlertOnStart.ValueBool()
-		addRequest.AlertOnStart = &boolVal
+		addRequest.AlertOnStart = plan.AlertOnStart.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnSuccess) {
-		boolVal := plan.AlertOnSuccess.ValueBool()
-		addRequest.AlertOnSuccess = &boolVal
+		addRequest.AlertOnSuccess = plan.AlertOnSuccess.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnFailure) {
-		boolVal := plan.AlertOnFailure.ValueBool()
-		addRequest.AlertOnFailure = &boolVal
+		addRequest.AlertOnFailure = plan.AlertOnFailure.ValueBoolPointer()
 	}
 }
 

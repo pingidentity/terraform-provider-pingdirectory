@@ -148,8 +148,7 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 func addOptionalConsentDefinitionLocalizationFields(ctx context.Context, addRequest *client.AddConsentDefinitionLocalizationRequest, plan consentDefinitionLocalizationResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TitleText) {
-		stringVal := plan.TitleText.ValueString()
-		addRequest.TitleText = &stringVal
+		addRequest.TitleText = plan.TitleText.ValueStringPointer()
 	}
 }
 

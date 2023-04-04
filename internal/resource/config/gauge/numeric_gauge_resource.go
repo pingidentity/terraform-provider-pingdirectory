@@ -309,12 +309,10 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Enabled) {
-		boolVal := plan.Enabled.ValueBool()
-		addRequest.Enabled = &boolVal
+		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.OverrideSeverity) {
@@ -334,8 +332,7 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UpdateInterval) {
-		stringVal := plan.UpdateInterval.ValueString()
-		addRequest.UpdateInterval = &stringVal
+		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
 		intVal := int32(plan.SamplesPerUpdateInterval.ValueInt64())

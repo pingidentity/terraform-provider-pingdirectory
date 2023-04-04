@@ -166,8 +166,7 @@ func searchShutdownPluginSchema(ctx context.Context, req resource.SchemaRequest,
 func addOptionalSearchShutdownPluginFields(ctx context.Context, addRequest *client.AddSearchShutdownPluginRequest, plan searchShutdownPluginResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseDN) {
-		stringVal := plan.BaseDN.ValueString()
-		addRequest.BaseDN = &stringVal
+		addRequest.BaseDN = plan.BaseDN.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeAttribute) {
 		var slice []string
@@ -176,13 +175,11 @@ func addOptionalSearchShutdownPluginFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PreviousFileExtension) {
-		stringVal := plan.PreviousFileExtension.ValueString()
-		addRequest.PreviousFileExtension = &stringVal
+		addRequest.PreviousFileExtension = plan.PreviousFileExtension.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

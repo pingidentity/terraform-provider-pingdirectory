@@ -276,8 +276,7 @@ func userRestResourceTypeSchema(ctx context.Context, req resource.SchemaRequest,
 func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *client.AddUserRestResourceTypeRequest, plan userRestResourceTypeResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordAttributeCategory) {
-		stringVal := plan.PasswordAttributeCategory.ValueString()
-		addRequest.PasswordAttributeCategory = &stringVal
+		addRequest.PasswordAttributeCategory = plan.PasswordAttributeCategory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PasswordDisplayOrderIndex) {
 		intVal := int32(plan.PasswordDisplayOrderIndex.ValueInt64())
@@ -285,8 +284,7 @@ func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AuxiliaryLDAPObjectclass) {
 		var slice []string
@@ -300,23 +298,19 @@ func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ParentDN) {
-		stringVal := plan.ParentDN.ValueString()
-		addRequest.ParentDN = &stringVal
+		addRequest.ParentDN = plan.ParentDN.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ParentResourceType) {
-		stringVal := plan.ParentResourceType.ValueString()
-		addRequest.ParentResourceType = &stringVal
+		addRequest.ParentResourceType = plan.ParentResourceType.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RelativeDNFromParentResource) {
-		stringVal := plan.RelativeDNFromParentResource.ValueString()
-		addRequest.RelativeDNFromParentResource = &stringVal
+		addRequest.RelativeDNFromParentResource = plan.RelativeDNFromParentResource.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CreateRDNAttributeType) {
-		stringVal := plan.CreateRDNAttributeType.ValueString()
-		addRequest.CreateRDNAttributeType = &stringVal
+		addRequest.CreateRDNAttributeType = plan.CreateRDNAttributeType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PostCreateConstructedAttribute) {
 		var slice []string
@@ -330,18 +324,15 @@ func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DisplayName) {
-		stringVal := plan.DisplayName.ValueString()
-		addRequest.DisplayName = &stringVal
+		addRequest.DisplayName = plan.DisplayName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchFilterPattern) {
-		stringVal := plan.SearchFilterPattern.ValueString()
-		addRequest.SearchFilterPattern = &stringVal
+		addRequest.SearchFilterPattern = plan.SearchFilterPattern.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PrimaryDisplayAttributeType) {
-		stringVal := plan.PrimaryDisplayAttributeType.ValueString()
-		addRequest.PrimaryDisplayAttributeType = &stringVal
+		addRequest.PrimaryDisplayAttributeType = plan.PrimaryDisplayAttributeType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminSearchSizeLimit) {
 		intVal := int32(plan.DelegatedAdminSearchSizeLimit.ValueInt64())
@@ -353,13 +344,11 @@ func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MembersColumnName) {
-		stringVal := plan.MembersColumnName.ValueString()
-		addRequest.MembersColumnName = &stringVal
+		addRequest.MembersColumnName = plan.MembersColumnName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.NonmembersColumnName) {
-		stringVal := plan.NonmembersColumnName.ValueString()
-		addRequest.NonmembersColumnName = &stringVal
+		addRequest.NonmembersColumnName = plan.NonmembersColumnName.ValueStringPointer()
 	}
 }
 

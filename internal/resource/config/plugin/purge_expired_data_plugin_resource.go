@@ -220,8 +220,7 @@ func purgeExpiredDataPluginSchema(ctx context.Context, req resource.SchemaReques
 func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *client.AddPurgeExpiredDataPluginRequest, plan purgeExpiredDataPluginResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DatetimeJSONField) {
-		stringVal := plan.DatetimeJSONField.ValueString()
-		addRequest.DatetimeJSONField = &stringVal
+		addRequest.DatetimeJSONField = plan.DatetimeJSONField.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DatetimeFormat) {
@@ -233,13 +232,11 @@ func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *cl
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CustomDatetimeFormat) {
-		stringVal := plan.CustomDatetimeFormat.ValueString()
-		addRequest.CustomDatetimeFormat = &stringVal
+		addRequest.CustomDatetimeFormat = plan.CustomDatetimeFormat.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CustomTimezone) {
-		stringVal := plan.CustomTimezone.ValueString()
-		addRequest.CustomTimezone = &stringVal
+		addRequest.CustomTimezone = plan.CustomTimezone.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PurgeBehavior) {
@@ -251,18 +248,15 @@ func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *cl
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseDN) {
-		stringVal := plan.BaseDN.ValueString()
-		addRequest.BaseDN = &stringVal
+		addRequest.BaseDN = plan.BaseDN.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Filter) {
-		stringVal := plan.Filter.ValueString()
-		addRequest.Filter = &stringVal
+		addRequest.Filter = plan.Filter.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PollingInterval) {
-		stringVal := plan.PollingInterval.ValueString()
-		addRequest.PollingInterval = &stringVal
+		addRequest.PollingInterval = plan.PollingInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
 		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())
@@ -278,8 +272,7 @@ func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *cl
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

@@ -163,8 +163,7 @@ func cleanUpExpiredPingfederatePersistentSessionsPluginSchema(ctx context.Contex
 func addOptionalCleanUpExpiredPingfederatePersistentSessionsPluginFields(ctx context.Context, addRequest *client.AddCleanUpExpiredPingfederatePersistentSessionsPluginRequest, plan cleanUpExpiredPingfederatePersistentSessionsPluginResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PollingInterval) {
-		stringVal := plan.PollingInterval.ValueString()
-		addRequest.PollingInterval = &stringVal
+		addRequest.PollingInterval = plan.PollingInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PeerServerPriorityIndex) {
 		intVal := int32(plan.PeerServerPriorityIndex.ValueInt64())
@@ -172,8 +171,7 @@ func addOptionalCleanUpExpiredPingfederatePersistentSessionsPluginFields(ctx con
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseDN) {
-		stringVal := plan.BaseDN.ValueString()
-		addRequest.BaseDN = &stringVal
+		addRequest.BaseDN = plan.BaseDN.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
 		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())

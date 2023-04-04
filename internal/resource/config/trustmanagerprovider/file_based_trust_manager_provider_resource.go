@@ -152,27 +152,22 @@ func fileBasedTrustManagerProviderSchema(ctx context.Context, req resource.Schem
 func addOptionalFileBasedTrustManagerProviderFields(ctx context.Context, addRequest *client.AddFileBasedTrustManagerProviderRequest, plan fileBasedTrustManagerProviderResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreType) {
-		stringVal := plan.TrustStoreType.ValueString()
-		addRequest.TrustStoreType = &stringVal
+		addRequest.TrustStoreType = plan.TrustStoreType.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStorePin) {
-		stringVal := plan.TrustStorePin.ValueString()
-		addRequest.TrustStorePin = &stringVal
+		addRequest.TrustStorePin = plan.TrustStorePin.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStorePinFile) {
-		stringVal := plan.TrustStorePinFile.ValueString()
-		addRequest.TrustStorePinFile = &stringVal
+		addRequest.TrustStorePinFile = plan.TrustStorePinFile.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStorePinPassphraseProvider) {
-		stringVal := plan.TrustStorePinPassphraseProvider.ValueString()
-		addRequest.TrustStorePinPassphraseProvider = &stringVal
+		addRequest.TrustStorePinPassphraseProvider = plan.TrustStorePinPassphraseProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
-		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
-		addRequest.IncludeJVMDefaultIssuers = &boolVal
+		addRequest.IncludeJVMDefaultIssuers = plan.IncludeJVMDefaultIssuers.ValueBoolPointer()
 	}
 }
 

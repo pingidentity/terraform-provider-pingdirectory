@@ -260,8 +260,7 @@ func fileServerHttpServletExtensionSchema(ctx context.Context, req resource.Sche
 // Add optional fields to create request
 func addOptionalFileServerHttpServletExtensionFields(ctx context.Context, addRequest *client.AddFileServerHttpServletExtensionRequest, plan fileServerHttpServletExtensionResourceModel) error {
 	if internaltypes.IsDefined(plan.EnableDirectoryIndexing) {
-		boolVal := plan.EnableDirectoryIndexing.ValueBool()
-		addRequest.EnableDirectoryIndexing = &boolVal
+		addRequest.EnableDirectoryIndexing = plan.EnableDirectoryIndexing.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IndexFile) {
 		var slice []string
@@ -270,17 +269,14 @@ func addOptionalFileServerHttpServletExtensionFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MimeTypesFile) {
-		stringVal := plan.MimeTypesFile.ValueString()
-		addRequest.MimeTypesFile = &stringVal
+		addRequest.MimeTypesFile = plan.MimeTypesFile.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DefaultMIMEType) {
-		stringVal := plan.DefaultMIMEType.ValueString()
-		addRequest.DefaultMIMEType = &stringVal
+		addRequest.DefaultMIMEType = plan.DefaultMIMEType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RequireAuthentication) {
-		boolVal := plan.RequireAuthentication.ValueBool()
-		addRequest.RequireAuthentication = &boolVal
+		addRequest.RequireAuthentication = plan.RequireAuthentication.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowedAuthenticationType) {
 		var slice []string
@@ -306,8 +302,7 @@ func addOptionalFileServerHttpServletExtensionFields(ctx context.Context, addReq
 		addRequest.IdTokenValidator = slice
 	}
 	if internaltypes.IsDefined(plan.RequireFileServletAccessPrivilege) {
-		boolVal := plan.RequireFileServletAccessPrivilege.ValueBool()
-		addRequest.RequireFileServletAccessPrivilege = &boolVal
+		addRequest.RequireFileServletAccessPrivilege = plan.RequireFileServletAccessPrivilege.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RequireGroup) {
 		var slice []string
@@ -316,18 +311,15 @@ func addOptionalFileServerHttpServletExtensionFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IdentityMapper) {
-		stringVal := plan.IdentityMapper.ValueString()
-		addRequest.IdentityMapper = &stringVal
+		addRequest.IdentityMapper = plan.IdentityMapper.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CrossOriginPolicy) {
-		stringVal := plan.CrossOriginPolicy.ValueString()
-		addRequest.CrossOriginPolicy = &stringVal
+		addRequest.CrossOriginPolicy = plan.CrossOriginPolicy.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ResponseHeader) {
 		var slice []string
@@ -336,8 +328,7 @@ func addOptionalFileServerHttpServletExtensionFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelationIDResponseHeader) {
-		stringVal := plan.CorrelationIDResponseHeader.ValueString()
-		addRequest.CorrelationIDResponseHeader = &stringVal
+		addRequest.CorrelationIDResponseHeader = plan.CorrelationIDResponseHeader.ValueStringPointer()
 	}
 	return nil
 }

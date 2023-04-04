@@ -354,17 +354,14 @@ func httpConnectionHandlerSchema(ctx context.Context, req resource.SchemaRequest
 func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *client.AddHttpConnectionHandlerRequest, plan httpConnectionHandlerResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ListenAddress) {
-		stringVal := plan.ListenAddress.ValueString()
-		addRequest.ListenAddress = &stringVal
+		addRequest.ListenAddress = plan.ListenAddress.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.UseSSL) {
-		boolVal := plan.UseSSL.ValueBool()
-		addRequest.UseSSL = &boolVal
+		addRequest.UseSSL = plan.UseSSL.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SslCertNickname) {
-		stringVal := plan.SslCertNickname.ValueString()
-		addRequest.SslCertNickname = &stringVal
+		addRequest.SslCertNickname = plan.SslCertNickname.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.HttpServletExtension) {
 		var slice []string
@@ -393,34 +390,29 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyManagerProvider) {
-		stringVal := plan.KeyManagerProvider.ValueString()
-		addRequest.KeyManagerProvider = &stringVal
+		addRequest.KeyManagerProvider = plan.KeyManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
-		stringVal := plan.TrustManagerProvider.ValueString()
-		addRequest.TrustManagerProvider = &stringVal
+		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.NumRequestHandlers) {
 		intVal := int32(plan.NumRequestHandlers.ValueInt64())
 		addRequest.NumRequestHandlers = &intVal
 	}
 	if internaltypes.IsDefined(plan.KeepStats) {
-		boolVal := plan.KeepStats.ValueBool()
-		addRequest.KeepStats = &boolVal
+		addRequest.KeepStats = plan.KeepStats.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AcceptBacklog) {
 		intVal := int32(plan.AcceptBacklog.ValueInt64())
 		addRequest.AcceptBacklog = &intVal
 	}
 	if internaltypes.IsDefined(plan.AllowTCPReuseAddress) {
-		boolVal := plan.AllowTCPReuseAddress.ValueBool()
-		addRequest.AllowTCPReuseAddress = &boolVal
+		addRequest.AllowTCPReuseAddress = plan.AllowTCPReuseAddress.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IdleTimeLimit) {
-		stringVal := plan.IdleTimeLimit.ValueString()
-		addRequest.IdleTimeLimit = &stringVal
+		addRequest.IdleTimeLimit = plan.IdleTimeLimit.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.LowResourcesConnectionThreshold) {
 		intVal := int32(plan.LowResourcesConnectionThreshold.ValueInt64())
@@ -428,16 +420,13 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LowResourcesIdleTimeLimit) {
-		stringVal := plan.LowResourcesIdleTimeLimit.ValueString()
-		addRequest.LowResourcesIdleTimeLimit = &stringVal
+		addRequest.LowResourcesIdleTimeLimit = plan.LowResourcesIdleTimeLimit.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EnableMultipartMIMEParameters) {
-		boolVal := plan.EnableMultipartMIMEParameters.ValueBool()
-		addRequest.EnableMultipartMIMEParameters = &boolVal
+		addRequest.EnableMultipartMIMEParameters = plan.EnableMultipartMIMEParameters.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.UseForwardedHeaders) {
-		boolVal := plan.UseForwardedHeaders.ValueBool()
-		addRequest.UseForwardedHeaders = &boolVal
+		addRequest.UseForwardedHeaders = plan.UseForwardedHeaders.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.HttpRequestHeaderSize) {
 		intVal := int32(plan.HttpRequestHeaderSize.ValueInt64())
@@ -449,13 +438,11 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.ResponseHeader = slice
 	}
 	if internaltypes.IsDefined(plan.UseCorrelationIDHeader) {
-		boolVal := plan.UseCorrelationIDHeader.ValueBool()
-		addRequest.UseCorrelationIDHeader = &boolVal
+		addRequest.UseCorrelationIDHeader = plan.UseCorrelationIDHeader.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelationIDResponseHeader) {
-		stringVal := plan.CorrelationIDResponseHeader.ValueString()
-		addRequest.CorrelationIDResponseHeader = &stringVal
+		addRequest.CorrelationIDResponseHeader = plan.CorrelationIDResponseHeader.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CorrelationIDRequestHeader) {
 		var slice []string
@@ -472,8 +459,7 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

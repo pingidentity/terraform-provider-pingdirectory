@@ -415,13 +415,11 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Password) {
-		stringVal := plan.Password.ValueString()
-		addRequest.Password = &stringVal
+		addRequest.Password = plan.Password.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.FirstName) {
 		var slice []string
@@ -435,8 +433,7 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UserID) {
-		stringVal := plan.UserID.ValueString()
-		addRequest.UserID = &stringVal
+		addRequest.UserID = plan.UserID.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailAddress) {
 		var slice []string
@@ -464,8 +461,7 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 		addRequest.PagerTelephoneNumber = slice
 	}
 	if internaltypes.IsDefined(plan.InheritDefaultRootPrivileges) {
-		boolVal := plan.InheritDefaultRootPrivileges.ValueBool()
-		addRequest.InheritDefaultRootPrivileges = &boolVal
+		addRequest.InheritDefaultRootPrivileges = plan.InheritDefaultRootPrivileges.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.Privilege) {
 		var slice []string
@@ -498,30 +494,24 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordPolicy) {
-		stringVal := plan.PasswordPolicy.ValueString()
-		addRequest.PasswordPolicy = &stringVal
+		addRequest.PasswordPolicy = plan.PasswordPolicy.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Disabled) {
-		boolVal := plan.Disabled.ValueBool()
-		addRequest.Disabled = &boolVal
+		addRequest.Disabled = plan.Disabled.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountActivationTime) {
-		stringVal := plan.AccountActivationTime.ValueString()
-		addRequest.AccountActivationTime = &stringVal
+		addRequest.AccountActivationTime = plan.AccountActivationTime.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountExpirationTime) {
-		stringVal := plan.AccountExpirationTime.ValueString()
-		addRequest.AccountExpirationTime = &stringVal
+		addRequest.AccountExpirationTime = plan.AccountExpirationTime.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RequireSecureAuthentication) {
-		boolVal := plan.RequireSecureAuthentication.ValueBool()
-		addRequest.RequireSecureAuthentication = &boolVal
+		addRequest.RequireSecureAuthentication = plan.RequireSecureAuthentication.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RequireSecureConnections) {
-		boolVal := plan.RequireSecureConnections.ValueBool()
-		addRequest.RequireSecureConnections = &boolVal
+		addRequest.RequireSecureConnections = plan.RequireSecureConnections.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowedAuthenticationType) {
 		var slice []string

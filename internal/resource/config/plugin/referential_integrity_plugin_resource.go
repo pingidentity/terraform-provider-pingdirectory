@@ -195,22 +195,18 @@ func addOptionalReferentialIntegrityPluginFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFile) {
-		stringVal := plan.LogFile.ValueString()
-		addRequest.LogFile = &stringVal
+		addRequest.LogFile = plan.LogFile.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UpdateInterval) {
-		stringVal := plan.UpdateInterval.ValueString()
-		addRequest.UpdateInterval = &stringVal
+		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	return nil
 }

@@ -209,8 +209,7 @@ func genericDelegatedAdminAttributeSchema(ctx context.Context, req resource.Sche
 func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addRequest *client.AddGenericDelegatedAdminAttributeRequest, plan genericDelegatedAdminAttributeResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Mutability) {
@@ -221,17 +220,14 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 		addRequest.Mutability = mutability
 	}
 	if internaltypes.IsDefined(plan.MultiValued) {
-		boolVal := plan.MultiValued.ValueBool()
-		addRequest.MultiValued = &boolVal
+		addRequest.MultiValued = plan.MultiValued.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeInSummary) {
-		boolVal := plan.IncludeInSummary.ValueBool()
-		addRequest.IncludeInSummary = &boolVal
+		addRequest.IncludeInSummary = plan.IncludeInSummary.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AttributeCategory) {
-		stringVal := plan.AttributeCategory.ValueString()
-		addRequest.AttributeCategory = &stringVal
+		addRequest.AttributeCategory = plan.AttributeCategory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DisplayOrderIndex) {
 		intVal := int32(plan.DisplayOrderIndex.ValueInt64())
@@ -239,8 +235,7 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ReferenceResourceType) {
-		stringVal := plan.ReferenceResourceType.ValueString()
-		addRequest.ReferenceResourceType = &stringVal
+		addRequest.ReferenceResourceType = plan.ReferenceResourceType.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AttributePresentation) {
@@ -252,8 +247,7 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DateTimeFormat) {
-		stringVal := plan.DateTimeFormat.ValueString()
-		addRequest.DateTimeFormat = &stringVal
+		addRequest.DateTimeFormat = plan.DateTimeFormat.ValueStringPointer()
 	}
 	return nil
 }

@@ -172,18 +172,15 @@ func addOptionalRegularExpressionIdentityMapperFields(ctx context.Context, addRe
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MatchFilter) {
-		stringVal := plan.MatchFilter.ValueString()
-		addRequest.MatchFilter = &stringVal
+		addRequest.MatchFilter = plan.MatchFilter.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ReplacePattern) {
-		stringVal := plan.ReplacePattern.ValueString()
-		addRequest.ReplacePattern = &stringVal
+		addRequest.ReplacePattern = plan.ReplacePattern.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

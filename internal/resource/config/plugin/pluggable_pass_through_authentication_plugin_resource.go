@@ -213,34 +213,27 @@ func addOptionalPluggablePassThroughAuthenticationPluginFields(ctx context.Conte
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
-		stringVal := plan.ConnectionCriteria.ValueString()
-		addRequest.ConnectionCriteria = &stringVal
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.TryLocalBind) {
-		boolVal := plan.TryLocalBind.ValueBool()
-		addRequest.TryLocalBind = &boolVal
+		addRequest.TryLocalBind = plan.TryLocalBind.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.OverrideLocalPassword) {
-		boolVal := plan.OverrideLocalPassword.ValueBool()
-		addRequest.OverrideLocalPassword = &boolVal
+		addRequest.OverrideLocalPassword = plan.OverrideLocalPassword.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.UpdateLocalPassword) {
-		boolVal := plan.UpdateLocalPassword.ValueBool()
-		addRequest.UpdateLocalPassword = &boolVal
+		addRequest.UpdateLocalPassword = plan.UpdateLocalPassword.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UpdateLocalPasswordDN) {
-		stringVal := plan.UpdateLocalPasswordDN.ValueString()
-		addRequest.UpdateLocalPasswordDN = &stringVal
+		addRequest.UpdateLocalPasswordDN = plan.UpdateLocalPasswordDN.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowLaxPassThroughAuthenticationPasswords) {
-		boolVal := plan.AllowLaxPassThroughAuthenticationPasswords.ValueBool()
-		addRequest.AllowLaxPassThroughAuthenticationPasswords = &boolVal
+		addRequest.AllowLaxPassThroughAuthenticationPasswords = plan.AllowLaxPassThroughAuthenticationPasswords.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IgnoredPasswordPolicyStateErrorCondition) {
 		var slice []string
@@ -257,12 +250,10 @@ func addOptionalPluggablePassThroughAuthenticationPluginFields(ctx context.Conte
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	return nil
 }

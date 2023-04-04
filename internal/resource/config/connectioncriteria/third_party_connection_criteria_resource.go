@@ -137,8 +137,7 @@ func addOptionalThirdPartyConnectionCriteriaFields(ctx context.Context, addReque
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

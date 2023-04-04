@@ -274,8 +274,7 @@ func ldifExportRecurringTaskSchema(ctx context.Context, req resource.SchemaReque
 func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *client.AddLdifExportRecurringTaskRequest, plan ldifExportRecurringTaskResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LdifDirectory) {
-		stringVal := plan.LdifDirectory.ValueString()
-		addRequest.LdifDirectory = &stringVal
+		addRequest.LdifDirectory = plan.LdifDirectory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BackendID) {
 		var slice []string
@@ -288,21 +287,17 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 		addRequest.ExcludeBackendID = slice
 	}
 	if internaltypes.IsDefined(plan.Compress) {
-		boolVal := plan.Compress.ValueBool()
-		addRequest.Compress = &boolVal
+		addRequest.Compress = plan.Compress.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.Encrypt) {
-		boolVal := plan.Encrypt.ValueBool()
-		addRequest.Encrypt = &boolVal
+		addRequest.Encrypt = plan.Encrypt.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EncryptionSettingsDefinitionID) {
-		stringVal := plan.EncryptionSettingsDefinitionID.ValueString()
-		addRequest.EncryptionSettingsDefinitionID = &stringVal
+		addRequest.EncryptionSettingsDefinitionID = plan.EncryptionSettingsDefinitionID.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Sign) {
-		boolVal := plan.Sign.ValueBool()
-		addRequest.Sign = &boolVal
+		addRequest.Sign = plan.Sign.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousLDIFExportCount) {
 		intVal := int32(plan.RetainPreviousLDIFExportCount.ValueInt64())
@@ -310,8 +305,7 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousLDIFExportAge) {
-		stringVal := plan.RetainPreviousLDIFExportAge.ValueString()
-		addRequest.RetainPreviousLDIFExportAge = &stringVal
+		addRequest.RetainPreviousLDIFExportAge = plan.RetainPreviousLDIFExportAge.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxMegabytesPerSecond) {
 		intVal := int32(plan.MaxMegabytesPerSecond.ValueInt64())
@@ -319,12 +313,10 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CancelOnTaskDependencyFailure) {
-		boolVal := plan.CancelOnTaskDependencyFailure.ValueBool()
-		addRequest.CancelOnTaskDependencyFailure = &boolVal
+		addRequest.CancelOnTaskDependencyFailure = plan.CancelOnTaskDependencyFailure.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailOnStart) {
 		var slice []string
@@ -342,16 +334,13 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 		addRequest.EmailOnFailure = slice
 	}
 	if internaltypes.IsDefined(plan.AlertOnStart) {
-		boolVal := plan.AlertOnStart.ValueBool()
-		addRequest.AlertOnStart = &boolVal
+		addRequest.AlertOnStart = plan.AlertOnStart.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnSuccess) {
-		boolVal := plan.AlertOnSuccess.ValueBool()
-		addRequest.AlertOnSuccess = &boolVal
+		addRequest.AlertOnSuccess = plan.AlertOnSuccess.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnFailure) {
-		boolVal := plan.AlertOnFailure.ValueBool()
-		addRequest.AlertOnFailure = &boolVal
+		addRequest.AlertOnFailure = plan.AlertOnFailure.ValueBoolPointer()
 	}
 }
 

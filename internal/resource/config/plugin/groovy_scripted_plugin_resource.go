@@ -158,8 +158,7 @@ func groovyScriptedPluginSchema(ctx context.Context, req resource.SchemaRequest,
 func addOptionalGroovyScriptedPluginFields(ctx context.Context, addRequest *client.AddGroovyScriptedPluginRequest, plan groovyScriptedPluginResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ScriptArgument) {
 		var slice []string
@@ -168,12 +167,10 @@ func addOptionalGroovyScriptedPluginFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 }
 

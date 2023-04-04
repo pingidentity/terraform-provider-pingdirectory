@@ -246,13 +246,11 @@ func execRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, re
 func addOptionalExecRecurringTaskFields(ctx context.Context, addRequest *client.AddExecRecurringTaskRequest, plan execRecurringTaskResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CommandArguments) {
-		stringVal := plan.CommandArguments.ValueString()
-		addRequest.CommandArguments = &stringVal
+		addRequest.CommandArguments = plan.CommandArguments.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CommandOutputFileBaseName) {
-		stringVal := plan.CommandOutputFileBaseName.ValueString()
-		addRequest.CommandOutputFileBaseName = &stringVal
+		addRequest.CommandOutputFileBaseName = plan.CommandOutputFileBaseName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousOutputFileCount) {
 		intVal := int32(plan.RetainPreviousOutputFileCount.ValueInt64())
@@ -260,12 +258,10 @@ func addOptionalExecRecurringTaskFields(ctx context.Context, addRequest *client.
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousOutputFileAge) {
-		stringVal := plan.RetainPreviousOutputFileAge.ValueString()
-		addRequest.RetainPreviousOutputFileAge = &stringVal
+		addRequest.RetainPreviousOutputFileAge = plan.RetainPreviousOutputFileAge.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.LogCommandOutput) {
-		boolVal := plan.LogCommandOutput.ValueBool()
-		addRequest.LogCommandOutput = &boolVal
+		addRequest.LogCommandOutput = plan.LogCommandOutput.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TaskCompletionStateForNonzeroExitCode) {
@@ -277,17 +273,14 @@ func addOptionalExecRecurringTaskFields(ctx context.Context, addRequest *client.
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.WorkingDirectory) {
-		stringVal := plan.WorkingDirectory.ValueString()
-		addRequest.WorkingDirectory = &stringVal
+		addRequest.WorkingDirectory = plan.WorkingDirectory.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CancelOnTaskDependencyFailure) {
-		boolVal := plan.CancelOnTaskDependencyFailure.ValueBool()
-		addRequest.CancelOnTaskDependencyFailure = &boolVal
+		addRequest.CancelOnTaskDependencyFailure = plan.CancelOnTaskDependencyFailure.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailOnStart) {
 		var slice []string
@@ -305,16 +298,13 @@ func addOptionalExecRecurringTaskFields(ctx context.Context, addRequest *client.
 		addRequest.EmailOnFailure = slice
 	}
 	if internaltypes.IsDefined(plan.AlertOnStart) {
-		boolVal := plan.AlertOnStart.ValueBool()
-		addRequest.AlertOnStart = &boolVal
+		addRequest.AlertOnStart = plan.AlertOnStart.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnSuccess) {
-		boolVal := plan.AlertOnSuccess.ValueBool()
-		addRequest.AlertOnSuccess = &boolVal
+		addRequest.AlertOnSuccess = plan.AlertOnSuccess.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnFailure) {
-		boolVal := plan.AlertOnFailure.ValueBool()
-		addRequest.AlertOnFailure = &boolVal
+		addRequest.AlertOnFailure = plan.AlertOnFailure.ValueBoolPointer()
 	}
 	return nil
 }

@@ -222,13 +222,11 @@ func addOptionalEntryDnVirtualAttributeFields(ctx context.Context, addRequest *c
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AttributeType) {
-		stringVal := plan.AttributeType.ValueString()
-		addRequest.AttributeType = &stringVal
+		addRequest.AttributeType = plan.AttributeType.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -251,8 +249,7 @@ func addOptionalEntryDnVirtualAttributeFields(ctx context.Context, addRequest *c
 		addRequest.ClientConnectionPolicy = slice
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
@@ -267,8 +264,7 @@ func addOptionalEntryDnVirtualAttributeFields(ctx context.Context, addRequest *c
 		addRequest.MultipleVirtualAttributeMergeBehavior = multipleVirtualAttributeMergeBehavior
 	}
 	if internaltypes.IsDefined(plan.AllowIndexConflicts) {
-		boolVal := plan.AllowIndexConflicts.ValueBool()
-		addRequest.AllowIndexConflicts = &boolVal
+		addRequest.AllowIndexConflicts = plan.AllowIndexConflicts.ValueBoolPointer()
 	}
 	return nil
 }

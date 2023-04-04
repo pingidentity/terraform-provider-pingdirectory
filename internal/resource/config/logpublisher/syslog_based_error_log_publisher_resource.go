@@ -208,8 +208,7 @@ func syslogBasedErrorLogPublisherSchema(ctx context.Context, req resource.Schema
 func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addRequest *client.AddSyslogBasedErrorLogPublisherRequest, plan syslogBasedErrorLogPublisherResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ServerHostName) {
-		stringVal := plan.ServerHostName.ValueString()
-		addRequest.ServerHostName = &stringVal
+		addRequest.ServerHostName = plan.ServerHostName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ServerPort) {
 		intVal := int32(plan.ServerPort.ValueInt64())
@@ -220,12 +219,10 @@ func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addReque
 		addRequest.SyslogFacility = &intVal
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
-		boolVal := plan.AutoFlush.ValueBool()
-		addRequest.AutoFlush = &boolVal
+		addRequest.AutoFlush = plan.AutoFlush.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.Asynchronous) {
-		boolVal := plan.Asynchronous.ValueBool()
-		addRequest.Asynchronous = &boolVal
+		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
@@ -251,8 +248,7 @@ func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addReque
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LoggingErrorBehavior) {

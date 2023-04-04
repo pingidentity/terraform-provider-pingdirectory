@@ -240,32 +240,26 @@ func indicatorGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp 
 func addOptionalIndicatorGaugeFields(ctx context.Context, addRequest *client.AddIndicatorGaugeRequest, plan indicatorGaugeResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CriticalValue) {
-		stringVal := plan.CriticalValue.ValueString()
-		addRequest.CriticalValue = &stringVal
+		addRequest.CriticalValue = plan.CriticalValue.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MajorValue) {
-		stringVal := plan.MajorValue.ValueString()
-		addRequest.MajorValue = &stringVal
+		addRequest.MajorValue = plan.MajorValue.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MinorValue) {
-		stringVal := plan.MinorValue.ValueString()
-		addRequest.MinorValue = &stringVal
+		addRequest.MinorValue = plan.MinorValue.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.WarningValue) {
-		stringVal := plan.WarningValue.ValueString()
-		addRequest.WarningValue = &stringVal
+		addRequest.WarningValue = plan.WarningValue.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Enabled) {
-		boolVal := plan.Enabled.ValueBool()
-		addRequest.Enabled = &boolVal
+		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.OverrideSeverity) {
@@ -285,8 +279,7 @@ func addOptionalIndicatorGaugeFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UpdateInterval) {
-		stringVal := plan.UpdateInterval.ValueString()
-		addRequest.UpdateInterval = &stringVal
+		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
 		intVal := int32(plan.SamplesPerUpdateInterval.ValueInt64())

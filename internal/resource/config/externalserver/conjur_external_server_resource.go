@@ -153,23 +153,19 @@ func conjurExternalServerSchema(ctx context.Context, req resource.SchemaRequest,
 func addOptionalConjurExternalServerFields(ctx context.Context, addRequest *client.AddConjurExternalServerRequest, plan conjurExternalServerResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreFile) {
-		stringVal := plan.TrustStoreFile.ValueString()
-		addRequest.TrustStoreFile = &stringVal
+		addRequest.TrustStoreFile = plan.TrustStoreFile.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStorePin) {
-		stringVal := plan.TrustStorePin.ValueString()
-		addRequest.TrustStorePin = &stringVal
+		addRequest.TrustStorePin = plan.TrustStorePin.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreType) {
-		stringVal := plan.TrustStoreType.ValueString()
-		addRequest.TrustStoreType = &stringVal
+		addRequest.TrustStoreType = plan.TrustStoreType.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

@@ -212,13 +212,11 @@ func addOptionalSmtpAccountStatusNotificationHandlerFields(ctx context.Context, 
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EmailAddressJSONField) {
-		stringVal := plan.EmailAddressJSONField.ValueString()
-		addRequest.EmailAddressJSONField = &stringVal
+		addRequest.EmailAddressJSONField = plan.EmailAddressJSONField.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EmailAddressJSONObjectFilter) {
-		stringVal := plan.EmailAddressJSONObjectFilter.ValueString()
-		addRequest.EmailAddressJSONObjectFilter = &stringVal
+		addRequest.EmailAddressJSONObjectFilter = plan.EmailAddressJSONObjectFilter.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RecipientAddress) {
 		var slice []string
@@ -226,27 +224,22 @@ func addOptionalSmtpAccountStatusNotificationHandlerFields(ctx context.Context, 
 		addRequest.RecipientAddress = slice
 	}
 	if internaltypes.IsDefined(plan.SendMessageWithoutEndUserAddress) {
-		boolVal := plan.SendMessageWithoutEndUserAddress.ValueBool()
-		addRequest.SendMessageWithoutEndUserAddress = &boolVal
+		addRequest.SendMessageWithoutEndUserAddress = plan.SendMessageWithoutEndUserAddress.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Asynchronous) {
-		boolVal := plan.Asynchronous.ValueBool()
-		addRequest.Asynchronous = &boolVal
+		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
-		stringVal := plan.AccountCreationNotificationRequestCriteria.ValueString()
-		addRequest.AccountCreationNotificationRequestCriteria = &stringVal
+		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
-		stringVal := plan.AccountUpdateNotificationRequestCriteria.ValueString()
-		addRequest.AccountUpdateNotificationRequestCriteria = &stringVal
+		addRequest.AccountUpdateNotificationRequestCriteria = plan.AccountUpdateNotificationRequestCriteria.ValueStringPointer()
 	}
 }
 

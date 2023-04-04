@@ -176,8 +176,7 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 func addOptionalHttpServletCrossOriginPolicyFields(ctx context.Context, addRequest *client.AddHttpServletCrossOriginPolicyRequest, plan httpServletCrossOriginPolicyResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CorsAllowedMethods) {
 		var slice []string
@@ -201,12 +200,10 @@ func addOptionalHttpServletCrossOriginPolicyFields(ctx context.Context, addReque
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorsPreflightMaxAge) {
-		stringVal := plan.CorsPreflightMaxAge.ValueString()
-		addRequest.CorsPreflightMaxAge = &stringVal
+		addRequest.CorsPreflightMaxAge = plan.CorsPreflightMaxAge.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CorsAllowCredentials) {
-		boolVal := plan.CorsAllowCredentials.ValueBool()
-		addRequest.CorsAllowCredentials = &boolVal
+		addRequest.CorsAllowCredentials = plan.CorsAllowCredentials.ValueBoolPointer()
 	}
 }
 

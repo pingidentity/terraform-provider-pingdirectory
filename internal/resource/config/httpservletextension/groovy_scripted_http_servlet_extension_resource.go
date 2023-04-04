@@ -166,13 +166,11 @@ func addOptionalGroovyScriptedHttpServletExtensionFields(ctx context.Context, ad
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CrossOriginPolicy) {
-		stringVal := plan.CrossOriginPolicy.ValueString()
-		addRequest.CrossOriginPolicy = &stringVal
+		addRequest.CrossOriginPolicy = plan.CrossOriginPolicy.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ResponseHeader) {
 		var slice []string
@@ -181,8 +179,7 @@ func addOptionalGroovyScriptedHttpServletExtensionFields(ctx context.Context, ad
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelationIDResponseHeader) {
-		stringVal := plan.CorrelationIDResponseHeader.ValueString()
-		addRequest.CorrelationIDResponseHeader = &stringVal
+		addRequest.CorrelationIDResponseHeader = plan.CorrelationIDResponseHeader.ValueStringPointer()
 	}
 }
 

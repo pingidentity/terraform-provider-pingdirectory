@@ -245,17 +245,14 @@ func addOptionalIsMemberOfVirtualAttributeFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AttributeType) {
-		stringVal := plan.AttributeType.ValueString()
-		addRequest.AttributeType = &stringVal
+		addRequest.AttributeType = plan.AttributeType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DirectMembershipsOnly) {
-		boolVal := plan.DirectMembershipsOnly.ValueBool()
-		addRequest.DirectMembershipsOnly = &boolVal
+		addRequest.DirectMembershipsOnly = plan.DirectMembershipsOnly.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IncludedGroupFilter) {
-		stringVal := plan.IncludedGroupFilter.ValueString()
-		addRequest.IncludedGroupFilter = &stringVal
+		addRequest.IncludedGroupFilter = plan.IncludedGroupFilter.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RewriteSearchFilters) {
@@ -267,8 +264,7 @@ func addOptionalIsMemberOfVirtualAttributeFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -291,8 +287,7 @@ func addOptionalIsMemberOfVirtualAttributeFields(ctx context.Context, addRequest
 		addRequest.ClientConnectionPolicy = slice
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
@@ -307,8 +302,7 @@ func addOptionalIsMemberOfVirtualAttributeFields(ctx context.Context, addRequest
 		addRequest.MultipleVirtualAttributeMergeBehavior = multipleVirtualAttributeMergeBehavior
 	}
 	if internaltypes.IsDefined(plan.AllowIndexConflicts) {
-		boolVal := plan.AllowIndexConflicts.ValueBool()
-		addRequest.AllowIndexConflicts = &boolVal
+		addRequest.AllowIndexConflicts = plan.AllowIndexConflicts.ValueBoolPointer()
 	}
 	return nil
 }

@@ -626,13 +626,11 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UncachedAttributeCriteria) {
-		stringVal := plan.UncachedAttributeCriteria.ValueString()
-		addRequest.UncachedAttributeCriteria = &stringVal
+		addRequest.UncachedAttributeCriteria = plan.UncachedAttributeCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UncachedEntryCriteria) {
-		stringVal := plan.UncachedEntryCriteria.ValueString()
-		addRequest.UncachedEntryCriteria = &stringVal
+		addRequest.UncachedEntryCriteria = plan.UncachedEntryCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.WritabilityMode) {
@@ -643,30 +641,24 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.WritabilityMode = writabilityMode
 	}
 	if internaltypes.IsDefined(plan.SetDegradedAlertForUntrustedIndex) {
-		boolVal := plan.SetDegradedAlertForUntrustedIndex.ValueBool()
-		addRequest.SetDegradedAlertForUntrustedIndex = &boolVal
+		addRequest.SetDegradedAlertForUntrustedIndex = plan.SetDegradedAlertForUntrustedIndex.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.ReturnUnavailableForUntrustedIndex) {
-		boolVal := plan.ReturnUnavailableForUntrustedIndex.ValueBool()
-		addRequest.ReturnUnavailableForUntrustedIndex = &boolVal
+		addRequest.ReturnUnavailableForUntrustedIndex = plan.ReturnUnavailableForUntrustedIndex.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.ProcessFiltersWithUndefinedAttributeTypes) {
-		boolVal := plan.ProcessFiltersWithUndefinedAttributeTypes.ValueBool()
-		addRequest.ProcessFiltersWithUndefinedAttributeTypes = &boolVal
+		addRequest.ProcessFiltersWithUndefinedAttributeTypes = plan.ProcessFiltersWithUndefinedAttributeTypes.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IsPrivateBackend) {
-		boolVal := plan.IsPrivateBackend.ValueBool()
-		addRequest.IsPrivateBackend = &boolVal
+		addRequest.IsPrivateBackend = plan.IsPrivateBackend.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbDirectory) {
-		stringVal := plan.DbDirectory.ValueString()
-		addRequest.DbDirectory = &stringVal
+		addRequest.DbDirectory = plan.DbDirectory.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbDirectoryPermissions) {
-		stringVal := plan.DbDirectoryPermissions.ValueString()
-		addRequest.DbDirectoryPermissions = &stringVal
+		addRequest.DbDirectoryPermissions = plan.DbDirectoryPermissions.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CompactCommonParentDN) {
 		var slice []string
@@ -674,12 +666,10 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.CompactCommonParentDN = slice
 	}
 	if internaltypes.IsDefined(plan.CompressEntries) {
-		boolVal := plan.CompressEntries.ValueBool()
-		addRequest.CompressEntries = &boolVal
+		addRequest.CompressEntries = plan.CompressEntries.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.HashEntries) {
-		boolVal := plan.HashEntries.ValueBool()
-		addRequest.HashEntries = &boolVal
+		addRequest.HashEntries = plan.HashEntries.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DbNumCleanerThreads) {
 		intVal := int32(plan.DbNumCleanerThreads.ValueInt64())
@@ -695,27 +685,22 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbCheckpointerWakeupInterval) {
-		stringVal := plan.DbCheckpointerWakeupInterval.ValueString()
-		addRequest.DbCheckpointerWakeupInterval = &stringVal
+		addRequest.DbCheckpointerWakeupInterval = plan.DbCheckpointerWakeupInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbBackgroundSyncInterval) {
-		stringVal := plan.DbBackgroundSyncInterval.ValueString()
-		addRequest.DbBackgroundSyncInterval = &stringVal
+		addRequest.DbBackgroundSyncInterval = plan.DbBackgroundSyncInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DbUseThreadLocalHandles) {
-		boolVal := plan.DbUseThreadLocalHandles.ValueBool()
-		addRequest.DbUseThreadLocalHandles = &boolVal
+		addRequest.DbUseThreadLocalHandles = plan.DbUseThreadLocalHandles.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbLogFileMax) {
-		stringVal := plan.DbLogFileMax.ValueString()
-		addRequest.DbLogFileMax = &stringVal
+		addRequest.DbLogFileMax = plan.DbLogFileMax.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbLoggingLevel) {
-		stringVal := plan.DbLoggingLevel.ValueString()
-		addRequest.DbLoggingLevel = &stringVal
+		addRequest.DbLoggingLevel = plan.DbLoggingLevel.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.JeProperty) {
 		var slice []string
@@ -793,12 +778,10 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PrimeTimeLimit) {
-		stringVal := plan.PrimeTimeLimit.ValueString()
-		addRequest.PrimeTimeLimit = &stringVal
+		addRequest.PrimeTimeLimit = plan.PrimeTimeLimit.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PrimeAllIndexes) {
-		boolVal := plan.PrimeAllIndexes.ValueBool()
-		addRequest.PrimeAllIndexes = &boolVal
+		addRequest.PrimeAllIndexes = plan.PrimeAllIndexes.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SystemIndexToPrime) {
 		var slice []string
@@ -827,8 +810,7 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.SystemIndexToPrimeInternalNodesOnly = enumSlice
 	}
 	if internaltypes.IsDefined(plan.BackgroundPrime) {
-		boolVal := plan.BackgroundPrime.ValueBool()
-		addRequest.BackgroundPrime = &boolVal
+		addRequest.BackgroundPrime = plan.BackgroundPrime.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IndexEntryLimit) {
 		intVal := int32(plan.IndexEntryLimit.ValueInt64())
@@ -848,8 +830,7 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ImportTempDirectory) {
-		stringVal := plan.ImportTempDirectory.ValueString()
-		addRequest.ImportTempDirectory = &stringVal
+		addRequest.ImportTempDirectory = plan.ImportTempDirectory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ImportThreadCount) {
 		intVal := int32(plan.ImportThreadCount.ValueInt64())
@@ -864,8 +845,7 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.DbImportCachePercent = &intVal
 	}
 	if internaltypes.IsDefined(plan.DbTxnWriteNoSync) {
-		boolVal := plan.DbTxnWriteNoSync.ValueBool()
-		addRequest.DbTxnWriteNoSync = &boolVal
+		addRequest.DbTxnWriteNoSync = plan.DbTxnWriteNoSync.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DeadlockRetryLimit) {
 		intVal := int32(plan.DeadlockRetryLimit.ValueInt64())
@@ -897,26 +877,21 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.OfflineProcessDatabaseOpenTimeout) {
-		stringVal := plan.OfflineProcessDatabaseOpenTimeout.ValueString()
-		addRequest.OfflineProcessDatabaseOpenTimeout = &stringVal
+		addRequest.OfflineProcessDatabaseOpenTimeout = plan.OfflineProcessDatabaseOpenTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.SetDegradedAlertWhenDisabled) {
-		boolVal := plan.SetDegradedAlertWhenDisabled.ValueBool()
-		addRequest.SetDegradedAlertWhenDisabled = &boolVal
+		addRequest.SetDegradedAlertWhenDisabled = plan.SetDegradedAlertWhenDisabled.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.ReturnUnavailableWhenDisabled) {
-		boolVal := plan.ReturnUnavailableWhenDisabled.ValueBool()
-		addRequest.ReturnUnavailableWhenDisabled = &boolVal
+		addRequest.ReturnUnavailableWhenDisabled = plan.ReturnUnavailableWhenDisabled.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.NotificationManager) {
-		stringVal := plan.NotificationManager.ValueString()
-		addRequest.NotificationManager = &stringVal
+		addRequest.NotificationManager = plan.NotificationManager.ValueStringPointer()
 	}
 	return nil
 }
