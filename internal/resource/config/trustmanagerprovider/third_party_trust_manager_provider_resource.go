@@ -146,8 +146,7 @@ func addOptionalThirdPartyTrustManagerProviderFields(ctx context.Context, addReq
 		addRequest.ExtensionArgument = slice
 	}
 	if internaltypes.IsDefined(plan.IncludeJVMDefaultIssuers) {
-		boolVal := plan.IncludeJVMDefaultIssuers.ValueBool()
-		addRequest.IncludeJVMDefaultIssuers = &boolVal
+		addRequest.IncludeJVMDefaultIssuers = plan.IncludeJVMDefaultIssuers.ValueBoolPointer()
 	}
 }
 

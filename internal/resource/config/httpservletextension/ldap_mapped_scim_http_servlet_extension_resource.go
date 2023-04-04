@@ -325,22 +325,18 @@ func ldapMappedScimHttpServletExtensionSchema(ctx context.Context, req resource.
 func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, addRequest *client.AddLdapMappedScimHttpServletExtensionRequest, plan ldapMappedScimHttpServletExtensionResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.OAuthTokenHandler) {
-		stringVal := plan.OAuthTokenHandler.ValueString()
-		addRequest.OAuthTokenHandler = &stringVal
+		addRequest.OAuthTokenHandler = plan.OAuthTokenHandler.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BasicAuthEnabled) {
-		boolVal := plan.BasicAuthEnabled.ValueBool()
-		addRequest.BasicAuthEnabled = &boolVal
+		addRequest.BasicAuthEnabled = plan.BasicAuthEnabled.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IdentityMapper) {
-		stringVal := plan.IdentityMapper.ValueString()
-		addRequest.IdentityMapper = &stringVal
+		addRequest.IdentityMapper = plan.IdentityMapper.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ResourceMappingFile) {
-		stringVal := plan.ResourceMappingFile.ValueString()
-		addRequest.ResourceMappingFile = &stringVal
+		addRequest.ResourceMappingFile = plan.ResourceMappingFile.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeLDAPObjectclass) {
 		var slice []string
@@ -364,23 +360,19 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EntityTagLDAPAttribute) {
-		stringVal := plan.EntityTagLDAPAttribute.ValueString()
-		addRequest.EntityTagLDAPAttribute = &stringVal
+		addRequest.EntityTagLDAPAttribute = plan.EntityTagLDAPAttribute.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseContextPath) {
-		stringVal := plan.BaseContextPath.ValueString()
-		addRequest.BaseContextPath = &stringVal
+		addRequest.BaseContextPath = plan.BaseContextPath.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TemporaryDirectory) {
-		stringVal := plan.TemporaryDirectory.ValueString()
-		addRequest.TemporaryDirectory = &stringVal
+		addRequest.TemporaryDirectory = plan.TemporaryDirectory.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TemporaryDirectoryPermissions) {
-		stringVal := plan.TemporaryDirectoryPermissions.ValueString()
-		addRequest.TemporaryDirectoryPermissions = &stringVal
+		addRequest.TemporaryDirectoryPermissions = plan.TemporaryDirectoryPermissions.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxResults) {
 		intVal := int32(plan.MaxResults.ValueInt64())
@@ -392,16 +384,14 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BulkMaxPayloadSize) {
-		stringVal := plan.BulkMaxPayloadSize.ValueString()
-		addRequest.BulkMaxPayloadSize = &stringVal
+		addRequest.BulkMaxPayloadSize = plan.BulkMaxPayloadSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BulkMaxConcurrentRequests) {
 		intVal := int32(plan.BulkMaxConcurrentRequests.ValueInt64())
 		addRequest.BulkMaxConcurrentRequests = &intVal
 	}
 	if internaltypes.IsDefined(plan.DebugEnabled) {
-		boolVal := plan.DebugEnabled.ValueBool()
-		addRequest.DebugEnabled = &boolVal
+		addRequest.DebugEnabled = plan.DebugEnabled.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DebugLevel) {
@@ -425,18 +415,15 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 		addRequest.DebugType = enumSlice
 	}
 	if internaltypes.IsDefined(plan.IncludeStackTrace) {
-		boolVal := plan.IncludeStackTrace.ValueBool()
-		addRequest.IncludeStackTrace = &boolVal
+		addRequest.IncludeStackTrace = plan.IncludeStackTrace.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CrossOriginPolicy) {
-		stringVal := plan.CrossOriginPolicy.ValueString()
-		addRequest.CrossOriginPolicy = &stringVal
+		addRequest.CrossOriginPolicy = plan.CrossOriginPolicy.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ResponseHeader) {
 		var slice []string
@@ -445,8 +432,7 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelationIDResponseHeader) {
-		stringVal := plan.CorrelationIDResponseHeader.ValueString()
-		addRequest.CorrelationIDResponseHeader = &stringVal
+		addRequest.CorrelationIDResponseHeader = plan.CorrelationIDResponseHeader.ValueStringPointer()
 	}
 	return nil
 }

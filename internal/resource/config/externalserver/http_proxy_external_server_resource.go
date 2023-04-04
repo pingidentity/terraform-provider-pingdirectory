@@ -160,18 +160,15 @@ func modifyPlanHttpProxyExternalServer(ctx context.Context, req resource.ModifyP
 func addOptionalHttpProxyExternalServerFields(ctx context.Context, addRequest *client.AddHttpProxyExternalServerRequest, plan httpProxyExternalServerResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BasicAuthenticationUsername) {
-		stringVal := plan.BasicAuthenticationUsername.ValueString()
-		addRequest.BasicAuthenticationUsername = &stringVal
+		addRequest.BasicAuthenticationUsername = plan.BasicAuthenticationUsername.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BasicAuthenticationPassphraseProvider) {
-		stringVal := plan.BasicAuthenticationPassphraseProvider.ValueString()
-		addRequest.BasicAuthenticationPassphraseProvider = &stringVal
+		addRequest.BasicAuthenticationPassphraseProvider = plan.BasicAuthenticationPassphraseProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

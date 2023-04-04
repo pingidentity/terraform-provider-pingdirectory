@@ -347,49 +347,39 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.ListenAddress = slice
 	}
 	if internaltypes.IsDefined(plan.UseSSL) {
-		boolVal := plan.UseSSL.ValueBool()
-		addRequest.UseSSL = &boolVal
+		addRequest.UseSSL = plan.UseSSL.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowStartTLS) {
-		boolVal := plan.AllowStartTLS.ValueBool()
-		addRequest.AllowStartTLS = &boolVal
+		addRequest.AllowStartTLS = plan.AllowStartTLS.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SslCertNickname) {
-		stringVal := plan.SslCertNickname.ValueString()
-		addRequest.SslCertNickname = &stringVal
+		addRequest.SslCertNickname = plan.SslCertNickname.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyManagerProvider) {
-		stringVal := plan.KeyManagerProvider.ValueString()
-		addRequest.KeyManagerProvider = &stringVal
+		addRequest.KeyManagerProvider = plan.KeyManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
-		stringVal := plan.TrustManagerProvider.ValueString()
-		addRequest.TrustManagerProvider = &stringVal
+		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowLDAPV2) {
-		boolVal := plan.AllowLDAPV2.ValueBool()
-		addRequest.AllowLDAPV2 = &boolVal
+		addRequest.AllowLDAPV2 = plan.AllowLDAPV2.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.UseTCPKeepAlive) {
-		boolVal := plan.UseTCPKeepAlive.ValueBool()
-		addRequest.UseTCPKeepAlive = &boolVal
+		addRequest.UseTCPKeepAlive = plan.UseTCPKeepAlive.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SendRejectionNotice) {
-		boolVal := plan.SendRejectionNotice.ValueBool()
-		addRequest.SendRejectionNotice = &boolVal
+		addRequest.SendRejectionNotice = plan.SendRejectionNotice.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.FailedBindResponseDelay) {
-		stringVal := plan.FailedBindResponseDelay.ValueString()
-		addRequest.FailedBindResponseDelay = &stringVal
+		addRequest.FailedBindResponseDelay = plan.FailedBindResponseDelay.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MaxRequestSize) {
-		stringVal := plan.MaxRequestSize.ValueString()
-		addRequest.MaxRequestSize = &stringVal
+		addRequest.MaxRequestSize = plan.MaxRequestSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxCancelHandlers) {
 		intVal := int32(plan.MaxCancelHandlers.ValueInt64())
@@ -427,25 +417,20 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MaxBlockedWriteTimeLimit) {
-		stringVal := plan.MaxBlockedWriteTimeLimit.ValueString()
-		addRequest.MaxBlockedWriteTimeLimit = &stringVal
+		addRequest.MaxBlockedWriteTimeLimit = plan.MaxBlockedWriteTimeLimit.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AutoAuthenticateUsingClientCertificate) {
-		boolVal := plan.AutoAuthenticateUsingClientCertificate.ValueBool()
-		addRequest.AutoAuthenticateUsingClientCertificate = &boolVal
+		addRequest.AutoAuthenticateUsingClientCertificate = plan.AutoAuthenticateUsingClientCertificate.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.CloseConnectionsWhenUnavailable) {
-		boolVal := plan.CloseConnectionsWhenUnavailable.ValueBool()
-		addRequest.CloseConnectionsWhenUnavailable = &boolVal
+		addRequest.CloseConnectionsWhenUnavailable = plan.CloseConnectionsWhenUnavailable.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.CloseConnectionsOnExplicitGC) {
-		boolVal := plan.CloseConnectionsOnExplicitGC.ValueBool()
-		addRequest.CloseConnectionsOnExplicitGC = &boolVal
+		addRequest.CloseConnectionsOnExplicitGC = plan.CloseConnectionsOnExplicitGC.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowedClient) {
 		var slice []string

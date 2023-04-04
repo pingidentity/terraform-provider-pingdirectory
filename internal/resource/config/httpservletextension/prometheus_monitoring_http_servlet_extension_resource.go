@@ -235,32 +235,25 @@ func modifyPlanPrometheusMonitoringHttpServletExtension(ctx context.Context, req
 func addOptionalPrometheusMonitoringHttpServletExtensionFields(ctx context.Context, addRequest *client.AddPrometheusMonitoringHttpServletExtensionRequest, plan prometheusMonitoringHttpServletExtensionResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseContextPath) {
-		stringVal := plan.BaseContextPath.ValueString()
-		addRequest.BaseContextPath = &stringVal
+		addRequest.BaseContextPath = plan.BaseContextPath.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeInstanceNameLabel) {
-		boolVal := plan.IncludeInstanceNameLabel.ValueBool()
-		addRequest.IncludeInstanceNameLabel = &boolVal
+		addRequest.IncludeInstanceNameLabel = plan.IncludeInstanceNameLabel.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeProductNameLabel) {
-		boolVal := plan.IncludeProductNameLabel.ValueBool()
-		addRequest.IncludeProductNameLabel = &boolVal
+		addRequest.IncludeProductNameLabel = plan.IncludeProductNameLabel.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeLocationNameLabel) {
-		boolVal := plan.IncludeLocationNameLabel.ValueBool()
-		addRequest.IncludeLocationNameLabel = &boolVal
+		addRequest.IncludeLocationNameLabel = plan.IncludeLocationNameLabel.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlwaysIncludeMonitorEntryNameLabel) {
-		boolVal := plan.AlwaysIncludeMonitorEntryNameLabel.ValueBool()
-		addRequest.AlwaysIncludeMonitorEntryNameLabel = &boolVal
+		addRequest.AlwaysIncludeMonitorEntryNameLabel = plan.AlwaysIncludeMonitorEntryNameLabel.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeMonitorObjectClassNameLabel) {
-		boolVal := plan.IncludeMonitorObjectClassNameLabel.ValueBool()
-		addRequest.IncludeMonitorObjectClassNameLabel = &boolVal
+		addRequest.IncludeMonitorObjectClassNameLabel = plan.IncludeMonitorObjectClassNameLabel.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeMonitorAttributeNameLabel) {
-		boolVal := plan.IncludeMonitorAttributeNameLabel.ValueBool()
-		addRequest.IncludeMonitorAttributeNameLabel = &boolVal
+		addRequest.IncludeMonitorAttributeNameLabel = plan.IncludeMonitorAttributeNameLabel.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LabelNameValuePair) {
 		var slice []string
@@ -269,13 +262,11 @@ func addOptionalPrometheusMonitoringHttpServletExtensionFields(ctx context.Conte
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CrossOriginPolicy) {
-		stringVal := plan.CrossOriginPolicy.ValueString()
-		addRequest.CrossOriginPolicy = &stringVal
+		addRequest.CrossOriginPolicy = plan.CrossOriginPolicy.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ResponseHeader) {
 		var slice []string
@@ -284,8 +275,7 @@ func addOptionalPrometheusMonitoringHttpServletExtensionFields(ctx context.Conte
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelationIDResponseHeader) {
-		stringVal := plan.CorrelationIDResponseHeader.ValueString()
-		addRequest.CorrelationIDResponseHeader = &stringVal
+		addRequest.CorrelationIDResponseHeader = plan.CorrelationIDResponseHeader.ValueStringPointer()
 	}
 }
 

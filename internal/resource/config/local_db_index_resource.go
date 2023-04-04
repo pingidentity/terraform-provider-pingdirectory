@@ -226,20 +226,17 @@ func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLo
 		addRequest.SubstringIndexEntryLimit = &intVal
 	}
 	if internaltypes.IsDefined(plan.MaintainMatchCountForKeysExceedingEntryLimit) {
-		boolVal := plan.MaintainMatchCountForKeysExceedingEntryLimit.ValueBool()
-		addRequest.MaintainMatchCountForKeysExceedingEntryLimit = &boolVal
+		addRequest.MaintainMatchCountForKeysExceedingEntryLimit = plan.MaintainMatchCountForKeysExceedingEntryLimit.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SubstringLength) {
 		intVal := int32(plan.SubstringLength.ValueInt64())
 		addRequest.SubstringLength = &intVal
 	}
 	if internaltypes.IsDefined(plan.PrimeIndex) {
-		boolVal := plan.PrimeIndex.ValueBool()
-		addRequest.PrimeIndex = &boolVal
+		addRequest.PrimeIndex = plan.PrimeIndex.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.PrimeInternalNodesOnly) {
-		boolVal := plan.PrimeInternalNodesOnly.ValueBool()
-		addRequest.PrimeInternalNodesOnly = &boolVal
+		addRequest.PrimeInternalNodesOnly = plan.PrimeInternalNodesOnly.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EqualityIndexFilter) {
 		var slice []string
@@ -247,8 +244,7 @@ func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLo
 		addRequest.EqualityIndexFilter = slice
 	}
 	if internaltypes.IsDefined(plan.MaintainEqualityIndexWithoutFilter) {
-		boolVal := plan.MaintainEqualityIndexWithoutFilter.ValueBool()
-		addRequest.MaintainEqualityIndexWithoutFilter = &boolVal
+		addRequest.MaintainEqualityIndexWithoutFilter = plan.MaintainEqualityIndexWithoutFilter.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CacheMode) {

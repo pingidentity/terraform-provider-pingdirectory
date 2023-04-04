@@ -177,8 +177,7 @@ func passwordPolicyStateJsonVirtualAttributeSchema(ctx context.Context, req reso
 func addOptionalPasswordPolicyStateJsonVirtualAttributeFields(ctx context.Context, addRequest *client.AddPasswordPolicyStateJsonVirtualAttributeRequest, plan passwordPolicyStateJsonVirtualAttributeResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -201,8 +200,7 @@ func addOptionalPasswordPolicyStateJsonVirtualAttributeFields(ctx context.Contex
 		addRequest.ClientConnectionPolicy = slice
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())

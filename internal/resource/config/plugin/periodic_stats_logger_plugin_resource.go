@@ -372,25 +372,20 @@ func periodicStatsLoggerPluginSchema(ctx context.Context, req resource.SchemaReq
 func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest *client.AddPeriodicStatsLoggerPluginRequest, plan periodicStatsLoggerPluginResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogInterval) {
-		stringVal := plan.LogInterval.ValueString()
-		addRequest.LogInterval = &stringVal
+		addRequest.LogInterval = plan.LogInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CollectionInterval) {
-		stringVal := plan.CollectionInterval.ValueString()
-		addRequest.CollectionInterval = &stringVal
+		addRequest.CollectionInterval = plan.CollectionInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.SuppressIfIdle) {
-		boolVal := plan.SuppressIfIdle.ValueBool()
-		addRequest.SuppressIfIdle = &boolVal
+		addRequest.SuppressIfIdle = plan.SuppressIfIdle.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.HeaderPrefixPerColumn) {
-		boolVal := plan.HeaderPrefixPerColumn.ValueBool()
-		addRequest.HeaderPrefixPerColumn = &boolVal
+		addRequest.HeaderPrefixPerColumn = plan.HeaderPrefixPerColumn.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmptyInsteadOfZero) {
-		boolVal := plan.EmptyInsteadOfZero.ValueBool()
-		addRequest.EmptyInsteadOfZero = &boolVal
+		addRequest.EmptyInsteadOfZero = plan.EmptyInsteadOfZero.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LinesBetweenHeader) {
 		intVal := int32(plan.LinesBetweenHeader.ValueInt64())
@@ -485,12 +480,10 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
-		stringVal := plan.LogFilePermissions.ValueString()
-		addRequest.LogFilePermissions = &stringVal
+		addRequest.LogFilePermissions = plan.LogFilePermissions.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Append) {
-		boolVal := plan.Append.ValueBool()
-		addRequest.Append = &boolVal
+		addRequest.Append = plan.Append.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RotationPolicy) {
 		var slice []string
@@ -559,8 +552,7 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

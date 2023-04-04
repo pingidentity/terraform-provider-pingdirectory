@@ -278,23 +278,19 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Location) {
-		stringVal := plan.Location.ValueString()
-		addRequest.Location = &stringVal
+		addRequest.Location = plan.Location.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BindDN) {
-		stringVal := plan.BindDN.ValueString()
-		addRequest.BindDN = &stringVal
+		addRequest.BindDN = plan.BindDN.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Password) {
-		stringVal := plan.Password.ValueString()
-		addRequest.Password = &stringVal
+		addRequest.Password = plan.Password.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PassphraseProvider) {
-		stringVal := plan.PassphraseProvider.ValueString()
-		addRequest.PassphraseProvider = &stringVal
+		addRequest.PassphraseProvider = plan.PassphraseProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
@@ -322,38 +318,31 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.HealthCheckConnectTimeout) {
-		stringVal := plan.HealthCheckConnectTimeout.ValueString()
-		addRequest.HealthCheckConnectTimeout = &stringVal
+		addRequest.HealthCheckConnectTimeout = plan.HealthCheckConnectTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MaxConnectionAge) {
-		stringVal := plan.MaxConnectionAge.ValueString()
-		addRequest.MaxConnectionAge = &stringVal
+		addRequest.MaxConnectionAge = plan.MaxConnectionAge.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MinExpiredConnectionDisconnectInterval) {
-		stringVal := plan.MinExpiredConnectionDisconnectInterval.ValueString()
-		addRequest.MinExpiredConnectionDisconnectInterval = &stringVal
+		addRequest.MinExpiredConnectionDisconnectInterval = plan.MinExpiredConnectionDisconnectInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectTimeout) {
-		stringVal := plan.ConnectTimeout.ValueString()
-		addRequest.ConnectTimeout = &stringVal
+		addRequest.ConnectTimeout = plan.ConnectTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MaxResponseSize) {
-		stringVal := plan.MaxResponseSize.ValueString()
-		addRequest.MaxResponseSize = &stringVal
+		addRequest.MaxResponseSize = plan.MaxResponseSize.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyManagerProvider) {
-		stringVal := plan.KeyManagerProvider.ValueString()
-		addRequest.KeyManagerProvider = &stringVal
+		addRequest.KeyManagerProvider = plan.KeyManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
-		stringVal := plan.TrustManagerProvider.ValueString()
-		addRequest.TrustManagerProvider = &stringVal
+		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		intVal := int32(plan.InitialConnections.ValueInt64())
@@ -377,13 +366,11 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 		addRequest.DefunctConnectionResultCode = enumSlice
 	}
 	if internaltypes.IsDefined(plan.AbandonOnTimeout) {
-		boolVal := plan.AbandonOnTimeout.ValueBool()
-		addRequest.AbandonOnTimeout = &boolVal
+		addRequest.AbandonOnTimeout = plan.AbandonOnTimeout.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

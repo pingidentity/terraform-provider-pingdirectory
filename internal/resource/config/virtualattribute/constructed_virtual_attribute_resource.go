@@ -216,8 +216,7 @@ func constructedVirtualAttributeSchema(ctx context.Context, req resource.SchemaR
 func addOptionalConstructedVirtualAttributeFields(ctx context.Context, addRequest *client.AddConstructedVirtualAttributeRequest, plan constructedVirtualAttributeResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -248,8 +247,7 @@ func addOptionalConstructedVirtualAttributeFields(ctx context.Context, addReques
 		addRequest.ConflictBehavior = conflictBehavior
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
@@ -264,8 +262,7 @@ func addOptionalConstructedVirtualAttributeFields(ctx context.Context, addReques
 		addRequest.MultipleVirtualAttributeMergeBehavior = multipleVirtualAttributeMergeBehavior
 	}
 	if internaltypes.IsDefined(plan.AllowIndexConflicts) {
-		boolVal := plan.AllowIndexConflicts.ValueBool()
-		addRequest.AllowIndexConflicts = &boolVal
+		addRequest.AllowIndexConflicts = plan.AllowIndexConflicts.ValueBoolPointer()
 	}
 	return nil
 }

@@ -294,90 +294,71 @@ func jdbcBasedAccessLogPublisherSchema(ctx context.Context, req resource.SchemaR
 func addOptionalJdbcBasedAccessLogPublisherFields(ctx context.Context, addRequest *client.AddJdbcBasedAccessLogPublisherRequest, plan jdbcBasedAccessLogPublisherResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogTableName) {
-		stringVal := plan.LogTableName.ValueString()
-		addRequest.LogTableName = &stringVal
+		addRequest.LogTableName = plan.LogTableName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
 		addRequest.QueueSize = &intVal
 	}
 	if internaltypes.IsDefined(plan.LogConnects) {
-		boolVal := plan.LogConnects.ValueBool()
-		addRequest.LogConnects = &boolVal
+		addRequest.LogConnects = plan.LogConnects.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogDisconnects) {
-		boolVal := plan.LogDisconnects.ValueBool()
-		addRequest.LogDisconnects = &boolVal
+		addRequest.LogDisconnects = plan.LogDisconnects.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogSecurityNegotiation) {
-		boolVal := plan.LogSecurityNegotiation.ValueBool()
-		addRequest.LogSecurityNegotiation = &boolVal
+		addRequest.LogSecurityNegotiation = plan.LogSecurityNegotiation.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogClientCertificates) {
-		boolVal := plan.LogClientCertificates.ValueBool()
-		addRequest.LogClientCertificates = &boolVal
+		addRequest.LogClientCertificates = plan.LogClientCertificates.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogRequests) {
-		boolVal := plan.LogRequests.ValueBool()
-		addRequest.LogRequests = &boolVal
+		addRequest.LogRequests = plan.LogRequests.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogResults) {
-		boolVal := plan.LogResults.ValueBool()
-		addRequest.LogResults = &boolVal
+		addRequest.LogResults = plan.LogResults.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogSearchEntries) {
-		boolVal := plan.LogSearchEntries.ValueBool()
-		addRequest.LogSearchEntries = &boolVal
+		addRequest.LogSearchEntries = plan.LogSearchEntries.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogSearchReferences) {
-		boolVal := plan.LogSearchReferences.ValueBool()
-		addRequest.LogSearchReferences = &boolVal
+		addRequest.LogSearchReferences = plan.LogSearchReferences.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogIntermediateResponses) {
-		boolVal := plan.LogIntermediateResponses.ValueBool()
-		addRequest.LogIntermediateResponses = &boolVal
+		addRequest.LogIntermediateResponses = plan.LogIntermediateResponses.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SuppressInternalOperations) {
-		boolVal := plan.SuppressInternalOperations.ValueBool()
-		addRequest.SuppressInternalOperations = &boolVal
+		addRequest.SuppressInternalOperations = plan.SuppressInternalOperations.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SuppressReplicationOperations) {
-		boolVal := plan.SuppressReplicationOperations.ValueBool()
-		addRequest.SuppressReplicationOperations = &boolVal
+		addRequest.SuppressReplicationOperations = plan.SuppressReplicationOperations.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.CorrelateRequestsAndResults) {
-		boolVal := plan.CorrelateRequestsAndResults.ValueBool()
-		addRequest.CorrelateRequestsAndResults = &boolVal
+		addRequest.CorrelateRequestsAndResults = plan.CorrelateRequestsAndResults.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
-		stringVal := plan.ConnectionCriteria.ValueString()
-		addRequest.ConnectionCriteria = &stringVal
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ResultCriteria) {
-		stringVal := plan.ResultCriteria.ValueString()
-		addRequest.ResultCriteria = &stringVal
+		addRequest.ResultCriteria = plan.ResultCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchEntryCriteria) {
-		stringVal := plan.SearchEntryCriteria.ValueString()
-		addRequest.SearchEntryCriteria = &stringVal
+		addRequest.SearchEntryCriteria = plan.SearchEntryCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchReferenceCriteria) {
-		stringVal := plan.SearchReferenceCriteria.ValueString()
-		addRequest.SearchReferenceCriteria = &stringVal
+		addRequest.SearchReferenceCriteria = plan.SearchReferenceCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LoggingErrorBehavior) {

@@ -328,8 +328,7 @@ func fileBasedDebugLogPublisherSchema(ctx context.Context, req resource.SchemaRe
 func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest *client.AddFileBasedDebugLogPublisherRequest, plan fileBasedDebugLogPublisherResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFilePermissions) {
-		stringVal := plan.LogFilePermissions.ValueString()
-		addRequest.LogFilePermissions = &stringVal
+		addRequest.LogFilePermissions = plan.LogFilePermissions.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RotationPolicy) {
 		var slice []string
@@ -355,34 +354,27 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 		addRequest.CompressionMechanism = compressionMechanism
 	}
 	if internaltypes.IsDefined(plan.SignLog) {
-		boolVal := plan.SignLog.ValueBool()
-		addRequest.SignLog = &boolVal
+		addRequest.SignLog = plan.SignLog.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EncryptLog) {
-		boolVal := plan.EncryptLog.ValueBool()
-		addRequest.EncryptLog = &boolVal
+		addRequest.EncryptLog = plan.EncryptLog.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EncryptionSettingsDefinitionID) {
-		stringVal := plan.EncryptionSettingsDefinitionID.ValueString()
-		addRequest.EncryptionSettingsDefinitionID = &stringVal
+		addRequest.EncryptionSettingsDefinitionID = plan.EncryptionSettingsDefinitionID.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Append) {
-		boolVal := plan.Append.ValueBool()
-		addRequest.Append = &boolVal
+		addRequest.Append = plan.Append.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.Asynchronous) {
-		boolVal := plan.Asynchronous.ValueBool()
-		addRequest.Asynchronous = &boolVal
+		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
-		boolVal := plan.AutoFlush.ValueBool()
-		addRequest.AutoFlush = &boolVal
+		addRequest.AutoFlush = plan.AutoFlush.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BufferSize) {
-		stringVal := plan.BufferSize.ValueString()
-		addRequest.BufferSize = &stringVal
+		addRequest.BufferSize = plan.BufferSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
@@ -390,8 +382,7 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TimeInterval) {
-		stringVal := plan.TimeInterval.ValueString()
-		addRequest.TimeInterval = &stringVal
+		addRequest.TimeInterval = plan.TimeInterval.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TimestampPrecision) {
@@ -423,16 +414,13 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 		addRequest.DefaultDebugCategory = enumSlice
 	}
 	if internaltypes.IsDefined(plan.DefaultOmitMethodEntryArguments) {
-		boolVal := plan.DefaultOmitMethodEntryArguments.ValueBool()
-		addRequest.DefaultOmitMethodEntryArguments = &boolVal
+		addRequest.DefaultOmitMethodEntryArguments = plan.DefaultOmitMethodEntryArguments.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DefaultOmitMethodReturnValue) {
-		boolVal := plan.DefaultOmitMethodReturnValue.ValueBool()
-		addRequest.DefaultOmitMethodReturnValue = &boolVal
+		addRequest.DefaultOmitMethodReturnValue = plan.DefaultOmitMethodReturnValue.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DefaultIncludeThrowableCause) {
-		boolVal := plan.DefaultIncludeThrowableCause.ValueBool()
-		addRequest.DefaultIncludeThrowableCause = &boolVal
+		addRequest.DefaultIncludeThrowableCause = plan.DefaultIncludeThrowableCause.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DefaultThrowableStackFrames) {
 		intVal := int32(plan.DefaultThrowableStackFrames.ValueInt64())
@@ -440,8 +428,7 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LoggingErrorBehavior) {

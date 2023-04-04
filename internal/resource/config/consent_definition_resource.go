@@ -140,8 +140,7 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 func addOptionalConsentDefinitionFields(ctx context.Context, addRequest *client.AddConsentDefinitionRequest, plan consentDefinitionResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DisplayName) {
-		stringVal := plan.DisplayName.ValueString()
-		addRequest.DisplayName = &stringVal
+		addRequest.DisplayName = plan.DisplayName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Parameter) {
 		var slice []string
@@ -150,8 +149,7 @@ func addOptionalConsentDefinitionFields(ctx context.Context, addRequest *client.
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

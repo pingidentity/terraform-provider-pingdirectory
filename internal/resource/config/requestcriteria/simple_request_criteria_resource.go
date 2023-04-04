@@ -418,8 +418,7 @@ func addOptionalSimpleRequestCriteriaFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
-		stringVal := plan.ConnectionCriteria.ValueString()
-		addRequest.ConnectionCriteria = &stringVal
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AllIncludedRequestControl) {
 		var slice []string
@@ -567,8 +566,7 @@ func addOptionalSimpleRequestCriteriaFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

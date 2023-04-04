@@ -207,22 +207,18 @@ func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *cli
 		addRequest.BaseDN = slice
 	}
 	if internaltypes.IsDefined(plan.PreventConflictsWithSoftDeletedEntries) {
-		boolVal := plan.PreventConflictsWithSoftDeletedEntries.ValueBool()
-		addRequest.PreventConflictsWithSoftDeletedEntries = &boolVal
+		addRequest.PreventConflictsWithSoftDeletedEntries = plan.PreventConflictsWithSoftDeletedEntries.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Filter) {
-		stringVal := plan.Filter.ValueString()
-		addRequest.Filter = &stringVal
+		addRequest.Filter = plan.Filter.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	return nil
 }

@@ -389,25 +389,21 @@ func addOptionalSyslogJsonAuditLogPublisherFields(ctx context.Context, addReques
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SyslogMessageHostName) {
-		stringVal := plan.SyslogMessageHostName.ValueString()
-		addRequest.SyslogMessageHostName = &stringVal
+		addRequest.SyslogMessageHostName = plan.SyslogMessageHostName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SyslogMessageApplicationName) {
-		stringVal := plan.SyslogMessageApplicationName.ValueString()
-		addRequest.SyslogMessageApplicationName = &stringVal
+		addRequest.SyslogMessageApplicationName = plan.SyslogMessageApplicationName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
 		intVal := int32(plan.QueueSize.ValueInt64())
 		addRequest.QueueSize = &intVal
 	}
 	if internaltypes.IsDefined(plan.WriteMultiLineMessages) {
-		boolVal := plan.WriteMultiLineMessages.ValueBool()
-		addRequest.WriteMultiLineMessages = &boolVal
+		addRequest.WriteMultiLineMessages = plan.WriteMultiLineMessages.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.UseReversibleForm) {
-		boolVal := plan.UseReversibleForm.ValueBool()
-		addRequest.UseReversibleForm = &boolVal
+		addRequest.UseReversibleForm = plan.UseReversibleForm.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SoftDeleteEntryAuditBehavior) {
@@ -418,12 +414,10 @@ func addOptionalSyslogJsonAuditLogPublisherFields(ctx context.Context, addReques
 		addRequest.SoftDeleteEntryAuditBehavior = softDeleteEntryAuditBehavior
 	}
 	if internaltypes.IsDefined(plan.IncludeOperationPurposeRequestControl) {
-		boolVal := plan.IncludeOperationPurposeRequestControl.ValueBool()
-		addRequest.IncludeOperationPurposeRequestControl = &boolVal
+		addRequest.IncludeOperationPurposeRequestControl = plan.IncludeOperationPurposeRequestControl.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeIntermediateClientRequestControl) {
-		boolVal := plan.IncludeIntermediateClientRequestControl.ValueBool()
-		addRequest.IncludeIntermediateClientRequestControl = &boolVal
+		addRequest.IncludeIntermediateClientRequestControl = plan.IncludeIntermediateClientRequestControl.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.ObscureAttribute) {
 		var slice []string
@@ -436,72 +430,56 @@ func addOptionalSyslogJsonAuditLogPublisherFields(ctx context.Context, addReques
 		addRequest.ExcludeAttribute = slice
 	}
 	if internaltypes.IsDefined(plan.SuppressInternalOperations) {
-		boolVal := plan.SuppressInternalOperations.ValueBool()
-		addRequest.SuppressInternalOperations = &boolVal
+		addRequest.SuppressInternalOperations = plan.SuppressInternalOperations.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeProductName) {
-		boolVal := plan.IncludeProductName.ValueBool()
-		addRequest.IncludeProductName = &boolVal
+		addRequest.IncludeProductName = plan.IncludeProductName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeInstanceName) {
-		boolVal := plan.IncludeInstanceName.ValueBool()
-		addRequest.IncludeInstanceName = &boolVal
+		addRequest.IncludeInstanceName = plan.IncludeInstanceName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeStartupID) {
-		boolVal := plan.IncludeStartupID.ValueBool()
-		addRequest.IncludeStartupID = &boolVal
+		addRequest.IncludeStartupID = plan.IncludeStartupID.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeThreadID) {
-		boolVal := plan.IncludeThreadID.ValueBool()
-		addRequest.IncludeThreadID = &boolVal
+		addRequest.IncludeThreadID = plan.IncludeThreadID.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeRequesterDN) {
-		boolVal := plan.IncludeRequesterDN.ValueBool()
-		addRequest.IncludeRequesterDN = &boolVal
+		addRequest.IncludeRequesterDN = plan.IncludeRequesterDN.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeRequesterIPAddress) {
-		boolVal := plan.IncludeRequesterIPAddress.ValueBool()
-		addRequest.IncludeRequesterIPAddress = &boolVal
+		addRequest.IncludeRequesterIPAddress = plan.IncludeRequesterIPAddress.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeRequestControls) {
-		boolVal := plan.IncludeRequestControls.ValueBool()
-		addRequest.IncludeRequestControls = &boolVal
+		addRequest.IncludeRequestControls = plan.IncludeRequestControls.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeResponseControls) {
-		boolVal := plan.IncludeResponseControls.ValueBool()
-		addRequest.IncludeResponseControls = &boolVal
+		addRequest.IncludeResponseControls = plan.IncludeResponseControls.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeReplicationChangeID) {
-		boolVal := plan.IncludeReplicationChangeID.ValueBool()
-		addRequest.IncludeReplicationChangeID = &boolVal
+		addRequest.IncludeReplicationChangeID = plan.IncludeReplicationChangeID.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LogSecurityNegotiation) {
-		boolVal := plan.LogSecurityNegotiation.ValueBool()
-		addRequest.LogSecurityNegotiation = &boolVal
+		addRequest.LogSecurityNegotiation = plan.LogSecurityNegotiation.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SuppressReplicationOperations) {
-		boolVal := plan.SuppressReplicationOperations.ValueBool()
-		addRequest.SuppressReplicationOperations = &boolVal
+		addRequest.SuppressReplicationOperations = plan.SuppressReplicationOperations.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
-		stringVal := plan.ConnectionCriteria.ValueString()
-		addRequest.ConnectionCriteria = &stringVal
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ResultCriteria) {
-		stringVal := plan.ResultCriteria.ValueString()
-		addRequest.ResultCriteria = &stringVal
+		addRequest.ResultCriteria = plan.ResultCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LoggingErrorBehavior) {

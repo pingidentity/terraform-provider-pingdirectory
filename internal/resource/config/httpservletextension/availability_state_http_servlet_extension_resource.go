@@ -189,23 +189,19 @@ func addOptionalAvailabilityStateHttpServletExtensionFields(ctx context.Context,
 		addRequest.OverrideStatusCode = &intVal
 	}
 	if internaltypes.IsDefined(plan.IncludeResponseBody) {
-		boolVal := plan.IncludeResponseBody.ValueBool()
-		addRequest.IncludeResponseBody = &boolVal
+		addRequest.IncludeResponseBody = plan.IncludeResponseBody.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AdditionalResponseContents) {
-		stringVal := plan.AdditionalResponseContents.ValueString()
-		addRequest.AdditionalResponseContents = &stringVal
+		addRequest.AdditionalResponseContents = plan.AdditionalResponseContents.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CrossOriginPolicy) {
-		stringVal := plan.CrossOriginPolicy.ValueString()
-		addRequest.CrossOriginPolicy = &stringVal
+		addRequest.CrossOriginPolicy = plan.CrossOriginPolicy.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ResponseHeader) {
 		var slice []string
@@ -214,8 +210,7 @@ func addOptionalAvailabilityStateHttpServletExtensionFields(ctx context.Context,
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelationIDResponseHeader) {
-		stringVal := plan.CorrelationIDResponseHeader.ValueString()
-		addRequest.CorrelationIDResponseHeader = &stringVal
+		addRequest.CorrelationIDResponseHeader = plan.CorrelationIDResponseHeader.ValueStringPointer()
 	}
 }
 

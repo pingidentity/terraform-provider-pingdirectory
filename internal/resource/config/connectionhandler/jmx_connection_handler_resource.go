@@ -171,23 +171,19 @@ func jmxConnectionHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 // Add optional fields to create request
 func addOptionalJmxConnectionHandlerFields(ctx context.Context, addRequest *client.AddJmxConnectionHandlerRequest, plan jmxConnectionHandlerResourceModel) {
 	if internaltypes.IsDefined(plan.UseSSL) {
-		boolVal := plan.UseSSL.ValueBool()
-		addRequest.UseSSL = &boolVal
+		addRequest.UseSSL = plan.UseSSL.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SslCertNickname) {
-		stringVal := plan.SslCertNickname.ValueString()
-		addRequest.SslCertNickname = &stringVal
+		addRequest.SslCertNickname = plan.SslCertNickname.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyManagerProvider) {
-		stringVal := plan.KeyManagerProvider.ValueString()
-		addRequest.KeyManagerProvider = &stringVal
+		addRequest.KeyManagerProvider = plan.KeyManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowedClient) {
 		var slice []string

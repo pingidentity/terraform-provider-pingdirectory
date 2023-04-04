@@ -163,17 +163,14 @@ func addOptionalThirdPartyPluginFields(ctx context.Context, addRequest *client.A
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 }
 

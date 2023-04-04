@@ -168,23 +168,19 @@ func addOptionalSyslogExternalServerFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectTimeout) {
-		stringVal := plan.ConnectTimeout.ValueString()
-		addRequest.ConnectTimeout = &stringVal
+		addRequest.ConnectTimeout = plan.ConnectTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MaxConnectionAge) {
-		stringVal := plan.MaxConnectionAge.ValueString()
-		addRequest.MaxConnectionAge = &stringVal
+		addRequest.MaxConnectionAge = plan.MaxConnectionAge.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
-		stringVal := plan.TrustManagerProvider.ValueString()
-		addRequest.TrustManagerProvider = &stringVal
+		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 }
 

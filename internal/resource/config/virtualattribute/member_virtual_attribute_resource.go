@@ -226,8 +226,7 @@ func addOptionalMemberVirtualAttributeFields(ctx context.Context, addRequest *cl
 		addRequest.ConflictBehavior = conflictBehavior
 	}
 	if internaltypes.IsDefined(plan.AllowRetrievingMembership) {
-		boolVal := plan.AllowRetrievingMembership.ValueBool()
-		addRequest.AllowRetrievingMembership = &boolVal
+		addRequest.AllowRetrievingMembership = plan.AllowRetrievingMembership.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.Filter) {
 		var slice []string
@@ -235,13 +234,11 @@ func addOptionalMemberVirtualAttributeFields(ctx context.Context, addRequest *cl
 		addRequest.Filter = slice
 	}
 	if internaltypes.IsDefined(plan.AllowIndexConflicts) {
-		boolVal := plan.AllowIndexConflicts.ValueBool()
-		addRequest.AllowIndexConflicts = &boolVal
+		addRequest.AllowIndexConflicts = plan.AllowIndexConflicts.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -259,8 +256,7 @@ func addOptionalMemberVirtualAttributeFields(ctx context.Context, addRequest *cl
 		addRequest.ClientConnectionPolicy = slice
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())

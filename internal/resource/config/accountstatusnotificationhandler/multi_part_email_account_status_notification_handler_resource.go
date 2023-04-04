@@ -303,107 +303,86 @@ func multiPartEmailAccountStatusNotificationHandlerSchema(ctx context.Context, r
 func addOptionalMultiPartEmailAccountStatusNotificationHandlerFields(ctx context.Context, addRequest *client.AddMultiPartEmailAccountStatusNotificationHandlerRequest, plan multiPartEmailAccountStatusNotificationHandlerResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountTemporarilyFailureLockedMessageTemplate) {
-		stringVal := plan.AccountTemporarilyFailureLockedMessageTemplate.ValueString()
-		addRequest.AccountTemporarilyFailureLockedMessageTemplate = &stringVal
+		addRequest.AccountTemporarilyFailureLockedMessageTemplate = plan.AccountTemporarilyFailureLockedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountPermanentlyFailureLockedMessageTemplate) {
-		stringVal := plan.AccountPermanentlyFailureLockedMessageTemplate.ValueString()
-		addRequest.AccountPermanentlyFailureLockedMessageTemplate = &stringVal
+		addRequest.AccountPermanentlyFailureLockedMessageTemplate = plan.AccountPermanentlyFailureLockedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountIdleLockedMessageTemplate) {
-		stringVal := plan.AccountIdleLockedMessageTemplate.ValueString()
-		addRequest.AccountIdleLockedMessageTemplate = &stringVal
+		addRequest.AccountIdleLockedMessageTemplate = plan.AccountIdleLockedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountResetLockedMessageTemplate) {
-		stringVal := plan.AccountResetLockedMessageTemplate.ValueString()
-		addRequest.AccountResetLockedMessageTemplate = &stringVal
+		addRequest.AccountResetLockedMessageTemplate = plan.AccountResetLockedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUnlockedMessageTemplate) {
-		stringVal := plan.AccountUnlockedMessageTemplate.ValueString()
-		addRequest.AccountUnlockedMessageTemplate = &stringVal
+		addRequest.AccountUnlockedMessageTemplate = plan.AccountUnlockedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountDisabledMessageTemplate) {
-		stringVal := plan.AccountDisabledMessageTemplate.ValueString()
-		addRequest.AccountDisabledMessageTemplate = &stringVal
+		addRequest.AccountDisabledMessageTemplate = plan.AccountDisabledMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountEnabledMessageTemplate) {
-		stringVal := plan.AccountEnabledMessageTemplate.ValueString()
-		addRequest.AccountEnabledMessageTemplate = &stringVal
+		addRequest.AccountEnabledMessageTemplate = plan.AccountEnabledMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountNotYetActiveMessageTemplate) {
-		stringVal := plan.AccountNotYetActiveMessageTemplate.ValueString()
-		addRequest.AccountNotYetActiveMessageTemplate = &stringVal
+		addRequest.AccountNotYetActiveMessageTemplate = plan.AccountNotYetActiveMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountExpiredMessageTemplate) {
-		stringVal := plan.AccountExpiredMessageTemplate.ValueString()
-		addRequest.AccountExpiredMessageTemplate = &stringVal
+		addRequest.AccountExpiredMessageTemplate = plan.AccountExpiredMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordExpiredMessageTemplate) {
-		stringVal := plan.PasswordExpiredMessageTemplate.ValueString()
-		addRequest.PasswordExpiredMessageTemplate = &stringVal
+		addRequest.PasswordExpiredMessageTemplate = plan.PasswordExpiredMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordExpiringMessageTemplate) {
-		stringVal := plan.PasswordExpiringMessageTemplate.ValueString()
-		addRequest.PasswordExpiringMessageTemplate = &stringVal
+		addRequest.PasswordExpiringMessageTemplate = plan.PasswordExpiringMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordResetMessageTemplate) {
-		stringVal := plan.PasswordResetMessageTemplate.ValueString()
-		addRequest.PasswordResetMessageTemplate = &stringVal
+		addRequest.PasswordResetMessageTemplate = plan.PasswordResetMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordChangedMessageTemplate) {
-		stringVal := plan.PasswordChangedMessageTemplate.ValueString()
-		addRequest.PasswordChangedMessageTemplate = &stringVal
+		addRequest.PasswordChangedMessageTemplate = plan.PasswordChangedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreatedMessageTemplate) {
-		stringVal := plan.AccountCreatedMessageTemplate.ValueString()
-		addRequest.AccountCreatedMessageTemplate = &stringVal
+		addRequest.AccountCreatedMessageTemplate = plan.AccountCreatedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdatedMessageTemplate) {
-		stringVal := plan.AccountUpdatedMessageTemplate.ValueString()
-		addRequest.AccountUpdatedMessageTemplate = &stringVal
+		addRequest.AccountUpdatedMessageTemplate = plan.AccountUpdatedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BindPasswordFailedValidationMessageTemplate) {
-		stringVal := plan.BindPasswordFailedValidationMessageTemplate.ValueString()
-		addRequest.BindPasswordFailedValidationMessageTemplate = &stringVal
+		addRequest.BindPasswordFailedValidationMessageTemplate = plan.BindPasswordFailedValidationMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MustChangePasswordMessageTemplate) {
-		stringVal := plan.MustChangePasswordMessageTemplate.ValueString()
-		addRequest.MustChangePasswordMessageTemplate = &stringVal
+		addRequest.MustChangePasswordMessageTemplate = plan.MustChangePasswordMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Asynchronous) {
-		boolVal := plan.Asynchronous.ValueBool()
-		addRequest.Asynchronous = &boolVal
+		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
-		stringVal := plan.AccountCreationNotificationRequestCriteria.ValueString()
-		addRequest.AccountCreationNotificationRequestCriteria = &stringVal
+		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
-		stringVal := plan.AccountUpdateNotificationRequestCriteria.ValueString()
-		addRequest.AccountUpdateNotificationRequestCriteria = &stringVal
+		addRequest.AccountUpdateNotificationRequestCriteria = plan.AccountUpdateNotificationRequestCriteria.ValueStringPointer()
 	}
 }
 

@@ -192,18 +192,15 @@ func jdbcExternalServerSchema(ctx context.Context, req resource.SchemaRequest, r
 func addOptionalJdbcExternalServerFields(ctx context.Context, addRequest *client.AddJdbcExternalServerRequest, plan jdbcExternalServerResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.JdbcDriverURL) {
-		stringVal := plan.JdbcDriverURL.ValueString()
-		addRequest.JdbcDriverURL = &stringVal
+		addRequest.JdbcDriverURL = plan.JdbcDriverURL.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DatabaseName) {
-		stringVal := plan.DatabaseName.ValueString()
-		addRequest.DatabaseName = &stringVal
+		addRequest.DatabaseName = plan.DatabaseName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ServerHostName) {
-		stringVal := plan.ServerHostName.ValueString()
-		addRequest.ServerHostName = &stringVal
+		addRequest.ServerHostName = plan.ServerHostName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ServerPort) {
 		intVal := int32(plan.ServerPort.ValueInt64())
@@ -211,28 +208,23 @@ func addOptionalJdbcExternalServerFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UserName) {
-		stringVal := plan.UserName.ValueString()
-		addRequest.UserName = &stringVal
+		addRequest.UserName = plan.UserName.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Password) {
-		stringVal := plan.Password.ValueString()
-		addRequest.Password = &stringVal
+		addRequest.Password = plan.Password.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PassphraseProvider) {
-		stringVal := plan.PassphraseProvider.ValueString()
-		addRequest.PassphraseProvider = &stringVal
+		addRequest.PassphraseProvider = plan.PassphraseProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ValidationQuery) {
-		stringVal := plan.ValidationQuery.ValueString()
-		addRequest.ValidationQuery = &stringVal
+		addRequest.ValidationQuery = plan.ValidationQuery.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ValidationQueryTimeout) {
-		stringVal := plan.ValidationQueryTimeout.ValueString()
-		addRequest.ValidationQueryTimeout = &stringVal
+		addRequest.ValidationQueryTimeout = plan.ValidationQueryTimeout.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.JdbcConnectionProperties) {
 		var slice []string
@@ -249,8 +241,7 @@ func addOptionalJdbcExternalServerFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

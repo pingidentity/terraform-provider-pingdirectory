@@ -242,22 +242,18 @@ func addOptionalMirrorVirtualAttributeFields(ctx context.Context, addRequest *cl
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SourceEntryDNAttribute) {
-		stringVal := plan.SourceEntryDNAttribute.ValueString()
-		addRequest.SourceEntryDNAttribute = &stringVal
+		addRequest.SourceEntryDNAttribute = plan.SourceEntryDNAttribute.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SourceEntryDNMap) {
-		stringVal := plan.SourceEntryDNMap.ValueString()
-		addRequest.SourceEntryDNMap = &stringVal
+		addRequest.SourceEntryDNMap = plan.SourceEntryDNMap.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BypassAccessControlForSearches) {
-		boolVal := plan.BypassAccessControlForSearches.ValueBool()
-		addRequest.BypassAccessControlForSearches = &boolVal
+		addRequest.BypassAccessControlForSearches = plan.BypassAccessControlForSearches.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -280,8 +276,7 @@ func addOptionalMirrorVirtualAttributeFields(ctx context.Context, addRequest *cl
 		addRequest.ClientConnectionPolicy = slice
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
@@ -296,8 +291,7 @@ func addOptionalMirrorVirtualAttributeFields(ctx context.Context, addRequest *cl
 		addRequest.MultipleVirtualAttributeMergeBehavior = multipleVirtualAttributeMergeBehavior
 	}
 	if internaltypes.IsDefined(plan.AllowIndexConflicts) {
-		boolVal := plan.AllowIndexConflicts.ValueBool()
-		addRequest.AllowIndexConflicts = &boolVal
+		addRequest.AllowIndexConflicts = plan.AllowIndexConflicts.ValueBoolPointer()
 	}
 	return nil
 }

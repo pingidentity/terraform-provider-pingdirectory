@@ -171,22 +171,18 @@ func addOptionalGroovyScriptedAccountStatusNotificationHandlerFields(ctx context
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.Asynchronous) {
-		boolVal := plan.Asynchronous.ValueBool()
-		addRequest.Asynchronous = &boolVal
+		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
-		stringVal := plan.AccountCreationNotificationRequestCriteria.ValueString()
-		addRequest.AccountCreationNotificationRequestCriteria = &stringVal
+		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
-		stringVal := plan.AccountUpdateNotificationRequestCriteria.ValueString()
-		addRequest.AccountUpdateNotificationRequestCriteria = &stringVal
+		addRequest.AccountUpdateNotificationRequestCriteria = plan.AccountUpdateNotificationRequestCriteria.ValueStringPointer()
 	}
 }
 

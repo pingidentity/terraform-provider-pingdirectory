@@ -170,21 +170,18 @@ func addOptionalSubOperationTimingPluginFields(ctx context.Context, addRequest *
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.NumMostExpensivePhasesShown) {
 		intVal := int32(plan.NumMostExpensivePhasesShown.ValueInt64())
 		addRequest.NumMostExpensivePhasesShown = &intVal
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

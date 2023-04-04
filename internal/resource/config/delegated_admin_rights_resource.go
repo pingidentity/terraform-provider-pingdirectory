@@ -129,18 +129,15 @@ func delegatedAdminRightsSchema(ctx context.Context, req resource.SchemaRequest,
 func addOptionalDelegatedAdminRightsFields(ctx context.Context, addRequest *client.AddDelegatedAdminRightsRequest, plan delegatedAdminRightsResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AdminUserDN) {
-		stringVal := plan.AdminUserDN.ValueString()
-		addRequest.AdminUserDN = &stringVal
+		addRequest.AdminUserDN = plan.AdminUserDN.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AdminGroupDN) {
-		stringVal := plan.AdminGroupDN.ValueString()
-		addRequest.AdminGroupDN = &stringVal
+		addRequest.AdminGroupDN = plan.AdminGroupDN.ValueStringPointer()
 	}
 }
 

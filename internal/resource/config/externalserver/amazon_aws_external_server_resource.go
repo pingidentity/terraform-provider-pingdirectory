@@ -181,8 +181,7 @@ func modifyPlanAmazonAwsExternalServer(ctx context.Context, req resource.ModifyP
 func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *client.AddAmazonAwsExternalServerRequest, plan amazonAwsExternalServerResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
-		stringVal := plan.HttpProxyExternalServer.ValueString()
-		addRequest.HttpProxyExternalServer = &stringVal
+		addRequest.HttpProxyExternalServer = plan.HttpProxyExternalServer.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AuthenticationMethod) {
@@ -194,18 +193,15 @@ func addOptionalAmazonAwsExternalServerFields(ctx context.Context, addRequest *c
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AwsAccessKeyID) {
-		stringVal := plan.AwsAccessKeyID.ValueString()
-		addRequest.AwsAccessKeyID = &stringVal
+		addRequest.AwsAccessKeyID = plan.AwsAccessKeyID.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AwsSecretAccessKey) {
-		stringVal := plan.AwsSecretAccessKey.ValueString()
-		addRequest.AwsSecretAccessKey = &stringVal
+		addRequest.AwsSecretAccessKey = plan.AwsSecretAccessKey.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

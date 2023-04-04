@@ -184,33 +184,27 @@ func addOptionalHttpExternalServerFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyManagerProvider) {
-		stringVal := plan.KeyManagerProvider.ValueString()
-		addRequest.KeyManagerProvider = &stringVal
+		addRequest.KeyManagerProvider = plan.KeyManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustManagerProvider) {
-		stringVal := plan.TrustManagerProvider.ValueString()
-		addRequest.TrustManagerProvider = &stringVal
+		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SslCertNickname) {
-		stringVal := plan.SslCertNickname.ValueString()
-		addRequest.SslCertNickname = &stringVal
+		addRequest.SslCertNickname = plan.SslCertNickname.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectTimeout) {
-		stringVal := plan.ConnectTimeout.ValueString()
-		addRequest.ConnectTimeout = &stringVal
+		addRequest.ConnectTimeout = plan.ConnectTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ResponseTimeout) {
-		stringVal := plan.ResponseTimeout.ValueString()
-		addRequest.ResponseTimeout = &stringVal
+		addRequest.ResponseTimeout = plan.ResponseTimeout.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	return nil
 }

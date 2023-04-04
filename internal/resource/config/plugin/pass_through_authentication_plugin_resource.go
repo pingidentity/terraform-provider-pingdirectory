@@ -274,20 +274,16 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 		addRequest.PluginType = enumSlice
 	}
 	if internaltypes.IsDefined(plan.TryLocalBind) {
-		boolVal := plan.TryLocalBind.ValueBool()
-		addRequest.TryLocalBind = &boolVal
+		addRequest.TryLocalBind = plan.TryLocalBind.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.OverrideLocalPassword) {
-		boolVal := plan.OverrideLocalPassword.ValueBool()
-		addRequest.OverrideLocalPassword = &boolVal
+		addRequest.OverrideLocalPassword = plan.OverrideLocalPassword.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.UpdateLocalPassword) {
-		boolVal := plan.UpdateLocalPassword.ValueBool()
-		addRequest.UpdateLocalPassword = &boolVal
+		addRequest.UpdateLocalPassword = plan.UpdateLocalPassword.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AllowLaxPassThroughAuthenticationPasswords) {
-		boolVal := plan.AllowLaxPassThroughAuthenticationPasswords.ValueBool()
-		addRequest.AllowLaxPassThroughAuthenticationPasswords = &boolVal
+		addRequest.AllowLaxPassThroughAuthenticationPasswords = plan.AllowLaxPassThroughAuthenticationPasswords.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ServerAccessMode) {
@@ -304,13 +300,11 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
-		stringVal := plan.ConnectionCriteria.ValueString()
-		addRequest.ConnectionCriteria = &stringVal
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
-		stringVal := plan.RequestCriteria.ValueString()
-		addRequest.RequestCriteria = &stringVal
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DnMap) {
 		var slice []string
@@ -319,18 +313,15 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BindDNPattern) {
-		stringVal := plan.BindDNPattern.ValueString()
-		addRequest.BindDNPattern = &stringVal
+		addRequest.BindDNPattern = plan.BindDNPattern.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchBaseDN) {
-		stringVal := plan.SearchBaseDN.ValueString()
-		addRequest.SearchBaseDN = &stringVal
+		addRequest.SearchBaseDN = plan.SearchBaseDN.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SearchFilterPattern) {
-		stringVal := plan.SearchFilterPattern.ValueString()
-		addRequest.SearchFilterPattern = &stringVal
+		addRequest.SearchFilterPattern = plan.SearchFilterPattern.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
 		intVal := int32(plan.InitialConnections.ValueInt64())
@@ -342,12 +333,10 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
-		boolVal := plan.InvokeForInternalOperations.ValueBool()
-		addRequest.InvokeForInternalOperations = &boolVal
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
 	}
 	return nil
 }

@@ -272,13 +272,11 @@ func equalityJoinVirtualAttributeSchema(ctx context.Context, req resource.Schema
 // Add optional fields to create request
 func addOptionalEqualityJoinVirtualAttributeFields(ctx context.Context, addRequest *client.AddEqualityJoinVirtualAttributeRequest, plan equalityJoinVirtualAttributeResourceModel) error {
 	if internaltypes.IsDefined(plan.JoinMatchAll) {
-		boolVal := plan.JoinMatchAll.ValueBool()
-		addRequest.JoinMatchAll = &boolVal
+		addRequest.JoinMatchAll = plan.JoinMatchAll.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.JoinCustomBaseDN) {
-		stringVal := plan.JoinCustomBaseDN.ValueString()
-		addRequest.JoinCustomBaseDN = &stringVal
+		addRequest.JoinCustomBaseDN = plan.JoinCustomBaseDN.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.JoinScope) {
@@ -294,8 +292,7 @@ func addOptionalEqualityJoinVirtualAttributeFields(ctx context.Context, addReque
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.JoinFilter) {
-		stringVal := plan.JoinFilter.ValueString()
-		addRequest.JoinFilter = &stringVal
+		addRequest.JoinFilter = plan.JoinFilter.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.JoinAttribute) {
 		var slice []string
@@ -304,8 +301,7 @@ func addOptionalEqualityJoinVirtualAttributeFields(ctx context.Context, addReque
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BaseDN) {
 		var slice []string
@@ -336,8 +332,7 @@ func addOptionalEqualityJoinVirtualAttributeFields(ctx context.Context, addReque
 		addRequest.ConflictBehavior = conflictBehavior
 	}
 	if internaltypes.IsDefined(plan.RequireExplicitRequestByName) {
-		boolVal := plan.RequireExplicitRequestByName.ValueBool()
-		addRequest.RequireExplicitRequestByName = &boolVal
+		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
 		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
@@ -352,8 +347,7 @@ func addOptionalEqualityJoinVirtualAttributeFields(ctx context.Context, addReque
 		addRequest.MultipleVirtualAttributeMergeBehavior = multipleVirtualAttributeMergeBehavior
 	}
 	if internaltypes.IsDefined(plan.AllowIndexConflicts) {
-		boolVal := plan.AllowIndexConflicts.ValueBool()
-		addRequest.AllowIndexConflicts = &boolVal
+		addRequest.AllowIndexConflicts = plan.AllowIndexConflicts.ValueBoolPointer()
 	}
 	return nil
 }

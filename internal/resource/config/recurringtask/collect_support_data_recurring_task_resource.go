@@ -327,28 +327,22 @@ func collectSupportDataRecurringTaskSchema(ctx context.Context, req resource.Sch
 func addOptionalCollectSupportDataRecurringTaskFields(ctx context.Context, addRequest *client.AddCollectSupportDataRecurringTaskRequest, plan collectSupportDataRecurringTaskResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EncryptionPassphraseFile) {
-		stringVal := plan.EncryptionPassphraseFile.ValueString()
-		addRequest.EncryptionPassphraseFile = &stringVal
+		addRequest.EncryptionPassphraseFile = plan.EncryptionPassphraseFile.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeExpensiveData) {
-		boolVal := plan.IncludeExpensiveData.ValueBool()
-		addRequest.IncludeExpensiveData = &boolVal
+		addRequest.IncludeExpensiveData = plan.IncludeExpensiveData.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeReplicationStateDump) {
-		boolVal := plan.IncludeReplicationStateDump.ValueBool()
-		addRequest.IncludeReplicationStateDump = &boolVal
+		addRequest.IncludeReplicationStateDump = plan.IncludeReplicationStateDump.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeBinaryFiles) {
-		boolVal := plan.IncludeBinaryFiles.ValueBool()
-		addRequest.IncludeBinaryFiles = &boolVal
+		addRequest.IncludeBinaryFiles = plan.IncludeBinaryFiles.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeExtensionSource) {
-		boolVal := plan.IncludeExtensionSource.ValueBool()
-		addRequest.IncludeExtensionSource = &boolVal
+		addRequest.IncludeExtensionSource = plan.IncludeExtensionSource.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.UseSequentialMode) {
-		boolVal := plan.UseSequentialMode.ValueBool()
-		addRequest.UseSequentialMode = &boolVal
+		addRequest.UseSequentialMode = plan.UseSequentialMode.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SecurityLevel) {
@@ -372,23 +366,19 @@ func addOptionalCollectSupportDataRecurringTaskFields(ctx context.Context, addRe
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogDuration) {
-		stringVal := plan.LogDuration.ValueString()
-		addRequest.LogDuration = &stringVal
+		addRequest.LogDuration = plan.LogDuration.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFileHeadCollectionSize) {
-		stringVal := plan.LogFileHeadCollectionSize.ValueString()
-		addRequest.LogFileHeadCollectionSize = &stringVal
+		addRequest.LogFileHeadCollectionSize = plan.LogFileHeadCollectionSize.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFileTailCollectionSize) {
-		stringVal := plan.LogFileTailCollectionSize.ValueString()
-		addRequest.LogFileTailCollectionSize = &stringVal
+		addRequest.LogFileTailCollectionSize = plan.LogFileTailCollectionSize.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Comment) {
-		stringVal := plan.Comment.ValueString()
-		addRequest.Comment = &stringVal
+		addRequest.Comment = plan.Comment.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousSupportDataArchiveCount) {
 		intVal := int32(plan.RetainPreviousSupportDataArchiveCount.ValueInt64())
@@ -396,17 +386,14 @@ func addOptionalCollectSupportDataRecurringTaskFields(ctx context.Context, addRe
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousSupportDataArchiveAge) {
-		stringVal := plan.RetainPreviousSupportDataArchiveAge.ValueString()
-		addRequest.RetainPreviousSupportDataArchiveAge = &stringVal
+		addRequest.RetainPreviousSupportDataArchiveAge = plan.RetainPreviousSupportDataArchiveAge.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
-		stringVal := plan.Description.ValueString()
-		addRequest.Description = &stringVal
+		addRequest.Description = plan.Description.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.CancelOnTaskDependencyFailure) {
-		boolVal := plan.CancelOnTaskDependencyFailure.ValueBool()
-		addRequest.CancelOnTaskDependencyFailure = &boolVal
+		addRequest.CancelOnTaskDependencyFailure = plan.CancelOnTaskDependencyFailure.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.EmailOnStart) {
 		var slice []string
@@ -424,16 +411,13 @@ func addOptionalCollectSupportDataRecurringTaskFields(ctx context.Context, addRe
 		addRequest.EmailOnFailure = slice
 	}
 	if internaltypes.IsDefined(plan.AlertOnStart) {
-		boolVal := plan.AlertOnStart.ValueBool()
-		addRequest.AlertOnStart = &boolVal
+		addRequest.AlertOnStart = plan.AlertOnStart.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnSuccess) {
-		boolVal := plan.AlertOnSuccess.ValueBool()
-		addRequest.AlertOnSuccess = &boolVal
+		addRequest.AlertOnSuccess = plan.AlertOnSuccess.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AlertOnFailure) {
-		boolVal := plan.AlertOnFailure.ValueBool()
-		addRequest.AlertOnFailure = &boolVal
+		addRequest.AlertOnFailure = plan.AlertOnFailure.ValueBoolPointer()
 	}
 	return nil
 }
