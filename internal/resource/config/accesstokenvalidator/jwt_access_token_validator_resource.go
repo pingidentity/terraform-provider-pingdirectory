@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -245,6 +246,10 @@ func jwtAccessTokenValidatorSchema(ctx context.Context, req resource.SchemaReque
 // Add config validators
 func (r jwtAccessTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.Implies(
+			path.MatchRoot("jwks_endpoint_path"),
+			path.MatchRoot("authorization_server"),
+		),
 		resourcevalidator.ExactlyOneOf(
 			path.MatchRoot("jwks_endpoint_path"),
 			path.MatchRoot("signing_certificate"),

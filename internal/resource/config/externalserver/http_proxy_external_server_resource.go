@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -154,6 +155,20 @@ func (r *defaultHttpProxyExternalServerResource) ModifyPlan(ctx context.Context,
 func modifyPlanHttpProxyExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 		providerConfig.ProductVersion, resourceName)
+}
+
+// Add config validators
+func (r httpProxyExternalServerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.Implies(
+			path.MatchRoot("basic_authentication_username"),
+			path.MatchRoot("basic_authentication_passphrase_provider"),
+		),
+		configvalidators.Implies(
+			path.MatchRoot("basic_authentication_passphrase_provider"),
+			path.MatchRoot("basic_authentication_username"),
+		),
+	}
 }
 
 // Add optional fields to create request
