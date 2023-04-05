@@ -32,7 +32,7 @@ func (v ImpliesValidator) Description(ctx context.Context) string {
 }
 
 func (v ImpliesValidator) MarkdownDescription(_ context.Context) string {
-	return fmt.Sprintf("If the first attribute is configured, then the second attribute must be configured: %s => %s", v.Condition, v.Implied)
+	return fmt.Sprintf("If the \"%s\" attribute is configured, then the \"%s\" attribute must be configured", v.Condition, v.Implied)
 }
 
 func (v ImpliesValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
