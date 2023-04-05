@@ -329,11 +329,6 @@ func (r ldapMappedScimHttpServletExtensionResource) ConfigValidators(ctx context
 			path.MatchRoot("exclude_ldap_objectclass"),
 			path.MatchRoot("include_ldap_objectclass"),
 		),
-		resourcevalidator.AtLeastOneOf(
-			path.MatchRoot("exclude_ldap_objectclass"),
-			path.MatchRoot("include_ldap_objectclass"),
-			path.MatchRoot("resource_mapping_file"),
-		),
 	}
 }
 
