@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -256,6 +257,24 @@ func passThroughAuthenticationPluginSchema(ctx context.Context, req resource.Sch
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r passThroughAuthenticationPluginResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("bind_dn_pattern"),
+		),
+		resourcevalidator.Conflicting(
+			path.MatchRoot("dn_map"),
+			path.MatchRoot("search_filter_pattern"),
+		),
+		resourcevalidator.Conflicting(
+			path.MatchRoot("search_filter_pattern"),
+			path.MatchRoot("bind_dn_pattern"),
+		),
+	}
 }
 
 // Add optional fields to create request

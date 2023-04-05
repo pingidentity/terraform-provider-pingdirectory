@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -213,6 +214,16 @@ func generateServerProfileRecurringTaskSchema(ctx context.Context, req resource.
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r generateServerProfileRecurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.AtLeastOneOf(
+			path.MatchRoot("retain_previous_profile_count"),
+			path.MatchRoot("retain_previous_profile_age"),
+		),
+	}
 }
 
 // Add optional fields to create request
