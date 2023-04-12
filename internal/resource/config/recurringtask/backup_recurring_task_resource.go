@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -268,6 +269,20 @@ func backupRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, 
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r backupRecurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("included_backend_id"),
+			path.MatchRoot("excluded_backend_id"),
+		),
+		resourcevalidator.Conflicting(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("encryption_passphrase_file"),
+		),
+	}
 }
 
 // Add optional fields to create request

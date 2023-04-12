@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -223,6 +224,17 @@ func delayRecurringTaskSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r delayRecurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.AtLeastOneOf(
+			path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+			path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+			path.MatchRoot("sleep_duration"),
+		),
+	}
 }
 
 // Add optional fields to create request
