@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_delegated_admin_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: "PingDelegatedAdmin"
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Delegated Admin Http Servlet Extension.
 ---
@@ -83,3 +83,4 @@ Import is supported using the following syntax:
 # "delegatedAdminHttpServletExtensionId" should be the id of the Delegated Admin Http Servlet Extension to be imported
 terraform import pingdirectory_default_delegated_admin_http_servlet_extension.myDelegatedAdminHttpServletExtension delegatedAdminHttpServletExtensionId
 ```
+

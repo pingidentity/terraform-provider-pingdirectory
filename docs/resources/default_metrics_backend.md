@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_metrics_backend Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Backend"
 description: |-
   Manages a Metrics Backend.
 ---
@@ -85,3 +85,4 @@ Import is supported using the following syntax:
 # "metricsBackendId" should be the backend_id of the Metrics Backend to be imported
 terraform import pingdirectory_default_metrics_backend.myMetricsBackend metricsBackendId
 ```
+

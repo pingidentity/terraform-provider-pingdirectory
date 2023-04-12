@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_short_unique_id_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Short Unique Id Virtual Attribute.
 ---
@@ -88,3 +88,4 @@ Import is supported using the following syntax:
 # "shortUniqueIdVirtualAttributeId" should be the id of the Short Unique Id Virtual Attribute to be imported
 terraform import pingdirectory_default_short_unique_id_virtual_attribute.myShortUniqueIdVirtualAttribute shortUniqueIdVirtualAttributeId
 ```
+

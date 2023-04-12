@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_velocity_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Velocity Http Servlet Extension.
 ---
@@ -93,3 +93,4 @@ Import is supported using the following syntax:
 # "velocityHttpServletExtensionId" should be the id of the Velocity Http Servlet Extension to be imported
 terraform import pingdirectory_default_velocity_http_servlet_extension.myVelocityHttpServletExtension velocityHttpServletExtensionId
 ```
+

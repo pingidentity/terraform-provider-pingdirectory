@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_retention_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a File Retention Recurring Task.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "fileRetentionRecurringTaskId" should be the id of the File Retention Recurring Task to be imported
 terraform import pingdirectory_file_retention_recurring_task.myFileRetentionRecurringTask fileRetentionRecurringTaskId
 ```
+

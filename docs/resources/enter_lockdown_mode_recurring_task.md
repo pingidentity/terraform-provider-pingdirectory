@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_enter_lockdown_mode_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Enter Lockdown Mode Recurring Task.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "enterLockdownModeRecurringTaskId" should be the id of the Enter Lockdown Mode Recurring Task to be imported
 terraform import pingdirectory_enter_lockdown_mode_recurring_task.myEnterLockdownModeRecurringTask enterLockdownModeRecurringTaskId
 ```
+

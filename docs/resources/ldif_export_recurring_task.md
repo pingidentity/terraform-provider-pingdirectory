@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_ldif_export_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Ldif Export Recurring Task.
 ---
@@ -93,3 +93,4 @@ Import is supported using the following syntax:
 # "ldifExportRecurringTaskId" should be the id of the Ldif Export Recurring Task to be imported
 terraform import pingdirectory_ldif_export_recurring_task.myLdifExportRecurringTask ldifExportRecurringTaskId
 ```
+

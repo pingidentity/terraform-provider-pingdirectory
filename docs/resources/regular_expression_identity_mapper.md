@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_regular_expression_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Identity Mapper"
 description: |-
   Manages a Regular Expression Identity Mapper.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "regularExpressionIdentityMapperId" should be the id of the Regular Expression Identity Mapper to be imported
 terraform import pingdirectory_regular_expression_identity_mapper.myRegularExpressionIdentityMapper regularExpressionIdentityMapperId
 ```
+

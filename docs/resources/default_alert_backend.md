@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_alert_backend Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Backend"
 description: |-
   Manages a Alert Backend.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "alertBackendId" should be the backend_id of the Alert Backend to be imported
 terraform import pingdirectory_default_alert_backend.myAlertBackend alertBackendId
 ```
+

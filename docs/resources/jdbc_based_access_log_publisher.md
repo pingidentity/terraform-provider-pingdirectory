@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_jdbc_based_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Jdbc Based Access Log Publisher.
 ---
@@ -102,3 +102,4 @@ Import is supported using the following syntax:
 # "jdbcBasedAccessLogPublisherId" should be the id of the Jdbc Based Access Log Publisher to be imported
 terraform import pingdirectory_jdbc_based_access_log_publisher.myJdbcBasedAccessLogPublisher jdbcBasedAccessLogPublisherId
 ```
+

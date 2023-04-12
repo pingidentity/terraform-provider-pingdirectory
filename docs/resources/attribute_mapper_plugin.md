@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_attribute_mapper_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Attribute Mapper Plugin.
 ---
@@ -86,3 +86,4 @@ Import is supported using the following syntax:
 # "attributeMapperPluginId" should be the id of the Attribute Mapper Plugin to be imported
 terraform import pingdirectory_attribute_mapper_plugin.myAttributeMapperPlugin attributeMapperPluginId
 ```
+

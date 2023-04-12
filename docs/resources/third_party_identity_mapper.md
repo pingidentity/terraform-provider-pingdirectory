@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Identity Mapper"
 description: |-
   Manages a Third Party Identity Mapper.
 ---
@@ -81,3 +81,4 @@ Import is supported using the following syntax:
 # "thirdPartyIdentityMapperId" should be the id of the Third Party Identity Mapper to be imported
 terraform import pingdirectory_third_party_identity_mapper.myThirdPartyIdentityMapper thirdPartyIdentityMapperId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_clean_up_expired_pingfederate_persistent_access_grants_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "PingFederate"
+subcategory: "Plugin"
 description: |-
   Manages a Clean Up Expired Pingfederate Persistent Access Grants Plugin.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "cleanUpExpiredPingfederatePersistentAccessGrantsPluginId" should be the id of the Clean Up Expired Pingfederate Persistent Access Grants Plugin to be imported
 terraform import pingdirectory_clean_up_expired_pingfederate_persistent_access_grants_plugin.myCleanUpExpiredPingfederatePersistentAccessGrantsPlugin cleanUpExpiredPingfederatePersistentAccessGrantsPluginId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_profiler_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Profiler Plugin.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "profilerPluginId" should be the id of the Profiler Plugin to be imported
 terraform import pingdirectory_default_profiler_plugin.myProfilerPlugin profilerPluginId
 ```
+

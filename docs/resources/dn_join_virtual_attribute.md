@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_dn_join_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Dn Join Virtual Attribute.
 ---
@@ -98,3 +98,4 @@ Import is supported using the following syntax:
 # "dnJoinVirtualAttributeId" should be the id of the Dn Join Virtual Attribute to be imported
 terraform import pingdirectory_dn_join_virtual_attribute.myDnJoinVirtualAttribute dnJoinVirtualAttributeId
 ```
+

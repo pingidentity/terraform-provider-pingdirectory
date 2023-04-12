@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_detailed_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Detailed Http Operation Log Publisher.
 ---
@@ -114,3 +114,4 @@ Import is supported using the following syntax:
 # "detailedHttpOperationLogPublisherId" should be the id of the Detailed Http Operation Log Publisher to be imported
 terraform import pingdirectory_detailed_http_operation_log_publisher.myDetailedHttpOperationLogPublisher detailedHttpOperationLogPublisherId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_local_db_backend Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Backend"
 description: |-
   Manages a Local Db Backend.
 ---
@@ -138,3 +138,4 @@ Import is supported using the following syntax:
 # "localDbBackendId" should be the backend_id of the Local Db Backend to be imported
 terraform import pingdirectory_local_db_backend.myLocalDbBackend localDbBackendId
 ```
+

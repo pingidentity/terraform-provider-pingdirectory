@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_console_json_audit_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Console Json Audit Log Publisher.
 ---
@@ -102,3 +102,4 @@ Import is supported using the following syntax:
 # "consoleJsonAuditLogPublisherId" should be the id of the Console Json Audit Log Publisher to be imported
 terraform import pingdirectory_console_json_audit_log_publisher.myConsoleJsonAuditLogPublisher consoleJsonAuditLogPublisherId
 ```
+

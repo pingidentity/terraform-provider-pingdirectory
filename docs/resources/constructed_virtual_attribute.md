@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_constructed_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Constructed Virtual Attribute.
 ---
@@ -91,3 +91,4 @@ Import is supported using the following syntax:
 # "constructedVirtualAttributeId" should be the id of the Constructed Virtual Attribute to be imported
 terraform import pingdirectory_constructed_virtual_attribute.myConstructedVirtualAttribute constructedVirtualAttributeId
 ```
+

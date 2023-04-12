@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_smtp_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Smtp Account Status Notification Handler.
 ---
@@ -94,3 +94,4 @@ Import is supported using the following syntax:
 # "smtpAccountStatusNotificationHandlerId" should be the id of the Smtp Account Status Notification Handler to be imported
 terraform import pingdirectory_smtp_account_status_notification_handler.mySmtpAccountStatusNotificationHandler smtpAccountStatusNotificationHandlerId
 ```
+

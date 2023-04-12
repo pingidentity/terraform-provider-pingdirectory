@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_based_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a File Based Trust Manager Provider.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 
 terraform import pingdirectory_file_based_trust_manager_provider.myFileBasedTrustManagerProvider providerName
 ```
+

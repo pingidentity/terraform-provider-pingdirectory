@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a Third Party Trust Manager Provider.
 ---
@@ -81,3 +81,4 @@ Import is supported using the following syntax:
 # "thirdPartyTrustManagerProviderId" should be the id of the Third Party Trust Manager Provider to be imported
 terraform import pingdirectory_third_party_trust_manager_provider.myThirdPartyTrustManagerProvider thirdPartyTrustManagerProviderId
 ```
+

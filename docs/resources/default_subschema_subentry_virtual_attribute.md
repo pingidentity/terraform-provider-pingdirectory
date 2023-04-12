@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_subschema_subentry_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Subschema Subentry Virtual Attribute.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "subschemaSubentryVirtualAttributeId" should be the id of the Subschema Subentry Virtual Attribute to be imported
 terraform import pingdirectory_default_subschema_subentry_virtual_attribute.mySubschemaSubentryVirtualAttribute subschemaSubentryVirtualAttributeId
 ```
+

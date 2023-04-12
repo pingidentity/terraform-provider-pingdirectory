@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_debug_target Resource - terraform-provider-pingdirectory"
-subcategory: "Debug"
+subcategory: "Debug Target"
 description: |-
   Manages a Debug Target.
 ---
@@ -86,3 +86,4 @@ Import is supported using the following syntax:
 # Importing a Debug Target requires providing the name of all parent resources in the following format
 terraform import pingdirectory_debug_target.myDebugTarget "[log-publisher-name]/[debug-target-debug-scope]"
 ```
+

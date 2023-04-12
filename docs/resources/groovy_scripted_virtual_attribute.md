@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Groovy Scripted Virtual Attribute.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "groovyScriptedVirtualAttributeId" should be the id of the Groovy Scripted Virtual Attribute to be imported
 terraform import pingdirectory_groovy_scripted_virtual_attribute.myGroovyScriptedVirtualAttribute groovyScriptedVirtualAttributeId
 ```
+

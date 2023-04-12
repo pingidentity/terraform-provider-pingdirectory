@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_delay_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Delay Recurring Task.
 ---
@@ -90,3 +90,4 @@ Import is supported using the following syntax:
 # "delayRecurringTaskId" should be the id of the Delay Recurring Task to be imported
 terraform import pingdirectory_delay_recurring_task.myDelayRecurringTask delayRecurringTaskId
 ```
+

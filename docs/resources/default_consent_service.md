@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_consent_service Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Consent Service"
 description: |-
   Manages a Consent Service.
 ---
@@ -85,3 +85,4 @@ Import is supported using the following syntax:
 # This resource is singleton, so the value of "id" doesn't matter - it is just a placeholder
 terraform import pingdirectory_default_consent_service.myConsentService id
 ```
+

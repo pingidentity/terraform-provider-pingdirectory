@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_mock_access_token_validator Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Access Token Validator"
 description: |-
   Manages a Mock Access Token Validator.
 ---
@@ -83,3 +83,4 @@ Import is supported using the following syntax:
 # "mockAccessTokenValidatorId" should be the id of the Mock Access Token Validator to be imported
 terraform import pingdirectory_mock_access_token_validator.myMockAccessTokenValidator mockAccessTokenValidatorId
 ```
+

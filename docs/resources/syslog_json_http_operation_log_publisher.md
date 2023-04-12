@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_syslog_json_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Json Http Operation Log Publisher.
 ---
@@ -105,3 +105,4 @@ Import is supported using the following syntax:
 # "syslogJsonHttpOperationLogPublisherId" should be the id of the Syslog Json Http Operation Log Publisher to be imported
 terraform import pingdirectory_syslog_json_http_operation_log_publisher.mySyslogJsonHttpOperationLogPublisher syslogJsonHttpOperationLogPublisherId
 ```
+

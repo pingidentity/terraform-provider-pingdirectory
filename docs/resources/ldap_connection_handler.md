@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_ldap_connection_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Connection Handler"
 description: |-
   Manages a Ldap Connection Handler.
 ---
@@ -104,3 +104,4 @@ Import is supported using the following syntax:
 # "ldapConnectionHandlerId" should be the id of the Ldap Connection Handler to be imported
 terraform import pingdirectory_ldap_connection_handler.myLdapConnectionHandler ldapConnectionHandlerId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_delay_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Delay Plugin.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "delayPluginId" should be the id of the Delay Plugin to be imported
 terraform import pingdirectory_delay_plugin.myDelayPlugin delayPluginId
 ```
+

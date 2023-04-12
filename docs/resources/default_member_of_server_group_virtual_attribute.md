@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_member_of_server_group_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Member Of Server Group Virtual Attribute.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "memberOfServerGroupVirtualAttributeId" should be the id of the Member Of Server Group Virtual Attribute to be imported
 terraform import pingdirectory_default_member_of_server_group_virtual_attribute.myMemberOfServerGroupVirtualAttribute memberOfServerGroupVirtualAttributeId
 ```
+

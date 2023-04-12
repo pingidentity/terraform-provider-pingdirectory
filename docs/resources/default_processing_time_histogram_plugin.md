@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_processing_time_histogram_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Processing Time Histogram Plugin.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "processingTimeHistogramPluginId" should be the id of the Processing Time Histogram Plugin to be imported
 terraform import pingdirectory_default_processing_time_histogram_plugin.myProcessingTimeHistogramPlugin processingTimeHistogramPluginId
 ```
+

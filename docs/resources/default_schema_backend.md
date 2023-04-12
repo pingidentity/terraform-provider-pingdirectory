@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_schema_backend Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Backend"
 description: |-
   Manages a Schema Backend.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "schemaBackendId" should be the backend_id of the Schema Backend to be imported
 terraform import pingdirectory_default_schema_backend.mySchemaBackend schemaBackendId
 ```
+

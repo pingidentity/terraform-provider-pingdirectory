@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_admin_alert_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Admin Alert Account Status Notification Handler.
 ---
@@ -83,3 +83,4 @@ Import is supported using the following syntax:
 # "adminAlertAccountStatusNotificationHandlerId" should be the id of the Admin Alert Account Status Notification Handler to be imported
 terraform import pingdirectory_admin_alert_account_status_notification_handler.myAdminAlertAccountStatusNotificationHandler adminAlertAccountStatusNotificationHandlerId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_trust_store_backend Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Backend"
 description: |-
   Manages a Trust Store Backend.
 ---
@@ -88,3 +88,4 @@ Import is supported using the following syntax:
 # "trustStoreBackendId" should be the backend_id of the Trust Store Backend to be imported
 terraform import pingdirectory_default_trust_store_backend.myTrustStoreBackend trustStoreBackendId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_global_configuration Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Global Configuration"
 description: |-
   Manages a Global Configuration.
 ---
@@ -166,3 +166,4 @@ Import is supported using the following syntax:
 # This resource is singleton, so the value of "id" doesn't matter - it is just a placeholder
 terraform import pingdirectory_default_global_configuration.myGlobalConfiguration id
 ```
+

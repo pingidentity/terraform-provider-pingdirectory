@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_photo_delegated_admin_attribute Resource - terraform-provider-pingdirectory"
-subcategory: "PingDelegatedAdmin"
+subcategory: "Delegated Admin Attribute"
 description: |-
   Manages a Photo Delegated Admin Attribute.
 ---
@@ -89,3 +89,4 @@ Import is supported using the following syntax:
 # Importing a Photo Delegated Admin Attribute requires providing the name of all parent resources in the following format
 terraform import pingdirectory_photo_delegated_admin_attribute.myPhotoDelegatedAdminAttribute "[rest-resource-type-name]/[delegated-admin-attribute-attribute-type]"
 ```
+

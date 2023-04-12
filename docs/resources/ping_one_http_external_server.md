@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_ping_one_http_external_server Resource - terraform-provider-pingdirectory"
-subcategory: "PingOne"
+subcategory: "External Server"
 description: |-
   Manages a Ping One Http External Server.
 ---
@@ -80,3 +80,4 @@ Import is supported using the following syntax:
 # "pingOneHttpExternalServerId" should be the id of the Ping One Http External Server to be imported
 terraform import pingdirectory_ping_one_http_external_server.myPingOneHttpExternalServer pingOneHttpExternalServerId
 ```
+

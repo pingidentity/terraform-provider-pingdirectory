@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_snmp_subagent_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Snmp Subagent Plugin.
 ---
@@ -86,3 +86,4 @@ Import is supported using the following syntax:
 # "snmpSubagentPluginId" should be the id of the Snmp Subagent Plugin to be imported
 terraform import pingdirectory_snmp_subagent_plugin.mySnmpSubagentPlugin snmpSubagentPluginId
 ```
+

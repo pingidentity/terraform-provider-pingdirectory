@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Log Publisher"
 description: |-
   Manages a Third Party Access Log Publisher.
 ---
@@ -99,3 +99,4 @@ Import is supported using the following syntax:
 # "thirdPartyAccessLogPublisherId" should be the id of the Third Party Access Log Publisher to be imported
 terraform import pingdirectory_third_party_access_log_publisher.myThirdPartyAccessLogPublisher thirdPartyAccessLogPublisherId
 ```
+

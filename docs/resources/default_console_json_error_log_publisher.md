@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_console_json_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Console Json Error Log Publisher.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "consoleJsonErrorLogPublisherId" should be the id of the Console Json Error Log Publisher to be imported
 terraform import pingdirectory_default_console_json_error_log_publisher.myConsoleJsonErrorLogPublisher consoleJsonErrorLogPublisherId
 ```
+

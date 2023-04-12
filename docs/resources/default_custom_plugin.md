@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_custom_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Custom Plugin.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "customPluginId" should be the id of the Custom Plugin to be imported
 terraform import pingdirectory_default_custom_plugin.myCustomPlugin customPluginId
 ```
+

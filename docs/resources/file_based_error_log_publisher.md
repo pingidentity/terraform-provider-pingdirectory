@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_based_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a File Based Error Log Publisher.
 ---
@@ -103,3 +103,4 @@ Import is supported using the following syntax:
 # "fileBasedErrorLogPublisherId" should be the id of the File Based Error Log Publisher to be imported
 terraform import pingdirectory_file_based_error_log_publisher.myFileBasedErrorLogPublisher fileBasedErrorLogPublisherId
 ```
+

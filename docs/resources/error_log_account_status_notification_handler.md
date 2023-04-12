@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_error_log_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Error Log Account Status Notification Handler.
 ---
@@ -83,3 +83,4 @@ Import is supported using the following syntax:
 # "errorLogAccountStatusNotificationHandlerId" should be the id of the Error Log Account Status Notification Handler to be imported
 terraform import pingdirectory_error_log_account_status_notification_handler.myErrorLogAccountStatusNotificationHandler errorLogAccountStatusNotificationHandlerId
 ```
+

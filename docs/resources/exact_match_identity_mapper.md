@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_exact_match_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Identity Mapper"
 description: |-
   Manages a Exact Match Identity Mapper.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "exactMatchIdentityMapperId" should be the id of the Exact Match Identity Mapper to be imported
 terraform import pingdirectory_exact_match_identity_mapper.myExactMatchIdentityMapper exactMatchIdentityMapperId
 ```
+

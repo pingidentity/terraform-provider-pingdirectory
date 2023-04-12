@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_change_subscription_notification_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Plugin"
 description: |-
   Manages a Change Subscription Notification Plugin.
 ---
@@ -79,3 +79,4 @@ Import is supported using the following syntax:
 # "changeSubscriptionNotificationPluginId" should be the id of the Change Subscription Notification Plugin to be imported
 terraform import pingdirectory_default_change_subscription_notification_plugin.myChangeSubscriptionNotificationPlugin changeSubscriptionNotificationPluginId
 ```
+

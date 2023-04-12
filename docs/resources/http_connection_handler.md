@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_http_connection_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Connection Handler"
 description: |-
   Manages a Http Connection Handler.
 ---
@@ -108,3 +108,4 @@ Import is supported using the following syntax:
 
 terraform import pingdirectory_http_connection_handler.myHttpConnectionHandler connectionHandlerName
 ```
+

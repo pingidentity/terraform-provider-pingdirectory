@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_syslog_json_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Json Error Log Publisher.
 ---
@@ -93,3 +93,4 @@ Import is supported using the following syntax:
 # "syslogJsonErrorLogPublisherId" should be the id of the Syslog Json Error Log Publisher to be imported
 terraform import pingdirectory_syslog_json_error_log_publisher.mySyslogJsonErrorLogPublisher syslogJsonErrorLogPublisherId
 ```
+

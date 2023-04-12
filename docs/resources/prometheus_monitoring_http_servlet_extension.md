@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_prometheus_monitoring_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Prometheus Monitoring Http Servlet Extension. Supported in PingDirectory product version 9.2.0.0+.
 ---
@@ -86,3 +86,4 @@ Import is supported using the following syntax:
 # "prometheusMonitoringHttpServletExtensionId" should be the id of the Prometheus Monitoring Http Servlet Extension to be imported
 terraform import pingdirectory_prometheus_monitoring_http_servlet_extension.myPrometheusMonitoringHttpServletExtension prometheusMonitoringHttpServletExtensionId
 ```
+

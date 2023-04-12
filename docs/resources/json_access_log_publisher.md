@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_json_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Json Access Log Publisher.
 ---
@@ -135,3 +135,4 @@ Import is supported using the following syntax:
 # "jsonAccessLogPublisherId" should be the id of the Json Access Log Publisher to be imported
 terraform import pingdirectory_json_access_log_publisher.myJsonAccessLogPublisher jsonAccessLogPublisherId
 ```
+

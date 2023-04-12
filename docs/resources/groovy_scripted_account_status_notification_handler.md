@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Groovy Scripted Account Status Notification Handler.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "groovyScriptedAccountStatusNotificationHandlerId" should be the id of the Groovy Scripted Account Status Notification Handler to be imported
 terraform import pingdirectory_groovy_scripted_account_status_notification_handler.myGroovyScriptedAccountStatusNotificationHandler groovyScriptedAccountStatusNotificationHandlerId
 ```
+

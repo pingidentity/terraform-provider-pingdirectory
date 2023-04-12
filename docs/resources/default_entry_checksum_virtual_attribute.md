@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_entry_checksum_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Entry Checksum Virtual Attribute.
 ---
@@ -89,3 +89,4 @@ Import is supported using the following syntax:
 # "entryChecksumVirtualAttributeId" should be the id of the Entry Checksum Virtual Attribute to be imported
 terraform import pingdirectory_default_entry_checksum_virtual_attribute.myEntryChecksumVirtualAttribute entryChecksumVirtualAttributeId
 ```
+

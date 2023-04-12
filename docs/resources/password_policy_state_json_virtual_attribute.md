@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_password_policy_state_json_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Password Policy State Json Virtual Attribute.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "passwordPolicyStateJsonVirtualAttributeId" should be the id of the Password Policy State Json Virtual Attribute to be imported
 terraform import pingdirectory_password_policy_state_json_virtual_attribute.myPasswordPolicyStateJsonVirtualAttribute passwordPolicyStateJsonVirtualAttributeId
 ```
+

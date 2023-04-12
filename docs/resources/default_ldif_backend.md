@@ -1,13 +1,13 @@
 ---
-page_title: "pingdirectory_default_custom_backend Resource - terraform-provider-pingdirectory"
+page_title: "pingdirectory_default_ldif_backend Resource - terraform-provider-pingdirectory"
 subcategory: "Backend"
 description: |-
-  Manages a Custom Backend.
+  Manages a Ldif Backend.
 ---
 
-# pingdirectory_default_custom_backend (Resource)
+# pingdirectory_default_ldif_backend (Resource)
 
-Manages a Custom Backend.
+Manages a Ldif Backend.
 
 ## Example Usage
 
@@ -36,11 +36,11 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-resource "pingdirectory_default_custom_backend" "myCustomBackend" {
-  backend_id       = "replicationChanges"
-  enabled          = true
-  base_dn          = ["dc=replicationChanges"]
-  writability_mode = "disabled"
+resource "pingdirectory_default_ldif_backend" "myLdifBackend" {
+  ldif_file  = "test.ldif"
+  backend_id = "myldif"
+  enabled    = false
+  base_dn    = ["dc=example,dc=com"]
 }
 ```
 
@@ -57,6 +57,8 @@ resource "pingdirectory_default_custom_backend" "myCustomBackend" {
 - `base_dn` (Set of String) Specifies the base DN(s) for the data that the backend handles.
 - `description` (String) A description for this Backend
 - `enabled` (Boolean) Indicates whether the backend is enabled in the server.
+- `is_private_backend` (Boolean) Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.
+- `ldif_file` (String) Specifies the path to the LDIF file containing the data for this backend.
 - `notification_manager` (String) Specifies a notification manager for changes resulting from operations processed through this Backend
 - `return_unavailable_when_disabled` (Boolean) Determines whether any LDAP operation that would use this Backend is to return UNAVAILABLE when this Backend is disabled.
 - `set_degraded_alert_when_disabled` (Boolean) Determines whether the Directory Server enters a DEGRADED state (and sends a corresponding alert) when this Backend is disabled.
@@ -83,7 +85,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "customBackendId" should be the backend_id of the Custom Backend to be imported
-terraform import pingdirectory_default_custom_backend.myCustomBackend customBackendId
+# "ldifBackendId" should be the backend_id of the Ldif Backend to be imported
+terraform import pingdirectory_default_ldif_backend.myLdifBackend ldifBackendId
 ```
 

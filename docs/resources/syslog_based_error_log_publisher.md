@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_syslog_based_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Based Error Log Publisher.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "syslogBasedErrorLogPublisherId" should be the id of the Syslog Based Error Log Publisher to be imported
 terraform import pingdirectory_syslog_based_error_log_publisher.mySyslogBasedErrorLogPublisher syslogBasedErrorLogPublisherId
 ```
+

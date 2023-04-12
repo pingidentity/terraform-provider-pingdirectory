@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_consent_definition Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Consent Definition"
 description: |-
   Manages a Consent Definition.
 ---
@@ -80,3 +80,4 @@ Import is supported using the following syntax:
 # "consentDefinitionId" should be the unique_id of the Consent Definition to be imported
 terraform import pingdirectory_consent_definition.myConsentDefinition consentDefinitionId
 ```
+

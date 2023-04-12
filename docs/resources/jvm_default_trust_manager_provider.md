@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_jvm_default_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a Jvm Default Trust Manager Provider.
 ---
@@ -74,3 +74,4 @@ Import is supported using the following syntax:
 # "jvmDefaultTrustManagerProviderId" should be the id of the Jvm Default Trust Manager Provider to be imported
 terraform import pingdirectory_jvm_default_trust_manager_provider.myJvmDefaultTrustManagerProvider jvmDefaultTrustManagerProviderId
 ```
+

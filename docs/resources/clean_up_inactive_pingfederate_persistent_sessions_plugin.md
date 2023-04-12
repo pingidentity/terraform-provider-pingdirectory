@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_clean_up_inactive_pingfederate_persistent_sessions_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Plugin"
 description: |-
   Manages a Clean Up Inactive Pingfederate Persistent Sessions Plugin.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "cleanUpInactivePingfederatePersistentSessionsPluginId" should be the id of the Clean Up Inactive Pingfederate Persistent Sessions Plugin to be imported
 terraform import pingdirectory_clean_up_inactive_pingfederate_persistent_sessions_plugin.myCleanUpInactivePingfederatePersistentSessionsPlugin cleanUpInactivePingfederatePersistentSessionsPluginId
 ```
+

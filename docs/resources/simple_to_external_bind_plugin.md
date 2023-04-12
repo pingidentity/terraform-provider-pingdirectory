@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_simple_to_external_bind_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Simple To External Bind Plugin.
 ---
@@ -80,3 +80,4 @@ Import is supported using the following syntax:
 # "simpleToExternalBindPluginId" should be the id of the Simple To External Bind Plugin to be imported
 terraform import pingdirectory_simple_to_external_bind_plugin.mySimpleToExternalBindPlugin simpleToExternalBindPluginId
 ```
+

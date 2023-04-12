@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_topology_admin_user Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Topology Admin User"
 description: |-
   Manages a Topology Admin User.
 ---
@@ -116,3 +116,4 @@ Import is supported using the following syntax:
 # "topologyAdminUserId" should be the id of the Topology Admin User to be imported
 terraform import pingdirectory_topology_admin_user.myTopologyAdminUser topologyAdminUserId
 ```
+

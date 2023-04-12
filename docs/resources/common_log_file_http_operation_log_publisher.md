@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_common_log_file_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Log Publisher"
 description: |-
   Manages a Common Log File Http Operation Log Publisher.
 ---
@@ -95,3 +95,4 @@ Import is supported using the following syntax:
 # "commonLogFileHttpOperationLogPublisherId" should be the id of the Common Log File Http Operation Log Publisher to be imported
 terraform import pingdirectory_common_log_file_http_operation_log_publisher.myCommonLogFileHttpOperationLogPublisher commonLogFileHttpOperationLogPublisherId
 ```
+

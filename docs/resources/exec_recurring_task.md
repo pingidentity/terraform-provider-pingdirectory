@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_exec_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Exec Recurring Task.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "execRecurringTaskId" should be the id of the Exec Recurring Task to be imported
 terraform import pingdirectory_exec_recurring_task.myExecRecurringTask execRecurringTaskId
 ```
+

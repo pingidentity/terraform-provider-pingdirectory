@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_member_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Member Virtual Attribute.
 ---
@@ -90,3 +90,4 @@ Import is supported using the following syntax:
 # "memberVirtualAttributeId" should be the id of the Member Virtual Attribute to be imported
 terraform import pingdirectory_member_virtual_attribute.myMemberVirtualAttribute memberVirtualAttributeId
 ```
+

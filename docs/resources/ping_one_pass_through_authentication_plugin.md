@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_ping_one_pass_through_authentication_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "PingOne"
+subcategory: "Plugin"
 description: |-
   Manages a Ping One Pass Through Authentication Plugin.
 ---
@@ -104,3 +104,4 @@ Import is supported using the following syntax:
 # "pingOnePassThroughAuthenticationPluginId" should be the id of the Ping One Pass Through Authentication Plugin to be imported
 terraform import pingdirectory_ping_one_pass_through_authentication_plugin.myPingOnePassThroughAuthenticationPlugin pingOnePassThroughAuthenticationPluginId
 ```
+

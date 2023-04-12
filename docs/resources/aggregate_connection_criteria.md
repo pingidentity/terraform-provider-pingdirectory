@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_aggregate_connection_criteria Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Connection Criteria"
 description: |-
   Manages a Aggregate Connection Criteria.
 ---
@@ -80,3 +80,4 @@ Import is supported using the following syntax:
 # "aggregateConnectionCriteriaId" should be the id of the Aggregate Connection Criteria to be imported
 terraform import pingdirectory_aggregate_connection_criteria.myAggregateConnectionCriteria aggregateConnectionCriteriaId
 ```
+

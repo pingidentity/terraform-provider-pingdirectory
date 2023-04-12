@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_mirror_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Mirror Virtual Attribute.
 ---
@@ -94,3 +94,4 @@ Import is supported using the following syntax:
 # "mirrorVirtualAttributeId" should be the id of the Mirror Virtual Attribute to be imported
 terraform import pingdirectory_mirror_virtual_attribute.myMirrorVirtualAttribute mirrorVirtualAttributeId
 ```
+

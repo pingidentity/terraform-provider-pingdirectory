@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_monitor_history_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Monitor History Plugin.
 ---
@@ -85,3 +85,4 @@ Import is supported using the following syntax:
 # "monitorHistoryPluginId" should be the id of the Monitor History Plugin to be imported
 terraform import pingdirectory_default_monitor_history_plugin.myMonitorHistoryPlugin monitorHistoryPluginId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_root_dn_user Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Root Dn User"
 description: |-
   Manages a Root Dn User.
 ---
@@ -116,3 +116,4 @@ Import is supported using the following syntax:
 # "rootDnUserId" should be the id of the Root Dn User to be imported
 terraform import pingdirectory_root_dn_user.myRootDnUser rootDnUserId
 ```
+

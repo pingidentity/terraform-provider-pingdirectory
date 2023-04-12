@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_statically_defined_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Statically Defined Recurring Task.
 ---
@@ -88,3 +88,4 @@ Import is supported using the following syntax:
 # "staticallyDefinedRecurringTaskId" should be the id of the Statically Defined Recurring Task to be imported
 terraform import pingdirectory_statically_defined_recurring_task.myStaticallyDefinedRecurringTask staticallyDefinedRecurringTaskId
 ```
+

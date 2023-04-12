@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_based_json_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a File Based Json Http Operation Log Publisher.
 ---
@@ -114,3 +114,4 @@ Import is supported using the following syntax:
 # "fileBasedJsonHttpOperationLogPublisherId" should be the id of the File Based Json Http Operation Log Publisher to be imported
 terraform import pingdirectory_file_based_json_http_operation_log_publisher.myFileBasedJsonHttpOperationLogPublisher fileBasedJsonHttpOperationLogPublisherId
 ```
+

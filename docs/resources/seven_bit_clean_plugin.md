@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_seven_bit_clean_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Seven Bit Clean Plugin.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "sevenBitCleanPluginId" should be the id of the Seven Bit Clean Plugin to be imported
 terraform import pingdirectory_seven_bit_clean_plugin.mySevenBitCleanPlugin sevenBitCleanPluginId
 ```
+

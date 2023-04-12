@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_syslog_json_audit_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Json Audit Log Publisher.
 ---
@@ -108,3 +108,4 @@ Import is supported using the following syntax:
 # "syslogJsonAuditLogPublisherId" should be the id of the Syslog Json Audit Log Publisher to be imported
 terraform import pingdirectory_syslog_json_audit_log_publisher.mySyslogJsonAuditLogPublisher syslogJsonAuditLogPublisherId
 ```
+

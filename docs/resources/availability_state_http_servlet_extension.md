@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_availability_state_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Availability State Http Servlet Extension.
 ---
@@ -90,3 +90,4 @@ Import is supported using the following syntax:
 # "availabilityStateHttpServletExtensionId" should be the id of the Availability State Http Servlet Extension to be imported
 terraform import pingdirectory_availability_state_http_servlet_extension.myAvailabilityStateHttpServletExtension availabilityStateHttpServletExtensionId
 ```
+

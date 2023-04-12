@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_replication_state_detail_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Replication State Detail Virtual Attribute.
 ---
@@ -77,3 +77,4 @@ Import is supported using the following syntax:
 # "replicationStateDetailVirtualAttributeId" should be the id of the Replication State Detail Virtual Attribute to be imported
 terraform import pingdirectory_default_replication_state_detail_virtual_attribute.myReplicationStateDetailVirtualAttribute replicationStateDetailVirtualAttributeId
 ```
+

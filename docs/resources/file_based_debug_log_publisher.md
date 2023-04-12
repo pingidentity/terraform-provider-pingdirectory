@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_based_debug_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a File Based Debug Log Publisher.
 ---
@@ -102,3 +102,4 @@ Import is supported using the following syntax:
 # "fileBasedDebugLogPublisherId" should be the id of the File Based Debug Log Publisher to be imported
 terraform import pingdirectory_file_based_debug_log_publisher.myFileBasedDebugLogPublisher fileBasedDebugLogPublisherId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Log Publisher"
 description: |-
   Manages a Third Party Http Operation Log Publisher.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "thirdPartyHttpOperationLogPublisherId" should be the id of the Third Party Http Operation Log Publisher to be imported
 terraform import pingdirectory_third_party_http_operation_log_publisher.myThirdPartyHttpOperationLogPublisher thirdPartyHttpOperationLogPublisherId
 ```
+

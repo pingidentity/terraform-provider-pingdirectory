@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_syslog_based_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Based Access Log Publisher.
 ---
@@ -124,3 +124,4 @@ Import is supported using the following syntax:
 # "syslogBasedAccessLogPublisherId" should be the id of the Syslog Based Access Log Publisher to be imported
 terraform import pingdirectory_syslog_based_access_log_publisher.mySyslogBasedAccessLogPublisher syslogBasedAccessLogPublisherId
 ```
+

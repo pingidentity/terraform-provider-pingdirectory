@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_changelog_password_encryption_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Changelog Password Encryption Plugin.
 ---
@@ -81,3 +81,4 @@ Import is supported using the following syntax:
 # "changelogPasswordEncryptionPluginId" should be the id of the Changelog Password Encryption Plugin to be imported
 terraform import pingdirectory_default_changelog_password_encryption_plugin.myChangelogPasswordEncryptionPlugin changelogPasswordEncryptionPluginId
 ```
+

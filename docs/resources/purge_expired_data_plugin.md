@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_purge_expired_data_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Purge Expired Data Plugin.
 ---
@@ -93,3 +93,4 @@ Import is supported using the following syntax:
 # "purgeExpiredDataPluginId" should be the id of the Purge Expired Data Plugin to be imported
 terraform import pingdirectory_purge_expired_data_plugin.myPurgeExpiredDataPlugin purgeExpiredDataPluginId
 ```
+

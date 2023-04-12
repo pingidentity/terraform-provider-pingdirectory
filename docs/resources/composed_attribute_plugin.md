@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_composed_attribute_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Composed Attribute Plugin.
 ---
@@ -96,3 +96,4 @@ Import is supported using the following syntax:
 # "composedAttributePluginId" should be the id of the Composed Attribute Plugin to be imported
 terraform import pingdirectory_composed_attribute_plugin.myComposedAttributePlugin composedAttributePluginId
 ```
+

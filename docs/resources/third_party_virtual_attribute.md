@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Third Party Virtual Attribute.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "thirdPartyVirtualAttributeId" should be the id of the Third Party Virtual Attribute to be imported
 terraform import pingdirectory_third_party_virtual_attribute.myThirdPartyVirtualAttribute thirdPartyVirtualAttributeId
 ```
+

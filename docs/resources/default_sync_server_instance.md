@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_sync_server_instance Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Server Instance"
 description: |-
   Manages a Sync Server Instance.
 ---
@@ -97,3 +97,4 @@ Import is supported using the following syntax:
 # "syncServerInstanceId" should be the id of the Sync Server Instance to be imported
 terraform import pingdirectory_default_sync_server_instance.mySyncServerInstance syncServerInstanceId
 ```
+

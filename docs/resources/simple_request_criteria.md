@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_simple_request_criteria Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Request Criteria"
 description: |-
   Manages a Simple Request Criteria.
 ---
@@ -104,3 +104,4 @@ Import is supported using the following syntax:
 # "simpleRequestCriteriaId" should be the id of the Simple Request Criteria to be imported
 terraform import pingdirectory_simple_request_criteria.mySimpleRequestCriteria simpleRequestCriteriaId
 ```
+

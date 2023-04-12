@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_proxy_server_instance Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Server Instance"
 description: |-
   Manages a Proxy Server Instance.
 ---
@@ -97,3 +97,4 @@ Import is supported using the following syntax:
 # "proxyServerInstanceId" should be the id of the Proxy Server Instance to be imported
 terraform import pingdirectory_default_proxy_server_instance.myProxyServerInstance proxyServerInstanceId
 ```
+

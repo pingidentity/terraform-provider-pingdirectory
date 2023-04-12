@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_collect_support_data_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Collect Support Data Recurring Task.
 ---
@@ -101,3 +101,4 @@ Import is supported using the following syntax:
 # "collectSupportDataRecurringTaskId" should be the id of the Collect Support Data Recurring Task to be imported
 terraform import pingdirectory_collect_support_data_recurring_task.myCollectSupportDataRecurringTask collectSupportDataRecurringTaskId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_admin_alert_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "External Server""
+subcategory: "Log Publisher"
 description: |-
   Manages a Admin Alert Access Log Publisher.
 ---
@@ -121,3 +121,4 @@ Import is supported using the following syntax:
 # "adminAlertAccessLogPublisherId" should be the id of the Admin Alert Access Log Publisher to be imported
 terraform import pingdirectory_admin_alert_access_log_publisher.myAdminAlertAccessLogPublisher adminAlertAccessLogPublisherId
 ```
+

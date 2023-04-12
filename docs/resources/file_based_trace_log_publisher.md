@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_based_trace_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a File Based Trace Log Publisher.
 ---
@@ -105,3 +105,4 @@ Import is supported using the following syntax:
 # "fileBasedTraceLogPublisherId" should be the id of the File Based Trace Log Publisher to be imported
 terraform import pingdirectory_file_based_trace_log_publisher.myFileBasedTraceLogPublisher fileBasedTraceLogPublisherId
 ```
+

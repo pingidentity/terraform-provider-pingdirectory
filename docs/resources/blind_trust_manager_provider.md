@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_blind_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a Blind Trust Manager Provider.
 ---
@@ -78,3 +78,4 @@ Import is supported using the following syntax:
 # "blindTrustManagerProviderId" should be the id of the Blind Trust Manager Provider to be imported
 terraform import pingdirectory_blind_trust_manager_provider.myBlindTrustManagerProvider blindTrustManagerProviderId
 ```
+

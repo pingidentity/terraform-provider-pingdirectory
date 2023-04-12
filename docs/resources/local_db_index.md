@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_local_db_index Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Local Db Index"
 description: |-
   Manages a Local Db Index.
 ---
@@ -89,3 +89,4 @@ Import is supported using the following syntax:
 # Importing a Local Db Index requires providing the name of all parent resources in the following format
 terraform import pingdirectory_local_db_index.myLocalDbIndex "[backend-name]/[local-db-index-attribute]"
 ```
+

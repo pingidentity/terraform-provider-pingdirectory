@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_directory_server_instance Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Server Instance"
 description: |-
   Manages a Directory Server Instance.
 ---
@@ -102,3 +102,4 @@ Import is supported using the following syntax:
 
 terraform import pingdirectory_default_directory_server_instance.myDirectoryServerInstance instanceName
 ```
+

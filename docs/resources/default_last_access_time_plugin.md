@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_last_access_time_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Last Access Time Plugin.
 ---
@@ -83,3 +83,4 @@ Import is supported using the following syntax:
 # "lastAccessTimePluginId" should be the id of the Last Access Time Plugin to be imported
 terraform import pingdirectory_default_last_access_time_plugin.myLastAccessTimePlugin lastAccessTimePluginId
 ```
+

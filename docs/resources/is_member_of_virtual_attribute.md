@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_is_member_of_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Is Member Of Virtual Attribute.
 ---
@@ -91,3 +91,4 @@ Import is supported using the following syntax:
 # "isMemberOfVirtualAttributeId" should be the id of the Is Member Of Virtual Attribute to be imported
 terraform import pingdirectory_is_member_of_virtual_attribute.myIsMemberOfVirtualAttribute isMemberOfVirtualAttributeId
 ```
+

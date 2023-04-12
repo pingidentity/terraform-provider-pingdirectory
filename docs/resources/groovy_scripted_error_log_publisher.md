@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Log Publisher"
 description: |-
   Manages a Groovy Scripted Error Log Publisher.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "groovyScriptedErrorLogPublisherId" should be the id of the Groovy Scripted Error Log Publisher to be imported
 terraform import pingdirectory_groovy_scripted_error_log_publisher.myGroovyScriptedErrorLogPublisher groovyScriptedErrorLogPublisherId
 ```
+

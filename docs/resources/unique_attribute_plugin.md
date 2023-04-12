@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_unique_attribute_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Unique Attribute Plugin.
 ---
@@ -86,3 +86,4 @@ Import is supported using the following syntax:
 # "uniqueAttributePluginId" should be the id of the Unique Attribute Plugin to be imported
 terraform import pingdirectory_unique_attribute_plugin.myUniqueAttributePlugin uniqueAttributePluginId
 ```
+

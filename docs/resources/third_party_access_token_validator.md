@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_access_token_validator Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Access Token Validator"
 description: |-
   Manages a Third Party Access Token Validator.
 ---
@@ -85,3 +85,4 @@ Import is supported using the following syntax:
 # "thirdPartyAccessTokenValidatorId" should be the id of the Third Party Access Token Validator to be imported
 terraform import pingdirectory_third_party_access_token_validator.myThirdPartyAccessTokenValidator thirdPartyAccessTokenValidatorId
 ```
+

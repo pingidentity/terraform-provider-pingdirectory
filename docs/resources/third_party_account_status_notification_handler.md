@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Third Party Account Status Notification Handler.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "thirdPartyAccountStatusNotificationHandlerId" should be the id of the Third Party Account Status Notification Handler to be imported
 terraform import pingdirectory_third_party_account_status_notification_handler.myThirdPartyAccountStatusNotificationHandler thirdPartyAccountStatusNotificationHandlerId
 ```
+

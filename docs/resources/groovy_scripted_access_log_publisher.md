@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Log Publisher"
 description: |-
   Manages a Groovy Scripted Access Log Publisher.
 ---
@@ -99,3 +99,4 @@ Import is supported using the following syntax:
 # "groovyScriptedAccessLogPublisherId" should be the id of the Groovy Scripted Access Log Publisher to be imported
 terraform import pingdirectory_groovy_scripted_access_log_publisher.myGroovyScriptedAccessLogPublisher groovyScriptedAccessLogPublisherId
 ```
+

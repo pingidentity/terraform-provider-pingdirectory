@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_entry_dn_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Entry Dn Virtual Attribute.
 ---
@@ -88,3 +88,4 @@ Import is supported using the following syntax:
 # "entryDnVirtualAttributeId" should be the id of the Entry Dn Virtual Attribute to be imported
 terraform import pingdirectory_entry_dn_virtual_attribute.myEntryDnVirtualAttribute entryDnVirtualAttributeId
 ```
+

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_syslog_external_server Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "External Server"
 description: |-
   Manages a Syslog External Server.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "syslogExternalServerId" should be the id of the Syslog External Server to be imported
 terraform import pingdirectory_syslog_external_server.mySyslogExternalServer syslogExternalServerId
 ```
+

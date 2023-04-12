@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Groovy Scripted Http Servlet Extension.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "groovyScriptedHttpServletExtensionId" should be the id of the Groovy Scripted Http Servlet Extension to be imported
 terraform import pingdirectory_groovy_scripted_http_servlet_extension.myGroovyScriptedHttpServletExtension groovyScriptedHttpServletExtensionId
 ```
+

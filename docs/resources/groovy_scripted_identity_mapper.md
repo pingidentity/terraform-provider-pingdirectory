@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Identity Mapper"
 description: |-
   Manages a Groovy Scripted Identity Mapper.
 ---
@@ -81,3 +81,4 @@ Import is supported using the following syntax:
 # "groovyScriptedIdentityMapperId" should be the id of the Groovy Scripted Identity Mapper to be imported
 terraform import pingdirectory_groovy_scripted_identity_mapper.myGroovyScriptedIdentityMapper groovyScriptedIdentityMapperId
 ```
+

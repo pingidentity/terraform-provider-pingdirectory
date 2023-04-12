@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_has_subordinates_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Has Subordinates Virtual Attribute.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "hasSubordinatesVirtualAttributeId" should be the id of the Has Subordinates Virtual Attribute to be imported
 terraform import pingdirectory_default_has_subordinates_virtual_attribute.myHasSubordinatesVirtualAttribute hasSubordinatesVirtualAttributeId
 ```
+

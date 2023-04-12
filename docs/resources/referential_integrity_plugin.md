@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_referential_integrity_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Referential Integrity Plugin.
 ---
@@ -85,3 +85,4 @@ Import is supported using the following syntax:
 # "referentialIntegrityPluginId" should be the id of the Referential Integrity Plugin to be imported
 terraform import pingdirectory_referential_integrity_plugin.myReferentialIntegrityPlugin referentialIntegrityPluginId
 ```
+

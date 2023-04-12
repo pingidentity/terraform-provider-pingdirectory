@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_generate_server_profile_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Generate Server Profile Recurring Task.
 ---
@@ -89,3 +89,4 @@ Import is supported using the following syntax:
 # "generateServerProfileRecurringTaskId" should be the id of the Generate Server Profile Recurring Task to be imported
 terraform import pingdirectory_generate_server_profile_recurring_task.myGenerateServerProfileRecurringTask generateServerProfileRecurringTaskId
 ```
+

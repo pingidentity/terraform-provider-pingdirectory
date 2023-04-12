@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_file_based_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Log Publisher"
 description: |-
   Manages a Groovy Scripted File Based Error Log Publisher.
 ---
@@ -100,3 +100,4 @@ Import is supported using the following syntax:
 # "groovyScriptedFileBasedErrorLogPublisherId" should be the id of the Groovy Scripted File Based Error Log Publisher to be imported
 terraform import pingdirectory_groovy_scripted_file_based_error_log_publisher.myGroovyScriptedFileBasedErrorLogPublisher groovyScriptedFileBasedErrorLogPublisherId
 ```
+

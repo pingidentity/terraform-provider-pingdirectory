@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_location Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Location"
 description: |-
   Manages a Location.
 ---
@@ -77,3 +77,4 @@ Import is supported using the following syntax:
 # "locationId" should be the id of the Location to be imported
 terraform import pingdirectory_location.myLocation locationId
 ```
+

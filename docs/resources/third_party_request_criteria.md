@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_request_criteria Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Request Criteria"
 description: |-
   Manages a Third Party Request Criteria.
 ---
@@ -79,3 +79,4 @@ Import is supported using the following syntax:
 # "thirdPartyRequestCriteriaId" should be the id of the Third Party Request Criteria to be imported
 terraform import pingdirectory_third_party_request_criteria.myThirdPartyRequestCriteria thirdPartyRequestCriteriaId
 ```
+

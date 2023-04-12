@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Log Publisher"
 description: |-
   Manages a Third Party Error Log Publisher.
 ---
@@ -84,3 +84,4 @@ Import is supported using the following syntax:
 # "thirdPartyErrorLogPublisherId" should be the id of the Third Party Error Log Publisher to be imported
 terraform import pingdirectory_third_party_error_log_publisher.myThirdPartyErrorLogPublisher thirdPartyErrorLogPublisherId
 ```
+

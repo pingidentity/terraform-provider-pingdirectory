@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_generic_rest_resource_type Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Rest Resource Type"
 description: |-
   Manages a Generic Rest Resource Type.
 ---
@@ -99,3 +99,4 @@ Import is supported using the following syntax:
 # "genericRestResourceTypeId" should be the id of the Generic Rest Resource Type to be imported
 terraform import pingdirectory_generic_rest_resource_type.myGenericRestResourceType genericRestResourceTypeId
 ```
+

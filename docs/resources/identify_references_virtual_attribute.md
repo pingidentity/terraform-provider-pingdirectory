@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_identify_references_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Identify References Virtual Attribute.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "identifyReferencesVirtualAttributeId" should be the id of the Identify References Virtual Attribute to be imported
 terraform import pingdirectory_identify_references_virtual_attribute.myIdentifyReferencesVirtualAttribute identifyReferencesVirtualAttributeId
 ```
+

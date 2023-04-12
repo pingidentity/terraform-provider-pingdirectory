@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_encryption_settings_backend Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Backend"
 description: |-
   Manages a Encryption Settings Backend.
 ---
@@ -83,3 +83,4 @@ Import is supported using the following syntax:
 # "encryptionSettingsBackendId" should be the backend_id of the Encryption Settings Backend to be imported
 terraform import pingdirectory_default_encryption_settings_backend.myEncryptionSettingsBackend encryptionSettingsBackendId
 ```
+

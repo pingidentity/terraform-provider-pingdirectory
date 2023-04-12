@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_groovy_scripted_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Plugin"
 description: |-
   Manages a Groovy Scripted Plugin.
 ---
@@ -85,3 +85,4 @@ Import is supported using the following syntax:
 # "groovyScriptedPluginId" should be the id of the Groovy Scripted Plugin to be imported
 terraform import pingdirectory_groovy_scripted_plugin.myGroovyScriptedPlugin groovyScriptedPluginId
 ```
+

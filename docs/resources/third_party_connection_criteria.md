@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_third_party_connection_criteria Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Connection Criteria"
 description: |-
   Manages a Third Party Connection Criteria.
 ---
@@ -79,3 +79,4 @@ Import is supported using the following syntax:
 # "thirdPartyConnectionCriteriaId" should be the id of the Third Party Connection Criteria to be imported
 terraform import pingdirectory_third_party_connection_criteria.myThirdPartyConnectionCriteria thirdPartyConnectionCriteriaId
 ```
+

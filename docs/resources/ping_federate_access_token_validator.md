@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_ping_federate_access_token_validator Resource - terraform-provider-pingdirectory"
-subcategory: "PingFederate"
+subcategory: "Access Token Validator"
 description: |-
   Manages a Ping Federate Access Token Validator.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "pingFederateAccessTokenValidatorId" should be the id of the Ping Federate Access Token Validator to be imported
 terraform import pingdirectory_ping_federate_access_token_validator.myPingFederateAccessTokenValidator pingFederateAccessTokenValidatorId
 ```
+

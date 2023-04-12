@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_group_rest_resource_type Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Rest Resource Type"
 description: |-
   Manages a Group Rest Resource Type.
 ---
@@ -99,3 +99,4 @@ Import is supported using the following syntax:
 # "groupRestResourceTypeId" should be the id of the Group Rest Resource Type to be imported
 terraform import pingdirectory_group_rest_resource_type.myGroupRestResourceType groupRestResourceTypeId
 ```
+

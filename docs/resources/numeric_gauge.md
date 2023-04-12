@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_numeric_gauge Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Gauge"
 description: |-
   Manages a Numeric Gauge.
 ---
@@ -95,3 +95,4 @@ Import is supported using the following syntax:
 # "numericGaugeId" should be the id of the Numeric Gauge to be imported
 terraform import pingdirectory_numeric_gauge.myNumericGauge numericGaugeId
 ```
+

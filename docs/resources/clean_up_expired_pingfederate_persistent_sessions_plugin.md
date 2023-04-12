@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_clean_up_expired_pingfederate_persistent_sessions_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "PingFederate"
+subcategory: "Plugin"
 description: |-
   Manages a Clean Up Expired Pingfederate Persistent Sessions Plugin.
 ---
@@ -82,3 +82,4 @@ Import is supported using the following syntax:
 # "cleanUpExpiredPingfederatePersistentSessionsPluginId" should be the id of the Clean Up Expired Pingfederate Persistent Sessions Plugin to be imported
 terraform import pingdirectory_clean_up_expired_pingfederate_persistent_sessions_plugin.myCleanUpExpiredPingfederatePersistentSessionsPlugin cleanUpExpiredPingfederatePersistentSessionsPluginId
 ```
+

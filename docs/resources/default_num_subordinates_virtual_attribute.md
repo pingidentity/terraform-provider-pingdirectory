@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_num_subordinates_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Num Subordinates Virtual Attribute.
 ---
@@ -87,3 +87,4 @@ Import is supported using the following syntax:
 # "numSubordinatesVirtualAttributeId" should be the id of the Num Subordinates Virtual Attribute to be imported
 terraform import pingdirectory_default_num_subordinates_virtual_attribute.myNumSubordinatesVirtualAttribute numSubordinatesVirtualAttributeId
 ```
+

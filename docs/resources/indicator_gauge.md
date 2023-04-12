@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_indicator_gauge Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Gauge"
 description: |-
   Manages a Indicator Gauge.
 ---
@@ -92,3 +92,4 @@ Import is supported using the following syntax:
 # "indicatorGaugeId" should be the id of the Indicator Gauge to be imported
 terraform import pingdirectory_indicator_gauge.myIndicatorGauge indicatorGaugeId
 ```
+

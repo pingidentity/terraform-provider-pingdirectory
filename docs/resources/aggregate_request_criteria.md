@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_aggregate_request_criteria Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Request Criteria"
 description: |-
   Manages a Aggregate Request Criteria.
 ---
@@ -80,3 +80,4 @@ Import is supported using the following syntax:
 # "aggregateRequestCriteriaId" should be the id of the Aggregate Request Criteria to be imported
 terraform import pingdirectory_aggregate_request_criteria.myAggregateRequestCriteria aggregateRequestCriteriaId
 ```
+

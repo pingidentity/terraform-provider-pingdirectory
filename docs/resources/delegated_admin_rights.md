@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_delegated_admin_rights Resource - terraform-provider-pingdirectory"
-subcategory: "PingDelegatedAdmin"
+subcategory: "Delegated Admin Rights"
 description: |-
   Manages a Delegated Admin Rights.
 ---
@@ -81,3 +81,4 @@ Import is supported using the following syntax:
 # "delegatedAdminRightsId" should be the id of the Delegated Admin Rights to be imported
 terraform import pingdirectory_delegated_admin_rights.myDelegatedAdminRights delegatedAdminRightsId
 ```
+

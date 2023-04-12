@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_aggregate_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Identity Mapper"
 description: |-
   Manages a Aggregate Identity Mapper.
 ---
@@ -80,3 +80,4 @@ Import is supported using the following syntax:
 # "aggregateIdentityMapperId" should be the id of the Aggregate Identity Mapper to be imported
 terraform import pingdirectory_aggregate_identity_mapper.myAggregateIdentityMapper aggregateIdentityMapperId
 ```
+

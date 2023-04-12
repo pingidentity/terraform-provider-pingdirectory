@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_file_based_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a File Based Access Log Publisher.
 ---
@@ -139,3 +139,4 @@ Import is supported using the following syntax:
 # "fileBasedAccessLogPublisherName" should be the name of the File Based Access Log Publisher to be imported
 terraform import pingdirectory_file_based_access_log_publisher.myFileBasedAccessLogPublisher fileBasedAccessLogPublisherName
 ```
+

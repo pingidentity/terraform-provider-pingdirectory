@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_user_defined_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a User Defined Virtual Attribute.
 ---
@@ -91,3 +91,4 @@ Import is supported using the following syntax:
 # "userDefinedVirtualAttributeId" should be the id of the User Defined Virtual Attribute to be imported
 terraform import pingdirectory_user_defined_virtual_attribute.myUserDefinedVirtualAttribute userDefinedVirtualAttributeId
 ```
+

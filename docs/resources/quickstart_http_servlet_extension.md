@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_quickstart_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Quickstart Http Servlet Extension.
 ---
@@ -81,3 +81,4 @@ Import is supported using the following syntax:
 # "quickstartHttpServletExtensionId" should be the id of the Quickstart Http Servlet Extension to be imported
 terraform import pingdirectory_quickstart_http_servlet_extension.myQuickstartHttpServletExtension quickstartHttpServletExtensionId
 ```
+
