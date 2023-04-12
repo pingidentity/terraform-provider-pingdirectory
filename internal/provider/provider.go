@@ -320,6 +320,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		backend.NewCustomBackendResource,
 		backend.NewDefaultLocalDbBackendResource,
 		backend.NewEncryptionSettingsBackendResource,
+		backend.NewLdifBackendResource,
 		backend.NewLocalDbBackendResource,
 		backend.NewMetricsBackendResource,
 		backend.NewMonitorBackendResource,
