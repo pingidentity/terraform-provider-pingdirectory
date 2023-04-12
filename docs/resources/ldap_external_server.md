@@ -92,7 +92,7 @@ Read-Only:
 
 ## Import
 
-Import is supported using the following syntax, where attributes in `<>` brackets are replaced with the relevant ID.  For example, `<environment_id>` should be replaced with the ID of the environment to import from.
+Import is supported using the following syntax:
 
 ```shell
 # "ldapExternalServerId" should be the id of the Ldap External Server to be imported

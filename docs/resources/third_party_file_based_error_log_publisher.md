@@ -94,7 +94,7 @@ Read-Only:
 
 ## Import
 
-Import is supported using the following syntax, where attributes in `<>` brackets are replaced with the relevant ID.  For example, `<environment_id>` should be replaced with the ID of the environment to import from.
+Import is supported using the following syntax:
 
 ```shell
 # "thirdPartyFileBasedErrorLogPublisherId" should be the id of the Third Party File Based Error Log Publisher to be imported
