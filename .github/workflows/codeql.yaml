@@ -17,6 +17,11 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/codeql.yaml'
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
   schedule:
     - cron: '44 8 * * 6'
 
