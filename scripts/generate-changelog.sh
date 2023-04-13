@@ -11,7 +11,9 @@ resources=()
 milestone=""
 github_repo="pingidentity/terraform-provider-pingdirectory"
 
-milestone_issues=$(gh issue list --milestone "$milestone" --repo "$github_repo" | cut -f1)
+milestone_issues=$(gh issue list --milestone "$milestone" --state closed --repo "$github_repo" | cut -f1)
+echo "Issues found:"
+echo "$milestone_issues"
 pr_content=$(gh pr list)
 
 for milestone_issue in $milestone_issues; do
@@ -60,14 +62,9 @@ if [ ${#todos[@]} -gt 0 ]; then
     printf '\n%s\n' "${todos[@]}" >> todos.md
 fi
 
-if [ ${#documentations[@]} -gt 0 ]; then
-    printf '%s' "### DOCUMENTATION UPDATES" >> documentations.md
-    printf '\n%s\n' "${documentations[@]}" >> documentations.md
-fi
-
-if [ ${#dependencies[@]} -gt 0 ]; then
-    printf '%s' "### DEPENDENCIES" >> dependencies.md
-    printf '\n%s\n' "${dependencies[@]}" >> dependencies.md
+if [ ${#bugs[@]} -gt 0 ]; then
+    printf '%s' "### BUG FIXES" >> bug_resolutions.md
+    printf '\n%s\n' "${bugs[@]}" >> bug_resolutions.md
 fi
 
 if [ ${#enhancements[@]} -gt 0 ]; then
@@ -80,9 +77,14 @@ if [ ${#resources[@]} -gt 0 ]; then
     printf '\n%s\n' "${resources[@]}" >> new_resources.md
 fi
 
-if [ ${#bugs[@]} -gt 0 ]; then
-    printf '%s' "### BUG FIXES" >> bug_resolutions.md
-    printf '\n%s\n' "${bugs[@]}" >> bug_resolutions.md
+if [ ${#documentations[@]} -gt 0 ]; then
+    printf '%s' "### DOCUMENTATION UPDATES" >> documentations.md
+    printf '\n%s\n' "${documentations[@]}" >> documentations.md
+fi
+
+if [ ${#dependencies[@]} -gt 0 ]; then
+    printf '%s' "### DEPENDENCIES" >> dependencies.md
+    printf '\n%s\n' "${dependencies[@]}" >> dependencies.md
 fi
     
 cat  header.md todos.md documentations.md dependencies.md new_enhancements.md new_resources.md bug_resolutions.md > ../CHANGELOG.md
