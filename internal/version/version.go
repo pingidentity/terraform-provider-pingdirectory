@@ -10,32 +10,46 @@ import (
 // Supported PingDirectory versions
 const (
 	PingDirectory9100 = "9.1.0.0"
+	PingDirectory9101 = "9.1.0.1"
+	PingDirectory9102 = "9.1.0.2"
 	PingDirectory9200 = "9.2.0.0"
 )
 
 func IsValid(versionString string) bool {
-	return versionString == PingDirectory9100 || versionString == PingDirectory9200
+	return getSortedVersionIndex(versionString) != -1
+}
+
+func getSortedVersionIndex(versionString string) int {
+	for i, version := range getSortedVersions() {
+		if version == versionString {
+			return i
+		}
+	}
+	return -1
+}
+
+func getSortedVersions() []string {
+	return []string{
+		PingDirectory9100,
+		PingDirectory9101,
+		PingDirectory9102,
+		PingDirectory9200,
+	}
 }
 
 // Compare two PingDirectory versions. Returns a negative number if the first argument is less than the second,
 // zero if they are equal, and a positive number if the first argument is greater than the second
 func Compare(version1, version2 string) (int, error) {
-	if !IsValid(version1) {
+	version1Index := getSortedVersionIndex(version1)
+	if version1Index == -1 {
 		return 0, errors.New("Invalid version: " + version1)
 	}
-	if !IsValid(version2) {
+	version2Index := getSortedVersionIndex(version2)
+	if version2Index == -1 {
 		return 0, errors.New("Invalid version: " + version2)
 	}
 
-	if version1 == version2 {
-		return 0, nil
-	}
-
-	if version1 == PingDirectory9100 {
-		return -1, nil
-	}
-
-	return 1, nil
+	return version1Index - version2Index, nil
 }
 
 func Parse(versionString string) (string, error) {
