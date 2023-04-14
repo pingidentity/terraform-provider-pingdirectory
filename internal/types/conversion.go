@@ -22,11 +22,11 @@ func GetStringSet(values []string) types.Set {
 	return set
 }
 
-// Get a types.Set from a slice of int32
-func GetInt64Set(values []int32) types.Set {
+// Get a types.Set from a slice of int64
+func GetInt64Set(values []int64) types.Set {
 	setValues := make([]attr.Value, len(values))
 	for i := 0; i < len(values); i++ {
-		setValues[i] = types.Int64Value(int64(values[i]))
+		setValues[i] = types.Int64Value(values[i])
 	}
 	set, _ := types.SetValue(types.Int64Type, setValues)
 	return set
@@ -57,13 +57,13 @@ func BoolTypeOrNil(b *bool) types.Bool {
 	return types.BoolValue(*b)
 }
 
-// Get a types.Int64 from the given int32 pointer, handling if the pointer is nil
-func Int64TypeOrNil(i *int32) types.Int64 {
+// Get a types.Int64 from the given int64 pointer, handling if the pointer is nil
+func Int64TypeOrNil(i *int64) types.Int64 {
 	if i == nil {
 		return types.Int64Null()
 	}
 
-	return types.Int64Value(int64(*i))
+	return types.Int64Value(*i)
 }
 
 // Get a types.Float64 from the given float32 pointer, handling if the pointer is nil

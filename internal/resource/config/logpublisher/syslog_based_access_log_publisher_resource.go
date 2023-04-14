@@ -517,16 +517,13 @@ func addOptionalSyslogBasedAccessLogPublisherFields(ctx context.Context, addRequ
 		addRequest.ServerHostName = plan.ServerHostName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.SyslogFacility) {
-		intVal := int32(plan.SyslogFacility.ValueInt64())
-		addRequest.SyslogFacility = &intVal
+		addRequest.SyslogFacility = plan.SyslogFacility.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MaxStringLength) {
-		intVal := int32(plan.MaxStringLength.ValueInt64())
-		addRequest.MaxStringLength = &intVal
+		addRequest.MaxStringLength = plan.MaxStringLength.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.LogConnects) {
 		addRequest.LogConnects = plan.LogConnects.ValueBoolPointer()
@@ -604,8 +601,7 @@ func addOptionalSyslogBasedAccessLogPublisherFields(ctx context.Context, addRequ
 		addRequest.AutoFlush = plan.AutoFlush.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogFieldBehavior) {
@@ -678,8 +674,8 @@ func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.Sy
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
-	state.ServerPort = types.Int64Value(int64(r.ServerPort))
-	state.SyslogFacility = types.Int64Value(int64(r.SyslogFacility))
+	state.ServerPort = types.Int64Value(r.ServerPort)
+	state.SyslogFacility = types.Int64Value(r.SyslogFacility)
 	state.MaxStringLength = internaltypes.Int64TypeOrNil(r.MaxStringLength)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)

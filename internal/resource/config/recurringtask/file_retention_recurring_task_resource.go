@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -211,22 +210,10 @@ func fileRetentionRecurringTaskSchema(ctx context.Context, req resource.SchemaRe
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r fileRetentionRecurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.AtLeastOneOf(
-			path.MatchRoot("retain_file_count"),
-			path.MatchRoot("retain_aggregate_file_size"),
-			path.MatchRoot("retain_file_age"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalFileRetentionRecurringTaskFields(ctx context.Context, addRequest *client.AddFileRetentionRecurringTaskRequest, plan fileRetentionRecurringTaskResourceModel) {
 	if internaltypes.IsDefined(plan.RetainFileCount) {
-		intVal := int32(plan.RetainFileCount.ValueInt64())
-		addRequest.RetainFileCount = &intVal
+		addRequest.RetainFileCount = plan.RetainFileCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainFileAge) {

@@ -18,7 +18,7 @@ const configId = "example"
 
 type testModel struct {
 	id                   string
-	listenPort           int
+	listenPort           int64
 	enabled              bool
 	httpServletExtension []string
 }
@@ -108,7 +108,7 @@ func testAccCheckExpectedHttpConnectionHandlerAttributes(config testModel) resou
 		}
 		// Verify that attributes have expected values
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "listen_port",
-			int64(config.listenPort), int64(response.HttpConnectionHandlerResponse.ListenPort))
+			config.listenPort, response.HttpConnectionHandlerResponse.ListenPort)
 		if err != nil {
 			return err
 		}

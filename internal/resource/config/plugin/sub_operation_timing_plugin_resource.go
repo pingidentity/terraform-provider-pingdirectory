@@ -173,8 +173,7 @@ func addOptionalSubOperationTimingPluginFields(ctx context.Context, addRequest *
 		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.NumMostExpensivePhasesShown) {
-		intVal := int32(plan.NumMostExpensivePhasesShown.ValueInt64())
-		addRequest.NumMostExpensivePhasesShown = &intVal
+		addRequest.NumMostExpensivePhasesShown = plan.NumMostExpensivePhasesShown.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
 		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
@@ -192,7 +191,7 @@ func readSubOperationTimingPluginResponse(ctx context.Context, r *client.SubOper
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
-	state.NumMostExpensivePhasesShown = types.Int64Value(int64(r.NumMostExpensivePhasesShown))
+	state.NumMostExpensivePhasesShown = types.Int64Value(r.NumMostExpensivePhasesShown)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)

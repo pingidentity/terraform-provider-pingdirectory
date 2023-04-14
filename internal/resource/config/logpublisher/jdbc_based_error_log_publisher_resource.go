@@ -184,8 +184,7 @@ func addOptionalJdbcBasedErrorLogPublisherFields(ctx context.Context, addRequest
 		addRequest.LogTableName = plan.LogTableName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DefaultSeverity) {
 		var slice []string

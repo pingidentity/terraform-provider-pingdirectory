@@ -382,16 +382,13 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.MaxRequestSize = plan.MaxRequestSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxCancelHandlers) {
-		intVal := int32(plan.MaxCancelHandlers.ValueInt64())
-		addRequest.MaxCancelHandlers = &intVal
+		addRequest.MaxCancelHandlers = plan.MaxCancelHandlers.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumAcceptHandlers) {
-		intVal := int32(plan.NumAcceptHandlers.ValueInt64())
-		addRequest.NumAcceptHandlers = &intVal
+		addRequest.NumAcceptHandlers = plan.NumAcceptHandlers.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumRequestHandlers) {
-		intVal := int32(plan.NumRequestHandlers.ValueInt64())
-		addRequest.NumRequestHandlers = &intVal
+		addRequest.NumRequestHandlers = plan.NumRequestHandlers.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SslClientAuthPolicy) {
@@ -402,8 +399,7 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.SslClientAuthPolicy = sslClientAuthPolicy
 	}
 	if internaltypes.IsDefined(plan.AcceptBacklog) {
-		intVal := int32(plan.AcceptBacklog.ValueInt64())
-		addRequest.AcceptBacklog = &intVal
+		addRequest.AcceptBacklog = plan.AcceptBacklog.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.SslProtocol) {
 		var slice []string
@@ -449,7 +445,7 @@ func addOptionalLdapConnectionHandlerFields(ctx context.Context, addRequest *cli
 func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnectionHandlerResponse, state *ldapConnectionHandlerResourceModel, expectedValues *ldapConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ListenAddress = internaltypes.GetStringSet(r.ListenAddress)
-	state.ListenPort = types.Int64Value(int64(r.ListenPort))
+	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.AllowStartTLS = internaltypes.BoolTypeOrNil(r.AllowStartTLS)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
@@ -530,7 +526,7 @@ func (r *ldapConnectionHandlerResource) Create(ctx context.Context, req resource
 
 	addRequest := client.NewAddLdapConnectionHandlerRequest(plan.Id.ValueString(),
 		[]client.EnumldapConnectionHandlerSchemaUrn{client.ENUMLDAPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDAP},
-		int32(plan.ListenPort.ValueInt64()),
+		plan.ListenPort.ValueInt64(),
 		plan.Enabled.ValueBool())
 	err := addOptionalLdapConnectionHandlerFields(ctx, addRequest, plan)
 	if err != nil {

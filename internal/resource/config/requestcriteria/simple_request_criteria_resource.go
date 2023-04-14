@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -387,16 +386,6 @@ func simpleRequestCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
-}
-
-// Add config validators
-func (r simpleRequestCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("excluded_application_name"),
-			path.MatchRoot("included_application_name"),
-		),
-	}
 }
 
 // Add optional fields to create request

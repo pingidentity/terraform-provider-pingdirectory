@@ -91,7 +91,7 @@ func testAccCheckExpectedJmxConnectionHandlerAttributes(config jmxConnectionHand
 		// Verify that attributes have expected values
 		resourceType := "Jmx Connection Handler"
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "listen-port",
-			config.listenPort, int64(response.JmxConnectionHandlerResponse.ListenPort))
+			config.listenPort, response.JmxConnectionHandlerResponse.ListenPort)
 		if err != nil {
 			return err
 		}

@@ -203,8 +203,7 @@ func addOptionalPasswordPolicyStateJsonVirtualAttributeFields(ctx context.Contex
 		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
-		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
-		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = &intVal
+		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64Pointer()
 	}
 }
 

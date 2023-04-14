@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -189,16 +188,6 @@ func jdbcExternalServerSchema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r jdbcExternalServerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("password"),
-			path.MatchRoot("passphrase_provider"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalJdbcExternalServerFields(ctx context.Context, addRequest *client.AddJdbcExternalServerRequest, plan jdbcExternalServerResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -214,8 +203,7 @@ func addOptionalJdbcExternalServerFields(ctx context.Context, addRequest *client
 		addRequest.ServerHostName = plan.ServerHostName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UserName) {

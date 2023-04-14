@@ -175,8 +175,7 @@ func addOptionalMockAccessTokenValidatorFields(ctx context.Context, addRequest *
 		addRequest.ScopeClaimName = plan.ScopeClaimName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EvaluationOrderIndex) {
-		intVal := int32(plan.EvaluationOrderIndex.ValueInt64())
-		addRequest.EvaluationOrderIndex = &intVal
+		addRequest.EvaluationOrderIndex = plan.EvaluationOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.IdentityMapper) {
@@ -197,7 +196,7 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 	state.Id = types.StringValue(r.Id)
 	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
 	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
-	state.EvaluationOrderIndex = types.Int64Value(int64(r.EvaluationOrderIndex))
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

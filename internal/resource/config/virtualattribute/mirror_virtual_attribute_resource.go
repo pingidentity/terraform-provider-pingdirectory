@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -231,16 +230,6 @@ func mirrorVirtualAttributeSchema(ctx context.Context, req resource.SchemaReques
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r mirrorVirtualAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("source_entry_dn_map"),
-			path.MatchRoot("source_entry_dn_attribute"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalMirrorVirtualAttributeFields(ctx context.Context, addRequest *client.AddMirrorVirtualAttributeRequest, plan mirrorVirtualAttributeResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -290,8 +279,7 @@ func addOptionalMirrorVirtualAttributeFields(ctx context.Context, addRequest *cl
 		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
-		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
-		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = &intVal
+		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MultipleVirtualAttributeMergeBehavior) {

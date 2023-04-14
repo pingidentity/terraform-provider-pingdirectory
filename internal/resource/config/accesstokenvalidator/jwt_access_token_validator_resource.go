@@ -308,8 +308,7 @@ func addOptionalJwtAccessTokenValidatorFields(ctx context.Context, addRequest *c
 		addRequest.ScopeClaimName = plan.ScopeClaimName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EvaluationOrderIndex) {
-		intVal := int32(plan.EvaluationOrderIndex.ValueInt64())
-		addRequest.EvaluationOrderIndex = &intVal
+		addRequest.EvaluationOrderIndex = plan.EvaluationOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AuthorizationServer) {
@@ -347,7 +346,7 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
 	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
 	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
-	state.EvaluationOrderIndex = types.Int64Value(int64(r.EvaluationOrderIndex))
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))

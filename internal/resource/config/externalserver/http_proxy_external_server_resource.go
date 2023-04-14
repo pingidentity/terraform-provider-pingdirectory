@@ -176,7 +176,7 @@ func addOptionalHttpProxyExternalServerFields(ctx context.Context, addRequest *c
 func readHttpProxyExternalServerResponse(ctx context.Context, r *client.HttpProxyExternalServerResponse, state *httpProxyExternalServerResourceModel, expectedValues *httpProxyExternalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
-	state.ServerPort = types.Int64Value(int64(r.ServerPort))
+	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.BasicAuthenticationUsername = internaltypes.StringTypeOrNil(r.BasicAuthenticationUsername, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationUsername))
 	state.BasicAuthenticationPassphraseProvider = internaltypes.StringTypeOrNil(r.BasicAuthenticationPassphraseProvider, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -207,7 +207,7 @@ func (r *httpProxyExternalServerResource) Create(ctx context.Context, req resour
 	addRequest := client.NewAddHttpProxyExternalServerRequest(plan.Id.ValueString(),
 		[]client.EnumhttpProxyExternalServerSchemaUrn{client.ENUMHTTPPROXYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP_PROXY},
 		plan.ServerHostName.ValueString(),
-		int32(plan.ServerPort.ValueInt64()))
+		plan.ServerPort.ValueInt64())
 	addOptionalHttpProxyExternalServerFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -271,21 +270,10 @@ func oracleUnifiedDirectoryExternalServerSchema(ctx context.Context, req resourc
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r oracleUnifiedDirectoryExternalServerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("password"),
-			path.MatchRoot("passphrase_provider"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalOracleUnifiedDirectoryExternalServerFields(ctx context.Context, addRequest *client.AddOracleUnifiedDirectoryExternalServerRequest, plan oracleUnifiedDirectoryExternalServerResourceModel) error {
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Location) {
@@ -356,12 +344,10 @@ func addOptionalOracleUnifiedDirectoryExternalServerFields(ctx context.Context, 
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
-		intVal := int32(plan.InitialConnections.ValueInt64())
-		addRequest.InitialConnections = &intVal
+		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MaxConnections) {
-		intVal := int32(plan.MaxConnections.ValueInt64())
-		addRequest.MaxConnections = &intVal
+		addRequest.MaxConnections = plan.MaxConnections.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DefunctConnectionResultCode) {
 		var slice []string
@@ -390,7 +376,7 @@ func addOptionalOracleUnifiedDirectoryExternalServerFields(ctx context.Context, 
 func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *client.OracleUnifiedDirectoryExternalServerResponse, state *oracleUnifiedDirectoryExternalServerResourceModel, expectedValues *oracleUnifiedDirectoryExternalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
-	state.ServerPort = types.Int64Value(int64(r.ServerPort))
+	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
 	// Obscured values aren't returned from the PD Configuration API - just use the expected value

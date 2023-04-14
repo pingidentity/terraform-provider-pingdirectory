@@ -15,7 +15,7 @@ import (
 
 // Some attributes to test with
 type testModel struct {
-	jmxPort         int
+	jmxPort         int64
 	startTlsEnabled bool
 }
 
@@ -102,7 +102,7 @@ func testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName string, 
 		}
 		// Verify that attributes have expected values
 		err = acctest.TestAttributesMatchInt(resourceType, &instanceName, "jmx-port",
-			int64(config.jmxPort), int64(*response.DirectoryServerInstanceResponse.JmxPort))
+			config.jmxPort, *response.DirectoryServerInstanceResponse.JmxPort)
 		if err != nil {
 			return err
 		}

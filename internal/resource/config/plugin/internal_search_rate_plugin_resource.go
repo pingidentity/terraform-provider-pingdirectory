@@ -193,16 +193,13 @@ func addOptionalInternalSearchRatePluginFields(ctx context.Context, addRequest *
 		addRequest.PluginType = enumSlice
 	}
 	if internaltypes.IsDefined(plan.NumThreads) {
-		intVal := int32(plan.NumThreads.ValueInt64())
-		addRequest.NumThreads = &intVal
+		addRequest.NumThreads = plan.NumThreads.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.LowerBound) {
-		intVal := int32(plan.LowerBound.ValueInt64())
-		addRequest.LowerBound = &intVal
+		addRequest.LowerBound = plan.LowerBound.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.UpperBound) {
-		intVal := int32(plan.UpperBound.ValueInt64())
-		addRequest.UpperBound = &intVal
+		addRequest.UpperBound = plan.UpperBound.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.FilterSuffix) {
@@ -223,7 +220,7 @@ func readInternalSearchRatePluginResponse(ctx context.Context, r *client.Interna
 	state.Id = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
-	state.NumThreads = types.Int64Value(int64(r.NumThreads))
+	state.NumThreads = types.Int64Value(r.NumThreads)
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.LowerBound = internaltypes.Int64TypeOrNil(r.LowerBound)
 	state.UpperBound = internaltypes.Int64TypeOrNil(r.UpperBound)

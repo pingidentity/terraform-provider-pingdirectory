@@ -477,20 +477,16 @@ func addOptionalRootDnUserFields(ctx context.Context, addRequest *client.AddRoot
 		addRequest.Privilege = enumSlice
 	}
 	if internaltypes.IsDefined(plan.SearchResultEntryLimit) {
-		intVal := int32(plan.SearchResultEntryLimit.ValueInt64())
-		addRequest.SearchResultEntryLimit = &intVal
+		addRequest.SearchResultEntryLimit = plan.SearchResultEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.TimeLimitSeconds) {
-		intVal := int32(plan.TimeLimitSeconds.ValueInt64())
-		addRequest.TimeLimitSeconds = &intVal
+		addRequest.TimeLimitSeconds = plan.TimeLimitSeconds.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.LookThroughEntryLimit) {
-		intVal := int32(plan.LookThroughEntryLimit.ValueInt64())
-		addRequest.LookThroughEntryLimit = &intVal
+		addRequest.LookThroughEntryLimit = plan.LookThroughEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.IdleTimeLimitSeconds) {
-		intVal := int32(plan.IdleTimeLimitSeconds.ValueInt64())
-		addRequest.IdleTimeLimitSeconds = &intVal
+		addRequest.IdleTimeLimitSeconds = plan.IdleTimeLimitSeconds.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PasswordPolicy) {
@@ -587,10 +583,10 @@ func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, s
 	state.InheritDefaultRootPrivileges = types.BoolValue(r.InheritDefaultRootPrivileges)
 	state.Privilege = internaltypes.GetStringSet(
 		client.StringSliceEnumrootDnUserPrivilegeProp(r.Privilege))
-	state.SearchResultEntryLimit = types.Int64Value(int64(r.SearchResultEntryLimit))
-	state.TimeLimitSeconds = types.Int64Value(int64(r.TimeLimitSeconds))
-	state.LookThroughEntryLimit = types.Int64Value(int64(r.LookThroughEntryLimit))
-	state.IdleTimeLimitSeconds = types.Int64Value(int64(r.IdleTimeLimitSeconds))
+	state.SearchResultEntryLimit = types.Int64Value(r.SearchResultEntryLimit)
+	state.TimeLimitSeconds = types.Int64Value(r.TimeLimitSeconds)
+	state.LookThroughEntryLimit = types.Int64Value(r.LookThroughEntryLimit)
+	state.IdleTimeLimitSeconds = types.Int64Value(r.IdleTimeLimitSeconds)
 	state.PasswordPolicy = types.StringValue(r.PasswordPolicy)
 	state.Disabled = internaltypes.BoolTypeOrNil(r.Disabled)
 	state.AccountActivationTime = internaltypes.StringTypeOrNil(r.AccountActivationTime, internaltypes.IsEmptyString(expectedValues.AccountActivationTime))

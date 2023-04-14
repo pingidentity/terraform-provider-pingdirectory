@@ -313,8 +313,7 @@ func addOptionalCommonLogFileHttpOperationLogPublisherFields(ctx context.Context
 		addRequest.BufferSize = plan.BufferSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TimeInterval) {

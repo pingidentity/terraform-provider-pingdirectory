@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -200,16 +199,6 @@ func pingFederateAccessTokenValidatorSchema(ctx context.Context, req resource.Sc
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r pingFederateAccessTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.ExactlyOneOf(
-			path.MatchRoot("client_secret_passphrase_provider"),
-			path.MatchRoot("client_secret"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalPingFederateAccessTokenValidatorFields(ctx context.Context, addRequest *client.AddPingFederateAccessTokenValidatorRequest, plan pingFederateAccessTokenValidatorResourceModel) {
 	// Empty strings are treated as equivalent to null
@@ -232,8 +221,7 @@ func addOptionalPingFederateAccessTokenValidatorFields(ctx context.Context, addR
 		addRequest.EndpointCacheRefresh = plan.EndpointCacheRefresh.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.EvaluationOrderIndex) {
-		intVal := int32(plan.EvaluationOrderIndex.ValueInt64())
-		addRequest.EvaluationOrderIndex = &intVal
+		addRequest.EvaluationOrderIndex = plan.EvaluationOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AuthorizationServer) {
@@ -265,7 +253,7 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.EndpointCacheRefresh = internaltypes.StringTypeOrNil(r.EndpointCacheRefresh, internaltypes.IsEmptyString(expectedValues.EndpointCacheRefresh))
 	config.CheckMismatchedPDFormattedAttributes("endpoint_cache_refresh",
 		expectedValues.EndpointCacheRefresh, state.EndpointCacheRefresh, diagnostics)
-	state.EvaluationOrderIndex = types.Int64Value(int64(r.EvaluationOrderIndex))
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))

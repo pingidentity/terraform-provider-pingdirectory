@@ -270,8 +270,7 @@ func addOptionalReverseDnJoinVirtualAttributeFields(ctx context.Context, addRequ
 		addRequest.JoinScope = joinScope
 	}
 	if internaltypes.IsDefined(plan.JoinSizeLimit) {
-		intVal := int32(plan.JoinSizeLimit.ValueInt64())
-		addRequest.JoinSizeLimit = &intVal
+		addRequest.JoinSizeLimit = plan.JoinSizeLimit.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.JoinFilter) {
@@ -318,8 +317,7 @@ func addOptionalReverseDnJoinVirtualAttributeFields(ctx context.Context, addRequ
 		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
-		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
-		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = &intVal
+		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MultipleVirtualAttributeMergeBehavior) {

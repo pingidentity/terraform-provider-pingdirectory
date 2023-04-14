@@ -208,8 +208,7 @@ func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDeb
 		addRequest.IncludeThrowableCause = plan.IncludeThrowableCause.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.ThrowableStackFrames) {
-		intVal := int32(plan.ThrowableStackFrames.ValueInt64())
-		addRequest.ThrowableStackFrames = &intVal
+		addRequest.ThrowableStackFrames = plan.ThrowableStackFrames.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {

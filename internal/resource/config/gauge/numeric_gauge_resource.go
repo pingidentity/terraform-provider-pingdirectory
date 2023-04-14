@@ -335,8 +335,7 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
-		intVal := int32(plan.SamplesPerUpdateInterval.ValueInt64())
-		addRequest.SamplesPerUpdateInterval = &intVal
+		addRequest.SamplesPerUpdateInterval = plan.SamplesPerUpdateInterval.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeResource) {
 		var slice []string

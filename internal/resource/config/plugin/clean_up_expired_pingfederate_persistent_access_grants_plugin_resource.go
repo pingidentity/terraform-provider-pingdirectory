@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -160,16 +159,6 @@ func cleanUpExpiredPingfederatePersistentAccessGrantsPluginSchema(ctx context.Co
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r cleanUpExpiredPingfederatePersistentAccessGrantsPluginResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		configvalidators.Implies(
-			path.MatchRoot("datetime_json_field"),
-			path.MatchRoot("purge_behavior"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalCleanUpExpiredPingfederatePersistentAccessGrantsPluginFields(ctx context.Context, addRequest *client.AddCleanUpExpiredPingfederatePersistentAccessGrantsPluginRequest, plan cleanUpExpiredPingfederatePersistentAccessGrantsPluginResourceModel) {
 	// Empty strings are treated as equivalent to null
@@ -177,20 +166,17 @@ func addOptionalCleanUpExpiredPingfederatePersistentAccessGrantsPluginFields(ctx
 		addRequest.PollingInterval = plan.PollingInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PeerServerPriorityIndex) {
-		intVal := int32(plan.PeerServerPriorityIndex.ValueInt64())
-		addRequest.PeerServerPriorityIndex = &intVal
+		addRequest.PeerServerPriorityIndex = plan.PeerServerPriorityIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseDN) {
 		addRequest.BaseDN = plan.BaseDN.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
-		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())
-		addRequest.MaxUpdatesPerSecond = &intVal
+		addRequest.MaxUpdatesPerSecond = plan.MaxUpdatesPerSecond.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumDeleteThreads) {
-		intVal := int32(plan.NumDeleteThreads.ValueInt64())
-		addRequest.NumDeleteThreads = &intVal
+		addRequest.NumDeleteThreads = plan.NumDeleteThreads.ValueInt64Pointer()
 	}
 }
 
@@ -202,8 +188,8 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx cont
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
 	state.BaseDN = internaltypes.StringTypeOrNil(r.BaseDN, internaltypes.IsEmptyString(expectedValues.BaseDN))
-	state.MaxUpdatesPerSecond = types.Int64Value(int64(r.MaxUpdatesPerSecond))
-	state.NumDeleteThreads = types.Int64Value(int64(r.NumDeleteThreads))
+	state.MaxUpdatesPerSecond = types.Int64Value(r.MaxUpdatesPerSecond)
+	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }

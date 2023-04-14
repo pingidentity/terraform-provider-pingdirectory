@@ -253,8 +253,7 @@ func addOptionalExecRecurringTaskFields(ctx context.Context, addRequest *client.
 		addRequest.CommandOutputFileBaseName = plan.CommandOutputFileBaseName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousOutputFileCount) {
-		intVal := int32(plan.RetainPreviousOutputFileCount.ValueInt64())
-		addRequest.RetainPreviousOutputFileCount = &intVal
+		addRequest.RetainPreviousOutputFileCount = plan.RetainPreviousOutputFileCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousOutputFileAge) {

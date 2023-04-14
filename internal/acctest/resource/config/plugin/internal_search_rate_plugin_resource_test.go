@@ -120,7 +120,7 @@ func testAccCheckExpectedInternalSearchRatePluginAttributes(config internalSearc
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "num-threads",
-			config.numThreads, int64(response.InternalSearchRatePluginResponse.NumThreads))
+			config.numThreads, response.InternalSearchRatePluginResponse.NumThreads)
 		if err != nil {
 			return err
 		}

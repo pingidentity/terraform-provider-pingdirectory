@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -322,16 +321,6 @@ func ldapMappedScimHttpServletExtensionSchema(ctx context.Context, req resource.
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r ldapMappedScimHttpServletExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("exclude_ldap_objectclass"),
-			path.MatchRoot("include_ldap_objectclass"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, addRequest *client.AddLdapMappedScimHttpServletExtensionRequest, plan ldapMappedScimHttpServletExtensionResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -386,20 +375,17 @@ func addOptionalLdapMappedScimHttpServletExtensionFields(ctx context.Context, ad
 		addRequest.TemporaryDirectoryPermissions = plan.TemporaryDirectoryPermissions.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxResults) {
-		intVal := int32(plan.MaxResults.ValueInt64())
-		addRequest.MaxResults = &intVal
+		addRequest.MaxResults = plan.MaxResults.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.BulkMaxOperations) {
-		intVal := int32(plan.BulkMaxOperations.ValueInt64())
-		addRequest.BulkMaxOperations = &intVal
+		addRequest.BulkMaxOperations = plan.BulkMaxOperations.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BulkMaxPayloadSize) {
 		addRequest.BulkMaxPayloadSize = plan.BulkMaxPayloadSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.BulkMaxConcurrentRequests) {
-		intVal := int32(plan.BulkMaxConcurrentRequests.ValueInt64())
-		addRequest.BulkMaxConcurrentRequests = &intVal
+		addRequest.BulkMaxConcurrentRequests = plan.BulkMaxConcurrentRequests.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DebugEnabled) {
 		addRequest.DebugEnabled = plan.DebugEnabled.ValueBoolPointer()

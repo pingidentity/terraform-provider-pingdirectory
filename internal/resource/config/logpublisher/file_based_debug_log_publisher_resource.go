@@ -377,8 +377,7 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 		addRequest.BufferSize = plan.BufferSize.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TimeInterval) {
@@ -423,8 +422,7 @@ func addOptionalFileBasedDebugLogPublisherFields(ctx context.Context, addRequest
 		addRequest.DefaultIncludeThrowableCause = plan.DefaultIncludeThrowableCause.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DefaultThrowableStackFrames) {
-		intVal := int32(plan.DefaultThrowableStackFrames.ValueInt64())
-		addRequest.DefaultThrowableStackFrames = &intVal
+		addRequest.DefaultThrowableStackFrames = plan.DefaultThrowableStackFrames.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {

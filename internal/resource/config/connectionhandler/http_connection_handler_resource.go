@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -351,16 +350,6 @@ func httpConnectionHandlerSchema(ctx context.Context, req resource.SchemaRequest
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r httpConnectionHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.AtLeastOneOf(
-			path.MatchRoot("http_servlet_extension"),
-			path.MatchRoot("web_application_extension"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *client.AddHttpConnectionHandlerRequest, plan httpConnectionHandlerResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -408,15 +397,13 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.NumRequestHandlers) {
-		intVal := int32(plan.NumRequestHandlers.ValueInt64())
-		addRequest.NumRequestHandlers = &intVal
+		addRequest.NumRequestHandlers = plan.NumRequestHandlers.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.KeepStats) {
 		addRequest.KeepStats = plan.KeepStats.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.AcceptBacklog) {
-		intVal := int32(plan.AcceptBacklog.ValueInt64())
-		addRequest.AcceptBacklog = &intVal
+		addRequest.AcceptBacklog = plan.AcceptBacklog.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.AllowTCPReuseAddress) {
 		addRequest.AllowTCPReuseAddress = plan.AllowTCPReuseAddress.ValueBoolPointer()
@@ -426,8 +413,7 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.IdleTimeLimit = plan.IdleTimeLimit.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.LowResourcesConnectionThreshold) {
-		intVal := int32(plan.LowResourcesConnectionThreshold.ValueInt64())
-		addRequest.LowResourcesConnectionThreshold = &intVal
+		addRequest.LowResourcesConnectionThreshold = plan.LowResourcesConnectionThreshold.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LowResourcesIdleTimeLimit) {
@@ -440,8 +426,7 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 		addRequest.UseForwardedHeaders = plan.UseForwardedHeaders.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.HttpRequestHeaderSize) {
-		intVal := int32(plan.HttpRequestHeaderSize.ValueInt64())
-		addRequest.HttpRequestHeaderSize = &intVal
+		addRequest.HttpRequestHeaderSize = plan.HttpRequestHeaderSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.ResponseHeader) {
 		var slice []string
@@ -479,7 +464,7 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnectionHandlerResponse, state *httpConnectionHandlerResourceModel, expectedValues *httpConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ListenAddress = internaltypes.StringTypeOrNil(r.ListenAddress, internaltypes.IsEmptyString(expectedValues.ListenAddress))
-	state.ListenPort = types.Int64Value(int64(r.ListenPort))
+	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.HttpServletExtension = internaltypes.GetStringSet(r.HttpServletExtension)
@@ -560,7 +545,7 @@ func (r *httpConnectionHandlerResource) Create(ctx context.Context, req resource
 
 	addRequest := client.NewAddHttpConnectionHandlerRequest(plan.Id.ValueString(),
 		[]client.EnumhttpConnectionHandlerSchemaUrn{client.ENUMHTTPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERHTTP},
-		int32(plan.ListenPort.ValueInt64()),
+		plan.ListenPort.ValueInt64(),
 		plan.Enabled.ValueBool())
 	err := addOptionalHttpConnectionHandlerFields(ctx, addRequest, plan)
 	if err != nil {

@@ -414,12 +414,10 @@ func addOptionalFileBasedTraceLogPublisherFields(ctx context.Context, addRequest
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MaxStringLength) {
-		intVal := int32(plan.MaxStringLength.ValueInt64())
-		addRequest.MaxStringLength = &intVal
+		addRequest.MaxStringLength = plan.MaxStringLength.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DebugMessageType) {
 		var slice []string

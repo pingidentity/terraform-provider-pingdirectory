@@ -115,7 +115,7 @@ func testAccCheckExpectedGlobalConfigurationAttributes(globalConfig testModel) r
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchInt(resourceType, nil, "size-limit", globalConfig.sizeLimit, int64(*response.SizeLimit))
+		err = acctest.TestAttributesMatchInt(resourceType, nil, "size-limit", globalConfig.sizeLimit, *response.SizeLimit)
 		if err != nil {
 			return err
 		}

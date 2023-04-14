@@ -119,7 +119,7 @@ func testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(config generic
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.attributeType, "display-order-index",
-			config.displayOrderIndex, int64(response.GenericDelegatedAdminAttributeResponse.DisplayOrderIndex))
+			config.displayOrderIndex, response.GenericDelegatedAdminAttributeResponse.DisplayOrderIndex)
 		if err != nil {
 			return err
 		}

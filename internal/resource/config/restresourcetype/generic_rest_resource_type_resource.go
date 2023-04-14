@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -255,16 +254,6 @@ func genericRestResourceTypeSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r genericRestResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("parent_resource_type"),
-			path.MatchRoot("parent_dn"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalGenericRestResourceTypeFields(ctx context.Context, addRequest *client.AddGenericRestResourceTypeRequest, plan genericRestResourceTypeResourceModel) {
 	// Empty strings are treated as equivalent to null
@@ -320,12 +309,10 @@ func addOptionalGenericRestResourceTypeFields(ctx context.Context, addRequest *c
 		addRequest.PrimaryDisplayAttributeType = plan.PrimaryDisplayAttributeType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminSearchSizeLimit) {
-		intVal := int32(plan.DelegatedAdminSearchSizeLimit.ValueInt64())
-		addRequest.DelegatedAdminSearchSizeLimit = &intVal
+		addRequest.DelegatedAdminSearchSizeLimit = plan.DelegatedAdminSearchSizeLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminReportSizeLimit) {
-		intVal := int32(plan.DelegatedAdminReportSizeLimit.ValueInt64())
-		addRequest.DelegatedAdminReportSizeLimit = &intVal
+		addRequest.DelegatedAdminReportSizeLimit = plan.DelegatedAdminReportSizeLimit.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MembersColumnName) {

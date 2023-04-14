@@ -382,8 +382,7 @@ func addOptionalSyslogJsonHttpOperationLogPublisherFields(ctx context.Context, a
 		addRequest.SyslogMessageApplicationName = plan.SyslogMessageApplicationName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.LogRequests) {
 		addRequest.LogRequests = plan.LogRequests.ValueBoolPointer()

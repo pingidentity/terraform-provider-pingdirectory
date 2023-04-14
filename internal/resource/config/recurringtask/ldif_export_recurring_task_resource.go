@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -271,20 +270,6 @@ func ldifExportRecurringTaskSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schema
 }
 
-// Add config validators
-func (r ldifExportRecurringTaskResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
-	return []resource.ConfigValidator{
-		resourcevalidator.Conflicting(
-			path.MatchRoot("backend_id"),
-			path.MatchRoot("exclude_backend_id"),
-		),
-		resourcevalidator.Conflicting(
-			path.MatchRoot("encryption_settings_definition_id"),
-			path.MatchRoot("encryption_passphrase_file"),
-		),
-	}
-}
-
 // Add optional fields to create request
 func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *client.AddLdifExportRecurringTaskRequest, plan ldifExportRecurringTaskResourceModel) {
 	// Empty strings are treated as equivalent to null
@@ -315,16 +300,14 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 		addRequest.Sign = plan.Sign.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousLDIFExportCount) {
-		intVal := int32(plan.RetainPreviousLDIFExportCount.ValueInt64())
-		addRequest.RetainPreviousLDIFExportCount = &intVal
+		addRequest.RetainPreviousLDIFExportCount = plan.RetainPreviousLDIFExportCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousLDIFExportAge) {
 		addRequest.RetainPreviousLDIFExportAge = plan.RetainPreviousLDIFExportAge.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxMegabytesPerSecond) {
-		intVal := int32(plan.MaxMegabytesPerSecond.ValueInt64())
-		addRequest.MaxMegabytesPerSecond = &intVal
+		addRequest.MaxMegabytesPerSecond = plan.MaxMegabytesPerSecond.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
