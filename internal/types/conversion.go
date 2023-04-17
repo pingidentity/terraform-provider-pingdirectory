@@ -66,11 +66,11 @@ func Int64TypeOrNil(i *int64) types.Int64 {
 	return types.Int64Value(*i)
 }
 
-// Get a types.Float64 from the given float32 pointer, handling if the pointer is nil
-func Float64TypeOrNil(f *float32) types.Float64 {
+// Get a types.Float64 from the given float64 pointer, handling if the pointer is nil
+func Float64TypeOrNil(f *float64) types.Float64 {
 	if f == nil {
 		return types.Float64Null()
 	}
 
-	return types.Float64Value(float64(*f))
+	return types.Float64Value(*f)
 }
