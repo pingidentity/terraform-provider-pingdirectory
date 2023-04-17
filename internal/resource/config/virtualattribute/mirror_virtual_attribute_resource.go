@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -228,6 +229,16 @@ func mirrorVirtualAttributeSchema(ctx context.Context, req resource.SchemaReques
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r mirrorVirtualAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("source_entry_dn_map"),
+			path.MatchRoot("source_entry_dn_attribute"),
+		),
+	}
 }
 
 // Add optional fields to create request

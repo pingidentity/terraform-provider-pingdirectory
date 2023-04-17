@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -197,6 +198,16 @@ func pingFederateAccessTokenValidatorSchema(ctx context.Context, req resource.Sc
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r pingFederateAccessTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.ExactlyOneOf(
+			path.MatchRoot("client_secret_passphrase_provider"),
+			path.MatchRoot("client_secret"),
+		),
+	}
 }
 
 // Add optional fields to create request

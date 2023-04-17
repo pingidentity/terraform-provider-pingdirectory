@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -319,6 +320,16 @@ func ldapMappedScimHttpServletExtensionSchema(ctx context.Context, req resource.
 	}
 	config.AddCommonSchema(&schema, true)
 	resp.Schema = schema
+}
+
+// Add config validators
+func (r ldapMappedScimHttpServletExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("exclude_ldap_objectclass"),
+			path.MatchRoot("include_ldap_objectclass"),
+		),
+	}
 }
 
 // Add optional fields to create request
