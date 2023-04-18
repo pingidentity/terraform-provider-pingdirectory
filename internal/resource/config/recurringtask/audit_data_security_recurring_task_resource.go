@@ -276,8 +276,7 @@ func addOptionalAuditDataSecurityRecurringTaskFields(ctx context.Context, addReq
 		addRequest.IncludeFilter = slice
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousReportCount) {
-		intVal := int32(plan.RetainPreviousReportCount.ValueInt64())
-		addRequest.RetainPreviousReportCount = &intVal
+		addRequest.RetainPreviousReportCount = plan.RetainPreviousReportCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousReportAge) {

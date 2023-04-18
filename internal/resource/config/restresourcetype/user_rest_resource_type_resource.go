@@ -290,8 +290,7 @@ func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *clie
 		addRequest.PasswordAttributeCategory = plan.PasswordAttributeCategory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PasswordDisplayOrderIndex) {
-		intVal := int32(plan.PasswordDisplayOrderIndex.ValueInt64())
-		addRequest.PasswordDisplayOrderIndex = &intVal
+		addRequest.PasswordDisplayOrderIndex = plan.PasswordDisplayOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -346,12 +345,10 @@ func addOptionalUserRestResourceTypeFields(ctx context.Context, addRequest *clie
 		addRequest.PrimaryDisplayAttributeType = plan.PrimaryDisplayAttributeType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminSearchSizeLimit) {
-		intVal := int32(plan.DelegatedAdminSearchSizeLimit.ValueInt64())
-		addRequest.DelegatedAdminSearchSizeLimit = &intVal
+		addRequest.DelegatedAdminSearchSizeLimit = plan.DelegatedAdminSearchSizeLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminReportSizeLimit) {
-		intVal := int32(plan.DelegatedAdminReportSizeLimit.ValueInt64())
-		addRequest.DelegatedAdminReportSizeLimit = &intVal
+		addRequest.DelegatedAdminReportSizeLimit = plan.DelegatedAdminReportSizeLimit.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MembersColumnName) {

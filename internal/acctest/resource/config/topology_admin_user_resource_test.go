@@ -123,22 +123,22 @@ func testAccCheckExpectedTopologyAdminUserAttributes(config topologyAdminUserTes
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "search-result-entry-limit",
-			config.searchResultEntryLimit, int64(response.SearchResultEntryLimit))
+			config.searchResultEntryLimit, response.SearchResultEntryLimit)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "time-limit-seconds",
-			config.timeLimitSeconds, int64(response.TimeLimitSeconds))
+			config.timeLimitSeconds, response.TimeLimitSeconds)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "look-through-entry-limit",
-			config.lookThroughEntryLimit, int64(response.LookThroughEntryLimit))
+			config.lookThroughEntryLimit, response.LookThroughEntryLimit)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "idle-time-limit-seconds",
-			config.idleTimeLimitSeconds, int64(response.IdleTimeLimitSeconds))
+			config.idleTimeLimitSeconds, response.IdleTimeLimitSeconds)
 		if err != nil {
 			return err
 		}

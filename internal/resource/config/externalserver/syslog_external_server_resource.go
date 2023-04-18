@@ -163,8 +163,7 @@ func syslogExternalServerSchema(ctx context.Context, req resource.SchemaRequest,
 // Add optional fields to create request
 func addOptionalSyslogExternalServerFields(ctx context.Context, addRequest *client.AddSyslogExternalServerRequest, plan syslogExternalServerResourceModel) {
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectTimeout) {

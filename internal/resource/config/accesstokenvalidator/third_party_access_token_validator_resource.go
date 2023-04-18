@@ -187,7 +187,7 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
-	state.EvaluationOrderIndex = types.Int64Value(int64(r.EvaluationOrderIndex))
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -218,7 +218,7 @@ func (r *thirdPartyAccessTokenValidatorResource) Create(ctx context.Context, req
 		[]client.EnumthirdPartyAccessTokenValidatorSchemaUrn{client.ENUMTHIRDPARTYACCESSTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCESS_TOKEN_VALIDATORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
-		int32(plan.EvaluationOrderIndex.ValueInt64()))
+		plan.EvaluationOrderIndex.ValueInt64())
 	addOptionalThirdPartyAccessTokenValidatorFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()

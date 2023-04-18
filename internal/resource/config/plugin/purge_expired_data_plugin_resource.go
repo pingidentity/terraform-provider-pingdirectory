@@ -270,16 +270,13 @@ func addOptionalPurgeExpiredDataPluginFields(ctx context.Context, addRequest *cl
 		addRequest.PollingInterval = plan.PollingInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
-		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())
-		addRequest.MaxUpdatesPerSecond = &intVal
+		addRequest.MaxUpdatesPerSecond = plan.MaxUpdatesPerSecond.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.PeerServerPriorityIndex) {
-		intVal := int32(plan.PeerServerPriorityIndex.ValueInt64())
-		addRequest.PeerServerPriorityIndex = &intVal
+		addRequest.PeerServerPriorityIndex = plan.PeerServerPriorityIndex.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumDeleteThreads) {
-		intVal := int32(plan.NumDeleteThreads.ValueInt64())
-		addRequest.NumDeleteThreads = &intVal
+		addRequest.NumDeleteThreads = plan.NumDeleteThreads.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -306,9 +303,9 @@ func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpi
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	config.CheckMismatchedPDFormattedAttributes("polling_interval",
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
-	state.MaxUpdatesPerSecond = types.Int64Value(int64(r.MaxUpdatesPerSecond))
+	state.MaxUpdatesPerSecond = types.Int64Value(r.MaxUpdatesPerSecond)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
-	state.NumDeleteThreads = types.Int64Value(int64(r.NumDeleteThreads))
+	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)

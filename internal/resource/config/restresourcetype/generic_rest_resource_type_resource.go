@@ -320,12 +320,10 @@ func addOptionalGenericRestResourceTypeFields(ctx context.Context, addRequest *c
 		addRequest.PrimaryDisplayAttributeType = plan.PrimaryDisplayAttributeType.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminSearchSizeLimit) {
-		intVal := int32(plan.DelegatedAdminSearchSizeLimit.ValueInt64())
-		addRequest.DelegatedAdminSearchSizeLimit = &intVal
+		addRequest.DelegatedAdminSearchSizeLimit = plan.DelegatedAdminSearchSizeLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DelegatedAdminReportSizeLimit) {
-		intVal := int32(plan.DelegatedAdminReportSizeLimit.ValueInt64())
-		addRequest.DelegatedAdminReportSizeLimit = &intVal
+		addRequest.DelegatedAdminReportSizeLimit = plan.DelegatedAdminReportSizeLimit.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MembersColumnName) {

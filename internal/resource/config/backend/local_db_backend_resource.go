@@ -672,16 +672,13 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.HashEntries = plan.HashEntries.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DbNumCleanerThreads) {
-		intVal := int32(plan.DbNumCleanerThreads.ValueInt64())
-		addRequest.DbNumCleanerThreads = &intVal
+		addRequest.DbNumCleanerThreads = plan.DbNumCleanerThreads.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DbCleanerMinUtilization) {
-		intVal := int32(plan.DbCleanerMinUtilization.ValueInt64())
-		addRequest.DbCleanerMinUtilization = &intVal
+		addRequest.DbCleanerMinUtilization = plan.DbCleanerMinUtilization.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DbEvictorCriticalPercentage) {
-		intVal := int32(plan.DbEvictorCriticalPercentage.ValueInt64())
-		addRequest.DbEvictorCriticalPercentage = &intVal
+		addRequest.DbEvictorCriticalPercentage = plan.DbEvictorCriticalPercentage.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DbCheckpointerWakeupInterval) {
@@ -708,8 +705,7 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.JeProperty = slice
 	}
 	if internaltypes.IsDefined(plan.DbCachePercent) {
-		intVal := int32(plan.DbCachePercent.ValueInt64())
-		addRequest.DbCachePercent = &intVal
+		addRequest.DbCachePercent = plan.DbCachePercent.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DefaultCacheMode) {
@@ -773,8 +769,7 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.PrimeMethod = enumSlice
 	}
 	if internaltypes.IsDefined(plan.PrimeThreadCount) {
-		intVal := int32(plan.PrimeThreadCount.ValueInt64())
-		addRequest.PrimeThreadCount = &intVal
+		addRequest.PrimeThreadCount = plan.PrimeThreadCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.PrimeTimeLimit) {
@@ -813,43 +808,35 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.BackgroundPrime = plan.BackgroundPrime.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.IndexEntryLimit) {
-		intVal := int32(plan.IndexEntryLimit.ValueInt64())
-		addRequest.IndexEntryLimit = &intVal
+		addRequest.IndexEntryLimit = plan.IndexEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.CompositeIndexEntryLimit) {
-		intVal := int32(plan.CompositeIndexEntryLimit.ValueInt64())
-		addRequest.CompositeIndexEntryLimit = &intVal
+		addRequest.CompositeIndexEntryLimit = plan.CompositeIndexEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.Id2childrenIndexEntryLimit) {
-		intVal := int32(plan.Id2childrenIndexEntryLimit.ValueInt64())
-		addRequest.Id2childrenIndexEntryLimit = &intVal
+		addRequest.Id2childrenIndexEntryLimit = plan.Id2childrenIndexEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.Id2subtreeIndexEntryLimit) {
-		intVal := int32(plan.Id2subtreeIndexEntryLimit.ValueInt64())
-		addRequest.Id2subtreeIndexEntryLimit = &intVal
+		addRequest.Id2subtreeIndexEntryLimit = plan.Id2subtreeIndexEntryLimit.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ImportTempDirectory) {
 		addRequest.ImportTempDirectory = plan.ImportTempDirectory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ImportThreadCount) {
-		intVal := int32(plan.ImportThreadCount.ValueInt64())
-		addRequest.ImportThreadCount = &intVal
+		addRequest.ImportThreadCount = plan.ImportThreadCount.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.ExportThreadCount) {
-		intVal := int32(plan.ExportThreadCount.ValueInt64())
-		addRequest.ExportThreadCount = &intVal
+		addRequest.ExportThreadCount = plan.ExportThreadCount.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DbImportCachePercent) {
-		intVal := int32(plan.DbImportCachePercent.ValueInt64())
-		addRequest.DbImportCachePercent = &intVal
+		addRequest.DbImportCachePercent = plan.DbImportCachePercent.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DbTxnWriteNoSync) {
 		addRequest.DbTxnWriteNoSync = plan.DbTxnWriteNoSync.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.DeadlockRetryLimit) {
-		intVal := int32(plan.DeadlockRetryLimit.ValueInt64())
-		addRequest.DeadlockRetryLimit = &intVal
+		addRequest.DeadlockRetryLimit = plan.DeadlockRetryLimit.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ExternalTxnDefaultBackendLockBehavior) {
@@ -868,12 +855,10 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 		addRequest.SingleWriterLockBehavior = singleWriterLockBehavior
 	}
 	if internaltypes.IsDefined(plan.SubtreeDeleteSizeLimit) {
-		intVal := int32(plan.SubtreeDeleteSizeLimit.ValueInt64())
-		addRequest.SubtreeDeleteSizeLimit = &intVal
+		addRequest.SubtreeDeleteSizeLimit = plan.SubtreeDeleteSizeLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumRecentChanges) {
-		intVal := int32(plan.NumRecentChanges.ValueInt64())
-		addRequest.NumRecentChanges = &intVal
+		addRequest.NumRecentChanges = plan.NumRecentChanges.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.OfflineProcessDatabaseOpenTimeout) {

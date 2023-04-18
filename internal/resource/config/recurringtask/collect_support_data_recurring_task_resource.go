@@ -353,16 +353,13 @@ func addOptionalCollectSupportDataRecurringTaskFields(ctx context.Context, addRe
 		addRequest.SecurityLevel = securityLevel
 	}
 	if internaltypes.IsDefined(plan.JstackCount) {
-		intVal := int32(plan.JstackCount.ValueInt64())
-		addRequest.JstackCount = &intVal
+		addRequest.JstackCount = plan.JstackCount.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.ReportCount) {
-		intVal := int32(plan.ReportCount.ValueInt64())
-		addRequest.ReportCount = &intVal
+		addRequest.ReportCount = plan.ReportCount.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.ReportIntervalSeconds) {
-		intVal := int32(plan.ReportIntervalSeconds.ValueInt64())
-		addRequest.ReportIntervalSeconds = &intVal
+		addRequest.ReportIntervalSeconds = plan.ReportIntervalSeconds.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.LogDuration) {
@@ -381,8 +378,7 @@ func addOptionalCollectSupportDataRecurringTaskFields(ctx context.Context, addRe
 		addRequest.Comment = plan.Comment.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousSupportDataArchiveCount) {
-		intVal := int32(plan.RetainPreviousSupportDataArchiveCount.ValueInt64())
-		addRequest.RetainPreviousSupportDataArchiveCount = &intVal
+		addRequest.RetainPreviousSupportDataArchiveCount = plan.RetainPreviousSupportDataArchiveCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousSupportDataArchiveAge) {

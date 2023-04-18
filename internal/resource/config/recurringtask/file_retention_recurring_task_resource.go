@@ -225,8 +225,7 @@ func (r fileRetentionRecurringTaskResource) ConfigValidators(ctx context.Context
 // Add optional fields to create request
 func addOptionalFileRetentionRecurringTaskFields(ctx context.Context, addRequest *client.AddFileRetentionRecurringTaskRequest, plan fileRetentionRecurringTaskResourceModel) {
 	if internaltypes.IsDefined(plan.RetainFileCount) {
-		intVal := int32(plan.RetainFileCount.ValueInt64())
-		addRequest.RetainFileCount = &intVal
+		addRequest.RetainFileCount = plan.RetainFileCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainFileAge) {

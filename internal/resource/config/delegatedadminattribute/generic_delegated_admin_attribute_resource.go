@@ -230,8 +230,7 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 		addRequest.AttributeCategory = plan.AttributeCategory.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.DisplayOrderIndex) {
-		intVal := int32(plan.DisplayOrderIndex.ValueInt64())
-		addRequest.DisplayOrderIndex = &intVal
+		addRequest.DisplayOrderIndex = plan.DisplayOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ReferenceResourceType) {
@@ -263,7 +262,7 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 	state.MultiValued = types.BoolValue(r.MultiValued)
 	state.IncludeInSummary = types.BoolValue(r.IncludeInSummary)
 	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
-	state.DisplayOrderIndex = types.Int64Value(int64(r.DisplayOrderIndex))
+	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
 	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
 	state.AttributePresentation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))

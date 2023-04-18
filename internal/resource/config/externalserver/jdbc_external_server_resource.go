@@ -214,8 +214,7 @@ func addOptionalJdbcExternalServerFields(ctx context.Context, addRequest *client
 		addRequest.ServerHostName = plan.ServerHostName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UserName) {

@@ -284,8 +284,7 @@ func (r opendjExternalServerResource) ConfigValidators(ctx context.Context) []re
 // Add optional fields to create request
 func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *client.AddOpendjExternalServerRequest, plan opendjExternalServerResourceModel) error {
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Location) {
@@ -356,12 +355,10 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 		addRequest.TrustManagerProvider = plan.TrustManagerProvider.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
-		intVal := int32(plan.InitialConnections.ValueInt64())
-		addRequest.InitialConnections = &intVal
+		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MaxConnections) {
-		intVal := int32(plan.MaxConnections.ValueInt64())
-		addRequest.MaxConnections = &intVal
+		addRequest.MaxConnections = plan.MaxConnections.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DefunctConnectionResultCode) {
 		var slice []string
@@ -390,7 +387,7 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExternalServerResponse, state *opendjExternalServerResourceModel, expectedValues *opendjExternalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
-	state.ServerPort = types.Int64Value(int64(r.ServerPort))
+	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
 	// Obscured values aren't returned from the PD Configuration API - just use the expected value

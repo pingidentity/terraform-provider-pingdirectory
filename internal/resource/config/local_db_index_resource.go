@@ -218,19 +218,16 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 // Add optional fields to create request
 func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLocalDbIndexRequest, plan localDbIndexResourceModel) error {
 	if internaltypes.IsDefined(plan.IndexEntryLimit) {
-		intVal := int32(plan.IndexEntryLimit.ValueInt64())
-		addRequest.IndexEntryLimit = &intVal
+		addRequest.IndexEntryLimit = plan.IndexEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.SubstringIndexEntryLimit) {
-		intVal := int32(plan.SubstringIndexEntryLimit.ValueInt64())
-		addRequest.SubstringIndexEntryLimit = &intVal
+		addRequest.SubstringIndexEntryLimit = plan.SubstringIndexEntryLimit.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MaintainMatchCountForKeysExceedingEntryLimit) {
 		addRequest.MaintainMatchCountForKeysExceedingEntryLimit = plan.MaintainMatchCountForKeysExceedingEntryLimit.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.SubstringLength) {
-		intVal := int32(plan.SubstringLength.ValueInt64())
-		addRequest.SubstringLength = &intVal
+		addRequest.SubstringLength = plan.SubstringLength.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.PrimeIndex) {
 		addRequest.PrimeIndex = plan.PrimeIndex.ValueBoolPointer()

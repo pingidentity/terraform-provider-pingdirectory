@@ -388,8 +388,7 @@ func addOptionalPeriodicStatsLoggerPluginFields(ctx context.Context, addRequest 
 		addRequest.EmptyInsteadOfZero = plan.EmptyInsteadOfZero.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.LinesBetweenHeader) {
-		intVal := int32(plan.LinesBetweenHeader.ValueInt64())
-		addRequest.LinesBetweenHeader = &intVal
+		addRequest.LinesBetweenHeader = plan.LinesBetweenHeader.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.IncludedLDAPStat) {
 		var slice []string
@@ -569,7 +568,7 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.SuppressIfIdle = types.BoolValue(r.SuppressIfIdle)
 	state.HeaderPrefixPerColumn = internaltypes.BoolTypeOrNil(r.HeaderPrefixPerColumn)
 	state.EmptyInsteadOfZero = internaltypes.BoolTypeOrNil(r.EmptyInsteadOfZero)
-	state.LinesBetweenHeader = types.Int64Value(int64(r.LinesBetweenHeader))
+	state.LinesBetweenHeader = types.Int64Value(r.LinesBetweenHeader)
 	state.IncludedLDAPStat = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginIncludedLDAPStatProp(r.IncludedLDAPStat))
 	state.IncludedResourceStat = internaltypes.GetStringSet(

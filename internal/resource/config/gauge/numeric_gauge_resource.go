@@ -276,36 +276,28 @@ func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 // Add optional fields to create request
 func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNumericGaugeRequest, plan numericGaugeResourceModel) error {
 	if internaltypes.IsDefined(plan.CriticalValue) {
-		floatVal := float32(plan.CriticalValue.ValueFloat64())
-		addRequest.CriticalValue = &floatVal
+		addRequest.CriticalValue = plan.CriticalValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.CriticalExitValue) {
-		floatVal := float32(plan.CriticalExitValue.ValueFloat64())
-		addRequest.CriticalExitValue = &floatVal
+		addRequest.CriticalExitValue = plan.CriticalExitValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MajorValue) {
-		floatVal := float32(plan.MajorValue.ValueFloat64())
-		addRequest.MajorValue = &floatVal
+		addRequest.MajorValue = plan.MajorValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MajorExitValue) {
-		floatVal := float32(plan.MajorExitValue.ValueFloat64())
-		addRequest.MajorExitValue = &floatVal
+		addRequest.MajorExitValue = plan.MajorExitValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MinorValue) {
-		floatVal := float32(plan.MinorValue.ValueFloat64())
-		addRequest.MinorValue = &floatVal
+		addRequest.MinorValue = plan.MinorValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MinorExitValue) {
-		floatVal := float32(plan.MinorExitValue.ValueFloat64())
-		addRequest.MinorExitValue = &floatVal
+		addRequest.MinorExitValue = plan.MinorExitValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.WarningValue) {
-		floatVal := float32(plan.WarningValue.ValueFloat64())
-		addRequest.WarningValue = &floatVal
+		addRequest.WarningValue = plan.WarningValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.WarningExitValue) {
-		floatVal := float32(plan.WarningExitValue.ValueFloat64())
-		addRequest.WarningExitValue = &floatVal
+		addRequest.WarningExitValue = plan.WarningExitValue.ValueFloat64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -335,8 +327,7 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
-		intVal := int32(plan.SamplesPerUpdateInterval.ValueInt64())
-		addRequest.SamplesPerUpdateInterval = &intVal
+		addRequest.SamplesPerUpdateInterval = plan.SamplesPerUpdateInterval.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeResource) {
 		var slice []string

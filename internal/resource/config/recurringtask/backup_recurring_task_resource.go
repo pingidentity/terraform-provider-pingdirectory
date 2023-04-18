@@ -315,16 +315,14 @@ func addOptionalBackupRecurringTaskFields(ctx context.Context, addRequest *clien
 		addRequest.Sign = plan.Sign.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousFullBackupCount) {
-		intVal := int32(plan.RetainPreviousFullBackupCount.ValueInt64())
-		addRequest.RetainPreviousFullBackupCount = &intVal
+		addRequest.RetainPreviousFullBackupCount = plan.RetainPreviousFullBackupCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousFullBackupAge) {
 		addRequest.RetainPreviousFullBackupAge = plan.RetainPreviousFullBackupAge.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxMegabytesPerSecond) {
-		intVal := int32(plan.MaxMegabytesPerSecond.ValueInt64())
-		addRequest.MaxMegabytesPerSecond = &intVal
+		addRequest.MaxMegabytesPerSecond = plan.MaxMegabytesPerSecond.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {

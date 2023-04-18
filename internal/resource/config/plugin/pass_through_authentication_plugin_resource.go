@@ -343,12 +343,10 @@ func addOptionalPassThroughAuthenticationPluginFields(ctx context.Context, addRe
 		addRequest.SearchFilterPattern = plan.SearchFilterPattern.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.InitialConnections) {
-		intVal := int32(plan.InitialConnections.ValueInt64())
-		addRequest.InitialConnections = &intVal
+		addRequest.InitialConnections = plan.InitialConnections.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MaxConnections) {
-		intVal := int32(plan.MaxConnections.ValueInt64())
-		addRequest.MaxConnections = &intVal
+		addRequest.MaxConnections = plan.MaxConnections.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -378,8 +376,8 @@ func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.
 	state.BindDNPattern = internaltypes.StringTypeOrNil(r.BindDNPattern, internaltypes.IsEmptyString(expectedValues.BindDNPattern))
 	state.SearchBaseDN = internaltypes.StringTypeOrNil(r.SearchBaseDN, internaltypes.IsEmptyString(expectedValues.SearchBaseDN))
 	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
-	state.InitialConnections = types.Int64Value(int64(r.InitialConnections))
-	state.MaxConnections = types.Int64Value(int64(r.MaxConnections))
+	state.InitialConnections = types.Int64Value(r.InitialConnections)
+	state.MaxConnections = types.Int64Value(r.MaxConnections)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)

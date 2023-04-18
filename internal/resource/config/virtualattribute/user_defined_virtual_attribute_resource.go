@@ -250,8 +250,7 @@ func addOptionalUserDefinedVirtualAttributeFields(ctx context.Context, addReques
 		addRequest.RequireExplicitRequestByName = plan.RequireExplicitRequestByName.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.MultipleVirtualAttributeEvaluationOrderIndex) {
-		intVal := int32(plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64())
-		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = &intVal
+		addRequest.MultipleVirtualAttributeEvaluationOrderIndex = plan.MultipleVirtualAttributeEvaluationOrderIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MultipleVirtualAttributeMergeBehavior) {

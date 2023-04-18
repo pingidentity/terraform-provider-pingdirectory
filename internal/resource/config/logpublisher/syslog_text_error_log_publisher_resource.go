@@ -318,8 +318,7 @@ func addOptionalSyslogTextErrorLogPublisherFields(ctx context.Context, addReques
 		addRequest.TimestampPrecision = timestampPrecision
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.OverrideSeverity) {
 		var slice []string

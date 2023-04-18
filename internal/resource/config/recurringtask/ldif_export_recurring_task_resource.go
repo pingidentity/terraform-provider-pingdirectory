@@ -315,16 +315,14 @@ func addOptionalLdifExportRecurringTaskFields(ctx context.Context, addRequest *c
 		addRequest.Sign = plan.Sign.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousLDIFExportCount) {
-		intVal := int32(plan.RetainPreviousLDIFExportCount.ValueInt64())
-		addRequest.RetainPreviousLDIFExportCount = &intVal
+		addRequest.RetainPreviousLDIFExportCount = plan.RetainPreviousLDIFExportCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousLDIFExportAge) {
 		addRequest.RetainPreviousLDIFExportAge = plan.RetainPreviousLDIFExportAge.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxMegabytesPerSecond) {
-		intVal := int32(plan.MaxMegabytesPerSecond.ValueInt64())
-		addRequest.MaxMegabytesPerSecond = &intVal
+		addRequest.MaxMegabytesPerSecond = plan.MaxMegabytesPerSecond.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {

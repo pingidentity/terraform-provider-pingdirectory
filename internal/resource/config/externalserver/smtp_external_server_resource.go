@@ -187,8 +187,7 @@ func (r smtpExternalServerResource) ConfigValidators(ctx context.Context) []reso
 // Add optional fields to create request
 func addOptionalSmtpExternalServerFields(ctx context.Context, addRequest *client.AddSmtpExternalServerRequest, plan smtpExternalServerResourceModel) error {
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SmtpSecurity) {

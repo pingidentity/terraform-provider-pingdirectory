@@ -134,7 +134,7 @@ func testAccCheckExpectedConsentServiceAttributes(config consentServiceTestModel
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, nil, "search-size-limit",
-			config.search_size_limit, int64(*response.SearchSizeLimit))
+			config.search_size_limit, *response.SearchSizeLimit)
 		if err != nil {
 			return err
 		}

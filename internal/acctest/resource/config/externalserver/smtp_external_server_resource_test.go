@@ -95,7 +95,7 @@ func testAccCheckExpectedSmtpExternalServerAttributes(config smtpExternalServerT
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "serverPort",
-			config.serverPort, int64(*response.SmtpExternalServerResponse.ServerPort))
+			config.serverPort, *response.SmtpExternalServerResponse.ServerPort)
 		if err != nil {
 			return err
 		}

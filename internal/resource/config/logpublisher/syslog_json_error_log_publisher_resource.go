@@ -286,8 +286,7 @@ func addOptionalSyslogJsonErrorLogPublisherFields(ctx context.Context, addReques
 		addRequest.SyslogMessageApplicationName = plan.SyslogMessageApplicationName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeProductName) {
 		addRequest.IncludeProductName = plan.IncludeProductName.ValueBoolPointer()

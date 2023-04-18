@@ -223,8 +223,7 @@ func addOptionalGenerateServerProfileRecurringTaskFields(ctx context.Context, ad
 		addRequest.IncludePath = slice
 	}
 	if internaltypes.IsDefined(plan.RetainPreviousProfileCount) {
-		intVal := int32(plan.RetainPreviousProfileCount.ValueInt64())
-		addRequest.RetainPreviousProfileCount = &intVal
+		addRequest.RetainPreviousProfileCount = plan.RetainPreviousProfileCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.RetainPreviousProfileAge) {

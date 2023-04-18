@@ -203,12 +203,10 @@ func addOptionalSnmpSubagentPluginFields(ctx context.Context, addRequest *client
 		addRequest.AgentxAddress = plan.AgentxAddress.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.AgentxPort) {
-		intVal := int32(plan.AgentxPort.ValueInt64())
-		addRequest.AgentxPort = &intVal
+		addRequest.AgentxPort = plan.AgentxPort.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumWorkerThreads) {
-		intVal := int32(plan.NumWorkerThreads.ValueInt64())
-		addRequest.NumWorkerThreads = &intVal
+		addRequest.NumWorkerThreads = plan.NumWorkerThreads.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.SessionTimeout) {
@@ -236,7 +234,7 @@ func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentP
 	state.Id = types.StringValue(r.Id)
 	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
-	state.AgentxPort = types.Int64Value(int64(r.AgentxPort))
+	state.AgentxPort = types.Int64Value(r.AgentxPort)
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)
 	state.SessionTimeout = internaltypes.StringTypeOrNil(r.SessionTimeout, internaltypes.IsEmptyString(expectedValues.SessionTimeout))
 	config.CheckMismatchedPDFormattedAttributes("session_timeout",

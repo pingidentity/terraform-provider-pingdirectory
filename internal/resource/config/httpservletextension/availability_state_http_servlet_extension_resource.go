@@ -185,8 +185,7 @@ func availabilityStateHttpServletExtensionSchema(ctx context.Context, req resour
 // Add optional fields to create request
 func addOptionalAvailabilityStateHttpServletExtensionFields(ctx context.Context, addRequest *client.AddAvailabilityStateHttpServletExtensionRequest, plan availabilityStateHttpServletExtensionResourceModel) {
 	if internaltypes.IsDefined(plan.OverrideStatusCode) {
-		intVal := int32(plan.OverrideStatusCode.ValueInt64())
-		addRequest.OverrideStatusCode = &intVal
+		addRequest.OverrideStatusCode = plan.OverrideStatusCode.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.IncludeResponseBody) {
 		addRequest.IncludeResponseBody = plan.IncludeResponseBody.ValueBoolPointer()
@@ -218,9 +217,9 @@ func addOptionalAvailabilityStateHttpServletExtensionFields(ctx context.Context,
 func readAvailabilityStateHttpServletExtensionResponse(ctx context.Context, r *client.AvailabilityStateHttpServletExtensionResponse, state *availabilityStateHttpServletExtensionResourceModel, expectedValues *availabilityStateHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
-	state.AvailableStatusCode = types.Int64Value(int64(r.AvailableStatusCode))
-	state.DegradedStatusCode = types.Int64Value(int64(r.DegradedStatusCode))
-	state.UnavailableStatusCode = types.Int64Value(int64(r.UnavailableStatusCode))
+	state.AvailableStatusCode = types.Int64Value(r.AvailableStatusCode)
+	state.DegradedStatusCode = types.Int64Value(r.DegradedStatusCode)
+	state.UnavailableStatusCode = types.Int64Value(r.UnavailableStatusCode)
 	state.OverrideStatusCode = internaltypes.Int64TypeOrNil(r.OverrideStatusCode)
 	state.IncludeResponseBody = internaltypes.BoolTypeOrNil(r.IncludeResponseBody)
 	state.AdditionalResponseContents = internaltypes.StringTypeOrNil(r.AdditionalResponseContents, internaltypes.IsEmptyString(expectedValues.AdditionalResponseContents))
@@ -261,9 +260,9 @@ func (r *availabilityStateHttpServletExtensionResource) Create(ctx context.Conte
 	addRequest := client.NewAddAvailabilityStateHttpServletExtensionRequest(plan.Id.ValueString(),
 		[]client.EnumavailabilityStateHttpServletExtensionSchemaUrn{client.ENUMAVAILABILITYSTATEHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONAVAILABILITY_STATE},
 		plan.BaseContextPath.ValueString(),
-		int32(plan.AvailableStatusCode.ValueInt64()),
-		int32(plan.DegradedStatusCode.ValueInt64()),
-		int32(plan.UnavailableStatusCode.ValueInt64()))
+		plan.AvailableStatusCode.ValueInt64(),
+		plan.DegradedStatusCode.ValueInt64(),
+		plan.UnavailableStatusCode.ValueInt64())
 	addOptionalAvailabilityStateHttpServletExtensionFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()

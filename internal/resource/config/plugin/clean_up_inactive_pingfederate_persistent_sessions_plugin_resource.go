@@ -182,20 +182,17 @@ func addOptionalCleanUpInactivePingfederatePersistentSessionsPluginFields(ctx co
 		addRequest.PollingInterval = plan.PollingInterval.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.PeerServerPriorityIndex) {
-		intVal := int32(plan.PeerServerPriorityIndex.ValueInt64())
-		addRequest.PeerServerPriorityIndex = &intVal
+		addRequest.PeerServerPriorityIndex = plan.PeerServerPriorityIndex.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.BaseDN) {
 		addRequest.BaseDN = plan.BaseDN.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.MaxUpdatesPerSecond) {
-		intVal := int32(plan.MaxUpdatesPerSecond.ValueInt64())
-		addRequest.MaxUpdatesPerSecond = &intVal
+		addRequest.MaxUpdatesPerSecond = plan.MaxUpdatesPerSecond.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.NumDeleteThreads) {
-		intVal := int32(plan.NumDeleteThreads.ValueInt64())
-		addRequest.NumDeleteThreads = &intVal
+		addRequest.NumDeleteThreads = plan.NumDeleteThreads.ValueInt64Pointer()
 	}
 }
 
@@ -210,8 +207,8 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx context
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
 	state.BaseDN = internaltypes.StringTypeOrNil(r.BaseDN, internaltypes.IsEmptyString(expectedValues.BaseDN))
-	state.MaxUpdatesPerSecond = types.Int64Value(int64(r.MaxUpdatesPerSecond))
-	state.NumDeleteThreads = types.Int64Value(int64(r.NumDeleteThreads))
+	state.MaxUpdatesPerSecond = types.Int64Value(r.MaxUpdatesPerSecond)
+	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }

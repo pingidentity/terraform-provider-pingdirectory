@@ -211,12 +211,10 @@ func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addReque
 		addRequest.ServerHostName = plan.ServerHostName.ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.ServerPort) {
-		intVal := int32(plan.ServerPort.ValueInt64())
-		addRequest.ServerPort = &intVal
+		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.SyslogFacility) {
-		intVal := int32(plan.SyslogFacility.ValueInt64())
-		addRequest.SyslogFacility = &intVal
+		addRequest.SyslogFacility = plan.SyslogFacility.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.AutoFlush) {
 		addRequest.AutoFlush = plan.AutoFlush.ValueBoolPointer()
@@ -225,8 +223,7 @@ func addOptionalSyslogBasedErrorLogPublisherFields(ctx context.Context, addReque
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	if internaltypes.IsDefined(plan.QueueSize) {
-		intVal := int32(plan.QueueSize.ValueInt64())
-		addRequest.QueueSize = &intVal
+		addRequest.QueueSize = plan.QueueSize.ValueInt64Pointer()
 	}
 	if internaltypes.IsDefined(plan.DefaultSeverity) {
 		var slice []string
@@ -266,8 +263,8 @@ func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.Sys
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
-	state.ServerPort = types.Int64Value(int64(r.ServerPort))
-	state.SyslogFacility = types.Int64Value(int64(r.SyslogFacility))
+	state.ServerPort = types.Int64Value(r.ServerPort)
+	state.SyslogFacility = types.Int64Value(r.SyslogFacility)
 	state.AutoFlush = internaltypes.BoolTypeOrNil(r.AutoFlush)
 	state.Asynchronous = types.BoolValue(r.Asynchronous)
 	state.QueueSize = internaltypes.Int64TypeOrNil(r.QueueSize)

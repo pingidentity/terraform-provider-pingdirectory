@@ -985,11 +985,11 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.ResultCodeMap = internaltypes.StringTypeOrNil(r.ResultCodeMap, true)
 	state.ReturnBindErrorMessages = internaltypes.BoolTypeOrNil(r.ReturnBindErrorMessages)
 	state.NotifyAbandonedOperations = internaltypes.BoolTypeOrNil(r.NotifyAbandonedOperations)
-	state.DuplicateErrorLogLimit = types.Int64Value(int64(r.DuplicateErrorLogLimit))
+	state.DuplicateErrorLogLimit = types.Int64Value(r.DuplicateErrorLogLimit)
 	state.DuplicateErrorLogTimeLimit = types.StringValue(r.DuplicateErrorLogTimeLimit)
 	CheckMismatchedPDFormattedAttributes("duplicate_error_log_time_limit",
 		expectedValues.DuplicateErrorLogTimeLimit, state.DuplicateErrorLogTimeLimit, diagnostics)
-	state.DuplicateAlertLimit = types.Int64Value(int64(r.DuplicateAlertLimit))
+	state.DuplicateAlertLimit = types.Int64Value(r.DuplicateAlertLimit)
 	state.DuplicateAlertTimeLimit = types.StringValue(r.DuplicateAlertTimeLimit)
 	CheckMismatchedPDFormattedAttributes("duplicate_alert_time_limit",
 		expectedValues.DuplicateAlertTimeLimit, state.DuplicateAlertTimeLimit, diagnostics)
@@ -1009,15 +1009,15 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	CheckMismatchedPDFormattedAttributes("forced_gc_prime_duration",
 		expectedValues.ForcedGCPrimeDuration, state.ForcedGCPrimeDuration, diagnostics)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
-	state.StartupMinReplicationBacklogCount = types.Int64Value(int64(r.StartupMinReplicationBacklogCount))
-	state.ReplicationBacklogCountAlertThreshold = types.Int64Value(int64(r.ReplicationBacklogCountAlertThreshold))
+	state.StartupMinReplicationBacklogCount = types.Int64Value(r.StartupMinReplicationBacklogCount)
+	state.ReplicationBacklogCountAlertThreshold = types.Int64Value(r.ReplicationBacklogCountAlertThreshold)
 	state.ReplicationBacklogDurationAlertThreshold = types.StringValue(r.ReplicationBacklogDurationAlertThreshold)
 	CheckMismatchedPDFormattedAttributes("replication_backlog_duration_alert_threshold",
 		expectedValues.ReplicationBacklogDurationAlertThreshold, state.ReplicationBacklogDurationAlertThreshold, diagnostics)
 	state.ReplicationAssuranceSourceTimeoutSuspendDuration = types.StringValue(r.ReplicationAssuranceSourceTimeoutSuspendDuration)
 	CheckMismatchedPDFormattedAttributes("replication_assurance_source_timeout_suspend_duration",
 		expectedValues.ReplicationAssuranceSourceTimeoutSuspendDuration, state.ReplicationAssuranceSourceTimeoutSuspendDuration, diagnostics)
-	state.ReplicationAssuranceSourceBacklogFastStartThreshold = types.Int64Value(int64(r.ReplicationAssuranceSourceBacklogFastStartThreshold))
+	state.ReplicationAssuranceSourceBacklogFastStartThreshold = types.Int64Value(r.ReplicationAssuranceSourceBacklogFastStartThreshold)
 	state.ReplicationHistoryLimit = internaltypes.Int64TypeOrNil(r.ReplicationHistoryLimit)
 	state.AllowInheritedReplicationOfSubordinateBackends = types.BoolValue(r.AllowInheritedReplicationOfSubordinateBackends)
 	state.ReplicationPurgeObsoleteReplicas = internaltypes.BoolTypeOrNil(r.ReplicationPurgeObsoleteReplicas)

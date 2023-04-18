@@ -200,7 +200,7 @@ func addOptionalJmxConnectionHandlerFields(ctx context.Context, addRequest *clie
 // Read a JmxConnectionHandlerResponse object into the model struct
 func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnectionHandlerResponse, state *jmxConnectionHandlerResourceModel, expectedValues *jmxConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ListenPort = types.Int64Value(int64(r.ListenPort))
+	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
@@ -237,7 +237,7 @@ func (r *jmxConnectionHandlerResource) Create(ctx context.Context, req resource.
 
 	addRequest := client.NewAddJmxConnectionHandlerRequest(plan.Id.ValueString(),
 		[]client.EnumjmxConnectionHandlerSchemaUrn{client.ENUMJMXCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERJMX},
-		int32(plan.ListenPort.ValueInt64()),
+		plan.ListenPort.ValueInt64(),
 		plan.Enabled.ValueBool())
 	addOptionalJmxConnectionHandlerFields(ctx, addRequest, plan)
 	// Log request JSON
