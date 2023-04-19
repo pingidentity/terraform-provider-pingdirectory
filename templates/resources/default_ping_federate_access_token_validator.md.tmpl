@@ -1,6 +1,6 @@
 ---
 page_title: "{{.Name}} {{.Type}} - {{.RenderedProviderName}}"
-subcategory: "PingFederate"
+subcategory: "Access Token Validator"
 description: |-
 {{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
 ---
@@ -24,3 +24,4 @@ Import is supported using the following syntax:
 
 {{ codefile "shell" (printf "%s%s%s" "examples/resources/" .Name "/import.sh") }}
 {{- end }}
+
