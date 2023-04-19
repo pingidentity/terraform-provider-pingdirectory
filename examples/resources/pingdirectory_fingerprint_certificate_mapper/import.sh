@@ -1,0 +1,2 @@
+# "fingerprintCertificateMapperId" should be the id of the Fingerprint Certificate Mapper to be imported
+terraform import pingdirectory_fingerprint_certificate_mapper.myFingerprintCertificateMapper fingerprintCertificateMapperId

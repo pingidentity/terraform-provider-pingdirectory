@@ -1,0 +1,2 @@
+# "subjectAttributeToUserAttributeCertificateMapperId" should be the id of the Subject Attribute To User Attribute Certificate Mapper to be imported
+terraform import pingdirectory_subject_attribute_to_user_attribute_certificate_mapper.mySubjectAttributeToUserAttributeCertificateMapper subjectAttributeToUserAttributeCertificateMapperId
