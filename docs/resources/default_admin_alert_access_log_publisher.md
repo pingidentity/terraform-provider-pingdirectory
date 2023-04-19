@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_admin_alert_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Log Publisher"
 description: |-
   Manages a Admin Alert Access Log Publisher.
 ---
@@ -80,4 +80,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

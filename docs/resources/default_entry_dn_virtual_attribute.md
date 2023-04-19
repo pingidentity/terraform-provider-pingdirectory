@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_entry_dn_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Entry Dn Virtual Attribute.
 ---
@@ -47,4 +47,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

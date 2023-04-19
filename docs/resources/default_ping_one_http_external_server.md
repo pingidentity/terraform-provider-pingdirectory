@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_ping_one_http_external_server Resource - terraform-provider-pingdirectory"
-subcategory: "PingOne"
+subcategory: "External Server"
 description: |-
   Manages a Ping One Http External Server.
 ---
@@ -40,4 +40,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

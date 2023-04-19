@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Plugin"
 description: |-
   Manages a Third Party Plugin.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

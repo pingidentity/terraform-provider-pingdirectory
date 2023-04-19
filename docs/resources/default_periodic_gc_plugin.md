@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_periodic_gc_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Periodic Gc Plugin.
 ---
@@ -43,4 +43,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_detailed_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Detailed Http Operation Log Publisher.
 ---
@@ -72,4 +72,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

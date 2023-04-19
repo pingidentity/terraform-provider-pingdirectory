@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_internal_search_rate_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Internal Search Rate Plugin.
 ---
@@ -45,4 +45,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

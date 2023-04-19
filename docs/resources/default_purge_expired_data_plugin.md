@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_purge_expired_data_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Purge Expired Data Plugin.
 ---
@@ -50,4 +50,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

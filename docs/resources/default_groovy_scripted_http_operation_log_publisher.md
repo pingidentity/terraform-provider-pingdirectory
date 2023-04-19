@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_http_operation_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Log Publisher"
 description: |-
   Manages a Groovy Scripted Http Operation Log Publisher.
 ---
@@ -40,4 +40,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

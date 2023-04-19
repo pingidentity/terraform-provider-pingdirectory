@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_local_db_index Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Local Db Index"
 description: |-
   Manages a Local Db Index.
 ---
@@ -47,4 +47,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

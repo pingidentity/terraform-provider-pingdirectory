@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_equality_join_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Equality Join Virtual Attribute.
 ---
@@ -56,4 +56,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

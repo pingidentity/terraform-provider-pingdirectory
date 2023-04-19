@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_jwt_access_token_validator Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Access Token Validator"
 description: |-
   Manages a Jwt Access Token Validator.
 ---
@@ -50,4 +50,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

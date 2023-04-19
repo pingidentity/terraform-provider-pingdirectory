@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_simple_to_external_bind_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Simple To External Bind Plugin.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

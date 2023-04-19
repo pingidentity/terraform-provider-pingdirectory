@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_jmx_connection_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Connection Handler"
 description: |-
   Manages a Jmx Connection Handler.
 ---
@@ -43,4 +43,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

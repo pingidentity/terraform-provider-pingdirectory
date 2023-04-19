@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_jdbc_based_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Jdbc Based Error Log Publisher.
 ---
@@ -44,4 +44,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

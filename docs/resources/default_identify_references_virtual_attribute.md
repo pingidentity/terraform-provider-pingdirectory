@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_identify_references_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Identify References Virtual Attribute.
 ---
@@ -49,4 +49,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

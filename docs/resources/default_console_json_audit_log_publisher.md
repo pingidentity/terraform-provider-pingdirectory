@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_console_json_audit_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Console Json Audit Log Publisher.
 ---
@@ -61,4 +61,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

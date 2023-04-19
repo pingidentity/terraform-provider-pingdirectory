@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_access_token_validator Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Access Token Validator"
 description: |-
   Manages a Third Party Access Token Validator.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

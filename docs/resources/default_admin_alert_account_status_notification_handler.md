@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_admin_alert_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: "Administrative alert handlers"
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Admin Alert Account Status Notification Handler.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

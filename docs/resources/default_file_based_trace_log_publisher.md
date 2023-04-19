@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_file_based_trace_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a File Based Trace Log Publisher.
 ---
@@ -63,4 +63,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

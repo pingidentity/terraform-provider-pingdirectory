@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Recurring Task"
 description: |-
   Manages a Third Party Recurring Task.
 ---
@@ -45,4 +45,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

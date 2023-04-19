@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_attribute_mapper_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Attribute Mapper Plugin.
 ---
@@ -43,4 +43,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

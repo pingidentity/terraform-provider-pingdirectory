@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_location Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Location"
 description: |-
   Manages a Location.
 ---
@@ -36,4 +36,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Identity Mapper"
 description: |-
   Manages a Groovy Scripted Identity Mapper.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

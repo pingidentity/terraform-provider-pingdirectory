@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_generate_server_profile_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Generate Server Profile Recurring Task.
 ---
@@ -47,4 +47,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

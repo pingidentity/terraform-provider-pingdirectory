@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_modifiable_password_policy_state_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Modifiable Password Policy State Plugin.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

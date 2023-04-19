@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_delay_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Delay Recurring Task.
 ---
@@ -50,4 +50,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

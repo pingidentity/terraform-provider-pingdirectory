@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_file_based_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Log Publisher"
 description: |-
   Manages a Groovy Scripted File Based Error Log Publisher.
 ---
@@ -57,4 +57,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Third Party Virtual Attribute.
 ---
@@ -49,4 +49,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

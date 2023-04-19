@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_clean_up_inactive_pingfederate_persistent_sessions_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "PingFederate"
+subcategory: "Plugin"
 description: |-
   Manages a Clean Up Inactive Pingfederate Persistent Sessions Plugin.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

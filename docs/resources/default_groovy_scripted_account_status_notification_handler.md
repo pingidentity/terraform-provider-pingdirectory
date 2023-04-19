@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Groovy Scripted Account Status Notification Handler.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

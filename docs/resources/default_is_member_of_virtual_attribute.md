@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_is_member_of_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Is Member Of Virtual Attribute.
 ---
@@ -50,4 +50,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

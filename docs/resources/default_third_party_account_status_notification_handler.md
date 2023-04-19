@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Third Party Account Status Notification Handler.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

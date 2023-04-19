@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Log Publisher"
 description: |-
   Manages a Third Party Access Log Publisher.
 ---
@@ -57,4 +57,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

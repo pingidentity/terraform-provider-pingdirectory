@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a Third Party Trust Manager Provider.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_simple_connection_criteria Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Connection Criteria"
 description: |-
   Manages a Simple Connection Criteria.
 ---
@@ -61,4 +61,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

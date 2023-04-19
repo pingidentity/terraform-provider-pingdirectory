@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Plugin"
 description: |-
   Manages a Groovy Scripted Plugin.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

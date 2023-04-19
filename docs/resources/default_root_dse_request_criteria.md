@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_root_dse_request_criteria Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Request Criteria"
 description: |-
   Manages a Root Dse Request Criteria.
 ---
@@ -37,4 +37,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

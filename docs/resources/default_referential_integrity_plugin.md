@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_referential_integrity_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Referential Integrity Plugin.
 ---
@@ -43,4 +43,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

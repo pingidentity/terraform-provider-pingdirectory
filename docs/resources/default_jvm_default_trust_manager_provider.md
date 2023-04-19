@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_jvm_default_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a Jvm Default Trust Manager Provider.
 ---
@@ -36,4 +36,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

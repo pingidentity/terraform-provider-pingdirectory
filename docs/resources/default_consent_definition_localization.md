@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_consent_definition_localization Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Consent Definition Localization"
 description: |-
   Manages a Consent Definition Localization.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

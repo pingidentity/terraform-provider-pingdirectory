@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_syslog_external_server Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "External Server"
 description: |-
   Manages a Syslog External Server.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

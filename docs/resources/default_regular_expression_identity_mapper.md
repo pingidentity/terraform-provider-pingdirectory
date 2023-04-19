@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_regular_expression_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Identity Mapper"
 description: |-
   Manages a Regular Expression Identity Mapper.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

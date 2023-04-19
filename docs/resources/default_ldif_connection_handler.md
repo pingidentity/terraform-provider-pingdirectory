@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_ldif_connection_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Connection Handler"
 description: |-
   Manages a Ldif Connection Handler.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_user_defined_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a User Defined Virtual Attribute.
 ---
@@ -48,4 +48,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

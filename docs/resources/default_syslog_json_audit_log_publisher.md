@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_syslog_json_audit_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Json Audit Log Publisher.
 ---
@@ -66,4 +66,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 
