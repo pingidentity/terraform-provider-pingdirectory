@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_photo_delegated_admin_attribute Resource - terraform-provider-pingdirectory"
-subcategory: "PingDelegatedAdmin"
+subcategory: "Delegated Admin Attribute"
 description: |-
   Manages a Photo Delegated Admin Attribute.
 ---
@@ -47,4 +47,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Third Party Http Servlet Extension.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_file_retention_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a File Retention Recurring Task.
 ---
@@ -49,4 +49,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

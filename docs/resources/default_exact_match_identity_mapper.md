@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_exact_match_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Identity Mapper"
 description: |-
   Manages a Exact Match Identity Mapper.
 ---
@@ -40,4 +40,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

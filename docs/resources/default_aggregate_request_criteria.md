@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_aggregate_request_criteria Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Request Criteria"
 description: |-
   Manages a Aggregate Request Criteria.
 ---
@@ -40,4 +40,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

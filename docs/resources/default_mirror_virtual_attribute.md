@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_mirror_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Mirror Virtual Attribute.
 ---
@@ -51,4 +51,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

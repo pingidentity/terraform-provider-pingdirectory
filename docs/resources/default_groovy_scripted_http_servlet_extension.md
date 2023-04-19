@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Groovy Scripted Http Servlet Extension.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

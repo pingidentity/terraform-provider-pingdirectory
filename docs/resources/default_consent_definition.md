@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_consent_definition Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Consent Definition"
 description: |-
   Manages a Consent Definition.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

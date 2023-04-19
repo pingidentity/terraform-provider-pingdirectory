@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_delegated_admin_resource_rights Resource - terraform-provider-pingdirectory"
-subcategory: "PingDelegatedAdmin"
+subcategory: "Delegated Admin Resource Rights"
 description: |-
   Manages a Delegated Admin Resource Rights.
 ---
@@ -43,4 +43,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_operation_timing_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Operation Timing Access Log Publisher.
 ---
@@ -69,4 +69,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

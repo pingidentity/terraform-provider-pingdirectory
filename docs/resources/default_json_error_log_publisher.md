@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_json_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Json Error Log Publisher.
 ---
@@ -61,4 +61,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

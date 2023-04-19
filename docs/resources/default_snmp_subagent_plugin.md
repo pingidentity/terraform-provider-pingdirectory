@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_snmp_subagent_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Snmp Subagent Plugin.
 ---
@@ -45,4 +45,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

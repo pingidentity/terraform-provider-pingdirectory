@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_indicator_gauge Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Gauge"
 description: |-
   Manages a Indicator Gauge.
 ---
@@ -50,4 +50,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

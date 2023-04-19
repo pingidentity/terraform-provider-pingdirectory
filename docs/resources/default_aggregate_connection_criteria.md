@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_aggregate_connection_criteria Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Connection Criteria"
 description: |-
   Manages a Aggregate Connection Criteria.
 ---
@@ -40,4 +40,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

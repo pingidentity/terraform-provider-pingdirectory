@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_json_access_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Log Publisher"
 description: |-
   Manages a Json Access Log Publisher.
 ---
@@ -93,4 +93,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

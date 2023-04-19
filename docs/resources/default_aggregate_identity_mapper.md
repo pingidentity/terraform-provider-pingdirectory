@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_aggregate_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: "External Server"
+subcategory: "Identity Mapper"
 description: |-
   Manages a Aggregate Identity Mapper.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

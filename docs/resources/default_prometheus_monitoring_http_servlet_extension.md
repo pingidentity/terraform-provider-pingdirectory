@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_prometheus_monitoring_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Prometheus Monitoring Http Servlet Extension. Supported in PingDirectory product version 9.2.0.0+.
 ---
@@ -47,4 +47,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_ldap_mapped_scim_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Ldap Mapped Scim Http Servlet Extension.
 ---
@@ -59,4 +59,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

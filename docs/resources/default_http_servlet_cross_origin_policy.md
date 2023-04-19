@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_http_servlet_cross_origin_policy Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Cross Origin Policy"
 description: |-
   Manages a Http Servlet Cross Origin Policy.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

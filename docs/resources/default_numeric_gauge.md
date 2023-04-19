@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_numeric_gauge Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Gauge"
 description: |-
   Manages a Numeric Gauge.
 ---
@@ -54,4 +54,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

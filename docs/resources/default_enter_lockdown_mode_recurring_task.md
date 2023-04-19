@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_enter_lockdown_mode_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Enter Lockdown Mode Recurring Task.
 ---
@@ -44,4 +44,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

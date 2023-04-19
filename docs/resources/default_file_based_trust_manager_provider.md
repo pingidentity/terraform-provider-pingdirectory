@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_file_based_trust_manager_provider Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Trust Manager Provider"
 description: |-
   Manages a File Based Trust Manager Provider.
 ---
@@ -42,4 +42,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_ping_federate_access_token_validator Resource - terraform-provider-pingdirectory"
-subcategory: "PingFederate"
+subcategory: "Access Token Validator"
 description: |-
   Manages a Ping Federate Access Token Validator.
 ---
@@ -47,4 +47,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

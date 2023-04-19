@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_root_dn_user Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Root Dn User"
 description: |-
   Manages a Root Dn User.
 ---
@@ -68,4 +68,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

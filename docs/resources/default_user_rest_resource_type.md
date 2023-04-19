@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_user_rest_resource_type Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Rest Resource Type"
 description: |-
   Manages a User Rest Resource Type.
 ---
@@ -57,4 +57,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

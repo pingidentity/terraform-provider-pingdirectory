@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_error_log_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Error Log Account Status Notification Handler.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

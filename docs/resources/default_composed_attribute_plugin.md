@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_composed_attribute_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Composed Attribute Plugin.
 ---
@@ -53,4 +53,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

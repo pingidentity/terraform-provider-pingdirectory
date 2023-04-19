@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_sub_operation_timing_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Sub Operation Timing Plugin.
 ---
@@ -41,4 +41,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

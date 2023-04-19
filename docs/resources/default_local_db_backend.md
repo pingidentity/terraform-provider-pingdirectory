@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_local_db_backend Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Backend"
 description: |-
   Manages a Local Db Backend.
 ---
@@ -93,4 +93,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

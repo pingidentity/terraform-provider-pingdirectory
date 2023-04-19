@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_collect_support_data_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Collect Support Data Recurring Task.
 ---
@@ -60,4 +60,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_third_party_identity_mapper Resource - terraform-provider-pingdirectory"
-subcategory: "Third-party"
+subcategory: "Identity Mapper"
 description: |-
   Manages a Third Party Identity Mapper.
 ---
@@ -39,4 +39,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

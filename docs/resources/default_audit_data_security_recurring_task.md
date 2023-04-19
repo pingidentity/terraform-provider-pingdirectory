@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_audit_data_security_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Audit Data Security Recurring Task. Supported in PingDirectory product version 9.2.0.0+.
 ---
@@ -49,4 +49,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

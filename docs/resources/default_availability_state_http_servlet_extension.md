@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_availability_state_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a Availability State Http Servlet Extension.
 ---
@@ -46,4 +46,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

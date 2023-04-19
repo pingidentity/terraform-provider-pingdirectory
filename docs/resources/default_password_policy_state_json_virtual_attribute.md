@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_password_policy_state_json_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Password Policy State Json Virtual Attribute.
 ---
@@ -43,4 +43,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_multi_part_email_account_status_notification_handler Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Account Status Notification Handler"
 description: |-
   Manages a Multi Part Email Account Status Notification Handler.
 ---
@@ -57,4 +57,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

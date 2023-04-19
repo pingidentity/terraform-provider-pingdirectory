@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_debug_target Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Debug Target"
 description: |-
   Manages a Debug Target.
 ---
@@ -44,4 +44,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

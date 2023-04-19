@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_ping_one_pass_through_authentication_plugin Resource - terraform-provider-pingdirectory"
-subcategory: "PingOne"
+subcategory: "Plugin"
 description: |-
   Manages a Ping One Pass Through Authentication Plugin.
 ---
@@ -57,4 +57,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

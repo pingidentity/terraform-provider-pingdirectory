@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_pluggable_pass_through_authentication_plugin Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Plugin"
 description: |-
   Manages a Pluggable Pass Through Authentication Plugin.
 ---
@@ -48,4 +48,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

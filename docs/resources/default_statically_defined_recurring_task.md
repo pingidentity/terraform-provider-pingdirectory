@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_statically_defined_recurring_task Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Recurring Task"
 description: |-
   Manages a Statically Defined Recurring Task.
 ---
@@ -46,4 +46,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

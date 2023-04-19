@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_topology_admin_user Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Topology Admin User"
 description: |-
   Manages a Topology Admin User.
 ---
@@ -68,4 +68,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

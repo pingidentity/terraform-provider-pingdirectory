@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_groovy_scripted_virtual_attribute Resource - terraform-provider-pingdirectory"
-subcategory: "Groovy"
+subcategory: "Virtual Attribute"
 description: |-
   Manages a Groovy Scripted Virtual Attribute.
 ---
@@ -49,4 +49,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

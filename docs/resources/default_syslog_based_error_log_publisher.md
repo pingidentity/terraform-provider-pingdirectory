@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_syslog_based_error_log_publisher Resource - terraform-provider-pingdirectory"
-subcategory: "System Log"
+subcategory: "Log Publisher"
 description: |-
   Manages a Syslog Based Error Log Publisher.
 ---
@@ -46,4 +46,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 

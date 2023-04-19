@@ -1,6 +1,6 @@
 ---
 page_title: "pingdirectory_default_file_server_http_servlet_extension Resource - terraform-provider-pingdirectory"
-subcategory: ""
+subcategory: "Http Servlet Extension"
 description: |-
   Manages a File Server Http Servlet Extension.
 ---
@@ -52,4 +52,6 @@ Read-Only:
 - `property` (String)
 - `synopsis` (String)
 - `type` (String)
+
+
 
