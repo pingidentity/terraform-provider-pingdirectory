@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminattribute"
@@ -327,6 +328,18 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		backend.NewSchemaBackendResource,
 		backend.NewTaskBackendResource,
 		backend.NewTrustStoreBackendResource,
+		certificatemapper.NewDefaultFingerprintCertificateMapperResource,
+		certificatemapper.NewDefaultGroovyScriptedCertificateMapperResource,
+		certificatemapper.NewDefaultSubjectAttributeToUserAttributeCertificateMapperResource,
+		certificatemapper.NewDefaultSubjectDnToUserAttributeCertificateMapperResource,
+		certificatemapper.NewDefaultSubjectEqualsDnCertificateMapperResource,
+		certificatemapper.NewDefaultThirdPartyCertificateMapperResource,
+		certificatemapper.NewFingerprintCertificateMapperResource,
+		certificatemapper.NewGroovyScriptedCertificateMapperResource,
+		certificatemapper.NewSubjectAttributeToUserAttributeCertificateMapperResource,
+		certificatemapper.NewSubjectDnToUserAttributeCertificateMapperResource,
+		certificatemapper.NewSubjectEqualsDnCertificateMapperResource,
+		certificatemapper.NewThirdPartyCertificateMapperResource,
 		config.NewConsentDefinitionResource,
 		config.NewDefaultConsentDefinitionResource,
 		config.NewConsentDefinitionLocalizationResource,
