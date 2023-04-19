@@ -1,0 +1,2 @@
+# "digestMd5SaslMechanismHandlerId" should be the id of the Digest Md5 Sasl Mechanism Handler to be imported
+terraform import pingdirectory_default_digest_md5_sasl_mechanism_handler.myDigestMd5SaslMechanismHandler digestMd5SaslMechanismHandlerId
