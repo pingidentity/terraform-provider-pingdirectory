@@ -359,6 +359,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultLocalDbIndexResource,
 		config.NewLocalDbIndexResource,
 		config.NewLocationResource,
+		config.NewDefaultRecurringTaskChainResource,
+		config.NewRecurringTaskChainResource,
 		config.NewRootDnResource,
 		config.NewRootDnUserResource,
 		config.NewDefaultTopologyAdminUserResource,
