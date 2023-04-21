@@ -30,6 +30,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -525,6 +526,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		logpublisher.NewThirdPartyFileBasedAccessLogPublisherResource,
 		logpublisher.NewThirdPartyFileBasedErrorLogPublisherResource,
 		logpublisher.NewThirdPartyHttpOperationLogPublisherResource,
+		monitoringendpoint.NewDefaultStatsdMonitoringEndpointResource,
+		monitoringendpoint.NewStatsdMonitoringEndpointResource,
 		plugin.NewAttributeMapperPluginResource,
 		plugin.NewChangeSubscriptionNotificationPluginResource,
 		plugin.NewChangelogPasswordEncryptionPluginResource,
