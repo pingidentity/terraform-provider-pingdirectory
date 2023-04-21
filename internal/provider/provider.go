@@ -361,6 +361,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLocationResource,
 		config.NewRootDnResource,
 		config.NewRootDnUserResource,
+		config.NewDefaultScimSchemaResource,
+		config.NewScimSchemaResource,
 		config.NewDefaultTopologyAdminUserResource,
 		config.NewTopologyAdminUserResource,
 		connectioncriteria.NewAggregateConnectionCriteriaResource,
