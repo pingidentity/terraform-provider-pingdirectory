@@ -35,11 +35,8 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
-<<<<<<< HEAD
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
-=======
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
->>>>>>> main
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
