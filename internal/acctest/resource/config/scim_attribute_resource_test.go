@@ -71,13 +71,13 @@ func TestAccScimAttribute(t *testing.T) {
 func testAccScimAttributeResource(resourceName string, resourceModel scimAttributeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_schema" "myScimSchema" {
-	 schema_urn = "%[2]s"
+  schema_urn = "%[2]s"
 }
 
 resource "pingdirectory_scim_attribute" "%[1]s" {
-	 scim_schema_name = pingdirectory_scim_schema.myScimSchema.schema_urn
-	 name = "%[3]s"
-	 description = "%[4]s"
+  scim_schema_name = pingdirectory_scim_schema.myScimSchema.schema_urn
+  name             = "%[3]s"
+  description      = "%[4]s"
 }`, resourceName,
 		resourceModel.scimSchemaName,
 		resourceModel.name,
