@@ -1,0 +1,2 @@
+# "anonymousSaslMechanismHandlerId" should be the id of the Anonymous Sasl Mechanism Handler to be imported
+terraform import pingdirectory_default_anonymous_sasl_mechanism_handler.myAnonymousSaslMechanismHandler anonymousSaslMechanismHandlerId
