@@ -1,0 +1,2 @@
+# "unboundidDeliveredOtpSaslMechanismHandlerId" should be the id of the Unboundid Delivered Otp Sasl Mechanism Handler to be imported
+terraform import pingdirectory_unboundid_delivered_otp_sasl_mechanism_handler.myUnboundidDeliveredOtpSaslMechanismHandler unboundidDeliveredOtpSaslMechanismHandlerId

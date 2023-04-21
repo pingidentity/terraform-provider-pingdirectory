@@ -35,6 +35,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
@@ -628,6 +629,24 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		restresourcetype.NewGenericRestResourceTypeResource,
 		restresourcetype.NewGroupRestResourceTypeResource,
 		restresourcetype.NewUserRestResourceTypeResource,
+		saslmechanismhandler.NewAnonymousSaslMechanismHandlerResource,
+		saslmechanismhandler.NewCramMd5SaslMechanismHandlerResource,
+		saslmechanismhandler.NewDefaultOauthBearerSaslMechanismHandlerResource,
+		saslmechanismhandler.NewDefaultThirdPartySaslMechanismHandlerResource,
+		saslmechanismhandler.NewDefaultUnboundidDeliveredOtpSaslMechanismHandlerResource,
+		saslmechanismhandler.NewDefaultUnboundidMsChapV2SaslMechanismHandlerResource,
+		saslmechanismhandler.NewDigestMd5SaslMechanismHandlerResource,
+		saslmechanismhandler.NewExternalSaslMechanismHandlerResource,
+		saslmechanismhandler.NewGssapiSaslMechanismHandlerResource,
+		saslmechanismhandler.NewOauthBearerSaslMechanismHandlerResource,
+		saslmechanismhandler.NewPlainSaslMechanismHandlerResource,
+		saslmechanismhandler.NewThirdPartySaslMechanismHandlerResource,
+		saslmechanismhandler.NewUnboundidCertificatePlusPasswordSaslMechanismHandlerResource,
+		saslmechanismhandler.NewUnboundidDeliveredOtpSaslMechanismHandlerResource,
+		saslmechanismhandler.NewUnboundidExternalAuthSaslMechanismHandlerResource,
+		saslmechanismhandler.NewUnboundidMsChapV2SaslMechanismHandlerResource,
+		saslmechanismhandler.NewUnboundidTotpSaslMechanismHandlerResource,
+		saslmechanismhandler.NewUnboundidYubikeyOtpSaslMechanismHandlerResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,

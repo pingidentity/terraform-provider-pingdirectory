@@ -1,0 +1,2 @@
+# "unboundidMsChapV2SaslMechanismHandlerId" should be the id of the Unboundid Ms Chap V2 Sasl Mechanism Handler to be imported
+terraform import pingdirectory_unboundid_ms_chap_v2_sasl_mechanism_handler.myUnboundidMsChapV2SaslMechanismHandler unboundidMsChapV2SaslMechanismHandlerId
