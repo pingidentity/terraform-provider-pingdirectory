@@ -36,6 +36,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
@@ -633,6 +634,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		restresourcetype.NewGenericRestResourceTypeResource,
 		restresourcetype.NewGroupRestResourceTypeResource,
 		restresourcetype.NewUserRestResourceTypeResource,
+		scimresourcetype.NewDefaultLdapMappingScimResourceTypeResource,
+		scimresourcetype.NewDefaultLdapPassThroughScimResourceTypeResource,
+		scimresourcetype.NewLdapMappingScimResourceTypeResource,
+		scimresourcetype.NewLdapPassThroughScimResourceTypeResource,
 		saslmechanismhandler.NewAnonymousSaslMechanismHandlerResource,
 		saslmechanismhandler.NewCramMd5SaslMechanismHandlerResource,
 		saslmechanismhandler.NewDefaultOauthBearerSaslMechanismHandlerResource,
