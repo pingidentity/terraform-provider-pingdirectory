@@ -1,0 +1,2 @@
+# "externalSaslMechanismHandlerId" should be the id of the External Sasl Mechanism Handler to be imported
+terraform import pingdirectory_default_external_sasl_mechanism_handler.myExternalSaslMechanismHandler externalSaslMechanismHandlerId

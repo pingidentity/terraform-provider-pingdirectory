@@ -1,0 +1,2 @@
+# "gssapiSaslMechanismHandlerId" should be the id of the Gssapi Sasl Mechanism Handler to be imported
+terraform import pingdirectory_default_gssapi_sasl_mechanism_handler.myGssapiSaslMechanismHandler gssapiSaslMechanismHandlerId
