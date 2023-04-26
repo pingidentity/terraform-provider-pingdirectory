@@ -41,6 +41,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
@@ -713,5 +714,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		virtualattribute.NewSubschemaSubentryVirtualAttributeResource,
 		virtualattribute.NewThirdPartyVirtualAttributeResource,
 		virtualattribute.NewUserDefinedVirtualAttributeResource,
+		webapplicationextension.NewConsoleWebApplicationExtensionResource,
+		webapplicationextension.NewDefaultGenericWebApplicationExtensionResource,
+		webapplicationextension.NewGenericWebApplicationExtensionResource,
 	}
 }
