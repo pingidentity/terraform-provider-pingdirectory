@@ -74,21 +74,21 @@ func TestAccScimAttributeMapping(t *testing.T) {
 func testAccScimAttributeMappingResource(resourceName string, resourceModel scimAttributeMappingTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_schema" "mySchema" {
-     schema_urn = "urn:com:example"
+  schema_urn = "urn:com:example"
 }
 
 resource "pingdirectory_ldap_mapping_scim_resource_type" "myLdapMappingScimResourceType" {
-	 id          = "%[3]s"
-	 core_schema = pingdirectory_scim_schema.mySchema.schema_urn
-	 enabled     = false
-	 endpoint    = "myendpoint"
+  id          = "%[3]s"
+  core_schema = pingdirectory_scim_schema.mySchema.schema_urn
+  enabled     = false
+  endpoint    = "myendpoint"
 }
 
 resource "pingdirectory_scim_attribute_mapping" "%[1]s" {
-	 id = "%[2]s"
-	 scim_resource_type_name = pingdirectory_ldap_mapping_scim_resource_type.myLdapMappingScimResourceType.id
-	 scim_resource_type_attribute = "%[4]s"
-	 ldap_attribute = "%[5]s"
+  id                           = "%[2]s"
+  scim_resource_type_name      = pingdirectory_ldap_mapping_scim_resource_type.myLdapMappingScimResourceType.id
+  scim_resource_type_attribute = "%[4]s"
+  ldap_attribute               = "%[5]s"
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.scimResourceTypeName,
