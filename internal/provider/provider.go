@@ -29,6 +29,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
@@ -40,6 +41,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
@@ -462,6 +464,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		identitymapper.NewGroovyScriptedIdentityMapperResource,
 		identitymapper.NewRegularExpressionIdentityMapperResource,
 		identitymapper.NewThirdPartyIdentityMapperResource,
+		idtokenvalidator.NewDefaultOpenidConnectIdTokenValidatorResource,
+		idtokenvalidator.NewDefaultPingOneIdTokenValidatorResource,
+		idtokenvalidator.NewOpenidConnectIdTokenValidatorResource,
+		idtokenvalidator.NewPingOneIdTokenValidatorResource,
 		logpublisher.NewAdminAlertAccessLogPublisherResource,
 		logpublisher.NewCommonLogFileHttpOperationLogPublisherResource,
 		logpublisher.NewConsoleJsonAccessLogPublisherResource,
@@ -708,5 +714,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		virtualattribute.NewSubschemaSubentryVirtualAttributeResource,
 		virtualattribute.NewThirdPartyVirtualAttributeResource,
 		virtualattribute.NewUserDefinedVirtualAttributeResource,
+		webapplicationextension.NewConsoleWebApplicationExtensionResource,
+		webapplicationextension.NewDefaultGenericWebApplicationExtensionResource,
+		webapplicationextension.NewGenericWebApplicationExtensionResource,
 	}
 }
