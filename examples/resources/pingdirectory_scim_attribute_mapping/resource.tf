@@ -25,6 +25,6 @@ provider "pingdirectory" {
 resource "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
   id                           = "MyScimAttributeMapping"
   scim_resource_type_name      = "MyScimResourceType"
-  scim_resource_type_attribute = TODO(string)
-  ldap_attribute               = TODO(string)
+  scim_resource_type_attribute = "name"
+  ldap_attribute               = "name"
 }
