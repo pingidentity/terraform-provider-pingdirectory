@@ -29,6 +29,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
@@ -462,6 +463,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		identitymapper.NewGroovyScriptedIdentityMapperResource,
 		identitymapper.NewRegularExpressionIdentityMapperResource,
 		identitymapper.NewThirdPartyIdentityMapperResource,
+		idtokenvalidator.NewDefaultOpenidConnectIdTokenValidatorResource,
+		idtokenvalidator.NewDefaultPingOneIdTokenValidatorResource,
+		idtokenvalidator.NewOpenidConnectIdTokenValidatorResource,
+		idtokenvalidator.NewPingOneIdTokenValidatorResource,
 		logpublisher.NewAdminAlertAccessLogPublisherResource,
 		logpublisher.NewCommonLogFileHttpOperationLogPublisherResource,
 		logpublisher.NewConsoleJsonAccessLogPublisherResource,
