@@ -2,8 +2,8 @@
 
 set -e
 
-if test -z "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"; then
-	echo "No endpoint specified with PINGDIRECTORY_ENDPOINT_TO_GENERATE environment variable. Exiting."
+if test -z "${PINGDIRECTORY_GENERATOR_CONFIG_FILE}"; then
+	echo "No config file specified with PINGDIRECTORY_GENERATOR_CONFIG_FILE environment variable. Exiting."
 	exit 0
 fi
 
@@ -34,12 +34,10 @@ done
 # Fail if the container didn't become ready in time
 docker logs pingdirectory_terraform_provider_container 2>&1 | grep -q "Setting Server to Available"
 
-# Run the generator, specifying the endpoints to be generated.
-# --endpoint can be specified multiple times to generate multiple endpoints in one run.
+# Run the generator
 java -jar ./bin/pingdirectory-openapi-generator.jar \
-    --generateMode terraform \
-    --targetDirectory ./ \
-    --endpoint "${PINGDIRECTORY_ENDPOINT_TO_GENERATE}"
+	--configFile "${PINGDIRECTORY_GENERATOR_CONFIG_FILE}" \
+	--printParsedConfig
 
 # Remove the PD container
 echo "Stopping and removing PingDirectory container"
