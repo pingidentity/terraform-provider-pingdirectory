@@ -15,9 +15,6 @@ import (
 // Format examples
 //go:generate terraform fmt -recursive ./examples/
 
-// Generate resource source files
-//go:generate ./scripts/generate-resource-source-files.sh
-
 // Run the docs generation tool
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
