@@ -25,6 +25,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/entrycache"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/externalserver"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
@@ -396,6 +397,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		delegatedadminattribute.NewDefaultPhotoDelegatedAdminAttributeResource,
 		delegatedadminattribute.NewGenericDelegatedAdminAttributeResource,
 		delegatedadminattribute.NewPhotoDelegatedAdminAttributeResource,
+		entrycache.NewFifoEntryCacheResource,
+		entrycache.NewDefaultFifoEntryCacheResource,
 		externalserver.NewActiveDirectoryExternalServerResource,
 		externalserver.NewAmazonAwsExternalServerResource,
 		externalserver.NewConjurExternalServerResource,
