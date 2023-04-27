@@ -13,6 +13,9 @@ generate:
 	go fmt ./...
 	go vet ./...
 
+generateresource:
+	./scripts/generate-resource-source-files.sh
+
 fmt:
 	go fmt ./...
 
