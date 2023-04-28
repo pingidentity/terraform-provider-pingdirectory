@@ -370,6 +370,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLocationResource,
 		config.NewDefaultRecurringTaskChainResource,
 		config.NewRecurringTaskChainResource,
+		config.NewResultCodeMapResource,
+		config.NewDefaultResultCodeMapResource,
 		config.NewRootDnResource,
 		config.NewRootDnUserResource,
 		config.NewDefaultRootDnUserResource,
