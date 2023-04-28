@@ -28,6 +28,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/entrycache"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/externalserver"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gaugedatasource"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
@@ -433,6 +434,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		externalserver.NewSmtpExternalServerResource,
 		externalserver.NewSyslogExternalServerResource,
 		externalserver.NewVaultExternalServerResource,
+		gaugedatasource.NewIndicatorGaugeDataSourceResource,
+		gaugedatasource.NewDefaultIndicatorGaugeDataSourceResource,
+		gaugedatasource.NewNumericGaugeDataSourceResource,
+		gaugedatasource.NewDefaultNumericGaugeDataSourceResource,
 		gauge.NewDefaultIndicatorGaugeResource,
 		gauge.NewDefaultNumericGaugeResource,
 		gauge.NewIndicatorGaugeResource,
