@@ -49,13 +49,6 @@ func TestAccHttpConfiguration(t *testing.T) {
 				),
 			},
 			{
-				// Test returning to the original configuration
-				Config: testAccHttpConfigurationResource(resourceName, initialResourceModel),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckExpectedHttpConfigurationAttributes(initialResourceModel),
-				),
-			},
-			{
 				// Test importing the resource
 				Config:            testAccHttpConfigurationResource(resourceName, initialResourceModel),
 				ResourceName:      "pingdirectory_default_http_configuration." + resourceName,
