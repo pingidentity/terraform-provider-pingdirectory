@@ -1,3 +1,27 @@
+# v0.5.0 April 28 2023
+
+### FEATURES
+* **New Resource:** `pingdirectory_certificate_mapper` (#142)
+* **New Resource:** `pingdirectory_sasl_mechanism_handler` (#146)
+* **New Resource:** `pingdirectory_monitoring_endpoint` (#147)
+* **New Resource:** `pingdirectory_recurring_task_chain` (#148)
+* **New Resource:** `pingdirectory_scim_schema` (#149)
+* **New Resource:** `pingdirectory_scim_resource_type` (#150)
+* **New Resource:** `pingdirectory_scim_attribute` (#151)
+* **New Resource:** `pingdirectory_scim_attribute_mapping` (#153)
+* **New Resource:** `pingdirectory_id_token_validator` (#154)
+* **New Resource:** `pingdirectory_web_application_extension` (#154)
+* **New Resource:** `pingdirectory_entry_cache` (#158)
+* **New Resource:** `pingdirectory_gauge_data_source` (#159)
+
+### DOCUMENTATION UPDATES
+* `Move default_ resource documentation pages to correct subcategories` (#144)
+
+### DEPENDENCIES
+* `Bump github.com/pingidentity/pingdirectory-go-client from v9200.0.0 to v9200.5.0` (#153)
+* `Bump github.com/bflad/tfproviderlint from 0.28.1 to 0.29.0` (#140)
+* `Bump github.com/terraform-linters/tflint from 0.46.0 to 0.46.1` (#152)
+
 # v0.4.0 April 14 2023
 
 ### ENHANCEMENTS
