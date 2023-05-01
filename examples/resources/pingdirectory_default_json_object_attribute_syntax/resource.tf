@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source = "pingidentity/pingdirectory"
+      source  = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,10 +19,10 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version = "9.2.0.0"
+  product_version        = "9.2.0.0"
 }
 
 resource "pingdirectory_default_json_object_attribute_syntax" "myJsonObjectAttributeSyntax" {
-  id                            = "MyJsonObjectAttributeSyntax"
-  enabled                      = TODO (bool)
+  id                      = "Json Object"
+  require_binary_transfer = true
 }
