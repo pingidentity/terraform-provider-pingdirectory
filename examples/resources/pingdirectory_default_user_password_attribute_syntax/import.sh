@@ -1,0 +1,2 @@
+# "userPasswordAttributeSyntaxId" should be the id of the User Password Attribute Syntax to be imported
+terraform import pingdirectory_default_user_password_attribute_syntax.myUserPasswordAttributeSyntax userPasswordAttributeSyntaxId
