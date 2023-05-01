@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/attributesyntax"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
@@ -320,6 +321,21 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		accesstokenvalidator.NewMockAccessTokenValidatorResource,
 		accesstokenvalidator.NewPingFederateAccessTokenValidatorResource,
 		accesstokenvalidator.NewThirdPartyAccessTokenValidatorResource,
+		attributesyntax.NewAttributeTypeDescriptionAttributeSyntaxResource,
+		attributesyntax.NewBitStringAttributeSyntaxResource,
+		attributesyntax.NewBooleanAttributeSyntaxResource,
+		attributesyntax.NewDirectoryStringAttributeSyntaxResource,
+		attributesyntax.NewDistinguishedNameAttributeSyntaxResource,
+		attributesyntax.NewGeneralizedTimeAttributeSyntaxResource,
+		attributesyntax.NewGenericAttributeSyntaxResource,
+		attributesyntax.NewHexStringAttributeSyntaxResource,
+		attributesyntax.NewIntegerAttributeSyntaxResource,
+		attributesyntax.NewJsonObjectAttributeSyntaxResource,
+		attributesyntax.NewLdapUrlAttributeSyntaxResource,
+		attributesyntax.NewNameAndOptionalUidAttributeSyntaxResource,
+		attributesyntax.NewTelephoneNumberAttributeSyntaxResource,
+		attributesyntax.NewUserPasswordAttributeSyntaxResource,
+		attributesyntax.NewUuidAttributeSyntaxResource,
 		backend.NewAlarmBackendResource,
 		backend.NewAlertBackendResource,
 		backend.NewBackupBackendResource,
