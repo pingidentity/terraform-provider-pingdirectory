@@ -25,12 +25,12 @@ func TestAccGroovyScriptedChangeSubscriptionHandler(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := groovyScriptedChangeSubscriptionHandlerTestModel{
 		id:          testIdGroovyScriptedChangeSubscriptionHandler,
-		scriptClass: "com.example.myscriptclass",
+		scriptClass: "com.unboundid.directory.sdk.ds.api.ChangeSubscriptionHandler",
 		enabled:     false,
 	}
 	updatedResourceModel := groovyScriptedChangeSubscriptionHandlerTestModel{
 		id:          testIdGroovyScriptedChangeSubscriptionHandler,
-		scriptClass: "com.example.myscriptclass",
+		scriptClass: "com.unboundid.directory.sdk.ds.api.ChangeSubscriptionHandler",
 		enabled:     false,
 	}
 
