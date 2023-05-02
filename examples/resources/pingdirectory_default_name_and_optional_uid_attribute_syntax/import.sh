@@ -1,0 +1,2 @@
+# "nameAndOptionalUidAttributeSyntaxId" should be the id of the Name And Optional Uid Attribute Syntax to be imported
+terraform import pingdirectory_default_name_and_optional_uid_attribute_syntax.myNameAndOptionalUidAttributeSyntax nameAndOptionalUidAttributeSyntaxId

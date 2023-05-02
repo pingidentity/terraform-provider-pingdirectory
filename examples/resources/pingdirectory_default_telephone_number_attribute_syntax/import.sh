@@ -1,0 +1,2 @@
+# "telephoneNumberAttributeSyntaxId" should be the id of the Telephone Number Attribute Syntax to be imported
+terraform import pingdirectory_default_telephone_number_attribute_syntax.myTelephoneNumberAttributeSyntax telephoneNumberAttributeSyntaxId
