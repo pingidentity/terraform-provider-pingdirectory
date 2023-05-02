@@ -60,19 +60,6 @@ resource "pingdirectory_default_azure_authentication_method" "%[1]s" {
 		resourceModel.id)
 }
 
-// Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedDefaultAzureAuthenticationMethodAttributes(config defaultAzureAuthenticationMethodTestModel) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		testClient := acctest.TestClient()
-		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(ctx, config.id).Execute()
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-}
-
 // Test that any objects created by the test are destroyed
 func testAccCheckDefaultAzureAuthenticationMethodDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
