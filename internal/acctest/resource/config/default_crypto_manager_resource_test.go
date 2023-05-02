@@ -26,10 +26,11 @@ func TestAccCryptoManager(t *testing.T) {
 		cipher_key_length: 256,
 		ssl_cert_nickname: "ssl-certificate-alias",
 	}
+	// ads-certificate is the default value for the ssl_cert_nickname attribute
 	updatedResourceModel := cryptoManagerTestModel{
 		mac_key_length:    192,
 		cipher_key_length: 192,
-		ssl_cert_nickname: "ssl-certificate-alias2",
+		ssl_cert_nickname: "ads-certificate",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -97,8 +98,8 @@ func testAccCheckExpectedCryptoManagerAttributes(config cryptoManagerTestModel) 
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchString(resourceType, nil, "ssl-cert-nickname",
-			config.ssl_cert_nickname, *response.SslCertNickname)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "ssl-cert-nickname",
+			config.ssl_cert_nickname, response.SslCertNickname)
 		if err != nil {
 			return err
 		}
