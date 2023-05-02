@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/azureauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
@@ -320,6 +321,12 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		accesstokenvalidator.NewMockAccessTokenValidatorResource,
 		accesstokenvalidator.NewPingFederateAccessTokenValidatorResource,
 		accesstokenvalidator.NewThirdPartyAccessTokenValidatorResource,
+		azureauthenticationmethod.NewClientSecretAzureAuthenticationMethodResource,
+        azureauthenticationmethod.NewDefaultAzureAuthenticationMethodResource,
+        azureauthenticationmethod.NewDefaultClientSecretAzureAuthenticationMethodResource,
+        azureauthenticationmethod.NewDefaultDefaultAzureAuthenticationMethodResource,
+        azureauthenticationmethod.NewDefaultUsernamePasswordAzureAuthenticationMethodResource,
+        azureauthenticationmethod.NewUsernamePasswordAzureAuthenticationMethodResource,
 		backend.NewAlarmBackendResource,
 		backend.NewAlertBackendResource,
 		backend.NewBackupBackendResource,
