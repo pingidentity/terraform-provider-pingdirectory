@@ -12,7 +12,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-// const testIdGenericLogFieldSyntax = "MyId"
 const testResource = "Generalized Time"
 
 // Attributes to test with. Add optional properties to test here if desired.
@@ -87,8 +86,8 @@ func testAccCheckExpectedGenericLogFieldSyntaxAttributes(config genericLogFieldS
 			return err
 		}
 		// Verify that attributes have expected values
-		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "default-behavior",
-			config.default_behavior, (*string)(response.GenericLogFieldSyntaxResponse.DefaultBehavior))
+		err = acctest.TestAttributesMatchString(resourceType, &config.default_behavior, "default-behavior",
+			config.default_behavior, response.GenericLogFieldSyntaxResponse.DefaultBehavior.String())
 		if err != nil {
 			return err
 		}
