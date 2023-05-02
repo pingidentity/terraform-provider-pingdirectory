@@ -1,0 +1,2 @@
+# "defaultAzureAuthenticationMethodId" should be the id of the Default Azure Authentication Method to be imported
+terraform import pingdirectory_default_azure_authentication_method.myDefaultAzureAuthenticationMethod defaultAzureAuthenticationMethodId
