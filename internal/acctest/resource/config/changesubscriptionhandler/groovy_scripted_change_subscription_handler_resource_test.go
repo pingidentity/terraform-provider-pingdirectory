@@ -25,12 +25,12 @@ func TestAccGroovyScriptedChangeSubscriptionHandler(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := groovyScriptedChangeSubscriptionHandlerTestModel{
 		id:          testIdGroovyScriptedChangeSubscriptionHandler,
-		scriptClass: "Strong Encryption Not Available",
-		enabled:     true,
+		scriptClass: "com.example.myscriptclass",
+		enabled:     false,
 	}
 	updatedResourceModel := groovyScriptedChangeSubscriptionHandlerTestModel{
 		id:          testIdGroovyScriptedChangeSubscriptionHandler,
-		scriptClass: "Replication Connection Status",
+		scriptClass: "com.example.myscriptclass",
 		enabled:     false,
 	}
 
