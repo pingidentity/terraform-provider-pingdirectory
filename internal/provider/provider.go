@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/azureauthenticationmethod"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/attributesyntax"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
@@ -327,6 +328,21 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
         azureauthenticationmethod.NewDefaultDefaultAzureAuthenticationMethodResource,
         azureauthenticationmethod.NewDefaultUsernamePasswordAzureAuthenticationMethodResource,
         azureauthenticationmethod.NewUsernamePasswordAzureAuthenticationMethodResource,
+		attributesyntax.NewAttributeTypeDescriptionAttributeSyntaxResource,
+		attributesyntax.NewBitStringAttributeSyntaxResource,
+		attributesyntax.NewBooleanAttributeSyntaxResource,
+		attributesyntax.NewDirectoryStringAttributeSyntaxResource,
+		attributesyntax.NewDistinguishedNameAttributeSyntaxResource,
+		attributesyntax.NewGeneralizedTimeAttributeSyntaxResource,
+		attributesyntax.NewGenericAttributeSyntaxResource,
+		attributesyntax.NewHexStringAttributeSyntaxResource,
+		attributesyntax.NewIntegerAttributeSyntaxResource,
+		attributesyntax.NewJsonObjectAttributeSyntaxResource,
+		attributesyntax.NewLdapUrlAttributeSyntaxResource,
+		attributesyntax.NewNameAndOptionalUidAttributeSyntaxResource,
+		attributesyntax.NewTelephoneNumberAttributeSyntaxResource,
+		attributesyntax.NewUserPasswordAttributeSyntaxResource,
+		attributesyntax.NewUuidAttributeSyntaxResource,
 		backend.NewAlarmBackendResource,
 		backend.NewAlertBackendResource,
 		backend.NewBackupBackendResource,
@@ -359,6 +375,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewConsentDefinitionLocalizationResource,
 		config.NewDefaultConsentDefinitionLocalizationResource,
 		config.NewConsentServiceResource,
+		config.NewCryptoManagerResource,
 		config.NewDebugTargetResource,
 		config.NewDefaultDebugTargetResource,
 		config.NewDefaultLocationResource,
