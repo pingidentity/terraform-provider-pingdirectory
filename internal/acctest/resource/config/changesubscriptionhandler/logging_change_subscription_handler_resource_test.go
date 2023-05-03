@@ -24,7 +24,7 @@ func TestAccLoggingChangeSubscriptionHandler(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := loggingChangeSubscriptionHandlerTestModel{
 		id:      testIdLoggingChangeSubscriptionHandler,
-		enabled: false,
+		enabled: true,
 	}
 	updatedResourceModel := loggingChangeSubscriptionHandlerTestModel{
 		id:      testIdLoggingChangeSubscriptionHandler,
