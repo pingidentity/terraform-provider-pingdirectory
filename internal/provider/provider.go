@@ -40,6 +40,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfilerotationlistener"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logretentionpolicy"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logrotationpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
@@ -611,6 +612,14 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		logretentionpolicy.NewSizeLimitLogRetentionPolicyResource,
 		logretentionpolicy.NewDefaultTimeLimitLogRetentionPolicyResource,
 		logretentionpolicy.NewTimeLimitLogRetentionPolicyResource,
+		logrotationpolicy.NewFixedTimeLogRotationPolicyResource,
+		logrotationpolicy.NewDefaultFixedTimeLogRotationPolicyResource,
+		logrotationpolicy.NewNeverRotateLogRotationPolicyResource,
+		logrotationpolicy.NewDefaultNeverRotateLogRotationPolicyResource,
+		logrotationpolicy.NewSizeLimitLogRotationPolicyResource,
+		logrotationpolicy.NewDefaultSizeLimitLogRotationPolicyResource,
+		logrotationpolicy.NewTimeLimitLogRotationPolicyResource,
+		logrotationpolicy.NewDefaultTimeLimitLogRotationPolicyResource,
 		monitoringendpoint.NewDefaultStatsdMonitoringEndpointResource,
 		monitoringendpoint.NewStatsdMonitoringEndpointResource,
 		plugin.NewAttributeMapperPluginResource,
