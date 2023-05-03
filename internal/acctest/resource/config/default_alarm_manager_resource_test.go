@@ -34,7 +34,6 @@ func TestAccAlarmManager(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
-		//CheckDestroy: testAccCheckAlarmManagerDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
