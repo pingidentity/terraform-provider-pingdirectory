@@ -24,6 +24,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/azureauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/changesubscriptionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminattribute"
@@ -376,6 +377,12 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		certificatemapper.NewSubjectDnToUserAttributeCertificateMapperResource,
 		certificatemapper.NewSubjectEqualsDnCertificateMapperResource,
 		certificatemapper.NewThirdPartyCertificateMapperResource,
+		changesubscriptionhandler.NewDefaultGroovyScriptedChangeSubscriptionHandlerResource,
+		changesubscriptionhandler.NewDefaultLoggingChangeSubscriptionHandlerResource,
+		changesubscriptionhandler.NewDefaultThirdPartyChangeSubscriptionHandlerResource,
+		changesubscriptionhandler.NewGroovyScriptedChangeSubscriptionHandlerResource,
+		changesubscriptionhandler.NewLoggingChangeSubscriptionHandlerResource,
+		changesubscriptionhandler.NewThirdPartyChangeSubscriptionHandlerResource,
 		config.NewConsentDefinitionResource,
 		config.NewDefaultConsentDefinitionResource,
 		config.NewConsentDefinitionLocalizationResource,
