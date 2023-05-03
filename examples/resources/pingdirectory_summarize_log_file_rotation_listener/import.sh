@@ -1,0 +1,2 @@
+# "summarizeLogFileRotationListenerId" should be the id of the Summarize Log File Rotation Listener to be imported
+terraform import pingdirectory_summarize_log_file_rotation_listener.mySummarizeLogFileRotationListener summarizeLogFileRotationListenerId
