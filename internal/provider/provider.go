@@ -37,6 +37,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldbehavior"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldmapping"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldsyntax"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfilerotationlistener"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
@@ -519,6 +520,12 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		logfieldsyntax.NewAttributeBasedLogFieldSyntaxResource,
 		logfieldsyntax.NewGenericLogFieldSyntaxResource,
 		logfieldsyntax.NewJsonLogFieldSyntaxResource,
+		logfilerotationlistener.NewCopyLogFileRotationListenerResource,
+		logfilerotationlistener.NewDefaultCopyLogFileRotationListenerResource,
+		logfilerotationlistener.NewSummarizeLogFileRotationListenerResource,
+		logfilerotationlistener.NewDefaultSummarizeLogFileRotationListenerResource,
+		logfilerotationlistener.NewThirdPartyLogFileRotationListenerResource,
+		logfilerotationlistener.NewDefaultThirdPartyLogFileRotationListenerResource,
 		logpublisher.NewAdminAlertAccessLogPublisherResource,
 		logpublisher.NewCommonLogFileHttpOperationLogPublisherResource,
 		logpublisher.NewConsoleJsonAccessLogPublisherResource,
