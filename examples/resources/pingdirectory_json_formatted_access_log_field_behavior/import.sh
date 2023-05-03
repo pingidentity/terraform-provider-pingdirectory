@@ -1,0 +1,2 @@
+# "jsonFormattedAccessLogFieldBehaviorId" should be the id of the Json Formatted Access Log Field Behavior to be imported
+terraform import pingdirectory_json_formatted_access_log_field_behavior.myJsonFormattedAccessLogFieldBehavior jsonFormattedAccessLogFieldBehaviorId

@@ -35,8 +35,12 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldbehavior"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldmapping"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldsyntax"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfilerotationlistener"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logretentionpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
@@ -513,9 +517,23 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		idtokenvalidator.NewDefaultPingOneIdTokenValidatorResource,
 		idtokenvalidator.NewOpenidConnectIdTokenValidatorResource,
 		idtokenvalidator.NewPingOneIdTokenValidatorResource,
+		logfieldbehavior.NewJsonFormattedAccessLogFieldBehaviorResource,
+		logfieldbehavior.NewDefaultJsonFormattedAccessLogFieldBehaviorResource,
+		logfieldbehavior.NewTextAccessLogFieldBehaviorResource,
+		logfieldbehavior.NewDefaultTextAccessLogFieldBehaviorResource,
+		logfieldmapping.NewAccessLogFieldMappingResource,
+		logfieldmapping.NewDefaultAccessLogFieldMappingResource,
+		logfieldmapping.NewDefaultErrorLogFieldMappingResource,
+		logfieldmapping.NewErrorLogFieldMappingResource,
 		logfieldsyntax.NewAttributeBasedLogFieldSyntaxResource,
 		logfieldsyntax.NewGenericLogFieldSyntaxResource,
 		logfieldsyntax.NewJsonLogFieldSyntaxResource,
+		logfilerotationlistener.NewCopyLogFileRotationListenerResource,
+		logfilerotationlistener.NewDefaultCopyLogFileRotationListenerResource,
+		logfilerotationlistener.NewSummarizeLogFileRotationListenerResource,
+		logfilerotationlistener.NewDefaultSummarizeLogFileRotationListenerResource,
+		logfilerotationlistener.NewThirdPartyLogFileRotationListenerResource,
+		logfilerotationlistener.NewDefaultThirdPartyLogFileRotationListenerResource,
 		logpublisher.NewAdminAlertAccessLogPublisherResource,
 		logpublisher.NewCommonLogFileHttpOperationLogPublisherResource,
 		logpublisher.NewConsoleJsonAccessLogPublisherResource,
@@ -590,6 +608,16 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		logpublisher.NewThirdPartyFileBasedAccessLogPublisherResource,
 		logpublisher.NewThirdPartyFileBasedErrorLogPublisherResource,
 		logpublisher.NewThirdPartyHttpOperationLogPublisherResource,
+		logretentionpolicy.NewFileCountLogRetentionPolicyResource,
+		logretentionpolicy.NewDefaultFileCountLogRetentionPolicyResource,
+		logretentionpolicy.NewFreeDiskSpaceLogRetentionPolicyResource,
+		logretentionpolicy.NewDefaultFreeDiskSpaceLogRetentionPolicyResource,
+		logretentionpolicy.NewNeverDeleteLogRetentionPolicyResource,
+		logretentionpolicy.NewDefaultNeverDeleteLogRetentionPolicyResource,
+		logretentionpolicy.NewDefaultSizeLimitLogRetentionPolicyResource,
+		logretentionpolicy.NewSizeLimitLogRetentionPolicyResource,
+		logretentionpolicy.NewDefaultTimeLimitLogRetentionPolicyResource,
+		logretentionpolicy.NewTimeLimitLogRetentionPolicyResource,
 		monitoringendpoint.NewDefaultStatsdMonitoringEndpointResource,
 		monitoringendpoint.NewStatsdMonitoringEndpointResource,
 		plugin.NewAttributeMapperPluginResource,
