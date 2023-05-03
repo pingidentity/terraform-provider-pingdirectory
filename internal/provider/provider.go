@@ -383,6 +383,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		changesubscriptionhandler.NewGroovyScriptedChangeSubscriptionHandlerResource,
 		changesubscriptionhandler.NewLoggingChangeSubscriptionHandlerResource,
 		changesubscriptionhandler.NewThirdPartyChangeSubscriptionHandlerResource,
+		config.NewAlarmManagerResource,
 		config.NewConsentDefinitionResource,
 		config.NewDefaultConsentDefinitionResource,
 		config.NewConsentDefinitionLocalizationResource,
