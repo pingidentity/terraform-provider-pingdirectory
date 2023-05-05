@@ -1,0 +1,2 @@
+# "memoryUsageMonitorProviderId" should be the id of the Memory Usage Monitor Provider to be imported
+terraform import pingdirectory_default_memory_usage_monitor_provider.myMemoryUsageMonitorProvider memoryUsageMonitorProviderId
