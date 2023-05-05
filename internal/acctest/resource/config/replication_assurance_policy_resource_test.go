@@ -95,8 +95,8 @@ func testAccCheckExpectedReplicationAssurancePolicyAttributes(config replication
 		}
 		// Verify that attributes have expected values
 		resourceType := "Replication Assurance Policy"
-		err = acctest.TestAttributesMatchString(resourceType, &config.id, "description",
-			config.description, *response.Description)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.Description)
 		if err != nil {
 			return err
 		}
