@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/alerthandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/attributesyntax"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/azureauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
@@ -330,6 +331,26 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		accesstokenvalidator.NewMockAccessTokenValidatorResource,
 		accesstokenvalidator.NewPingFederateAccessTokenValidatorResource,
 		accesstokenvalidator.NewThirdPartyAccessTokenValidatorResource,
+		alerthandler.NewCustomAlertHandlerResource,
+		alerthandler.NewDefaultErrorLogAlertHandlerResource,
+		alerthandler.NewDefaultExecAlertHandlerResource,
+		alerthandler.NewDefaultGroovyScriptedAlertHandlerResource,
+		alerthandler.NewDefaultJmxAlertHandlerResource,
+		alerthandler.NewDefaultSmtpAlertHandlerResource,
+		alerthandler.NewDefaultSnmpAlertHandlerResource,
+		alerthandler.NewDefaultSnmpSubAgentAlertHandlerResource,
+		alerthandler.NewDefaultThirdPartyAlertHandlerResource,
+		alerthandler.NewDefaultTwilioAlertHandlerResource,
+		alerthandler.NewErrorLogAlertHandlerResource,
+		alerthandler.NewExecAlertHandlerResource,
+		alerthandler.NewGroovyScriptedAlertHandlerResource,
+		alerthandler.NewJmxAlertHandlerResource,
+		alerthandler.NewOutputAlertHandlerResource,
+		alerthandler.NewSmtpAlertHandlerResource,
+		alerthandler.NewSnmpAlertHandlerResource,
+		alerthandler.NewSnmpSubAgentAlertHandlerResource,
+		alerthandler.NewThirdPartyAlertHandlerResource,
+		alerthandler.NewTwilioAlertHandlerResource,
 		azureauthenticationmethod.NewClientSecretAzureAuthenticationMethodResource,
 		azureauthenticationmethod.NewDefaultAzureAuthenticationMethodResource,
 		azureauthenticationmethod.NewDefaultClientSecretAzureAuthenticationMethodResource,
@@ -385,6 +406,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		changesubscriptionhandler.NewLoggingChangeSubscriptionHandlerResource,
 		changesubscriptionhandler.NewThirdPartyChangeSubscriptionHandlerResource,
 		config.NewAlarmManagerResource,
+		config.NewChangeSubscriptionResource,
+		config.NewDefaultChangeSubscriptionResource,
 		config.NewConsentDefinitionResource,
 		config.NewDefaultConsentDefinitionResource,
 		config.NewConsentDefinitionLocalizationResource,
