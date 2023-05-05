@@ -405,6 +405,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		changesubscriptionhandler.NewLoggingChangeSubscriptionHandlerResource,
 		changesubscriptionhandler.NewThirdPartyChangeSubscriptionHandlerResource,
 		config.NewAlarmManagerResource,
+		config.NewChangeSubscriptionResource,
+		config.NewDefaultChangeSubscriptionResource,
 		config.NewConsentDefinitionResource,
 		config.NewDefaultConsentDefinitionResource,
 		config.NewConsentDefinitionLocalizationResource,
