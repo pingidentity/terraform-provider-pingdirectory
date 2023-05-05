@@ -12,7 +12,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-// const testIdThirdPartyMonitorProvider = "MyId"
 const testResource = "General Monitor Entry"
 
 // Attributes to test with. Add optional properties to test here if desired.
