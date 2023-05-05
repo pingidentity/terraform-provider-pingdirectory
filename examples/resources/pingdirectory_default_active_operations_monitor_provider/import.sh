@@ -1,0 +1,2 @@
+# "activeOperationsMonitorProviderId" should be the id of the Active Operations Monitor Provider to be imported
+terraform import pingdirectory_default_active_operations_monitor_provider.myActiveOperationsMonitorProvider activeOperationsMonitorProviderId
