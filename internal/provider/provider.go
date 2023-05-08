@@ -55,6 +55,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/workqueue"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
@@ -842,5 +843,6 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		webapplicationextension.NewConsoleWebApplicationExtensionResource,
 		webapplicationextension.NewDefaultGenericWebApplicationExtensionResource,
 		webapplicationextension.NewGenericWebApplicationExtensionResource,
+		workqueue.NewHighThroughputWorkQueueResource,
 	}
 }
