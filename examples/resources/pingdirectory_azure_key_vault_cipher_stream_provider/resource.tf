@@ -25,7 +25,7 @@ provider "pingdirectory" {
 resource "pingdirectory_azure_key_vault_cipher_stream_provider" "myAzureKeyVaultCipherStreamProvider" {
   id                          = "MyAzureKeyVaultCipherStreamProvider"
   key_vault_uri               = "example.com"
-  azure_authentication_method = "my_example_azure_authentication_method"
+  azure_authentication_method = "default"
   secret_name                 = "my_example_secret_name"
   enabled                     = false
 }
