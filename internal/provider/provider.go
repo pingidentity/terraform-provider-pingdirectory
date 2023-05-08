@@ -447,6 +447,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultScimSchemaResource,
 		config.NewTopologyAdminUserResource,
 		config.NewDefaultTopologyAdminUserResource,
+		config.NewVelocityTemplateLoaderResource,
+		config.NewDefaultVelocityTemplateLoaderResource,
 		connectioncriteria.NewAggregateConnectionCriteriaResource,
 		connectioncriteria.NewDefaultAggregateConnectionCriteriaResource,
 		connectionhandler.NewHttpConnectionHandlerResource,
