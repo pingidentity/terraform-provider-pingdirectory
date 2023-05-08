@@ -12,8 +12,6 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-//const testIdHighThroughputWorkQueue = "MyId"
-
 // Attributes to test with. Add optional properties to test here if desired.
 type highThroughputWorkQueueTestModel struct {
 	num_worker_threads      int64
