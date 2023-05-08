@@ -435,6 +435,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewConsentDefinitionLocalizationResource,
 		config.NewDefaultConsentDefinitionLocalizationResource,
 		config.NewConsentServiceResource,
+		config.NewCorrelatedLdapDataViewResource,
+		config.NewDefaultCorrelatedLdapDataViewResource,
 		config.NewCryptoManagerResource,
 		config.NewDebugTargetResource,
 		config.NewDefaultDebugTargetResource,
