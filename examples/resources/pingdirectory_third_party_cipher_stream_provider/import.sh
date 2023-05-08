@@ -1,0 +1,2 @@
+# "thirdPartyCipherStreamProviderId" should be the id of the Third Party Cipher Stream Provider to be imported
+terraform import pingdirectory_third_party_cipher_stream_provider.myThirdPartyCipherStreamProvider thirdPartyCipherStreamProviderId
