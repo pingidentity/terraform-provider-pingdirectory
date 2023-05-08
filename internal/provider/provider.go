@@ -45,6 +45,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logretentionpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logrotationpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -448,8 +449,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLocalDbIndexResource,
 		config.NewDefaultLocalDbIndexResource,
 		config.NewLocationResource,
-		config.NewDefaultRecurringTaskChainResource,
 		config.NewRecurringTaskChainResource,
+		config.NewDefaultRecurringTaskChainResource,
+		config.NewReplicationAssurancePolicyResource,
+		config.NewDefaultReplicationAssurancePolicyResource,
 		config.NewResultCodeMapResource,
 		config.NewDefaultResultCodeMapResource,
 		config.NewRootDnResource,
@@ -463,6 +466,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultScimSchemaResource,
 		config.NewTopologyAdminUserResource,
 		config.NewDefaultTopologyAdminUserResource,
+		config.NewVelocityTemplateLoaderResource,
+		config.NewDefaultVelocityTemplateLoaderResource,
 		connectioncriteria.NewAggregateConnectionCriteriaResource,
 		connectioncriteria.NewDefaultAggregateConnectionCriteriaResource,
 		connectionhandler.NewHttpConnectionHandlerResource,
@@ -672,6 +677,19 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		logrotationpolicy.NewDefaultTimeLimitLogRotationPolicyResource,
 		monitoringendpoint.NewDefaultStatsdMonitoringEndpointResource,
 		monitoringendpoint.NewStatsdMonitoringEndpointResource,
+		monitorprovider.NewActiveOperationsMonitorProviderResource,
+		monitorprovider.NewClientConnectionMonitorProviderResource,
+		monitorprovider.NewCustomMonitorProviderResource,
+		monitorprovider.NewDiskSpaceUsageMonitorProviderResource,
+		monitorprovider.NewGeneralMonitorProviderResource,
+		monitorprovider.NewHostSystemMonitorProviderResource,
+		monitorprovider.NewMemoryUsageMonitorProviderResource,
+		monitorprovider.NewSslContextMonitorProviderResource,
+		monitorprovider.NewStackTraceMonitorProviderResource,
+		monitorprovider.NewSystemInfoMonitorProviderResource,
+		monitorprovider.NewThirdPartyMonitorProviderResource,
+		monitorprovider.NewDefaultThirdPartyMonitorProviderResource,
+		monitorprovider.NewVersionMonitorProviderResource,
 		plugin.NewAttributeMapperPluginResource,
 		plugin.NewChangeSubscriptionNotificationPluginResource,
 		plugin.NewChangelogPasswordEncryptionPluginResource,
