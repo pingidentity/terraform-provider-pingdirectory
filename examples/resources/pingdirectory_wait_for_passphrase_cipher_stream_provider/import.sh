@@ -1,0 +1,2 @@
+# "waitForPassphraseCipherStreamProviderId" should be the id of the Wait For Passphrase Cipher Stream Provider to be imported
+terraform import pingdirectory_wait_for_passphrase_cipher_stream_provider.myWaitForPassphraseCipherStreamProvider waitForPassphraseCipherStreamProviderId
