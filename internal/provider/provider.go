@@ -428,6 +428,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewAlarmManagerResource,
 		config.NewChangeSubscriptionResource,
 		config.NewDefaultChangeSubscriptionResource,
+		config.NewClientConnectionPolicyResource,
+		config.NewDefaultClientConnectionPolicyResource,
 		config.NewConsentDefinitionResource,
 		config.NewDefaultConsentDefinitionResource,
 		config.NewConsentDefinitionLocalizationResource,
