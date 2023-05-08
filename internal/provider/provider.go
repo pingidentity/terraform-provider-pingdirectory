@@ -26,6 +26,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/changesubscriptionhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/cipherstreamprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminattribute"
@@ -405,6 +406,24 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		changesubscriptionhandler.NewGroovyScriptedChangeSubscriptionHandlerResource,
 		changesubscriptionhandler.NewLoggingChangeSubscriptionHandlerResource,
 		changesubscriptionhandler.NewThirdPartyChangeSubscriptionHandlerResource,
+		cipherstreamprovider.NewAmazonKeyManagementServiceCipherStreamProviderResource,
+		cipherstreamprovider.NewAmazonSecretsManagerCipherStreamProviderResource,
+		cipherstreamprovider.NewAzureKeyVaultCipherStreamProviderResource,
+		cipherstreamprovider.NewConjurCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultAmazonKeyManagementServiceCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultAmazonSecretsManagerCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultAzureKeyVaultCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultConjurCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultFileBasedCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultPkcs11CipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultThirdPartyCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultVaultCipherStreamProviderResource,
+		cipherstreamprovider.NewDefaultWaitForPassphraseCipherStreamProviderResource,
+		cipherstreamprovider.NewFileBasedCipherStreamProviderResource,
+		cipherstreamprovider.NewPkcs11CipherStreamProviderResource,
+		cipherstreamprovider.NewThirdPartyCipherStreamProviderResource,
+		cipherstreamprovider.NewVaultCipherStreamProviderResource,
+		cipherstreamprovider.NewWaitForPassphraseCipherStreamProviderResource,
 		config.NewAlarmManagerResource,
 		config.NewChangeSubscriptionResource,
 		config.NewDefaultChangeSubscriptionResource,
