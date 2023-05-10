@@ -1,0 +1,2 @@
+# "accessControlDataSecurityAuditorId" should be the id of the Access Control Data Security Auditor to be imported
+terraform import pingdirectory_access_control_data_security_auditor.myAccessControlDataSecurityAuditor accessControlDataSecurityAuditorId
