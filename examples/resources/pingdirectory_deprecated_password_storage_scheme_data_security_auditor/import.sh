@@ -1,0 +1,2 @@
+# "deprecatedPasswordStorageSchemeDataSecurityAuditorId" should be the id of the Deprecated Password Storage Scheme Data Security Auditor to be imported
+terraform import pingdirectory_deprecated_password_storage_scheme_data_security_auditor.myDeprecatedPasswordStorageSchemeDataSecurityAuditor deprecatedPasswordStorageSchemeDataSecurityAuditorId
