@@ -442,6 +442,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDebugTargetResource,
 		config.NewDefaultDebugTargetResource,
 		config.NewDefaultLocationResource,
+		config.NewDefaultDelegatedAdminAttributeCategoryResource,
+		config.NewDelegatedAdminAttributeCategoryResource,
 		config.NewDelegatedAdminResourceRightsResource,
 		config.NewDefaultDelegatedAdminResourceRightsResource,
 		config.NewDelegatedAdminRightsResource,
