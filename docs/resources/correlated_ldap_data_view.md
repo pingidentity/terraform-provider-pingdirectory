@@ -22,6 +22,7 @@ terraform {
   }
 }
 
+
 provider "pingdirectory" {
   username   = "cn=administrator"
   password   = "2FederateM0re"
@@ -35,16 +36,6 @@ provider "pingdirectory" {
   insecure_trust_all_tls = true
   product_version        = "9.2.0.0"
 }
-/*
-resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
-  id                            = "MyCorrelatedLdapDataView"
-  scim_resource_type_name                            = "MyScimResourceType"
-  structural_ldap_objectclass                      = TODO (string)
-  include_base_dn                      = TODO (string)
-  primary_correlation_attribute                      = TODO (string)
-  secondary_correlation_attribute                      = TODO (string)
-}
-*/
 
 resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
   id                              = "MyCorrelatedLdapDataView"
