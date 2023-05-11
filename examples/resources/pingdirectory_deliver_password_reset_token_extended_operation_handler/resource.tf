@@ -25,6 +25,6 @@ provider "pingdirectory" {
 resource "pingdirectory_deliver_password_reset_token_extended_operation_handler" "myDeliverPasswordResetTokenExtendedOperationHandler" {
   id                               = "MyDeliverPasswordResetTokenExtendedOperationHandler"
   password_generator               = "Passphrase"
-  default_token_delivery_mechanism = ["my_example_delievery_mechanism"]
+  default_token_delivery_mechanism = ["my_example_delivery_mechanism"]
   enabled                          = false
 }

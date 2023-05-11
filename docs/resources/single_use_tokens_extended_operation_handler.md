@@ -39,7 +39,7 @@ provider "pingdirectory" {
 resource "pingdirectory_single_use_tokens_extended_operation_handler" "mySingleUseTokensExtendedOperationHandler" {
   id                             = "MySingleUseTokensExtendedOperationHandler"
   password_generator             = "Passphrase"
-  default_otp_delivery_mechanism = ["my_example_delievery_mechanism"]
+  default_otp_delivery_mechanism = ["my_example_delivery_mechanism"]
   enabled                        = false
 }
 ```

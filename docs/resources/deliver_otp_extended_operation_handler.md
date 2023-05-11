@@ -40,7 +40,7 @@ resource "pingdirectory_deliver_otp_extended_operation_handler" "myDeliverOtpExt
   id                             = "MyDeliverOtpExtendedOperationHandler"
   identity_mapper                = "Exact Match"
   password_generator             = "Passphrase"
-  default_otp_delivery_mechanism = ["my_example_delievery_mechanism"]
+  default_otp_delivery_mechanism = ["my_example_delivery_mechanism"]
   enabled                        = false
 }
 ```
