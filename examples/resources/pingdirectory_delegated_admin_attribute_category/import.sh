@@ -1,0 +1,2 @@
+# "delegatedAdminAttributeCategoryId" should be the display_name of the Delegated Admin Attribute Category to be imported
+terraform import pingdirectory_delegated_admin_attribute_category.myDelegatedAdminAttributeCategory delegatedAdminAttributeCategoryId

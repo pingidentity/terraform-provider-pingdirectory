@@ -1,0 +1,2 @@
+# "accountUsabilityIssuesDataSecurityAuditorId" should be the id of the Account Usability Issues Data Security Auditor to be imported
+terraform import pingdirectory_account_usability_issues_data_security_auditor.myAccountUsabilityIssuesDataSecurityAuditor accountUsabilityIssuesDataSecurityAuditorId

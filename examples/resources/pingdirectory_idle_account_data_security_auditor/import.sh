@@ -1,0 +1,2 @@
+# "idleAccountDataSecurityAuditorId" should be the id of the Idle Account Data Security Auditor to be imported
+terraform import pingdirectory_idle_account_data_security_auditor.myIdleAccountDataSecurityAuditor idleAccountDataSecurityAuditorId
