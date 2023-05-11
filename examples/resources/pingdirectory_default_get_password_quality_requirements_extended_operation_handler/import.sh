@@ -1,0 +1,2 @@
+# "getPasswordQualityRequirementsExtendedOperationHandlerId" should be the id of the Get Password Quality Requirements Extended Operation Handler to be imported
+terraform import pingdirectory_default_get_password_quality_requirements_extended_operation_handler.myGetPasswordQualityRequirementsExtendedOperationHandler getPasswordQualityRequirementsExtendedOperationHandlerId

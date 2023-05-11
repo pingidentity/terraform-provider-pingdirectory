@@ -1,0 +1,2 @@
+# "getConnectionIdExtendedOperationHandlerId" should be the id of the Get Connection Id Extended Operation Handler to be imported
+terraform import pingdirectory_default_get_connection_id_extended_operation_handler.myGetConnectionIdExtendedOperationHandler getConnectionIdExtendedOperationHandlerId

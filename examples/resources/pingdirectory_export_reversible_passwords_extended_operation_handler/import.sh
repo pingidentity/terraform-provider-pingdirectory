@@ -1,0 +1,2 @@
+# "exportReversiblePasswordsExtendedOperationHandlerId" should be the id of the Export Reversible Passwords Extended Operation Handler to be imported
+terraform import pingdirectory_export_reversible_passwords_extended_operation_handler.myExportReversiblePasswordsExtendedOperationHandler exportReversiblePasswordsExtendedOperationHandlerId

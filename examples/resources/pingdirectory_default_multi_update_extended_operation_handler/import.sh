@@ -1,0 +1,2 @@
+# "multiUpdateExtendedOperationHandlerId" should be the id of the Multi Update Extended Operation Handler to be imported
+terraform import pingdirectory_default_multi_update_extended_operation_handler.myMultiUpdateExtendedOperationHandler multiUpdateExtendedOperationHandlerId

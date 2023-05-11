@@ -1,0 +1,2 @@
+# "deliverPasswordResetTokenExtendedOperationHandlerId" should be the id of the Deliver Password Reset Token Extended Operation Handler to be imported
+terraform import pingdirectory_deliver_password_reset_token_extended_operation_handler.myDeliverPasswordResetTokenExtendedOperationHandler deliverPasswordResetTokenExtendedOperationHandlerId
