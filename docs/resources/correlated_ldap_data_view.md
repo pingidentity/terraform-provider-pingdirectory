@@ -22,6 +22,7 @@ terraform {
   }
 }
 
+
 provider "pingdirectory" {
   username   = "cn=administrator"
   password   = "2FederateM0re"
