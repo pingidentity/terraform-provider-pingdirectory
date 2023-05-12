@@ -34,6 +34,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/entrycache"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/extendedoperationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/externalserver"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/failurelockoutaction"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gaugedatasource"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
@@ -593,6 +594,12 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		externalserver.NewSmtpExternalServerResource,
 		externalserver.NewSyslogExternalServerResource,
 		externalserver.NewVaultExternalServerResource,
+		failurelockoutaction.NewDefaultDelayBindResponseFailureLockoutActionResource,
+		failurelockoutaction.NewDefaultLockAccountFailureLockoutActionResource,
+		failurelockoutaction.NewDefaultNoOperationFailureLockoutActionResource,
+		failurelockoutaction.NewDelayBindResponseFailureLockoutActionResource,
+		failurelockoutaction.NewLockAccountFailureLockoutActionResource,
+		failurelockoutaction.NewNoOperationFailureLockoutActionResource,
 		gauge.NewDefaultIndicatorGaugeResource,
 		gauge.NewDefaultNumericGaugeResource,
 		gauge.NewIndicatorGaugeResource,
