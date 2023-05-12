@@ -1,0 +1,2 @@
+# "jsonAttributeConstraintsId" should be the attribute_type of the Json Attribute Constraints to be imported
+terraform import pingdirectory_json_attribute_constraints.myJsonAttributeConstraints jsonAttributeConstraintsId
