@@ -1,0 +1,2 @@
+# "singleUseTokensExtendedOperationHandlerId" should be the id of the Single Use Tokens Extended Operation Handler to be imported
+terraform import pingdirectory_single_use_tokens_extended_operation_handler.mySingleUseTokensExtendedOperationHandler singleUseTokensExtendedOperationHandlerId

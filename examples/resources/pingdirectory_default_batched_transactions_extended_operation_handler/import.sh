@@ -1,0 +1,2 @@
+# "batchedTransactionsExtendedOperationHandlerId" should be the id of the Batched Transactions Extended Operation Handler to be imported
+terraform import pingdirectory_default_batched_transactions_extended_operation_handler.myBatchedTransactionsExtendedOperationHandler batchedTransactionsExtendedOperationHandlerId

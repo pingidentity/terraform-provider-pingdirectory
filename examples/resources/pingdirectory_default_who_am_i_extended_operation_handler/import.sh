@@ -1,0 +1,2 @@
+# "whoAmIExtendedOperationHandlerId" should be the id of the Who Am I Extended Operation Handler to be imported
+terraform import pingdirectory_default_who_am_i_extended_operation_handler.myWhoAmIExtendedOperationHandler whoAmIExtendedOperationHandlerId

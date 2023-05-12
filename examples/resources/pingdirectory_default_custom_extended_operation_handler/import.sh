@@ -1,0 +1,2 @@
+# "customExtendedOperationHandlerId" should be the id of the Custom Extended Operation Handler to be imported
+terraform import pingdirectory_default_custom_extended_operation_handler.myCustomExtendedOperationHandler customExtendedOperationHandlerId

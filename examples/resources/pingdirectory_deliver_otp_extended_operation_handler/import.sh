@@ -1,0 +1,2 @@
+# "deliverOtpExtendedOperationHandlerId" should be the id of the Deliver Otp Extended Operation Handler to be imported
+terraform import pingdirectory_deliver_otp_extended_operation_handler.myDeliverOtpExtendedOperationHandler deliverOtpExtendedOperationHandlerId
