@@ -1,0 +1,2 @@
+# "virtualStaticGroupImplementationId" should be the id of the Virtual Static Group Implementation to be imported
+terraform import pingdirectory_default_virtual_static_group_implementation.myVirtualStaticGroupImplementation virtualStaticGroupImplementationId
