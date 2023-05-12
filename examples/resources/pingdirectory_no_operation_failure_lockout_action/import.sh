@@ -1,0 +1,2 @@
+# "noOperationFailureLockoutActionId" should be the id of the No Operation Failure Lockout Action to be imported
+terraform import pingdirectory_no_operation_failure_lockout_action.myNoOperationFailureLockoutAction noOperationFailureLockoutActionId
