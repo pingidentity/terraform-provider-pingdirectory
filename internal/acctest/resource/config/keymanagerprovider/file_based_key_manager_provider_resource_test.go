@@ -26,14 +26,14 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := fileBasedKeyManagerProviderTestModel{
 		id:           testIdFileBasedKeyManagerProvider,
-		keyStoreFile: "/tmp/key-store-file",
+		keyStoreFile: "/tmp/initial-key-store-file",
 		enabled:      false,
 		description:  "Initial resource model description",
 	}
 	updatedResourceModel := fileBasedKeyManagerProviderTestModel{
 		id:           testIdFileBasedKeyManagerProvider,
-		keyStoreFile: "/tmp/key-store-file",
-		enabled:      true,
+		keyStoreFile: "/tmp/updated-key-store-file",
+		enabled:      false,
 		description:  "Updated resource model description",
 	}
 
