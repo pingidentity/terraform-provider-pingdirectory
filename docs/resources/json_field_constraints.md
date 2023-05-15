@@ -37,9 +37,15 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_json_field_constraints" "myJsonFieldConstraints" {
-  json_attribute_constraints_name = "MyJsonAttributeConstraints"
+  json_attribute_constraints_name = "ubidEntitlement"
   json_field                      = "id"
   value_type                      = "string"
+}
+
+resource "pingdirectory_json_attribute_constraints" "myJsonAttributeConstraints" {
+  attribute_type       = "ubidEntitlement"
+  description          = "ubidEntitlement attribute constraint"
+  allow_unnamed_fields = false
 }
 ```
 
