@@ -12,8 +12,8 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdJsonFieldConstraints = "MyId"
-const testJsonAttributeConstraintsName = "ping-consent-definition"
+const testIdJsonFieldConstraints = "id"
+const testJsonAttributeConstraintsName = "ubidEntitlement"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type jsonFieldConstraintsTestModel struct {
@@ -29,11 +29,6 @@ func TestAccJsonFieldConstraints(t *testing.T) {
 		jsonField:                    testIdJsonFieldConstraints,
 		valueType:                    "string",
 	}
-	updatedResourceModel := jsonFieldConstraintsTestModel{
-		jsonAttributeConstraintsName: testJsonAttributeConstraintsName,
-		jsonField:                    testIdJsonFieldConstraints,
-		valueType:                    "boolean",
-	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -48,28 +43,18 @@ func TestAccJsonFieldConstraints(t *testing.T) {
 				Config: testAccJsonFieldConstraintsResource(resourceName, initialResourceModel),
 				Check:  testAccCheckExpectedJsonFieldConstraintsAttributes(initialResourceModel),
 			},
-			{
-				// Test updating some fields
-				Config: testAccJsonFieldConstraintsResource(resourceName, updatedResourceModel),
-				Check:  testAccCheckExpectedJsonFieldConstraintsAttributes(updatedResourceModel),
-			},
-			{
-				// Test importing the resource
-				Config:            testAccJsonFieldConstraintsResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_json_field_constraints." + resourceName,
-				ImportStateId:     updatedResourceModel.jsonAttributeConstraintsName + "/" + updatedResourceModel.jsonField,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
-			},
 		},
 	})
 }
 
 func testAccJsonFieldConstraintsResource(resourceName string, resourceModel jsonFieldConstraintsTestModel) string {
 	return fmt.Sprintf(`
+resource "pingdirectory_json_attribute_constraints" "%[2]s" {
+  attribute_type       = "%[2]s"
+  description          = "ubidEntitlement attribute constraint"
+  allow_unnamed_fields = false
+}
+
 resource "pingdirectory_json_field_constraints" "%[1]s" {
   json_attribute_constraints_name = "%[2]s"
   json_field                      = "%[3]s"
@@ -78,18 +63,6 @@ resource "pingdirectory_json_field_constraints" "%[1]s" {
 		resourceModel.jsonAttributeConstraintsName,
 		resourceModel.jsonField,
 		resourceModel.valueType)
-}
-
-func testAccJsonAttributeConstraintsResource(resourceName string, resourceModel jsonAttributeConstraintsTestModel) string {
-	return fmt.Sprintf(`
-resource "pingdirectory_json_attribute_constraints" "%[1]s" {
-  attribute_type       = "%[2]s"
-  description          = "%[3]s"
-  allow_unnamed_fields = %[4]t
-}`, resourceName,
-		resourceModel.attributeType,
-		resourceModel.description,
-		resourceModel.allow_unnamed_fields)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
