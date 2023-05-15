@@ -459,6 +459,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewHttpConfigurationResource,
 		config.NewHttpServletCrossOriginPolicyResource,
 		config.NewDefaultHttpServletCrossOriginPolicyResource,
+		config.NewJsonAttributeConstraintsResource,
+		config.NewDefaultJsonAttributeConstraintsResource,
 		config.NewLocalDbIndexResource,
 		config.NewDefaultLocalDbIndexResource,
 		config.NewLocationResource,
