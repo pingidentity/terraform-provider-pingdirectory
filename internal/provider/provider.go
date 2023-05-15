@@ -40,6 +40,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/keymanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldbehavior"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldmapping"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldsyntax"
@@ -644,6 +645,13 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		idtokenvalidator.NewDefaultPingOneIdTokenValidatorResource,
 		idtokenvalidator.NewOpenidConnectIdTokenValidatorResource,
 		idtokenvalidator.NewPingOneIdTokenValidatorResource,
+		keymanagerprovider.NewCustomKeyManagerProviderResource,
+		keymanagerprovider.NewFileBasedKeyManagerProviderResource,
+		keymanagerprovider.NewDefaultFileBasedKeyManagerProviderResource,
+		keymanagerprovider.NewDefaultPkcs11KeyManagerProviderResource,
+		keymanagerprovider.NewPkcs11KeyManagerProviderResource,
+		keymanagerprovider.NewThirdPartyKeyManagerProviderResource,
+		keymanagerprovider.NewDefaultThirdPartyKeyManagerProviderResource,
 		logfieldbehavior.NewJsonFormattedAccessLogFieldBehaviorResource,
 		logfieldbehavior.NewDefaultJsonFormattedAccessLogFieldBehaviorResource,
 		logfieldbehavior.NewTextAccessLogFieldBehaviorResource,
