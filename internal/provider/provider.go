@@ -454,6 +454,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultDelegatedAdminResourceRightsResource,
 		config.NewDelegatedAdminRightsResource,
 		config.NewDefaultDelegatedAdminRightsResource,
+		config.NewDefaultJsonFieldConstraintsResource,
+		config.NewJsonFieldConstraintsResource,
 		config.NewDnMapResource,
 		config.NewDefaultDnMapResource,
 		config.NewGlobalConfigurationResource,
