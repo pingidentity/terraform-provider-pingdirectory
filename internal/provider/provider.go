@@ -467,6 +467,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLdapSdkDebugLoggerResource,
 		config.NewLocalDbIndexResource,
 		config.NewDefaultLocalDbIndexResource,
+		config.NewDefaultLocalDbVlvIndexResource,
+		config.NewLocalDbVlvIndexResource,
 		config.NewLocationResource,
 		config.NewRecurringTaskChainResource,
 		config.NewDefaultRecurringTaskChainResource,
