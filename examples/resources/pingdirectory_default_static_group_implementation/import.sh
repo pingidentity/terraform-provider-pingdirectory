@@ -1,0 +1,2 @@
+# "staticGroupImplementationId" should be the id of the Static Group Implementation to be imported
+terraform import pingdirectory_default_static_group_implementation.myStaticGroupImplementation staticGroupImplementationId
