@@ -56,7 +56,7 @@ resource "pingdirectory_json_attribute_constraints" "%[2]s" {
 }
 
 resource "pingdirectory_json_field_constraints" "%[1]s" {
-  json_attribute_constraints_name = "%[2]s"
+  json_attribute_constraints_name = pingdirectory_json_attribute_constraints.%[2]s.attribute_type
   json_field                      = "%[3]s"
   value_type                      = "%[4]s"
 }`, resourceName,
