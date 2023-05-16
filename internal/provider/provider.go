@@ -51,6 +51,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logrotationpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -785,6 +786,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		monitorprovider.NewThirdPartyMonitorProviderResource,
 		monitorprovider.NewDefaultThirdPartyMonitorProviderResource,
 		monitorprovider.NewVersionMonitorProviderResource,
+		oauthtokenhandler.NewGroovyScriptedOauthTokenHandlerResource,
+		oauthtokenhandler.NewDefaultGroovyScriptedOauthTokenHandlerResource,
+		oauthtokenhandler.NewThirdPartyOauthTokenHandlerResource,
+		oauthtokenhandler.NewDefaultThirdPartyOauthTokenHandlerResource,
 		plugin.NewAttributeMapperPluginResource,
 		plugin.NewChangeSubscriptionNotificationPluginResource,
 		plugin.NewChangelogPasswordEncryptionPluginResource,
