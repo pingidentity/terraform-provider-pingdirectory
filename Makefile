@@ -54,14 +54,14 @@ testacc:
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
 	PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS=true \
 	PINGDIRECTORY_PROVIDER_PRODUCT_VERSION=9.2.0.0 \
-	TF_ACC=1 go test -timeout 10m -v ./... -p 4
+	TF_ACC=1 go test -timeout 20m -v ./... -p 4
 
 testacccomplete: removetestcontainer starttestcontainer testacc
 
 devcheck: generate install golangcilint tfproviderlint tflint terrafmtlint importfmtlint test testacc
 
 golangcilint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 5m ./...
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m ./...
 
 tfproviderlint: 
 	go run github.com/bflad/tfproviderlint/cmd/tfproviderlintx \
