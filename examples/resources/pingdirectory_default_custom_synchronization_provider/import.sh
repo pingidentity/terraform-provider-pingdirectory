@@ -1,0 +1,2 @@
+# "customSynchronizationProviderId" should be the id of the Custom Synchronization Provider to be imported
+terraform import pingdirectory_default_custom_synchronization_provider.myCustomSynchronizationProvider customSynchronizationProviderId

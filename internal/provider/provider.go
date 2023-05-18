@@ -59,6 +59,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
@@ -922,6 +923,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
 		serverinstance.NewSyncServerInstanceResource,
+		synchronizationprovider.NewCustomSynchronizationProviderResource,
+		synchronizationprovider.NewReplicationSynchronizationProviderResource,
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewDefaultBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewDefaultFileBasedTrustManagerProviderResource,
