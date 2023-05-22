@@ -478,6 +478,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLocationResource,
 		config.NewPasswordPolicyResource,
 		config.NewDefaultPasswordPolicyResource,
+		config.NewPluginRootResource,
 		config.NewRecurringTaskChainResource,
 		config.NewDefaultRecurringTaskChainResource,
 		config.NewReplicationAssurancePolicyResource,
