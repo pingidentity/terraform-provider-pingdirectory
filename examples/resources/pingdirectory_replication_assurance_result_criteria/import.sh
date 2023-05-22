@@ -1,0 +1,2 @@
+# "replicationAssuranceResultCriteriaId" should be the id of the Replication Assurance Result Criteria to be imported
+terraform import pingdirectory_replication_assurance_result_criteria.myReplicationAssuranceResultCriteria replicationAssuranceResultCriteriaId

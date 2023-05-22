@@ -56,6 +56,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/resultcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
@@ -900,6 +901,14 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		restresourcetype.NewGenericRestResourceTypeResource,
 		restresourcetype.NewGroupRestResourceTypeResource,
 		restresourcetype.NewUserRestResourceTypeResource,
+		resultcriteria.NewAggregateResultCriteriaResource,
+		resultcriteria.NewDefaultAggregateResultCriteriaResource,
+		resultcriteria.NewDefaultReplicationAssuranceResultCriteriaResource,
+		resultcriteria.NewDefaultSimpleResultCriteriaResource,
+		resultcriteria.NewDefaultThirdPartyResultCriteriaResource,
+		resultcriteria.NewReplicationAssuranceResultCriteriaResource,
+		resultcriteria.NewSimpleResultCriteriaResource,
+		resultcriteria.NewThirdPartyResultCriteriaResource,
 		scimresourcetype.NewDefaultLdapMappingScimResourceTypeResource,
 		scimresourcetype.NewDefaultLdapPassThroughScimResourceTypeResource,
 		scimresourcetype.NewLdapMappingScimResourceTypeResource,
