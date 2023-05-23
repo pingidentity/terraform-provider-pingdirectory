@@ -2,6 +2,7 @@
 
 ### FEATURES
 * **New Resource:** `pingdirectory_root_dse_backend ` (#206)
+* **New Resource:** `pingdirectory_search_entry_criteria ` (#207)
 
 
 # v0.6.0 May 23 2023

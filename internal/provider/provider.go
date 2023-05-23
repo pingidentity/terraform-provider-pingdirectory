@@ -59,6 +59,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/resultcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
@@ -932,6 +933,12 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		saslmechanismhandler.NewUnboundidMsChapV2SaslMechanismHandlerResource,
 		saslmechanismhandler.NewUnboundidTotpSaslMechanismHandlerResource,
 		saslmechanismhandler.NewUnboundidYubikeyOtpSaslMechanismHandlerResource,
+		searchentrycriteria.NewAggregateSearchEntryCriteriaResource,
+		searchentrycriteria.NewDefaultAggregateSearchEntryCriteriaResource,
+		searchentrycriteria.NewDefaultSimpleSearchEntryCriteriaResource,
+		searchentrycriteria.NewDefaultThirdPartySearchEntryCriteriaResource,
+		searchentrycriteria.NewSimpleSearchEntryCriteriaResource,
+		searchentrycriteria.NewThirdPartySearchEntryCriteriaResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
