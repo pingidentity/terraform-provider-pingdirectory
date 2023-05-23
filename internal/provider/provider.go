@@ -488,6 +488,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultResultCodeMapResource,
 		config.NewRootDnResource,
 		config.NewRootDnUserResource,
+		config.NewRootDseBackendResource,
 		config.NewDefaultRootDnUserResource,
 		config.NewScimAttributeResource,
 		config.NewDefaultScimAttributeResource,
