@@ -84,8 +84,8 @@ func testAccCheckExpectedSimpleSearchEntryCriteriaAttributes(config simpleSearch
 			return err
 		}
 		resourceType := "Search Entry Criteria"
-		err = acctest.TestAttributesMatchString(resourceType, &config.id, "description",
-			config.description, *response.SimpleSearchEntryCriteriaResponse.Description)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.SimpleSearchEntryCriteriaResponse.Description)
 		if err != nil {
 			return err
 		}
