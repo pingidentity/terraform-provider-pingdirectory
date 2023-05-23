@@ -1,0 +1,2 @@
+# This resource is singleton, so the value of "id" doesn't matter - it is just a placeholder
+terraform import pingdirectory_default_root_dse_backend.myRootDseBackend id
