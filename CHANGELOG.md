@@ -1,4 +1,6 @@
 # v0.7.0 (Unreleased)
+
+### FEATURES
 * **New Resource:** `pingdirectory_root_dse_backend ` (#206)
 
 
