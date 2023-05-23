@@ -1,5 +1,5 @@
 # v0.7.0 (Unreleased)
-
+* **New Resource:** `pingdirectory_root_dse_backend ` (#206)
 
 
 # v0.6.0 May 23 2023
