@@ -1,0 +1,2 @@
+# "aggregateSearchReferenceCriteriaId" should be the id of the Aggregate Search Reference Criteria to be imported
+terraform import pingdirectory_aggregate_search_reference_criteria.myAggregateSearchReferenceCriteria aggregateSearchReferenceCriteriaId
