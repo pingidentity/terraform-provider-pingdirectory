@@ -7,6 +7,7 @@
 * **New Resource:** `pingdirectory_server_group` (#209)
 * **New Resource:** `pingdirectory_soft_delete_policy ` (#210)
 * **New Resource:** `pingdirectory_token_claim_validation` (#211)
+* **New Resource:** `pingdirectory_uncached_attribute_criteria` (#212)
 
 
 # v0.6.0 May 23 2023
