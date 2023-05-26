@@ -501,7 +501,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultScimSubattributeResource,
 		config.NewScimSubattributeResource,
 		config.NewDefaultServerGroupResource,
-        config.NewServerGroupResource,
+		config.NewServerGroupResource,
 		config.NewSoftDeletePolicyResource,
 		config.NewDefaultSoftDeletePolicyResource,
 		config.NewTopologyAdminUserResource,
