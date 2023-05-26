@@ -65,6 +65,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedattributecriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/workqueue"
@@ -971,6 +972,14 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
+		uncachedattributecriteria.NewDefaultUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultDefaultUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewGroovyScriptedUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultGroovyScriptedUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewSimpleUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultSimpleUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewThirdPartyUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultThirdPartyUncachedAttributeCriteriaResource,
 		virtualattribute.NewConstructedVirtualAttributeResource,
 		virtualattribute.NewCurrentTimeVirtualAttributeResource,
 		virtualattribute.NewCustomVirtualAttributeResource,
