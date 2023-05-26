@@ -63,6 +63,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchreferencecriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
@@ -956,6 +957,12 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		serverinstance.NewSyncServerInstanceResource,
 		synchronizationprovider.NewCustomSynchronizationProviderResource,
 		synchronizationprovider.NewReplicationSynchronizationProviderResource,
+		tokenclaimvalidation.NewBooleanTokenClaimValidationResource,
+		tokenclaimvalidation.NewDefaultBooleanTokenClaimValidationResource,
+		tokenclaimvalidation.NewDefaultStringArrayTokenClaimValidationResource,
+		tokenclaimvalidation.NewDefaultStringTokenClaimValidationResource,
+		tokenclaimvalidation.NewStringArrayTokenClaimValidationResource,
+		tokenclaimvalidation.NewStringTokenClaimValidationResource,
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewDefaultBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewDefaultFileBasedTrustManagerProviderResource,
