@@ -4,6 +4,7 @@
 * **New Resource:** `pingdirectory_root_dse_backend ` (#206)
 * **New Resource:** `pingdirectory_search_entry_criteria ` (#207)
 * **New Resource:** `pingdirectory_search_reference_criteria ` (#208)
+* **New Resource:** `pingdirectory_soft_delete_policy ` (#210)
 
 
 # v0.6.0 May 23 2023
