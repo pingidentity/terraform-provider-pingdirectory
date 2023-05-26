@@ -66,6 +66,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedattributecriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/workqueue"
@@ -980,6 +981,16 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		uncachedattributecriteria.NewDefaultSimpleUncachedAttributeCriteriaResource,
 		uncachedattributecriteria.NewThirdPartyUncachedAttributeCriteriaResource,
 		uncachedattributecriteria.NewDefaultThirdPartyUncachedAttributeCriteriaResource,
+		uncachedentrycriteria.NewDefaultUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultDefaultUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewFilterBasedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultFilterBasedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewGroovyScriptedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultGroovyScriptedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewLastAccessTimeUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultLastAccessTimeUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewThirdPartyUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultThirdPartyUncachedEntryCriteriaResource,
 		virtualattribute.NewConstructedVirtualAttributeResource,
 		virtualattribute.NewCurrentTimeVirtualAttributeResource,
 		virtualattribute.NewCustomVirtualAttributeResource,
