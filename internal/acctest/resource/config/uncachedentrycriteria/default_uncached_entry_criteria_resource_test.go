@@ -95,8 +95,8 @@ func testAccCheckExpectedDefaultUncachedEntryCriteriaAttributes(config defaultUn
 		if err != nil {
 			return err
 		}
-		err = acctest.TestAttributesMatchString(resourceType, &config.id, "description",
-			config.description, *response.DefaultUncachedEntryCriteriaResponse.Description)
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.DefaultUncachedEntryCriteriaResponse.Description)
 		if err != nil {
 			return err
 		}
