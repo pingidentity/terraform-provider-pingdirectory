@@ -9,6 +9,7 @@
 * **New Resource:** `pingdirectory_token_claim_validation` (#211)
 * **New Resource:** `pingdirectory_uncached_attribute_criteria` (#212)
 * **New Resource:** `pingdirectory_uncached_entry_criteria` (#213)
+* **New Resource:** `pingdirectory_pass_through_authentication_handler` (#214)
 
 
 # v0.6.0 May 23 2023

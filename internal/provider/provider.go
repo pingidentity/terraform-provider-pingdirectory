@@ -52,6 +52,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -811,6 +812,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		oauthtokenhandler.NewDefaultGroovyScriptedOauthTokenHandlerResource,
 		oauthtokenhandler.NewThirdPartyOauthTokenHandlerResource,
 		oauthtokenhandler.NewDefaultThirdPartyOauthTokenHandlerResource,
+		passthroughauthenticationhandler.NewDefaultLdapPassThroughAuthenticationHandlerResource,
+		passthroughauthenticationhandler.NewDefaultThirdPartyPassThroughAuthenticationHandlerResource,
+		passthroughauthenticationhandler.NewLdapPassThroughAuthenticationHandlerResource,
+		passthroughauthenticationhandler.NewThirdPartyPassThroughAuthenticationHandlerResource,
 		plugin.NewAttributeMapperPluginResource,
 		plugin.NewChangeSubscriptionNotificationPluginResource,
 		plugin.NewChangelogPasswordEncryptionPluginResource,
