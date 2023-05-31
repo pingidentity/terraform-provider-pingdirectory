@@ -1,0 +1,2 @@
+# "groovyScriptedUncachedEntryCriteriaId" should be the id of the Groovy Scripted Uncached Entry Criteria to be imported
+terraform import pingdirectory_groovy_scripted_uncached_entry_criteria.myGroovyScriptedUncachedEntryCriteria groovyScriptedUncachedEntryCriteriaId

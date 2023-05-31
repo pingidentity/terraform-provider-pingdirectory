@@ -61,9 +61,13 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchentrycriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchreferencecriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedattributecriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/workqueue"
@@ -500,6 +504,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultScimSchemaResource,
 		config.NewDefaultScimSubattributeResource,
 		config.NewScimSubattributeResource,
+		config.NewDefaultServerGroupResource,
+		config.NewServerGroupResource,
+		config.NewSoftDeletePolicyResource,
+		config.NewDefaultSoftDeletePolicyResource,
 		config.NewTopologyAdminUserResource,
 		config.NewDefaultTopologyAdminUserResource,
 		config.NewVelocityTemplateLoaderResource,
@@ -944,12 +952,24 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		searchentrycriteria.NewDefaultThirdPartySearchEntryCriteriaResource,
 		searchentrycriteria.NewSimpleSearchEntryCriteriaResource,
 		searchentrycriteria.NewThirdPartySearchEntryCriteriaResource,
+		searchreferencecriteria.NewAggregateSearchReferenceCriteriaResource,
+		searchreferencecriteria.NewDefaultAggregateSearchReferenceCriteriaResource,
+		searchreferencecriteria.NewDefaultSimpleSearchReferenceCriteriaResource,
+		searchreferencecriteria.NewDefaultThirdPartySearchReferenceCriteriaResource,
+		searchreferencecriteria.NewSimpleSearchReferenceCriteriaResource,
+		searchreferencecriteria.NewThirdPartySearchReferenceCriteriaResource,
 		serverinstance.NewAuthorizeServerInstanceResource,
 		serverinstance.NewDirectoryServerInstanceResource,
 		serverinstance.NewProxyServerInstanceResource,
 		serverinstance.NewSyncServerInstanceResource,
 		synchronizationprovider.NewCustomSynchronizationProviderResource,
 		synchronizationprovider.NewReplicationSynchronizationProviderResource,
+		tokenclaimvalidation.NewBooleanTokenClaimValidationResource,
+		tokenclaimvalidation.NewDefaultBooleanTokenClaimValidationResource,
+		tokenclaimvalidation.NewDefaultStringArrayTokenClaimValidationResource,
+		tokenclaimvalidation.NewDefaultStringTokenClaimValidationResource,
+		tokenclaimvalidation.NewStringArrayTokenClaimValidationResource,
+		tokenclaimvalidation.NewStringTokenClaimValidationResource,
 		trustmanagerprovider.NewBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewDefaultBlindTrustManagerProviderResource,
 		trustmanagerprovider.NewDefaultFileBasedTrustManagerProviderResource,
@@ -958,6 +978,24 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
+		uncachedattributecriteria.NewDefaultUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultDefaultUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewGroovyScriptedUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultGroovyScriptedUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewSimpleUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultSimpleUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewThirdPartyUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultThirdPartyUncachedAttributeCriteriaResource,
+		uncachedentrycriteria.NewDefaultUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultDefaultUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewFilterBasedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultFilterBasedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewGroovyScriptedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultGroovyScriptedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewLastAccessTimeUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultLastAccessTimeUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewThirdPartyUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultThirdPartyUncachedEntryCriteriaResource,
 		virtualattribute.NewConstructedVirtualAttributeResource,
 		virtualattribute.NewCurrentTimeVirtualAttributeResource,
 		virtualattribute.NewCustomVirtualAttributeResource,
