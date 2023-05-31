@@ -15,8 +15,6 @@ import (
 const testIdLdapPassThroughAuthenticationHandler = "MyId"
 const ldapExternalServerId = "MyLdapExternalServer"
 
-// const testServerLdapPassThroughAuthenticationHandler = []string{"Generic LDAP External Server"}
-
 // Attributes to test with. Add optional properties to test here if desired.
 type ldapPassThroughAuthenticationHandlerTestModel struct {
 	id          string
