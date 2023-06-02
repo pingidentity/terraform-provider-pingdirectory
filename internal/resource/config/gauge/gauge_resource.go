@@ -2,6 +2,7 @@ package gauge
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -24,46 +25,46 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &numericGaugeResource{}
-	_ resource.ResourceWithConfigure   = &numericGaugeResource{}
-	_ resource.ResourceWithImportState = &numericGaugeResource{}
-	_ resource.Resource                = &defaultNumericGaugeResource{}
-	_ resource.ResourceWithConfigure   = &defaultNumericGaugeResource{}
-	_ resource.ResourceWithImportState = &defaultNumericGaugeResource{}
+	_ resource.Resource                = &gaugeResource{}
+	_ resource.ResourceWithConfigure   = &gaugeResource{}
+	_ resource.ResourceWithImportState = &gaugeResource{}
+	_ resource.Resource                = &defaultGaugeResource{}
+	_ resource.ResourceWithConfigure   = &defaultGaugeResource{}
+	_ resource.ResourceWithImportState = &defaultGaugeResource{}
 )
 
-// Create a Numeric Gauge resource
-func NewNumericGaugeResource() resource.Resource {
-	return &numericGaugeResource{}
+// Create a Gauge resource
+func NewGaugeResource() resource.Resource {
+	return &gaugeResource{}
 }
 
-func NewDefaultNumericGaugeResource() resource.Resource {
-	return &defaultNumericGaugeResource{}
+func NewDefaultGaugeResource() resource.Resource {
+	return &defaultGaugeResource{}
 }
 
-// numericGaugeResource is the resource implementation.
-type numericGaugeResource struct {
+// gaugeResource is the resource implementation.
+type gaugeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
-// defaultNumericGaugeResource is the resource implementation.
-type defaultNumericGaugeResource struct {
+// defaultGaugeResource is the resource implementation.
+type defaultGaugeResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
 // Metadata returns the resource type name.
-func (r *numericGaugeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_numeric_gauge"
+func (r *gaugeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_gauge"
 }
 
-func (r *defaultNumericGaugeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_default_numeric_gauge"
+func (r *defaultGaugeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_gauge"
 }
 
 // Configure adds the provider configured client to the resource.
-func (r *numericGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *gaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -73,7 +74,7 @@ func (r *numericGaugeResource) Configure(_ context.Context, req resource.Configu
 	r.apiClient = providerCfg.ApiClientV9200
 }
 
-func (r *defaultNumericGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *defaultGaugeResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -83,19 +84,20 @@ func (r *defaultNumericGaugeResource) Configure(_ context.Context, req resource.
 	r.apiClient = providerCfg.ApiClientV9200
 }
 
-type numericGaugeResourceModel struct {
+type gaugeResourceModel struct {
 	Id                             types.String  `tfsdk:"id"`
 	LastUpdated                    types.String  `tfsdk:"last_updated"`
 	Notifications                  types.Set     `tfsdk:"notifications"`
 	RequiredActions                types.Set     `tfsdk:"required_actions"`
+	Type                           types.String  `tfsdk:"type"`
 	GaugeDataSource                types.String  `tfsdk:"gauge_data_source"`
-	CriticalValue                  types.Float64 `tfsdk:"critical_value"`
+	CriticalValue                  types.String  `tfsdk:"critical_value"`
 	CriticalExitValue              types.Float64 `tfsdk:"critical_exit_value"`
-	MajorValue                     types.Float64 `tfsdk:"major_value"`
+	MajorValue                     types.String  `tfsdk:"major_value"`
 	MajorExitValue                 types.Float64 `tfsdk:"major_exit_value"`
-	MinorValue                     types.Float64 `tfsdk:"minor_value"`
+	MinorValue                     types.String  `tfsdk:"minor_value"`
 	MinorExitValue                 types.Float64 `tfsdk:"minor_exit_value"`
-	WarningValue                   types.Float64 `tfsdk:"warning_value"`
+	WarningValue                   types.String  `tfsdk:"warning_value"`
 	WarningExitValue               types.Float64 `tfsdk:"warning_exit_value"`
 	Description                    types.String  `tfsdk:"description"`
 	Enabled                        types.Bool    `tfsdk:"enabled"`
@@ -110,28 +112,36 @@ type numericGaugeResourceModel struct {
 }
 
 // GetSchema defines the schema for the resource.
-func (r *numericGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	numericGaugeSchema(ctx, req, resp, false)
+func (r *gaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	gaugeSchema(ctx, req, resp, false)
 }
 
-func (r *defaultNumericGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	numericGaugeSchema(ctx, req, resp, true)
+func (r *defaultGaugeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	gaugeSchema(ctx, req, resp, true)
 }
 
-func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
+func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Numeric Gauge.",
+		Description: "Manages a Gauge.",
+		//TODO alternate descriptions by type for some attributes
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of gauge resource. Options are `numeric` and `indicator`",
+				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
 			"gauge_data_source": schema.StringAttribute{
 				Description: "Specifies the source of data to use in determining this gauge's current severity.",
 				Required:    true,
 			},
-			"critical_value": schema.Float64Attribute{
+			"critical_value": schema.StringAttribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"critical_exit_value": schema.Float64Attribute{
@@ -142,12 +152,12 @@ func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 					float64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"major_value": schema.Float64Attribute{
+			"major_value": schema.StringAttribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"major_exit_value": schema.Float64Attribute{
@@ -158,12 +168,12 @@ func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 					float64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"minor_value": schema.Float64Attribute{
+			"minor_value": schema.StringAttribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"minor_exit_value": schema.Float64Attribute{
@@ -174,12 +184,12 @@ func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 					float64planmodifier.UseStateForUnknown(),
 				},
 			},
-			"warning_value": schema.Float64Attribute{
+			"warning_value": schema.StringAttribute{
 				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Float64{
-					float64planmodifier.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"warning_exit_value": schema.Float64Attribute{
@@ -273,28 +283,64 @@ func numericGaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	resp.Schema = schema
 }
 
-// Add optional fields to create request
-func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNumericGaugeRequest, plan numericGaugeResourceModel) error {
+func (r *gaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	var model gaugeResourceModel
+	req.Plan.Get(ctx, &model)
+	if model.Type.ValueString() == "indicator" {
+		// Check for fields that can't be applied to indicator gauges
+		if internaltypes.IsDefined(model.CriticalExitValue) {
+			resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
+		}
+		if internaltypes.IsDefined(model.MajorExitValue) {
+			resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
+		}
+		if internaltypes.IsDefined(model.MinorExitValue) {
+			resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
+		}
+		if internaltypes.IsDefined(model.WarningExitValue) {
+			resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
+		}
+	}
+}
+
+// Add optional fields to create request for numeric gauge
+func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNumericGaugeRequest, plan gaugeResourceModel) error {
 	if internaltypes.IsDefined(plan.CriticalValue) {
-		addRequest.CriticalValue = plan.CriticalValue.ValueFloat64Pointer()
+		floatVal, err := strconv.ParseFloat(plan.CriticalValue.ValueString(), 64)
+		if err != nil {
+			return err
+		}
+		addRequest.CriticalValue = &floatVal
 	}
 	if internaltypes.IsDefined(plan.CriticalExitValue) {
 		addRequest.CriticalExitValue = plan.CriticalExitValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MajorValue) {
-		addRequest.MajorValue = plan.MajorValue.ValueFloat64Pointer()
+		floatVal, err := strconv.ParseFloat(plan.MajorValue.ValueString(), 64)
+		if err != nil {
+			return err
+		}
+		addRequest.MajorValue = &floatVal
 	}
 	if internaltypes.IsDefined(plan.MajorExitValue) {
 		addRequest.MajorExitValue = plan.MajorExitValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.MinorValue) {
-		addRequest.MinorValue = plan.MinorValue.ValueFloat64Pointer()
+		floatVal, err := strconv.ParseFloat(plan.MinorValue.ValueString(), 64)
+		if err != nil {
+			return err
+		}
+		addRequest.MinorValue = &floatVal
 	}
 	if internaltypes.IsDefined(plan.MinorExitValue) {
 		addRequest.MinorExitValue = plan.MinorExitValue.ValueFloat64Pointer()
 	}
 	if internaltypes.IsDefined(plan.WarningValue) {
-		addRequest.WarningValue = plan.WarningValue.ValueFloat64Pointer()
+		floatVal, err := strconv.ParseFloat(plan.WarningValue.ValueString(), 64)
+		if err != nil {
+			return err
+		}
+		addRequest.WarningValue = &floatVal
 	}
 	if internaltypes.IsDefined(plan.WarningExitValue) {
 		addRequest.WarningExitValue = plan.WarningExitValue.ValueFloat64Pointer()
@@ -358,17 +404,107 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	return nil
 }
 
+// Add optional fields to create request for indicator gauge
+func addOptionalIndicatorGaugeFields(ctx context.Context, addRequest *client.AddIndicatorGaugeRequest, plan gaugeResourceModel) error {
+	if internaltypes.IsDefined(plan.CriticalValue) {
+		addRequest.CriticalValue = plan.CriticalValue.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.MajorValue) {
+		addRequest.MajorValue = plan.CriticalValue.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.MinorValue) {
+		addRequest.MinorValue = plan.MinorValue.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.WarningValue) {
+		addRequest.WarningValue = plan.WarningValue.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.Enabled) {
+		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.OverrideSeverity) {
+		overrideSeverity, err := client.NewEnumgaugeOverrideSeverityPropFromValue(plan.OverrideSeverity.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.OverrideSeverity = overrideSeverity
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AlertLevel) {
+		alertLevel, err := client.NewEnumgaugeAlertLevelPropFromValue(plan.AlertLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.AlertLevel = alertLevel
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.UpdateInterval) {
+		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
+		addRequest.SamplesPerUpdateInterval = plan.SamplesPerUpdateInterval.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeResource) {
+		var slice []string
+		plan.IncludeResource.ElementsAs(ctx, &slice, false)
+		addRequest.IncludeResource = slice
+	}
+	if internaltypes.IsDefined(plan.ExcludeResource) {
+		var slice []string
+		plan.ExcludeResource.ElementsAs(ctx, &slice, false)
+		addRequest.ExcludeResource = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerUnavailableSeverityLevel) {
+		serverUnavailableSeverityLevel, err := client.NewEnumgaugeServerUnavailableSeverityLevelPropFromValue(plan.ServerUnavailableSeverityLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ServerUnavailableSeverityLevel = serverUnavailableSeverityLevel
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerDegradedSeverityLevel) {
+		serverDegradedSeverityLevel, err := client.NewEnumgaugeServerDegradedSeverityLevelPropFromValue(plan.ServerDegradedSeverityLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ServerDegradedSeverityLevel = serverDegradedSeverityLevel
+	}
+	return nil
+}
+
 // Read a NumericGaugeResponse object into the model struct
-func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeResponse, state *numericGaugeResourceModel, expectedValues *numericGaugeResourceModel, diagnostics *diag.Diagnostics) {
+func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeResponse, state *gaugeResourceModel, expectedValues *gaugeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("numeric")
 	state.Id = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
-	state.CriticalValue = internaltypes.Float64TypeOrNil(r.CriticalValue)
+	if r.CriticalValue == nil {
+		state.CriticalValue = types.StringNull()
+	} else {
+		state.CriticalValue = types.StringValue(strconv.FormatFloat(*r.CriticalValue, 'f', -1, 64))
+	}
 	state.CriticalExitValue = internaltypes.Float64TypeOrNil(r.CriticalExitValue)
-	state.MajorValue = internaltypes.Float64TypeOrNil(r.MajorValue)
+	if r.MajorValue == nil {
+		state.MajorValue = types.StringNull()
+	} else {
+		state.MajorValue = types.StringValue(strconv.FormatFloat(*r.MajorValue, 'f', -1, 64))
+	}
 	state.MajorExitValue = internaltypes.Float64TypeOrNil(r.MajorExitValue)
-	state.MinorValue = internaltypes.Float64TypeOrNil(r.MinorValue)
+	if r.MinorValue == nil {
+		state.MinorValue = types.StringNull()
+	} else {
+		state.MinorValue = types.StringValue(strconv.FormatFloat(*r.MinorValue, 'f', -1, 64))
+	}
 	state.MinorExitValue = internaltypes.Float64TypeOrNil(r.MinorExitValue)
-	state.WarningValue = internaltypes.Float64TypeOrNil(r.WarningValue)
+	if r.WarningValue == nil {
+		state.WarningValue = types.StringNull()
+	} else {
+		state.WarningValue = types.StringValue(strconv.FormatFloat(*r.WarningValue, 'f', -1, 64))
+	}
 	state.WarningExitValue = internaltypes.Float64TypeOrNil(r.WarningExitValue)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -389,17 +525,45 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a IndicatorGaugeResponse object into the model struct
+func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeResourceModel, expectedValues *gaugeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("indicator")
+	state.Id = types.StringValue(r.Id)
+	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
+	state.CriticalValue = internaltypes.StringTypeOrNil(r.CriticalValue, internaltypes.IsEmptyString(expectedValues.CriticalValue))
+	state.MajorValue = internaltypes.StringTypeOrNil(r.MajorValue, internaltypes.IsEmptyString(expectedValues.MajorValue))
+	state.MinorValue = internaltypes.StringTypeOrNil(r.MinorValue, internaltypes.IsEmptyString(expectedValues.MinorValue))
+	state.WarningValue = internaltypes.StringTypeOrNil(r.WarningValue, internaltypes.IsEmptyString(expectedValues.WarningValue))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.OverrideSeverity = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
+	state.AlertLevel = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	config.CheckMismatchedPDFormattedAttributes("update_interval",
+		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
+	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
+	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
+	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
+	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
+	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
-func createNumericGaugeOperations(plan numericGaugeResourceModel, state numericGaugeResourceModel) []client.Operation {
+func createGaugeOperations(plan gaugeResourceModel, state gaugeResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.GaugeDataSource, state.GaugeDataSource, "gauge-data-source")
-	operations.AddFloat64OperationIfNecessary(&ops, plan.CriticalValue, state.CriticalValue, "critical-value")
+	operations.AddStringOperationIfNecessary(&ops, plan.CriticalValue, state.CriticalValue, "critical-value")
 	operations.AddFloat64OperationIfNecessary(&ops, plan.CriticalExitValue, state.CriticalExitValue, "critical-exit-value")
-	operations.AddFloat64OperationIfNecessary(&ops, plan.MajorValue, state.MajorValue, "major-value")
+	operations.AddStringOperationIfNecessary(&ops, plan.MajorValue, state.MajorValue, "major-value")
 	operations.AddFloat64OperationIfNecessary(&ops, plan.MajorExitValue, state.MajorExitValue, "major-exit-value")
-	operations.AddFloat64OperationIfNecessary(&ops, plan.MinorValue, state.MinorValue, "minor-value")
+	operations.AddStringOperationIfNecessary(&ops, plan.MinorValue, state.MinorValue, "minor-value")
 	operations.AddFloat64OperationIfNecessary(&ops, plan.MinorExitValue, state.MinorExitValue, "minor-exit-value")
-	operations.AddFloat64OperationIfNecessary(&ops, plan.WarningValue, state.WarningValue, "warning-value")
+	operations.AddStringOperationIfNecessary(&ops, plan.WarningValue, state.WarningValue, "warning-value")
 	operations.AddFloat64OperationIfNecessary(&ops, plan.WarningExitValue, state.WarningExitValue, "warning-exit-value")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
@@ -414,23 +578,15 @@ func createNumericGaugeOperations(plan numericGaugeResourceModel, state numericG
 	return ops
 }
 
-// Create a new resource
-func (r *numericGaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan numericGaugeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a numeric gauge
+func (r *gaugeResource) CreateNumericGauge(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan gaugeResourceModel) (*gaugeResourceModel, error) {
 	addRequest := client.NewAddNumericGaugeRequest(plan.Id.ValueString(),
 		[]client.EnumnumericGaugeSchemaUrn{client.ENUMNUMERICGAUGESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0GAUGENUMERIC},
 		plan.GaugeDataSource.ValueString())
 	err := addOptionalNumericGaugeFields(ctx, addRequest, plan)
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to add optional properties to add request for Numeric Gauge", err.Error())
-		return
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Gauge", err.Error())
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -444,8 +600,8 @@ func (r *numericGaugeResource) Create(ctx context.Context, req resource.CreateRe
 
 	addResponse, httpResp, err := r.apiClient.GaugeApi.AddGaugeExecute(apiAddRequest)
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Numeric Gauge", err, httpResp)
-		return
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Gauge", err, httpResp)
+		return nil, err
 	}
 
 	// Log response JSON
@@ -455,14 +611,78 @@ func (r *numericGaugeResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Read the response into the state
-	var state numericGaugeResourceModel
+	var state gaugeResourceModel
 	readNumericGaugeResponse(ctx, addResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create an indicator gauge
+func (r *gaugeResource) CreateIndicatorGauge(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan gaugeResourceModel) (*gaugeResourceModel, error) {
+	addRequest := client.NewAddIndicatorGaugeRequest(plan.Id.ValueString(),
+		[]client.EnumindicatorGaugeSchemaUrn{client.ENUMINDICATORGAUGESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0GAUGEINDICATOR},
+		plan.GaugeDataSource.ValueString())
+	err := addOptionalIndicatorGaugeFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Indicator Gauge", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.GaugeApi.AddGauge(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddGaugeRequest(
+		client.AddIndicatorGaugeRequestAsAddGaugeRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.GaugeApi.AddGaugeExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Indicator Gauge", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state gaugeResourceModel
+	readIndicatorGaugeResponse(ctx, addResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *gaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan gaugeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var state *gaugeResourceModel
+	var err error
+	if plan.Type.ValueString() == "numeric" {
+		state, err = r.CreateNumericGauge(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	} else {
+		state, err = r.CreateIndicatorGauge(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -473,9 +693,9 @@ func (r *numericGaugeResource) Create(ctx context.Context, req resource.CreateRe
 // For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
 // config object into management by terraform. This method reads the existing config object
 // and makes any changes needed to make it match the plan - similar to the Update method.
-func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan numericGaugeResourceModel
+	var plan gaugeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -485,7 +705,7 @@ func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.C
 	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Numeric Gauge", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
 		return
 	}
 
@@ -496,12 +716,16 @@ func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Read the existing configuration
-	var state numericGaugeResourceModel
-	readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+	var state gaugeResourceModel
+	if plan.Type.ValueString() == "numeric" {
+		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+	} else {
+		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
+	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.GaugeApi.UpdateGauge(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createNumericGaugeOperations(plan, state)
+	ops := createGaugeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -509,7 +733,7 @@ func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.C
 
 		updateResponse, httpResp, err := r.apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Numeric Gauge", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Gauge", err, httpResp)
 			return
 		}
 
@@ -520,7 +744,11 @@ func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+		if plan.Type.ValueString() == "numeric" {
+			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+		} else {
+			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -533,17 +761,17 @@ func (r *defaultNumericGaugeResource) Create(ctx context.Context, req resource.C
 }
 
 // Read resource information
-func (r *numericGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *gaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGauge(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func (r *defaultNumericGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *defaultGaugeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readGauge(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func readNumericGauge(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
-	var state numericGaugeResourceModel
+	var state gaugeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -553,7 +781,7 @@ func readNumericGauge(ctx context.Context, req resource.ReadRequest, resp *resou
 	readResponse, httpResp, err := apiClient.GaugeApi.GetGauge(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Numeric Gauge", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
 		return
 	}
 
@@ -564,7 +792,12 @@ func readNumericGauge(ctx context.Context, req resource.ReadRequest, resp *resou
 	}
 
 	// Read the response into the state
-	readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+	// Need to determine the type based on the response to allow for imports to work
+	if readResponse.NumericGaugeResponse != nil {
+		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
+	} else {
+		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -575,17 +808,17 @@ func readNumericGauge(ctx context.Context, req resource.ReadRequest, resp *resou
 }
 
 // Update a resource
-func (r *numericGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *gaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGauge(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func (r *defaultNumericGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateNumericGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *defaultGaugeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateGauge(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func updateNumericGauge(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func updateGauge(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan numericGaugeResourceModel
+	var plan gaugeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -593,13 +826,13 @@ func updateNumericGauge(ctx context.Context, req resource.UpdateRequest, resp *r
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state numericGaugeResourceModel
+	var state gaugeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.GaugeApi.UpdateGauge(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createNumericGaugeOperations(plan, state)
+	ops := createGaugeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -607,7 +840,7 @@ func updateNumericGauge(ctx context.Context, req resource.UpdateRequest, resp *r
 
 		updateResponse, httpResp, err := apiClient.GaugeApi.UpdateGaugeExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Numeric Gauge", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Gauge", err, httpResp)
 			return
 		}
 
@@ -618,7 +851,11 @@ func updateNumericGauge(ctx context.Context, req resource.UpdateRequest, resp *r
 		}
 
 		// Read the response
-		readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+		if plan.Type.ValueString() == "numeric" {
+			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+		} else {
+			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {
@@ -635,13 +872,13 @@ func updateNumericGauge(ctx context.Context, req resource.UpdateRequest, resp *r
 // Delete deletes the resource and removes the Terraform state on success.
 // This config object is edit-only, so Terraform can't delete it.
 // After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
-func (r *defaultNumericGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *defaultGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// No implementation necessary
 }
 
-func (r *numericGaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *gaugeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state numericGaugeResourceModel
+	var state gaugeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -651,20 +888,20 @@ func (r *numericGaugeResource) Delete(ctx context.Context, req resource.DeleteRe
 	httpResp, err := r.apiClient.GaugeApi.DeleteGaugeExecute(r.apiClient.GaugeApi.DeleteGauge(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Numeric Gauge", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Gauge", err, httpResp)
 		return
 	}
 }
 
-func (r *numericGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	importNumericGauge(ctx, req, resp)
+func (r *gaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGauge(ctx, req, resp)
 }
 
-func (r *defaultNumericGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	importNumericGauge(ctx, req, resp)
+func (r *defaultGaugeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importGauge(ctx, req, resp)
 }
 
-func importNumericGauge(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func importGauge(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

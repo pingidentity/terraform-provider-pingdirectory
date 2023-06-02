@@ -22,8 +22,10 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_numeric_gauge" if you are adopting existing configuration from the PingDirectory server into Terraform
-resource "pingdirectory_numeric_gauge" "myNumericGauge" {
-  id                = "MyNumericGauge"
-  gauge_data_source = "Active Cleaner Threads (Percent)"
+# Use "pingdirectory_default_gauge" if you are adopting existing configuration from the PingDirectory server into Terraform
+resource "pingdirectory_gauge" "myGauge" {
+  type              = "indicator"
+  id                = "myGauge"
+  gauge_data_source = "Replication Connection Status"
+  enabled           = false
 }
