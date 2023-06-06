@@ -1,0 +1,116 @@
+package uncachedattributecriteria_test
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/acctest"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
+)
+
+const testIdDefaultUncachedAttributeCriteria = "MyId"
+
+// Attributes to test with. Add optional properties to test here if desired.
+type defaultUncachedAttributeCriteriaTestModel struct {
+	id          string
+	description string
+	enabled     bool
+}
+
+func TestAccDefaultUncachedAttributeCriteria(t *testing.T) {
+	resourceName := "myresource"
+	initialResourceModel := defaultUncachedAttributeCriteriaTestModel{
+		id:          testIdDefaultUncachedAttributeCriteria,
+		description: "initial description",
+		enabled:     false,
+	}
+	updatedResourceModel := defaultUncachedAttributeCriteriaTestModel{
+		id:          testIdDefaultUncachedAttributeCriteria,
+		description: "updated description",
+		enabled:     false,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
+		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
+			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
+		},
+		CheckDestroy: testAccCheckDefaultUncachedAttributeCriteriaDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Test basic resource.
+				// Add checks for computed properties here if desired.
+				Config: testAccDefaultUncachedAttributeCriteriaResource(resourceName, initialResourceModel),
+				Check:  testAccCheckExpectedDefaultUncachedAttributeCriteriaAttributes(initialResourceModel),
+			},
+			{
+				// Test updating some fields
+				Config: testAccDefaultUncachedAttributeCriteriaResource(resourceName, updatedResourceModel),
+				Check:  testAccCheckExpectedDefaultUncachedAttributeCriteriaAttributes(updatedResourceModel),
+			},
+			{
+				// Test importing the resource
+				Config:            testAccDefaultUncachedAttributeCriteriaResource(resourceName, updatedResourceModel),
+				ResourceName:      "pingdirectory_default_uncached_attribute_criteria." + resourceName,
+				ImportStateId:     updatedResourceModel.id,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"last_updated",
+				},
+			},
+		},
+	})
+}
+
+func testAccDefaultUncachedAttributeCriteriaResource(resourceName string, resourceModel defaultUncachedAttributeCriteriaTestModel) string {
+	return fmt.Sprintf(`
+resource "pingdirectory_default_uncached_attribute_criteria" "%[1]s" {
+  id          = "%[2]s"
+  description = "%[3]s"
+  enabled     = %[4]t
+}`, resourceName,
+		resourceModel.id,
+		resourceModel.description,
+		resourceModel.enabled)
+}
+
+// Test that the expected attributes are set on the PingDirectory server
+func testAccCheckExpectedDefaultUncachedAttributeCriteriaAttributes(config defaultUncachedAttributeCriteriaTestModel) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		testClient := acctest.TestClient()
+		ctx := acctest.TestBasicAuthContext()
+		response, _, err := testClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		// Verify that attributes have expected values
+		resourceType := "Default Uncached Attribute Criteria"
+		err = acctest.TestAttributesMatchBool(resourceType, &config.id, "enabled",
+			config.enabled, response.DefaultUncachedAttributeCriteriaResponse.Enabled)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchString(resourceType, &config.id, "description",
+			config.description, *response.DefaultUncachedAttributeCriteriaResponse.Description)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+// Test that any objects created by the test are destroyed
+func testAccCheckDefaultUncachedAttributeCriteriaDestroy(s *terraform.State) error {
+	testClient := acctest.TestClient()
+	ctx := acctest.TestBasicAuthContext()
+	_, _, err := testClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(ctx, testIdDefaultUncachedAttributeCriteria).Execute()
+	if err == nil {
+		return acctest.ExpectedDestroyError("Default Uncached Attribute Criteria", testIdDefaultUncachedAttributeCriteria)
+	}
+	return nil
+}

@@ -52,6 +52,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -65,6 +66,8 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedattributecriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/workqueue"
@@ -811,6 +814,10 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		oauthtokenhandler.NewDefaultGroovyScriptedOauthTokenHandlerResource,
 		oauthtokenhandler.NewThirdPartyOauthTokenHandlerResource,
 		oauthtokenhandler.NewDefaultThirdPartyOauthTokenHandlerResource,
+		passthroughauthenticationhandler.NewDefaultLdapPassThroughAuthenticationHandlerResource,
+		passthroughauthenticationhandler.NewDefaultThirdPartyPassThroughAuthenticationHandlerResource,
+		passthroughauthenticationhandler.NewLdapPassThroughAuthenticationHandlerResource,
+		passthroughauthenticationhandler.NewThirdPartyPassThroughAuthenticationHandlerResource,
 		plugin.NewAttributeMapperPluginResource,
 		plugin.NewChangeSubscriptionNotificationPluginResource,
 		plugin.NewChangelogPasswordEncryptionPluginResource,
@@ -973,6 +980,24 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		trustmanagerprovider.NewFileBasedTrustManagerProviderResource,
 		trustmanagerprovider.NewJvmDefaultTrustManagerProviderResource,
 		trustmanagerprovider.NewThirdPartyTrustManagerProviderResource,
+		uncachedattributecriteria.NewDefaultUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultDefaultUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewGroovyScriptedUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultGroovyScriptedUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewSimpleUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultSimpleUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewThirdPartyUncachedAttributeCriteriaResource,
+		uncachedattributecriteria.NewDefaultThirdPartyUncachedAttributeCriteriaResource,
+		uncachedentrycriteria.NewDefaultUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultDefaultUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewFilterBasedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultFilterBasedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewGroovyScriptedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultGroovyScriptedUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewLastAccessTimeUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultLastAccessTimeUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewThirdPartyUncachedEntryCriteriaResource,
+		uncachedentrycriteria.NewDefaultThirdPartyUncachedEntryCriteriaResource,
 		virtualattribute.NewConstructedVirtualAttributeResource,
 		virtualattribute.NewCurrentTimeVirtualAttributeResource,
 		virtualattribute.NewCustomVirtualAttributeResource,
