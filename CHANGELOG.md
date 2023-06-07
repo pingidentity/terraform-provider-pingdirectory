@@ -10,6 +10,8 @@
 * **New Resource:** `pingdirectory_uncached_attribute_criteria` (#212)
 * **New Resource:** `pingdirectory_uncached_entry_criteria` (#213)
 * **New Resource:** `pingdirectory_pass_through_authentication_handler` (#214)
+* **New Resource:** `pingdirectory_trusted_certificate` (#217)
+
 
 
 # v0.6.0 May 23 2023
