@@ -46,7 +46,7 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccDseeCompatAccessControlHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_dsee_compat_access_control_handler." + resourceName,
+				ResourceName:            "pingdirectory_default_access_control_handler." + resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"last_updated"},
@@ -57,7 +57,7 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 
 func testAccDseeCompatAccessControlHandlerResource(resourceName string, resourceModel dseeCompatAccessControlHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_dsee_compat_access_control_handler" "%[1]s" {
+resource "pingdirectory_default_access_control_handler" "%[1]s" {
   enabled = %[2]t
 }`, resourceName, resourceModel.enabled)
 }

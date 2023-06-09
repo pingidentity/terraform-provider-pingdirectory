@@ -67,7 +67,7 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccFileBasedAccessLogPublisherResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_file_based_access_log_publisher." + resourceName,
+				ResourceName:            "pingdirectory_log_publisher." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -79,7 +79,8 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 
 func testAccFileBasedAccessLogPublisherResource(resourceName string, resourceModel fileBasedAccessLogPublisherTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_file_based_access_log_publisher" "%[1]s" {
+resource "pingdirectory_log_publisher" "%[1]s" {
+	type = "file-based-access"
   id                   = "%[2]s"
   log_file             = "%[3]s"
   log_file_permissions = "%[4]s"

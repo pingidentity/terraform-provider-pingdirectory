@@ -22,46 +22,46 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &statsdMonitoringEndpointResource{}
-	_ resource.ResourceWithConfigure   = &statsdMonitoringEndpointResource{}
-	_ resource.ResourceWithImportState = &statsdMonitoringEndpointResource{}
-	_ resource.Resource                = &defaultStatsdMonitoringEndpointResource{}
-	_ resource.ResourceWithConfigure   = &defaultStatsdMonitoringEndpointResource{}
-	_ resource.ResourceWithImportState = &defaultStatsdMonitoringEndpointResource{}
+	_ resource.Resource                = &monitoringEndpointResource{}
+	_ resource.ResourceWithConfigure   = &monitoringEndpointResource{}
+	_ resource.ResourceWithImportState = &monitoringEndpointResource{}
+	_ resource.Resource                = &defaultMonitoringEndpointResource{}
+	_ resource.ResourceWithConfigure   = &defaultMonitoringEndpointResource{}
+	_ resource.ResourceWithImportState = &defaultMonitoringEndpointResource{}
 )
 
-// Create a Statsd Monitoring Endpoint resource
-func NewStatsdMonitoringEndpointResource() resource.Resource {
-	return &statsdMonitoringEndpointResource{}
+// Create a Monitoring Endpoint resource
+func NewMonitoringEndpointResource() resource.Resource {
+	return &monitoringEndpointResource{}
 }
 
-func NewDefaultStatsdMonitoringEndpointResource() resource.Resource {
-	return &defaultStatsdMonitoringEndpointResource{}
+func NewDefaultMonitoringEndpointResource() resource.Resource {
+	return &defaultMonitoringEndpointResource{}
 }
 
-// statsdMonitoringEndpointResource is the resource implementation.
-type statsdMonitoringEndpointResource struct {
+// monitoringEndpointResource is the resource implementation.
+type monitoringEndpointResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
-// defaultStatsdMonitoringEndpointResource is the resource implementation.
-type defaultStatsdMonitoringEndpointResource struct {
+// defaultMonitoringEndpointResource is the resource implementation.
+type defaultMonitoringEndpointResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
 // Metadata returns the resource type name.
-func (r *statsdMonitoringEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_statsd_monitoring_endpoint"
+func (r *monitoringEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_monitoring_endpoint"
 }
 
-func (r *defaultStatsdMonitoringEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_default_statsd_monitoring_endpoint"
+func (r *defaultMonitoringEndpointResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_monitoring_endpoint"
 }
 
 // Configure adds the provider configured client to the resource.
-func (r *statsdMonitoringEndpointResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *monitoringEndpointResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -71,7 +71,7 @@ func (r *statsdMonitoringEndpointResource) Configure(_ context.Context, req reso
 	r.apiClient = providerCfg.ApiClientV9200
 }
 
-func (r *defaultStatsdMonitoringEndpointResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *defaultMonitoringEndpointResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -81,7 +81,7 @@ func (r *defaultStatsdMonitoringEndpointResource) Configure(_ context.Context, r
 	r.apiClient = providerCfg.ApiClientV9200
 }
 
-type statsdMonitoringEndpointResourceModel struct {
+type monitoringEndpointResourceModel struct {
 	Id                   types.String `tfsdk:"id"`
 	LastUpdated          types.String `tfsdk:"last_updated"`
 	Notifications        types.Set    `tfsdk:"notifications"`
@@ -95,17 +95,17 @@ type statsdMonitoringEndpointResourceModel struct {
 }
 
 // GetSchema defines the schema for the resource.
-func (r *statsdMonitoringEndpointResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	statsdMonitoringEndpointSchema(ctx, req, resp, false)
+func (r *monitoringEndpointResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	monitoringEndpointSchema(ctx, req, resp, false)
 }
 
-func (r *defaultStatsdMonitoringEndpointResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	statsdMonitoringEndpointSchema(ctx, req, resp, true)
+func (r *defaultMonitoringEndpointResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	monitoringEndpointSchema(ctx, req, resp, true)
 }
 
-func statsdMonitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
+func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
-		Description: "Manages a Statsd Monitoring Endpoint.",
+		Description: "Manages a Monitoring Endpoint.",
 		Attributes: map[string]schema.Attribute{
 			"hostname": schema.StringAttribute{
 				Description: "The name of the host where this StatsD Monitoring Endpoint should send metric data.",
@@ -139,10 +139,10 @@ func statsdMonitoringEndpointSchema(ctx context.Context, req resource.SchemaRequ
 				Description: "Specifies any optional additional tags to include in StatsD messages. Any additional tags will be appended to the end of each StatsD message, separated by commas. Tags should be written in a [key]:[value] format (\"host:server1\", for example).",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether this Monitoring Endpoint is enabled for use in the Directory Server.",
@@ -157,8 +157,8 @@ func statsdMonitoringEndpointSchema(ctx context.Context, req resource.SchemaRequ
 	resp.Schema = schema
 }
 
-// Add optional fields to create request
-func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *client.AddStatsdMonitoringEndpointRequest, plan statsdMonitoringEndpointResourceModel) error {
+// Add optional fields to create request for statsd monitoring-endpoint
+func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *client.AddStatsdMonitoringEndpointRequest, plan monitoringEndpointResourceModel) error {
 	if internaltypes.IsDefined(plan.ServerPort) {
 		addRequest.ServerPort = plan.ServerPort.ValueInt64Pointer()
 	}
@@ -183,7 +183,7 @@ func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *
 }
 
 // Read a StatsdMonitoringEndpointResponse object into the model struct
-func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *statsdMonitoringEndpointResourceModel, expectedValues *statsdMonitoringEndpointResourceModel, diagnostics *diag.Diagnostics) {
+func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *monitoringEndpointResourceModel, expectedValues *monitoringEndpointResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.Hostname = types.StringValue(r.Hostname)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -195,7 +195,7 @@ func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdM
 }
 
 // Create any update operations necessary to make the state match the plan
-func createStatsdMonitoringEndpointOperations(plan statsdMonitoringEndpointResourceModel, state statsdMonitoringEndpointResourceModel) []client.Operation {
+func createMonitoringEndpointOperations(plan monitoringEndpointResourceModel, state monitoringEndpointResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Hostname, state.Hostname, "hostname")
 	operations.AddInt64OperationIfNecessary(&ops, plan.ServerPort, state.ServerPort, "server-port")
@@ -206,24 +206,16 @@ func createStatsdMonitoringEndpointOperations(plan statsdMonitoringEndpointResou
 	return ops
 }
 
-// Create a new resource
-func (r *statsdMonitoringEndpointResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan statsdMonitoringEndpointResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a statsd monitoring-endpoint
+func (r *monitoringEndpointResource) CreateStatsdMonitoringEndpoint(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitoringEndpointResourceModel) (*monitoringEndpointResourceModel, error) {
 	addRequest := client.NewAddStatsdMonitoringEndpointRequest(plan.Id.ValueString(),
 		[]client.EnumstatsdMonitoringEndpointSchemaUrn{client.ENUMSTATSDMONITORINGENDPOINTSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITORING_ENDPOINTSTATSD},
 		plan.Hostname.ValueString(),
 		plan.Enabled.ValueBool())
 	err := addOptionalStatsdMonitoringEndpointFields(ctx, addRequest, plan)
 	if err != nil {
-		resp.Diagnostics.AddError("Failed to add optional properties to add request for Statsd Monitoring Endpoint", err.Error())
-		return
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Monitoring Endpoint", err.Error())
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -236,8 +228,8 @@ func (r *statsdMonitoringEndpointResource) Create(ctx context.Context, req resou
 
 	addResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.AddMonitoringEndpointExecute(apiAddRequest)
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Statsd Monitoring Endpoint", err, httpResp)
-		return
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Monitoring Endpoint", err, httpResp)
+		return nil, err
 	}
 
 	// Log response JSON
@@ -247,14 +239,31 @@ func (r *statsdMonitoringEndpointResource) Create(ctx context.Context, req resou
 	}
 
 	// Read the response into the state
-	var state statsdMonitoringEndpointResourceModel
+	var state monitoringEndpointResourceModel
 	readStatsdMonitoringEndpointResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *monitoringEndpointResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan monitoringEndpointResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateStatsdMonitoringEndpoint(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -265,9 +274,9 @@ func (r *statsdMonitoringEndpointResource) Create(ctx context.Context, req resou
 // For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
 // config object into management by terraform. This method reads the existing config object
 // and makes any changes needed to make it match the plan - similar to the Update method.
-func (r *defaultStatsdMonitoringEndpointResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan statsdMonitoringEndpointResourceModel
+	var plan monitoringEndpointResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -277,7 +286,7 @@ func (r *defaultStatsdMonitoringEndpointResource) Create(ctx context.Context, re
 	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Statsd Monitoring Endpoint", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
 		return
 	}
 
@@ -288,12 +297,12 @@ func (r *defaultStatsdMonitoringEndpointResource) Create(ctx context.Context, re
 	}
 
 	// Read the existing configuration
-	var state statsdMonitoringEndpointResourceModel
+	var state monitoringEndpointResourceModel
 	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createStatsdMonitoringEndpointOperations(plan, state)
+	ops := createMonitoringEndpointOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -301,7 +310,7 @@ func (r *defaultStatsdMonitoringEndpointResource) Create(ctx context.Context, re
 
 		updateResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Statsd Monitoring Endpoint", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitoring Endpoint", err, httpResp)
 			return
 		}
 
@@ -325,17 +334,17 @@ func (r *defaultStatsdMonitoringEndpointResource) Create(ctx context.Context, re
 }
 
 // Read resource information
-func (r *statsdMonitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readStatsdMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *monitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func (r *defaultStatsdMonitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readStatsdMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *defaultMonitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func readStatsdMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func readMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
-	var state statsdMonitoringEndpointResourceModel
+	var state monitoringEndpointResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -345,7 +354,7 @@ func readStatsdMonitoringEndpoint(ctx context.Context, req resource.ReadRequest,
 	readResponse, httpResp, err := apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Statsd Monitoring Endpoint", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
 		return
 	}
 
@@ -367,17 +376,17 @@ func readStatsdMonitoringEndpoint(ctx context.Context, req resource.ReadRequest,
 }
 
 // Update a resource
-func (r *statsdMonitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateStatsdMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *monitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func (r *defaultStatsdMonitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateStatsdMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+func (r *defaultMonitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
 }
 
-func updateStatsdMonitoringEndpoint(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func updateMonitoringEndpoint(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan statsdMonitoringEndpointResourceModel
+	var plan monitoringEndpointResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -385,13 +394,13 @@ func updateStatsdMonitoringEndpoint(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state statsdMonitoringEndpointResourceModel
+	var state monitoringEndpointResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createStatsdMonitoringEndpointOperations(plan, state)
+	ops := createMonitoringEndpointOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -399,7 +408,7 @@ func updateStatsdMonitoringEndpoint(ctx context.Context, req resource.UpdateRequ
 
 		updateResponse, httpResp, err := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Statsd Monitoring Endpoint", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitoring Endpoint", err, httpResp)
 			return
 		}
 
@@ -427,13 +436,13 @@ func updateStatsdMonitoringEndpoint(ctx context.Context, req resource.UpdateRequ
 // Delete deletes the resource and removes the Terraform state on success.
 // This config object is edit-only, so Terraform can't delete it.
 // After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
-func (r *defaultStatsdMonitoringEndpointResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *defaultMonitoringEndpointResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// No implementation necessary
 }
 
-func (r *statsdMonitoringEndpointResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *monitoringEndpointResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state statsdMonitoringEndpointResourceModel
+	var state monitoringEndpointResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -443,20 +452,20 @@ func (r *statsdMonitoringEndpointResource) Delete(ctx context.Context, req resou
 	httpResp, err := r.apiClient.MonitoringEndpointApi.DeleteMonitoringEndpointExecute(r.apiClient.MonitoringEndpointApi.DeleteMonitoringEndpoint(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Statsd Monitoring Endpoint", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Monitoring Endpoint", err, httpResp)
 		return
 	}
 }
 
-func (r *statsdMonitoringEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	importStatsdMonitoringEndpoint(ctx, req, resp)
+func (r *monitoringEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMonitoringEndpoint(ctx, req, resp)
 }
 
-func (r *defaultStatsdMonitoringEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	importStatsdMonitoringEndpoint(ctx, req, resp)
+func (r *defaultMonitoringEndpointResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importMonitoringEndpoint(ctx, req, resp)
 }
 
-func importStatsdMonitoringEndpoint(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func importMonitoringEndpoint(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

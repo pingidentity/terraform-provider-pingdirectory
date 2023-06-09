@@ -21,29 +21,29 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &dseeCompatAccessControlHandlerResource{}
-	_ resource.ResourceWithConfigure   = &dseeCompatAccessControlHandlerResource{}
-	_ resource.ResourceWithImportState = &dseeCompatAccessControlHandlerResource{}
+	_ resource.Resource                = &accessControlHandlerResource{}
+	_ resource.ResourceWithConfigure   = &accessControlHandlerResource{}
+	_ resource.ResourceWithImportState = &accessControlHandlerResource{}
 )
 
-// Create a Dsee Compat Access Control Handler resource
-func NewDseeCompatAccessControlHandlerResource() resource.Resource {
-	return &dseeCompatAccessControlHandlerResource{}
+// Create a Access Control Handler resource
+func NewAccessControlHandlerResource() resource.Resource {
+	return &accessControlHandlerResource{}
 }
 
-// dseeCompatAccessControlHandlerResource is the resource implementation.
-type dseeCompatAccessControlHandlerResource struct {
+// accessControlHandlerResource is the resource implementation.
+type accessControlHandlerResource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
 // Metadata returns the resource type name.
-func (r *dseeCompatAccessControlHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_default_dsee_compat_access_control_handler"
+func (r *accessControlHandlerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_access_control_handler"
 }
 
 // Configure adds the provider configured client to the resource.
-func (r *dseeCompatAccessControlHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *accessControlHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -53,7 +53,7 @@ func (r *dseeCompatAccessControlHandlerResource) Configure(_ context.Context, re
 	r.apiClient = providerCfg.ApiClientV9200
 }
 
-type dseeCompatAccessControlHandlerResourceModel struct {
+type accessControlHandlerResourceModel struct {
 	// Id field required for acceptance testing framework
 	Id                    types.String `tfsdk:"id"`
 	LastUpdated           types.String `tfsdk:"last_updated"`
@@ -66,9 +66,9 @@ type dseeCompatAccessControlHandlerResourceModel struct {
 }
 
 // GetSchema defines the schema for the resource.
-func (r *dseeCompatAccessControlHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	schema := schema.Schema{
-		Description: "Manages a Dsee Compat Access Control Handler.",
+		Description: "Manages a Access Control Handler.",
 		Attributes: map[string]schema.Attribute{
 			"global_aci": schema.SetAttribute{
 				Description: "Defines global access control rules.",
@@ -112,7 +112,7 @@ func (r *dseeCompatAccessControlHandlerResource) Schema(ctx context.Context, req
 }
 
 // Read a DseeCompatAccessControlHandlerResponse object into the model struct
-func readDseeCompatAccessControlHandlerResponse(ctx context.Context, r *client.DseeCompatAccessControlHandlerResponse, state *dseeCompatAccessControlHandlerResourceModel, diagnostics *diag.Diagnostics) {
+func readDseeCompatAccessControlHandlerResponse(ctx context.Context, r *client.DseeCompatAccessControlHandlerResponse, state *accessControlHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.GlobalACI = internaltypes.GetStringSet(r.GlobalACI)
@@ -124,7 +124,7 @@ func readDseeCompatAccessControlHandlerResponse(ctx context.Context, r *client.D
 }
 
 // Create any update operations necessary to make the state match the plan
-func createDseeCompatAccessControlHandlerOperations(plan dseeCompatAccessControlHandlerResourceModel, state dseeCompatAccessControlHandlerResourceModel) []client.Operation {
+func createAccessControlHandlerOperations(plan accessControlHandlerResourceModel, state accessControlHandlerResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.GlobalACI, state.GlobalACI, "global-aci")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedBindControl, state.AllowedBindControl, "allowed-bind-control")
@@ -137,9 +137,9 @@ func createDseeCompatAccessControlHandlerOperations(plan dseeCompatAccessControl
 // For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
 // config object into management by terraform. This method reads the existing config object
 // and makes any changes needed to make it match the plan - similar to the Update method.
-func (r *dseeCompatAccessControlHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *accessControlHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan dseeCompatAccessControlHandlerResourceModel
+	var plan accessControlHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -149,7 +149,7 @@ func (r *dseeCompatAccessControlHandlerResource) Create(ctx context.Context, req
 	readResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.GetAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dsee Compat Access Control Handler", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Control Handler", err, httpResp)
 		return
 	}
 
@@ -160,12 +160,12 @@ func (r *dseeCompatAccessControlHandlerResource) Create(ctx context.Context, req
 	}
 
 	// Read the existing configuration
-	var state dseeCompatAccessControlHandlerResourceModel
+	var state accessControlHandlerResourceModel
 	readDseeCompatAccessControlHandlerResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig))
-	ops := createDseeCompatAccessControlHandlerOperations(plan, state)
+	ops := createAccessControlHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -173,7 +173,7 @@ func (r *dseeCompatAccessControlHandlerResource) Create(ctx context.Context, req
 
 		updateResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandlerExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Dsee Compat Access Control Handler", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Access Control Handler", err, httpResp)
 			return
 		}
 
@@ -197,9 +197,9 @@ func (r *dseeCompatAccessControlHandlerResource) Create(ctx context.Context, req
 }
 
 // Read resource information
-func (r *dseeCompatAccessControlHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *accessControlHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state dseeCompatAccessControlHandlerResourceModel
+	var state accessControlHandlerResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -209,7 +209,7 @@ func (r *dseeCompatAccessControlHandlerResource) Read(ctx context.Context, req r
 	readResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.GetAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig)).Execute()
 	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dsee Compat Access Control Handler", err, httpResp)
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Control Handler", err, httpResp)
 		return
 	}
 
@@ -231,9 +231,9 @@ func (r *dseeCompatAccessControlHandlerResource) Read(ctx context.Context, req r
 }
 
 // Update a resource
-func (r *dseeCompatAccessControlHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *accessControlHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan dseeCompatAccessControlHandlerResourceModel
+	var plan accessControlHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -241,13 +241,13 @@ func (r *dseeCompatAccessControlHandlerResource) Update(ctx context.Context, req
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state dseeCompatAccessControlHandlerResourceModel
+	var state accessControlHandlerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandler(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
 
 	// Determine what update operations are necessary
-	ops := createDseeCompatAccessControlHandlerOperations(plan, state)
+	ops := createAccessControlHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -255,7 +255,7 @@ func (r *dseeCompatAccessControlHandlerResource) Update(ctx context.Context, req
 
 		updateResponse, httpResp, err := r.apiClient.AccessControlHandlerApi.UpdateAccessControlHandlerExecute(updateRequest)
 		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Dsee Compat Access Control Handler", err, httpResp)
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Access Control Handler", err, httpResp)
 			return
 		}
 
@@ -283,11 +283,11 @@ func (r *dseeCompatAccessControlHandlerResource) Update(ctx context.Context, req
 // Delete deletes the resource and removes the Terraform state on success.
 // This config object is edit-only, so Terraform can't delete it.
 // After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
-func (r *dseeCompatAccessControlHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *accessControlHandlerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// No implementation necessary
 }
 
-func (r *dseeCompatAccessControlHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *accessControlHandlerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Set a placeholder id value to appease terraform.
 	// The real attributes will be imported when terraform performs a read after the import.
 	// If no value is set here, Terraform will error out when importing.

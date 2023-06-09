@@ -123,21 +123,20 @@ func (r *defaultGaugeResource) Schema(ctx context.Context, req resource.SchemaRe
 func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
 	schema := schema.Schema{
 		Description: "Manages a Gauge.",
-		//TODO alternate descriptions by type for some attributes
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of gauge resource. Options are `numeric` and `indicator`",
+				Description: "The type of Gauge resource. Options are ['indicator', 'numeric']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"gauge_data_source": schema.StringAttribute{
-				Description: "Specifies the source of data to use in determining this gauge's current severity.",
+				Description: "Specifies the source of data to use in determining this Indicator Gauge's severity and status.",
 				Required:    true,
 			},
 			"critical_value": schema.StringAttribute{
-				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'critical'.",
+				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity should be critical.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -153,7 +152,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"major_value": schema.StringAttribute{
-				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'major'.",
+				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -169,7 +168,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"minor_value": schema.StringAttribute{
-				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'minor'.",
+				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'minor'.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -185,7 +184,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				},
 			},
 			"warning_value": schema.StringAttribute{
-				Description: "A value that is used to determine whether the current monitored value indicates this gauge's severity should be 'warning'.",
+				Description: "A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'warning'.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -283,24 +282,107 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 	resp.Schema = schema
 }
 
+// Validate that any restrictions are met in the plan
 func (r *gaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultGaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanGauge(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	var model gaugeResourceModel
 	req.Plan.Get(ctx, &model)
-	if model.Type.ValueString() == "indicator" {
-		// Check for fields that can't be applied to indicator gauges
-		if internaltypes.IsDefined(model.CriticalExitValue) {
-			resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
-		}
-		if internaltypes.IsDefined(model.MajorExitValue) {
-			resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
-		}
-		if internaltypes.IsDefined(model.MinorExitValue) {
-			resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
-		}
-		if internaltypes.IsDefined(model.WarningExitValue) {
-			resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with type 'indicator'", "")
-		}
+	if internaltypes.IsDefined(model.MinorExitValue) && model.Type.ValueString() != "numeric" {
+		resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
 	}
+	if internaltypes.IsDefined(model.CriticalExitValue) && model.Type.ValueString() != "numeric" {
+		resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+	}
+	if internaltypes.IsDefined(model.MajorExitValue) && model.Type.ValueString() != "numeric" {
+		resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+	}
+	if internaltypes.IsDefined(model.WarningExitValue) && model.Type.ValueString() != "numeric" {
+		resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+	}
+}
+
+// Add optional fields to create request for indicator gauge
+func addOptionalIndicatorGaugeFields(ctx context.Context, addRequest *client.AddIndicatorGaugeRequest, plan gaugeResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.CriticalValue) {
+		addRequest.CriticalValue = plan.CriticalValue.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.MajorValue) {
+		addRequest.MajorValue = plan.MajorValue.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.MinorValue) {
+		addRequest.MinorValue = plan.MinorValue.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.WarningValue) {
+		addRequest.WarningValue = plan.WarningValue.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.Enabled) {
+		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.OverrideSeverity) {
+		overrideSeverity, err := client.NewEnumgaugeOverrideSeverityPropFromValue(plan.OverrideSeverity.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.OverrideSeverity = overrideSeverity
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AlertLevel) {
+		alertLevel, err := client.NewEnumgaugeAlertLevelPropFromValue(plan.AlertLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.AlertLevel = alertLevel
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.UpdateInterval) {
+		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
+		addRequest.SamplesPerUpdateInterval = plan.SamplesPerUpdateInterval.ValueInt64Pointer()
+	}
+	if internaltypes.IsDefined(plan.IncludeResource) {
+		var slice []string
+		plan.IncludeResource.ElementsAs(ctx, &slice, false)
+		addRequest.IncludeResource = slice
+	}
+	if internaltypes.IsDefined(plan.ExcludeResource) {
+		var slice []string
+		plan.ExcludeResource.ElementsAs(ctx, &slice, false)
+		addRequest.ExcludeResource = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerUnavailableSeverityLevel) {
+		serverUnavailableSeverityLevel, err := client.NewEnumgaugeServerUnavailableSeverityLevelPropFromValue(plan.ServerUnavailableSeverityLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ServerUnavailableSeverityLevel = serverUnavailableSeverityLevel
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ServerDegradedSeverityLevel) {
+		serverDegradedSeverityLevel, err := client.NewEnumgaugeServerDegradedSeverityLevelPropFromValue(plan.ServerDegradedSeverityLevel.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ServerDegradedSeverityLevel = serverDegradedSeverityLevel
+	}
+	return nil
 }
 
 // Add optional fields to create request for numeric gauge
@@ -404,77 +486,32 @@ func addOptionalNumericGaugeFields(ctx context.Context, addRequest *client.AddNu
 	return nil
 }
 
-// Add optional fields to create request for indicator gauge
-func addOptionalIndicatorGaugeFields(ctx context.Context, addRequest *client.AddIndicatorGaugeRequest, plan gaugeResourceModel) error {
-	if internaltypes.IsDefined(plan.CriticalValue) {
-		addRequest.CriticalValue = plan.CriticalValue.ValueStringPointer()
-	}
-	if internaltypes.IsDefined(plan.MajorValue) {
-		addRequest.MajorValue = plan.CriticalValue.ValueStringPointer()
-	}
-	if internaltypes.IsDefined(plan.MinorValue) {
-		addRequest.MinorValue = plan.MinorValue.ValueStringPointer()
-	}
-	if internaltypes.IsDefined(plan.WarningValue) {
-		addRequest.WarningValue = plan.WarningValue.ValueStringPointer()
-	}
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.Description) {
-		addRequest.Description = plan.Description.ValueStringPointer()
-	}
-	if internaltypes.IsDefined(plan.Enabled) {
-		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
-	}
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.OverrideSeverity) {
-		overrideSeverity, err := client.NewEnumgaugeOverrideSeverityPropFromValue(plan.OverrideSeverity.ValueString())
-		if err != nil {
-			return err
-		}
-		addRequest.OverrideSeverity = overrideSeverity
-	}
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.AlertLevel) {
-		alertLevel, err := client.NewEnumgaugeAlertLevelPropFromValue(plan.AlertLevel.ValueString())
-		if err != nil {
-			return err
-		}
-		addRequest.AlertLevel = alertLevel
-	}
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.UpdateInterval) {
-		addRequest.UpdateInterval = plan.UpdateInterval.ValueStringPointer()
-	}
-	if internaltypes.IsDefined(plan.SamplesPerUpdateInterval) {
-		addRequest.SamplesPerUpdateInterval = plan.SamplesPerUpdateInterval.ValueInt64Pointer()
-	}
-	if internaltypes.IsDefined(plan.IncludeResource) {
-		var slice []string
-		plan.IncludeResource.ElementsAs(ctx, &slice, false)
-		addRequest.IncludeResource = slice
-	}
-	if internaltypes.IsDefined(plan.ExcludeResource) {
-		var slice []string
-		plan.ExcludeResource.ElementsAs(ctx, &slice, false)
-		addRequest.ExcludeResource = slice
-	}
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.ServerUnavailableSeverityLevel) {
-		serverUnavailableSeverityLevel, err := client.NewEnumgaugeServerUnavailableSeverityLevelPropFromValue(plan.ServerUnavailableSeverityLevel.ValueString())
-		if err != nil {
-			return err
-		}
-		addRequest.ServerUnavailableSeverityLevel = serverUnavailableSeverityLevel
-	}
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.ServerDegradedSeverityLevel) {
-		serverDegradedSeverityLevel, err := client.NewEnumgaugeServerDegradedSeverityLevelPropFromValue(plan.ServerDegradedSeverityLevel.ValueString())
-		if err != nil {
-			return err
-		}
-		addRequest.ServerDegradedSeverityLevel = serverDegradedSeverityLevel
-	}
-	return nil
+// Read a IndicatorGaugeResponse object into the model struct
+func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeResourceModel, expectedValues *gaugeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("indicator")
+	state.Id = types.StringValue(r.Id)
+	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
+	state.CriticalValue = internaltypes.StringTypeOrNil(r.CriticalValue, internaltypes.IsEmptyString(expectedValues.CriticalValue))
+	state.MajorValue = internaltypes.StringTypeOrNil(r.MajorValue, internaltypes.IsEmptyString(expectedValues.MajorValue))
+	state.MinorValue = internaltypes.StringTypeOrNil(r.MinorValue, internaltypes.IsEmptyString(expectedValues.MinorValue))
+	state.WarningValue = internaltypes.StringTypeOrNil(r.WarningValue, internaltypes.IsEmptyString(expectedValues.WarningValue))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.OverrideSeverity = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
+	state.AlertLevel = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
+	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
+	config.CheckMismatchedPDFormattedAttributes("update_interval",
+		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
+	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
+	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
+	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
+	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
+	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
 // Read a NumericGaugeResponse object into the model struct
@@ -525,34 +562,6 @@ func readNumericGaugeResponse(ctx context.Context, r *client.NumericGaugeRespons
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a IndicatorGaugeResponse object into the model struct
-func readIndicatorGaugeResponse(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeResourceModel, expectedValues *gaugeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("indicator")
-	state.Id = types.StringValue(r.Id)
-	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
-	state.CriticalValue = internaltypes.StringTypeOrNil(r.CriticalValue, internaltypes.IsEmptyString(expectedValues.CriticalValue))
-	state.MajorValue = internaltypes.StringTypeOrNil(r.MajorValue, internaltypes.IsEmptyString(expectedValues.MajorValue))
-	state.MinorValue = internaltypes.StringTypeOrNil(r.MinorValue, internaltypes.IsEmptyString(expectedValues.MinorValue))
-	state.WarningValue = internaltypes.StringTypeOrNil(r.WarningValue, internaltypes.IsEmptyString(expectedValues.WarningValue))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.OverrideSeverity = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeOverrideSeverityProp(r.OverrideSeverity), internaltypes.IsEmptyString(expectedValues.OverrideSeverity))
-	state.AlertLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeAlertLevelProp(r.AlertLevel), internaltypes.IsEmptyString(expectedValues.AlertLevel))
-	state.UpdateInterval = internaltypes.StringTypeOrNil(r.UpdateInterval, internaltypes.IsEmptyString(expectedValues.UpdateInterval))
-	config.CheckMismatchedPDFormattedAttributes("update_interval",
-		expectedValues.UpdateInterval, state.UpdateInterval, diagnostics)
-	state.SamplesPerUpdateInterval = internaltypes.Int64TypeOrNil(r.SamplesPerUpdateInterval)
-	state.IncludeResource = internaltypes.GetStringSet(r.IncludeResource)
-	state.ExcludeResource = internaltypes.GetStringSet(r.ExcludeResource)
-	state.ServerUnavailableSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerUnavailableSeverityLevelProp(r.ServerUnavailableSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerUnavailableSeverityLevel))
-	state.ServerDegradedSeverityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), internaltypes.IsEmptyString(expectedValues.ServerDegradedSeverityLevel))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createGaugeOperations(plan gaugeResourceModel, state gaugeResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -576,6 +585,44 @@ func createGaugeOperations(plan gaugeResourceModel, state gaugeResourceModel) []
 	operations.AddStringOperationIfNecessary(&ops, plan.ServerUnavailableSeverityLevel, state.ServerUnavailableSeverityLevel, "server-unavailable-severity-level")
 	operations.AddStringOperationIfNecessary(&ops, plan.ServerDegradedSeverityLevel, state.ServerDegradedSeverityLevel, "server-degraded-severity-level")
 	return ops
+}
+
+// Create a indicator gauge
+func (r *gaugeResource) CreateIndicatorGauge(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan gaugeResourceModel) (*gaugeResourceModel, error) {
+	addRequest := client.NewAddIndicatorGaugeRequest(plan.Id.ValueString(),
+		[]client.EnumindicatorGaugeSchemaUrn{client.ENUMINDICATORGAUGESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0GAUGEINDICATOR},
+		plan.GaugeDataSource.ValueString())
+	err := addOptionalIndicatorGaugeFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Gauge", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.GaugeApi.AddGauge(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddGaugeRequest(
+		client.AddIndicatorGaugeRequestAsAddGaugeRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.GaugeApi.AddGaugeExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Gauge", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state gaugeResourceModel
+	readIndicatorGaugeResponse(ctx, addResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
 }
 
 // Create a numeric gauge
@@ -616,44 +663,6 @@ func (r *gaugeResource) CreateNumericGauge(ctx context.Context, req resource.Cre
 	return &state, nil
 }
 
-// Create an indicator gauge
-func (r *gaugeResource) CreateIndicatorGauge(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan gaugeResourceModel) (*gaugeResourceModel, error) {
-	addRequest := client.NewAddIndicatorGaugeRequest(plan.Id.ValueString(),
-		[]client.EnumindicatorGaugeSchemaUrn{client.ENUMINDICATORGAUGESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0GAUGEINDICATOR},
-		plan.GaugeDataSource.ValueString())
-	err := addOptionalIndicatorGaugeFields(ctx, addRequest, plan)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to add optional properties to add request for Indicator Gauge", err.Error())
-		return nil, err
-	}
-	// Log request JSON
-	requestJson, err := addRequest.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Add request: "+string(requestJson))
-	}
-	apiAddRequest := r.apiClient.GaugeApi.AddGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig))
-	apiAddRequest = apiAddRequest.AddGaugeRequest(
-		client.AddIndicatorGaugeRequestAsAddGaugeRequest(addRequest))
-
-	addResponse, httpResp, err := r.apiClient.GaugeApi.AddGaugeExecute(apiAddRequest)
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Indicator Gauge", err, httpResp)
-		return nil, err
-	}
-
-	// Log response JSON
-	responseJson, err := addResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Add response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	var state gaugeResourceModel
-	readIndicatorGaugeResponse(ctx, addResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
-	return &state, nil
-}
-
 // Create a new resource
 func (r *gaugeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -666,13 +675,14 @@ func (r *gaugeResource) Create(ctx context.Context, req resource.CreateRequest, 
 
 	var state *gaugeResourceModel
 	var err error
-	if plan.Type.ValueString() == "numeric" {
-		state, err = r.CreateNumericGauge(ctx, req, resp, plan)
+	if plan.Type.ValueString() == "indicator" {
+		state, err = r.CreateIndicatorGauge(ctx, req, resp, plan)
 		if err != nil {
 			return
 		}
-	} else {
-		state, err = r.CreateIndicatorGauge(ctx, req, resp, plan)
+	}
+	if plan.Type.ValueString() == "numeric" {
+		state, err = r.CreateNumericGauge(ctx, req, resp, plan)
 		if err != nil {
 			return
 		}
@@ -717,10 +727,11 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state gaugeResourceModel
+	if plan.Type.ValueString() == "indicator" {
+		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
+	}
 	if plan.Type.ValueString() == "numeric" {
 		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
-	} else {
-		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -744,10 +755,11 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "indicator" {
+			readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.Type.ValueString() == "numeric" {
-			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
-		} else {
-			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+			readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -792,11 +804,11 @@ func readGauge(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 	}
 
 	// Read the response into the state
-	// Need to determine the type based on the response to allow for imports to work
+	if readResponse.IndicatorGaugeResponse != nil {
+		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.NumericGaugeResponse != nil {
 		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
-	} else {
-		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Set refreshed state
@@ -851,10 +863,11 @@ func updateGauge(ctx context.Context, req resource.UpdateRequest, resp *resource
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "indicator" {
+			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.Type.ValueString() == "numeric" {
 			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
-		} else {
-			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

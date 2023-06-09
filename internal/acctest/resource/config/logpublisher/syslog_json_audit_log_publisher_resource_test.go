@@ -56,7 +56,7 @@ func TestAccSyslogJsonAuditLogPublisher(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccSyslogJsonAuditLogPublisherResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_syslog_json_audit_log_publisher." + resourceName,
+				ResourceName:      "pingdirectory_log_publisher." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -76,7 +76,8 @@ resource "pingdirectory_syslog_external_server" "%[3]s" {
   transport_mechanism = "tls-encrypted-tcp"
 }
 
-resource "pingdirectory_syslog_json_audit_log_publisher" "%[1]s" {
+resource "pingdirectory_log_publisher" "%[1]s" {
+	type = "syslog-json-audit"
   id                     = "%[2]s"
   syslog_external_server = [pingdirectory_syslog_external_server.%[3]s.id]
   enabled                = %[4]t

@@ -64,7 +64,7 @@ func TestAccLocalDbBackend(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccLocalDbBackendResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_local_db_backend." + resourceName,
+				ResourceName:            "pingdirectory_backend." + resourceName,
 				ImportStateId:           updatedResourceModel.backendId,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -76,7 +76,8 @@ func TestAccLocalDbBackend(t *testing.T) {
 
 func testAccLocalDbBackendResource(resourceName string, resourceModel localDbBackendTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_local_db_backend" "%[1]s" {
+resource "pingdirectory_backend" "%[1]s" {
+	type = "local-db"
   backend_id            = "%[2]s"
   base_dn               = %[3]s
   writability_mode      = "%[4]s"

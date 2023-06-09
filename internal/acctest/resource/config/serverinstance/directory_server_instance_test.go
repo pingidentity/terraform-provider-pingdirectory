@@ -56,8 +56,8 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedDirectoryServerInstanceAttributes(instanceName, initialResourceModel),
 					// Check some computed attributes are set as expected (PingDirectory defaults)
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_directory_server_instance.%s", resourceName), "preferred_security", "ssl"),
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_directory_server_instance.%s", resourceName), "ldap_port", "1389"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_server_instance.%s", resourceName), "preferred_security", "ssl"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_server_instance.%s", resourceName), "ldap_port", "1389"),
 				),
 			},
 			{
@@ -70,7 +70,7 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccDirectoryserverInstanceResource(resourceName, instanceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_directory_server_instance." + resourceName,
+				ResourceName:            "pingdirectory_default_server_instance." + resourceName,
 				ImportStateId:           instanceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -82,7 +82,8 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 
 func testAccDirectoryserverInstanceResource(resourceName, instanceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_directory_server_instance" "%[1]s" {
+resource "pingdirectory_default_server_instance" "%[1]s" {
+	type = "directory"
   id                   = "%[2]s"
   server_instance_name = "%[2]s"
   jmx_port             = %[3]d

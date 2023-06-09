@@ -23,9 +23,10 @@ provider "pingdirectory" {
 }
 
 # Use "pingdirectory_default_local_db_backend" if you are adopting existing configuration from the PingDirectory server into Terraform
-resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
-  backend_id            = "MyLocalDbBackend"
-  base_dn               = ["dc=example1,dc=com"]
+resource "pingdirectory_backend" "myLocalDbBackend" {
+  type = "local-db"
+  backend_id            = "MyLocalDbBackendasdfdfdd"
+  base_dn               = ["dc=exampleanotherdfdd,dc=com"]
   writability_mode      = "enabled"
   db_directory          = "db"
   import_temp_directory = "tmp"
