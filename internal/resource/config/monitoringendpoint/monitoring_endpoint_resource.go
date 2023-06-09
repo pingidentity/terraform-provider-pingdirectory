@@ -103,8 +103,8 @@ func (r *defaultMonitoringEndpointResource) Schema(ctx context.Context, req reso
 	monitoringEndpointSchema(ctx, req, resp, true)
 }
 
-func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Monitoring Endpoint.",
 		Attributes: map[string]schema.Attribute{
 			"hostname": schema.StringAttribute{
@@ -150,11 +150,12 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 			},
 		},
 	}
-	if setOptionalToComputed {
-		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	config.AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	config.AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Add optional fields to create request for statsd monitoring-endpoint

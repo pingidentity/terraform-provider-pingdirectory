@@ -110,8 +110,8 @@ func (r *defaultIdTokenValidatorResource) Schema(ctx context.Context, req resour
 	idTokenValidatorSchema(ctx, req, resp, true)
 }
 
-func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Id Token Validator.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
@@ -209,11 +209,12 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 			},
 		},
 	}
-	if setOptionalToComputed {
-		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	config.AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	config.AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Validate that any restrictions are met in the plan

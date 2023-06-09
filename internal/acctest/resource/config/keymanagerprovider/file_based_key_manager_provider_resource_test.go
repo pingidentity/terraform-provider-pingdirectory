@@ -58,7 +58,7 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccFileBasedKeyManagerProviderResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_file_based_key_manager_provider." + resourceName,
+				ResourceName:      "pingdirectory_key_manager_provider." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -74,7 +74,8 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 
 func testAccFileBasedKeyManagerProviderResource(resourceName string, resourceModel fileBasedKeyManagerProviderTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_file_based_key_manager_provider" "%[1]s" {
+resource "pingdirectory_key_manager_provider" "%[1]s" {
+	type = "file-based"
   id             = "%[2]s"
   key_store_file = "%[3]s"
   enabled        = %[4]t

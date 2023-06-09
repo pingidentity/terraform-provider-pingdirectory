@@ -55,7 +55,7 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccStatsdMonitoringEndpointResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_statsd_monitoring_endpoint." + resourceName,
+				ResourceName:      "pingdirectory_monitoring_endpoint." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,7 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 
 func testAccStatsdMonitoringEndpointResource(resourceName string, resourceModel statsdMonitoringEndpointTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_statsd_monitoring_endpoint" "%[1]s" {
+resource "pingdirectory_monitoring_endpoint" "%[1]s" {
   id       = "%[2]s"
   hostname = "%[3]s"
   enabled  = %[4]t
