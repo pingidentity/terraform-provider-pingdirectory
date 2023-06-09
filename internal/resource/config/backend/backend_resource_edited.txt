@@ -83,72 +83,6 @@ func (r *defaultBackendResource) Configure(_ context.Context, req resource.Confi
 }
 
 type backendResourceModel struct {
-	Id                                        types.String `tfsdk:"id"`
-	LastUpdated                               types.String `tfsdk:"last_updated"`
-	Notifications                             types.Set    `tfsdk:"notifications"`
-	RequiredActions                           types.Set    `tfsdk:"required_actions"`
-	Type                                      types.String `tfsdk:"type"`
-	UncachedId2entryCacheMode                 types.String `tfsdk:"uncached_id2entry_cache_mode"`
-	UncachedAttributeCriteria                 types.String `tfsdk:"uncached_attribute_criteria"`
-	UncachedEntryCriteria                     types.String `tfsdk:"uncached_entry_criteria"`
-	BackendID                                 types.String `tfsdk:"backend_id"`
-	SetDegradedAlertForUntrustedIndex         types.Bool   `tfsdk:"set_degraded_alert_for_untrusted_index"`
-	ReturnUnavailableForUntrustedIndex        types.Bool   `tfsdk:"return_unavailable_for_untrusted_index"`
-	ProcessFiltersWithUndefinedAttributeTypes types.Bool   `tfsdk:"process_filters_with_undefined_attribute_types"`
-	DbDirectory                               types.String `tfsdk:"db_directory"`
-	DbDirectoryPermissions                    types.String `tfsdk:"db_directory_permissions"`
-	DbCachePercent                            types.Int64  `tfsdk:"db_cache_percent"`
-	CompactCommonParentDN                     types.Set    `tfsdk:"compact_common_parent_dn"`
-	CompressEntries                           types.Bool   `tfsdk:"compress_entries"`
-	HashEntries                               types.Bool   `tfsdk:"hash_entries"`
-	DbNumCleanerThreads                       types.Int64  `tfsdk:"db_num_cleaner_threads"`
-	DbCleanerMinUtilization                   types.Int64  `tfsdk:"db_cleaner_min_utilization"`
-	DbEvictorCriticalPercentage               types.Int64  `tfsdk:"db_evictor_critical_percentage"`
-	DbCheckpointerWakeupInterval              types.String `tfsdk:"db_checkpointer_wakeup_interval"`
-	DbBackgroundSyncInterval                  types.String `tfsdk:"db_background_sync_interval"`
-	DbUseThreadLocalHandles                   types.Bool   `tfsdk:"db_use_thread_local_handles"`
-	DbLogFileMax                              types.String `tfsdk:"db_log_file_max"`
-	DbLoggingLevel                            types.String `tfsdk:"db_logging_level"`
-	JeProperty                                types.Set    `tfsdk:"je_property"`
-	DefaultCacheMode                          types.String `tfsdk:"default_cache_mode"`
-	Id2entryCacheMode                         types.String `tfsdk:"id2entry_cache_mode"`
-	Dn2idCacheMode                            types.String `tfsdk:"dn2id_cache_mode"`
-	Id2childrenCacheMode                      types.String `tfsdk:"id2children_cache_mode"`
-	Id2subtreeCacheMode                       types.String `tfsdk:"id2subtree_cache_mode"`
-	Dn2uriCacheMode                           types.String `tfsdk:"dn2uri_cache_mode"`
-	PrimeMethod                               types.Set    `tfsdk:"prime_method"`
-	PrimeThreadCount                          types.Int64  `tfsdk:"prime_thread_count"`
-	PrimeTimeLimit                            types.String `tfsdk:"prime_time_limit"`
-	PrimeAllIndexes                           types.Bool   `tfsdk:"prime_all_indexes"`
-	SystemIndexToPrime                        types.Set    `tfsdk:"system_index_to_prime"`
-	SystemIndexToPrimeInternalNodesOnly       types.Set    `tfsdk:"system_index_to_prime_internal_nodes_only"`
-	BackgroundPrime                           types.Bool   `tfsdk:"background_prime"`
-	IndexEntryLimit                           types.Int64  `tfsdk:"index_entry_limit"`
-	CompositeIndexEntryLimit                  types.Int64  `tfsdk:"composite_index_entry_limit"`
-	Id2childrenIndexEntryLimit                types.Int64  `tfsdk:"id2children_index_entry_limit"`
-	Id2subtreeIndexEntryLimit                 types.Int64  `tfsdk:"id2subtree_index_entry_limit"`
-	ImportTempDirectory                       types.String `tfsdk:"import_temp_directory"`
-	ImportThreadCount                         types.Int64  `tfsdk:"import_thread_count"`
-	ExportThreadCount                         types.Int64  `tfsdk:"export_thread_count"`
-	DbImportCachePercent                      types.Int64  `tfsdk:"db_import_cache_percent"`
-	DbTxnWriteNoSync                          types.Bool   `tfsdk:"db_txn_write_no_sync"`
-	DeadlockRetryLimit                        types.Int64  `tfsdk:"deadlock_retry_limit"`
-	ExternalTxnDefaultBackendLockBehavior     types.String `tfsdk:"external_txn_default_backend_lock_behavior"`
-	SingleWriterLockBehavior                  types.String `tfsdk:"single_writer_lock_behavior"`
-	SubtreeDeleteSizeLimit                    types.Int64  `tfsdk:"subtree_delete_size_limit"`
-	NumRecentChanges                          types.Int64  `tfsdk:"num_recent_changes"`
-	OfflineProcessDatabaseOpenTimeout         types.String `tfsdk:"offline_process_database_open_timeout"`
-	IsPrivateBackend                          types.Bool   `tfsdk:"is_private_backend"`
-	BaseDN                                    types.Set    `tfsdk:"base_dn"`
-	WritabilityMode                           types.String `tfsdk:"writability_mode"`
-	Description                               types.String `tfsdk:"description"`
-	Enabled                                   types.Bool   `tfsdk:"enabled"`
-	SetDegradedAlertWhenDisabled              types.Bool   `tfsdk:"set_degraded_alert_when_disabled"`
-	ReturnUnavailableWhenDisabled             types.Bool   `tfsdk:"return_unavailable_when_disabled"`
-	NotificationManager                       types.String `tfsdk:"notification_manager"`
-}
-
-type defaultBackendResourceModel struct {
 	Id                                          types.String `tfsdk:"id"`
 	LastUpdated                                 types.String `tfsdk:"last_updated"`
 	Notifications                               types.Set    `tfsdk:"notifications"`
@@ -266,6 +200,8 @@ type defaultBackendResourceModel struct {
 	NotificationManager                         types.String `tfsdk:"notification_manager"`
 }
 
+//TODO separate model
+
 // GetSchema defines the schema for the resource.
 func (r *backendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	backendSchema(ctx, req, resp, false)
@@ -273,10 +209,11 @@ func (r *backendResource) Schema(ctx context.Context, req resource.SchemaRequest
 
 func (r *defaultBackendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	backendSchema(ctx, req, resp, true)
+	//TODO additional fields for default in schema
 }
 
-func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
-	schemaDef := schema.Schema{
+func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
+	schema := schema.Schema{
 		Description: "Manages a Backend.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
@@ -294,6 +231,39 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"storage_dir": schema.StringAttribute{
+				Description: "Specifies the path to the directory that will be used to store queued samples.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"metrics_dir": schema.StringAttribute{
+				Description: "Specifies the path to the directory that contains metric definitions.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"sample_flush_interval": schema.StringAttribute{
+				Description: "Period when samples are flushed to disk.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"retention_policy": schema.SetAttribute{
+				Description: "The retention policy to use for the Metrics Backend .",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"uncached_attribute_criteria": schema.StringAttribute{
 				Description: "The criteria that will be used to identify attributes that should be written into the uncached-id2entry database rather than the id2entry database. This will only be used for entries in which the associated uncached-entry-criteria does not indicate that the entire entry should be uncached.",
 				Optional:    true,
@@ -301,6 +271,108 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 			"uncached_entry_criteria": schema.StringAttribute{
 				Description: "The criteria that will be used to identify entries that should be written into the uncached-id2entry database rather than the id2entry database.",
 				Optional:    true,
+			},
+			"alarm_retention_time": schema.StringAttribute{
+				Description: "Specifies the maximum length of time that information about raised alarms should be maintained before they will be purged.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"max_alarms": schema.Int64Attribute{
+				Description: "Specifies the maximum number of alarms that should be retained. If more alarms than this configured maximum are generated within the alarm retention time, then the oldest alarms will be purged to achieve this maximum. Only alarms at normal severity will be purged.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"alert_retention_time": schema.StringAttribute{
+				Description: "Specifies the maximum length of time that information about generated alerts should be maintained before they will be purged.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"max_alerts": schema.Int64Attribute{
+				Description: "Specifies the maximum number of alerts that should be retained. If more alerts than this configured maximum are generated within the alert retention time, then the oldest alerts will be purged to achieve this maximum.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"disabled_alert_type": schema.SetAttribute{
+				Description: "Specifies the names of the alert types that should not be added to the backend. This can be used to suppress high volume alerts that might trigger hitting the max-alerts limit sooner than desired. Disabled alert types will not be sent out over persistent searches on this backend.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"task_backing_file": schema.StringAttribute{
+				Description: "Specifies the path to the backing file for storing information about the tasks configured in the server.",
+				Optional:    true,
+			},
+			"maximum_initial_task_log_messages_to_retain": schema.Int64Attribute{
+				Description: "The maximum number of log messages to retain in each task entry from the beginning of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
+				Optional:    true,
+			},
+			"maximum_final_task_log_messages_to_retain": schema.Int64Attribute{
+				Description: "The maximum number of log messages to retain in each task entry from the end of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
+				Optional:    true,
+			},
+			"task_retention_time": schema.StringAttribute{
+				Description: "Specifies the length of time that task entries should be retained after processing on the associated task has been completed.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"notification_sender_address": schema.StringAttribute{
+				Description: "Specifies the email address to use as the sender address (that is, the \"From:\" address) for notification mail messages generated when a task completes execution.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"insignificant_config_archive_attribute": schema.SetAttribute{
+				Description: "The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"mirrored_subtree_peer_polling_interval": schema.StringAttribute{
+				Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait before polling the peer servers in the topology to determine if there are any changes in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"mirrored_subtree_entry_update_timeout": schema.StringAttribute{
+				Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for an update operation (add, delete, modify and modify-dn) on an entry to be applied on all servers in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"mirrored_subtree_search_timeout": schema.StringAttribute{
+				Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for a search operation to complete. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data. Search requests that take longer than this timeout will be canceled and considered failures.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"backend_id": schema.StringAttribute{
 				Description: "Specifies a name to identify the associated backend.",
@@ -455,6 +527,14 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_write_batch_size": schema.Int64Attribute{
+				Description: "Specifies the number of changelog entries written in a single database transaction.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"default_cache_mode": schema.StringAttribute{
@@ -684,6 +764,191 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"changelog_purge_batch_size": schema.Int64Attribute{
+				Description: "Specifies the number of changelog entries purged in a single database transaction.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_write_queue_capacity": schema.Int64Attribute{
+				Description: "Specifies the capacity of the changelog write queue in number of changes.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"index_include_attribute": schema.SetAttribute{
+				Description: "Specifies which attribute types are to be specifically included in the set of attribute indexes maintained on the changelog. If this property does not have any values then no attribute types are indexed.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"index_exclude_attribute": schema.SetAttribute{
+				Description: "Specifies which attribute types are to be specifically excluded from the set of attribute indexes maintained on the changelog. This property is useful when the index-include-attribute property contains one of the special values \"*\" and \"+\".",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_maximum_age": schema.StringAttribute{
+				Description: "Changes are guaranteed to be maintained in the changelog database for at least this duration. Setting target-database-size can allow additional changes to be maintained up to the configured size on disk.",
+				Optional:    true,
+			},
+			"target_database_size": schema.StringAttribute{
+				Description: "The changelog database is allowed to grow up to this size on disk even if changes are older than the configured changelog-maximum-age.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_entry_include_base_dn": schema.SetAttribute{
+				Description: "The base DNs for branches in the data for which to record changes in the changelog.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_entry_exclude_base_dn": schema.SetAttribute{
+				Description: "The base DNs for branches in the data for which no changelog records should be generated.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_entry_include_filter": schema.SetAttribute{
+				Description: "A filter that indicates which changelog entries should actually be stored in the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_entry_exclude_filter": schema.SetAttribute{
+				Description: "A filter that indicates which changelog entries should be excluded from the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_include_attribute": schema.SetAttribute{
+				Description: "Specifies which attribute types will be included in a changelog entry for ADD and MODIFY operations.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_exclude_attribute": schema.SetAttribute{
+				Description: "Specifies a set of attribute types that should be excluded in a changelog entry for ADD and MODIFY operations.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_deleted_entry_include_attribute": schema.SetAttribute{
+				Description: "Specifies a set of attribute types that should be included in a changelog entry for DELETE operations.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_deleted_entry_exclude_attribute": schema.SetAttribute{
+				Description: "Specifies a set of attribute types that should be excluded from a changelog entry for DELETE operations.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_include_key_attribute": schema.SetAttribute{
+				Description: "Specifies which attribute types will be included in a changelog entry on every change.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"changelog_max_before_after_values": schema.Int64Attribute{
+				Description: "This controls whether all attribute values for a modified attribute (even those values that have not changed) will be included in the changelog entry. If the number of attribute values does not exceed this limit, then all values for the modified attribute will be included in the changelog entry.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"write_lastmod_attributes": schema.BoolAttribute{
+				Description: "Specifies whether values of creatorsName, createTimestamp, modifiersName and modifyTimestamp attributes will be written to changelog entries.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"use_reversible_form": schema.BoolAttribute{
+				Description: "Specifies whether the changelog should provide enough information to be able to revert the changes if desired.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"include_virtual_attributes": schema.SetAttribute{
+				Description: "Specifies the changelog entry elements (if any) in which virtual attributes should be included.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"apply_access_controls_to_changelog_entry_contents": schema.BoolAttribute{
+				Description: "Indicates whether the contents of changelog entries should be subject to access control and sensitive attribute evaluation such that the contents of attributes like changes, deletedEntryAttrs, ds-changelog-entry-key-attr-values, ds-changelog-before-values, and ds-changelog-after-values may be altered based on attributes the user can see in the target entry.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"report_excluded_changelog_attributes": schema.StringAttribute{
+				Description: "Indicates whether changelog entries that have been altered by applying access controls should include additional information about any attributes that may have been removed.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"soft_delete_entry_included_operation": schema.SetAttribute{
+				Description: "Specifies which operations performed on soft-deleted entries will appear in the changelog.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"is_private_backend": schema.BoolAttribute{
 				Description: "Indicates whether the backend should be considered a private backend, which indicates that it is used for storing operational data rather than user-defined information.",
 				Optional:    true,
@@ -691,6 +956,39 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"ldif_file": schema.StringAttribute{
+				Description: "Specifies the path to the LDIF file containing the data for this backend.",
+				Optional:    true,
+			},
+			"trust_store_file": schema.StringAttribute{
+				Description: "Specifies the path to the file that stores the trust information.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"trust_store_type": schema.StringAttribute{
+				Description: "Specifies the format for the data in the key store file.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"trust_store_pin": schema.StringAttribute{
+				Description: "Specifies the clear-text PIN needed to access the Trust Store Backend.",
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"trust_store_pin_file": schema.StringAttribute{
+				Description: "Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the Trust Store Backend.",
+				Optional:    true,
+			},
+			"trust_store_pin_passphrase_provider": schema.StringAttribute{
+				Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the Trust Store Backend.",
+				Optional:    true,
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies the base DN(s) for the data that the backend handles.",
@@ -707,6 +1005,41 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"backup_directory": schema.SetAttribute{
+				Description: "Specifies the path to a backup directory containing one or more backups for a particular backend.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"schema_entry_dn": schema.SetAttribute{
+				Description: "Defines the base DNs of the subtrees in which the schema information is published in addition to the value included in the base-dn property.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"show_all_attributes": schema.BoolAttribute{
+				Description: "Indicates whether to treat all attributes in the schema entry as if they were user attributes regardless of their configuration.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"read_only_schema_file": schema.SetAttribute{
+				Description: "Specifies the name of a file (which must exist in the config/schema directory) containing schema elements that should be considered read-only. Any schema definitions contained in read-only files cannot be altered by external clients.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"description": schema.StringAttribute{
@@ -733,422 +1066,25 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"backup_file_permissions": schema.StringAttribute{
+				Description: "Specifies the permissions that should be applied to files and directories created by a backup of the backend.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"notification_manager": schema.StringAttribute{
 				Description: "Specifies a notification manager for changes resulting from operations processed through this Backend",
 				Optional:    true,
 			},
 		},
 	}
-	if isDefault {
-		// Add any default properties and set optional properties to computed where necessary
-		schemaDef.Attributes["storage_dir"] = schema.StringAttribute{
-			Description: "Specifies the path to the directory that will be used to store queued samples.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["metrics_dir"] = schema.StringAttribute{
-			Description: "Specifies the path to the directory that contains metric definitions.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["sample_flush_interval"] = schema.StringAttribute{
-			Description: "Period when samples are flushed to disk.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["retention_policy"] = schema.SetAttribute{
-			Description: "The retention policy to use for the Metrics Backend .",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["alarm_retention_time"] = schema.StringAttribute{
-			Description: "Specifies the maximum length of time that information about raised alarms should be maintained before they will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["max_alarms"] = schema.Int64Attribute{
-			Description: "Specifies the maximum number of alarms that should be retained. If more alarms than this configured maximum are generated within the alarm retention time, then the oldest alarms will be purged to achieve this maximum. Only alarms at normal severity will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["alert_retention_time"] = schema.StringAttribute{
-			Description: "Specifies the maximum length of time that information about generated alerts should be maintained before they will be purged.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["max_alerts"] = schema.Int64Attribute{
-			Description: "Specifies the maximum number of alerts that should be retained. If more alerts than this configured maximum are generated within the alert retention time, then the oldest alerts will be purged to achieve this maximum.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["disabled_alert_type"] = schema.SetAttribute{
-			Description: "Specifies the names of the alert types that should not be added to the backend. This can be used to suppress high volume alerts that might trigger hitting the max-alerts limit sooner than desired. Disabled alert types will not be sent out over persistent searches on this backend.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["task_backing_file"] = schema.StringAttribute{
-			Description: "Specifies the path to the backing file for storing information about the tasks configured in the server.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["maximum_initial_task_log_messages_to_retain"] = schema.Int64Attribute{
-			Description: "The maximum number of log messages to retain in each task entry from the beginning of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["maximum_final_task_log_messages_to_retain"] = schema.Int64Attribute{
-			Description: "The maximum number of log messages to retain in each task entry from the end of the processing for that task. If too many messages are logged during task processing, then retaining only a limited number of messages from the beginning and/or end of task processing can reduce the amount of memory that the server consumes by caching information about currently-active and recently-completed tasks.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["task_retention_time"] = schema.StringAttribute{
-			Description: "Specifies the length of time that task entries should be retained after processing on the associated task has been completed.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["notification_sender_address"] = schema.StringAttribute{
-			Description: "Specifies the email address to use as the sender address (that is, the \"From:\" address) for notification mail messages generated when a task completes execution.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["insignificant_config_archive_attribute"] = schema.SetAttribute{
-			Description: "The name or OID of an attribute type that is considered insignificant for the purpose of maintaining the configuration archive.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["mirrored_subtree_peer_polling_interval"] = schema.StringAttribute{
-			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait before polling the peer servers in the topology to determine if there are any changes in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["mirrored_subtree_entry_update_timeout"] = schema.StringAttribute{
-			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for an update operation (add, delete, modify and modify-dn) on an entry to be applied on all servers in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["mirrored_subtree_search_timeout"] = schema.StringAttribute{
-			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait for a search operation to complete. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data. Search requests that take longer than this timeout will be canceled and considered failures.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_write_batch_size"] = schema.Int64Attribute{
-			Description: "Specifies the number of changelog entries written in a single database transaction.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_purge_batch_size"] = schema.Int64Attribute{
-			Description: "Specifies the number of changelog entries purged in a single database transaction.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_write_queue_capacity"] = schema.Int64Attribute{
-			Description: "Specifies the capacity of the changelog write queue in number of changes.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["index_include_attribute"] = schema.SetAttribute{
-			Description: "Specifies which attribute types are to be specifically included in the set of attribute indexes maintained on the changelog. If this property does not have any values then no attribute types are indexed.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["index_exclude_attribute"] = schema.SetAttribute{
-			Description: "Specifies which attribute types are to be specifically excluded from the set of attribute indexes maintained on the changelog. This property is useful when the index-include-attribute property contains one of the special values \"*\" and \"+\".",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_maximum_age"] = schema.StringAttribute{
-			Description: "Changes are guaranteed to be maintained in the changelog database for at least this duration. Setting target-database-size can allow additional changes to be maintained up to the configured size on disk.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["target_database_size"] = schema.StringAttribute{
-			Description: "The changelog database is allowed to grow up to this size on disk even if changes are older than the configured changelog-maximum-age.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_entry_include_base_dn"] = schema.SetAttribute{
-			Description: "The base DNs for branches in the data for which to record changes in the changelog.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_entry_exclude_base_dn"] = schema.SetAttribute{
-			Description: "The base DNs for branches in the data for which no changelog records should be generated.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_entry_include_filter"] = schema.SetAttribute{
-			Description: "A filter that indicates which changelog entries should actually be stored in the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_entry_exclude_filter"] = schema.SetAttribute{
-			Description: "A filter that indicates which changelog entries should be excluded from the changelog. Note that this filter is evaluated against the changelog entry itself and not against the entry that was the target of the change referenced by the changelog entry. This filter may target any attributes that appear in changelog entries with the exception of the changeNumber and entry-size-bytes attributes, since they will not be known at the time of the filter evaluation.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_include_attribute"] = schema.SetAttribute{
-			Description: "Specifies which attribute types will be included in a changelog entry for ADD and MODIFY operations.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_exclude_attribute"] = schema.SetAttribute{
-			Description: "Specifies a set of attribute types that should be excluded in a changelog entry for ADD and MODIFY operations.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_deleted_entry_include_attribute"] = schema.SetAttribute{
-			Description: "Specifies a set of attribute types that should be included in a changelog entry for DELETE operations.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_deleted_entry_exclude_attribute"] = schema.SetAttribute{
-			Description: "Specifies a set of attribute types that should be excluded from a changelog entry for DELETE operations.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_include_key_attribute"] = schema.SetAttribute{
-			Description: "Specifies which attribute types will be included in a changelog entry on every change.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["changelog_max_before_after_values"] = schema.Int64Attribute{
-			Description: "This controls whether all attribute values for a modified attribute (even those values that have not changed) will be included in the changelog entry. If the number of attribute values does not exceed this limit, then all values for the modified attribute will be included in the changelog entry.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Int64{
-				int64planmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["write_lastmod_attributes"] = schema.BoolAttribute{
-			Description: "Specifies whether values of creatorsName, createTimestamp, modifiersName and modifyTimestamp attributes will be written to changelog entries.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["use_reversible_form"] = schema.BoolAttribute{
-			Description: "Specifies whether the changelog should provide enough information to be able to revert the changes if desired.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["include_virtual_attributes"] = schema.SetAttribute{
-			Description: "Specifies the changelog entry elements (if any) in which virtual attributes should be included.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["apply_access_controls_to_changelog_entry_contents"] = schema.BoolAttribute{
-			Description: "Indicates whether the contents of changelog entries should be subject to access control and sensitive attribute evaluation such that the contents of attributes like changes, deletedEntryAttrs, ds-changelog-entry-key-attr-values, ds-changelog-before-values, and ds-changelog-after-values may be altered based on attributes the user can see in the target entry.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["report_excluded_changelog_attributes"] = schema.StringAttribute{
-			Description: "Indicates whether changelog entries that have been altered by applying access controls should include additional information about any attributes that may have been removed.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["soft_delete_entry_included_operation"] = schema.SetAttribute{
-			Description: "Specifies which operations performed on soft-deleted entries will appear in the changelog.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["ldif_file"] = schema.StringAttribute{
-			Description: "Specifies the path to the LDIF file containing the data for this backend.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
-			Description: "Specifies the path to the file that stores the trust information.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["trust_store_type"] = schema.StringAttribute{
-			Description: "Specifies the format for the data in the key store file.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["trust_store_pin"] = schema.StringAttribute{
-			Description: "Specifies the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
-			Sensitive:   true,
-		}
-		schemaDef.Attributes["trust_store_pin_file"] = schema.StringAttribute{
-			Description: "Specifies the path to the text file whose only contents should be a single line containing the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["trust_store_pin_passphrase_provider"] = schema.StringAttribute{
-			Description: "The passphrase provider to use to obtain the clear-text PIN needed to access the Trust Store Backend.",
-			Optional:    true,
-		}
-		schemaDef.Attributes["backup_directory"] = schema.SetAttribute{
-			Description: "Specifies the path to a backup directory containing one or more backups for a particular backend.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["schema_entry_dn"] = schema.SetAttribute{
-			Description: "Defines the base DNs of the subtrees in which the schema information is published in addition to the value included in the base-dn property.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["show_all_attributes"] = schema.BoolAttribute{
-			Description: "Indicates whether to treat all attributes in the schema entry as if they were user attributes regardless of their configuration.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.Bool{
-				boolplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["read_only_schema_file"] = schema.SetAttribute{
-			Description: "Specifies the name of a file (which must exist in the config/schema directory) containing schema elements that should be considered read-only. Any schema definitions contained in read-only files cannot be altered by external clients.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["backup_file_permissions"] = schema.StringAttribute{
-			Description: "Specifies the permissions that should be applied to files and directories created by a backup of the backend.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
-		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"backend_id"})
+	if setOptionalToComputed {
+		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"backend_id"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
-	resp.Schema = schemaDef
+	config.AddCommonSchema(&schema, false)
+	resp.Schema = schema
 }
 
 // Validate that any restrictions are met in the plan
@@ -1161,8 +1097,9 @@ func (r *defaultBackendResource) ModifyPlan(ctx context.Context, req resource.Mo
 }
 
 func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultBackendResourceModel
+	var model backendResourceModel
 	req.Plan.Get(ctx, &model)
+	//TODO do I need separate model here? Would this work if I just read directly into the superset (the default_ one)?
 	if internaltypes.IsDefined(model.DbDirectoryPermissions) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
 		resp.Diagnostics.AddError("Attribute 'db_directory_permissions' not supported by pingdirectory_backend resources with type '"+model.Type.ValueString()+"'", "")
 	}
@@ -1481,6 +1418,7 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 }
 
 // Add optional fields to create request for local-db backend
+// TODO pick the right resourcemodel for these
 func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.AddLocalDbBackendRequest, plan backendResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UncachedId2entryCacheMode) {
@@ -1749,28 +1687,7 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 
 // Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
 func populateBackendNilSets(ctx context.Context, model *backendResourceModel) {
-	if model.JeProperty.ElementType(ctx) == nil {
-		model.JeProperty = types.SetNull(types.StringType)
-	}
-	if model.BaseDN.ElementType(ctx) == nil {
-		model.BaseDN = types.SetNull(types.StringType)
-	}
-	if model.CompactCommonParentDN.ElementType(ctx) == nil {
-		model.CompactCommonParentDN = types.SetNull(types.StringType)
-	}
-	if model.SystemIndexToPrimeInternalNodesOnly.ElementType(ctx) == nil {
-		model.SystemIndexToPrimeInternalNodesOnly = types.SetNull(types.StringType)
-	}
-	if model.PrimeMethod.ElementType(ctx) == nil {
-		model.PrimeMethod = types.SetNull(types.StringType)
-	}
-	if model.SystemIndexToPrime.ElementType(ctx) == nil {
-		model.SystemIndexToPrime = types.SetNull(types.StringType)
-	}
-}
-
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateBackendNilSetsDefault(ctx context.Context, model *defaultBackendResourceModel) {
+	//TODO maybe not needed for non-default?
 	if model.ChangelogEntryIncludeFilter.ElementType(ctx) == nil {
 		model.ChangelogEntryIncludeFilter = types.SetNull(types.StringType)
 	}
@@ -1849,7 +1766,8 @@ func populateBackendNilSetsDefault(ctx context.Context, model *defaultBackendRes
 }
 
 // Read a SchemaBackendResponse object into the model struct
-func readSchemaBackendResponseDefault(ctx context.Context, r *client.SchemaBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+// TODO pick right struct for these methods
+func readSchemaBackendResponse(ctx context.Context, r *client.SchemaBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("schema")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -1865,11 +1783,11 @@ func readSchemaBackendResponseDefault(ctx context.Context, r *client.SchemaBacke
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a BackupBackendResponse object into the model struct
-func readBackupBackendResponseDefault(ctx context.Context, r *client.BackupBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readBackupBackendResponse(ctx context.Context, r *client.BackupBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("backup")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -1882,11 +1800,11 @@ func readBackupBackendResponseDefault(ctx context.Context, r *client.BackupBacke
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a EncryptionSettingsBackendResponse object into the model struct
-func readEncryptionSettingsBackendResponseDefault(ctx context.Context, r *client.EncryptionSettingsBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readEncryptionSettingsBackendResponse(ctx context.Context, r *client.EncryptionSettingsBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("encryption-settings")
 	state.Id = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -1898,11 +1816,11 @@ func readEncryptionSettingsBackendResponseDefault(ctx context.Context, r *client
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a LdifBackendResponse object into the model struct
-func readLdifBackendResponseDefault(ctx context.Context, r *client.LdifBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readLdifBackendResponse(ctx context.Context, r *client.LdifBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif")
 	state.Id = types.StringValue(r.Id)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
@@ -1917,11 +1835,11 @@ func readLdifBackendResponseDefault(ctx context.Context, r *client.LdifBackendRe
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a TrustStoreBackendResponse object into the model struct
-func readTrustStoreBackendResponseDefault(ctx context.Context, r *client.TrustStoreBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readTrustStoreBackendResponse(ctx context.Context, r *client.TrustStoreBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("trust-store")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -1940,11 +1858,11 @@ func readTrustStoreBackendResponseDefault(ctx context.Context, r *client.TrustSt
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a CustomBackendResponse object into the model struct
-func readCustomBackendResponseDefault(ctx context.Context, r *client.CustomBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readCustomBackendResponse(ctx context.Context, r *client.CustomBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -1957,11 +1875,11 @@ func readCustomBackendResponseDefault(ctx context.Context, r *client.CustomBacke
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a ChangelogBackendResponse object into the model struct
-func readChangelogBackendResponseDefault(ctx context.Context, r *client.ChangelogBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readChangelogBackendResponse(ctx context.Context, r *client.ChangelogBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("changelog")
 	state.Id = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -2006,11 +1924,11 @@ func readChangelogBackendResponseDefault(ctx context.Context, r *client.Changelo
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a MonitorBackendResponse object into the model struct
-func readMonitorBackendResponseDefault(ctx context.Context, r *client.MonitorBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readMonitorBackendResponse(ctx context.Context, r *client.MonitorBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("monitor")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2021,7 +1939,7 @@ func readMonitorBackendResponseDefault(ctx context.Context, r *client.MonitorBac
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a LocalDbBackendResponse object into the model struct
@@ -2112,96 +2030,8 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	populateBackendNilSets(ctx, state)
 }
 
-// Read a LocalDbBackendResponse object into the model struct
-func readLocalDbBackendResponseDefault(ctx context.Context, r *client.LocalDbBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("local-db")
-	state.Id = types.StringValue(r.Id)
-	state.UncachedId2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendUncachedId2entryCacheModeProp(r.UncachedId2entryCacheMode), internaltypes.IsEmptyString(expectedValues.UncachedId2entryCacheMode))
-	state.UncachedAttributeCriteria = internaltypes.StringTypeOrNil(r.UncachedAttributeCriteria, internaltypes.IsEmptyString(expectedValues.UncachedAttributeCriteria))
-	state.UncachedEntryCriteria = internaltypes.StringTypeOrNil(r.UncachedEntryCriteria, internaltypes.IsEmptyString(expectedValues.UncachedEntryCriteria))
-	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
-	state.SetDegradedAlertForUntrustedIndex = internaltypes.BoolTypeOrNil(r.SetDegradedAlertForUntrustedIndex)
-	state.ReturnUnavailableForUntrustedIndex = internaltypes.BoolTypeOrNil(r.ReturnUnavailableForUntrustedIndex)
-	state.ProcessFiltersWithUndefinedAttributeTypes = internaltypes.BoolTypeOrNil(r.ProcessFiltersWithUndefinedAttributeTypes)
-	state.IsPrivateBackend = internaltypes.BoolTypeOrNil(r.IsPrivateBackend)
-	state.DbDirectory = types.StringValue(r.DbDirectory)
-	state.DbDirectoryPermissions = internaltypes.StringTypeOrNil(r.DbDirectoryPermissions, internaltypes.IsEmptyString(expectedValues.DbDirectoryPermissions))
-	state.CompactCommonParentDN = internaltypes.GetStringSet(r.CompactCommonParentDN)
-	state.CompressEntries = internaltypes.BoolTypeOrNil(r.CompressEntries)
-	state.HashEntries = internaltypes.BoolTypeOrNil(r.HashEntries)
-	state.DbNumCleanerThreads = internaltypes.Int64TypeOrNil(r.DbNumCleanerThreads)
-	state.DbCleanerMinUtilization = internaltypes.Int64TypeOrNil(r.DbCleanerMinUtilization)
-	state.DbEvictorCriticalPercentage = internaltypes.Int64TypeOrNil(r.DbEvictorCriticalPercentage)
-	state.DbCheckpointerWakeupInterval = internaltypes.StringTypeOrNil(r.DbCheckpointerWakeupInterval, internaltypes.IsEmptyString(expectedValues.DbCheckpointerWakeupInterval))
-	config.CheckMismatchedPDFormattedAttributes("db_checkpointer_wakeup_interval",
-		expectedValues.DbCheckpointerWakeupInterval, state.DbCheckpointerWakeupInterval, diagnostics)
-	state.DbBackgroundSyncInterval = internaltypes.StringTypeOrNil(r.DbBackgroundSyncInterval, internaltypes.IsEmptyString(expectedValues.DbBackgroundSyncInterval))
-	config.CheckMismatchedPDFormattedAttributes("db_background_sync_interval",
-		expectedValues.DbBackgroundSyncInterval, state.DbBackgroundSyncInterval, diagnostics)
-	state.DbUseThreadLocalHandles = internaltypes.BoolTypeOrNil(r.DbUseThreadLocalHandles)
-	state.DbLogFileMax = internaltypes.StringTypeOrNil(r.DbLogFileMax, internaltypes.IsEmptyString(expectedValues.DbLogFileMax))
-	config.CheckMismatchedPDFormattedAttributes("db_log_file_max",
-		expectedValues.DbLogFileMax, state.DbLogFileMax, diagnostics)
-	state.DbLoggingLevel = internaltypes.StringTypeOrNil(r.DbLoggingLevel, internaltypes.IsEmptyString(expectedValues.DbLoggingLevel))
-	state.JeProperty = internaltypes.GetStringSet(r.JeProperty)
-	state.DbCachePercent = internaltypes.Int64TypeOrNil(r.DbCachePercent)
-	state.DefaultCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDefaultCacheModeProp(r.DefaultCacheMode), internaltypes.IsEmptyString(expectedValues.DefaultCacheMode))
-	state.Id2entryCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2entryCacheModeProp(r.Id2entryCacheMode), internaltypes.IsEmptyString(expectedValues.Id2entryCacheMode))
-	state.Dn2idCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2idCacheModeProp(r.Dn2idCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2idCacheMode))
-	state.Id2childrenCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2childrenCacheModeProp(r.Id2childrenCacheMode), internaltypes.IsEmptyString(expectedValues.Id2childrenCacheMode))
-	state.Id2subtreeCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendId2subtreeCacheModeProp(r.Id2subtreeCacheMode), internaltypes.IsEmptyString(expectedValues.Id2subtreeCacheMode))
-	state.Dn2uriCacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendDn2uriCacheModeProp(r.Dn2uriCacheMode), internaltypes.IsEmptyString(expectedValues.Dn2uriCacheMode))
-	state.PrimeMethod = internaltypes.GetStringSet(
-		client.StringSliceEnumbackendPrimeMethodProp(r.PrimeMethod))
-	state.PrimeThreadCount = internaltypes.Int64TypeOrNil(r.PrimeThreadCount)
-	state.PrimeTimeLimit = internaltypes.StringTypeOrNil(r.PrimeTimeLimit, internaltypes.IsEmptyString(expectedValues.PrimeTimeLimit))
-	config.CheckMismatchedPDFormattedAttributes("prime_time_limit",
-		expectedValues.PrimeTimeLimit, state.PrimeTimeLimit, diagnostics)
-	state.PrimeAllIndexes = internaltypes.BoolTypeOrNil(r.PrimeAllIndexes)
-	state.SystemIndexToPrime = internaltypes.GetStringSet(
-		client.StringSliceEnumbackendSystemIndexToPrimeProp(r.SystemIndexToPrime))
-	state.SystemIndexToPrimeInternalNodesOnly = internaltypes.GetStringSet(
-		client.StringSliceEnumbackendSystemIndexToPrimeInternalNodesOnlyProp(r.SystemIndexToPrimeInternalNodesOnly))
-	state.BackgroundPrime = internaltypes.BoolTypeOrNil(r.BackgroundPrime)
-	state.IndexEntryLimit = internaltypes.Int64TypeOrNil(r.IndexEntryLimit)
-	state.CompositeIndexEntryLimit = internaltypes.Int64TypeOrNil(r.CompositeIndexEntryLimit)
-	state.Id2childrenIndexEntryLimit = internaltypes.Int64TypeOrNil(r.Id2childrenIndexEntryLimit)
-	state.Id2subtreeIndexEntryLimit = internaltypes.Int64TypeOrNil(r.Id2subtreeIndexEntryLimit)
-	state.ImportTempDirectory = types.StringValue(r.ImportTempDirectory)
-	state.ImportThreadCount = internaltypes.Int64TypeOrNil(r.ImportThreadCount)
-	state.ExportThreadCount = internaltypes.Int64TypeOrNil(r.ExportThreadCount)
-	state.DbImportCachePercent = internaltypes.Int64TypeOrNil(r.DbImportCachePercent)
-	state.DbTxnWriteNoSync = internaltypes.BoolTypeOrNil(r.DbTxnWriteNoSync)
-	state.DeadlockRetryLimit = internaltypes.Int64TypeOrNil(r.DeadlockRetryLimit)
-	state.ExternalTxnDefaultBackendLockBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendExternalTxnDefaultBackendLockBehaviorProp(r.ExternalTxnDefaultBackendLockBehavior), internaltypes.IsEmptyString(expectedValues.ExternalTxnDefaultBackendLockBehavior))
-	state.SingleWriterLockBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumbackendSingleWriterLockBehaviorProp(r.SingleWriterLockBehavior), internaltypes.IsEmptyString(expectedValues.SingleWriterLockBehavior))
-	state.SubtreeDeleteSizeLimit = internaltypes.Int64TypeOrNil(r.SubtreeDeleteSizeLimit)
-	state.NumRecentChanges = internaltypes.Int64TypeOrNil(r.NumRecentChanges)
-	state.OfflineProcessDatabaseOpenTimeout = internaltypes.StringTypeOrNil(r.OfflineProcessDatabaseOpenTimeout, internaltypes.IsEmptyString(expectedValues.OfflineProcessDatabaseOpenTimeout))
-	config.CheckMismatchedPDFormattedAttributes("offline_process_database_open_timeout",
-		expectedValues.OfflineProcessDatabaseOpenTimeout, state.OfflineProcessDatabaseOpenTimeout, diagnostics)
-	state.BackendID = types.StringValue(r.BackendID)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
-	state.SetDegradedAlertWhenDisabled = internaltypes.BoolTypeOrNil(r.SetDegradedAlertWhenDisabled)
-	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
-	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
-}
-
 // Read a ConfigFileHandlerBackendResponse object into the model struct
-func readConfigFileHandlerBackendResponseDefault(ctx context.Context, r *client.ConfigFileHandlerBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readConfigFileHandlerBackendResponse(ctx context.Context, r *client.ConfigFileHandlerBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("config-file-handler")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2224,11 +2054,11 @@ func readConfigFileHandlerBackendResponseDefault(ctx context.Context, r *client.
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a TaskBackendResponse object into the model struct
-func readTaskBackendResponseDefault(ctx context.Context, r *client.TaskBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readTaskBackendResponse(ctx context.Context, r *client.TaskBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("task")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2248,11 +2078,11 @@ func readTaskBackendResponseDefault(ctx context.Context, r *client.TaskBackendRe
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a AlertBackendResponse object into the model struct
-func readAlertBackendResponseDefault(ctx context.Context, r *client.AlertBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readAlertBackendResponse(ctx context.Context, r *client.AlertBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("alert")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2272,11 +2102,11 @@ func readAlertBackendResponseDefault(ctx context.Context, r *client.AlertBackend
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a AlarmBackendResponse object into the model struct
-func readAlarmBackendResponseDefault(ctx context.Context, r *client.AlarmBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readAlarmBackendResponse(ctx context.Context, r *client.AlarmBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("alarm")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2294,11 +2124,11 @@ func readAlarmBackendResponseDefault(ctx context.Context, r *client.AlarmBackend
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Read a MetricsBackendResponse object into the model struct
-func readMetricsBackendResponseDefault(ctx context.Context, r *client.MetricsBackendResponse, state *defaultBackendResourceModel, expectedValues *defaultBackendResourceModel, diagnostics *diag.Diagnostics) {
+func readMetricsBackendResponse(ctx context.Context, r *client.MetricsBackendResponse, state *backendResourceModel, expectedValues *backendResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("metrics")
 	state.Id = types.StringValue(r.Id)
 	state.BackendID = types.StringValue(r.BackendID)
@@ -2314,75 +2144,12 @@ func readMetricsBackendResponseDefault(ctx context.Context, r *client.MetricsBac
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendNilSets(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan
+// TODO separate method probably for non-default
 func createBackendOperations(plan backendResourceModel, state backendResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.UncachedId2entryCacheMode, state.UncachedId2entryCacheMode, "uncached-id2entry-cache-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.UncachedAttributeCriteria, state.UncachedAttributeCriteria, "uncached-attribute-criteria")
-	operations.AddStringOperationIfNecessary(&ops, plan.UncachedEntryCriteria, state.UncachedEntryCriteria, "uncached-entry-criteria")
-	operations.AddStringOperationIfNecessary(&ops, plan.BackendID, state.BackendID, "backend-id")
-	operations.AddBoolOperationIfNecessary(&ops, plan.SetDegradedAlertForUntrustedIndex, state.SetDegradedAlertForUntrustedIndex, "set-degraded-alert-for-untrusted-index")
-	operations.AddBoolOperationIfNecessary(&ops, plan.ReturnUnavailableForUntrustedIndex, state.ReturnUnavailableForUntrustedIndex, "return-unavailable-for-untrusted-index")
-	operations.AddBoolOperationIfNecessary(&ops, plan.ProcessFiltersWithUndefinedAttributeTypes, state.ProcessFiltersWithUndefinedAttributeTypes, "process-filters-with-undefined-attribute-types")
-	operations.AddStringOperationIfNecessary(&ops, plan.DbDirectory, state.DbDirectory, "db-directory")
-	operations.AddStringOperationIfNecessary(&ops, plan.DbDirectoryPermissions, state.DbDirectoryPermissions, "db-directory-permissions")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DbCachePercent, state.DbCachePercent, "db-cache-percent")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.CompactCommonParentDN, state.CompactCommonParentDN, "compact-common-parent-dn")
-	operations.AddBoolOperationIfNecessary(&ops, plan.CompressEntries, state.CompressEntries, "compress-entries")
-	operations.AddBoolOperationIfNecessary(&ops, plan.HashEntries, state.HashEntries, "hash-entries")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DbNumCleanerThreads, state.DbNumCleanerThreads, "db-num-cleaner-threads")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DbCleanerMinUtilization, state.DbCleanerMinUtilization, "db-cleaner-min-utilization")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DbEvictorCriticalPercentage, state.DbEvictorCriticalPercentage, "db-evictor-critical-percentage")
-	operations.AddStringOperationIfNecessary(&ops, plan.DbCheckpointerWakeupInterval, state.DbCheckpointerWakeupInterval, "db-checkpointer-wakeup-interval")
-	operations.AddStringOperationIfNecessary(&ops, plan.DbBackgroundSyncInterval, state.DbBackgroundSyncInterval, "db-background-sync-interval")
-	operations.AddBoolOperationIfNecessary(&ops, plan.DbUseThreadLocalHandles, state.DbUseThreadLocalHandles, "db-use-thread-local-handles")
-	operations.AddStringOperationIfNecessary(&ops, plan.DbLogFileMax, state.DbLogFileMax, "db-log-file-max")
-	operations.AddStringOperationIfNecessary(&ops, plan.DbLoggingLevel, state.DbLoggingLevel, "db-logging-level")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.JeProperty, state.JeProperty, "je-property")
-	operations.AddStringOperationIfNecessary(&ops, plan.DefaultCacheMode, state.DefaultCacheMode, "default-cache-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.Id2entryCacheMode, state.Id2entryCacheMode, "id2entry-cache-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.Dn2idCacheMode, state.Dn2idCacheMode, "dn2id-cache-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.Id2childrenCacheMode, state.Id2childrenCacheMode, "id2children-cache-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.Id2subtreeCacheMode, state.Id2subtreeCacheMode, "id2subtree-cache-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.Dn2uriCacheMode, state.Dn2uriCacheMode, "dn2uri-cache-mode")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.PrimeMethod, state.PrimeMethod, "prime-method")
-	operations.AddInt64OperationIfNecessary(&ops, plan.PrimeThreadCount, state.PrimeThreadCount, "prime-thread-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.PrimeTimeLimit, state.PrimeTimeLimit, "prime-time-limit")
-	operations.AddBoolOperationIfNecessary(&ops, plan.PrimeAllIndexes, state.PrimeAllIndexes, "prime-all-indexes")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SystemIndexToPrime, state.SystemIndexToPrime, "system-index-to-prime")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SystemIndexToPrimeInternalNodesOnly, state.SystemIndexToPrimeInternalNodesOnly, "system-index-to-prime-internal-nodes-only")
-	operations.AddBoolOperationIfNecessary(&ops, plan.BackgroundPrime, state.BackgroundPrime, "background-prime")
-	operations.AddInt64OperationIfNecessary(&ops, plan.IndexEntryLimit, state.IndexEntryLimit, "index-entry-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.CompositeIndexEntryLimit, state.CompositeIndexEntryLimit, "composite-index-entry-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.Id2childrenIndexEntryLimit, state.Id2childrenIndexEntryLimit, "id2children-index-entry-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.Id2subtreeIndexEntryLimit, state.Id2subtreeIndexEntryLimit, "id2subtree-index-entry-limit")
-	operations.AddStringOperationIfNecessary(&ops, plan.ImportTempDirectory, state.ImportTempDirectory, "import-temp-directory")
-	operations.AddInt64OperationIfNecessary(&ops, plan.ImportThreadCount, state.ImportThreadCount, "import-thread-count")
-	operations.AddInt64OperationIfNecessary(&ops, plan.ExportThreadCount, state.ExportThreadCount, "export-thread-count")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DbImportCachePercent, state.DbImportCachePercent, "db-import-cache-percent")
-	operations.AddBoolOperationIfNecessary(&ops, plan.DbTxnWriteNoSync, state.DbTxnWriteNoSync, "db-txn-write-no-sync")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DeadlockRetryLimit, state.DeadlockRetryLimit, "deadlock-retry-limit")
-	operations.AddStringOperationIfNecessary(&ops, plan.ExternalTxnDefaultBackendLockBehavior, state.ExternalTxnDefaultBackendLockBehavior, "external-txn-default-backend-lock-behavior")
-	operations.AddStringOperationIfNecessary(&ops, plan.SingleWriterLockBehavior, state.SingleWriterLockBehavior, "single-writer-lock-behavior")
-	operations.AddInt64OperationIfNecessary(&ops, plan.SubtreeDeleteSizeLimit, state.SubtreeDeleteSizeLimit, "subtree-delete-size-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.NumRecentChanges, state.NumRecentChanges, "num-recent-changes")
-	operations.AddStringOperationIfNecessary(&ops, plan.OfflineProcessDatabaseOpenTimeout, state.OfflineProcessDatabaseOpenTimeout, "offline-process-database-open-timeout")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IsPrivateBackend, state.IsPrivateBackend, "is-private-backend")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.BaseDN, state.BaseDN, "base-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.WritabilityMode, state.WritabilityMode, "writability-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	operations.AddBoolOperationIfNecessary(&ops, plan.SetDegradedAlertWhenDisabled, state.SetDegradedAlertWhenDisabled, "set-degraded-alert-when-disabled")
-	operations.AddBoolOperationIfNecessary(&ops, plan.ReturnUnavailableWhenDisabled, state.ReturnUnavailableWhenDisabled, "return-unavailable-when-disabled")
-	operations.AddStringOperationIfNecessary(&ops, plan.NotificationManager, state.NotificationManager, "notification-manager")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createBackendOperationsDefault(plan defaultBackendResourceModel, state defaultBackendResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.UncachedId2entryCacheMode, state.UncachedId2entryCacheMode, "uncached-id2entry-cache-mode")
 	operations.AddStringOperationIfNecessary(&ops, plan.StorageDir, state.StorageDir, "storage-dir")
@@ -2570,7 +2337,7 @@ func (r *backendResource) Create(ctx context.Context, req resource.CreateRequest
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultBackendResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultBackendResourceModel
+	var plan backendResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2591,248 +2358,52 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Read the existing configuration
-	var state defaultBackendResourceModel
+	var state backendResourceModel
 	if plan.Type.ValueString() == "schema" {
-		readSchemaBackendResponseDefault(ctx, readResponse.SchemaBackendResponse, &state, &state, &resp.Diagnostics)
+		readSchemaBackendResponse(ctx, readResponse.SchemaBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "backup" {
-		readBackupBackendResponseDefault(ctx, readResponse.BackupBackendResponse, &state, &state, &resp.Diagnostics)
+		readBackupBackendResponse(ctx, readResponse.BackupBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "encryption-settings" {
-		readEncryptionSettingsBackendResponseDefault(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &state, &resp.Diagnostics)
+		readEncryptionSettingsBackendResponse(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldif" {
-		readLdifBackendResponseDefault(ctx, readResponse.LdifBackendResponse, &state, &state, &resp.Diagnostics)
+		readLdifBackendResponse(ctx, readResponse.LdifBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "trust-store" {
-		readTrustStoreBackendResponseDefault(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
+		readTrustStoreBackendResponse(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomBackendResponseDefault(ctx, readResponse.CustomBackendResponse, &state, &state, &resp.Diagnostics)
+		readCustomBackendResponse(ctx, readResponse.CustomBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "changelog" {
-		readChangelogBackendResponseDefault(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
+		readChangelogBackendResponse(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "monitor" {
-		readMonitorBackendResponseDefault(ctx, readResponse.MonitorBackendResponse, &state, &state, &resp.Diagnostics)
+		readMonitorBackendResponse(ctx, readResponse.MonitorBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "local-db" {
-		readLocalDbBackendResponseDefault(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
+		readLocalDbBackendResponse(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "config-file-handler" {
-		readConfigFileHandlerBackendResponseDefault(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &state, &resp.Diagnostics)
+		readConfigFileHandlerBackendResponse(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "task" {
-		readTaskBackendResponseDefault(ctx, readResponse.TaskBackendResponse, &state, &state, &resp.Diagnostics)
+		readTaskBackendResponse(ctx, readResponse.TaskBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "alert" {
-		readAlertBackendResponseDefault(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
+		readAlertBackendResponse(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "alarm" {
-		readAlarmBackendResponseDefault(ctx, readResponse.AlarmBackendResponse, &state, &state, &resp.Diagnostics)
+		readAlarmBackendResponse(ctx, readResponse.AlarmBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "metrics" {
-		readMetricsBackendResponseDefault(ctx, readResponse.MetricsBackendResponse, &state, &state, &resp.Diagnostics)
+		readMetricsBackendResponse(ctx, readResponse.MetricsBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.BackendApi.UpdateBackend(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
-	ops := createBackendOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Backend", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "schema" {
-			readSchemaBackendResponseDefault(ctx, updateResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "backup" {
-			readBackupBackendResponseDefault(ctx, updateResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "encryption-settings" {
-			readEncryptionSettingsBackendResponseDefault(ctx, updateResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "ldif" {
-			readLdifBackendResponseDefault(ctx, updateResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "trust-store" {
-			readTrustStoreBackendResponseDefault(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "custom" {
-			readCustomBackendResponseDefault(ctx, updateResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "changelog" {
-			readChangelogBackendResponseDefault(ctx, updateResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "monitor" {
-			readMonitorBackendResponseDefault(ctx, updateResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "local-db" {
-			readLocalDbBackendResponseDefault(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "config-file-handler" {
-			readConfigFileHandlerBackendResponseDefault(ctx, updateResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "task" {
-			readTaskBackendResponseDefault(ctx, updateResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "alert" {
-			readAlertBackendResponseDefault(ctx, updateResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "alarm" {
-			readAlarmBackendResponseDefault(ctx, updateResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "metrics" {
-			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *backendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state backendResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.LocalDbBackendResponse != nil {
-		readLocalDbBackendResponse(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultBackendResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.BackendApi.GetBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.BackendID.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.SchemaBackendResponse != nil {
-		readSchemaBackendResponseDefault(ctx, readResponse.SchemaBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.BackupBackendResponse != nil {
-		readBackupBackendResponseDefault(ctx, readResponse.BackupBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.EncryptionSettingsBackendResponse != nil {
-		readEncryptionSettingsBackendResponseDefault(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LdifBackendResponse != nil {
-		readLdifBackendResponseDefault(ctx, readResponse.LdifBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.TrustStoreBackendResponse != nil {
-		readTrustStoreBackendResponseDefault(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.CustomBackendResponse != nil {
-		readCustomBackendResponseDefault(ctx, readResponse.CustomBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ChangelogBackendResponse != nil {
-		readChangelogBackendResponseDefault(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.MonitorBackendResponse != nil {
-		readMonitorBackendResponseDefault(ctx, readResponse.MonitorBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ConfigFileHandlerBackendResponse != nil {
-		readConfigFileHandlerBackendResponseDefault(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.TaskBackendResponse != nil {
-		readTaskBackendResponseDefault(ctx, readResponse.TaskBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.AlertBackendResponse != nil {
-		readAlertBackendResponseDefault(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.AlarmBackendResponse != nil {
-		readAlarmBackendResponseDefault(ctx, readResponse.AlarmBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.MetricsBackendResponse != nil {
-		readMetricsBackendResponseDefault(ctx, readResponse.MetricsBackendResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan backendResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state backendResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -2852,13 +2423,50 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "schema" {
+			readSchemaBackendResponse(ctx, updateResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "backup" {
+			readBackupBackendResponse(ctx, updateResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "encryption-settings" {
+			readEncryptionSettingsBackendResponse(ctx, updateResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "ldif" {
+			readLdifBackendResponse(ctx, updateResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "trust-store" {
+			readTrustStoreBackendResponse(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "custom" {
+			readCustomBackendResponse(ctx, updateResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "changelog" {
+			readChangelogBackendResponse(ctx, updateResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "monitor" {
+			readMonitorBackendResponse(ctx, updateResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.Type.ValueString() == "local-db" {
 			readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if plan.Type.ValueString() == "config-file-handler" {
+			readConfigFileHandlerBackendResponse(ctx, updateResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "task" {
+			readTaskBackendResponse(ctx, updateResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "alert" {
+			readAlertBackendResponse(ctx, updateResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "alarm" {
+			readAlarmBackendResponse(ctx, updateResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "metrics" {
+			readMetricsBackendResponse(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
+		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -2868,9 +2476,104 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 }
 
+// Read resource information
+func (r *backendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readBackend(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	//TODO this also has to be different
+
+	var state backendResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.BackendApi.GetBackend(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.BackendID.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Backend", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.SchemaBackendResponse != nil {
+		readSchemaBackendResponse(ctx, readResponse.SchemaBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.BackupBackendResponse != nil {
+		readBackupBackendResponse(ctx, readResponse.BackupBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.EncryptionSettingsBackendResponse != nil {
+		readEncryptionSettingsBackendResponse(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LdifBackendResponse != nil {
+		readLdifBackendResponse(ctx, readResponse.LdifBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.TrustStoreBackendResponse != nil {
+		readTrustStoreBackendResponse(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.CustomBackendResponse != nil {
+		readCustomBackendResponse(ctx, readResponse.CustomBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ChangelogBackendResponse != nil {
+		readChangelogBackendResponse(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.MonitorBackendResponse != nil {
+		readMonitorBackendResponse(ctx, readResponse.MonitorBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LocalDbBackendResponse != nil {
+		readLocalDbBackendResponse(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ConfigFileHandlerBackendResponse != nil {
+		readConfigFileHandlerBackendResponse(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.TaskBackendResponse != nil {
+		readTaskBackendResponse(ctx, readResponse.TaskBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.AlertBackendResponse != nil {
+		readAlertBackendResponse(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.AlarmBackendResponse != nil {
+		readAlarmBackendResponse(ctx, readResponse.AlarmBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.MetricsBackendResponse != nil {
+		readMetricsBackendResponse(ctx, readResponse.MetricsBackendResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultBackendResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateBackend(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateBackend(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultBackendResourceModel
+	//TODO this too
+	var plan backendResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2878,19 +2581,19 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultBackendResourceModel
+	var state backendResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.BackendApi.UpdateBackend(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.BackendID.ValueString())
+	updateRequest := apiClient.BackendApi.UpdateBackend(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.BackendID.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createBackendOperationsDefault(plan, state)
+	ops := createBackendOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.BackendApi.UpdateBackendExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.BackendApi.UpdateBackendExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Backend", err, httpResp)
 			return
@@ -2904,46 +2607,46 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 
 		// Read the response
 		if plan.Type.ValueString() == "schema" {
-			readSchemaBackendResponseDefault(ctx, updateResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
+			readSchemaBackendResponse(ctx, updateResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "backup" {
-			readBackupBackendResponseDefault(ctx, updateResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
+			readBackupBackendResponse(ctx, updateResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "encryption-settings" {
-			readEncryptionSettingsBackendResponseDefault(ctx, updateResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
+			readEncryptionSettingsBackendResponse(ctx, updateResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "ldif" {
-			readLdifBackendResponseDefault(ctx, updateResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
+			readLdifBackendResponse(ctx, updateResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "trust-store" {
-			readTrustStoreBackendResponseDefault(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
+			readTrustStoreBackendResponse(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "custom" {
-			readCustomBackendResponseDefault(ctx, updateResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
+			readCustomBackendResponse(ctx, updateResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "changelog" {
-			readChangelogBackendResponseDefault(ctx, updateResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
+			readChangelogBackendResponse(ctx, updateResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "monitor" {
-			readMonitorBackendResponseDefault(ctx, updateResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
+			readMonitorBackendResponse(ctx, updateResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "local-db" {
-			readLocalDbBackendResponseDefault(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
+			readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "config-file-handler" {
-			readConfigFileHandlerBackendResponseDefault(ctx, updateResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
+			readConfigFileHandlerBackendResponse(ctx, updateResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "task" {
-			readTaskBackendResponseDefault(ctx, updateResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
+			readTaskBackendResponse(ctx, updateResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "alert" {
-			readAlertBackendResponseDefault(ctx, updateResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
+			readAlertBackendResponse(ctx, updateResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "alarm" {
-			readAlarmBackendResponseDefault(ctx, updateResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
+			readAlarmBackendResponse(ctx, updateResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "metrics" {
-			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
+			readMetricsBackendResponse(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

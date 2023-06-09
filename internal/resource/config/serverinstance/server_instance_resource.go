@@ -88,7 +88,7 @@ type serverInstanceResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *serverInstanceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Server Instance.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
@@ -118,10 +118,10 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "The name of the configuration object for a load-balancing algorithm that should include this server.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"server_instance_name": schema.StringAttribute{
 				Description: "The name of this Server Instance. The instance name needs to be unique if this server will be part of a topology of servers that are connected to each other. Once set, it may not be changed.",
@@ -231,10 +231,10 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "Specifies a unique identifier for the Directory Server within the replication domain.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.Int64Type,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.Int64Type,
 			},
 			"jmx_port": schema.Int64Attribute{
 				Description: "The TCP port on which this server is listening for JMX connections.",
@@ -272,24 +272,24 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "The set of base DNs under the root DSE.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"member_of_server_group": schema.SetAttribute{
 				Description: "The set of groups of which this server is a member.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	config.AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Validate that any restrictions are met in the plan
@@ -297,73 +297,89 @@ func (r *serverInstanceResource) ModifyPlan(ctx context.Context, req resource.Mo
 	var model serverInstanceResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.JmxPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'jmx_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'jmx_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.StartTLSEnabled) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'start_tls_enabled' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'start_tls_enabled' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ReplicationSetName) && model.Type.ValueString() != "directory" {
-		resp.Diagnostics.AddError("Attribute 'replication_set_name' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'replication_set_name' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.MemberOfServerGroup) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'member_of_server_group' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'member_of_server_group' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.HttpsPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'https_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'https_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.PreferredSecurity) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'preferred_security' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'preferred_security' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ReplicationPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'replication_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'replication_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.LoadBalancingAlgorithmName) && model.Type.ValueString() != "directory" {
-		resp.Diagnostics.AddError("Attribute 'load_balancing_algorithm_name' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'load_balancing_algorithm_name' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ServerRoot) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_root' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'server_root' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ReplicationDomainServerID) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'replication_domain_server_id' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'replication_domain_server_id' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ServerInstanceType) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_instance_type' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'server_instance_type' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.LdapsPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'ldaps_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'ldaps_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.BaseDN) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'base_dn' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'base_dn' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ClusterName) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'cluster_name' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'cluster_name' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.Hostname) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'hostname' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'hostname' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.HttpPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'http_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'http_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ServerInstanceLocation) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_instance_location' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'server_instance_location' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ReplicationServerID) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'replication_server_id' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'replication_server_id' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ServerVersion) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_version' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'server_version' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.LdapPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'ldap_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'ldap_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.ServerInstanceName) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_instance_name' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'server_instance_name' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.JmxsPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'jmxs_port' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'jmxs_port' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
 	}
 	if internaltypes.IsDefined(model.InterServerCertificate) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'inter_server_certificate' not supported by pingdirectory_default_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'inter_server_certificate' not supported by pingdirectory_server_instance resources with type '"+model.Type.ValueString()+"'", "")
+	}
+}
+
+// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
+func populateServerInstanceNilSets(ctx context.Context, model *serverInstanceResourceModel) {
+	if model.ReplicationDomainServerID.ElementType(ctx) == nil {
+		model.ReplicationDomainServerID = types.SetNull(types.Int64Type)
+	}
+	if model.BaseDN.ElementType(ctx) == nil {
+		model.BaseDN = types.SetNull(types.StringType)
+	}
+	if model.LoadBalancingAlgorithmName.ElementType(ctx) == nil {
+		model.LoadBalancingAlgorithmName = types.SetNull(types.StringType)
+	}
+	if model.MemberOfServerGroup.ElementType(ctx) == nil {
+		model.MemberOfServerGroup = types.SetNull(types.StringType)
 	}
 }
 
@@ -395,6 +411,7 @@ func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerI
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a MetricsEngineServerInstanceResponse object into the model struct
@@ -425,6 +442,7 @@ func readMetricsEngineServerInstanceResponse(ctx context.Context, r *client.Metr
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a AuthorizeServerInstanceResponse object into the model struct
@@ -455,6 +473,7 @@ func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.Authoriz
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a DirectoryServerInstanceResponse object into the model struct
@@ -487,6 +506,7 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a SyncServerInstanceResponse object into the model struct
@@ -517,6 +537,7 @@ func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerIns
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

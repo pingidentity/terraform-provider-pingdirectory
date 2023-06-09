@@ -120,8 +120,8 @@ func (r *defaultGaugeResource) Schema(ctx context.Context, req resource.SchemaRe
 	gaugeSchema(ctx, req, resp, true)
 }
 
-func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Gauge.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
@@ -243,19 +243,19 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Description: "Specifies set of resources to be monitored.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"exclude_resource": schema.SetAttribute{
 				Description: "Specifies resources to exclude from being monitored.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"server_unavailable_severity_level": schema.StringAttribute{
 				Description: "Specifies the alarm severity level at or above which the server is considered unavailable.",
@@ -275,11 +275,12 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 			},
 		},
 	}
-	if setOptionalToComputed {
-		config.SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	config.AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	config.AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Validate that any restrictions are met in the plan
@@ -756,10 +757,10 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 
 		// Read the response
 		if plan.Type.ValueString() == "indicator" {
-			readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
+			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "numeric" {
-			readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
+			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

@@ -107,8 +107,8 @@ func (r *defaultDebugTargetResource) Schema(ctx context.Context, req resource.Sc
 	debugTargetSchema(ctx, req, resp, true)
 }
 
-func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Debug Target.",
 		Attributes: map[string]schema.Attribute{
 			"log_publisher_name": schema.StringAttribute{
@@ -176,11 +176,12 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"debug_scope", "log_publisher_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"debug_scope", "log_publisher_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Add optional fields to create request for debug-target debug-target
