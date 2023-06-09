@@ -154,7 +154,7 @@ type globalConfigurationResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Global Configuration.",
 		Attributes: map[string]schema.Attribute{
 			"instance_name": schema.StringAttribute{
@@ -257,10 +257,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"reject_insecure_requests": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should reject any LDAP request (other than StartTLS) received from a client that is not using an encrypted connection.",
@@ -306,10 +306,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the name of a privilege that should not be evaluated by the server.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"default_password_policy": schema.StringAttribute{
 				Description: "Specifies the name of the password policy that is in effect for users whose entries do not specify an alternate password policy (either via a real or virtual attribute).",
@@ -347,10 +347,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies a set of TLS protocols that will be permitted for use in the server even though there may be known vulnerabilities that could cause their use to be unsafe in some conditions. Enabling support for insecure TLS protocols is discouraged, and is generally recommended only as a short-term measure to permit legacy clients to interact with the server until they can be updated to support more secure communication protocols.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allow_insecure_local_jmx_connections": schema.BoolAttribute{
 				Description: "Indicates that processes attaching to this server's local JVM are allowed to access internal data through JMX without the authentication requirements that remote JMX connections are subject to. Please review and understand the data that this option will expose (such as cn=monitor) to client applications to ensure there are no security concerns.",
@@ -516,10 +516,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies a set of attribute types for which the server will permit values that do not conform to the associated attribute syntax.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"single_structural_objectclass_behavior": schema.StringAttribute{
 				Description: "Specifies how the Directory Server should handle operations for an entry does not contain a structural object class, or for an entry that contains multiple structural classes.",
@@ -533,10 +533,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the operational attribute types that are defined in the schema with the NO-USER-MODIFICATION constraint that the server will allow to be altered if the associated request contains the ignore NO-USER-MODIFICATION request control.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"maximum_server_out_log_file_size": schema.StringAttribute{
 				Description: "The maximum allowed size that the server.out log file will be allowed to have. If a write would cause the file to exceed this size, then the current file will be rotated out of place and a new empty file will be created and the message written to it.",
@@ -782,10 +782,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the set of servers that will be used to send email messages. The order in which the servers are listed indicates the order in which the Directory Server will attempt to use them in the course of sending a message. The first attempt will always go to the server at the top of the list, and servers further down the list will only be used if none of the servers listed above it were able to successfully send the message.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"max_smtp_connection_count": schema.Int64Attribute{
 				Description: "The maximum number of SMTP connections that will be maintained for delivering email messages.",
@@ -815,10 +815,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies the fully-qualified name of a Java class that may be invoked in the server.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"enable_sub_operation_timer": schema.BoolAttribute{
 				Description: "Indicates whether the Directory Server should attempt to record information about the length of time required to process various phases of an operation. Enabling this feature may impact performance, but could make it easier to identify potential bottlenecks in operation processing.",
@@ -856,10 +856,10 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 				Description: "Specifies criteria for identifying specific applications that access the server to enable tracking throughput and latency of LDAP operations issued by an application.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"jmx_value_behavior": schema.StringAttribute{
 				Description: "Specifies how a Java type is chosen for monitor attributes exposed as JMX attribute values.",
@@ -879,8 +879,8 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Validate that any restrictions are met in the plan
