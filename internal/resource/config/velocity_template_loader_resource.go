@@ -95,6 +95,20 @@ type velocityTemplateLoaderResourceModel struct {
 	TemplateDirectory        types.String `tfsdk:"template_directory"`
 }
 
+type defaultVelocityTemplateLoaderResourceModel struct {
+	Id                       types.String `tfsdk:"id"`
+	LastUpdated              types.String `tfsdk:"last_updated"`
+	Notifications            types.Set    `tfsdk:"notifications"`
+	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
+	Enabled                  types.Bool   `tfsdk:"enabled"`
+	EvaluationOrderIndex     types.Int64  `tfsdk:"evaluation_order_index"`
+	MimeTypeMatcher          types.String `tfsdk:"mime_type_matcher"`
+	MimeType                 types.String `tfsdk:"mime_type"`
+	TemplateSuffix           types.String `tfsdk:"template_suffix"`
+	TemplateDirectory        types.String `tfsdk:"template_directory"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *velocityTemplateLoaderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	velocityTemplateLoaderSchema(ctx, req, resp, false)
@@ -104,8 +118,8 @@ func (r *defaultVelocityTemplateLoaderResource) Schema(ctx context.Context, req 
 	velocityTemplateLoaderSchema(ctx, req, resp, true)
 }
 
-func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Velocity Template Loader.",
 		Attributes: map[string]schema.Attribute{
 			"http_servlet_extension_name": schema.StringAttribute{
@@ -157,14 +171,19 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id", "http_servlet_extension_name"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"velocity-template-loader"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "http_servlet_extension_name"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for velocity-template-loader velocity-template-loader
 func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *client.AddVelocityTemplateLoaderRequest, plan velocityTemplateLoaderResourceModel) {
 	if internaltypes.IsDefined(plan.Enabled) {
 		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
@@ -199,6 +218,19 @@ func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityT
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a VelocityTemplateLoaderResponse object into the model struct
+func readVelocityTemplateLoaderResponseDefault(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *defaultVelocityTemplateLoaderResourceModel, expectedValues *defaultVelocityTemplateLoaderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
+	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
+	state.MimeTypeMatcher = types.StringValue(r.MimeTypeMatcher)
+	state.MimeType = internaltypes.StringTypeOrNil(r.MimeType, internaltypes.IsEmptyString(expectedValues.MimeType))
+	state.TemplateSuffix = internaltypes.StringTypeOrNil(r.TemplateSuffix, internaltypes.IsEmptyString(expectedValues.TemplateSuffix))
+	state.TemplateDirectory = internaltypes.StringTypeOrNil(r.TemplateDirectory, internaltypes.IsEmptyString(expectedValues.TemplateDirectory))
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createVelocityTemplateLoaderOperations(plan velocityTemplateLoaderResourceModel, state velocityTemplateLoaderResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -211,16 +243,20 @@ func createVelocityTemplateLoaderOperations(plan velocityTemplateLoaderResourceM
 	return ops
 }
 
-// Create a new resource
-func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan velocityTemplateLoaderResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createVelocityTemplateLoaderOperationsDefault(plan defaultVelocityTemplateLoaderResourceModel, state defaultVelocityTemplateLoaderResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddInt64OperationIfNecessary(&ops, plan.EvaluationOrderIndex, state.EvaluationOrderIndex, "evaluation-order-index")
+	operations.AddStringOperationIfNecessary(&ops, plan.MimeTypeMatcher, state.MimeTypeMatcher, "mime-type-matcher")
+	operations.AddStringOperationIfNecessary(&ops, plan.MimeType, state.MimeType, "mime-type")
+	operations.AddStringOperationIfNecessary(&ops, plan.TemplateSuffix, state.TemplateSuffix, "template-suffix")
+	operations.AddStringOperationIfNecessary(&ops, plan.TemplateDirectory, state.TemplateDirectory, "template-directory")
+	return ops
+}
 
+// Create a velocity-template-loader velocity-template-loader
+func (r *velocityTemplateLoaderResource) CreateVelocityTemplateLoader(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityTemplateLoaderResourceModel) (*velocityTemplateLoaderResourceModel, error) {
 	addRequest := client.NewAddVelocityTemplateLoaderRequest(plan.Id.ValueString(),
 		plan.MimeTypeMatcher.ValueString())
 	addOptionalVelocityTemplateLoaderFields(ctx, addRequest, plan)
@@ -236,7 +272,7 @@ func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resourc
 	addResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.AddVelocityTemplateLoaderExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Velocity Template Loader", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -248,12 +284,29 @@ func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resourc
 	// Read the response into the state
 	var state velocityTemplateLoaderResourceModel
 	readVelocityTemplateLoaderResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan velocityTemplateLoaderResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateVelocityTemplateLoader(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -266,7 +319,7 @@ func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resourc
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan velocityTemplateLoaderResourceModel
+	var plan defaultVelocityTemplateLoaderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -287,12 +340,12 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 	}
 
 	// Read the existing configuration
-	var state velocityTemplateLoaderResourceModel
-	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultVelocityTemplateLoaderResourceModel
+	readVelocityTemplateLoaderResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
-	ops := createVelocityTemplateLoaderOperations(plan, state)
+	ops := createVelocityTemplateLoaderOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -311,7 +364,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 		}
 
 		// Read the response
-		readVelocityTemplateLoaderResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readVelocityTemplateLoaderResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -325,14 +378,6 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 
 // Read resource information
 func (r *velocityTemplateLoaderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultVelocityTemplateLoaderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state velocityTemplateLoaderResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -341,8 +386,8 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
-		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
 		return
@@ -365,16 +410,41 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 	}
 }
 
+func (r *defaultVelocityTemplateLoaderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultVelocityTemplateLoaderResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readVelocityTemplateLoaderResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *velocityTemplateLoaderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultVelocityTemplateLoaderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateVelocityTemplateLoader(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan velocityTemplateLoaderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -386,8 +456,8 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 	// Get the current state to see how any attributes are changing
 	var state velocityTemplateLoaderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
+	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createVelocityTemplateLoaderOperations(plan, state)
@@ -396,7 +466,7 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoaderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoaderExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Velocity Template Loader", err, httpResp)
 			return
@@ -410,6 +480,55 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 
 		// Read the response
 		readVelocityTemplateLoaderResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultVelocityTemplateLoaderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultVelocityTemplateLoaderResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultVelocityTemplateLoaderResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createVelocityTemplateLoaderOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoaderExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Velocity Template Loader", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readVelocityTemplateLoaderResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

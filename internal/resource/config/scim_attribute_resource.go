@@ -99,6 +99,24 @@ type scimAttributeResourceModel struct {
 	ReferenceType   types.Set    `tfsdk:"reference_type"`
 }
 
+type defaultScimAttributeResourceModel struct {
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+	ScimSchemaName  types.String `tfsdk:"scim_schema_name"`
+	Description     types.String `tfsdk:"description"`
+	Name            types.String `tfsdk:"name"`
+	Type            types.String `tfsdk:"type"`
+	Required        types.Bool   `tfsdk:"required"`
+	CaseExact       types.Bool   `tfsdk:"case_exact"`
+	MultiValued     types.Bool   `tfsdk:"multi_valued"`
+	CanonicalValue  types.Set    `tfsdk:"canonical_value"`
+	Mutability      types.String `tfsdk:"mutability"`
+	Returned        types.String `tfsdk:"returned"`
+	ReferenceType   types.Set    `tfsdk:"reference_type"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *scimAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	scimAttributeSchema(ctx, req, resp, false)
@@ -108,8 +126,8 @@ func (r *defaultScimAttributeResource) Schema(ctx context.Context, req resource.
 	scimAttributeSchema(ctx, req, resp, true)
 }
 
-func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Scim Attribute.",
 		Attributes: map[string]schema.Attribute{
 			"scim_schema_name": schema.StringAttribute{
@@ -166,10 +184,10 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the suggested canonical type values for the attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"mutability": schema.StringAttribute{
 				Description: "Specifies the circumstances under which the values of the attribute can be written.",
@@ -191,21 +209,26 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the SCIM resource types that may be referenced. This property is only applicable for attributes that are of type 'reference'. Valid values are: A SCIM resource type (e.g., 'User' or 'Group'), 'external' - indicating the resource is an external resource (e.g., such as a photo), or 'uri' - indicating that the reference is to a service endpoint or an identifier (such as a schema urn).",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"name", "scim_schema_name"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"scim-attribute"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"name", "scim_schema_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for scim-attribute scim-attribute
 func addOptionalScimAttributeFields(ctx context.Context, addRequest *client.AddScimAttributeRequest, plan scimAttributeResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -274,6 +297,23 @@ func readScimAttributeResponse(ctx context.Context, r *client.ScimAttributeRespo
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a ScimAttributeResponse object into the model struct
+func readScimAttributeResponseDefault(ctx context.Context, r *client.ScimAttributeResponse, state *defaultScimAttributeResourceModel, expectedValues *defaultScimAttributeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.ScimSchemaName = expectedValues.ScimSchemaName
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Name = types.StringValue(r.Name)
+	state.Type = types.StringValue(r.Type.String())
+	state.Required = types.BoolValue(r.Required)
+	state.CaseExact = types.BoolValue(r.CaseExact)
+	state.MultiValued = types.BoolValue(r.MultiValued)
+	state.CanonicalValue = internaltypes.GetStringSet(r.CanonicalValue)
+	state.Mutability = types.StringValue(r.Mutability.String())
+	state.Returned = types.StringValue(r.Returned.String())
+	state.ReferenceType = internaltypes.GetStringSet(r.ReferenceType)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createScimAttributeOperations(plan scimAttributeResourceModel, state scimAttributeResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -290,22 +330,30 @@ func createScimAttributeOperations(plan scimAttributeResourceModel, state scimAt
 	return ops
 }
 
-// Create a new resource
-func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan scimAttributeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createScimAttributeOperationsDefault(plan defaultScimAttributeResourceModel, state defaultScimAttributeResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddStringOperationIfNecessary(&ops, plan.Name, state.Name, "name")
+	operations.AddStringOperationIfNecessary(&ops, plan.Type, state.Type, "type")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Required, state.Required, "required")
+	operations.AddBoolOperationIfNecessary(&ops, plan.CaseExact, state.CaseExact, "case-exact")
+	operations.AddBoolOperationIfNecessary(&ops, plan.MultiValued, state.MultiValued, "multi-valued")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.CanonicalValue, state.CanonicalValue, "canonical-value")
+	operations.AddStringOperationIfNecessary(&ops, plan.Mutability, state.Mutability, "mutability")
+	operations.AddStringOperationIfNecessary(&ops, plan.Returned, state.Returned, "returned")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.ReferenceType, state.ReferenceType, "reference-type")
+	return ops
+}
 
+// Create a scim-attribute scim-attribute
+func (r *scimAttributeResource) CreateScimAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimAttributeResourceModel) (*scimAttributeResourceModel, error) {
 	addRequest := client.NewAddScimAttributeRequest(plan.Name.ValueString(),
 		plan.Name.ValueString())
 	err := addOptionalScimAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Attribute", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -319,7 +367,7 @@ func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateR
 	addResponse, httpResp, err := r.apiClient.ScimAttributeApi.AddScimAttributeExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Attribute", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -331,12 +379,29 @@ func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateR
 	// Read the response into the state
 	var state scimAttributeResourceModel
 	readScimAttributeResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan scimAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateScimAttribute(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -349,7 +414,7 @@ func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateR
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan scimAttributeResourceModel
+	var plan defaultScimAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -370,12 +435,12 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 	}
 
 	// Read the existing configuration
-	var state scimAttributeResourceModel
-	readScimAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultScimAttributeResourceModel
+	readScimAttributeResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ScimAttributeApi.UpdateScimAttribute(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
-	ops := createScimAttributeOperations(plan, state)
+	ops := createScimAttributeOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -394,7 +459,7 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 		}
 
 		// Read the response
-		readScimAttributeResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readScimAttributeResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -408,14 +473,6 @@ func (r *defaultScimAttributeResource) Create(ctx context.Context, req resource.
 
 // Read resource information
 func (r *scimAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultScimAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state scimAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -424,8 +481,8 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ScimAttributeApi.GetScimAttribute(
-		ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.ScimAttributeApi.GetScimAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
 		return
@@ -448,16 +505,41 @@ func readScimAttribute(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 }
 
+func (r *defaultScimAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultScimAttributeResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ScimAttributeApi.GetScimAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimSchemaName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readScimAttributeResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *scimAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultScimAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateScimAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateScimAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan scimAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -469,8 +551,8 @@ func updateScimAttribute(ctx context.Context, req resource.UpdateRequest, resp *
 	// Get the current state to see how any attributes are changing
 	var state scimAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ScimAttributeApi.UpdateScimAttribute(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
+	updateRequest := r.apiClient.ScimAttributeApi.UpdateScimAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createScimAttributeOperations(plan, state)
@@ -479,7 +561,7 @@ func updateScimAttribute(ctx context.Context, req resource.UpdateRequest, resp *
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ScimAttributeApi.UpdateScimAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ScimAttributeApi.UpdateScimAttributeExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Attribute", err, httpResp)
 			return
@@ -493,6 +575,55 @@ func updateScimAttribute(ctx context.Context, req resource.UpdateRequest, resp *
 
 		// Read the response
 		readScimAttributeResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultScimAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultScimAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultScimAttributeResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.ScimAttributeApi.UpdateScimAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimSchemaName.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createScimAttributeOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ScimAttributeApi.UpdateScimAttributeExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readScimAttributeResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

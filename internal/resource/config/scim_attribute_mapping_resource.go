@@ -95,6 +95,21 @@ type scimAttributeMappingResourceModel struct {
 	Authoritative             types.Bool   `tfsdk:"authoritative"`
 }
 
+type defaultScimAttributeMappingResourceModel struct {
+	Id                        types.String `tfsdk:"id"`
+	LastUpdated               types.String `tfsdk:"last_updated"`
+	Notifications             types.Set    `tfsdk:"notifications"`
+	RequiredActions           types.Set    `tfsdk:"required_actions"`
+	ScimResourceTypeName      types.String `tfsdk:"scim_resource_type_name"`
+	CorrelatedLDAPDataView    types.String `tfsdk:"correlated_ldap_data_view"`
+	ScimResourceTypeAttribute types.String `tfsdk:"scim_resource_type_attribute"`
+	LdapAttribute             types.String `tfsdk:"ldap_attribute"`
+	Readable                  types.Bool   `tfsdk:"readable"`
+	Writable                  types.Bool   `tfsdk:"writable"`
+	Searchable                types.Bool   `tfsdk:"searchable"`
+	Authoritative             types.Bool   `tfsdk:"authoritative"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *scimAttributeMappingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	scimAttributeMappingSchema(ctx, req, resp, false)
@@ -104,8 +119,8 @@ func (r *defaultScimAttributeMappingResource) Schema(ctx context.Context, req re
 	scimAttributeMappingSchema(ctx, req, resp, true)
 }
 
-func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Scim Attribute Mapping.",
 		Attributes: map[string]schema.Attribute{
 			"scim_resource_type_name": schema.StringAttribute{
@@ -165,14 +180,19 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id", "scim_resource_type_name"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"scim-attribute-mapping"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "scim_resource_type_name"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for scim-attribute-mapping scim-attribute-mapping
 func addOptionalScimAttributeMappingFields(ctx context.Context, addRequest *client.AddScimAttributeMappingRequest, plan scimAttributeMappingResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.CorrelatedLDAPDataView) {
@@ -206,6 +226,20 @@ func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttribu
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a ScimAttributeMappingResponse object into the model struct
+func readScimAttributeMappingResponseDefault(ctx context.Context, r *client.ScimAttributeMappingResponse, state *defaultScimAttributeMappingResourceModel, expectedValues *defaultScimAttributeMappingResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
+	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, internaltypes.IsEmptyString(expectedValues.CorrelatedLDAPDataView))
+	state.ScimResourceTypeAttribute = types.StringValue(r.ScimResourceTypeAttribute)
+	state.LdapAttribute = types.StringValue(r.LdapAttribute)
+	state.Readable = internaltypes.BoolTypeOrNil(r.Readable)
+	state.Writable = internaltypes.BoolTypeOrNil(r.Writable)
+	state.Searchable = internaltypes.BoolTypeOrNil(r.Searchable)
+	state.Authoritative = internaltypes.BoolTypeOrNil(r.Authoritative)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createScimAttributeMappingOperations(plan scimAttributeMappingResourceModel, state scimAttributeMappingResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -219,16 +253,21 @@ func createScimAttributeMappingOperations(plan scimAttributeMappingResourceModel
 	return ops
 }
 
-// Create a new resource
-func (r *scimAttributeMappingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan scimAttributeMappingResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createScimAttributeMappingOperationsDefault(plan defaultScimAttributeMappingResourceModel, state defaultScimAttributeMappingResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.CorrelatedLDAPDataView, state.CorrelatedLDAPDataView, "correlated-ldap-data-view")
+	operations.AddStringOperationIfNecessary(&ops, plan.ScimResourceTypeAttribute, state.ScimResourceTypeAttribute, "scim-resource-type-attribute")
+	operations.AddStringOperationIfNecessary(&ops, plan.LdapAttribute, state.LdapAttribute, "ldap-attribute")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Readable, state.Readable, "readable")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Writable, state.Writable, "writable")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Searchable, state.Searchable, "searchable")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Authoritative, state.Authoritative, "authoritative")
+	return ops
+}
 
+// Create a scim-attribute-mapping scim-attribute-mapping
+func (r *scimAttributeMappingResource) CreateScimAttributeMapping(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimAttributeMappingResourceModel) (*scimAttributeMappingResourceModel, error) {
 	addRequest := client.NewAddScimAttributeMappingRequest(plan.Id.ValueString(),
 		plan.ScimResourceTypeAttribute.ValueString(),
 		plan.LdapAttribute.ValueString())
@@ -245,7 +284,7 @@ func (r *scimAttributeMappingResource) Create(ctx context.Context, req resource.
 	addResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.AddScimAttributeMappingExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Attribute Mapping", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -257,12 +296,29 @@ func (r *scimAttributeMappingResource) Create(ctx context.Context, req resource.
 	// Read the response into the state
 	var state scimAttributeMappingResourceModel
 	readScimAttributeMappingResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *scimAttributeMappingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan scimAttributeMappingResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateScimAttributeMapping(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -275,7 +331,7 @@ func (r *scimAttributeMappingResource) Create(ctx context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan scimAttributeMappingResourceModel
+	var plan defaultScimAttributeMappingResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -296,12 +352,12 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 	}
 
 	// Read the existing configuration
-	var state scimAttributeMappingResourceModel
-	readScimAttributeMappingResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultScimAttributeMappingResourceModel
+	readScimAttributeMappingResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
-	ops := createScimAttributeMappingOperations(plan, state)
+	ops := createScimAttributeMappingOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -320,7 +376,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		readScimAttributeMappingResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readScimAttributeMappingResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -334,14 +390,6 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 
 // Read resource information
 func (r *scimAttributeMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimAttributeMapping(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultScimAttributeMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readScimAttributeMapping(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state scimAttributeMappingResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -350,8 +398,8 @@ func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
-		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute Mapping", err, httpResp)
 		return
@@ -374,16 +422,41 @@ func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, res
 	}
 }
 
+func (r *defaultScimAttributeMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultScimAttributeMappingResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute Mapping", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readScimAttributeMappingResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *scimAttributeMappingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateScimAttributeMapping(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultScimAttributeMappingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateScimAttributeMapping(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateScimAttributeMapping(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan scimAttributeMappingResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -395,8 +468,8 @@ func updateScimAttributeMapping(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state scimAttributeMappingResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
+	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createScimAttributeMappingOperations(plan, state)
@@ -405,7 +478,7 @@ func updateScimAttributeMapping(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ScimAttributeMappingApi.UpdateScimAttributeMappingExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMappingExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Attribute Mapping", err, httpResp)
 			return
@@ -419,6 +492,55 @@ func updateScimAttributeMapping(ctx context.Context, req resource.UpdateRequest,
 
 		// Read the response
 		readScimAttributeMappingResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultScimAttributeMappingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultScimAttributeMappingResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultScimAttributeMappingResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createScimAttributeMappingOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMappingExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Attribute Mapping", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readScimAttributeMappingResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

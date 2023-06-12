@@ -86,6 +86,16 @@ type constructedAttributeResourceModel struct {
 	ValuePattern    types.Set    `tfsdk:"value_pattern"`
 }
 
+type defaultConstructedAttributeResourceModel struct {
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Description     types.String `tfsdk:"description"`
+	AttributeType   types.String `tfsdk:"attribute_type"`
+	ValuePattern    types.Set    `tfsdk:"value_pattern"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *constructedAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	constructedAttributeSchema(ctx, req, resp, false)
@@ -95,8 +105,8 @@ func (r *defaultConstructedAttributeResource) Schema(ctx context.Context, req re
 	constructedAttributeSchema(ctx, req, resp, true)
 }
 
-func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Constructed Attribute.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -114,14 +124,19 @@ func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"constructed-attribute"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for constructed-attribute constructed-attribute
 func addOptionalConstructedAttributeFields(ctx context.Context, addRequest *client.AddConstructedAttributeRequest, plan constructedAttributeResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -138,6 +153,15 @@ func readConstructedAttributeResponse(ctx context.Context, r *client.Constructed
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a ConstructedAttributeResponse object into the model struct
+func readConstructedAttributeResponseDefault(ctx context.Context, r *client.ConstructedAttributeResponse, state *defaultConstructedAttributeResourceModel, expectedValues *defaultConstructedAttributeResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createConstructedAttributeOperations(plan constructedAttributeResourceModel, state constructedAttributeResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -147,16 +171,17 @@ func createConstructedAttributeOperations(plan constructedAttributeResourceModel
 	return ops
 }
 
-// Create a new resource
-func (r *constructedAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan constructedAttributeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createConstructedAttributeOperationsDefault(plan defaultConstructedAttributeResourceModel, state defaultConstructedAttributeResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddStringOperationIfNecessary(&ops, plan.AttributeType, state.AttributeType, "attribute-type")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.ValuePattern, state.ValuePattern, "value-pattern")
+	return ops
+}
 
+// Create a constructed-attribute constructed-attribute
+func (r *constructedAttributeResource) CreateConstructedAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan constructedAttributeResourceModel) (*constructedAttributeResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
 	addRequest := client.NewAddConstructedAttributeRequest(plan.Id.ValueString(),
@@ -175,7 +200,7 @@ func (r *constructedAttributeResource) Create(ctx context.Context, req resource.
 	addResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.AddConstructedAttributeExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Constructed Attribute", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -187,12 +212,29 @@ func (r *constructedAttributeResource) Create(ctx context.Context, req resource.
 	// Read the response into the state
 	var state constructedAttributeResourceModel
 	readConstructedAttributeResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *constructedAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan constructedAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateConstructedAttribute(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -205,7 +247,7 @@ func (r *constructedAttributeResource) Create(ctx context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan constructedAttributeResourceModel
+	var plan defaultConstructedAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -226,12 +268,12 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 	}
 
 	// Read the existing configuration
-	var state constructedAttributeResourceModel
-	readConstructedAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultConstructedAttributeResourceModel
+	readConstructedAttributeResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createConstructedAttributeOperations(plan, state)
+	ops := createConstructedAttributeOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -250,7 +292,7 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		readConstructedAttributeResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readConstructedAttributeResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -264,14 +306,6 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 
 // Read resource information
 func (r *constructedAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readConstructedAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultConstructedAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readConstructedAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state constructedAttributeResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -280,8 +314,8 @@ func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConstructedAttributeApi.GetConstructedAttribute(
-		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.GetConstructedAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
 		return
@@ -304,16 +338,41 @@ func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, res
 	}
 }
 
+func (r *defaultConstructedAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultConstructedAttributeResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.GetConstructedAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readConstructedAttributeResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *constructedAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateConstructedAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultConstructedAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateConstructedAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan constructedAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -325,8 +384,8 @@ func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest,
 	// Get the current state to see how any attributes are changing
 	var state constructedAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConstructedAttributeOperations(plan, state)
@@ -335,7 +394,7 @@ func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest,
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConstructedAttributeApi.UpdateConstructedAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttributeExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Constructed Attribute", err, httpResp)
 			return
@@ -349,6 +408,55 @@ func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest,
 
 		// Read the response
 		readConstructedAttributeResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultConstructedAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultConstructedAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultConstructedAttributeResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createConstructedAttributeOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttributeExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Constructed Attribute", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readConstructedAttributeResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

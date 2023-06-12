@@ -1,0 +1,671 @@
+package logfilerotationlistener
+
+import (
+	"context"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
+	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+)
+
+// Ensure the implementation satisfies the expected interfaces.
+var (
+	_ resource.Resource                = &logFileRotationListenerResource{}
+	_ resource.ResourceWithConfigure   = &logFileRotationListenerResource{}
+	_ resource.ResourceWithImportState = &logFileRotationListenerResource{}
+	_ resource.Resource                = &defaultLogFileRotationListenerResource{}
+	_ resource.ResourceWithConfigure   = &defaultLogFileRotationListenerResource{}
+	_ resource.ResourceWithImportState = &defaultLogFileRotationListenerResource{}
+)
+
+// Create a Log File Rotation Listener resource
+func NewLogFileRotationListenerResource() resource.Resource {
+	return &logFileRotationListenerResource{}
+}
+
+func NewDefaultLogFileRotationListenerResource() resource.Resource {
+	return &defaultLogFileRotationListenerResource{}
+}
+
+// logFileRotationListenerResource is the resource implementation.
+type logFileRotationListenerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// defaultLogFileRotationListenerResource is the resource implementation.
+type defaultLogFileRotationListenerResource struct {
+	providerConfig internaltypes.ProviderConfiguration
+	apiClient      *client.APIClient
+}
+
+// Metadata returns the resource type name.
+func (r *logFileRotationListenerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_log_file_rotation_listener"
+}
+
+func (r *defaultLogFileRotationListenerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_default_log_file_rotation_listener"
+}
+
+// Configure adds the provider configured client to the resource.
+func (r *logFileRotationListenerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClientV9200
+}
+
+func (r *defaultLogFileRotationListenerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
+	r.providerConfig = providerCfg.ProviderConfig
+	r.apiClient = providerCfg.ApiClientV9200
+}
+
+type logFileRotationListenerResourceModel struct {
+	Id                types.String `tfsdk:"id"`
+	LastUpdated       types.String `tfsdk:"last_updated"`
+	Notifications     types.Set    `tfsdk:"notifications"`
+	RequiredActions   types.Set    `tfsdk:"required_actions"`
+	Type              types.String `tfsdk:"type"`
+	ExtensionClass    types.String `tfsdk:"extension_class"`
+	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
+	CopyToDirectory   types.String `tfsdk:"copy_to_directory"`
+	CompressOnCopy    types.Bool   `tfsdk:"compress_on_copy"`
+	OutputDirectory   types.String `tfsdk:"output_directory"`
+	Description       types.String `tfsdk:"description"`
+	Enabled           types.Bool   `tfsdk:"enabled"`
+}
+
+// GetSchema defines the schema for the resource.
+func (r *logFileRotationListenerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	logFileRotationListenerSchema(ctx, req, resp, false)
+}
+
+func (r *defaultLogFileRotationListenerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	logFileRotationListenerSchema(ctx, req, resp, true)
+}
+
+func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
+		Description: "Manages a Log File Rotation Listener.",
+		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']",
+				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"summarize", "copy", "third-party"}...),
+				},
+			},
+			"extension_class": schema.StringAttribute{
+				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Log File Rotation Listener.",
+				Optional:    true,
+			},
+			"extension_argument": schema.SetAttribute{
+				Description: "The set of arguments used to customize the behavior for the Third Party Log File Rotation Listener. Each configuration property should be given in the form 'name=value'.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"copy_to_directory": schema.StringAttribute{
+				Description: "The path to the directory to which log files should be copied. It must be different from the directory to which the log file is originally written, and administrators should ensure that the filesystem has sufficient space to hold files as they are copied.",
+				Optional:    true,
+			},
+			"compress_on_copy": schema.BoolAttribute{
+				Description: "Indicates whether the file should be gzip-compressed as it is copied into the destination directory.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"output_directory": schema.StringAttribute{
+				Description: "The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.",
+				Optional:    true,
+			},
+			"description": schema.StringAttribute{
+				Description: "A description for this Log File Rotation Listener",
+				Optional:    true,
+			},
+			"enabled": schema.BoolAttribute{
+				Description: "Indicates whether the Log File Rotation Listener is enabled for use.",
+				Required:    true,
+			},
+		},
+	}
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+	}
+	config.AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan
+func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLogFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanLogFileRotationListener(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	var model logFileRotationListenerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.OutputDirectory) && model.Type.ValueString() != "summarize" {
+		resp.Diagnostics.AddError("Attribute 'output_directory' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'output_directory', the 'type' attribute must be one of ['summarize']")
+	}
+	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
+		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
+	}
+	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
+		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
+	}
+	if internaltypes.IsDefined(model.CompressOnCopy) && model.Type.ValueString() != "copy" {
+		resp.Diagnostics.AddError("Attribute 'compress_on_copy' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'compress_on_copy', the 'type' attribute must be one of ['copy']")
+	}
+	if internaltypes.IsDefined(model.CopyToDirectory) && model.Type.ValueString() != "copy" {
+		resp.Diagnostics.AddError("Attribute 'copy_to_directory' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'copy_to_directory', the 'type' attribute must be one of ['copy']")
+	}
+}
+
+// Add optional fields to create request for summarize log-file-rotation-listener
+func addOptionalSummarizeLogFileRotationListenerFields(ctx context.Context, addRequest *client.AddSummarizeLogFileRotationListenerRequest, plan logFileRotationListenerResourceModel) {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.OutputDirectory) {
+		addRequest.OutputDirectory = plan.OutputDirectory.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
+// Add optional fields to create request for copy log-file-rotation-listener
+func addOptionalCopyLogFileRotationListenerFields(ctx context.Context, addRequest *client.AddCopyLogFileRotationListenerRequest, plan logFileRotationListenerResourceModel) {
+	if internaltypes.IsDefined(plan.CompressOnCopy) {
+		addRequest.CompressOnCopy = plan.CompressOnCopy.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
+// Add optional fields to create request for third-party log-file-rotation-listener
+func addOptionalThirdPartyLogFileRotationListenerFields(ctx context.Context, addRequest *client.AddThirdPartyLogFileRotationListenerRequest, plan logFileRotationListenerResourceModel) {
+	if internaltypes.IsDefined(plan.ExtensionArgument) {
+		var slice []string
+		plan.ExtensionArgument.ElementsAs(ctx, &slice, false)
+		addRequest.ExtensionArgument = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+}
+
+// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
+func populateLogFileRotationListenerNilSets(ctx context.Context, model *logFileRotationListenerResourceModel) {
+	if model.ExtensionArgument.ElementType(ctx) == nil {
+		model.ExtensionArgument = types.SetNull(types.StringType)
+	}
+}
+
+// Read a SummarizeLogFileRotationListenerResponse object into the model struct
+func readSummarizeLogFileRotationListenerResponse(ctx context.Context, r *client.SummarizeLogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("summarize")
+	state.Id = types.StringValue(r.Id)
+	state.OutputDirectory = internaltypes.StringTypeOrNil(r.OutputDirectory, internaltypes.IsEmptyString(expectedValues.OutputDirectory))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateLogFileRotationListenerNilSets(ctx, state)
+}
+
+// Read a CopyLogFileRotationListenerResponse object into the model struct
+func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.CopyLogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("copy")
+	state.Id = types.StringValue(r.Id)
+	state.CopyToDirectory = types.StringValue(r.CopyToDirectory)
+	state.CompressOnCopy = internaltypes.BoolTypeOrNil(r.CompressOnCopy)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateLogFileRotationListenerNilSets(ctx, state)
+}
+
+// Read a ThirdPartyLogFileRotationListenerResponse object into the model struct
+func readThirdPartyLogFileRotationListenerResponse(ctx context.Context, r *client.ThirdPartyLogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("third-party")
+	state.Id = types.StringValue(r.Id)
+	state.ExtensionClass = types.StringValue(r.ExtensionClass)
+	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateLogFileRotationListenerNilSets(ctx, state)
+}
+
+// Create any update operations necessary to make the state match the plan
+func createLogFileRotationListenerOperations(plan logFileRotationListenerResourceModel, state logFileRotationListenerResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
+	operations.AddStringOperationIfNecessary(&ops, plan.CopyToDirectory, state.CopyToDirectory, "copy-to-directory")
+	operations.AddBoolOperationIfNecessary(&ops, plan.CompressOnCopy, state.CompressOnCopy, "compress-on-copy")
+	operations.AddStringOperationIfNecessary(&ops, plan.OutputDirectory, state.OutputDirectory, "output-directory")
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	return ops
+}
+
+// Create a summarize log-file-rotation-listener
+func (r *logFileRotationListenerResource) CreateSummarizeLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
+	addRequest := client.NewAddSummarizeLogFileRotationListenerRequest(plan.Id.ValueString(),
+		[]client.EnumsummarizeLogFileRotationListenerSchemaUrn{client.ENUMSUMMARIZELOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERSUMMARIZE},
+		plan.Enabled.ValueBool())
+	addOptionalSummarizeLogFileRotationListenerFields(ctx, addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
+		client.AddSummarizeLogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListenerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state logFileRotationListenerResourceModel
+	readSummarizeLogFileRotationListenerResponse(ctx, addResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a copy log-file-rotation-listener
+func (r *logFileRotationListenerResource) CreateCopyLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
+	addRequest := client.NewAddCopyLogFileRotationListenerRequest(plan.Id.ValueString(),
+		[]client.EnumcopyLogFileRotationListenerSchemaUrn{client.ENUMCOPYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERCOPY},
+		plan.CopyToDirectory.ValueString(),
+		plan.Enabled.ValueBool())
+	addOptionalCopyLogFileRotationListenerFields(ctx, addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
+		client.AddCopyLogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListenerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state logFileRotationListenerResourceModel
+	readCopyLogFileRotationListenerResponse(ctx, addResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a third-party log-file-rotation-listener
+func (r *logFileRotationListenerResource) CreateThirdPartyLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
+	addRequest := client.NewAddThirdPartyLogFileRotationListenerRequest(plan.Id.ValueString(),
+		[]client.EnumthirdPartyLogFileRotationListenerSchemaUrn{client.ENUMTHIRDPARTYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERTHIRD_PARTY},
+		plan.ExtensionClass.ValueString(),
+		plan.Enabled.ValueBool())
+	addOptionalThirdPartyLogFileRotationListenerFields(ctx, addRequest, plan)
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddLogFileRotationListenerRequest(
+		client.AddThirdPartyLogFileRotationListenerRequestAsAddLogFileRotationListenerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.AddLogFileRotationListenerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Log File Rotation Listener", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state logFileRotationListenerResourceModel
+	readThirdPartyLogFileRotationListenerResponse(ctx, addResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *logFileRotationListenerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan logFileRotationListenerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var state *logFileRotationListenerResourceModel
+	var err error
+	if plan.Type.ValueString() == "summarize" {
+		state, err = r.CreateSummarizeLogFileRotationListener(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
+	if plan.Type.ValueString() == "copy" {
+		state, err = r.CreateCopyLogFileRotationListener(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
+	if plan.Type.ValueString() == "third-party" {
+		state, err = r.CreateThirdPartyLogFileRotationListener(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
+
+	// Populate Computed attribute values
+	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+
+	// Set state to fully populated data
+	diags = resp.State.Set(ctx, *state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Create a new resource
+// For edit only resources like this, create doesn't actually "create" anything - it "adopts" the existing
+// config object into management by terraform. This method reads the existing config object
+// and makes any changes needed to make it match the plan - similar to the Update method.
+func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan logFileRotationListenerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the existing configuration
+	var state logFileRotationListenerResourceModel
+	if plan.Type.ValueString() == "summarize" {
+		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "copy" {
+		readCopyLogFileRotationListenerResponse(ctx, readResponse.CopyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "third-party" {
+		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Determine what changes are needed to match the plan
+	updateRequest := r.apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createLogFileRotationListenerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListenerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log File Rotation Listener", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		if plan.Type.ValueString() == "summarize" {
+			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "copy" {
+			readCopyLogFileRotationListenerResponse(ctx, updateResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "third-party" {
+			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Read resource information
+func (r *logFileRotationListenerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLogFileRotationListenerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLogFileRotationListener(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state logFileRotationListenerResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.SummarizeLogFileRotationListenerResponse != nil {
+		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.CopyLogFileRotationListenerResponse != nil {
+		readCopyLogFileRotationListenerResponse(ctx, readResponse.CopyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyLogFileRotationListenerResponse != nil {
+		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *logFileRotationListenerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLogFileRotationListenerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLogFileRotationListener(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Retrieve values from plan
+	var plan logFileRotationListenerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state logFileRotationListenerResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createLogFileRotationListenerOperations(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListenerExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log File Rotation Listener", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		if plan.Type.ValueString() == "summarize" {
+			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "copy" {
+			readCopyLogFileRotationListenerResponse(ctx, updateResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "third-party" {
+			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Delete deletes the resource and removes the Terraform state on success.
+// This config object is edit-only, so Terraform can't delete it.
+// After running a delete, Terraform will just "forget" about this object and it can be managed elsewhere.
+func (r *defaultLogFileRotationListenerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// No implementation necessary
+}
+
+func (r *logFileRotationListenerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	// Retrieve values from state
+	var state logFileRotationListenerResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	httpResp, err := r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListenerExecute(r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListener(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log File Rotation Listener", err, httpResp)
+		return
+	}
+}
+
+func (r *logFileRotationListenerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLogFileRotationListener(ctx, req, resp)
+}
+
+func (r *defaultLogFileRotationListenerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importLogFileRotationListener(ctx, req, resp)
+}
+
+func importLogFileRotationListener(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}

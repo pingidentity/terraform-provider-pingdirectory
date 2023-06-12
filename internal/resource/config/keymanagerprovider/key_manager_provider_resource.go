@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
@@ -103,6 +105,29 @@ type keyManagerProviderResourceModel struct {
 	Enabled                         types.Bool   `tfsdk:"enabled"`
 }
 
+type defaultKeyManagerProviderResourceModel struct {
+	Id                              types.String `tfsdk:"id"`
+	LastUpdated                     types.String `tfsdk:"last_updated"`
+	Notifications                   types.Set    `tfsdk:"notifications"`
+	RequiredActions                 types.Set    `tfsdk:"required_actions"`
+	Type                            types.String `tfsdk:"type"`
+	ExtensionClass                  types.String `tfsdk:"extension_class"`
+	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
+	Pkcs11ProviderClass             types.String `tfsdk:"pkcs11_provider_class"`
+	Pkcs11ProviderConfigurationFile types.String `tfsdk:"pkcs11_provider_configuration_file"`
+	Pkcs11KeyStoreType              types.String `tfsdk:"pkcs11_key_store_type"`
+	KeyStoreFile                    types.String `tfsdk:"key_store_file"`
+	KeyStoreType                    types.String `tfsdk:"key_store_type"`
+	KeyStorePin                     types.String `tfsdk:"key_store_pin"`
+	KeyStorePinFile                 types.String `tfsdk:"key_store_pin_file"`
+	KeyStorePinPassphraseProvider   types.String `tfsdk:"key_store_pin_passphrase_provider"`
+	PrivateKeyPin                   types.String `tfsdk:"private_key_pin"`
+	PrivateKeyPinFile               types.String `tfsdk:"private_key_pin_file"`
+	PrivateKeyPinPassphraseProvider types.String `tfsdk:"private_key_pin_passphrase_provider"`
+	Description                     types.String `tfsdk:"description"`
+	Enabled                         types.Bool   `tfsdk:"enabled"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *keyManagerProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	keyManagerProviderSchema(ctx, req, resp, false)
@@ -121,6 +146,9 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"file-based", "pkcs11", "third-party"}...),
 				},
 			},
 			"extension_class": schema.StringAttribute{
@@ -205,6 +233,10 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"file-based", "custom", "pkcs11", "third-party"}...),
+		}
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -222,46 +254,59 @@ func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model keyManagerProviderResourceModel
+	var model defaultKeyManagerProviderResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.PrivateKeyPinPassphraseProvider) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'private_key_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'private_key_pin_passphrase_provider', the 'type' attribute must be one of ['file-based']")
 	}
 	if internaltypes.IsDefined(model.PrivateKeyPin) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'private_key_pin' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'private_key_pin', the 'type' attribute must be one of ['file-based']")
 	}
 	if internaltypes.IsDefined(model.Pkcs11ProviderClass) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_class' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_class' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'pkcs11_provider_class', the 'type' attribute must be one of ['pkcs11']")
 	}
 	if internaltypes.IsDefined(model.Pkcs11KeyStoreType) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_key_store_type' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'pkcs11_key_store_type' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'pkcs11_key_store_type', the 'type' attribute must be one of ['pkcs11']")
 	}
 	if internaltypes.IsDefined(model.KeyStoreFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'key_store_file' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'key_store_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'key_store_file', the 'type' attribute must be one of ['file-based']")
 	}
 	if internaltypes.IsDefined(model.Pkcs11ProviderConfigurationFile) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_configuration_file' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_configuration_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'pkcs11_provider_configuration_file', the 'type' attribute must be one of ['pkcs11']")
 	}
 	if internaltypes.IsDefined(model.KeyStoreType) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'key_store_type' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'key_store_type' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'key_store_type', the 'type' attribute must be one of ['file-based']")
 	}
 	if internaltypes.IsDefined(model.KeyStorePinPassphraseProvider) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'key_store_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'key_store_pin_passphrase_provider', the 'type' attribute must be one of ['file-based', 'pkcs11']")
 	}
 	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
 	}
 	if internaltypes.IsDefined(model.KeyStorePin) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'key_store_pin' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'key_store_pin', the 'type' attribute must be one of ['file-based', 'pkcs11']")
 	}
 	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
 	}
 	if internaltypes.IsDefined(model.KeyStorePinFile) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_file' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'key_store_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'key_store_pin_file', the 'type' attribute must be one of ['file-based', 'pkcs11']")
 	}
 	if internaltypes.IsDefined(model.PrivateKeyPinFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin_file' not supported by pingdirectory_key_manager_provider resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'private_key_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'private_key_pin_file', the 'type' attribute must be one of ['file-based']")
 	}
 }
 
@@ -353,6 +398,13 @@ func populateKeyManagerProviderNilSets(ctx context.Context, model *keyManagerPro
 	}
 }
 
+// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
+func populateKeyManagerProviderNilSetsDefault(ctx context.Context, model *defaultKeyManagerProviderResourceModel) {
+	if model.ExtensionArgument.ElementType(ctx) == nil {
+		model.ExtensionArgument = types.SetNull(types.StringType)
+	}
+}
+
 // Read a FileBasedKeyManagerProviderResponse object into the model struct
 func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.FileBasedKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
@@ -373,14 +425,34 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 	populateKeyManagerProviderNilSets(ctx, state)
 }
 
+// Read a FileBasedKeyManagerProviderResponse object into the model struct
+func readFileBasedKeyManagerProviderResponseDefault(ctx context.Context, r *client.FileBasedKeyManagerProviderResponse, state *defaultKeyManagerProviderResourceModel, expectedValues *defaultKeyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("file-based")
+	state.Id = types.StringValue(r.Id)
+	state.KeyStoreFile = types.StringValue(r.KeyStoreFile)
+	state.KeyStoreType = internaltypes.StringTypeOrNil(r.KeyStoreType, internaltypes.IsEmptyString(expectedValues.KeyStoreType))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.KeyStorePin = expectedValues.KeyStorePin
+	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
+	state.KeyStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.KeyStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.KeyStorePinPassphraseProvider))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.PrivateKeyPin = expectedValues.PrivateKeyPin
+	state.PrivateKeyPinFile = internaltypes.StringTypeOrNil(r.PrivateKeyPinFile, internaltypes.IsEmptyString(expectedValues.PrivateKeyPinFile))
+	state.PrivateKeyPinPassphraseProvider = internaltypes.StringTypeOrNil(r.PrivateKeyPinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.PrivateKeyPinPassphraseProvider))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateKeyManagerProviderNilSetsDefault(ctx, state)
+}
+
 // Read a CustomKeyManagerProviderResponse object into the model struct
-func readCustomKeyManagerProviderResponse(ctx context.Context, r *client.CustomKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
+func readCustomKeyManagerProviderResponseDefault(ctx context.Context, r *client.CustomKeyManagerProviderResponse, state *defaultKeyManagerProviderResourceModel, expectedValues *defaultKeyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderNilSets(ctx, state)
+	populateKeyManagerProviderNilSetsDefault(ctx, state)
 }
 
 // Read a Pkcs11KeyManagerProviderResponse object into the model struct
@@ -400,6 +472,23 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	populateKeyManagerProviderNilSets(ctx, state)
 }
 
+// Read a Pkcs11KeyManagerProviderResponse object into the model struct
+func readPkcs11KeyManagerProviderResponseDefault(ctx context.Context, r *client.Pkcs11KeyManagerProviderResponse, state *defaultKeyManagerProviderResourceModel, expectedValues *defaultKeyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("pkcs11")
+	state.Id = types.StringValue(r.Id)
+	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
+	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
+	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.KeyStorePin = expectedValues.KeyStorePin
+	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
+	state.KeyStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.KeyStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.KeyStorePinPassphraseProvider))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateKeyManagerProviderNilSetsDefault(ctx, state)
+}
+
 // Read a ThirdPartyKeyManagerProviderResponse object into the model struct
 func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.ThirdPartyKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -412,8 +501,41 @@ func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.Thi
 	populateKeyManagerProviderNilSets(ctx, state)
 }
 
+// Read a ThirdPartyKeyManagerProviderResponse object into the model struct
+func readThirdPartyKeyManagerProviderResponseDefault(ctx context.Context, r *client.ThirdPartyKeyManagerProviderResponse, state *defaultKeyManagerProviderResourceModel, expectedValues *defaultKeyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("third-party")
+	state.Id = types.StringValue(r.Id)
+	state.ExtensionClass = types.StringValue(r.ExtensionClass)
+	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateKeyManagerProviderNilSetsDefault(ctx, state)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createKeyManagerProviderOperations(plan keyManagerProviderResourceModel, state keyManagerProviderResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
+	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11ProviderClass, state.Pkcs11ProviderClass, "pkcs11-provider-class")
+	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11ProviderConfigurationFile, state.Pkcs11ProviderConfigurationFile, "pkcs11-provider-configuration-file")
+	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11KeyStoreType, state.Pkcs11KeyStoreType, "pkcs11-key-store-type")
+	operations.AddStringOperationIfNecessary(&ops, plan.KeyStoreFile, state.KeyStoreFile, "key-store-file")
+	operations.AddStringOperationIfNecessary(&ops, plan.KeyStoreType, state.KeyStoreType, "key-store-type")
+	operations.AddStringOperationIfNecessary(&ops, plan.KeyStorePin, state.KeyStorePin, "key-store-pin")
+	operations.AddStringOperationIfNecessary(&ops, plan.KeyStorePinFile, state.KeyStorePinFile, "key-store-pin-file")
+	operations.AddStringOperationIfNecessary(&ops, plan.KeyStorePinPassphraseProvider, state.KeyStorePinPassphraseProvider, "key-store-pin-passphrase-provider")
+	operations.AddStringOperationIfNecessary(&ops, plan.PrivateKeyPin, state.PrivateKeyPin, "private-key-pin")
+	operations.AddStringOperationIfNecessary(&ops, plan.PrivateKeyPinFile, state.PrivateKeyPinFile, "private-key-pin-file")
+	operations.AddStringOperationIfNecessary(&ops, plan.PrivateKeyPinPassphraseProvider, state.PrivateKeyPinPassphraseProvider, "private-key-pin-passphrase-provider")
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	return ops
+}
+
+// Create any update operations necessary to make the state match the plan
+func createKeyManagerProviderOperationsDefault(plan defaultKeyManagerProviderResourceModel, state defaultKeyManagerProviderResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -585,7 +707,7 @@ func (r *keyManagerProviderResource) Create(ctx context.Context, req resource.Cr
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan keyManagerProviderResourceModel
+	var plan defaultKeyManagerProviderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -606,22 +728,158 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the existing configuration
-	var state keyManagerProviderResourceModel
+	var state defaultKeyManagerProviderResourceModel
 	if plan.Type.ValueString() == "file-based" {
-		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readFileBasedKeyManagerProviderResponseDefault(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomKeyManagerProviderResponse(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readCustomKeyManagerProviderResponseDefault(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "pkcs11" {
-		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readPkcs11KeyManagerProviderResponseDefault(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyKeyManagerProviderResponseDefault(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	ops := createKeyManagerProviderOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProviderExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Key Manager Provider", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		if plan.Type.ValueString() == "file-based" {
+			readFileBasedKeyManagerProviderResponseDefault(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "custom" {
+			readCustomKeyManagerProviderResponseDefault(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "pkcs11" {
+			readPkcs11KeyManagerProviderResponseDefault(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "third-party" {
+			readThirdPartyKeyManagerProviderResponseDefault(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Read resource information
+func (r *keyManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state keyManagerProviderResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.FileBasedKeyManagerProviderResponse != nil {
+		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.Pkcs11KeyManagerProviderResponse != nil {
+		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyKeyManagerProviderResponse != nil {
+		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultKeyManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultKeyManagerProviderResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.CustomKeyManagerProviderResponse != nil {
+		readCustomKeyManagerProviderResponseDefault(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *keyManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan keyManagerProviderResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state keyManagerProviderResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+
+	// Determine what update operations are necessary
 	ops := createKeyManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -644,9 +902,6 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 		if plan.Type.ValueString() == "file-based" {
 			readFileBasedKeyManagerProviderResponse(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
-			readCustomKeyManagerProviderResponse(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
 		if plan.Type.ValueString() == "pkcs11" {
 			readPkcs11KeyManagerProviderResponse(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -655,6 +910,8 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -664,71 +921,9 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 }
 
-// Read resource information
-func (r *keyManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultKeyManagerProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readKeyManagerProvider(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	// Get current state
-	var state keyManagerProviderResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.FileBasedKeyManagerProviderResponse != nil {
-		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.CustomKeyManagerProviderResponse != nil {
-		readCustomKeyManagerProviderResponse(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.Pkcs11KeyManagerProviderResponse != nil {
-		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartyKeyManagerProviderResponse != nil {
-		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *keyManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
 func (r *defaultKeyManagerProviderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateKeyManagerProvider(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan keyManagerProviderResourceModel
+	var plan defaultKeyManagerProviderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -736,19 +931,19 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state keyManagerProviderResourceModel
+	var state defaultKeyManagerProviderResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createKeyManagerProviderOperations(plan, state)
+	ops := createKeyManagerProviderOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.KeyManagerProviderApi.UpdateKeyManagerProviderExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProviderExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Key Manager Provider", err, httpResp)
 			return
@@ -762,16 +957,16 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 
 		// Read the response
 		if plan.Type.ValueString() == "file-based" {
-			readFileBasedKeyManagerProviderResponse(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+			readFileBasedKeyManagerProviderResponseDefault(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "custom" {
-			readCustomKeyManagerProviderResponse(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+			readCustomKeyManagerProviderResponseDefault(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "pkcs11" {
-			readPkcs11KeyManagerProviderResponse(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+			readPkcs11KeyManagerProviderResponseDefault(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyKeyManagerProviderResponse(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartyKeyManagerProviderResponseDefault(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

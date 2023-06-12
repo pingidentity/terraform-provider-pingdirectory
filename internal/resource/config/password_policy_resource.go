@@ -138,6 +138,63 @@ type passwordPolicyResourceModel struct {
 	PreviousLastLoginTimeFormat                               types.Set    `tfsdk:"previous_last_login_time_format"`
 }
 
+type defaultPasswordPolicyResourceModel struct {
+	Id                                                        types.String `tfsdk:"id"`
+	LastUpdated                                               types.String `tfsdk:"last_updated"`
+	Notifications                                             types.Set    `tfsdk:"notifications"`
+	RequiredActions                                           types.Set    `tfsdk:"required_actions"`
+	Description                                               types.String `tfsdk:"description"`
+	RequireSecureAuthentication                               types.Bool   `tfsdk:"require_secure_authentication"`
+	RequireSecurePasswordChanges                              types.Bool   `tfsdk:"require_secure_password_changes"`
+	AccountStatusNotificationHandler                          types.Set    `tfsdk:"account_status_notification_handler"`
+	StateUpdateFailurePolicy                                  types.String `tfsdk:"state_update_failure_policy"`
+	EnableDebug                                               types.Bool   `tfsdk:"enable_debug"`
+	PasswordAttribute                                         types.String `tfsdk:"password_attribute"`
+	DefaultPasswordStorageScheme                              types.Set    `tfsdk:"default_password_storage_scheme"`
+	DeprecatedPasswordStorageScheme                           types.Set    `tfsdk:"deprecated_password_storage_scheme"`
+	AllowMultiplePasswordValues                               types.Bool   `tfsdk:"allow_multiple_password_values"`
+	AllowPreEncodedPasswords                                  types.Bool   `tfsdk:"allow_pre_encoded_passwords"`
+	PasswordValidator                                         types.Set    `tfsdk:"password_validator"`
+	BindPasswordValidator                                     types.Set    `tfsdk:"bind_password_validator"`
+	MinimumBindPasswordValidationFrequency                    types.String `tfsdk:"minimum_bind_password_validation_frequency"`
+	BindPasswordValidationFailureAction                       types.String `tfsdk:"bind_password_validation_failure_action"`
+	PasswordGenerator                                         types.String `tfsdk:"password_generator"`
+	PasswordHistoryCount                                      types.Int64  `tfsdk:"password_history_count"`
+	PasswordHistoryDuration                                   types.String `tfsdk:"password_history_duration"`
+	MinPasswordAge                                            types.String `tfsdk:"min_password_age"`
+	MaxPasswordAge                                            types.String `tfsdk:"max_password_age"`
+	PasswordExpirationWarningInterval                         types.String `tfsdk:"password_expiration_warning_interval"`
+	ExpirePasswordsWithoutWarning                             types.Bool   `tfsdk:"expire_passwords_without_warning"`
+	ReturnPasswordExpirationControls                          types.String `tfsdk:"return_password_expiration_controls"`
+	AllowExpiredPasswordChanges                               types.Bool   `tfsdk:"allow_expired_password_changes"`
+	GraceLoginCount                                           types.Int64  `tfsdk:"grace_login_count"`
+	RequireChangeByTime                                       types.String `tfsdk:"require_change_by_time"`
+	LockoutFailureCount                                       types.Int64  `tfsdk:"lockout_failure_count"`
+	LockoutDuration                                           types.String `tfsdk:"lockout_duration"`
+	LockoutFailureExpirationInterval                          types.String `tfsdk:"lockout_failure_expiration_interval"`
+	IgnoreDuplicatePasswordFailures                           types.Bool   `tfsdk:"ignore_duplicate_password_failures"`
+	FailureLockoutAction                                      types.String `tfsdk:"failure_lockout_action"`
+	IdleLockoutInterval                                       types.String `tfsdk:"idle_lockout_interval"`
+	AllowUserPasswordChanges                                  types.Bool   `tfsdk:"allow_user_password_changes"`
+	PasswordChangeRequiresCurrentPassword                     types.Bool   `tfsdk:"password_change_requires_current_password"`
+	PasswordRetirementBehavior                                types.Set    `tfsdk:"password_retirement_behavior"`
+	MaxRetiredPasswordAge                                     types.String `tfsdk:"max_retired_password_age"`
+	AllowedPasswordResetTokenUseCondition                     types.Set    `tfsdk:"allowed_password_reset_token_use_condition"`
+	ForceChangeOnAdd                                          types.Bool   `tfsdk:"force_change_on_add"`
+	ForceChangeOnReset                                        types.Bool   `tfsdk:"force_change_on_reset"`
+	MaxPasswordResetAge                                       types.String `tfsdk:"max_password_reset_age"`
+	SkipValidationForAdministrators                           types.Bool   `tfsdk:"skip_validation_for_administrators"`
+	MaximumRecentLoginHistorySuccessfulAuthenticationCount    types.Int64  `tfsdk:"maximum_recent_login_history_successful_authentication_count"`
+	MaximumRecentLoginHistorySuccessfulAuthenticationDuration types.String `tfsdk:"maximum_recent_login_history_successful_authentication_duration"`
+	MaximumRecentLoginHistoryFailedAuthenticationCount        types.Int64  `tfsdk:"maximum_recent_login_history_failed_authentication_count"`
+	MaximumRecentLoginHistoryFailedAuthenticationDuration     types.String `tfsdk:"maximum_recent_login_history_failed_authentication_duration"`
+	RecentLoginHistorySimilarAttemptBehavior                  types.String `tfsdk:"recent_login_history_similar_attempt_behavior"`
+	LastLoginIPAddressAttribute                               types.String `tfsdk:"last_login_ip_address_attribute"`
+	LastLoginTimeAttribute                                    types.String `tfsdk:"last_login_time_attribute"`
+	LastLoginTimeFormat                                       types.String `tfsdk:"last_login_time_format"`
+	PreviousLastLoginTimeFormat                               types.Set    `tfsdk:"previous_last_login_time_format"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *passwordPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	passwordPolicySchema(ctx, req, resp, false)
@@ -147,8 +204,8 @@ func (r *defaultPasswordPolicyResource) Schema(ctx context.Context, req resource
 	passwordPolicySchema(ctx, req, resp, true)
 }
 
-func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Password Policy.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -175,10 +232,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the account status notification handlers that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"state_update_failure_policy": schema.StringAttribute{
 				Description: "Specifies how the server deals with the inability to update password policy state information during an authentication attempt.",
@@ -209,10 +266,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password storage schemes that are considered deprecated for this password policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allow_multiple_password_values": schema.BoolAttribute{
 				Description: "Indicates whether user entries can have multiple distinct values for the password attribute.",
@@ -234,19 +291,19 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password validators that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"bind_password_validator": schema.SetAttribute{
 				Description: "Specifies the names of the password validators that should be invoked for bind operations.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"minimum_bind_password_validation_frequency": schema.StringAttribute{
 				Description: "Indicates how frequently password validation should be performed during bind operations for each user to whom this password policy is assigned.",
@@ -412,10 +469,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the conditions under which the server may retire a user's current password in the course of setting a new password for that user (whether via a modify operation or a password modify extended operation).",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"max_retired_password_age": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that a retired password should be considered valid and may be used to authenticate to the server.",
@@ -429,10 +486,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The set of conditions under which a user governed by this Password Policy will be permitted to generate a password reset token via the deliver password reset token extended operation, and to use that token in lieu of the current password via the password modify extended operation.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"force_change_on_add": schema.BoolAttribute{
 				Description: "Indicates whether users are forced to change their passwords upon first authenticating to the Directory Server after their account has been created.",
@@ -526,21 +583,26 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the format string(s) that might have been used with the last login time at any point in the past for users associated with the password policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"password-policy"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for password-policy password-policy
 func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.AddPasswordPolicyRequest, plan passwordPolicyResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -844,6 +906,92 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a PasswordPolicyResponse object into the model struct
+func readPasswordPolicyResponseDefault(ctx context.Context, r *client.PasswordPolicyResponse, state *defaultPasswordPolicyResourceModel, expectedValues *defaultPasswordPolicyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.RequireSecureAuthentication = internaltypes.BoolTypeOrNil(r.RequireSecureAuthentication)
+	state.RequireSecurePasswordChanges = internaltypes.BoolTypeOrNil(r.RequireSecurePasswordChanges)
+	state.AccountStatusNotificationHandler = internaltypes.GetStringSet(r.AccountStatusNotificationHandler)
+	state.StateUpdateFailurePolicy = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpasswordPolicyStateUpdateFailurePolicyProp(r.StateUpdateFailurePolicy), internaltypes.IsEmptyString(expectedValues.StateUpdateFailurePolicy))
+	state.EnableDebug = internaltypes.BoolTypeOrNil(r.EnableDebug)
+	state.PasswordAttribute = types.StringValue(r.PasswordAttribute)
+	state.DefaultPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultPasswordStorageScheme)
+	state.DeprecatedPasswordStorageScheme = internaltypes.GetStringSet(r.DeprecatedPasswordStorageScheme)
+	state.AllowMultiplePasswordValues = internaltypes.BoolTypeOrNil(r.AllowMultiplePasswordValues)
+	state.AllowPreEncodedPasswords = internaltypes.BoolTypeOrNil(r.AllowPreEncodedPasswords)
+	state.PasswordValidator = internaltypes.GetStringSet(r.PasswordValidator)
+	state.BindPasswordValidator = internaltypes.GetStringSet(r.BindPasswordValidator)
+	state.MinimumBindPasswordValidationFrequency = internaltypes.StringTypeOrNil(r.MinimumBindPasswordValidationFrequency, internaltypes.IsEmptyString(expectedValues.MinimumBindPasswordValidationFrequency))
+	CheckMismatchedPDFormattedAttributes("minimum_bind_password_validation_frequency",
+		expectedValues.MinimumBindPasswordValidationFrequency, state.MinimumBindPasswordValidationFrequency, diagnostics)
+	state.BindPasswordValidationFailureAction = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpasswordPolicyBindPasswordValidationFailureActionProp(r.BindPasswordValidationFailureAction), internaltypes.IsEmptyString(expectedValues.BindPasswordValidationFailureAction))
+	state.PasswordGenerator = internaltypes.StringTypeOrNil(r.PasswordGenerator, internaltypes.IsEmptyString(expectedValues.PasswordGenerator))
+	state.PasswordHistoryCount = internaltypes.Int64TypeOrNil(r.PasswordHistoryCount)
+	state.PasswordHistoryDuration = internaltypes.StringTypeOrNil(r.PasswordHistoryDuration, internaltypes.IsEmptyString(expectedValues.PasswordHistoryDuration))
+	CheckMismatchedPDFormattedAttributes("password_history_duration",
+		expectedValues.PasswordHistoryDuration, state.PasswordHistoryDuration, diagnostics)
+	state.MinPasswordAge = internaltypes.StringTypeOrNil(r.MinPasswordAge, internaltypes.IsEmptyString(expectedValues.MinPasswordAge))
+	CheckMismatchedPDFormattedAttributes("min_password_age",
+		expectedValues.MinPasswordAge, state.MinPasswordAge, diagnostics)
+	state.MaxPasswordAge = internaltypes.StringTypeOrNil(r.MaxPasswordAge, internaltypes.IsEmptyString(expectedValues.MaxPasswordAge))
+	CheckMismatchedPDFormattedAttributes("max_password_age",
+		expectedValues.MaxPasswordAge, state.MaxPasswordAge, diagnostics)
+	state.PasswordExpirationWarningInterval = internaltypes.StringTypeOrNil(r.PasswordExpirationWarningInterval, internaltypes.IsEmptyString(expectedValues.PasswordExpirationWarningInterval))
+	CheckMismatchedPDFormattedAttributes("password_expiration_warning_interval",
+		expectedValues.PasswordExpirationWarningInterval, state.PasswordExpirationWarningInterval, diagnostics)
+	state.ExpirePasswordsWithoutWarning = internaltypes.BoolTypeOrNil(r.ExpirePasswordsWithoutWarning)
+	state.ReturnPasswordExpirationControls = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpasswordPolicyReturnPasswordExpirationControlsProp(r.ReturnPasswordExpirationControls), internaltypes.IsEmptyString(expectedValues.ReturnPasswordExpirationControls))
+	state.AllowExpiredPasswordChanges = internaltypes.BoolTypeOrNil(r.AllowExpiredPasswordChanges)
+	state.GraceLoginCount = internaltypes.Int64TypeOrNil(r.GraceLoginCount)
+	state.RequireChangeByTime = internaltypes.StringTypeOrNil(r.RequireChangeByTime, internaltypes.IsEmptyString(expectedValues.RequireChangeByTime))
+	state.LockoutFailureCount = internaltypes.Int64TypeOrNil(r.LockoutFailureCount)
+	state.LockoutDuration = internaltypes.StringTypeOrNil(r.LockoutDuration, internaltypes.IsEmptyString(expectedValues.LockoutDuration))
+	CheckMismatchedPDFormattedAttributes("lockout_duration",
+		expectedValues.LockoutDuration, state.LockoutDuration, diagnostics)
+	state.LockoutFailureExpirationInterval = internaltypes.StringTypeOrNil(r.LockoutFailureExpirationInterval, internaltypes.IsEmptyString(expectedValues.LockoutFailureExpirationInterval))
+	CheckMismatchedPDFormattedAttributes("lockout_failure_expiration_interval",
+		expectedValues.LockoutFailureExpirationInterval, state.LockoutFailureExpirationInterval, diagnostics)
+	state.IgnoreDuplicatePasswordFailures = internaltypes.BoolTypeOrNil(r.IgnoreDuplicatePasswordFailures)
+	state.FailureLockoutAction = internaltypes.StringTypeOrNil(r.FailureLockoutAction, internaltypes.IsEmptyString(expectedValues.FailureLockoutAction))
+	state.IdleLockoutInterval = internaltypes.StringTypeOrNil(r.IdleLockoutInterval, internaltypes.IsEmptyString(expectedValues.IdleLockoutInterval))
+	CheckMismatchedPDFormattedAttributes("idle_lockout_interval",
+		expectedValues.IdleLockoutInterval, state.IdleLockoutInterval, diagnostics)
+	state.AllowUserPasswordChanges = internaltypes.BoolTypeOrNil(r.AllowUserPasswordChanges)
+	state.PasswordChangeRequiresCurrentPassword = internaltypes.BoolTypeOrNil(r.PasswordChangeRequiresCurrentPassword)
+	state.PasswordRetirementBehavior = internaltypes.GetStringSet(
+		client.StringSliceEnumpasswordPolicyPasswordRetirementBehaviorProp(r.PasswordRetirementBehavior))
+	state.MaxRetiredPasswordAge = internaltypes.StringTypeOrNil(r.MaxRetiredPasswordAge, internaltypes.IsEmptyString(expectedValues.MaxRetiredPasswordAge))
+	CheckMismatchedPDFormattedAttributes("max_retired_password_age",
+		expectedValues.MaxRetiredPasswordAge, state.MaxRetiredPasswordAge, diagnostics)
+	state.AllowedPasswordResetTokenUseCondition = internaltypes.GetStringSet(
+		client.StringSliceEnumpasswordPolicyAllowedPasswordResetTokenUseConditionProp(r.AllowedPasswordResetTokenUseCondition))
+	state.ForceChangeOnAdd = internaltypes.BoolTypeOrNil(r.ForceChangeOnAdd)
+	state.ForceChangeOnReset = internaltypes.BoolTypeOrNil(r.ForceChangeOnReset)
+	state.MaxPasswordResetAge = internaltypes.StringTypeOrNil(r.MaxPasswordResetAge, internaltypes.IsEmptyString(expectedValues.MaxPasswordResetAge))
+	CheckMismatchedPDFormattedAttributes("max_password_reset_age",
+		expectedValues.MaxPasswordResetAge, state.MaxPasswordResetAge, diagnostics)
+	state.SkipValidationForAdministrators = internaltypes.BoolTypeOrNil(r.SkipValidationForAdministrators)
+	state.MaximumRecentLoginHistorySuccessfulAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationCount)
+	state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistorySuccessfulAuthenticationDuration))
+	CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_successful_authentication_duration",
+		expectedValues.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, diagnostics)
+	state.MaximumRecentLoginHistoryFailedAuthenticationCount = internaltypes.Int64TypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationCount)
+	state.MaximumRecentLoginHistoryFailedAuthenticationDuration = internaltypes.StringTypeOrNil(r.MaximumRecentLoginHistoryFailedAuthenticationDuration, internaltypes.IsEmptyString(expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration))
+	CheckMismatchedPDFormattedAttributes("maximum_recent_login_history_failed_authentication_duration",
+		expectedValues.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, diagnostics)
+	state.RecentLoginHistorySimilarAttemptBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpasswordPolicyRecentLoginHistorySimilarAttemptBehaviorProp(r.RecentLoginHistorySimilarAttemptBehavior), internaltypes.IsEmptyString(expectedValues.RecentLoginHistorySimilarAttemptBehavior))
+	state.LastLoginIPAddressAttribute = internaltypes.StringTypeOrNil(r.LastLoginIPAddressAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginIPAddressAttribute))
+	state.LastLoginTimeAttribute = internaltypes.StringTypeOrNil(r.LastLoginTimeAttribute, internaltypes.IsEmptyString(expectedValues.LastLoginTimeAttribute))
+	state.LastLoginTimeFormat = internaltypes.StringTypeOrNil(r.LastLoginTimeFormat, internaltypes.IsEmptyString(expectedValues.LastLoginTimeFormat))
+	state.PreviousLastLoginTimeFormat = internaltypes.GetStringSet(r.PreviousLastLoginTimeFormat)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state passwordPolicyResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -900,16 +1048,64 @@ func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state pass
 	return ops
 }
 
-// Create a new resource
-func (r *passwordPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan passwordPolicyResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createPasswordPolicyOperationsDefault(plan defaultPasswordPolicyResourceModel, state defaultPasswordPolicyResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddBoolOperationIfNecessary(&ops, plan.RequireSecureAuthentication, state.RequireSecureAuthentication, "require-secure-authentication")
+	operations.AddBoolOperationIfNecessary(&ops, plan.RequireSecurePasswordChanges, state.RequireSecurePasswordChanges, "require-secure-password-changes")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AccountStatusNotificationHandler, state.AccountStatusNotificationHandler, "account-status-notification-handler")
+	operations.AddStringOperationIfNecessary(&ops, plan.StateUpdateFailurePolicy, state.StateUpdateFailurePolicy, "state-update-failure-policy")
+	operations.AddBoolOperationIfNecessary(&ops, plan.EnableDebug, state.EnableDebug, "enable-debug")
+	operations.AddStringOperationIfNecessary(&ops, plan.PasswordAttribute, state.PasswordAttribute, "password-attribute")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultPasswordStorageScheme, state.DefaultPasswordStorageScheme, "default-password-storage-scheme")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.DeprecatedPasswordStorageScheme, state.DeprecatedPasswordStorageScheme, "deprecated-password-storage-scheme")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AllowMultiplePasswordValues, state.AllowMultiplePasswordValues, "allow-multiple-password-values")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AllowPreEncodedPasswords, state.AllowPreEncodedPasswords, "allow-pre-encoded-passwords")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.PasswordValidator, state.PasswordValidator, "password-validator")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.BindPasswordValidator, state.BindPasswordValidator, "bind-password-validator")
+	operations.AddStringOperationIfNecessary(&ops, plan.MinimumBindPasswordValidationFrequency, state.MinimumBindPasswordValidationFrequency, "minimum-bind-password-validation-frequency")
+	operations.AddStringOperationIfNecessary(&ops, plan.BindPasswordValidationFailureAction, state.BindPasswordValidationFailureAction, "bind-password-validation-failure-action")
+	operations.AddStringOperationIfNecessary(&ops, plan.PasswordGenerator, state.PasswordGenerator, "password-generator")
+	operations.AddInt64OperationIfNecessary(&ops, plan.PasswordHistoryCount, state.PasswordHistoryCount, "password-history-count")
+	operations.AddStringOperationIfNecessary(&ops, plan.PasswordHistoryDuration, state.PasswordHistoryDuration, "password-history-duration")
+	operations.AddStringOperationIfNecessary(&ops, plan.MinPasswordAge, state.MinPasswordAge, "min-password-age")
+	operations.AddStringOperationIfNecessary(&ops, plan.MaxPasswordAge, state.MaxPasswordAge, "max-password-age")
+	operations.AddStringOperationIfNecessary(&ops, plan.PasswordExpirationWarningInterval, state.PasswordExpirationWarningInterval, "password-expiration-warning-interval")
+	operations.AddBoolOperationIfNecessary(&ops, plan.ExpirePasswordsWithoutWarning, state.ExpirePasswordsWithoutWarning, "expire-passwords-without-warning")
+	operations.AddStringOperationIfNecessary(&ops, plan.ReturnPasswordExpirationControls, state.ReturnPasswordExpirationControls, "return-password-expiration-controls")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AllowExpiredPasswordChanges, state.AllowExpiredPasswordChanges, "allow-expired-password-changes")
+	operations.AddInt64OperationIfNecessary(&ops, plan.GraceLoginCount, state.GraceLoginCount, "grace-login-count")
+	operations.AddStringOperationIfNecessary(&ops, plan.RequireChangeByTime, state.RequireChangeByTime, "require-change-by-time")
+	operations.AddInt64OperationIfNecessary(&ops, plan.LockoutFailureCount, state.LockoutFailureCount, "lockout-failure-count")
+	operations.AddStringOperationIfNecessary(&ops, plan.LockoutDuration, state.LockoutDuration, "lockout-duration")
+	operations.AddStringOperationIfNecessary(&ops, plan.LockoutFailureExpirationInterval, state.LockoutFailureExpirationInterval, "lockout-failure-expiration-interval")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IgnoreDuplicatePasswordFailures, state.IgnoreDuplicatePasswordFailures, "ignore-duplicate-password-failures")
+	operations.AddStringOperationIfNecessary(&ops, plan.FailureLockoutAction, state.FailureLockoutAction, "failure-lockout-action")
+	operations.AddStringOperationIfNecessary(&ops, plan.IdleLockoutInterval, state.IdleLockoutInterval, "idle-lockout-interval")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AllowUserPasswordChanges, state.AllowUserPasswordChanges, "allow-user-password-changes")
+	operations.AddBoolOperationIfNecessary(&ops, plan.PasswordChangeRequiresCurrentPassword, state.PasswordChangeRequiresCurrentPassword, "password-change-requires-current-password")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.PasswordRetirementBehavior, state.PasswordRetirementBehavior, "password-retirement-behavior")
+	operations.AddStringOperationIfNecessary(&ops, plan.MaxRetiredPasswordAge, state.MaxRetiredPasswordAge, "max-retired-password-age")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedPasswordResetTokenUseCondition, state.AllowedPasswordResetTokenUseCondition, "allowed-password-reset-token-use-condition")
+	operations.AddBoolOperationIfNecessary(&ops, plan.ForceChangeOnAdd, state.ForceChangeOnAdd, "force-change-on-add")
+	operations.AddBoolOperationIfNecessary(&ops, plan.ForceChangeOnReset, state.ForceChangeOnReset, "force-change-on-reset")
+	operations.AddStringOperationIfNecessary(&ops, plan.MaxPasswordResetAge, state.MaxPasswordResetAge, "max-password-reset-age")
+	operations.AddBoolOperationIfNecessary(&ops, plan.SkipValidationForAdministrators, state.SkipValidationForAdministrators, "skip-validation-for-administrators")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumRecentLoginHistorySuccessfulAuthenticationCount, state.MaximumRecentLoginHistorySuccessfulAuthenticationCount, "maximum-recent-login-history-successful-authentication-count")
+	operations.AddStringOperationIfNecessary(&ops, plan.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, state.MaximumRecentLoginHistorySuccessfulAuthenticationDuration, "maximum-recent-login-history-successful-authentication-duration")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaximumRecentLoginHistoryFailedAuthenticationCount, state.MaximumRecentLoginHistoryFailedAuthenticationCount, "maximum-recent-login-history-failed-authentication-count")
+	operations.AddStringOperationIfNecessary(&ops, plan.MaximumRecentLoginHistoryFailedAuthenticationDuration, state.MaximumRecentLoginHistoryFailedAuthenticationDuration, "maximum-recent-login-history-failed-authentication-duration")
+	operations.AddStringOperationIfNecessary(&ops, plan.RecentLoginHistorySimilarAttemptBehavior, state.RecentLoginHistorySimilarAttemptBehavior, "recent-login-history-similar-attempt-behavior")
+	operations.AddStringOperationIfNecessary(&ops, plan.LastLoginIPAddressAttribute, state.LastLoginIPAddressAttribute, "last-login-ip-address-attribute")
+	operations.AddStringOperationIfNecessary(&ops, plan.LastLoginTimeAttribute, state.LastLoginTimeAttribute, "last-login-time-attribute")
+	operations.AddStringOperationIfNecessary(&ops, plan.LastLoginTimeFormat, state.LastLoginTimeFormat, "last-login-time-format")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.PreviousLastLoginTimeFormat, state.PreviousLastLoginTimeFormat, "previous-last-login-time-format")
+	return ops
+}
 
+// Create a password-policy password-policy
+func (r *passwordPolicyResource) CreatePasswordPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordPolicyResourceModel) (*passwordPolicyResourceModel, error) {
 	var DefaultPasswordStorageSchemeSlice []string
 	plan.DefaultPasswordStorageScheme.ElementsAs(ctx, &DefaultPasswordStorageSchemeSlice, false)
 	addRequest := client.NewAddPasswordPolicyRequest(plan.Id.ValueString(),
@@ -918,7 +1114,7 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 	err := addOptionalPasswordPolicyFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Policy", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -932,7 +1128,7 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 	addResponse, httpResp, err := r.apiClient.PasswordPolicyApi.AddPasswordPolicyExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Policy", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -944,12 +1140,29 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 	// Read the response into the state
 	var state passwordPolicyResourceModel
 	readPasswordPolicyResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *passwordPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan passwordPolicyResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreatePasswordPolicy(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -962,7 +1175,7 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan passwordPolicyResourceModel
+	var plan defaultPasswordPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -983,12 +1196,12 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 	}
 
 	// Read the existing configuration
-	var state passwordPolicyResourceModel
-	readPasswordPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultPasswordPolicyResourceModel
+	readPasswordPolicyResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createPasswordPolicyOperations(plan, state)
+	ops := createPasswordPolicyOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -1007,7 +1220,7 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 		}
 
 		// Read the response
-		readPasswordPolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readPasswordPolicyResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -1021,14 +1234,6 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 
 // Read resource information
 func (r *passwordPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultPasswordPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readPasswordPolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state passwordPolicyResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -1037,8 +1242,8 @@ func readPasswordPolicy(ctx context.Context, req resource.ReadRequest, resp *res
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.PasswordPolicyApi.GetPasswordPolicy(
-		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.PasswordPolicyApi.GetPasswordPolicy(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy", err, httpResp)
 		return
@@ -1061,16 +1266,41 @@ func readPasswordPolicy(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 }
 
+func (r *defaultPasswordPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultPasswordPolicyResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.PasswordPolicyApi.GetPasswordPolicy(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readPasswordPolicyResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *passwordPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updatePasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultPasswordPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updatePasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updatePasswordPolicy(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan passwordPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -1082,8 +1312,8 @@ func updatePasswordPolicy(ctx context.Context, req resource.UpdateRequest, resp 
 	// Get the current state to see how any attributes are changing
 	var state passwordPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.PasswordPolicyApi.UpdatePasswordPolicy(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicy(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPasswordPolicyOperations(plan, state)
@@ -1092,7 +1322,7 @@ func updatePasswordPolicy(ctx context.Context, req resource.UpdateRequest, resp 
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.PasswordPolicyApi.UpdatePasswordPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicyExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Policy", err, httpResp)
 			return
@@ -1106,6 +1336,55 @@ func updatePasswordPolicy(ctx context.Context, req resource.UpdateRequest, resp 
 
 		// Read the response
 		readPasswordPolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultPasswordPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultPasswordPolicyResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultPasswordPolicyResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicy(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createPasswordPolicyOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicyExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Password Policy", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readPasswordPolicyResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

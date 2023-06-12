@@ -65,7 +65,7 @@ type alarmManagerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Alarm Manager.",
 		Attributes: map[string]schema.Attribute{
 			"default_gauge_alert_level": schema.StringAttribute{
@@ -80,24 +80,24 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 				Description: "Indicates what kind of alert types should be generated.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"suppressed_alarm": schema.SetAttribute{
 				Description: "Specifies the names of the alarm alert types that should be suppressed. If the condition that triggers an alarm in this list occurs, then the alarm will not be raised and no alerts will be generated. Only a subset of alarms can be suppressed in this way. Alarms triggered by a gauge can be disabled by disabling the gauge.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a AlarmManagerResponse object into the model struct

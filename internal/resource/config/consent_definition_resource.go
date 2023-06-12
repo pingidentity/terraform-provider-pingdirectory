@@ -90,6 +90,17 @@ type consentDefinitionResourceModel struct {
 	Description     types.String `tfsdk:"description"`
 }
 
+type defaultConsentDefinitionResourceModel struct {
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+	UniqueID        types.String `tfsdk:"unique_id"`
+	DisplayName     types.String `tfsdk:"display_name"`
+	Parameter       types.Set    `tfsdk:"parameter"`
+	Description     types.String `tfsdk:"description"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *consentDefinitionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	consentDefinitionSchema(ctx, req, resp, false)
@@ -99,8 +110,8 @@ func (r *defaultConsentDefinitionResource) Schema(ctx context.Context, req resou
 	consentDefinitionSchema(ctx, req, resp, true)
 }
 
-func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Consent Definition.",
 		Attributes: map[string]schema.Attribute{
 			"unique_id": schema.StringAttribute{
@@ -118,10 +129,10 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Optional parameters for this Consent Definition.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Consent Definition",
@@ -129,14 +140,19 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"unique_id"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"consent-definition"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"unique_id"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for consent-definition consent-definition
 func addOptionalConsentDefinitionFields(ctx context.Context, addRequest *client.AddConsentDefinitionRequest, plan consentDefinitionResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DisplayName) {
@@ -163,6 +179,16 @@ func readConsentDefinitionResponse(ctx context.Context, r *client.ConsentDefinit
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a ConsentDefinitionResponse object into the model struct
+func readConsentDefinitionResponseDefault(ctx context.Context, r *client.ConsentDefinitionResponse, state *defaultConsentDefinitionResourceModel, expectedValues *defaultConsentDefinitionResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.UniqueID = types.StringValue(r.UniqueID)
+	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
+	state.Parameter = internaltypes.GetStringSet(r.Parameter)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createConsentDefinitionOperations(plan consentDefinitionResourceModel, state consentDefinitionResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -173,16 +199,18 @@ func createConsentDefinitionOperations(plan consentDefinitionResourceModel, stat
 	return ops
 }
 
-// Create a new resource
-func (r *consentDefinitionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan consentDefinitionResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createConsentDefinitionOperationsDefault(plan defaultConsentDefinitionResourceModel, state defaultConsentDefinitionResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.UniqueID, state.UniqueID, "unique-id")
+	operations.AddStringOperationIfNecessary(&ops, plan.DisplayName, state.DisplayName, "display-name")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.Parameter, state.Parameter, "parameter")
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	return ops
+}
 
+// Create a consent-definition consent-definition
+func (r *consentDefinitionResource) CreateConsentDefinition(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan consentDefinitionResourceModel) (*consentDefinitionResourceModel, error) {
 	addRequest := client.NewAddConsentDefinitionRequest(plan.UniqueID.ValueString(),
 		plan.UniqueID.ValueString())
 	addOptionalConsentDefinitionFields(ctx, addRequest, plan)
@@ -198,7 +226,7 @@ func (r *consentDefinitionResource) Create(ctx context.Context, req resource.Cre
 	addResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.AddConsentDefinitionExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Consent Definition", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -210,12 +238,29 @@ func (r *consentDefinitionResource) Create(ctx context.Context, req resource.Cre
 	// Read the response into the state
 	var state consentDefinitionResourceModel
 	readConsentDefinitionResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *consentDefinitionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan consentDefinitionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateConsentDefinition(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -228,7 +273,7 @@ func (r *consentDefinitionResource) Create(ctx context.Context, req resource.Cre
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan consentDefinitionResourceModel
+	var plan defaultConsentDefinitionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -249,12 +294,12 @@ func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resou
 	}
 
 	// Read the existing configuration
-	var state consentDefinitionResourceModel
-	readConsentDefinitionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultConsentDefinitionResourceModel
+	readConsentDefinitionResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinition(ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())
-	ops := createConsentDefinitionOperations(plan, state)
+	ops := createConsentDefinitionOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -273,7 +318,7 @@ func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		readConsentDefinitionResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readConsentDefinitionResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -287,14 +332,6 @@ func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resou
 
 // Read resource information
 func (r *consentDefinitionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readConsentDefinition(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultConsentDefinitionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readConsentDefinition(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readConsentDefinition(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state consentDefinitionResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -303,8 +340,8 @@ func readConsentDefinition(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.ConsentDefinitionApi.GetConsentDefinition(
-		ProviderBasicAuthContext(ctx, providerConfig), state.UniqueID.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.GetConsentDefinition(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition", err, httpResp)
 		return
@@ -327,16 +364,41 @@ func readConsentDefinition(ctx context.Context, req resource.ReadRequest, resp *
 	}
 }
 
+func (r *defaultConsentDefinitionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultConsentDefinitionResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.GetConsentDefinition(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.UniqueID.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Consent Definition", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readConsentDefinitionResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *consentDefinitionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateConsentDefinition(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultConsentDefinitionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateConsentDefinition(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateConsentDefinition(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan consentDefinitionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -348,8 +410,8 @@ func updateConsentDefinition(ctx context.Context, req resource.UpdateRequest, re
 	// Get the current state to see how any attributes are changing
 	var state consentDefinitionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.ConsentDefinitionApi.UpdateConsentDefinition(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.UniqueID.ValueString())
+	updateRequest := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinition(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConsentDefinitionOperations(plan, state)
@@ -358,7 +420,7 @@ func updateConsentDefinition(ctx context.Context, req resource.UpdateRequest, re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.ConsentDefinitionApi.UpdateConsentDefinitionExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinitionExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition", err, httpResp)
 			return
@@ -372,6 +434,55 @@ func updateConsentDefinition(ctx context.Context, req resource.UpdateRequest, re
 
 		// Read the response
 		readConsentDefinitionResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultConsentDefinitionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultConsentDefinitionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultConsentDefinitionResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinition(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createConsentDefinitionOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinitionExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Consent Definition", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readConsentDefinitionResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

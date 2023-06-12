@@ -105,8 +105,8 @@ func (r *defaultLocalDbCompositeIndexResource) Schema(ctx context.Context, req r
 	localDbCompositeIndexSchema(ctx, req, resp, true)
 }
 
-func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Local Db Composite Index.",
 		Attributes: map[string]schema.Attribute{
 			"backend_name": schema.StringAttribute{
@@ -162,14 +162,15 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id", "backend_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "backend_name"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for local-db-composite-index local-db-composite-index
 func addOptionalLocalDbCompositeIndexFields(ctx context.Context, addRequest *client.AddLocalDbCompositeIndexRequest, plan localDbCompositeIndexResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -227,22 +228,14 @@ func createLocalDbCompositeIndexOperations(plan localDbCompositeIndexResourceMod
 	return ops
 }
 
-// Create a new resource
-func (r *localDbCompositeIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan localDbCompositeIndexResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a local-db-composite-index local-db-composite-index
+func (r *localDbCompositeIndexResource) CreateLocalDbCompositeIndex(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan localDbCompositeIndexResourceModel) (*localDbCompositeIndexResourceModel, error) {
 	addRequest := client.NewAddLocalDbCompositeIndexRequest(plan.Id.ValueString(),
 		plan.IndexFilterPattern.ValueString())
 	err := addOptionalLocalDbCompositeIndexFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Local Db Composite Index", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -256,7 +249,7 @@ func (r *localDbCompositeIndexResource) Create(ctx context.Context, req resource
 	addResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexApi.AddLocalDbCompositeIndexExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Local Db Composite Index", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -268,12 +261,29 @@ func (r *localDbCompositeIndexResource) Create(ctx context.Context, req resource
 	// Read the response into the state
 	var state localDbCompositeIndexResourceModel
 	readLocalDbCompositeIndexResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *localDbCompositeIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan localDbCompositeIndexResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateLocalDbCompositeIndex(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

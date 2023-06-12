@@ -98,6 +98,22 @@ type debugTargetResourceModel struct {
 	Description              types.String `tfsdk:"description"`
 }
 
+type defaultDebugTargetResourceModel struct {
+	Id                       types.String `tfsdk:"id"`
+	LastUpdated              types.String `tfsdk:"last_updated"`
+	Notifications            types.Set    `tfsdk:"notifications"`
+	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	LogPublisherName         types.String `tfsdk:"log_publisher_name"`
+	DebugScope               types.String `tfsdk:"debug_scope"`
+	DebugLevel               types.String `tfsdk:"debug_level"`
+	DebugCategory            types.Set    `tfsdk:"debug_category"`
+	OmitMethodEntryArguments types.Bool   `tfsdk:"omit_method_entry_arguments"`
+	OmitMethodReturnValue    types.Bool   `tfsdk:"omit_method_return_value"`
+	IncludeThrowableCause    types.Bool   `tfsdk:"include_throwable_cause"`
+	ThrowableStackFrames     types.Int64  `tfsdk:"throwable_stack_frames"`
+	Description              types.String `tfsdk:"description"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *debugTargetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	debugTargetSchema(ctx, req, resp, false)
@@ -177,6 +193,10 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"debug-target"}...),
+		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"debug_scope", "log_publisher_name"})
 	}
@@ -234,8 +254,38 @@ func readDebugTargetResponse(ctx context.Context, r *client.DebugTargetResponse,
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a DebugTargetResponse object into the model struct
+func readDebugTargetResponseDefault(ctx context.Context, r *client.DebugTargetResponse, state *defaultDebugTargetResourceModel, expectedValues *defaultDebugTargetResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.LogPublisherName = expectedValues.LogPublisherName
+	state.DebugScope = types.StringValue(r.DebugScope)
+	state.DebugLevel = types.StringValue(r.DebugLevel.String())
+	state.DebugCategory = internaltypes.GetStringSet(
+		client.StringSliceEnumdebugTargetDebugCategoryProp(r.DebugCategory))
+	state.OmitMethodEntryArguments = internaltypes.BoolTypeOrNil(r.OmitMethodEntryArguments)
+	state.OmitMethodReturnValue = internaltypes.BoolTypeOrNil(r.OmitMethodReturnValue)
+	state.IncludeThrowableCause = internaltypes.BoolTypeOrNil(r.IncludeThrowableCause)
+	state.ThrowableStackFrames = internaltypes.Int64TypeOrNil(r.ThrowableStackFrames)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createDebugTargetOperations(plan debugTargetResourceModel, state debugTargetResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.DebugScope, state.DebugScope, "debug-scope")
+	operations.AddStringOperationIfNecessary(&ops, plan.DebugLevel, state.DebugLevel, "debug-level")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.DebugCategory, state.DebugCategory, "debug-category")
+	operations.AddBoolOperationIfNecessary(&ops, plan.OmitMethodEntryArguments, state.OmitMethodEntryArguments, "omit-method-entry-arguments")
+	operations.AddBoolOperationIfNecessary(&ops, plan.OmitMethodReturnValue, state.OmitMethodReturnValue, "omit-method-return-value")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeThrowableCause, state.IncludeThrowableCause, "include-throwable-cause")
+	operations.AddInt64OperationIfNecessary(&ops, plan.ThrowableStackFrames, state.ThrowableStackFrames, "throwable-stack-frames")
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	return ops
+}
+
+// Create any update operations necessary to make the state match the plan
+func createDebugTargetOperationsDefault(plan defaultDebugTargetResourceModel, state defaultDebugTargetResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.DebugScope, state.DebugScope, "debug-scope")
 	operations.AddStringOperationIfNecessary(&ops, plan.DebugLevel, state.DebugLevel, "debug-level")
@@ -322,7 +372,7 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan debugTargetResourceModel
+	var plan defaultDebugTargetResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -343,12 +393,12 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	// Read the existing configuration
-	var state debugTargetResourceModel
-	readDebugTargetResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultDebugTargetResourceModel
+	readDebugTargetResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
-	ops := createDebugTargetOperations(plan, state)
+	ops := createDebugTargetOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -367,7 +417,7 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 		}
 
 		// Read the response
-		readDebugTargetResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readDebugTargetResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -381,14 +431,6 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 
 // Read resource information
 func (r *debugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultDebugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state debugTargetResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -397,8 +439,8 @@ func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resour
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DebugTargetApi.GetDebugTarget(
-		ProviderBasicAuthContext(ctx, providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.DebugTargetApi.GetDebugTarget(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
 		return
@@ -421,16 +463,41 @@ func readDebugTarget(ctx context.Context, req resource.ReadRequest, resp *resour
 	}
 }
 
+func (r *defaultDebugTargetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultDebugTargetResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.DebugTargetApi.GetDebugTarget(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.DebugScope.ValueString(), state.LogPublisherName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Debug Target", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readDebugTargetResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *debugTargetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultDebugTargetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateDebugTarget(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan debugTargetResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -442,8 +509,8 @@ func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *re
 	// Get the current state to see how any attributes are changing
 	var state debugTargetResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DebugTargetApi.UpdateDebugTarget(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
+	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDebugTargetOperations(plan, state)
@@ -452,7 +519,7 @@ func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *re
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Target", err, httpResp)
 			return
@@ -466,6 +533,55 @@ func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *re
 
 		// Read the response
 		readDebugTargetResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultDebugTargetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultDebugTargetResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultDebugTargetResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createDebugTargetOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.DebugTargetApi.UpdateDebugTargetExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Debug Target", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readDebugTargetResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

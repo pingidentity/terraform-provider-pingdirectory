@@ -53,6 +53,14 @@ func (r *pluginRootResource) Configure(_ context.Context, req resource.Configure
 
 type pluginRootResourceModel struct {
 	// Id field required for acceptance testing framework
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+}
+
+type defaultPluginRootResourceModel struct {
+	// Id field required for acceptance testing framework
 	Id                                     types.String `tfsdk:"id"`
 	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
@@ -111,417 +119,16 @@ type pluginRootResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Plugin Root.",
-		Attributes: map[string]schema.Attribute{
-			"plugin_order_startup": schema.StringAttribute{
-				Description: "Specifies the order in which startup plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_shutdown": schema.StringAttribute{
-				Description: "Specifies the order in which shutdown plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_connect": schema.StringAttribute{
-				Description: "Specifies the order in which post-connect plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_disconnect": schema.StringAttribute{
-				Description: "Specifies the order in which post-disconnect plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_ldif_import": schema.StringAttribute{
-				Description: "Specifies the order in which LDIF import plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_ldif_export": schema.StringAttribute{
-				Description: "Specifies the order in which LDIF export plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_abandon": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse abandon plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_add": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse add plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_bind": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse bind plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_compare": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse compare plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_delete": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse delete plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_extended": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse extended operation plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_modify": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse modify plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_modify_dn": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse modify DN plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_search": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse search plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_parse_unbind": schema.StringAttribute{
-				Description: "Specifies the order in which pre-parse unbind plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_add": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation add plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_bind": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation bind plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_compare": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation compare plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_delete": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation delete plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_extended": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation extended operation plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_modify": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation modify plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_modify_dn": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation modify DN plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_pre_operation_search": schema.StringAttribute{
-				Description: "Specifies the order in which pre-operation search plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_abandon": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation abandon plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_add": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation add plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_bind": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation bind plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_compare": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation compare plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_delete": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation delete plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_extended": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation extended operation plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_modify": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation modify plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_modify_dn": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation modify DN plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_search": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation search plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_operation_unbind": schema.StringAttribute{
-				Description: "Specifies the order in which post-operation unbind plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_add": schema.StringAttribute{
-				Description: "Specifies the order in which post-response add plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_bind": schema.StringAttribute{
-				Description: "Specifies the order in which post-response bind plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_compare": schema.StringAttribute{
-				Description: "Specifies the order in which post-response compare plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_delete": schema.StringAttribute{
-				Description: "Specifies the order in which post-response delete plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_extended": schema.StringAttribute{
-				Description: "Specifies the order in which post-response extended operation plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_modify": schema.StringAttribute{
-				Description: "Specifies the order in which post-response modify plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_modify_dn": schema.StringAttribute{
-				Description: "Specifies the order in which post-response modify DN plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_synchronization_add": schema.StringAttribute{
-				Description: "Specifies the order in which post-synchronization add plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_synchronization_delete": schema.StringAttribute{
-				Description: "Specifies the order in which post-synchronization delete plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_synchronization_modify": schema.StringAttribute{
-				Description: "Specifies the order in which post-synchronization modify plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_synchronization_modify_dn": schema.StringAttribute{
-				Description: "Specifies the order in which post-synchronization modify DN plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_post_response_search": schema.StringAttribute{
-				Description: "Specifies the order in which post-response search plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_search_result_entry": schema.StringAttribute{
-				Description: "Specifies the order in which search result entry plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_search_result_reference": schema.StringAttribute{
-				Description: "Specifies the order in which search result reference plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_subordinate_modify_dn": schema.StringAttribute{
-				Description: "Specifies the order in which subordinate modify DN plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"plugin_order_intermediate_response": schema.StringAttribute{
-				Description: "Specifies the order in which intermediate response plug-ins are to be loaded and invoked.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-		},
+		Attributes:  map[string]schema.Attribute{},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a PluginRootResponse object into the model struct
-func readPluginRootResponse(ctx context.Context, r *client.PluginRootResponse, state *pluginRootResourceModel, diagnostics *diag.Diagnostics) {
+func readPluginRootResponseDefault(ctx context.Context, r *client.PluginRootResponse, state *defaultPluginRootResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.PluginOrderStartup = internaltypes.StringTypeOrNil(r.PluginOrderStartup, true)
@@ -579,6 +186,12 @@ func readPluginRootResponse(ctx context.Context, r *client.PluginRootResponse, s
 
 // Create any update operations necessary to make the state match the plan
 func createPluginRootOperations(plan pluginRootResourceModel, state pluginRootResourceModel) []client.Operation {
+	var ops []client.Operation
+	return ops
+}
+
+// Create any update operations necessary to make the state match the plan
+func createPluginRootOperationsDefault(plan defaultPluginRootResourceModel, state defaultPluginRootResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.PluginOrderStartup, state.PluginOrderStartup, "plugin-order-startup")
 	operations.AddStringOperationIfNecessary(&ops, plan.PluginOrderShutdown, state.PluginOrderShutdown, "plugin-order-shutdown")
@@ -639,7 +252,7 @@ func createPluginRootOperations(plan pluginRootResourceModel, state pluginRootRe
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *pluginRootResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan pluginRootResourceModel
+	var plan defaultPluginRootResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -660,12 +273,12 @@ func (r *pluginRootResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	// Read the existing configuration
-	var state pluginRootResourceModel
-	readPluginRootResponse(ctx, readResponse, &state, &resp.Diagnostics)
+	var state defaultPluginRootResourceModel
+	readPluginRootResponseDefault(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.PluginRootApi.UpdatePluginRoot(ProviderBasicAuthContext(ctx, r.providerConfig))
-	ops := createPluginRootOperations(plan, state)
+	ops := createPluginRootOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -684,7 +297,7 @@ func (r *pluginRootResource) Create(ctx context.Context, req resource.CreateRequ
 		}
 
 		// Read the response
-		readPluginRootResponse(ctx, updateResponse, &state, &resp.Diagnostics)
+		readPluginRootResponseDefault(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}

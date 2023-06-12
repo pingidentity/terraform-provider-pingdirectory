@@ -56,6 +56,14 @@ func (r *consentServiceResource) Configure(_ context.Context, req resource.Confi
 
 type consentServiceResourceModel struct {
 	// Id field required for acceptance testing framework
+	Id              types.String `tfsdk:"id"`
+	LastUpdated     types.String `tfsdk:"last_updated"`
+	Notifications   types.Set    `tfsdk:"notifications"`
+	RequiredActions types.Set    `tfsdk:"required_actions"`
+}
+
+type defaultConsentServiceResourceModel struct {
+	// Id field required for acceptance testing framework
 	Id                          types.String `tfsdk:"id"`
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
@@ -73,91 +81,16 @@ type consentServiceResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *consentServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Consent Service.",
-		Attributes: map[string]schema.Attribute{
-			"enabled": schema.BoolAttribute{
-				Description: "Indicates whether the Consent Service is enabled.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"base_dn": schema.StringAttribute{
-				Description: "The base DN under which consent records are stored.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"bind_dn": schema.StringAttribute{
-				Description: "The DN of an internal service account used by the Consent Service to make internal LDAP requests.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"search_size_limit": schema.Int64Attribute{
-				Description: "The maximum number of consent resources that may be returned from a search request.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"consent_record_identity_mapper": schema.SetAttribute{
-				Description: "If specified, the Identity Mapper(s) that may be used to map consent record subject and actor values to DNs. This is typically only needed if privileged API clients will be used.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
-				ElementType: types.StringType,
-			},
-			"service_account_dn": schema.SetAttribute{
-				Description: "The set of account DNs that the Consent Service will consider to be privileged.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.Set{
-					setplanmodifier.UseStateForUnknown(),
-				},
-				ElementType: types.StringType,
-			},
-			"unprivileged_consent_scope": schema.StringAttribute{
-				Description: "The name of a scope that must be present in an access token accepted by the Consent Service for unprivileged clients.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"privileged_consent_scope": schema.StringAttribute{
-				Description: "The name of a scope that must be present in an access token accepted by the Consent Service if the client is to be considered privileged.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"audience": schema.StringAttribute{
-				Description: "A string or URI that identifies the Consent Service in the context of OAuth2 authorization.",
-				Optional:    true,
-				Computed:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-		},
+		Attributes:  map[string]schema.Attribute{},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ConsentServiceResponse object into the model struct
-func readConsentServiceResponse(ctx context.Context, r *client.ConsentServiceResponse, state *consentServiceResourceModel, diagnostics *diag.Diagnostics) {
+func readConsentServiceResponseDefault(ctx context.Context, r *client.ConsentServiceResponse, state *defaultConsentServiceResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -174,6 +107,12 @@ func readConsentServiceResponse(ctx context.Context, r *client.ConsentServiceRes
 
 // Create any update operations necessary to make the state match the plan
 func createConsentServiceOperations(plan consentServiceResourceModel, state consentServiceResourceModel) []client.Operation {
+	var ops []client.Operation
+	return ops
+}
+
+// Create any update operations necessary to make the state match the plan
+func createConsentServiceOperationsDefault(plan defaultConsentServiceResourceModel, state defaultConsentServiceResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	operations.AddStringOperationIfNecessary(&ops, plan.BaseDN, state.BaseDN, "base-dn")
@@ -193,7 +132,7 @@ func createConsentServiceOperations(plan consentServiceResourceModel, state cons
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *consentServiceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan consentServiceResourceModel
+	var plan defaultConsentServiceResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -214,12 +153,12 @@ func (r *consentServiceResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Read the existing configuration
-	var state consentServiceResourceModel
-	readConsentServiceResponse(ctx, readResponse, &state, &resp.Diagnostics)
+	var state defaultConsentServiceResourceModel
+	readConsentServiceResponseDefault(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConsentServiceApi.UpdateConsentService(ProviderBasicAuthContext(ctx, r.providerConfig))
-	ops := createConsentServiceOperations(plan, state)
+	ops := createConsentServiceOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -238,7 +177,7 @@ func (r *consentServiceResource) Create(ctx context.Context, req resource.Create
 		}
 
 		// Read the response
-		readConsentServiceResponse(ctx, updateResponse, &state, &resp.Diagnostics)
+		readConsentServiceResponseDefault(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}

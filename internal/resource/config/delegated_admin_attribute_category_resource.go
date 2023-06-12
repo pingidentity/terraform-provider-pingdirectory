@@ -88,6 +88,16 @@ type delegatedAdminAttributeCategoryResourceModel struct {
 	DisplayOrderIndex types.Int64  `tfsdk:"display_order_index"`
 }
 
+type defaultDelegatedAdminAttributeCategoryResourceModel struct {
+	Id                types.String `tfsdk:"id"`
+	LastUpdated       types.String `tfsdk:"last_updated"`
+	Notifications     types.Set    `tfsdk:"notifications"`
+	RequiredActions   types.Set    `tfsdk:"required_actions"`
+	Description       types.String `tfsdk:"description"`
+	DisplayName       types.String `tfsdk:"display_name"`
+	DisplayOrderIndex types.Int64  `tfsdk:"display_order_index"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *delegatedAdminAttributeCategoryResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	delegatedAdminAttributeCategorySchema(ctx, req, resp, false)
@@ -97,8 +107,8 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Schema(ctx context.Cont
 	delegatedAdminAttributeCategorySchema(ctx, req, resp, true)
 }
 
-func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Attribute Category.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -118,14 +128,19 @@ func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.Sch
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"display_name"})
+	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"delegated-admin-attribute-category"}...),
+		}
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"display_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for delegated-admin-attribute-category delegated-admin-attribute-category
 func addOptionalDelegatedAdminAttributeCategoryFields(ctx context.Context, addRequest *client.AddDelegatedAdminAttributeCategoryRequest, plan delegatedAdminAttributeCategoryResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -142,6 +157,15 @@ func readDelegatedAdminAttributeCategoryResponse(ctx context.Context, r *client.
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
+// Read a DelegatedAdminAttributeCategoryResponse object into the model struct
+func readDelegatedAdminAttributeCategoryResponseDefault(ctx context.Context, r *client.DelegatedAdminAttributeCategoryResponse, state *defaultDelegatedAdminAttributeCategoryResourceModel, expectedValues *defaultDelegatedAdminAttributeCategoryResourceModel, diagnostics *diag.Diagnostics) {
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.DisplayName = types.StringValue(r.DisplayName)
+	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
+	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createDelegatedAdminAttributeCategoryOperations(plan delegatedAdminAttributeCategoryResourceModel, state delegatedAdminAttributeCategoryResourceModel) []client.Operation {
 	var ops []client.Operation
@@ -151,16 +175,17 @@ func createDelegatedAdminAttributeCategoryOperations(plan delegatedAdminAttribut
 	return ops
 }
 
-// Create a new resource
-func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan delegatedAdminAttributeCategoryResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// Create any update operations necessary to make the state match the plan
+func createDelegatedAdminAttributeCategoryOperationsDefault(plan defaultDelegatedAdminAttributeCategoryResourceModel, state defaultDelegatedAdminAttributeCategoryResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddStringOperationIfNecessary(&ops, plan.DisplayName, state.DisplayName, "display-name")
+	operations.AddInt64OperationIfNecessary(&ops, plan.DisplayOrderIndex, state.DisplayOrderIndex, "display-order-index")
+	return ops
+}
 
+// Create a delegated-admin-attribute-category delegated-admin-attribute-category
+func (r *delegatedAdminAttributeCategoryResource) CreateDelegatedAdminAttributeCategory(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminAttributeCategoryResourceModel) (*delegatedAdminAttributeCategoryResourceModel, error) {
 	addRequest := client.NewAddDelegatedAdminAttributeCategoryRequest(plan.DisplayName.ValueString(),
 		plan.DisplayOrderIndex.ValueInt64())
 	addOptionalDelegatedAdminAttributeCategoryFields(ctx, addRequest, plan)
@@ -176,7 +201,7 @@ func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, re
 	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.AddDelegatedAdminAttributeCategoryExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Attribute Category", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -188,12 +213,29 @@ func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, re
 	// Read the response into the state
 	var state delegatedAdminAttributeCategoryResourceModel
 	readDelegatedAdminAttributeCategoryResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan delegatedAdminAttributeCategoryResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateDelegatedAdminAttributeCategory(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -206,7 +248,7 @@ func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, re
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan delegatedAdminAttributeCategoryResourceModel
+	var plan defaultDelegatedAdminAttributeCategoryResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -227,12 +269,12 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 	}
 
 	// Read the existing configuration
-	var state delegatedAdminAttributeCategoryResourceModel
-	readDelegatedAdminAttributeCategoryResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state defaultDelegatedAdminAttributeCategoryResourceModel
+	readDelegatedAdminAttributeCategoryResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString())
-	ops := createDelegatedAdminAttributeCategoryOperations(plan, state)
+	ops := createDelegatedAdminAttributeCategoryOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -251,7 +293,7 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 		}
 
 		// Read the response
-		readDelegatedAdminAttributeCategoryResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readDelegatedAdminAttributeCategoryResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
@@ -265,14 +307,6 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 
 // Read resource information
 func (r *delegatedAdminAttributeCategoryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDelegatedAdminAttributeCategory(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultDelegatedAdminAttributeCategoryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readDelegatedAdminAttributeCategory(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readDelegatedAdminAttributeCategory(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state delegatedAdminAttributeCategoryResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -281,8 +315,8 @@ func readDelegatedAdminAttributeCategory(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
-		ProviderBasicAuthContext(ctx, providerConfig), state.DisplayName.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.DisplayName.ValueString()).Execute()
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute Category", err, httpResp)
 		return
@@ -305,16 +339,41 @@ func readDelegatedAdminAttributeCategory(ctx context.Context, req resource.ReadR
 	}
 }
 
+func (r *defaultDelegatedAdminAttributeCategoryResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultDelegatedAdminAttributeCategoryResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.GetDelegatedAdminAttributeCategory(
+		ProviderBasicAuthContext(ctx, r.providerConfig), state.DisplayName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute Category", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readDelegatedAdminAttributeCategoryResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *delegatedAdminAttributeCategoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateDelegatedAdminAttributeCategory(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultDelegatedAdminAttributeCategoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateDelegatedAdminAttributeCategory(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateDelegatedAdminAttributeCategory(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan delegatedAdminAttributeCategoryResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -326,8 +385,8 @@ func updateDelegatedAdminAttributeCategory(ctx context.Context, req resource.Upd
 	// Get the current state to see how any attributes are changing
 	var state delegatedAdminAttributeCategoryResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(
-		ProviderBasicAuthContext(ctx, providerConfig), plan.DisplayName.ValueString())
+	updateRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDelegatedAdminAttributeCategoryOperations(plan, state)
@@ -336,7 +395,7 @@ func updateDelegatedAdminAttributeCategory(ctx context.Context, req resource.Upd
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute Category", err, httpResp)
 			return
@@ -350,6 +409,55 @@ func updateDelegatedAdminAttributeCategory(ctx context.Context, req resource.Upd
 
 		// Read the response
 		readDelegatedAdminAttributeCategoryResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultDelegatedAdminAttributeCategoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultDelegatedAdminAttributeCategoryResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultDelegatedAdminAttributeCategoryResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(
+		ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createDelegatedAdminAttributeCategoryOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategoryExecute(updateRequest)
+		if err != nil {
+			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute Category", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		readDelegatedAdminAttributeCategoryResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

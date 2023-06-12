@@ -119,8 +119,8 @@ func (r *defaultJsonFieldConstraintsResource) Schema(ctx context.Context, req re
 	jsonFieldConstraintsSchema(ctx, req, resp, true)
 }
 
-func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Json Field Constraints.",
 		Attributes: map[string]schema.Attribute{
 			"json_attribute_constraints_name": schema.StringAttribute{
@@ -221,19 +221,19 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies an explicit set of string values that will be the only values permitted for the target field. If a set of allowed values is defined, then the server will reject any attempt to store a JSON object with a value for the target field that is not included in that set.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_value_regular_expression": schema.SetAttribute{
 				Description: "Specifies an explicit set of regular expressions that may be used to restrict the set of values that may be used for the target field. If a set of allowed value regular expressions is defined, then the server will reject any attempt to store a JSON object with a value for the target field that does not match at least one of those regular expressions.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"minimum_numeric_value": schema.StringAttribute{
 				Description: "Specifies the smallest numeric value that may be used as the value for the target field. If configured, then the server will reject any attempt to store a JSON object with a value for the target field that is less than that minimum numeric value.",
@@ -261,14 +261,15 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"json_field", "json_attribute_constraints_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"json_field", "json_attribute_constraints_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for json-field-constraints json-field-constraints
 func addOptionalJsonFieldConstraintsFields(ctx context.Context, addRequest *client.AddJsonFieldConstraintsRequest, plan jsonFieldConstraintsResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -399,27 +400,19 @@ func createJsonFieldConstraintsOperations(plan jsonFieldConstraintsResourceModel
 	return ops
 }
 
-// Create a new resource
-func (r *jsonFieldConstraintsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan jsonFieldConstraintsResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a json-field-constraints json-field-constraints
+func (r *jsonFieldConstraintsResource) CreateJsonFieldConstraints(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan jsonFieldConstraintsResourceModel) (*jsonFieldConstraintsResourceModel, error) {
 	valueType, err := client.NewEnumjsonFieldConstraintsValueTypePropFromValue(plan.ValueType.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to parse enum value for ValueType", err.Error())
-		return
+		return nil, err
 	}
 	addRequest := client.NewAddJsonFieldConstraintsRequest(plan.JsonField.ValueString(),
 		*valueType)
 	err = addOptionalJsonFieldConstraintsFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Json Field Constraints", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -433,7 +426,7 @@ func (r *jsonFieldConstraintsResource) Create(ctx context.Context, req resource.
 	addResponse, httpResp, err := r.apiClient.JsonFieldConstraintsApi.AddJsonFieldConstraintsExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Json Field Constraints", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -445,12 +438,29 @@ func (r *jsonFieldConstraintsResource) Create(ctx context.Context, req resource.
 	// Read the response into the state
 	var state jsonFieldConstraintsResourceModel
 	readJsonFieldConstraintsResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *jsonFieldConstraintsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan jsonFieldConstraintsResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateJsonFieldConstraints(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

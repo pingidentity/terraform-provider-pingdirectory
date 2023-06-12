@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
@@ -129,6 +131,9 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"indicator", "numeric"}...),
 				},
 			},
 			"gauge_data_source": schema.StringAttribute{
@@ -296,16 +301,20 @@ func modifyPlanGauge(ctx context.Context, req resource.ModifyPlanRequest, resp *
 	var model gaugeResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.MinorExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'minor_exit_value', the 'type' attribute must be one of ['numeric']")
 	}
 	if internaltypes.IsDefined(model.CriticalExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'critical_exit_value', the 'type' attribute must be one of ['numeric']")
 	}
 	if internaltypes.IsDefined(model.MajorExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'major_exit_value', the 'type' attribute must be one of ['numeric']")
 	}
 	if internaltypes.IsDefined(model.WarningExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'warning_exit_value', the 'type' attribute must be one of ['numeric']")
 	}
 }
 

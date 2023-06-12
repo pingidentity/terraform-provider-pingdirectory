@@ -138,8 +138,8 @@ func (r *defaultClientConnectionPolicyResource) Schema(ctx context.Context, req 
 	clientConnectionPolicySchema(ctx, req, resp, true)
 }
 
-func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Client Connection Policy.",
 		Attributes: map[string]schema.Attribute{
 			"policy_id": schema.StringAttribute{
@@ -177,19 +177,19 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Provides the ability to indicate that some attributes should be considered sensitive and additional protection should be in place when interacting with those attributes.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"exclude_global_sensitive_attribute": schema.SetAttribute{
 				Description: "Specifies the set of global sensitive attribute definitions that should not apply to this client connection policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"result_code_map": schema.StringAttribute{
 				Description: "Specifies the result code map that should be used for clients associated with this Client Connection Policy. If a value is defined for this property, then it will override any result code map referenced in the global configuration.",
@@ -199,28 +199,28 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the set of backend base DNs for which subtree views should be included in this Client Connection Policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"excluded_backend_base_dn": schema.SetAttribute{
 				Description: "Specifies the set of backend base DNs for which subtree views should be excluded from this Client Connection Policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_operation": schema.SetAttribute{
 				Description: "Specifies the types of operations that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"required_operation_request_criteria": schema.StringAttribute{
 				Description: "Specifies a request criteria object that will be required to match all requests submitted by clients associated with this Client Connection Policy. If a client submits a request that does not satisfy this request criteria object, then that request will be rejected.",
@@ -234,73 +234,73 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the OIDs of the controls that clients associated with this Client Connection Policy will be allowed to include in requests.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"denied_request_control": schema.SetAttribute{
 				Description: "Specifies the OIDs of the controls that clients associated with this Client Connection Policy will not be allowed to include in requests.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_extended_operation": schema.SetAttribute{
 				Description: "Specifies the OIDs of the extended operations that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"denied_extended_operation": schema.SetAttribute{
 				Description: "Specifies the OIDs of the extended operations that clients associated with this Client Connection Policy will not be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_auth_type": schema.SetAttribute{
 				Description: "Specifies the types of authentication that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_sasl_mechanism": schema.SetAttribute{
 				Description: "Specifies the names of the SASL mechanisms that clients associated with this Client Connection Policy will be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"denied_sasl_mechanism": schema.SetAttribute{
 				Description: "Specifies the names of the SASL mechanisms that clients associated with this Client Connection Policy will not be allowed to request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_filter_type": schema.SetAttribute{
 				Description: "Specifies the types of filter components that may be included in search requests from clients associated with this Client Connection Policy which have a non-baseObject scope.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allow_unindexed_searches": schema.BoolAttribute{
 				Description: "Indicates whether clients will be allowed to request search operations that cannot be efficiently processed using the set of indexes defined in the corresponding backend. Note that even if this is false, some clients may be able to request unindexed searches if the allow-unindexed-searches-with-control property has a value of true and the necessary conditions are satisfied.",
@@ -386,10 +386,10 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the maximum rate at which a client associated with this Client Connection Policy may issue requests to the Directory Server. If any client attempts to request operations at a rate higher than this limit, then the server will exhibit the behavior described in the connection-operation-rate-exceeded-behavior property.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"connection_operation_rate_exceeded_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the Directory Server should exhibit if a client connection attempts to exceed a rate defined in the maximum-connection-operation-rate property. If the configured behavior is one that will reject requested operations, then that behavior will persist until the end of the corresponding interval. The server will resume allowing that client to perform operations when that interval expires, as long as no other operation rate limits have been exceeded.",
@@ -403,10 +403,10 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 				Description: "Specifies the maximum rate at which all clients associated with this Client Connection Policy, as a collective set, may issue requests to the Directory Server. If this limit is exceeded, then the server will exhibit the behavior described in the policy-operation-rate-exceeded-behavior property.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"policy_operation_rate_exceeded_behavior": schema.StringAttribute{
 				Description: "Specifies the behavior that the Directory Server should exhibit if a client connection attempts to exceed a rate defined in the maximum-policy-operation-rate property. If the configured behavior is one that will reject requested operations, then that behavior will persist until the end of the corresponding interval. The server will resume allowing clients associated with this Client Connection Policy to perform operations when that interval expires, as long as no other operation rate limits have been exceeded.",
@@ -458,14 +458,15 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"policy_id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"policy_id"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for client-connection-policy client-connection-policy
 func addOptionalClientConnectionPolicyFields(ctx context.Context, addRequest *client.AddClientConnectionPolicyRequest, plan clientConnectionPolicyResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -770,16 +771,8 @@ func createClientConnectionPolicyOperations(plan clientConnectionPolicyResourceM
 	return ops
 }
 
-// Create a new resource
-func (r *clientConnectionPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan clientConnectionPolicyResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a client-connection-policy client-connection-policy
+func (r *clientConnectionPolicyResource) CreateClientConnectionPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan clientConnectionPolicyResourceModel) (*clientConnectionPolicyResourceModel, error) {
 	addRequest := client.NewAddClientConnectionPolicyRequest(plan.PolicyID.ValueString(),
 		plan.PolicyID.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -787,7 +780,7 @@ func (r *clientConnectionPolicyResource) Create(ctx context.Context, req resourc
 	err := addOptionalClientConnectionPolicyFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Client Connection Policy", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -801,7 +794,7 @@ func (r *clientConnectionPolicyResource) Create(ctx context.Context, req resourc
 	addResponse, httpResp, err := r.apiClient.ClientConnectionPolicyApi.AddClientConnectionPolicyExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Client Connection Policy", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -813,12 +806,29 @@ func (r *clientConnectionPolicyResource) Create(ctx context.Context, req resourc
 	// Read the response into the state
 	var state clientConnectionPolicyResourceModel
 	readClientConnectionPolicyResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *clientConnectionPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan clientConnectionPolicyResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateClientConnectionPolicy(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

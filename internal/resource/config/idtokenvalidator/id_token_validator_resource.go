@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
@@ -101,6 +103,27 @@ type idTokenValidatorResourceModel struct {
 	EvaluationOrderIndex               types.Int64  `tfsdk:"evaluation_order_index"`
 }
 
+type defaultIdTokenValidatorResourceModel struct {
+	Id                                 types.String `tfsdk:"id"`
+	LastUpdated                        types.String `tfsdk:"last_updated"`
+	Notifications                      types.Set    `tfsdk:"notifications"`
+	RequiredActions                    types.Set    `tfsdk:"required_actions"`
+	Type                               types.String `tfsdk:"type"`
+	AllowedSigningAlgorithm            types.Set    `tfsdk:"allowed_signing_algorithm"`
+	SigningCertificate                 types.Set    `tfsdk:"signing_certificate"`
+	IssuerURL                          types.String `tfsdk:"issuer_url"`
+	JwksEndpointPath                   types.String `tfsdk:"jwks_endpoint_path"`
+	OpenIDConnectProvider              types.String `tfsdk:"openid_connect_provider"`
+	OpenIDConnectMetadataCacheDuration types.String `tfsdk:"openid_connect_metadata_cache_duration"`
+	Description                        types.String `tfsdk:"description"`
+	Enabled                            types.Bool   `tfsdk:"enabled"`
+	IdentityMapper                     types.String `tfsdk:"identity_mapper"`
+	SubjectClaimName                   types.String `tfsdk:"subject_claim_name"`
+	ClockSkewGracePeriod               types.String `tfsdk:"clock_skew_grace_period"`
+	JwksCacheDuration                  types.String `tfsdk:"jwks_cache_duration"`
+	EvaluationOrderIndex               types.Int64  `tfsdk:"evaluation_order_index"`
+}
+
 // GetSchema defines the schema for the resource.
 func (r *idTokenValidatorResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	idTokenValidatorSchema(ctx, req, resp, false)
@@ -119,6 +142,9 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"ping-one", "openid-connect"}...),
 				},
 			},
 			"allowed_signing_algorithm": schema.SetAttribute{
@@ -210,6 +236,10 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"ping-one", "openid-connect"}...),
+		}
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -227,19 +257,23 @@ func (r *defaultIdTokenValidatorResource) ModifyPlan(ctx context.Context, req re
 }
 
 func modifyPlanIdTokenValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model idTokenValidatorResourceModel
+	var model defaultIdTokenValidatorResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.AllowedSigningAlgorithm) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'allowed_signing_algorithm' not supported by pingdirectory_id_token_validator resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'allowed_signing_algorithm' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'allowed_signing_algorithm', the 'type' attribute must be one of ['openid-connect']")
 	}
 	if internaltypes.IsDefined(model.SigningCertificate) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'signing_certificate' not supported by pingdirectory_id_token_validator resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'signing_certificate' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'signing_certificate', the 'type' attribute must be one of ['openid-connect']")
 	}
 	if internaltypes.IsDefined(model.JwksEndpointPath) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'jwks_endpoint_path' not supported by pingdirectory_id_token_validator resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'jwks_endpoint_path' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'jwks_endpoint_path', the 'type' attribute must be one of ['openid-connect']")
 	}
 	if internaltypes.IsDefined(model.OpenIDConnectMetadataCacheDuration) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'openid_connect_metadata_cache_duration' not supported by pingdirectory_id_token_validator resources with type '"+model.Type.ValueString()+"'", "")
+		resp.Diagnostics.AddError("Attribute 'openid_connect_metadata_cache_duration' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'openid_connect_metadata_cache_duration', the 'type' attribute must be one of ['ping-one']")
 	}
 }
 
@@ -314,6 +348,16 @@ func populateIdTokenValidatorNilSets(ctx context.Context, model *idTokenValidato
 	}
 }
 
+// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
+func populateIdTokenValidatorNilSetsDefault(ctx context.Context, model *defaultIdTokenValidatorResourceModel) {
+	if model.SigningCertificate.ElementType(ctx) == nil {
+		model.SigningCertificate = types.SetNull(types.StringType)
+	}
+	if model.AllowedSigningAlgorithm.ElementType(ctx) == nil {
+		model.AllowedSigningAlgorithm = types.SetNull(types.StringType)
+	}
+}
+
 // Read a PingOneIdTokenValidatorResponse object into the model struct
 func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneIdTokenValidatorResponse, state *idTokenValidatorResourceModel, expectedValues *idTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one")
@@ -336,6 +380,30 @@ func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneI
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateIdTokenValidatorNilSets(ctx, state)
+}
+
+// Read a PingOneIdTokenValidatorResponse object into the model struct
+func readPingOneIdTokenValidatorResponseDefault(ctx context.Context, r *client.PingOneIdTokenValidatorResponse, state *defaultIdTokenValidatorResourceModel, expectedValues *defaultIdTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ping-one")
+	state.Id = types.StringValue(r.Id)
+	state.IssuerURL = types.StringValue(r.IssuerURL)
+	state.OpenIDConnectProvider = types.StringValue(r.OpenIDConnectProvider)
+	state.OpenIDConnectMetadataCacheDuration = internaltypes.StringTypeOrNil(r.OpenIDConnectMetadataCacheDuration, internaltypes.IsEmptyString(expectedValues.OpenIDConnectMetadataCacheDuration))
+	config.CheckMismatchedPDFormattedAttributes("openid_connect_metadata_cache_duration",
+		expectedValues.OpenIDConnectMetadataCacheDuration, state.OpenIDConnectMetadataCacheDuration, diagnostics)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.IdentityMapper = types.StringValue(r.IdentityMapper)
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, internaltypes.IsEmptyString(expectedValues.ClockSkewGracePeriod))
+	config.CheckMismatchedPDFormattedAttributes("clock_skew_grace_period",
+		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
+	state.JwksCacheDuration = internaltypes.StringTypeOrNil(r.JwksCacheDuration, internaltypes.IsEmptyString(expectedValues.JwksCacheDuration))
+	config.CheckMismatchedPDFormattedAttributes("jwks_cache_duration",
+		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateIdTokenValidatorNilSetsDefault(ctx, state)
 }
 
 // Read a OpenidConnectIdTokenValidatorResponse object into the model struct
@@ -363,8 +431,52 @@ func readOpenidConnectIdTokenValidatorResponse(ctx context.Context, r *client.Op
 	populateIdTokenValidatorNilSets(ctx, state)
 }
 
+// Read a OpenidConnectIdTokenValidatorResponse object into the model struct
+func readOpenidConnectIdTokenValidatorResponseDefault(ctx context.Context, r *client.OpenidConnectIdTokenValidatorResponse, state *defaultIdTokenValidatorResourceModel, expectedValues *defaultIdTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("openid-connect")
+	state.Id = types.StringValue(r.Id)
+	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
+		client.StringSliceEnumidTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
+	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
+	state.OpenIDConnectProvider = internaltypes.StringTypeOrNil(r.OpenIDConnectProvider, internaltypes.IsEmptyString(expectedValues.OpenIDConnectProvider))
+	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, internaltypes.IsEmptyString(expectedValues.JwksEndpointPath))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.IdentityMapper = types.StringValue(r.IdentityMapper)
+	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
+	state.IssuerURL = types.StringValue(r.IssuerURL)
+	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, internaltypes.IsEmptyString(expectedValues.ClockSkewGracePeriod))
+	config.CheckMismatchedPDFormattedAttributes("clock_skew_grace_period",
+		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
+	state.JwksCacheDuration = internaltypes.StringTypeOrNil(r.JwksCacheDuration, internaltypes.IsEmptyString(expectedValues.JwksCacheDuration))
+	config.CheckMismatchedPDFormattedAttributes("jwks_cache_duration",
+		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
+	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateIdTokenValidatorNilSetsDefault(ctx, state)
+}
+
 // Create any update operations necessary to make the state match the plan
 func createIdTokenValidatorOperations(plan idTokenValidatorResourceModel, state idTokenValidatorResourceModel) []client.Operation {
+	var ops []client.Operation
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedSigningAlgorithm, state.AllowedSigningAlgorithm, "allowed-signing-algorithm")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.SigningCertificate, state.SigningCertificate, "signing-certificate")
+	operations.AddStringOperationIfNecessary(&ops, plan.IssuerURL, state.IssuerURL, "issuer-url")
+	operations.AddStringOperationIfNecessary(&ops, plan.JwksEndpointPath, state.JwksEndpointPath, "jwks-endpoint-path")
+	operations.AddStringOperationIfNecessary(&ops, plan.OpenIDConnectProvider, state.OpenIDConnectProvider, "openid-connect-provider")
+	operations.AddStringOperationIfNecessary(&ops, plan.OpenIDConnectMetadataCacheDuration, state.OpenIDConnectMetadataCacheDuration, "openid-connect-metadata-cache-duration")
+	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
+	operations.AddStringOperationIfNecessary(&ops, plan.IdentityMapper, state.IdentityMapper, "identity-mapper")
+	operations.AddStringOperationIfNecessary(&ops, plan.SubjectClaimName, state.SubjectClaimName, "subject-claim-name")
+	operations.AddStringOperationIfNecessary(&ops, plan.ClockSkewGracePeriod, state.ClockSkewGracePeriod, "clock-skew-grace-period")
+	operations.AddStringOperationIfNecessary(&ops, plan.JwksCacheDuration, state.JwksCacheDuration, "jwks-cache-duration")
+	operations.AddInt64OperationIfNecessary(&ops, plan.EvaluationOrderIndex, state.EvaluationOrderIndex, "evaluation-order-index")
+	return ops
+}
+
+// Create any update operations necessary to make the state match the plan
+func createIdTokenValidatorOperationsDefault(plan defaultIdTokenValidatorResourceModel, state defaultIdTokenValidatorResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedSigningAlgorithm, state.AllowedSigningAlgorithm, "allowed-signing-algorithm")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.SigningCertificate, state.SigningCertificate, "signing-certificate")
@@ -501,7 +613,7 @@ func (r *idTokenValidatorResource) Create(ctx context.Context, req resource.Crea
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan idTokenValidatorResourceModel
+	var plan defaultIdTokenValidatorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -522,17 +634,17 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 	}
 
 	// Read the existing configuration
-	var state idTokenValidatorResourceModel
+	var state defaultIdTokenValidatorResourceModel
 	if plan.Type.ValueString() == "ping-one" {
-		readPingOneIdTokenValidatorResponse(ctx, readResponse.PingOneIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readPingOneIdTokenValidatorResponseDefault(ctx, readResponse.PingOneIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "openid-connect" {
-		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readOpenidConnectIdTokenValidatorResponseDefault(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createIdTokenValidatorOperations(plan, state)
+	ops := createIdTokenValidatorOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -552,10 +664,10 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 
 		// Read the response
 		if plan.Type.ValueString() == "ping-one" {
-			readPingOneIdTokenValidatorResponse(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+			readPingOneIdTokenValidatorResponseDefault(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "openid-connect" {
-			readOpenidConnectIdTokenValidatorResponse(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+			readOpenidConnectIdTokenValidatorResponseDefault(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -570,14 +682,6 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 
 // Read resource information
 func (r *idTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultIdTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	readIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Get current state
 	var state idTokenValidatorResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -586,8 +690,8 @@ func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *r
 		return
 	}
 
-	readResponse, httpResp, err := apiClient.IdTokenValidatorApi.GetIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.GetIdTokenValidator(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)
 		return
@@ -615,16 +719,40 @@ func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 }
 
+func (r *defaultIdTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	// Get current state
+	var state defaultIdTokenValidatorResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.GetIdTokenValidator(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 // Update a resource
 func (r *idTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultIdTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	updateIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
 	var plan idTokenValidatorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -636,8 +764,8 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 	// Get the current state to see how any attributes are changing
 	var state idTokenValidatorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createIdTokenValidatorOperations(plan, state)
@@ -646,7 +774,7 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := apiClient.IdTokenValidatorApi.UpdateIdTokenValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Id Token Validator", err, httpResp)
 			return
@@ -664,6 +792,60 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 		}
 		if plan.Type.ValueString() == "openid-connect" {
 			readOpenidConnectIdTokenValidatorResponse(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		}
+		// Update computed values
+		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
+	} else {
+		tflog.Warn(ctx, "No configuration API operations created for update")
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *defaultIdTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
+	var plan defaultIdTokenValidatorResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Get the current state to see how any attributes are changing
+	var state defaultIdTokenValidatorResourceModel
+	req.State.Get(ctx, &state)
+	updateRequest := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+
+	// Determine what update operations are necessary
+	ops := createIdTokenValidatorOperationsDefault(plan, state)
+	if len(ops) > 0 {
+		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
+		// Log operations
+		operations.LogUpdateOperations(ctx, ops)
+
+		updateResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidatorExecute(updateRequest)
+		if err != nil {
+			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Id Token Validator", err, httpResp)
+			return
+		}
+
+		// Log response JSON
+		responseJson, err := updateResponse.MarshalJSON()
+		if err == nil {
+			tflog.Debug(ctx, "Update response: "+string(responseJson))
+		}
+
+		// Read the response
+		if plan.Type.ValueString() == "ping-one" {
+			readPingOneIdTokenValidatorResponseDefault(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "openid-connect" {
+			readOpenidConnectIdTokenValidatorResponseDefault(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

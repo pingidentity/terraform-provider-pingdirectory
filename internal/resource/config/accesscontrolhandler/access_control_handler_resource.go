@@ -67,35 +67,35 @@ type accessControlHandlerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Access Control Handler.",
 		Attributes: map[string]schema.Attribute{
 			"global_aci": schema.SetAttribute{
 				Description: "Defines global access control rules.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_bind_control": schema.SetAttribute{
 				Description: "Specifies a set of controls that clients should be allowed to include in bind requests. As bind requests are evaluated as the unauthenticated user, any controls included in this set will be permitted for any bind attempt. If you wish to grant permission for any bind controls not listed here, then the allowed-bind-control-oid property may be used to accomplish that.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_bind_control_oid": schema.SetAttribute{
 				Description: "Specifies the OIDs of any additional controls (not covered by the allowed-bind-control property) that should be permitted in bind requests.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether this Access Control Handler is enabled. If set to FALSE, then no access control is enforced, and any client (including unauthenticated or anonymous clients) could be allowed to perform any operation if not subject to other restrictions, such as those enforced by the privilege subsystem.",
@@ -107,8 +107,8 @@ func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.
 			},
 		},
 	}
-	config.AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	config.AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a DseeCompatAccessControlHandlerResponse object into the model struct
