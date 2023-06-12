@@ -79,7 +79,8 @@ func TestAccCorrelatedLdapDataView(t *testing.T) {
 
 func testAccCorrelatedLdapDataViewResource(resourceName string, resourceModel correlatedLdapDataViewTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_ldap_mapping_scim_resource_type" "%[3]s" {
+resource "pingdirectory_scim_resource_type" "%[3]s" {
+	type = "ldap-mapping"
   id          = "%[3]s"
   core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
   enabled     = false
@@ -92,7 +93,7 @@ resource "pingdirectory_scim_schema" "myScimSchema" {
 
 resource "pingdirectory_correlated_ldap_data_view" "%[1]s" {
   id                              = "%[2]s"
-  scim_resource_type_name         = pingdirectory_ldap_mapping_scim_resource_type.%[3]s.id
+  scim_resource_type_name         = pingdirectory_scim_resource_type.%[3]s.id
   structural_ldap_objectclass     = "%[4]s"
   include_base_dn                 = "%[5]s"
   primary_correlation_attribute   = "%[6]s"

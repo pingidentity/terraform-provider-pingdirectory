@@ -54,7 +54,7 @@ func TestAccAccessLogFieldMapping(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccAccessLogFieldMappingResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_access_log_field_mapping." + resourceName,
+				ResourceName:      "pingdirectory_log_field_mapping." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -68,7 +68,8 @@ func TestAccAccessLogFieldMapping(t *testing.T) {
 
 func testAccAccessLogFieldMappingResource(resourceName string, resourceModel accessLogFieldMappingTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_access_log_field_mapping" "%[1]s" {
+resource "pingdirectory_log_field_mapping" "%[1]s" {
+	type = "access"
   id                = "%[2]s"
   description       = "%[3]s"
   log_field_message = "%[4]s"

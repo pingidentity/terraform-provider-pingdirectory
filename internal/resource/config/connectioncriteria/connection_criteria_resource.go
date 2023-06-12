@@ -428,6 +428,7 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"simple", "aggregate", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

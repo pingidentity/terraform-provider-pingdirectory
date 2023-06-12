@@ -55,7 +55,7 @@ func TestAccIndicatorGaugeDataSource(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccIndicatorGaugeDataSourceResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_indicator_gauge_data_source." + resourceName,
+				ResourceName:      "pingdirectory_gauge_data_source." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,8 @@ func TestAccIndicatorGaugeDataSource(t *testing.T) {
 
 func testAccIndicatorGaugeDataSourceResource(resourceName string, resourceModel indicatorGaugeDataSourceTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_indicator_gauge_data_source" "%[1]s" {
+resource "pingdirectory_gauge_data_source" "%[1]s" {
+	type = "indicator"
   id                  = "%[2]s"
   monitor_objectclass = "%[3]s"
   monitor_attribute   = "%[4]s"

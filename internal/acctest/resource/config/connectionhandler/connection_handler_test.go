@@ -51,7 +51,7 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedHttpConnectionHandlerAttributes(initialResourceModel),
 					// Check some computed attributes are set as expected (PingDirectory defaults)
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_http_connection_handler.%s", resourceName), "use_ssl", "false"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_connection_handler.%s", resourceName), "use_ssl", "false"),
 				),
 			},
 			{
@@ -64,7 +64,7 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccHttpConnectionHandler(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_http_connection_handler." + resourceName,
+				ResourceName:            "pingdirectory_connection_handler." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -76,7 +76,8 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 
 func testAccHttpConnectionHandler(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_http_connection_handler" "%[1]s" {
+resource "pingdirectory_connection_handler" "%[1]s" {
+	type = "http"
   id                     = "%[2]s"
   listen_port            = %[3]d
   enabled                = %[4]t

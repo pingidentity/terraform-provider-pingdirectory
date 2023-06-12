@@ -55,7 +55,7 @@ func TestAccLdapPassThroughAuthenticationHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccLdapPassThroughAuthenticationHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_ldap_pass_through_authentication_handler." + resourceName,
+				ResourceName:      "pingdirectory_pass_through_authentication_handler." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,16 +69,18 @@ func TestAccLdapPassThroughAuthenticationHandler(t *testing.T) {
 
 func testAccLdapPassThroughAuthenticationHandlerResource(resourceName string, resourceModel ldapPassThroughAuthenticationHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_ldap_external_server" "%[4]s" {
+resource "pingdirectory_external_server" "%[4]s" {
+	type = "ldap"
   id                    = "%[4]s"
   server_host_name      = "localhost"
   authentication_method = "none"
 }
 
-resource "pingdirectory_ldap_pass_through_authentication_handler" "%[1]s" {
+resource "pingdirectory_pass_through_authentication_handler" "%[1]s" {
+	type = "ldap"
   id          = "%[2]s"
   description = "%[3]s"
-  server      = [pingdirectory_ldap_external_server.%[4]s.id]
+  server      = [pingdirectory_external_server.%[4]s.id]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

@@ -219,6 +219,7 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"exact-match", "groovy-scripted", "regular-expression", "aggregate", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

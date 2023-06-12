@@ -53,7 +53,7 @@ func TestAccGenericLogFieldSyntax(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccGenericLogFieldSyntaxResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_default_generic_log_field_syntax." + resourceName,
+				ResourceName:      "pingdirectory_default_log_field_syntax." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -67,7 +67,8 @@ func TestAccGenericLogFieldSyntax(t *testing.T) {
 
 func testAccGenericLogFieldSyntaxResource(resourceName string, resourceModel genericLogFieldSyntaxTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_generic_log_field_syntax" "%[1]s" {
+resource "pingdirectory_default_log_field_syntax" "%[1]s" {
+	type = "generic"
   id               = "%[2]s"
   default_behavior = "%[3]s"
 }`, resourceName,

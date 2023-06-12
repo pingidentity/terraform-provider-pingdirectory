@@ -55,7 +55,7 @@ func TestAccGeneralPartyMonitorProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccGeneralMonitorProviderResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_default_general_monitor_provider." + resourceName,
+				ResourceName:      "pingdirectory_default_monitor_provider." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,8 @@ func TestAccGeneralPartyMonitorProvider(t *testing.T) {
 
 func testAccGeneralMonitorProviderResource(resourceName string, resourceModel generalMonitorProviderTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_general_monitor_provider" "%[1]s" {
+resource "pingdirectory_default_monitor_provider" "%[1]s" {
+	type = "general"
   id          = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t

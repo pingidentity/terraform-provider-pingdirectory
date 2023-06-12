@@ -55,7 +55,7 @@ func TestAccFifoEntryCache(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccFifoEntryCacheResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_fifo_entry_cache." + resourceName,
+				ResourceName:      "pingdirectory_entry_cache." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,7 @@ func TestAccFifoEntryCache(t *testing.T) {
 
 func testAccFifoEntryCacheResource(resourceName string, resourceModel fifoEntryCacheTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_fifo_entry_cache" "%[1]s" {
+resource "pingdirectory_entry_cache" "%[1]s" {
   id          = "%[2]s"
   enabled     = %[3]t
   cache_level = %[4]d

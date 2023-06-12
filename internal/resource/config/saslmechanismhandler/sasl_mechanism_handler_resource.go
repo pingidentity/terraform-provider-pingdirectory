@@ -283,6 +283,7 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "external", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "anonymous", "cram-md5", "oauth-bearer", "unboundid-certificate-plus-password", "gssapi", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["kdc_address"] = schema.StringAttribute{
 			Description: "Specifies the address of the KDC that is to be used for Kerberos processing.",

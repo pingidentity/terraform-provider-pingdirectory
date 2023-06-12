@@ -357,6 +357,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"output", "smtp", "jmx", "groovy-scripted", "custom", "snmp", "twilio", "error-log", "snmp-sub-agent", "exec", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["output_location"] = schema.StringAttribute{
 			Description: "The location to which alert messages will be written.",

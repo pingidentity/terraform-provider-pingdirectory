@@ -155,6 +155,7 @@ func oauthTokenHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"groovy-scripted", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

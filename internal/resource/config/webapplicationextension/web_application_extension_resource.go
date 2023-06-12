@@ -200,6 +200,7 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"console", "generic"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["sso_enabled"] = schema.BoolAttribute{
 			Description: "Indicates that SSO login into the Administrative Console is enabled.",

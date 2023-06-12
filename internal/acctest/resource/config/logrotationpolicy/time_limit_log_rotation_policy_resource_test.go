@@ -52,7 +52,7 @@ func TestAccTimeLimitLogRotationPolicy(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccTimeLimitLogRotationPolicyResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_time_limit_log_rotation_policy." + resourceName,
+				ResourceName:      "pingdirectory_log_rotation_policy." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccTimeLimitLogRotationPolicy(t *testing.T) {
 
 func testAccTimeLimitLogRotationPolicyResource(resourceName string, resourceModel timeLimitLogRotationPolicyTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_time_limit_log_rotation_policy" "%[1]s" {
+resource "pingdirectory_log_rotation_policy" "%[1]s" {
+	type = "time-limit"
   id                = "%[2]s"
   rotation_interval = "%[3]s"
 }`, resourceName,

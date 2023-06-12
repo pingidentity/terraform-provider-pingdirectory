@@ -145,6 +145,7 @@ func logRotationPolicySchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"time-limit", "fixed-time", "never-rotate", "size-limit"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

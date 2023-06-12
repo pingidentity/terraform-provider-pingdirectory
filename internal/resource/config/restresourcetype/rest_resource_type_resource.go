@@ -283,6 +283,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"user", "generic", "group"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

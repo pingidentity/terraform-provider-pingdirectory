@@ -508,6 +508,7 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"jmx", "ldap", "ldif", "http"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

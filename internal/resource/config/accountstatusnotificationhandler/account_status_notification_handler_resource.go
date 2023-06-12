@@ -415,6 +415,7 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"smtp", "groovy-scripted", "admin-alert", "error-log", "multi-part-email", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

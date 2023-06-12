@@ -52,7 +52,7 @@ func TestAccWaitForPassphraseCipherStreamProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccWaitForPassphraseCipherStreamProviderResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_wait_for_passphrase_cipher_stream_provider." + resourceName,
+				ResourceName:      "pingdirectory_cipher_stream_provider." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -67,7 +67,8 @@ func TestAccWaitForPassphraseCipherStreamProvider(t *testing.T) {
 
 func testAccWaitForPassphraseCipherStreamProviderResource(resourceName string, resourceModel waitForPassphraseCipherStreamProviderTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_wait_for_passphrase_cipher_stream_provider" "%[1]s" {
+resource "pingdirectory_cipher_stream_provider" "%[1]s" {
+	type = "wait-for-passphrase"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

@@ -285,6 +285,7 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"indicator", "numeric"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

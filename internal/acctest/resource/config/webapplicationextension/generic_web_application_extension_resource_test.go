@@ -55,7 +55,7 @@ func TestAccGenericWebApplicationExtension(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccGenericWebApplicationExtensionResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_generic_web_application_extension." + resourceName,
+				ResourceName:      "pingdirectory_web_application_extension." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,8 @@ func TestAccGenericWebApplicationExtension(t *testing.T) {
 
 func testAccGenericWebApplicationExtensionResource(resourceName string, resourceModel genericWebApplicationExtensionTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_generic_web_application_extension" "%[1]s" {
+resource "pingdirectory_web_application_extension" "%[1]s" {
+	type = "generic"
   id                      = "%[2]s"
   base_context_path       = "%[3]s"
   document_root_directory = "%[4]s"

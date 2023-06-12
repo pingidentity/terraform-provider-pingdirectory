@@ -244,6 +244,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"ldap", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

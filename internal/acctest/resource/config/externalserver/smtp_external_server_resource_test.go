@@ -56,7 +56,7 @@ func TestAccSmtpExternalServer(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccSmtpExternalServerResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_smtp_external_server." + resourceName,
+				ResourceName:            "pingdirectory_external_server." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -68,7 +68,8 @@ func TestAccSmtpExternalServer(t *testing.T) {
 
 func testAccSmtpExternalServerResource(resourceName string, resourceModel smtpExternalServerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_smtp_external_server" "%[1]s" {
+resource "pingdirectory_external_server" "%[1]s" {
+	type = "smtp"
   id               = "%[2]s"
   server_host_name = "%[3]s"
   server_port      = %[4]d

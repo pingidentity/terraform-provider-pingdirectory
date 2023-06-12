@@ -48,6 +48,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfilerotationlistener"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logretentionpolicy"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logrotationpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
@@ -420,8 +421,6 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		connectioncriteria.NewDefaultConnectionCriteriaResource,
 		connectionhandler.NewConnectionHandlerResource,
 		connectionhandler.NewDefaultConnectionHandlerResource,
-		connectioncriteria.NewConnectionCriteriaResource,
-		connectioncriteria.NewDefaultConnectionCriteriaResource,
 		datasecurityauditor.NewDataSecurityAuditorResource,
 		datasecurityauditor.NewDefaultDataSecurityAuditorResource,
 		delegatedadminattribute.NewDelegatedAdminAttributeResource,
@@ -458,6 +457,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		logpublisher.NewDefaultLogPublisherResource,
 		logretentionpolicy.NewLogRetentionPolicyResource,
 		logretentionpolicy.NewDefaultLogRetentionPolicyResource,
+		logrotationpolicy.NewLogRotationPolicyResource,
+		logrotationpolicy.NewDefaultLogRotationPolicyResource,
 		monitoringendpoint.NewMonitoringEndpointResource,
 		monitoringendpoint.NewDefaultMonitoringEndpointResource,
 		monitorprovider.NewMonitorProviderResource,

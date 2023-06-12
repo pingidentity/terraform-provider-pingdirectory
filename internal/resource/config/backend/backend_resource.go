@@ -749,6 +749,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["storage_dir"] = schema.StringAttribute{
 			Description: "Specifies the path to the directory that will be used to store queued samples.",
@@ -1081,6 +1082,10 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		schemaDef.Attributes["ldif_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the LDIF file containing the data for this backend.",
 			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		}
 		schemaDef.Attributes["trust_store_file"] = schema.StringAttribute{
 			Description: "Specifies the path to the file that stores the trust information.",

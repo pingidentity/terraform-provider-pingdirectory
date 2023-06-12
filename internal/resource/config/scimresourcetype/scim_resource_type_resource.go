@@ -225,6 +225,7 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"ldap-pass-through", "ldap-mapping"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

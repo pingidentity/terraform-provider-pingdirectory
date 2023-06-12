@@ -189,6 +189,7 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"default", "groovy-scripted", "simple", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

@@ -52,7 +52,7 @@ func TestAccNameAndOptionalUidAttributeSyntax(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccNameAndOptionalUidAttributeSyntaxResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_default_name_and_optional_uid_attribute_syntax." + resourceName,
+				ResourceName:      "pingdirectory_default_attribute_syntax." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccNameAndOptionalUidAttributeSyntax(t *testing.T) {
 
 func testAccNameAndOptionalUidAttributeSyntaxResource(resourceName string, resourceModel nameAndOptionalUidAttributeSyntaxTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_name_and_optional_uid_attribute_syntax" "%[1]s" {
+resource "pingdirectory_default_attribute_syntax" "%[1]s" {
+	type = "name-and-optional-uid"
   id                      = "%[2]s"
   enable_compaction       = %[3]t
   require_binary_transfer = %[4]t

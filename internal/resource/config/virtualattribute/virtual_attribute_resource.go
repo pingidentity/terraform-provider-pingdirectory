@@ -390,6 +390,10 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 			"attribute_type": schema.StringAttribute{
 				Description: "Specifies the attribute type for the attribute whose values are to be dynamically assigned by the virtual attribute.",
 				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"base_dn": schema.SetAttribute{
 				Description: "Specifies the base DNs for the branches containing entries that are eligible to use this virtual attribute.",
@@ -462,6 +466,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "replication-state-detail", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["sequence_number_attribute"] = schema.StringAttribute{
 			Description: "Specifies the name or OID of the attribute which contains the sequence number from which unique identifiers are generated. The attribute should have Integer syntax or a String syntax permitting integer values. If this property is modified then the filter property should be updated accordingly so that only entries containing the sequence number attribute are eligible to have a value generated for this virtual attribute.",

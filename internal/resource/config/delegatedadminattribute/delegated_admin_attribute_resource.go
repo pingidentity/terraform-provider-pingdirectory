@@ -227,6 +227,7 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"certificate", "photo", "generic"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type", "rest_resource_type_name"})
 	}

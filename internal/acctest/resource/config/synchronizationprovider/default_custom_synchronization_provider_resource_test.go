@@ -51,7 +51,7 @@ func TestAccCustomSynchronizationProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccCustomSynchronizationProviderResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_default_custom_synchronization_provider." + resourceName,
+				ResourceName:      "pingdirectory_default_synchronization_provider." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -65,7 +65,8 @@ func TestAccCustomSynchronizationProvider(t *testing.T) {
 
 func testAccCustomSynchronizationProviderResource(resourceName string, resourceModel customSynchronizationProviderTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_custom_synchronization_provider" "%[1]s" {
+resource "pingdirectory_default_synchronization_provider" "%[1]s" {
+	type = "custom"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

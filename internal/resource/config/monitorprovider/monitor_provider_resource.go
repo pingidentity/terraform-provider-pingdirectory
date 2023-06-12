@@ -167,6 +167,7 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"general", "memory-usage", "stack-trace", "disk-space-usage", "system-info", "custom", "active-operations", "ssl-context", "client-connection", "version", "host-system", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["low_space_warning_size_threshold"] = schema.StringAttribute{
 			Description: "Specifies the low space warning threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",

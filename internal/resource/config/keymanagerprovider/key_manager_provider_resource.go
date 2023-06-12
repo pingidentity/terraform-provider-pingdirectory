@@ -214,6 +214,7 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"file-based", "custom", "pkcs11", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

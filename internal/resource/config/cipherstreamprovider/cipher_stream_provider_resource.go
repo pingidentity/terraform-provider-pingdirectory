@@ -365,6 +365,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"amazon-key-management-service", "amazon-secrets-manager", "azure-key-vault", "file-based", "wait-for-passphrase", "conjur", "pkcs11", "vault", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

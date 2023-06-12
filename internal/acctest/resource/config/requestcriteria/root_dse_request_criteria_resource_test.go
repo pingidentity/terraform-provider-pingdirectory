@@ -53,7 +53,7 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_root_dse_request_criteria." + resourceName,
+				ResourceName:            "pingdirectory_request_criteria." + resourceName,
 				ImportStateId:           initialResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -65,7 +65,8 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 
 func testAccRootDseRequestCriteriaResource(resourceName string, resourceModel rootDseRequestCriteriaTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_root_dse_request_criteria" "%[1]s" {
+resource "pingdirectory_request_criteria" "%[1]s" {
+	type = "root-dse"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName, resourceModel.id, resourceModel.description)

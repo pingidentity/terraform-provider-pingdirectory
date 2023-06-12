@@ -259,6 +259,7 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"expired-password", "idle-account", "disabled-account", "weakly-encoded-password", "privilege", "account-usability-issues", "locked-account", "filter", "account-validity-window", "multiple-password", "deprecated-password-storage-scheme", "nonexistent-password-policy", "access-control", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

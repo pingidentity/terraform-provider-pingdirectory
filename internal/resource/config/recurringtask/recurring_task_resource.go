@@ -738,6 +738,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"generate-server-profile", "leave-lockdown-mode", "backup", "delay", "statically-defined", "collect-support-data", "ldif-export", "enter-lockdown-mode", "audit-data-security", "exec", "file-retention", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

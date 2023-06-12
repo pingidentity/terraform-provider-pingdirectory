@@ -57,7 +57,7 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccSimpleConnectionCriteriaResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_simple_connection_criteria." + resourceName,
+				ResourceName:            "pingdirectory_connection_criteria." + resourceName,
 				ImportStateId:           initialResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -69,7 +69,8 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 
 func testAccSimpleConnectionCriteriaResource(resourceName string, resourceModel simpleConnectionCriteriaTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_simple_connection_criteria" "%[1]s" {
+resource "pingdirectory_connection_criteria" "%[1]s" {
+	type = "simple"
   id             = "%[2]s"
   description    = "%[3]s"
   user_auth_type = %[4]s

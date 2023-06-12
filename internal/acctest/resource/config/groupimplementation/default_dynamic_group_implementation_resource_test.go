@@ -51,7 +51,7 @@ func TestAccStaticGroupImplementation(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccStaticGroupImplementationResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_default_static_group_implementation." + resourceName,
+				ResourceName:      "pingdirectory_default_group_implementation." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -65,7 +65,8 @@ func TestAccStaticGroupImplementation(t *testing.T) {
 
 func testAccStaticGroupImplementationResource(resourceName string, resourceModel staticGroupImplementationTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_static_group_implementation" "%[1]s" {
+resource "pingdirectory_default_group_implementation" "%[1]s" {
+	type = "static"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

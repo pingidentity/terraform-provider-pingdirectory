@@ -312,6 +312,10 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 			"base_context_path": schema.StringAttribute{
 				Description: "Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.",
 				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"id_token_validator": schema.SetAttribute{
 				Description: "The ID token validators that may be used to verify the authenticity of an of an OpenID Connect ID token.",
@@ -646,6 +650,7 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"delegated-admin", "quickstart", "availability-state", "prometheus-monitoring", "velocity", "consent", "ldap-mapped-scim", "groovy-scripted", "file-server", "config", "scim2", "directory-rest-api", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["map_access_tokens_to_local_users"] = schema.StringAttribute{
 			Description: "Indicates whether the SCIM2 servlet should attempt to map the presented access token to a local user.",

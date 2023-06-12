@@ -52,7 +52,7 @@ func TestAccLoggingChangeSubscriptionHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccLoggingChangeSubscriptionHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_logging_change_subscription_handler." + resourceName,
+				ResourceName:      "pingdirectory_change_subscription_handler." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccLoggingChangeSubscriptionHandler(t *testing.T) {
 
 func testAccLoggingChangeSubscriptionHandlerResource(resourceName string, resourceModel loggingChangeSubscriptionHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_logging_change_subscription_handler" "%[1]s" {
+resource "pingdirectory_change_subscription_handler" "%[1]s" {
+	type = "logging"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

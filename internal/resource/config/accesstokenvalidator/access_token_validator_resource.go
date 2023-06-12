@@ -311,6 +311,7 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"ping-federate", "jwt", "mock", "third-party"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

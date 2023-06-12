@@ -59,7 +59,7 @@ func TestAccStringArrayTokenClaimValidation(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccStringArrayTokenClaimValidationResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_string_array_token_claim_validation." + resourceName,
+				ResourceName:      "pingdirectory_token_claim_validation." + resourceName,
 				ImportStateId:     updatedResourceModel.idTokenValidatorName + "/" + updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -82,7 +82,8 @@ resource "pingdirectory_id_token_validator" "%[3]s" {
   evaluation_order_index = 1
 }
 
-resource "pingdirectory_string_array_token_claim_validation" "%[1]s" {
+resource "pingdirectory_token_claim_validation" "%[1]s" {
+	type = "string-array"
   id                      = "%[2]s"
   id_token_validator_name = pingdirectory_id_token_validator.%[3]s.id
   any_required_value      = %[4]s

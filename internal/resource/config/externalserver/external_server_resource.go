@@ -431,10 +431,18 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 			"key_manager_provider": schema.StringAttribute{
 				Description: "The key manager provider to use if SSL or StartTLS is to be used for connection-level security. When specifying a value for this property (except when using the Null key manager provider) you must ensure that the external server trusts this server's public certificate by adding this server's public certificate to the external server's trust store.",
 				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"trust_manager_provider": schema.StringAttribute{
 				Description: "The trust manager provider to use if SSL or StartTLS is to be used for connection-level security.",
 				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"initial_connections": schema.Int64Attribute{
 				Description: "The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.",
@@ -506,6 +514,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory", "conjur", "amazon-aws", "vault"}...),
 		}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

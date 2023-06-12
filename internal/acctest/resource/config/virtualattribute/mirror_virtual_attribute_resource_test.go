@@ -58,7 +58,7 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccMirrorVirtualAttributeResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_mirror_virtual_attribute." + resourceName,
+				ResourceName:            "pingdirectory_virtual_attribute." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -70,7 +70,8 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 
 func testAccMirrorVirtualAttributeResource(resourceName string, resourceModel mirrorVirtualAttributeTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_mirror_virtual_attribute" "%[1]s" {
+resource "pingdirectory_virtual_attribute" "%[1]s" {
+	type = "mirror"
   id               = "%[2]s"
   source_attribute = "%[3]s"
   enabled          = %[4]t

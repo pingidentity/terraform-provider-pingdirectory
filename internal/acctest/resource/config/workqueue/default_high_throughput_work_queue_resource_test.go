@@ -50,7 +50,7 @@ func TestAccHighThroughputWorkQueue(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccHighThroughputWorkQueueResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_default_high_throughput_work_queue." + resourceName,
+				ResourceName:      "pingdirectory_default_work_queue." + resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
@@ -63,7 +63,7 @@ func TestAccHighThroughputWorkQueue(t *testing.T) {
 
 func testAccHighThroughputWorkQueueResource(resourceName string, resourceModel highThroughputWorkQueueTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_high_throughput_work_queue" "%[1]s" {
+resource "pingdirectory_default_work_queue" "%[1]s" {
   num_worker_threads      = %[2]d
   max_work_queue_capacity = %[3]d
 }`, resourceName,
