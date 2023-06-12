@@ -415,6 +415,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultSoftDeletePolicyResource,
 		config.NewTopologyAdminUserResource,
 		config.NewDefaultTopologyAdminUserResource,
+		config.NewTrustedCertificateResource,
+		config.NewDefaultTrustedCertificateResource,
 		config.NewVelocityTemplateLoaderResource,
 		config.NewDefaultVelocityTemplateLoaderResource,
 		connectioncriteria.NewConnectionCriteriaResource,
