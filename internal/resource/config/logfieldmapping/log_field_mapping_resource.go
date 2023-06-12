@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -80,69 +82,6 @@ func (r *defaultLogFieldMappingResource) Configure(_ context.Context, req resour
 }
 
 type logFieldMappingResourceModel struct {
-	Id                                  types.String `tfsdk:"id"`
-	LastUpdated                         types.String `tfsdk:"last_updated"`
-	Notifications                       types.Set    `tfsdk:"notifications"`
-	RequiredActions                     types.Set    `tfsdk:"required_actions"`
-	Type                                types.String `tfsdk:"type"`
-	LogFieldTimestamp                   types.String `tfsdk:"log_field_timestamp"`
-	LogFieldConnectionID                types.String `tfsdk:"log_field_connection_id"`
-	LogFieldStartupid                   types.String `tfsdk:"log_field_startupid"`
-	LogFieldProductName                 types.String `tfsdk:"log_field_product_name"`
-	LogFieldCategory                    types.String `tfsdk:"log_field_category"`
-	LogFieldSeverity                    types.String `tfsdk:"log_field_severity"`
-	LogFieldInstanceName                types.String `tfsdk:"log_field_instance_name"`
-	LogFieldOperationID                 types.String `tfsdk:"log_field_operation_id"`
-	LogFieldMessageType                 types.String `tfsdk:"log_field_message_type"`
-	LogFieldOperationType               types.String `tfsdk:"log_field_operation_type"`
-	LogFieldMessageID                   types.String `tfsdk:"log_field_message_id"`
-	LogFieldResultCode                  types.String `tfsdk:"log_field_result_code"`
-	LogFieldMessage                     types.String `tfsdk:"log_field_message"`
-	LogFieldOrigin                      types.String `tfsdk:"log_field_origin"`
-	LogFieldRequesterDN                 types.String `tfsdk:"log_field_requester_dn"`
-	LogFieldDisconnectReason            types.String `tfsdk:"log_field_disconnect_reason"`
-	LogFieldDeleteOldRDN                types.String `tfsdk:"log_field_delete_old_rdn"`
-	LogFieldAuthenticatedUserDN         types.String `tfsdk:"log_field_authenticated_user_dn"`
-	LogFieldProcessingTime              types.String `tfsdk:"log_field_processing_time"`
-	LogFieldRequestedAttributes         types.String `tfsdk:"log_field_requested_attributes"`
-	LogFieldSASLMechanismName           types.String `tfsdk:"log_field_sasl_mechanism_name"`
-	LogFieldNewRDN                      types.String `tfsdk:"log_field_new_rdn"`
-	LogFieldBaseDN                      types.String `tfsdk:"log_field_base_dn"`
-	LogFieldBindDN                      types.String `tfsdk:"log_field_bind_dn"`
-	LogFieldMatchedDN                   types.String `tfsdk:"log_field_matched_dn"`
-	LogFieldRequesterIPAddress          types.String `tfsdk:"log_field_requester_ip_address"`
-	LogFieldAuthenticationType          types.String `tfsdk:"log_field_authentication_type"`
-	LogFieldNewSuperiorDN               types.String `tfsdk:"log_field_new_superior_dn"`
-	LogFieldFilter                      types.String `tfsdk:"log_field_filter"`
-	LogFieldAlternateAuthorizationDN    types.String `tfsdk:"log_field_alternate_authorization_dn"`
-	LogFieldEntryDN                     types.String `tfsdk:"log_field_entry_dn"`
-	LogFieldEntriesReturned             types.String `tfsdk:"log_field_entries_returned"`
-	LogFieldAuthenticationFailureID     types.String `tfsdk:"log_field_authentication_failure_id"`
-	LogFieldRequestOID                  types.String `tfsdk:"log_field_request_oid"`
-	LogFieldResponseOID                 types.String `tfsdk:"log_field_response_oid"`
-	LogFieldTargetProtocol              types.String `tfsdk:"log_field_target_protocol"`
-	LogFieldTargetPort                  types.String `tfsdk:"log_field_target_port"`
-	LogFieldTargetAddress               types.String `tfsdk:"log_field_target_address"`
-	LogFieldTargetAttribute             types.String `tfsdk:"log_field_target_attribute"`
-	LogFieldTargetHost                  types.String `tfsdk:"log_field_target_host"`
-	LogFieldProtocolVersion             types.String `tfsdk:"log_field_protocol_version"`
-	LogFieldProtocolName                types.String `tfsdk:"log_field_protocol_name"`
-	LogFieldAuthenticationFailureReason types.String `tfsdk:"log_field_authentication_failure_reason"`
-	LogFieldAdditionalInformation       types.String `tfsdk:"log_field_additional_information"`
-	LogFieldUnindexed                   types.String `tfsdk:"log_field_unindexed"`
-	LogFieldScope                       types.String `tfsdk:"log_field_scope"`
-	LogFieldReferralUrls                types.String `tfsdk:"log_field_referral_urls"`
-	LogFieldSourceAddress               types.String `tfsdk:"log_field_source_address"`
-	LogFieldMessageIDToAbandon          types.String `tfsdk:"log_field_message_id_to_abandon"`
-	LogFieldResponseControls            types.String `tfsdk:"log_field_response_controls"`
-	LogFieldRequestControls             types.String `tfsdk:"log_field_request_controls"`
-	LogFieldIntermediateClientResult    types.String `tfsdk:"log_field_intermediate_client_result"`
-	LogFieldIntermediateClientRequest   types.String `tfsdk:"log_field_intermediate_client_request"`
-	LogFieldReplicationChangeID         types.String `tfsdk:"log_field_replication_change_id"`
-	Description                         types.String `tfsdk:"description"`
-}
-
-type defaultLogFieldMappingResourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
 	LastUpdated                         types.String `tfsdk:"last_updated"`
 	Notifications                       types.Set    `tfsdk:"notifications"`
@@ -472,7 +411,7 @@ func (r *defaultLogFieldMappingResource) ModifyPlan(ctx context.Context, req res
 }
 
 func modifyPlanLogFieldMapping(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultLogFieldMappingResourceModel
+	var model logFieldMappingResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.LogFieldEntriesReturned) && model.Type.ValueString() != "access" {
 		resp.Diagnostics.AddError("Attribute 'log_field_entries_returned' not supported by pingdirectory_log_field_mapping resources with 'type' '"+model.Type.ValueString()+"'",
@@ -984,66 +923,6 @@ func readAccessLogFieldMappingResponse(ctx context.Context, r *client.AccessLogF
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a AccessLogFieldMappingResponse object into the model struct
-func readAccessLogFieldMappingResponseDefault(ctx context.Context, r *client.AccessLogFieldMappingResponse, state *defaultLogFieldMappingResourceModel, expectedValues *defaultLogFieldMappingResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("access")
-	state.Id = types.StringValue(r.Id)
-	state.LogFieldTimestamp = internaltypes.StringTypeOrNil(r.LogFieldTimestamp, internaltypes.IsEmptyString(expectedValues.LogFieldTimestamp))
-	state.LogFieldConnectionID = internaltypes.StringTypeOrNil(r.LogFieldConnectionID, internaltypes.IsEmptyString(expectedValues.LogFieldConnectionID))
-	state.LogFieldStartupid = internaltypes.StringTypeOrNil(r.LogFieldStartupid, internaltypes.IsEmptyString(expectedValues.LogFieldStartupid))
-	state.LogFieldProductName = internaltypes.StringTypeOrNil(r.LogFieldProductName, internaltypes.IsEmptyString(expectedValues.LogFieldProductName))
-	state.LogFieldInstanceName = internaltypes.StringTypeOrNil(r.LogFieldInstanceName, internaltypes.IsEmptyString(expectedValues.LogFieldInstanceName))
-	state.LogFieldOperationID = internaltypes.StringTypeOrNil(r.LogFieldOperationID, internaltypes.IsEmptyString(expectedValues.LogFieldOperationID))
-	state.LogFieldMessageType = internaltypes.StringTypeOrNil(r.LogFieldMessageType, internaltypes.IsEmptyString(expectedValues.LogFieldMessageType))
-	state.LogFieldOperationType = internaltypes.StringTypeOrNil(r.LogFieldOperationType, internaltypes.IsEmptyString(expectedValues.LogFieldOperationType))
-	state.LogFieldMessageID = internaltypes.StringTypeOrNil(r.LogFieldMessageID, internaltypes.IsEmptyString(expectedValues.LogFieldMessageID))
-	state.LogFieldResultCode = internaltypes.StringTypeOrNil(r.LogFieldResultCode, internaltypes.IsEmptyString(expectedValues.LogFieldResultCode))
-	state.LogFieldMessage = internaltypes.StringTypeOrNil(r.LogFieldMessage, internaltypes.IsEmptyString(expectedValues.LogFieldMessage))
-	state.LogFieldOrigin = internaltypes.StringTypeOrNil(r.LogFieldOrigin, internaltypes.IsEmptyString(expectedValues.LogFieldOrigin))
-	state.LogFieldRequesterDN = internaltypes.StringTypeOrNil(r.LogFieldRequesterDN, internaltypes.IsEmptyString(expectedValues.LogFieldRequesterDN))
-	state.LogFieldDisconnectReason = internaltypes.StringTypeOrNil(r.LogFieldDisconnectReason, internaltypes.IsEmptyString(expectedValues.LogFieldDisconnectReason))
-	state.LogFieldDeleteOldRDN = internaltypes.StringTypeOrNil(r.LogFieldDeleteOldRDN, internaltypes.IsEmptyString(expectedValues.LogFieldDeleteOldRDN))
-	state.LogFieldAuthenticatedUserDN = internaltypes.StringTypeOrNil(r.LogFieldAuthenticatedUserDN, internaltypes.IsEmptyString(expectedValues.LogFieldAuthenticatedUserDN))
-	state.LogFieldProcessingTime = internaltypes.StringTypeOrNil(r.LogFieldProcessingTime, internaltypes.IsEmptyString(expectedValues.LogFieldProcessingTime))
-	state.LogFieldRequestedAttributes = internaltypes.StringTypeOrNil(r.LogFieldRequestedAttributes, internaltypes.IsEmptyString(expectedValues.LogFieldRequestedAttributes))
-	state.LogFieldSASLMechanismName = internaltypes.StringTypeOrNil(r.LogFieldSASLMechanismName, internaltypes.IsEmptyString(expectedValues.LogFieldSASLMechanismName))
-	state.LogFieldNewRDN = internaltypes.StringTypeOrNil(r.LogFieldNewRDN, internaltypes.IsEmptyString(expectedValues.LogFieldNewRDN))
-	state.LogFieldBaseDN = internaltypes.StringTypeOrNil(r.LogFieldBaseDN, internaltypes.IsEmptyString(expectedValues.LogFieldBaseDN))
-	state.LogFieldBindDN = internaltypes.StringTypeOrNil(r.LogFieldBindDN, internaltypes.IsEmptyString(expectedValues.LogFieldBindDN))
-	state.LogFieldMatchedDN = internaltypes.StringTypeOrNil(r.LogFieldMatchedDN, internaltypes.IsEmptyString(expectedValues.LogFieldMatchedDN))
-	state.LogFieldRequesterIPAddress = internaltypes.StringTypeOrNil(r.LogFieldRequesterIPAddress, internaltypes.IsEmptyString(expectedValues.LogFieldRequesterIPAddress))
-	state.LogFieldAuthenticationType = internaltypes.StringTypeOrNil(r.LogFieldAuthenticationType, internaltypes.IsEmptyString(expectedValues.LogFieldAuthenticationType))
-	state.LogFieldNewSuperiorDN = internaltypes.StringTypeOrNil(r.LogFieldNewSuperiorDN, internaltypes.IsEmptyString(expectedValues.LogFieldNewSuperiorDN))
-	state.LogFieldFilter = internaltypes.StringTypeOrNil(r.LogFieldFilter, internaltypes.IsEmptyString(expectedValues.LogFieldFilter))
-	state.LogFieldAlternateAuthorizationDN = internaltypes.StringTypeOrNil(r.LogFieldAlternateAuthorizationDN, internaltypes.IsEmptyString(expectedValues.LogFieldAlternateAuthorizationDN))
-	state.LogFieldEntryDN = internaltypes.StringTypeOrNil(r.LogFieldEntryDN, internaltypes.IsEmptyString(expectedValues.LogFieldEntryDN))
-	state.LogFieldEntriesReturned = internaltypes.StringTypeOrNil(r.LogFieldEntriesReturned, internaltypes.IsEmptyString(expectedValues.LogFieldEntriesReturned))
-	state.LogFieldAuthenticationFailureID = internaltypes.StringTypeOrNil(r.LogFieldAuthenticationFailureID, internaltypes.IsEmptyString(expectedValues.LogFieldAuthenticationFailureID))
-	state.LogFieldRequestOID = internaltypes.StringTypeOrNil(r.LogFieldRequestOID, internaltypes.IsEmptyString(expectedValues.LogFieldRequestOID))
-	state.LogFieldResponseOID = internaltypes.StringTypeOrNil(r.LogFieldResponseOID, internaltypes.IsEmptyString(expectedValues.LogFieldResponseOID))
-	state.LogFieldTargetProtocol = internaltypes.StringTypeOrNil(r.LogFieldTargetProtocol, internaltypes.IsEmptyString(expectedValues.LogFieldTargetProtocol))
-	state.LogFieldTargetPort = internaltypes.StringTypeOrNil(r.LogFieldTargetPort, internaltypes.IsEmptyString(expectedValues.LogFieldTargetPort))
-	state.LogFieldTargetAddress = internaltypes.StringTypeOrNil(r.LogFieldTargetAddress, internaltypes.IsEmptyString(expectedValues.LogFieldTargetAddress))
-	state.LogFieldTargetAttribute = internaltypes.StringTypeOrNil(r.LogFieldTargetAttribute, internaltypes.IsEmptyString(expectedValues.LogFieldTargetAttribute))
-	state.LogFieldTargetHost = internaltypes.StringTypeOrNil(r.LogFieldTargetHost, internaltypes.IsEmptyString(expectedValues.LogFieldTargetHost))
-	state.LogFieldProtocolVersion = internaltypes.StringTypeOrNil(r.LogFieldProtocolVersion, internaltypes.IsEmptyString(expectedValues.LogFieldProtocolVersion))
-	state.LogFieldProtocolName = internaltypes.StringTypeOrNil(r.LogFieldProtocolName, internaltypes.IsEmptyString(expectedValues.LogFieldProtocolName))
-	state.LogFieldAuthenticationFailureReason = internaltypes.StringTypeOrNil(r.LogFieldAuthenticationFailureReason, internaltypes.IsEmptyString(expectedValues.LogFieldAuthenticationFailureReason))
-	state.LogFieldAdditionalInformation = internaltypes.StringTypeOrNil(r.LogFieldAdditionalInformation, internaltypes.IsEmptyString(expectedValues.LogFieldAdditionalInformation))
-	state.LogFieldUnindexed = internaltypes.StringTypeOrNil(r.LogFieldUnindexed, internaltypes.IsEmptyString(expectedValues.LogFieldUnindexed))
-	state.LogFieldScope = internaltypes.StringTypeOrNil(r.LogFieldScope, internaltypes.IsEmptyString(expectedValues.LogFieldScope))
-	state.LogFieldReferralUrls = internaltypes.StringTypeOrNil(r.LogFieldReferralUrls, internaltypes.IsEmptyString(expectedValues.LogFieldReferralUrls))
-	state.LogFieldSourceAddress = internaltypes.StringTypeOrNil(r.LogFieldSourceAddress, internaltypes.IsEmptyString(expectedValues.LogFieldSourceAddress))
-	state.LogFieldMessageIDToAbandon = internaltypes.StringTypeOrNil(r.LogFieldMessageIDToAbandon, internaltypes.IsEmptyString(expectedValues.LogFieldMessageIDToAbandon))
-	state.LogFieldResponseControls = internaltypes.StringTypeOrNil(r.LogFieldResponseControls, internaltypes.IsEmptyString(expectedValues.LogFieldResponseControls))
-	state.LogFieldRequestControls = internaltypes.StringTypeOrNil(r.LogFieldRequestControls, internaltypes.IsEmptyString(expectedValues.LogFieldRequestControls))
-	state.LogFieldIntermediateClientResult = internaltypes.StringTypeOrNil(r.LogFieldIntermediateClientResult, internaltypes.IsEmptyString(expectedValues.LogFieldIntermediateClientResult))
-	state.LogFieldIntermediateClientRequest = internaltypes.StringTypeOrNil(r.LogFieldIntermediateClientRequest, internaltypes.IsEmptyString(expectedValues.LogFieldIntermediateClientRequest))
-	state.LogFieldReplicationChangeID = internaltypes.StringTypeOrNil(r.LogFieldReplicationChangeID, internaltypes.IsEmptyString(expectedValues.LogFieldReplicationChangeID))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Read a ErrorLogFieldMappingResponse object into the model struct
 func readErrorLogFieldMappingResponse(ctx context.Context, r *client.ErrorLogFieldMappingResponse, state *logFieldMappingResourceModel, expectedValues *logFieldMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error")
@@ -1060,85 +939,8 @@ func readErrorLogFieldMappingResponse(ctx context.Context, r *client.ErrorLogFie
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a ErrorLogFieldMappingResponse object into the model struct
-func readErrorLogFieldMappingResponseDefault(ctx context.Context, r *client.ErrorLogFieldMappingResponse, state *defaultLogFieldMappingResourceModel, expectedValues *defaultLogFieldMappingResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("error")
-	state.Id = types.StringValue(r.Id)
-	state.LogFieldTimestamp = internaltypes.StringTypeOrNil(r.LogFieldTimestamp, internaltypes.IsEmptyString(expectedValues.LogFieldTimestamp))
-	state.LogFieldProductName = internaltypes.StringTypeOrNil(r.LogFieldProductName, internaltypes.IsEmptyString(expectedValues.LogFieldProductName))
-	state.LogFieldInstanceName = internaltypes.StringTypeOrNil(r.LogFieldInstanceName, internaltypes.IsEmptyString(expectedValues.LogFieldInstanceName))
-	state.LogFieldStartupid = internaltypes.StringTypeOrNil(r.LogFieldStartupid, internaltypes.IsEmptyString(expectedValues.LogFieldStartupid))
-	state.LogFieldCategory = internaltypes.StringTypeOrNil(r.LogFieldCategory, internaltypes.IsEmptyString(expectedValues.LogFieldCategory))
-	state.LogFieldSeverity = internaltypes.StringTypeOrNil(r.LogFieldSeverity, internaltypes.IsEmptyString(expectedValues.LogFieldSeverity))
-	state.LogFieldMessageID = internaltypes.StringTypeOrNil(r.LogFieldMessageID, internaltypes.IsEmptyString(expectedValues.LogFieldMessageID))
-	state.LogFieldMessage = internaltypes.StringTypeOrNil(r.LogFieldMessage, internaltypes.IsEmptyString(expectedValues.LogFieldMessage))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createLogFieldMappingOperations(plan logFieldMappingResourceModel, state logFieldMappingResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTimestamp, state.LogFieldTimestamp, "log-field-timestamp")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldConnectionID, state.LogFieldConnectionID, "log-field-connection-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldStartupid, state.LogFieldStartupid, "log-field-startupid")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldProductName, state.LogFieldProductName, "log-field-product-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldCategory, state.LogFieldCategory, "log-field-category")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldSeverity, state.LogFieldSeverity, "log-field-severity")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldInstanceName, state.LogFieldInstanceName, "log-field-instance-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldOperationID, state.LogFieldOperationID, "log-field-operation-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldMessageType, state.LogFieldMessageType, "log-field-message-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldOperationType, state.LogFieldOperationType, "log-field-operation-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldMessageID, state.LogFieldMessageID, "log-field-message-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldResultCode, state.LogFieldResultCode, "log-field-result-code")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldMessage, state.LogFieldMessage, "log-field-message")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldOrigin, state.LogFieldOrigin, "log-field-origin")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldRequesterDN, state.LogFieldRequesterDN, "log-field-requester-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldDisconnectReason, state.LogFieldDisconnectReason, "log-field-disconnect-reason")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldDeleteOldRDN, state.LogFieldDeleteOldRDN, "log-field-delete-old-rdn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldAuthenticatedUserDN, state.LogFieldAuthenticatedUserDN, "log-field-authenticated-user-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldProcessingTime, state.LogFieldProcessingTime, "log-field-processing-time")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldRequestedAttributes, state.LogFieldRequestedAttributes, "log-field-requested-attributes")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldSASLMechanismName, state.LogFieldSASLMechanismName, "log-field-sasl-mechanism-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldNewRDN, state.LogFieldNewRDN, "log-field-new-rdn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldBaseDN, state.LogFieldBaseDN, "log-field-base-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldBindDN, state.LogFieldBindDN, "log-field-bind-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldMatchedDN, state.LogFieldMatchedDN, "log-field-matched-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldRequesterIPAddress, state.LogFieldRequesterIPAddress, "log-field-requester-ip-address")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldAuthenticationType, state.LogFieldAuthenticationType, "log-field-authentication-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldNewSuperiorDN, state.LogFieldNewSuperiorDN, "log-field-new-superior-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldFilter, state.LogFieldFilter, "log-field-filter")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldAlternateAuthorizationDN, state.LogFieldAlternateAuthorizationDN, "log-field-alternate-authorization-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldEntryDN, state.LogFieldEntryDN, "log-field-entry-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldEntriesReturned, state.LogFieldEntriesReturned, "log-field-entries-returned")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldAuthenticationFailureID, state.LogFieldAuthenticationFailureID, "log-field-authentication-failure-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldRequestOID, state.LogFieldRequestOID, "log-field-request-oid")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldResponseOID, state.LogFieldResponseOID, "log-field-response-oid")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTargetProtocol, state.LogFieldTargetProtocol, "log-field-target-protocol")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTargetPort, state.LogFieldTargetPort, "log-field-target-port")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTargetAddress, state.LogFieldTargetAddress, "log-field-target-address")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTargetAttribute, state.LogFieldTargetAttribute, "log-field-target-attribute")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTargetHost, state.LogFieldTargetHost, "log-field-target-host")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldProtocolVersion, state.LogFieldProtocolVersion, "log-field-protocol-version")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldProtocolName, state.LogFieldProtocolName, "log-field-protocol-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldAuthenticationFailureReason, state.LogFieldAuthenticationFailureReason, "log-field-authentication-failure-reason")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldAdditionalInformation, state.LogFieldAdditionalInformation, "log-field-additional-information")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldUnindexed, state.LogFieldUnindexed, "log-field-unindexed")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldScope, state.LogFieldScope, "log-field-scope")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldReferralUrls, state.LogFieldReferralUrls, "log-field-referral-urls")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldSourceAddress, state.LogFieldSourceAddress, "log-field-source-address")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldMessageIDToAbandon, state.LogFieldMessageIDToAbandon, "log-field-message-id-to-abandon")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldResponseControls, state.LogFieldResponseControls, "log-field-response-controls")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldRequestControls, state.LogFieldRequestControls, "log-field-request-controls")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldIntermediateClientResult, state.LogFieldIntermediateClientResult, "log-field-intermediate-client-result")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldIntermediateClientRequest, state.LogFieldIntermediateClientRequest, "log-field-intermediate-client-request")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldReplicationChangeID, state.LogFieldReplicationChangeID, "log-field-replication-change-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createLogFieldMappingOperationsDefault(plan defaultLogFieldMappingResourceModel, state defaultLogFieldMappingResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldTimestamp, state.LogFieldTimestamp, "log-field-timestamp")
 	operations.AddStringOperationIfNecessary(&ops, plan.LogFieldConnectionID, state.LogFieldConnectionID, "log-field-connection-id")
@@ -1306,7 +1108,7 @@ func (r *logFieldMappingResource) Create(ctx context.Context, req resource.Creat
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultLogFieldMappingResourceModel
+	var plan logFieldMappingResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1327,140 +1129,16 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 	}
 
 	// Read the existing configuration
-	var state defaultLogFieldMappingResourceModel
+	var state logFieldMappingResourceModel
 	if plan.Type.ValueString() == "access" {
-		readAccessLogFieldMappingResponseDefault(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
+		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "error" {
-		readErrorLogFieldMappingResponseDefault(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
+		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LogFieldMappingApi.UpdateLogFieldMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createLogFieldMappingOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.LogFieldMappingApi.UpdateLogFieldMappingExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Mapping", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "access" {
-			readAccessLogFieldMappingResponseDefault(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "error" {
-			readErrorLogFieldMappingResponseDefault(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *logFieldMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state logFieldMappingResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.GetLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.AccessLogFieldMappingResponse != nil {
-		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ErrorLogFieldMappingResponse != nil {
-		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultLogFieldMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultLogFieldMappingResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.GetLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *logFieldMappingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan logFieldMappingResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state logFieldMappingResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogFieldMappingApi.UpdateLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createLogFieldMappingOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1488,8 +1166,6 @@ func (r *logFieldMappingResource) Update(ctx context.Context, req resource.Updat
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1499,9 +1175,65 @@ func (r *logFieldMappingResource) Update(ctx context.Context, req resource.Updat
 	}
 }
 
+// Read resource information
+func (r *logFieldMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogFieldMapping(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLogFieldMappingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogFieldMapping(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLogFieldMapping(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state logFieldMappingResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.LogFieldMappingApi.GetLogFieldMapping(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.AccessLogFieldMappingResponse != nil {
+		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ErrorLogFieldMappingResponse != nil {
+		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *logFieldMappingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogFieldMapping(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultLogFieldMappingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogFieldMapping(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLogFieldMapping(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultLogFieldMappingResourceModel
+	var plan logFieldMappingResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1509,19 +1241,19 @@ func (r *defaultLogFieldMappingResource) Update(ctx context.Context, req resourc
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultLogFieldMappingResourceModel
+	var state logFieldMappingResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogFieldMappingApi.UpdateLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogFieldMappingApi.UpdateLogFieldMapping(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createLogFieldMappingOperationsDefault(plan, state)
+	ops := createLogFieldMappingOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFieldMappingApi.UpdateLogFieldMappingExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogFieldMappingApi.UpdateLogFieldMappingExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Mapping", err, httpResp)
 			return
@@ -1535,10 +1267,10 @@ func (r *defaultLogFieldMappingResource) Update(ctx context.Context, req resourc
 
 		// Read the response
 		if plan.Type.ValueString() == "access" {
-			readAccessLogFieldMappingResponseDefault(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
+			readAccessLogFieldMappingResponse(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "error" {
-			readErrorLogFieldMappingResponseDefault(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
+			readErrorLogFieldMappingResponse(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

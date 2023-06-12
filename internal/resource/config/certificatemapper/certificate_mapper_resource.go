@@ -101,25 +101,6 @@ type certificateMapperResourceModel struct {
 	Enabled                 types.Bool   `tfsdk:"enabled"`
 }
 
-type defaultCertificateMapperResourceModel struct {
-	Id                      types.String `tfsdk:"id"`
-	LastUpdated             types.String `tfsdk:"last_updated"`
-	Notifications           types.Set    `tfsdk:"notifications"`
-	RequiredActions         types.Set    `tfsdk:"required_actions"`
-	Type                    types.String `tfsdk:"type"`
-	ExtensionClass          types.String `tfsdk:"extension_class"`
-	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
-	FingerprintAttribute    types.String `tfsdk:"fingerprint_attribute"`
-	FingerprintAlgorithm    types.String `tfsdk:"fingerprint_algorithm"`
-	SubjectAttributeMapping types.Set    `tfsdk:"subject_attribute_mapping"`
-	ScriptClass             types.String `tfsdk:"script_class"`
-	ScriptArgument          types.Set    `tfsdk:"script_argument"`
-	SubjectAttribute        types.String `tfsdk:"subject_attribute"`
-	UserBaseDN              types.Set    `tfsdk:"user_base_dn"`
-	Description             types.String `tfsdk:"description"`
-	Enabled                 types.Bool   `tfsdk:"enabled"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *certificateMapperResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	certificateMapperSchema(ctx, req, resp, false)
@@ -239,7 +220,7 @@ func (r *defaultCertificateMapperResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanCertificateMapper(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultCertificateMapperResourceModel
+	var model certificateMapperResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.SubjectAttributeMapping) && model.Type.ValueString() != "subject-attribute-to-user-attribute" {
 		resp.Diagnostics.AddError("Attribute 'subject_attribute_mapping' not supported by pingdirectory_certificate_mapper resources with 'type' '"+model.Type.ValueString()+"'",
@@ -376,22 +357,6 @@ func populateCertificateMapperNilSets(ctx context.Context, model *certificateMap
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateCertificateMapperNilSetsDefault(ctx context.Context, model *defaultCertificateMapperResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
-	}
-	if model.SubjectAttributeMapping.ElementType(ctx) == nil {
-		model.SubjectAttributeMapping = types.SetNull(types.StringType)
-	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
-	}
-	if model.UserBaseDN.ElementType(ctx) == nil {
-		model.UserBaseDN = types.SetNull(types.StringType)
-	}
-}
-
 // Read a SubjectEqualsDnCertificateMapperResponse object into the model struct
 func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client.SubjectEqualsDnCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-equals-dn")
@@ -400,16 +365,6 @@ func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateCertificateMapperNilSets(ctx, state)
-}
-
-// Read a SubjectEqualsDnCertificateMapperResponse object into the model struct
-func readSubjectEqualsDnCertificateMapperResponseDefault(ctx context.Context, r *client.SubjectEqualsDnCertificateMapperResponse, state *defaultCertificateMapperResourceModel, expectedValues *defaultCertificateMapperResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("subject-equals-dn")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSetsDefault(ctx, state)
 }
 
 // Read a SubjectDnToUserAttributeCertificateMapperResponse object into the model struct
@@ -424,18 +379,6 @@ func readSubjectDnToUserAttributeCertificateMapperResponse(ctx context.Context, 
 	populateCertificateMapperNilSets(ctx, state)
 }
 
-// Read a SubjectDnToUserAttributeCertificateMapperResponse object into the model struct
-func readSubjectDnToUserAttributeCertificateMapperResponseDefault(ctx context.Context, r *client.SubjectDnToUserAttributeCertificateMapperResponse, state *defaultCertificateMapperResourceModel, expectedValues *defaultCertificateMapperResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("subject-dn-to-user-attribute")
-	state.Id = types.StringValue(r.Id)
-	state.SubjectAttribute = types.StringValue(r.SubjectAttribute)
-	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSetsDefault(ctx, state)
-}
-
 // Read a GroovyScriptedCertificateMapperResponse object into the model struct
 func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.GroovyScriptedCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
@@ -448,18 +391,6 @@ func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.
 	populateCertificateMapperNilSets(ctx, state)
 }
 
-// Read a GroovyScriptedCertificateMapperResponse object into the model struct
-func readGroovyScriptedCertificateMapperResponseDefault(ctx context.Context, r *client.GroovyScriptedCertificateMapperResponse, state *defaultCertificateMapperResourceModel, expectedValues *defaultCertificateMapperResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("groovy-scripted")
-	state.Id = types.StringValue(r.Id)
-	state.ScriptClass = types.StringValue(r.ScriptClass)
-	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSetsDefault(ctx, state)
-}
-
 // Read a SubjectAttributeToUserAttributeCertificateMapperResponse object into the model struct
 func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Context, r *client.SubjectAttributeToUserAttributeCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-attribute-to-user-attribute")
@@ -470,18 +401,6 @@ func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Co
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateCertificateMapperNilSets(ctx, state)
-}
-
-// Read a SubjectAttributeToUserAttributeCertificateMapperResponse object into the model struct
-func readSubjectAttributeToUserAttributeCertificateMapperResponseDefault(ctx context.Context, r *client.SubjectAttributeToUserAttributeCertificateMapperResponse, state *defaultCertificateMapperResourceModel, expectedValues *defaultCertificateMapperResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("subject-attribute-to-user-attribute")
-	state.Id = types.StringValue(r.Id)
-	state.SubjectAttributeMapping = internaltypes.GetStringSet(r.SubjectAttributeMapping)
-	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSetsDefault(ctx, state)
 }
 
 // Read a FingerprintCertificateMapperResponse object into the model struct
@@ -497,19 +416,6 @@ func readFingerprintCertificateMapperResponse(ctx context.Context, r *client.Fin
 	populateCertificateMapperNilSets(ctx, state)
 }
 
-// Read a FingerprintCertificateMapperResponse object into the model struct
-func readFingerprintCertificateMapperResponseDefault(ctx context.Context, r *client.FingerprintCertificateMapperResponse, state *defaultCertificateMapperResourceModel, expectedValues *defaultCertificateMapperResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("fingerprint")
-	state.Id = types.StringValue(r.Id)
-	state.FingerprintAttribute = types.StringValue(r.FingerprintAttribute)
-	state.FingerprintAlgorithm = types.StringValue(r.FingerprintAlgorithm.String())
-	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSetsDefault(ctx, state)
-}
-
 // Read a ThirdPartyCertificateMapperResponse object into the model struct
 func readThirdPartyCertificateMapperResponse(ctx context.Context, r *client.ThirdPartyCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -522,37 +428,8 @@ func readThirdPartyCertificateMapperResponse(ctx context.Context, r *client.Thir
 	populateCertificateMapperNilSets(ctx, state)
 }
 
-// Read a ThirdPartyCertificateMapperResponse object into the model struct
-func readThirdPartyCertificateMapperResponseDefault(ctx context.Context, r *client.ThirdPartyCertificateMapperResponse, state *defaultCertificateMapperResourceModel, expectedValues *defaultCertificateMapperResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("third-party")
-	state.Id = types.StringValue(r.Id)
-	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createCertificateMapperOperations(plan certificateMapperResourceModel, state certificateMapperResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.FingerprintAttribute, state.FingerprintAttribute, "fingerprint-attribute")
-	operations.AddStringOperationIfNecessary(&ops, plan.FingerprintAlgorithm, state.FingerprintAlgorithm, "fingerprint-algorithm")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SubjectAttributeMapping, state.SubjectAttributeMapping, "subject-attribute-mapping")
-	operations.AddStringOperationIfNecessary(&ops, plan.ScriptClass, state.ScriptClass, "script-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScriptArgument, state.ScriptArgument, "script-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.SubjectAttribute, state.SubjectAttribute, "subject-attribute")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.UserBaseDN, state.UserBaseDN, "user-base-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createCertificateMapperOperationsDefault(plan defaultCertificateMapperResourceModel, state defaultCertificateMapperResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -849,7 +726,7 @@ func (r *certificateMapperResource) Create(ctx context.Context, req resource.Cre
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultCertificateMapperResourceModel
+	var plan certificateMapperResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -870,176 +747,28 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 	}
 
 	// Read the existing configuration
-	var state defaultCertificateMapperResourceModel
+	var state certificateMapperResourceModel
 	if plan.Type.ValueString() == "subject-equals-dn" {
-		readSubjectEqualsDnCertificateMapperResponseDefault(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
-		readSubjectDnToUserAttributeCertificateMapperResponseDefault(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedCertificateMapperResponseDefault(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
-		readSubjectAttributeToUserAttributeCertificateMapperResponseDefault(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "fingerprint" {
-		readFingerprintCertificateMapperResponseDefault(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyCertificateMapperResponseDefault(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.CertificateMapperApi.UpdateCertificateMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createCertificateMapperOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.CertificateMapperApi.UpdateCertificateMapperExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Certificate Mapper", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "subject-equals-dn" {
-			readSubjectEqualsDnCertificateMapperResponseDefault(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
-			readSubjectDnToUserAttributeCertificateMapperResponseDefault(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "groovy-scripted" {
-			readGroovyScriptedCertificateMapperResponseDefault(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
-			readSubjectAttributeToUserAttributeCertificateMapperResponseDefault(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "fingerprint" {
-			readFingerprintCertificateMapperResponseDefault(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyCertificateMapperResponseDefault(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *certificateMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state certificateMapperResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.GetCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.SubjectEqualsDnCertificateMapperResponse != nil {
-		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
-		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.GroovyScriptedCertificateMapperResponse != nil {
-		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
-		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.FingerprintCertificateMapperResponse != nil {
-		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartyCertificateMapperResponse != nil {
-		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultCertificateMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultCertificateMapperResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.GetCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *certificateMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan certificateMapperResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state certificateMapperResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.CertificateMapperApi.UpdateCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createCertificateMapperOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1079,8 +808,6 @@ func (r *certificateMapperResource) Update(ctx context.Context, req resource.Upd
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1090,9 +817,77 @@ func (r *certificateMapperResource) Update(ctx context.Context, req resource.Upd
 	}
 }
 
+// Read resource information
+func (r *certificateMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCertificateMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultCertificateMapperResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readCertificateMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readCertificateMapper(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state certificateMapperResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.CertificateMapperApi.GetCertificateMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.SubjectEqualsDnCertificateMapperResponse != nil {
+		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
+		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.GroovyScriptedCertificateMapperResponse != nil {
+		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
+		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.FingerprintCertificateMapperResponse != nil {
+		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyCertificateMapperResponse != nil {
+		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *certificateMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCertificateMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultCertificateMapperResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateCertificateMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultCertificateMapperResourceModel
+	var plan certificateMapperResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1100,19 +895,19 @@ func (r *defaultCertificateMapperResource) Update(ctx context.Context, req resou
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultCertificateMapperResourceModel
+	var state certificateMapperResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.CertificateMapperApi.UpdateCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.CertificateMapperApi.UpdateCertificateMapper(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createCertificateMapperOperationsDefault(plan, state)
+	ops := createCertificateMapperOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.CertificateMapperApi.UpdateCertificateMapperExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.CertificateMapperApi.UpdateCertificateMapperExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Certificate Mapper", err, httpResp)
 			return
@@ -1126,22 +921,22 @@ func (r *defaultCertificateMapperResource) Update(ctx context.Context, req resou
 
 		// Read the response
 		if plan.Type.ValueString() == "subject-equals-dn" {
-			readSubjectEqualsDnCertificateMapperResponseDefault(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
+			readSubjectEqualsDnCertificateMapperResponse(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
-			readSubjectDnToUserAttributeCertificateMapperResponseDefault(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
+			readSubjectDnToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "groovy-scripted" {
-			readGroovyScriptedCertificateMapperResponseDefault(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
+			readGroovyScriptedCertificateMapperResponse(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
-			readSubjectAttributeToUserAttributeCertificateMapperResponseDefault(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
+			readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "fingerprint" {
-			readFingerprintCertificateMapperResponseDefault(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
+			readFingerprintCertificateMapperResponse(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyCertificateMapperResponseDefault(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

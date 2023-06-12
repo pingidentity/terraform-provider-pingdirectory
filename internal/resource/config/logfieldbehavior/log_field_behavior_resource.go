@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -82,28 +83,6 @@ func (r *defaultLogFieldBehaviorResource) Configure(_ context.Context, req resou
 }
 
 type logFieldBehaviorResourceModel struct {
-	Id                               types.String `tfsdk:"id"`
-	LastUpdated                      types.String `tfsdk:"last_updated"`
-	Notifications                    types.Set    `tfsdk:"notifications"`
-	RequiredActions                  types.Set    `tfsdk:"required_actions"`
-	Type                             types.String `tfsdk:"type"`
-	PreserveField                    types.Set    `tfsdk:"preserve_field"`
-	PreserveFieldName                types.Set    `tfsdk:"preserve_field_name"`
-	OmitField                        types.Set    `tfsdk:"omit_field"`
-	OmitFieldName                    types.Set    `tfsdk:"omit_field_name"`
-	RedactEntireValueField           types.Set    `tfsdk:"redact_entire_value_field"`
-	RedactEntireValueFieldName       types.Set    `tfsdk:"redact_entire_value_field_name"`
-	RedactValueComponentsField       types.Set    `tfsdk:"redact_value_components_field"`
-	RedactValueComponentsFieldName   types.Set    `tfsdk:"redact_value_components_field_name"`
-	TokenizeEntireValueField         types.Set    `tfsdk:"tokenize_entire_value_field"`
-	TokenizeEntireValueFieldName     types.Set    `tfsdk:"tokenize_entire_value_field_name"`
-	TokenizeValueComponentsField     types.Set    `tfsdk:"tokenize_value_components_field"`
-	TokenizeValueComponentsFieldName types.Set    `tfsdk:"tokenize_value_components_field_name"`
-	Description                      types.String `tfsdk:"description"`
-	DefaultBehavior                  types.String `tfsdk:"default_behavior"`
-}
-
-type defaultLogFieldBehaviorResourceModel struct {
 	Id                               types.String `tfsdk:"id"`
 	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
@@ -556,34 +535,6 @@ func readTextAccessLogFieldBehaviorResponse(ctx context.Context, r *client.TextA
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a TextAccessLogFieldBehaviorResponse object into the model struct
-func readTextAccessLogFieldBehaviorResponseDefault(ctx context.Context, r *client.TextAccessLogFieldBehaviorResponse, state *defaultLogFieldBehaviorResourceModel, expectedValues *defaultLogFieldBehaviorResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("text-access")
-	state.Id = types.StringValue(r.Id)
-	state.PreserveField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorTextAccessPreserveFieldProp(r.PreserveField))
-	state.PreserveFieldName = internaltypes.GetStringSet(r.PreserveFieldName)
-	state.OmitField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorTextAccessOmitFieldProp(r.OmitField))
-	state.OmitFieldName = internaltypes.GetStringSet(r.OmitFieldName)
-	state.RedactEntireValueField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorTextAccessRedactEntireValueFieldProp(r.RedactEntireValueField))
-	state.RedactEntireValueFieldName = internaltypes.GetStringSet(r.RedactEntireValueFieldName)
-	state.RedactValueComponentsField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorTextAccessRedactValueComponentsFieldProp(r.RedactValueComponentsField))
-	state.RedactValueComponentsFieldName = internaltypes.GetStringSet(r.RedactValueComponentsFieldName)
-	state.TokenizeEntireValueField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorTextAccessTokenizeEntireValueFieldProp(r.TokenizeEntireValueField))
-	state.TokenizeEntireValueFieldName = internaltypes.GetStringSet(r.TokenizeEntireValueFieldName)
-	state.TokenizeValueComponentsField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorTextAccessTokenizeValueComponentsFieldProp(r.TokenizeValueComponentsField))
-	state.TokenizeValueComponentsFieldName = internaltypes.GetStringSet(r.TokenizeValueComponentsFieldName)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.DefaultBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogFieldBehaviorDefaultBehaviorProp(r.DefaultBehavior), internaltypes.IsEmptyString(expectedValues.DefaultBehavior))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Read a JsonFormattedAccessLogFieldBehaviorResponse object into the model struct
 func readJsonFormattedAccessLogFieldBehaviorResponse(ctx context.Context, r *client.JsonFormattedAccessLogFieldBehaviorResponse, state *logFieldBehaviorResourceModel, expectedValues *logFieldBehaviorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-formatted-access")
@@ -612,56 +563,8 @@ func readJsonFormattedAccessLogFieldBehaviorResponse(ctx context.Context, r *cli
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a JsonFormattedAccessLogFieldBehaviorResponse object into the model struct
-func readJsonFormattedAccessLogFieldBehaviorResponseDefault(ctx context.Context, r *client.JsonFormattedAccessLogFieldBehaviorResponse, state *defaultLogFieldBehaviorResourceModel, expectedValues *defaultLogFieldBehaviorResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("json-formatted-access")
-	state.Id = types.StringValue(r.Id)
-	state.PreserveField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessPreserveFieldProp(r.PreserveField))
-	state.PreserveFieldName = internaltypes.GetStringSet(r.PreserveFieldName)
-	state.OmitField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessOmitFieldProp(r.OmitField))
-	state.OmitFieldName = internaltypes.GetStringSet(r.OmitFieldName)
-	state.RedactEntireValueField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessRedactEntireValueFieldProp(r.RedactEntireValueField))
-	state.RedactEntireValueFieldName = internaltypes.GetStringSet(r.RedactEntireValueFieldName)
-	state.RedactValueComponentsField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessRedactValueComponentsFieldProp(r.RedactValueComponentsField))
-	state.RedactValueComponentsFieldName = internaltypes.GetStringSet(r.RedactValueComponentsFieldName)
-	state.TokenizeEntireValueField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessTokenizeEntireValueFieldProp(r.TokenizeEntireValueField))
-	state.TokenizeEntireValueFieldName = internaltypes.GetStringSet(r.TokenizeEntireValueFieldName)
-	state.TokenizeValueComponentsField = internaltypes.GetStringSet(
-		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessTokenizeValueComponentsFieldProp(r.TokenizeValueComponentsField))
-	state.TokenizeValueComponentsFieldName = internaltypes.GetStringSet(r.TokenizeValueComponentsFieldName)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.DefaultBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlogFieldBehaviorDefaultBehaviorProp(r.DefaultBehavior), internaltypes.IsEmptyString(expectedValues.DefaultBehavior))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createLogFieldBehaviorOperations(plan logFieldBehaviorResourceModel, state logFieldBehaviorResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.PreserveField, state.PreserveField, "preserve-field")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.PreserveFieldName, state.PreserveFieldName, "preserve-field-name")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.OmitField, state.OmitField, "omit-field")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.OmitFieldName, state.OmitFieldName, "omit-field-name")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.RedactEntireValueField, state.RedactEntireValueField, "redact-entire-value-field")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.RedactEntireValueFieldName, state.RedactEntireValueFieldName, "redact-entire-value-field-name")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.RedactValueComponentsField, state.RedactValueComponentsField, "redact-value-components-field")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.RedactValueComponentsFieldName, state.RedactValueComponentsFieldName, "redact-value-components-field-name")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TokenizeEntireValueField, state.TokenizeEntireValueField, "tokenize-entire-value-field")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TokenizeEntireValueFieldName, state.TokenizeEntireValueFieldName, "tokenize-entire-value-field-name")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TokenizeValueComponentsField, state.TokenizeValueComponentsField, "tokenize-value-components-field")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TokenizeValueComponentsFieldName, state.TokenizeValueComponentsFieldName, "tokenize-value-components-field-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddStringOperationIfNecessary(&ops, plan.DefaultBehavior, state.DefaultBehavior, "default-behavior")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createLogFieldBehaviorOperationsDefault(plan defaultLogFieldBehaviorResourceModel, state defaultLogFieldBehaviorResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.PreserveField, state.PreserveField, "preserve-field")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.PreserveFieldName, state.PreserveFieldName, "preserve-field-name")
@@ -796,7 +699,7 @@ func (r *logFieldBehaviorResource) Create(ctx context.Context, req resource.Crea
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultLogFieldBehaviorResourceModel
+	var plan logFieldBehaviorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -817,140 +720,16 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 	}
 
 	// Read the existing configuration
-	var state defaultLogFieldBehaviorResourceModel
+	var state logFieldBehaviorResourceModel
 	if plan.Type.ValueString() == "text-access" {
-		readTextAccessLogFieldBehaviorResponseDefault(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
+		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "json-formatted-access" {
-		readJsonFormattedAccessLogFieldBehaviorResponseDefault(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
+		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createLogFieldBehaviorOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehaviorExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Behavior", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "text-access" {
-			readTextAccessLogFieldBehaviorResponseDefault(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "json-formatted-access" {
-			readJsonFormattedAccessLogFieldBehaviorResponseDefault(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *logFieldBehaviorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state logFieldBehaviorResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.TextAccessLogFieldBehaviorResponse != nil {
-		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
-		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultLogFieldBehaviorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultLogFieldBehaviorResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *logFieldBehaviorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan logFieldBehaviorResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state logFieldBehaviorResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createLogFieldBehaviorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -978,8 +757,6 @@ func (r *logFieldBehaviorResource) Update(ctx context.Context, req resource.Upda
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -989,9 +766,65 @@ func (r *logFieldBehaviorResource) Update(ctx context.Context, req resource.Upda
 	}
 }
 
+// Read resource information
+func (r *logFieldBehaviorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLogFieldBehaviorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state logFieldBehaviorResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.TextAccessLogFieldBehaviorResponse != nil {
+		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
+		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *logFieldBehaviorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultLogFieldBehaviorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogFieldBehavior(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultLogFieldBehaviorResourceModel
+	var plan logFieldBehaviorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -999,19 +832,19 @@ func (r *defaultLogFieldBehaviorResource) Update(ctx context.Context, req resour
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultLogFieldBehaviorResourceModel
+	var state logFieldBehaviorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createLogFieldBehaviorOperationsDefault(plan, state)
+	ops := createLogFieldBehaviorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehaviorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogFieldBehaviorApi.UpdateLogFieldBehaviorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Field Behavior", err, httpResp)
 			return
@@ -1025,10 +858,10 @@ func (r *defaultLogFieldBehaviorResource) Update(ctx context.Context, req resour
 
 		// Read the response
 		if plan.Type.ValueString() == "text-access" {
-			readTextAccessLogFieldBehaviorResponseDefault(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
+			readTextAccessLogFieldBehaviorResponse(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "json-formatted-access" {
-			readJsonFormattedAccessLogFieldBehaviorResponseDefault(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
+			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

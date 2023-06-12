@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -56,14 +57,6 @@ func (r *attributeSyntaxResource) Configure(_ context.Context, req resource.Conf
 }
 
 type attributeSyntaxResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Type            types.String `tfsdk:"type"`
-}
-
-type defaultAttributeSyntaxResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
@@ -91,7 +84,73 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{}...),
+					stringvalidator.OneOf([]string{"attribute-type-description", "directory-string", "telephone-number", "distinguished-name", "generalized-time", "integer", "uuid", "generic", "json-object", "user-password", "boolean", "hex-string", "bit-string", "ldap-url", "name-and-optional-uid"}...),
+				},
+			},
+			"enable_compaction": schema.BoolAttribute{
+				Description: "Indicates whether values of attributes with this syntax should be compacted when stored in a local DB database.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"include_attribute_in_compaction": schema.SetAttribute{
+				Description: "Specifies the specific attributes (which should be associated with this syntax) whose values should be compacted. If one or more include attributes are specified, then only those attributes will have their values compacted. If not set then all attributes will have their values compacted. The exclude-attribute-from-compaction property takes precedence over this property.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"exclude_attribute_from_compaction": schema.SetAttribute{
+				Description: "Specifies the specific attributes (which should be associated with this syntax) whose values should not be compacted. If one or more exclude attributes are specified, then values of those attributes will not have their values compacted. This property takes precedence over the include-attribute-in-compaction property.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"strict_format": schema.BoolAttribute{
+				Description: "Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"allow_zero_length_values": schema.BoolAttribute{
+				Description: "Indicates whether zero-length (that is, an empty string) values are allowed.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"strip_syntax_min_upper_bound": schema.BoolAttribute{
+				Description: "Indicates whether the suggested minimum upper bound appended to an attribute's syntax OID in its schema definition Attribute Type Description should be stripped.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"enabled": schema.BoolAttribute{
+				Description: "Indicates whether the Attribute Syntax is enabled.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"require_binary_transfer": schema.BoolAttribute{
+				Description: "Indicates whether values of this attribute are required to have a \"binary\" transfer option as described in RFC 4522. Attributes with this syntax will generally be referenced with names including \";binary\" (e.g., \"userCertificate;binary\").",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -102,7 +161,7 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 
 // Validate that any restrictions are met in the plan
 func (r *attributeSyntaxResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model defaultAttributeSyntaxResourceModel
+	var model attributeSyntaxResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.StrictFormat) && model.Type.ValueString() != "telephone-number" && model.Type.ValueString() != "ldap-url" {
 		resp.Diagnostics.AddError("Attribute 'strict_format' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
@@ -131,7 +190,7 @@ func (r *attributeSyntaxResource) ModifyPlan(ctx context.Context, req resource.M
 }
 
 // Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateAttributeSyntaxNilSetsDefault(ctx context.Context, model *defaultAttributeSyntaxResourceModel) {
+func populateAttributeSyntaxNilSets(ctx context.Context, model *attributeSyntaxResourceModel) {
 	if model.ExcludeAttributeFromCompaction.ElementType(ctx) == nil {
 		model.ExcludeAttributeFromCompaction = types.SetNull(types.StringType)
 	}
@@ -141,40 +200,40 @@ func populateAttributeSyntaxNilSetsDefault(ctx context.Context, model *defaultAt
 }
 
 // Read a AttributeTypeDescriptionAttributeSyntaxResponse object into the model struct
-func readAttributeTypeDescriptionAttributeSyntaxResponseDefault(ctx context.Context, r *client.AttributeTypeDescriptionAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readAttributeTypeDescriptionAttributeSyntaxResponse(ctx context.Context, r *client.AttributeTypeDescriptionAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-type-description")
 	state.Id = types.StringValue(r.Id)
 	state.StripSyntaxMinUpperBound = internaltypes.BoolTypeOrNil(r.StripSyntaxMinUpperBound)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a DirectoryStringAttributeSyntaxResponse object into the model struct
-func readDirectoryStringAttributeSyntaxResponseDefault(ctx context.Context, r *client.DirectoryStringAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readDirectoryStringAttributeSyntaxResponse(ctx context.Context, r *client.DirectoryStringAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory-string")
 	state.Id = types.StringValue(r.Id)
 	state.AllowZeroLengthValues = internaltypes.BoolTypeOrNil(r.AllowZeroLengthValues)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a TelephoneNumberAttributeSyntaxResponse object into the model struct
-func readTelephoneNumberAttributeSyntaxResponseDefault(ctx context.Context, r *client.TelephoneNumberAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readTelephoneNumberAttributeSyntaxResponse(ctx context.Context, r *client.TelephoneNumberAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("telephone-number")
 	state.Id = types.StringValue(r.Id)
 	state.StrictFormat = internaltypes.BoolTypeOrNil(r.StrictFormat)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a DistinguishedNameAttributeSyntaxResponse object into the model struct
-func readDistinguishedNameAttributeSyntaxResponseDefault(ctx context.Context, r *client.DistinguishedNameAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readDistinguishedNameAttributeSyntaxResponse(ctx context.Context, r *client.DistinguishedNameAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("distinguished-name")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -183,11 +242,11 @@ func readDistinguishedNameAttributeSyntaxResponseDefault(ctx context.Context, r 
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a GeneralizedTimeAttributeSyntaxResponse object into the model struct
-func readGeneralizedTimeAttributeSyntaxResponseDefault(ctx context.Context, r *client.GeneralizedTimeAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readGeneralizedTimeAttributeSyntaxResponse(ctx context.Context, r *client.GeneralizedTimeAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generalized-time")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -196,11 +255,11 @@ func readGeneralizedTimeAttributeSyntaxResponseDefault(ctx context.Context, r *c
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a IntegerAttributeSyntaxResponse object into the model struct
-func readIntegerAttributeSyntaxResponseDefault(ctx context.Context, r *client.IntegerAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readIntegerAttributeSyntaxResponse(ctx context.Context, r *client.IntegerAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("integer")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -209,11 +268,11 @@ func readIntegerAttributeSyntaxResponseDefault(ctx context.Context, r *client.In
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a UuidAttributeSyntaxResponse object into the model struct
-func readUuidAttributeSyntaxResponseDefault(ctx context.Context, r *client.UuidAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readUuidAttributeSyntaxResponse(ctx context.Context, r *client.UuidAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("uuid")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -222,31 +281,31 @@ func readUuidAttributeSyntaxResponseDefault(ctx context.Context, r *client.UuidA
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a GenericAttributeSyntaxResponse object into the model struct
-func readGenericAttributeSyntaxResponseDefault(ctx context.Context, r *client.GenericAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readGenericAttributeSyntaxResponse(ctx context.Context, r *client.GenericAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a JsonObjectAttributeSyntaxResponse object into the model struct
-func readJsonObjectAttributeSyntaxResponseDefault(ctx context.Context, r *client.JsonObjectAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readJsonObjectAttributeSyntaxResponse(ctx context.Context, r *client.JsonObjectAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-object")
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a UserPasswordAttributeSyntaxResponse object into the model struct
-func readUserPasswordAttributeSyntaxResponseDefault(ctx context.Context, r *client.UserPasswordAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readUserPasswordAttributeSyntaxResponse(ctx context.Context, r *client.UserPasswordAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-password")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -255,11 +314,11 @@ func readUserPasswordAttributeSyntaxResponseDefault(ctx context.Context, r *clie
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a BooleanAttributeSyntaxResponse object into the model struct
-func readBooleanAttributeSyntaxResponseDefault(ctx context.Context, r *client.BooleanAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readBooleanAttributeSyntaxResponse(ctx context.Context, r *client.BooleanAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("boolean")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -268,21 +327,21 @@ func readBooleanAttributeSyntaxResponseDefault(ctx context.Context, r *client.Bo
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a HexStringAttributeSyntaxResponse object into the model struct
-func readHexStringAttributeSyntaxResponseDefault(ctx context.Context, r *client.HexStringAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readHexStringAttributeSyntaxResponse(ctx context.Context, r *client.HexStringAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("hex-string")
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a BitStringAttributeSyntaxResponse object into the model struct
-func readBitStringAttributeSyntaxResponseDefault(ctx context.Context, r *client.BitStringAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readBitStringAttributeSyntaxResponse(ctx context.Context, r *client.BitStringAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("bit-string")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -291,22 +350,22 @@ func readBitStringAttributeSyntaxResponseDefault(ctx context.Context, r *client.
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a LdapUrlAttributeSyntaxResponse object into the model struct
-func readLdapUrlAttributeSyntaxResponseDefault(ctx context.Context, r *client.LdapUrlAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readLdapUrlAttributeSyntaxResponse(ctx context.Context, r *client.LdapUrlAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-url")
 	state.Id = types.StringValue(r.Id)
 	state.StrictFormat = internaltypes.BoolTypeOrNil(r.StrictFormat)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Read a NameAndOptionalUidAttributeSyntaxResponse object into the model struct
-func readNameAndOptionalUidAttributeSyntaxResponseDefault(ctx context.Context, r *client.NameAndOptionalUidAttributeSyntaxResponse, state *defaultAttributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
+func readNameAndOptionalUidAttributeSyntaxResponse(ctx context.Context, r *client.NameAndOptionalUidAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("name-and-optional-uid")
 	state.Id = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
@@ -315,17 +374,11 @@ func readNameAndOptionalUidAttributeSyntaxResponseDefault(ctx context.Context, r
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAttributeSyntaxNilSetsDefault(ctx, state)
+	populateAttributeSyntaxNilSets(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan
 func createAttributeSyntaxOperations(plan attributeSyntaxResourceModel, state attributeSyntaxResourceModel) []client.Operation {
-	var ops []client.Operation
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createAttributeSyntaxOperationsDefault(plan defaultAttributeSyntaxResourceModel, state defaultAttributeSyntaxResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddBoolOperationIfNecessary(&ops, plan.EnableCompaction, state.EnableCompaction, "enable-compaction")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludeAttributeInCompaction, state.IncludeAttributeInCompaction, "include-attribute-in-compaction")
@@ -344,7 +397,7 @@ func createAttributeSyntaxOperationsDefault(plan defaultAttributeSyntaxResourceM
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultAttributeSyntaxResourceModel
+	var plan attributeSyntaxResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -365,56 +418,56 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	// Read the existing configuration
-	var state defaultAttributeSyntaxResourceModel
+	var state attributeSyntaxResourceModel
 	if plan.Type.ValueString() == "attribute-type-description" {
-		readAttributeTypeDescriptionAttributeSyntaxResponseDefault(ctx, readResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, readResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "directory-string" {
-		readDirectoryStringAttributeSyntaxResponseDefault(ctx, readResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readDirectoryStringAttributeSyntaxResponse(ctx, readResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "telephone-number" {
-		readTelephoneNumberAttributeSyntaxResponseDefault(ctx, readResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readTelephoneNumberAttributeSyntaxResponse(ctx, readResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "distinguished-name" {
-		readDistinguishedNameAttributeSyntaxResponseDefault(ctx, readResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readDistinguishedNameAttributeSyntaxResponse(ctx, readResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generalized-time" {
-		readGeneralizedTimeAttributeSyntaxResponseDefault(ctx, readResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readGeneralizedTimeAttributeSyntaxResponse(ctx, readResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "integer" {
-		readIntegerAttributeSyntaxResponseDefault(ctx, readResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readIntegerAttributeSyntaxResponse(ctx, readResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "uuid" {
-		readUuidAttributeSyntaxResponseDefault(ctx, readResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readUuidAttributeSyntaxResponse(ctx, readResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericAttributeSyntaxResponseDefault(ctx, readResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readGenericAttributeSyntaxResponse(ctx, readResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "json-object" {
-		readJsonObjectAttributeSyntaxResponseDefault(ctx, readResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readJsonObjectAttributeSyntaxResponse(ctx, readResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "user-password" {
-		readUserPasswordAttributeSyntaxResponseDefault(ctx, readResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readUserPasswordAttributeSyntaxResponse(ctx, readResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "boolean" {
-		readBooleanAttributeSyntaxResponseDefault(ctx, readResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readBooleanAttributeSyntaxResponse(ctx, readResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "hex-string" {
-		readHexStringAttributeSyntaxResponseDefault(ctx, readResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readHexStringAttributeSyntaxResponse(ctx, readResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "bit-string" {
-		readBitStringAttributeSyntaxResponseDefault(ctx, readResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readBitStringAttributeSyntaxResponse(ctx, readResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldap-url" {
-		readLdapUrlAttributeSyntaxResponseDefault(ctx, readResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readLdapUrlAttributeSyntaxResponse(ctx, readResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "name-and-optional-uid" {
-		readNameAndOptionalUidAttributeSyntaxResponseDefault(ctx, readResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		readNameAndOptionalUidAttributeSyntaxResponse(ctx, readResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createAttributeSyntaxOperationsDefault(plan, state)
+	ops := createAttributeSyntaxOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -434,49 +487,49 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 
 		// Read the response
 		if plan.Type.ValueString() == "attribute-type-description" {
-			readAttributeTypeDescriptionAttributeSyntaxResponseDefault(ctx, updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "directory-string" {
-			readDirectoryStringAttributeSyntaxResponseDefault(ctx, updateResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readDirectoryStringAttributeSyntaxResponse(ctx, updateResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "telephone-number" {
-			readTelephoneNumberAttributeSyntaxResponseDefault(ctx, updateResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readTelephoneNumberAttributeSyntaxResponse(ctx, updateResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "distinguished-name" {
-			readDistinguishedNameAttributeSyntaxResponseDefault(ctx, updateResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readDistinguishedNameAttributeSyntaxResponse(ctx, updateResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "generalized-time" {
-			readGeneralizedTimeAttributeSyntaxResponseDefault(ctx, updateResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readGeneralizedTimeAttributeSyntaxResponse(ctx, updateResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "integer" {
-			readIntegerAttributeSyntaxResponseDefault(ctx, updateResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readIntegerAttributeSyntaxResponse(ctx, updateResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "uuid" {
-			readUuidAttributeSyntaxResponseDefault(ctx, updateResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readUuidAttributeSyntaxResponse(ctx, updateResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "generic" {
-			readGenericAttributeSyntaxResponseDefault(ctx, updateResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readGenericAttributeSyntaxResponse(ctx, updateResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "json-object" {
-			readJsonObjectAttributeSyntaxResponseDefault(ctx, updateResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readJsonObjectAttributeSyntaxResponse(ctx, updateResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "user-password" {
-			readUserPasswordAttributeSyntaxResponseDefault(ctx, updateResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readUserPasswordAttributeSyntaxResponse(ctx, updateResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "boolean" {
-			readBooleanAttributeSyntaxResponseDefault(ctx, updateResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readBooleanAttributeSyntaxResponse(ctx, updateResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "hex-string" {
-			readHexStringAttributeSyntaxResponseDefault(ctx, updateResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readHexStringAttributeSyntaxResponse(ctx, updateResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "bit-string" {
-			readBitStringAttributeSyntaxResponseDefault(ctx, updateResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readBitStringAttributeSyntaxResponse(ctx, updateResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "ldap-url" {
-			readLdapUrlAttributeSyntaxResponseDefault(ctx, updateResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readLdapUrlAttributeSyntaxResponse(ctx, updateResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "name-and-optional-uid" {
-			readNameAndOptionalUidAttributeSyntaxResponseDefault(ctx, updateResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+			readNameAndOptionalUidAttributeSyntaxResponse(ctx, updateResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -513,6 +566,51 @@ func (r *attributeSyntaxResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	// Read the response into the state
+	if readResponse.AttributeTypeDescriptionAttributeSyntaxResponse != nil {
+		readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, readResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.DirectoryStringAttributeSyntaxResponse != nil {
+		readDirectoryStringAttributeSyntaxResponse(ctx, readResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.TelephoneNumberAttributeSyntaxResponse != nil {
+		readTelephoneNumberAttributeSyntaxResponse(ctx, readResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.DistinguishedNameAttributeSyntaxResponse != nil {
+		readDistinguishedNameAttributeSyntaxResponse(ctx, readResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GeneralizedTimeAttributeSyntaxResponse != nil {
+		readGeneralizedTimeAttributeSyntaxResponse(ctx, readResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.IntegerAttributeSyntaxResponse != nil {
+		readIntegerAttributeSyntaxResponse(ctx, readResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.UuidAttributeSyntaxResponse != nil {
+		readUuidAttributeSyntaxResponse(ctx, readResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GenericAttributeSyntaxResponse != nil {
+		readGenericAttributeSyntaxResponse(ctx, readResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.JsonObjectAttributeSyntaxResponse != nil {
+		readJsonObjectAttributeSyntaxResponse(ctx, readResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.UserPasswordAttributeSyntaxResponse != nil {
+		readUserPasswordAttributeSyntaxResponse(ctx, readResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.BooleanAttributeSyntaxResponse != nil {
+		readBooleanAttributeSyntaxResponse(ctx, readResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.HexStringAttributeSyntaxResponse != nil {
+		readHexStringAttributeSyntaxResponse(ctx, readResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.BitStringAttributeSyntaxResponse != nil {
+		readBitStringAttributeSyntaxResponse(ctx, readResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.LdapUrlAttributeSyntaxResponse != nil {
+		readLdapUrlAttributeSyntaxResponse(ctx, readResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.NameAndOptionalUidAttributeSyntaxResponse != nil {
+		readNameAndOptionalUidAttributeSyntaxResponse(ctx, readResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -558,6 +656,51 @@ func (r *attributeSyntaxResource) Update(ctx context.Context, req resource.Updat
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "attribute-type-description" {
+			readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "directory-string" {
+			readDirectoryStringAttributeSyntaxResponse(ctx, updateResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "telephone-number" {
+			readTelephoneNumberAttributeSyntaxResponse(ctx, updateResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "distinguished-name" {
+			readDistinguishedNameAttributeSyntaxResponse(ctx, updateResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "generalized-time" {
+			readGeneralizedTimeAttributeSyntaxResponse(ctx, updateResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "integer" {
+			readIntegerAttributeSyntaxResponse(ctx, updateResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "uuid" {
+			readUuidAttributeSyntaxResponse(ctx, updateResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "generic" {
+			readGenericAttributeSyntaxResponse(ctx, updateResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "json-object" {
+			readJsonObjectAttributeSyntaxResponse(ctx, updateResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "user-password" {
+			readUserPasswordAttributeSyntaxResponse(ctx, updateResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "boolean" {
+			readBooleanAttributeSyntaxResponse(ctx, updateResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "hex-string" {
+			readHexStringAttributeSyntaxResponse(ctx, updateResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "bit-string" {
+			readBitStringAttributeSyntaxResponse(ctx, updateResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "ldap-url" {
+			readLdapUrlAttributeSyntaxResponse(ctx, updateResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "name-and-optional-uid" {
+			readNameAndOptionalUidAttributeSyntaxResponse(ctx, updateResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
+		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

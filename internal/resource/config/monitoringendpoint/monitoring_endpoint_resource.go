@@ -94,19 +94,6 @@ type monitoringEndpointResourceModel struct {
 	Enabled              types.Bool   `tfsdk:"enabled"`
 }
 
-type defaultMonitoringEndpointResourceModel struct {
-	Id                   types.String `tfsdk:"id"`
-	LastUpdated          types.String `tfsdk:"last_updated"`
-	Notifications        types.Set    `tfsdk:"notifications"`
-	RequiredActions      types.Set    `tfsdk:"required_actions"`
-	Hostname             types.String `tfsdk:"hostname"`
-	ServerPort           types.Int64  `tfsdk:"server_port"`
-	ConnectionType       types.String `tfsdk:"connection_type"`
-	TrustManagerProvider types.String `tfsdk:"trust_manager_provider"`
-	AdditionalTags       types.Set    `tfsdk:"additional_tags"`
-	Enabled              types.Bool   `tfsdk:"enabled"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *monitoringEndpointResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	monitoringEndpointSchema(ctx, req, resp, false)
@@ -164,10 +151,6 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"statsd"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -212,32 +195,8 @@ func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdM
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a StatsdMonitoringEndpointResponse object into the model struct
-func readStatsdMonitoringEndpointResponseDefault(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *defaultMonitoringEndpointResourceModel, expectedValues *defaultMonitoringEndpointResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Hostname = types.StringValue(r.Hostname)
-	state.ServerPort = types.Int64Value(r.ServerPort)
-	state.ConnectionType = types.StringValue(r.ConnectionType.String())
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
-	state.AdditionalTags = internaltypes.GetStringSet(r.AdditionalTags)
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createMonitoringEndpointOperations(plan monitoringEndpointResourceModel, state monitoringEndpointResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Hostname, state.Hostname, "hostname")
-	operations.AddInt64OperationIfNecessary(&ops, plan.ServerPort, state.ServerPort, "server-port")
-	operations.AddStringOperationIfNecessary(&ops, plan.ConnectionType, state.ConnectionType, "connection-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.TrustManagerProvider, state.TrustManagerProvider, "trust-manager-provider")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AdditionalTags, state.AdditionalTags, "additional-tags")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createMonitoringEndpointOperationsDefault(plan defaultMonitoringEndpointResourceModel, state defaultMonitoringEndpointResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Hostname, state.Hostname, "hostname")
 	operations.AddInt64OperationIfNecessary(&ops, plan.ServerPort, state.ServerPort, "server-port")
@@ -318,7 +277,7 @@ func (r *monitoringEndpointResource) Create(ctx context.Context, req resource.Cr
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultMonitoringEndpointResourceModel
+	var plan monitoringEndpointResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -339,126 +298,11 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the existing configuration
-	var state defaultMonitoringEndpointResourceModel
-	readStatsdMonitoringEndpointResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state monitoringEndpointResourceModel
+	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createMonitoringEndpointOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitoring Endpoint", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readStatsdMonitoringEndpointResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *monitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state monitoringEndpointResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultMonitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultMonitoringEndpointResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readStatsdMonitoringEndpointResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *monitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan monitoringEndpointResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state monitoringEndpointResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createMonitoringEndpointOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -481,8 +325,6 @@ func (r *monitoringEndpointResource) Update(ctx context.Context, req resource.Up
 		readStatsdMonitoringEndpointResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -492,9 +334,60 @@ func (r *monitoringEndpointResource) Update(ctx context.Context, req resource.Up
 	}
 }
 
+// Read resource information
+func (r *monitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultMonitoringEndpointResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state monitoringEndpointResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *monitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultMonitoringEndpointResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateMonitoringEndpoint(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateMonitoringEndpoint(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultMonitoringEndpointResourceModel
+	var plan monitoringEndpointResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -502,19 +395,19 @@ func (r *defaultMonitoringEndpointResource) Update(ctx context.Context, req reso
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultMonitoringEndpointResourceModel
+	var state monitoringEndpointResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createMonitoringEndpointOperationsDefault(plan, state)
+	ops := createMonitoringEndpointOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpointExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Monitoring Endpoint", err, httpResp)
 			return
@@ -527,7 +420,7 @@ func (r *defaultMonitoringEndpointResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readStatsdMonitoringEndpointResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readStatsdMonitoringEndpointResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

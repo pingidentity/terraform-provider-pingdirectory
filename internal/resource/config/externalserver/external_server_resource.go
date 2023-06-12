@@ -502,6 +502,10 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Validators = []validator.String{
+			stringvalidator.OneOf([]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory", "conjur", "amazon-aws", "vault"}...),
+		}
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}

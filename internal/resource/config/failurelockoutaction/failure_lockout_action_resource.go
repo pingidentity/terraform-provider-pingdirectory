@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -93,18 +94,6 @@ type failureLockoutActionResourceModel struct {
 	Description                       types.String `tfsdk:"description"`
 }
 
-type defaultFailureLockoutActionResourceModel struct {
-	Id                                types.String `tfsdk:"id"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
-	Notifications                     types.Set    `tfsdk:"notifications"`
-	RequiredActions                   types.Set    `tfsdk:"required_actions"`
-	Type                              types.String `tfsdk:"type"`
-	Delay                             types.String `tfsdk:"delay"`
-	AllowBlockingDelay                types.Bool   `tfsdk:"allow_blocking_delay"`
-	GenerateAccountStatusNotification types.Bool   `tfsdk:"generate_account_status_notification"`
-	Description                       types.String `tfsdk:"description"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *failureLockoutActionResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	failureLockoutActionSchema(ctx, req, resp, false)
@@ -176,7 +165,7 @@ func (r *defaultFailureLockoutActionResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanFailureLockoutAction(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultFailureLockoutActionResourceModel
+	var model failureLockoutActionResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.GenerateAccountStatusNotification) && model.Type.ValueString() != "delay-bind-response" && model.Type.ValueString() != "no-operation" {
 		resp.Diagnostics.AddError("Attribute 'generate_account_status_notification' not supported by pingdirectory_failure_lockout_action resources with 'type' '"+model.Type.ValueString()+"'",
@@ -238,30 +227,8 @@ func readDelayBindResponseFailureLockoutActionResponse(ctx context.Context, r *c
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a DelayBindResponseFailureLockoutActionResponse object into the model struct
-func readDelayBindResponseFailureLockoutActionResponseDefault(ctx context.Context, r *client.DelayBindResponseFailureLockoutActionResponse, state *defaultFailureLockoutActionResourceModel, expectedValues *defaultFailureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("delay-bind-response")
-	state.Id = types.StringValue(r.Id)
-	state.Delay = types.StringValue(r.Delay)
-	config.CheckMismatchedPDFormattedAttributes("delay",
-		expectedValues.Delay, state.Delay, diagnostics)
-	state.AllowBlockingDelay = internaltypes.BoolTypeOrNil(r.AllowBlockingDelay)
-	state.GenerateAccountStatusNotification = internaltypes.BoolTypeOrNil(r.GenerateAccountStatusNotification)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Read a NoOperationFailureLockoutActionResponse object into the model struct
 func readNoOperationFailureLockoutActionResponse(ctx context.Context, r *client.NoOperationFailureLockoutActionResponse, state *failureLockoutActionResourceModel, expectedValues *failureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("no-operation")
-	state.Id = types.StringValue(r.Id)
-	state.GenerateAccountStatusNotification = internaltypes.BoolTypeOrNil(r.GenerateAccountStatusNotification)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
-// Read a NoOperationFailureLockoutActionResponse object into the model struct
-func readNoOperationFailureLockoutActionResponseDefault(ctx context.Context, r *client.NoOperationFailureLockoutActionResponse, state *defaultFailureLockoutActionResourceModel, expectedValues *defaultFailureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("no-operation")
 	state.Id = types.StringValue(r.Id)
 	state.GenerateAccountStatusNotification = internaltypes.BoolTypeOrNil(r.GenerateAccountStatusNotification)
@@ -277,26 +244,8 @@ func readLockAccountFailureLockoutActionResponse(ctx context.Context, r *client.
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a LockAccountFailureLockoutActionResponse object into the model struct
-func readLockAccountFailureLockoutActionResponseDefault(ctx context.Context, r *client.LockAccountFailureLockoutActionResponse, state *defaultFailureLockoutActionResourceModel, expectedValues *defaultFailureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("lock-account")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createFailureLockoutActionOperations(plan failureLockoutActionResourceModel, state failureLockoutActionResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Delay, state.Delay, "delay")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowBlockingDelay, state.AllowBlockingDelay, "allow-blocking-delay")
-	operations.AddBoolOperationIfNecessary(&ops, plan.GenerateAccountStatusNotification, state.GenerateAccountStatusNotification, "generate-account-status-notification")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createFailureLockoutActionOperationsDefault(plan defaultFailureLockoutActionResourceModel, state defaultFailureLockoutActionResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Delay, state.Delay, "delay")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowBlockingDelay, state.AllowBlockingDelay, "allow-blocking-delay")
@@ -453,7 +402,7 @@ func (r *failureLockoutActionResource) Create(ctx context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultFailureLockoutActionResourceModel
+	var plan failureLockoutActionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -474,149 +423,19 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 	}
 
 	// Read the existing configuration
-	var state defaultFailureLockoutActionResourceModel
+	var state failureLockoutActionResourceModel
 	if plan.Type.ValueString() == "delay-bind-response" {
-		readDelayBindResponseFailureLockoutActionResponseDefault(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "no-operation" {
-		readNoOperationFailureLockoutActionResponseDefault(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "lock-account" {
-		readLockAccountFailureLockoutActionResponseDefault(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createFailureLockoutActionOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutActionExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Failure Lockout Action", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "delay-bind-response" {
-			readDelayBindResponseFailureLockoutActionResponseDefault(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "no-operation" {
-			readNoOperationFailureLockoutActionResponseDefault(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "lock-account" {
-			readLockAccountFailureLockoutActionResponseDefault(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *failureLockoutActionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state failureLockoutActionResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.DelayBindResponseFailureLockoutActionResponse != nil {
-		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.NoOperationFailureLockoutActionResponse != nil {
-		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LockAccountFailureLockoutActionResponse != nil {
-		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultFailureLockoutActionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultFailureLockoutActionResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *failureLockoutActionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan failureLockoutActionResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state failureLockoutActionResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createFailureLockoutActionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -647,8 +466,6 @@ func (r *failureLockoutActionResource) Update(ctx context.Context, req resource.
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -658,9 +475,68 @@ func (r *failureLockoutActionResource) Update(ctx context.Context, req resource.
 	}
 }
 
+// Read resource information
+func (r *failureLockoutActionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFailureLockoutAction(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultFailureLockoutActionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readFailureLockoutAction(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readFailureLockoutAction(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state failureLockoutActionResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.DelayBindResponseFailureLockoutActionResponse != nil {
+		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.NoOperationFailureLockoutActionResponse != nil {
+		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LockAccountFailureLockoutActionResponse != nil {
+		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *failureLockoutActionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFailureLockoutAction(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultFailureLockoutActionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateFailureLockoutAction(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultFailureLockoutActionResourceModel
+	var plan failureLockoutActionResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -668,19 +544,19 @@ func (r *defaultFailureLockoutActionResource) Update(ctx context.Context, req re
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultFailureLockoutActionResourceModel
+	var state failureLockoutActionResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createFailureLockoutActionOperationsDefault(plan, state)
+	ops := createFailureLockoutActionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutActionExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.FailureLockoutActionApi.UpdateFailureLockoutActionExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Failure Lockout Action", err, httpResp)
 			return
@@ -694,13 +570,13 @@ func (r *defaultFailureLockoutActionResource) Update(ctx context.Context, req re
 
 		// Read the response
 		if plan.Type.ValueString() == "delay-bind-response" {
-			readDelayBindResponseFailureLockoutActionResponseDefault(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
+			readDelayBindResponseFailureLockoutActionResponse(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "no-operation" {
-			readNoOperationFailureLockoutActionResponseDefault(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
+			readNoOperationFailureLockoutActionResponse(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "lock-account" {
-			readLockAccountFailureLockoutActionResponseDefault(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
+			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

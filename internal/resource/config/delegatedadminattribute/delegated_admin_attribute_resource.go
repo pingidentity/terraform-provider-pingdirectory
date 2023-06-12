@@ -106,27 +106,6 @@ type delegatedAdminAttributeResourceModel struct {
 	DateTimeFormat        types.String `tfsdk:"date_time_format"`
 }
 
-type defaultDelegatedAdminAttributeResourceModel struct {
-	Id                    types.String `tfsdk:"id"`
-	LastUpdated           types.String `tfsdk:"last_updated"`
-	Notifications         types.Set    `tfsdk:"notifications"`
-	RequiredActions       types.Set    `tfsdk:"required_actions"`
-	Type                  types.String `tfsdk:"type"`
-	RestResourceTypeName  types.String `tfsdk:"rest_resource_type_name"`
-	AllowedMIMEType       types.Set    `tfsdk:"allowed_mime_type"`
-	Description           types.String `tfsdk:"description"`
-	AttributeType         types.String `tfsdk:"attribute_type"`
-	DisplayName           types.String `tfsdk:"display_name"`
-	Mutability            types.String `tfsdk:"mutability"`
-	IncludeInSummary      types.Bool   `tfsdk:"include_in_summary"`
-	MultiValued           types.Bool   `tfsdk:"multi_valued"`
-	AttributeCategory     types.String `tfsdk:"attribute_category"`
-	DisplayOrderIndex     types.Int64  `tfsdk:"display_order_index"`
-	ReferenceResourceType types.String `tfsdk:"reference_resource_type"`
-	AttributePresentation types.String `tfsdk:"attribute_presentation"`
-	DateTimeFormat        types.String `tfsdk:"date_time_format"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *delegatedAdminAttributeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	delegatedAdminAttributeSchema(ctx, req, resp, false)
@@ -265,7 +244,7 @@ func (r *defaultDelegatedAdminAttributeResource) ModifyPlan(ctx context.Context,
 }
 
 func modifyPlanDelegatedAdminAttribute(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultDelegatedAdminAttributeResourceModel
+	var model delegatedAdminAttributeResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.AllowedMIMEType) && model.Type.ValueString() != "certificate" && model.Type.ValueString() != "photo" {
 		resp.Diagnostics.AddError("Attribute 'allowed_mime_type' not supported by pingdirectory_delegated_admin_attribute resources with 'type' '"+model.Type.ValueString()+"'",
@@ -442,13 +421,6 @@ func populateDelegatedAdminAttributeNilSets(ctx context.Context, model *delegate
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateDelegatedAdminAttributeNilSetsDefault(ctx context.Context, model *defaultDelegatedAdminAttributeResourceModel) {
-	if model.AllowedMIMEType.ElementType(ctx) == nil {
-		model.AllowedMIMEType = types.SetNull(types.StringType)
-	}
-}
-
 // Read a CertificateDelegatedAdminAttributeResponse object into the model struct
 func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *client.CertificateDelegatedAdminAttributeResponse, state *delegatedAdminAttributeResourceModel, expectedValues *delegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("certificate")
@@ -469,28 +441,6 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateDelegatedAdminAttributeNilSets(ctx, state)
-}
-
-// Read a CertificateDelegatedAdminAttributeResponse object into the model struct
-func readCertificateDelegatedAdminAttributeResponseDefault(ctx context.Context, r *client.CertificateDelegatedAdminAttributeResponse, state *defaultDelegatedAdminAttributeResourceModel, expectedValues *defaultDelegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("certificate")
-	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
-	state.AllowedMIMEType = internaltypes.GetStringSet(
-		client.StringSliceEnumdelegatedAdminAttributeCertificateAllowedMIMETypeProp(r.AllowedMIMEType))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.AttributeType = types.StringValue(r.AttributeType)
-	state.DisplayName = types.StringValue(r.DisplayName)
-	state.Mutability = types.StringValue(r.Mutability.String())
-	state.MultiValued = types.BoolValue(r.MultiValued)
-	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
-	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
-	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
-	state.AttributePresentation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
-	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeNilSetsDefault(ctx, state)
 }
 
 // Read a PhotoDelegatedAdminAttributeResponse object into the model struct
@@ -515,28 +465,6 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 	populateDelegatedAdminAttributeNilSets(ctx, state)
 }
 
-// Read a PhotoDelegatedAdminAttributeResponse object into the model struct
-func readPhotoDelegatedAdminAttributeResponseDefault(ctx context.Context, r *client.PhotoDelegatedAdminAttributeResponse, state *defaultDelegatedAdminAttributeResourceModel, expectedValues *defaultDelegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("photo")
-	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
-	state.AllowedMIMEType = internaltypes.GetStringSet(
-		client.StringSliceEnumdelegatedAdminAttributePhotoAllowedMIMETypeProp(r.AllowedMIMEType))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.AttributeType = types.StringValue(r.AttributeType)
-	state.DisplayName = types.StringValue(r.DisplayName)
-	state.Mutability = types.StringValue(r.Mutability.String())
-	state.MultiValued = types.BoolValue(r.MultiValued)
-	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
-	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
-	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
-	state.AttributePresentation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
-	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeNilSetsDefault(ctx, state)
-}
-
 // Read a GenericDelegatedAdminAttributeResponse object into the model struct
 func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.GenericDelegatedAdminAttributeResponse, state *delegatedAdminAttributeResourceModel, expectedValues *delegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
@@ -558,47 +486,8 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 	populateDelegatedAdminAttributeNilSets(ctx, state)
 }
 
-// Read a GenericDelegatedAdminAttributeResponse object into the model struct
-func readGenericDelegatedAdminAttributeResponseDefault(ctx context.Context, r *client.GenericDelegatedAdminAttributeResponse, state *defaultDelegatedAdminAttributeResourceModel, expectedValues *defaultDelegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("generic")
-	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.AttributeType = types.StringValue(r.AttributeType)
-	state.DisplayName = types.StringValue(r.DisplayName)
-	state.Mutability = types.StringValue(r.Mutability.String())
-	state.MultiValued = types.BoolValue(r.MultiValued)
-	state.IncludeInSummary = types.BoolValue(r.IncludeInSummary)
-	state.AttributeCategory = internaltypes.StringTypeOrNil(r.AttributeCategory, internaltypes.IsEmptyString(expectedValues.AttributeCategory))
-	state.DisplayOrderIndex = types.Int64Value(r.DisplayOrderIndex)
-	state.ReferenceResourceType = internaltypes.StringTypeOrNil(r.ReferenceResourceType, internaltypes.IsEmptyString(expectedValues.ReferenceResourceType))
-	state.AttributePresentation = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
-	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createDelegatedAdminAttributeOperations(plan delegatedAdminAttributeResourceModel, state delegatedAdminAttributeResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedMIMEType, state.AllowedMIMEType, "allowed-mime-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddStringOperationIfNecessary(&ops, plan.AttributeType, state.AttributeType, "attribute-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.DisplayName, state.DisplayName, "display-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.Mutability, state.Mutability, "mutability")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeInSummary, state.IncludeInSummary, "include-in-summary")
-	operations.AddBoolOperationIfNecessary(&ops, plan.MultiValued, state.MultiValued, "multi-valued")
-	operations.AddStringOperationIfNecessary(&ops, plan.AttributeCategory, state.AttributeCategory, "attribute-category")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DisplayOrderIndex, state.DisplayOrderIndex, "display-order-index")
-	operations.AddStringOperationIfNecessary(&ops, plan.ReferenceResourceType, state.ReferenceResourceType, "reference-resource-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.AttributePresentation, state.AttributePresentation, "attribute-presentation")
-	operations.AddStringOperationIfNecessary(&ops, plan.DateTimeFormat, state.DateTimeFormat, "date-time-format")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createDelegatedAdminAttributeOperationsDefault(plan defaultDelegatedAdminAttributeResourceModel, state defaultDelegatedAdminAttributeResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedMIMEType, state.AllowedMIMEType, "allowed-mime-type")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
@@ -777,7 +666,7 @@ func (r *delegatedAdminAttributeResource) Create(ctx context.Context, req resour
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultDelegatedAdminAttributeResourceModel
+	var plan delegatedAdminAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -798,149 +687,19 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 	}
 
 	// Read the existing configuration
-	var state defaultDelegatedAdminAttributeResourceModel
+	var state delegatedAdminAttributeResourceModel
 	if plan.Type.ValueString() == "certificate" {
-		readCertificateDelegatedAdminAttributeResponseDefault(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "photo" {
-		readPhotoDelegatedAdminAttributeResponseDefault(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericDelegatedAdminAttributeResponseDefault(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
-	ops := createDelegatedAdminAttributeOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "certificate" {
-			readCertificateDelegatedAdminAttributeResponseDefault(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "photo" {
-			readPhotoDelegatedAdminAttributeResponseDefault(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "generic" {
-			readGenericDelegatedAdminAttributeResponseDefault(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *delegatedAdminAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state delegatedAdminAttributeResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.CertificateDelegatedAdminAttributeResponse != nil {
-		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.PhotoDelegatedAdminAttributeResponse != nil {
-		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.GenericDelegatedAdminAttributeResponse != nil {
-		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultDelegatedAdminAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultDelegatedAdminAttributeResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *delegatedAdminAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan delegatedAdminAttributeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state delegatedAdminAttributeResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createDelegatedAdminAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -971,8 +730,6 @@ func (r *delegatedAdminAttributeResource) Update(ctx context.Context, req resour
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -982,9 +739,68 @@ func (r *delegatedAdminAttributeResource) Update(ctx context.Context, req resour
 	}
 }
 
+// Read resource information
+func (r *delegatedAdminAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDelegatedAdminAttributeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readDelegatedAdminAttribute(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state delegatedAdminAttributeResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.GetDelegatedAdminAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Attribute", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.CertificateDelegatedAdminAttributeResponse != nil {
+		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.PhotoDelegatedAdminAttributeResponse != nil {
+		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.GenericDelegatedAdminAttributeResponse != nil {
+		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *delegatedAdminAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultDelegatedAdminAttributeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelegatedAdminAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateDelegatedAdminAttribute(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultDelegatedAdminAttributeResourceModel
+	var plan delegatedAdminAttributeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -992,19 +808,19 @@ func (r *defaultDelegatedAdminAttributeResource) Update(ctx context.Context, req
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultDelegatedAdminAttributeResourceModel
+	var state delegatedAdminAttributeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
+	updateRequest := apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttribute(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.AttributeType.ValueString(), plan.RestResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createDelegatedAdminAttributeOperationsDefault(plan, state)
+	ops := createDelegatedAdminAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminAttributeApi.UpdateDelegatedAdminAttributeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Attribute", err, httpResp)
 			return
@@ -1018,13 +834,13 @@ func (r *defaultDelegatedAdminAttributeResource) Update(ctx context.Context, req
 
 		// Read the response
 		if plan.Type.ValueString() == "certificate" {
-			readCertificateDelegatedAdminAttributeResponseDefault(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+			readCertificateDelegatedAdminAttributeResponse(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "photo" {
-			readPhotoDelegatedAdminAttributeResponseDefault(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+			readPhotoDelegatedAdminAttributeResponse(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "generic" {
-			readGenericDelegatedAdminAttributeResponseDefault(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+			readGenericDelegatedAdminAttributeResponse(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

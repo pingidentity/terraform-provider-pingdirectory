@@ -101,25 +101,6 @@ type localDbIndexResourceModel struct {
 	CacheMode                                    types.String `tfsdk:"cache_mode"`
 }
 
-type defaultLocalDbIndexResourceModel struct {
-	Id                                           types.String `tfsdk:"id"`
-	LastUpdated                                  types.String `tfsdk:"last_updated"`
-	Notifications                                types.Set    `tfsdk:"notifications"`
-	RequiredActions                              types.Set    `tfsdk:"required_actions"`
-	BackendName                                  types.String `tfsdk:"backend_name"`
-	Attribute                                    types.String `tfsdk:"attribute"`
-	IndexEntryLimit                              types.Int64  `tfsdk:"index_entry_limit"`
-	SubstringIndexEntryLimit                     types.Int64  `tfsdk:"substring_index_entry_limit"`
-	MaintainMatchCountForKeysExceedingEntryLimit types.Bool   `tfsdk:"maintain_match_count_for_keys_exceeding_entry_limit"`
-	IndexType                                    types.Set    `tfsdk:"index_type"`
-	SubstringLength                              types.Int64  `tfsdk:"substring_length"`
-	PrimeIndex                                   types.Bool   `tfsdk:"prime_index"`
-	PrimeInternalNodesOnly                       types.Bool   `tfsdk:"prime_internal_nodes_only"`
-	EqualityIndexFilter                          types.Set    `tfsdk:"equality_index_filter"`
-	MaintainEqualityIndexWithoutFilter           types.Bool   `tfsdk:"maintain_equality_index_without_filter"`
-	CacheMode                                    types.String `tfsdk:"cache_mode"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *localDbIndexResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	localDbIndexSchema(ctx, req, resp, false)
@@ -228,10 +209,6 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"local-db-index"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"attribute", "backend_name"})
 	}
@@ -298,45 +275,8 @@ func readLocalDbIndexResponse(ctx context.Context, r *client.LocalDbIndexRespons
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a LocalDbIndexResponse object into the model struct
-func readLocalDbIndexResponseDefault(ctx context.Context, r *client.LocalDbIndexResponse, state *defaultLocalDbIndexResourceModel, expectedValues *defaultLocalDbIndexResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.BackendName = expectedValues.BackendName
-	state.Attribute = types.StringValue(r.Attribute)
-	state.IndexEntryLimit = internaltypes.Int64TypeOrNil(r.IndexEntryLimit)
-	state.SubstringIndexEntryLimit = internaltypes.Int64TypeOrNil(r.SubstringIndexEntryLimit)
-	state.MaintainMatchCountForKeysExceedingEntryLimit = internaltypes.BoolTypeOrNil(r.MaintainMatchCountForKeysExceedingEntryLimit)
-	state.IndexType = internaltypes.GetStringSet(
-		client.StringSliceEnumlocalDbIndexIndexTypeProp(r.IndexType))
-	state.SubstringLength = internaltypes.Int64TypeOrNil(r.SubstringLength)
-	state.PrimeIndex = internaltypes.BoolTypeOrNil(r.PrimeIndex)
-	state.PrimeInternalNodesOnly = internaltypes.BoolTypeOrNil(r.PrimeInternalNodesOnly)
-	state.EqualityIndexFilter = internaltypes.GetStringSet(r.EqualityIndexFilter)
-	state.MaintainEqualityIndexWithoutFilter = internaltypes.BoolTypeOrNil(r.MaintainEqualityIndexWithoutFilter)
-	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createLocalDbIndexOperations(plan localDbIndexResourceModel, state localDbIndexResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Attribute, state.Attribute, "attribute")
-	operations.AddInt64OperationIfNecessary(&ops, plan.IndexEntryLimit, state.IndexEntryLimit, "index-entry-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.SubstringIndexEntryLimit, state.SubstringIndexEntryLimit, "substring-index-entry-limit")
-	operations.AddBoolOperationIfNecessary(&ops, plan.MaintainMatchCountForKeysExceedingEntryLimit, state.MaintainMatchCountForKeysExceedingEntryLimit, "maintain-match-count-for-keys-exceeding-entry-limit")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.IndexType, state.IndexType, "index-type")
-	operations.AddInt64OperationIfNecessary(&ops, plan.SubstringLength, state.SubstringLength, "substring-length")
-	operations.AddBoolOperationIfNecessary(&ops, plan.PrimeIndex, state.PrimeIndex, "prime-index")
-	operations.AddBoolOperationIfNecessary(&ops, plan.PrimeInternalNodesOnly, state.PrimeInternalNodesOnly, "prime-internal-nodes-only")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.EqualityIndexFilter, state.EqualityIndexFilter, "equality-index-filter")
-	operations.AddBoolOperationIfNecessary(&ops, plan.MaintainEqualityIndexWithoutFilter, state.MaintainEqualityIndexWithoutFilter, "maintain-equality-index-without-filter")
-	operations.AddStringOperationIfNecessary(&ops, plan.CacheMode, state.CacheMode, "cache-mode")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createLocalDbIndexOperationsDefault(plan defaultLocalDbIndexResourceModel, state defaultLocalDbIndexResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Attribute, state.Attribute, "attribute")
 	operations.AddInt64OperationIfNecessary(&ops, plan.IndexEntryLimit, state.IndexEntryLimit, "index-entry-limit")
@@ -423,7 +363,7 @@ func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRe
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultLocalDbIndexResourceModel
+	var plan localDbIndexResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -444,126 +384,11 @@ func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Read the existing configuration
-	var state defaultLocalDbIndexResourceModel
-	readLocalDbIndexResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state localDbIndexResourceModel
+	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
-	ops := createLocalDbIndexOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Index", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readLocalDbIndexResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *localDbIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state localDbIndexResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.GetLocalDbIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultLocalDbIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultLocalDbIndexResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LocalDbIndexApi.GetLocalDbIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readLocalDbIndexResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan localDbIndexResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state localDbIndexResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createLocalDbIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -586,8 +411,6 @@ func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRe
 		readLocalDbIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -597,9 +420,60 @@ func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 }
 
+// Read resource information
+func (r *localDbIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLocalDbIndex(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state localDbIndexResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.LocalDbIndexApi.GetLocalDbIndex(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Attribute.ValueString(), state.BackendName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Index", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *localDbIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultLocalDbIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLocalDbIndex(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultLocalDbIndexResourceModel
+	var plan localDbIndexResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -607,19 +481,19 @@ func (r *defaultLocalDbIndexResource) Update(ctx context.Context, req resource.U
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultLocalDbIndexResourceModel
+	var state localDbIndexResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
+	updateRequest := apiClient.LocalDbIndexApi.UpdateLocalDbIndex(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createLocalDbIndexOperationsDefault(plan, state)
+	ops := createLocalDbIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocalDbIndexApi.UpdateLocalDbIndexExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Index", err, httpResp)
 			return
@@ -632,7 +506,7 @@ func (r *defaultLocalDbIndexResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		readLocalDbIndexResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readLocalDbIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

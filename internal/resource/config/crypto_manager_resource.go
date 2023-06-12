@@ -57,14 +57,6 @@ func (r *cryptoManagerResource) Configure(_ context.Context, req resource.Config
 
 type cryptoManagerResourceModel struct {
 	// Id field required for acceptance testing framework
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-}
-
-type defaultCryptoManagerResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                               types.String `tfsdk:"id"`
 	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
@@ -89,7 +81,124 @@ type defaultCryptoManagerResourceModel struct {
 func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	schemaDef := schema.Schema{
 		Description: "Manages a Crypto Manager.",
-		Attributes:  map[string]schema.Attribute{},
+		Attributes: map[string]schema.Attribute{
+			"digest_algorithm": schema.StringAttribute{
+				Description: "Specifies the preferred message digest algorithm for the Directory Server.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"mac_algorithm": schema.StringAttribute{
+				Description: "Specifies the preferred MAC algorithm for the Directory Server.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"mac_key_length": schema.Int64Attribute{
+				Description: "Specifies the key length in bits for the preferred MAC algorithm.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"signing_encryption_settings_id": schema.StringAttribute{
+				Description: "The ID of the encryption settings definition to use for generating digital signatures. If this is not specified, then the server's preferred encryption settings definition will be used. Supported in PingDirectory product version 9.2.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"cipher_transformation": schema.StringAttribute{
+				Description: "Specifies the cipher for the Directory Server using the syntax algorithm/mode/padding.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"cipher_key_length": schema.Int64Attribute{
+				Description: "Specifies the key length in bits for the preferred cipher.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"key_wrapping_transformation": schema.StringAttribute{
+				Description: "The preferred key wrapping transformation for the Directory Server. This value must be the same for all server instances in a replication topology.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"ssl_protocol": schema.SetAttribute{
+				Description: "Specifies the names of TLS protocols that are allowed for use in secure communication.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"ssl_cipher_suite": schema.SetAttribute{
+				Description: "Specifies the names of the TLS cipher suites that are allowed for use in secure communication.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"outbound_ssl_protocol": schema.SetAttribute{
+				Description: "Specifies the names of the TLS protocols that will be enabled for outbound connections initiated by the Directory Server.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"outbound_ssl_cipher_suite": schema.SetAttribute{
+				Description: "Specifies the names of the TLS cipher suites that will be enabled for outbound connections initiated by the Directory Server.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"enable_sha_1_cipher_suites": schema.BoolAttribute{
+				Description: "Indicates whether to enable support for TLS cipher suites that use the SHA-1 digest algorithm. The SHA-1 digest algorithm is no longer considered secure and is not recommended for use.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"enable_rsa_key_exchange_cipher_suites": schema.BoolAttribute{
+				Description: "Indicates whether to enable support for TLS cipher suites that use the RSA key exchange algorithm. Cipher suites that rely on RSA key exchange are not recommended because they do not support forward secrecy, which means that if the private key is compromised, then any communication negotiated using that private key should also be considered compromised.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"ssl_cert_nickname": schema.StringAttribute{
+				Description: "Specifies the nickname (also called the alias) of the certificate that the Crypto Manager should use when performing SSL communication.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+		},
 	}
 	AddCommonSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -106,7 +215,7 @@ func (r *cryptoManagerResource) ModifyPlan(ctx context.Context, req resource.Mod
 		// Every remaining property is supported
 		return
 	}
-	var model defaultCryptoManagerResourceModel
+	var model cryptoManagerResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.SigningEncryptionSettingsID) {
 		resp.Diagnostics.AddError("Attribute 'signing_encryption_settings_id' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
@@ -114,7 +223,7 @@ func (r *cryptoManagerResource) ModifyPlan(ctx context.Context, req resource.Mod
 }
 
 // Read a CryptoManagerResponse object into the model struct
-func readCryptoManagerResponseDefault(ctx context.Context, r *client.CryptoManagerResponse, state *defaultCryptoManagerResourceModel, diagnostics *diag.Diagnostics) {
+func readCryptoManagerResponse(ctx context.Context, r *client.CryptoManagerResponse, state *cryptoManagerResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(r.DigestAlgorithm, true)
@@ -136,12 +245,6 @@ func readCryptoManagerResponseDefault(ctx context.Context, r *client.CryptoManag
 
 // Create any update operations necessary to make the state match the plan
 func createCryptoManagerOperations(plan cryptoManagerResourceModel, state cryptoManagerResourceModel) []client.Operation {
-	var ops []client.Operation
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createCryptoManagerOperationsDefault(plan defaultCryptoManagerResourceModel, state defaultCryptoManagerResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.DigestAlgorithm, state.DigestAlgorithm, "digest-algorithm")
 	operations.AddStringOperationIfNecessary(&ops, plan.MacAlgorithm, state.MacAlgorithm, "mac-algorithm")
@@ -166,7 +269,7 @@ func createCryptoManagerOperationsDefault(plan defaultCryptoManagerResourceModel
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *cryptoManagerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultCryptoManagerResourceModel
+	var plan cryptoManagerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -187,12 +290,12 @@ func (r *cryptoManagerResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Read the existing configuration
-	var state defaultCryptoManagerResourceModel
-	readCryptoManagerResponseDefault(ctx, readResponse, &state, &resp.Diagnostics)
+	var state cryptoManagerResourceModel
+	readCryptoManagerResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.CryptoManagerApi.UpdateCryptoManager(ProviderBasicAuthContext(ctx, r.providerConfig))
-	ops := createCryptoManagerOperationsDefault(plan, state)
+	ops := createCryptoManagerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -211,7 +314,7 @@ func (r *cryptoManagerResource) Create(ctx context.Context, req resource.CreateR
 		}
 
 		// Read the response
-		readCryptoManagerResponseDefault(ctx, updateResponse, &state, &resp.Diagnostics)
+		readCryptoManagerResponse(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}

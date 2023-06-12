@@ -88,16 +88,6 @@ type scimSchemaResourceModel struct {
 	DisplayName     types.String `tfsdk:"display_name"`
 }
 
-type defaultScimSchemaResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Description     types.String `tfsdk:"description"`
-	SchemaURN       types.String `tfsdk:"schema_urn"`
-	DisplayName     types.String `tfsdk:"display_name"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *scimSchemaResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	scimSchemaSchema(ctx, req, resp, false)
@@ -129,10 +119,6 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"scim-schema"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"schema_urn"})
 	}
@@ -161,26 +147,8 @@ func readScimSchemaResponse(ctx context.Context, r *client.ScimSchemaResponse, s
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a ScimSchemaResponse object into the model struct
-func readScimSchemaResponseDefault(ctx context.Context, r *client.ScimSchemaResponse, state *defaultScimSchemaResourceModel, expectedValues *defaultScimSchemaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.SchemaURN = types.StringValue(r.SchemaURN)
-	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createScimSchemaOperations(plan scimSchemaResourceModel, state scimSchemaResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddStringOperationIfNecessary(&ops, plan.SchemaURN, state.SchemaURN, "schema-urn")
-	operations.AddStringOperationIfNecessary(&ops, plan.DisplayName, state.DisplayName, "display-name")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createScimSchemaOperationsDefault(plan defaultScimSchemaResourceModel, state defaultScimSchemaResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddStringOperationIfNecessary(&ops, plan.SchemaURN, state.SchemaURN, "schema-urn")
@@ -252,7 +220,7 @@ func (r *scimSchemaResource) Create(ctx context.Context, req resource.CreateRequ
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultScimSchemaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultScimSchemaResourceModel
+	var plan scimSchemaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -273,126 +241,11 @@ func (r *defaultScimSchemaResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	// Read the existing configuration
-	var state defaultScimSchemaResourceModel
-	readScimSchemaResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state scimSchemaResourceModel
+	readScimSchemaResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ScimSchemaApi.UpdateScimSchema(ProviderBasicAuthContext(ctx, r.providerConfig), plan.SchemaURN.ValueString())
-	ops := createScimSchemaOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.ScimSchemaApi.UpdateScimSchemaExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Schema", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readScimSchemaResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *scimSchemaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state scimSchemaResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.ScimSchemaApi.GetScimSchema(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.SchemaURN.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readScimSchemaResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultScimSchemaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultScimSchemaResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.ScimSchemaApi.GetScimSchema(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.SchemaURN.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readScimSchemaResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *scimSchemaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan scimSchemaResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state scimSchemaResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ScimSchemaApi.UpdateScimSchema(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.SchemaURN.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createScimSchemaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -415,8 +268,6 @@ func (r *scimSchemaResource) Update(ctx context.Context, req resource.UpdateRequ
 		readScimSchemaResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -426,9 +277,60 @@ func (r *scimSchemaResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 }
 
+// Read resource information
+func (r *scimSchemaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readScimSchema(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultScimSchemaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readScimSchema(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readScimSchema(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state scimSchemaResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.ScimSchemaApi.GetScimSchema(
+		ProviderBasicAuthContext(ctx, providerConfig), state.SchemaURN.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Schema", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readScimSchemaResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *scimSchemaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateScimSchema(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultScimSchemaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateScimSchema(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateScimSchema(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultScimSchemaResourceModel
+	var plan scimSchemaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -436,19 +338,19 @@ func (r *defaultScimSchemaResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultScimSchemaResourceModel
+	var state scimSchemaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ScimSchemaApi.UpdateScimSchema(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.SchemaURN.ValueString())
+	updateRequest := apiClient.ScimSchemaApi.UpdateScimSchema(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.SchemaURN.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createScimSchemaOperationsDefault(plan, state)
+	ops := createScimSchemaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ScimSchemaApi.UpdateScimSchemaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ScimSchemaApi.UpdateScimSchemaExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Scim Schema", err, httpResp)
 			return
@@ -461,7 +363,7 @@ func (r *defaultScimSchemaResource) Update(ctx context.Context, req resource.Upd
 		}
 
 		// Read the response
-		readScimSchemaResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readScimSchemaResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

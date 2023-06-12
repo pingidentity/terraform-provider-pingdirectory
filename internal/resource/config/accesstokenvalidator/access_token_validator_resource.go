@@ -115,37 +115,6 @@ type accessTokenValidatorResourceModel struct {
 	Enabled                           types.Bool   `tfsdk:"enabled"`
 }
 
-type defaultAccessTokenValidatorResourceModel struct {
-	Id                                types.String `tfsdk:"id"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
-	Notifications                     types.Set    `tfsdk:"notifications"`
-	RequiredActions                   types.Set    `tfsdk:"required_actions"`
-	Type                              types.String `tfsdk:"type"`
-	ExtensionClass                    types.String `tfsdk:"extension_class"`
-	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
-	AllowedSigningAlgorithm           types.Set    `tfsdk:"allowed_signing_algorithm"`
-	SigningCertificate                types.Set    `tfsdk:"signing_certificate"`
-	JwksEndpointPath                  types.String `tfsdk:"jwks_endpoint_path"`
-	EncryptionKeyPair                 types.String `tfsdk:"encryption_key_pair"`
-	AllowedKeyEncryptionAlgorithm     types.Set    `tfsdk:"allowed_key_encryption_algorithm"`
-	AllowedContentEncryptionAlgorithm types.Set    `tfsdk:"allowed_content_encryption_algorithm"`
-	ClockSkewGracePeriod              types.String `tfsdk:"clock_skew_grace_period"`
-	ClientIDClaimName                 types.String `tfsdk:"client_id_claim_name"`
-	ScopeClaimName                    types.String `tfsdk:"scope_claim_name"`
-	ClientID                          types.String `tfsdk:"client_id"`
-	ClientSecret                      types.String `tfsdk:"client_secret"`
-	ClientSecretPassphraseProvider    types.String `tfsdk:"client_secret_passphrase_provider"`
-	IncludeAudParameter               types.Bool   `tfsdk:"include_aud_parameter"`
-	AccessTokenManagerID              types.String `tfsdk:"access_token_manager_id"`
-	EndpointCacheRefresh              types.String `tfsdk:"endpoint_cache_refresh"`
-	EvaluationOrderIndex              types.Int64  `tfsdk:"evaluation_order_index"`
-	AuthorizationServer               types.String `tfsdk:"authorization_server"`
-	IdentityMapper                    types.String `tfsdk:"identity_mapper"`
-	SubjectClaimName                  types.String `tfsdk:"subject_claim_name"`
-	Description                       types.String `tfsdk:"description"`
-	Enabled                           types.Bool   `tfsdk:"enabled"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *accessTokenValidatorResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	accessTokenValidatorSchema(ctx, req, resp, false)
@@ -359,7 +328,7 @@ func (r *defaultAccessTokenValidatorResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanAccessTokenValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultAccessTokenValidatorResourceModel
+	var model accessTokenValidatorResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.ClientSecretPassphraseProvider) && model.Type.ValueString() != "ping-federate" {
 		resp.Diagnostics.AddError("Attribute 'client_secret_passphrase_provider' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
@@ -635,25 +604,6 @@ func populateAccessTokenValidatorNilSets(ctx context.Context, model *accessToken
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateAccessTokenValidatorNilSetsDefault(ctx context.Context, model *defaultAccessTokenValidatorResourceModel) {
-	if model.AllowedKeyEncryptionAlgorithm.ElementType(ctx) == nil {
-		model.AllowedKeyEncryptionAlgorithm = types.SetNull(types.StringType)
-	}
-	if model.SigningCertificate.ElementType(ctx) == nil {
-		model.SigningCertificate = types.SetNull(types.StringType)
-	}
-	if model.AllowedSigningAlgorithm.ElementType(ctx) == nil {
-		model.AllowedSigningAlgorithm = types.SetNull(types.StringType)
-	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
-	}
-	if model.AllowedContentEncryptionAlgorithm.ElementType(ctx) == nil {
-		model.AllowedContentEncryptionAlgorithm = types.SetNull(types.StringType)
-	}
-}
-
 // Read a PingFederateAccessTokenValidatorResponse object into the model struct
 func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client.PingFederateAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-federate")
@@ -675,29 +625,6 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccessTokenValidatorNilSets(ctx, state)
-}
-
-// Read a PingFederateAccessTokenValidatorResponse object into the model struct
-func readPingFederateAccessTokenValidatorResponseDefault(ctx context.Context, r *client.PingFederateAccessTokenValidatorResponse, state *defaultAccessTokenValidatorResourceModel, expectedValues *defaultAccessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("ping-federate")
-	state.Id = types.StringValue(r.Id)
-	state.ClientID = types.StringValue(r.ClientID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ClientSecret = expectedValues.ClientSecret
-	state.ClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.ClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ClientSecretPassphraseProvider))
-	state.IncludeAudParameter = internaltypes.BoolTypeOrNil(r.IncludeAudParameter)
-	state.AccessTokenManagerID = internaltypes.StringTypeOrNil(r.AccessTokenManagerID, internaltypes.IsEmptyString(expectedValues.AccessTokenManagerID))
-	state.EndpointCacheRefresh = internaltypes.StringTypeOrNil(r.EndpointCacheRefresh, internaltypes.IsEmptyString(expectedValues.EndpointCacheRefresh))
-	config.CheckMismatchedPDFormattedAttributes("endpoint_cache_refresh",
-		expectedValues.EndpointCacheRefresh, state.EndpointCacheRefresh, diagnostics)
-	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSetsDefault(ctx, state)
 }
 
 // Read a JwtAccessTokenValidatorResponse object into the model struct
@@ -728,34 +655,6 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 	populateAccessTokenValidatorNilSets(ctx, state)
 }
 
-// Read a JwtAccessTokenValidatorResponse object into the model struct
-func readJwtAccessTokenValidatorResponseDefault(ctx context.Context, r *client.JwtAccessTokenValidatorResponse, state *defaultAccessTokenValidatorResourceModel, expectedValues *defaultAccessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("jwt")
-	state.Id = types.StringValue(r.Id)
-	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
-		client.StringSliceEnumaccessTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
-	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
-	state.JwksEndpointPath = internaltypes.StringTypeOrNil(r.JwksEndpointPath, internaltypes.IsEmptyString(expectedValues.JwksEndpointPath))
-	state.EncryptionKeyPair = internaltypes.StringTypeOrNil(r.EncryptionKeyPair, internaltypes.IsEmptyString(expectedValues.EncryptionKeyPair))
-	state.AllowedKeyEncryptionAlgorithm = internaltypes.GetStringSet(
-		client.StringSliceEnumaccessTokenValidatorAllowedKeyEncryptionAlgorithmProp(r.AllowedKeyEncryptionAlgorithm))
-	state.AllowedContentEncryptionAlgorithm = internaltypes.GetStringSet(
-		client.StringSliceEnumaccessTokenValidatorAllowedContentEncryptionAlgorithmProp(r.AllowedContentEncryptionAlgorithm))
-	state.ClockSkewGracePeriod = internaltypes.StringTypeOrNil(r.ClockSkewGracePeriod, internaltypes.IsEmptyString(expectedValues.ClockSkewGracePeriod))
-	config.CheckMismatchedPDFormattedAttributes("clock_skew_grace_period",
-		expectedValues.ClockSkewGracePeriod, state.ClockSkewGracePeriod, diagnostics)
-	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
-	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
-	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.AuthorizationServer = internaltypes.StringTypeOrNil(r.AuthorizationServer, internaltypes.IsEmptyString(expectedValues.AuthorizationServer))
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSetsDefault(ctx, state)
-}
-
 // Read a MockAccessTokenValidatorResponse object into the model struct
 func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("mock")
@@ -769,21 +668,6 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccessTokenValidatorNilSets(ctx, state)
-}
-
-// Read a MockAccessTokenValidatorResponse object into the model struct
-func readMockAccessTokenValidatorResponseDefault(ctx context.Context, r *client.MockAccessTokenValidatorResponse, state *defaultAccessTokenValidatorResourceModel, expectedValues *defaultAccessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("mock")
-	state.Id = types.StringValue(r.Id)
-	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
-	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
-	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSetsDefault(ctx, state)
 }
 
 // Read a ThirdPartyAccessTokenValidatorResponse object into the model struct
@@ -801,52 +685,8 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	populateAccessTokenValidatorNilSets(ctx, state)
 }
 
-// Read a ThirdPartyAccessTokenValidatorResponse object into the model struct
-func readThirdPartyAccessTokenValidatorResponseDefault(ctx context.Context, r *client.ThirdPartyAccessTokenValidatorResponse, state *defaultAccessTokenValidatorResourceModel, expectedValues *defaultAccessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("third-party")
-	state.Id = types.StringValue(r.Id)
-	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
-	state.SubjectClaimName = internaltypes.StringTypeOrNil(r.SubjectClaimName, internaltypes.IsEmptyString(expectedValues.SubjectClaimName))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createAccessTokenValidatorOperations(plan accessTokenValidatorResourceModel, state accessTokenValidatorResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedSigningAlgorithm, state.AllowedSigningAlgorithm, "allowed-signing-algorithm")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SigningCertificate, state.SigningCertificate, "signing-certificate")
-	operations.AddStringOperationIfNecessary(&ops, plan.JwksEndpointPath, state.JwksEndpointPath, "jwks-endpoint-path")
-	operations.AddStringOperationIfNecessary(&ops, plan.EncryptionKeyPair, state.EncryptionKeyPair, "encryption-key-pair")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedKeyEncryptionAlgorithm, state.AllowedKeyEncryptionAlgorithm, "allowed-key-encryption-algorithm")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedContentEncryptionAlgorithm, state.AllowedContentEncryptionAlgorithm, "allowed-content-encryption-algorithm")
-	operations.AddStringOperationIfNecessary(&ops, plan.ClockSkewGracePeriod, state.ClockSkewGracePeriod, "clock-skew-grace-period")
-	operations.AddStringOperationIfNecessary(&ops, plan.ClientIDClaimName, state.ClientIDClaimName, "client-id-claim-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.ScopeClaimName, state.ScopeClaimName, "scope-claim-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.ClientID, state.ClientID, "client-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.ClientSecret, state.ClientSecret, "client-secret")
-	operations.AddStringOperationIfNecessary(&ops, plan.ClientSecretPassphraseProvider, state.ClientSecretPassphraseProvider, "client-secret-passphrase-provider")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeAudParameter, state.IncludeAudParameter, "include-aud-parameter")
-	operations.AddStringOperationIfNecessary(&ops, plan.AccessTokenManagerID, state.AccessTokenManagerID, "access-token-manager-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.EndpointCacheRefresh, state.EndpointCacheRefresh, "endpoint-cache-refresh")
-	operations.AddInt64OperationIfNecessary(&ops, plan.EvaluationOrderIndex, state.EvaluationOrderIndex, "evaluation-order-index")
-	operations.AddStringOperationIfNecessary(&ops, plan.AuthorizationServer, state.AuthorizationServer, "authorization-server")
-	operations.AddStringOperationIfNecessary(&ops, plan.IdentityMapper, state.IdentityMapper, "identity-mapper")
-	operations.AddStringOperationIfNecessary(&ops, plan.SubjectClaimName, state.SubjectClaimName, "subject-claim-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createAccessTokenValidatorOperationsDefault(plan defaultAccessTokenValidatorResourceModel, state defaultAccessTokenValidatorResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -1083,7 +923,7 @@ func (r *accessTokenValidatorResource) Create(ctx context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultAccessTokenValidatorResourceModel
+	var plan accessTokenValidatorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1104,158 +944,22 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	}
 
 	// Read the existing configuration
-	var state defaultAccessTokenValidatorResourceModel
+	var state accessTokenValidatorResourceModel
 	if plan.Type.ValueString() == "ping-federate" {
-		readPingFederateAccessTokenValidatorResponseDefault(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "jwt" {
-		readJwtAccessTokenValidatorResponseDefault(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "mock" {
-		readMockAccessTokenValidatorResponseDefault(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyAccessTokenValidatorResponseDefault(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createAccessTokenValidatorOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidatorExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Access Token Validator", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "ping-federate" {
-			readPingFederateAccessTokenValidatorResponseDefault(ctx, updateResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "jwt" {
-			readJwtAccessTokenValidatorResponseDefault(ctx, updateResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "mock" {
-			readMockAccessTokenValidatorResponseDefault(ctx, updateResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyAccessTokenValidatorResponseDefault(ctx, updateResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *accessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state accessTokenValidatorResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.PingFederateAccessTokenValidatorResponse != nil {
-		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.JwtAccessTokenValidatorResponse != nil {
-		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.MockAccessTokenValidatorResponse != nil {
-		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartyAccessTokenValidatorResponse != nil {
-		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultAccessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultAccessTokenValidatorResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *accessTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan accessTokenValidatorResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state accessTokenValidatorResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createAccessTokenValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1289,8 +993,6 @@ func (r *accessTokenValidatorResource) Update(ctx context.Context, req resource.
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1300,9 +1002,71 @@ func (r *accessTokenValidatorResource) Update(ctx context.Context, req resource.
 	}
 }
 
+// Read resource information
+func (r *accessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultAccessTokenValidatorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state accessTokenValidatorResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.PingFederateAccessTokenValidatorResponse != nil {
+		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.JwtAccessTokenValidatorResponse != nil {
+		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.MockAccessTokenValidatorResponse != nil {
+		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyAccessTokenValidatorResponse != nil {
+		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *accessTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultAccessTokenValidatorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateAccessTokenValidator(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultAccessTokenValidatorResourceModel
+	var plan accessTokenValidatorResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1310,19 +1074,19 @@ func (r *defaultAccessTokenValidatorResource) Update(ctx context.Context, req re
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultAccessTokenValidatorResourceModel
+	var state accessTokenValidatorResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createAccessTokenValidatorOperationsDefault(plan, state)
+	ops := createAccessTokenValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidatorExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidatorExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Access Token Validator", err, httpResp)
 			return
@@ -1336,16 +1100,16 @@ func (r *defaultAccessTokenValidatorResource) Update(ctx context.Context, req re
 
 		// Read the response
 		if plan.Type.ValueString() == "ping-federate" {
-			readPingFederateAccessTokenValidatorResponseDefault(ctx, updateResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+			readPingFederateAccessTokenValidatorResponse(ctx, updateResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "jwt" {
-			readJwtAccessTokenValidatorResponseDefault(ctx, updateResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+			readJwtAccessTokenValidatorResponse(ctx, updateResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "mock" {
-			readMockAccessTokenValidatorResponseDefault(ctx, updateResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+			readMockAccessTokenValidatorResponse(ctx, updateResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyAccessTokenValidatorResponseDefault(ctx, updateResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartyAccessTokenValidatorResponse(ctx, updateResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

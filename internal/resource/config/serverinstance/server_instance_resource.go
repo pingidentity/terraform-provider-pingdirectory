@@ -58,14 +58,6 @@ func (r *serverInstanceResource) Configure(_ context.Context, req resource.Confi
 }
 
 type serverInstanceResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Type            types.String `tfsdk:"type"`
-}
-
-type defaultServerInstanceResourceModel struct {
 	Id                         types.String `tfsdk:"id"`
 	LastUpdated                types.String `tfsdk:"last_updated"`
 	Notifications              types.Set    `tfsdk:"notifications"`
@@ -108,7 +100,195 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{}...),
+					stringvalidator.OneOf([]string{"proxy", "metrics-engine", "authorize", "directory", "sync"}...),
+				},
+			},
+			"server_instance_type": schema.StringAttribute{
+				Description: "Specifies the type of server installation.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"replication_set_name": schema.StringAttribute{
+				Description: "The name of the replication set assigned to this Directory Server. Restricted domains are only replicated within instances using the same replication set name.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"load_balancing_algorithm_name": schema.SetAttribute{
+				Description: "The name of the configuration object for a load-balancing algorithm that should include this server.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"server_instance_name": schema.StringAttribute{
+				Description: "The name of this Server Instance. The instance name needs to be unique if this server will be part of a topology of servers that are connected to each other. Once set, it may not be changed.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"cluster_name": schema.StringAttribute{
+				Description: "The name of the cluster to which this Server Instance belongs. Server instances within the same cluster will share the same cluster-wide configuration.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"server_instance_location": schema.StringAttribute{
+				Description: "Specifies the location for the Server Instance.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"hostname": schema.StringAttribute{
+				Description: "The name of the host where this Server Instance is installed.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"server_root": schema.StringAttribute{
+				Description: "The file system path where this Server Instance is installed.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"server_version": schema.StringAttribute{
+				Description: "The version of the server.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"inter_server_certificate": schema.StringAttribute{
+				Description: "The public component of the certificate used by this instance to protect inter-server communication and to perform server-specific encryption. This will generally be managed by the server and should only be altered by administrators under explicit direction from Ping Identity support personnel.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"ldap_port": schema.Int64Attribute{
+				Description: "The TCP port on which this server is listening for LDAP connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"ldaps_port": schema.Int64Attribute{
+				Description: "The TCP port on which this server is listening for LDAP secure connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"http_port": schema.Int64Attribute{
+				Description: "The TCP port on which this server is listening for HTTP connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"https_port": schema.Int64Attribute{
+				Description: "The TCP port on which this server is listening for HTTPS connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"replication_port": schema.Int64Attribute{
+				Description: "The replication TCP port.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"replication_server_id": schema.Int64Attribute{
+				Description: "Specifies a unique identifier for the replication server on this server instance.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"replication_domain_server_id": schema.SetAttribute{
+				Description: "Specifies a unique identifier for the Directory Server within the replication domain.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.Int64Type,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"jmx_port": schema.Int64Attribute{
+				Description: "The TCP port on which this server is listening for JMX connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"jmxs_port": schema.Int64Attribute{
+				Description: "The TCP port on which this server is listening for JMX secure connections.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"preferred_security": schema.StringAttribute{
+				Description: "Specifies the preferred mechanism to use for securing connections to the server.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"start_tls_enabled": schema.BoolAttribute{
+				Description: "Indicates whether StartTLS is enabled on this server.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"base_dn": schema.SetAttribute{
+				Description: "The set of base DNs under the root DSE.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"member_of_server_group": schema.SetAttribute{
+				Description: "The set of groups of which this server is a member.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -119,7 +299,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 
 // Validate that any restrictions are met in the plan
 func (r *serverInstanceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model defaultServerInstanceResourceModel
+	var model serverInstanceResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.JmxPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
 		resp.Diagnostics.AddError("Attribute 'jmx_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
@@ -216,7 +396,7 @@ func (r *serverInstanceResource) ModifyPlan(ctx context.Context, req resource.Mo
 }
 
 // Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateServerInstanceNilSetsDefault(ctx context.Context, model *defaultServerInstanceResourceModel) {
+func populateServerInstanceNilSets(ctx context.Context, model *serverInstanceResourceModel) {
 	if model.ReplicationDomainServerID.ElementType(ctx) == nil {
 		model.ReplicationDomainServerID = types.SetNull(types.Int64Type)
 	}
@@ -232,7 +412,7 @@ func populateServerInstanceNilSetsDefault(ctx context.Context, model *defaultSer
 }
 
 // Read a ProxyServerInstanceResponse object into the model struct
-func readProxyServerInstanceResponseDefault(ctx context.Context, r *client.ProxyServerInstanceResponse, state *defaultServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
+func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("proxy")
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
@@ -259,11 +439,11 @@ func readProxyServerInstanceResponseDefault(ctx context.Context, r *client.Proxy
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSetsDefault(ctx, state)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a MetricsEngineServerInstanceResponse object into the model struct
-func readMetricsEngineServerInstanceResponseDefault(ctx context.Context, r *client.MetricsEngineServerInstanceResponse, state *defaultServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
+func readMetricsEngineServerInstanceResponse(ctx context.Context, r *client.MetricsEngineServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("metrics-engine")
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
@@ -290,11 +470,11 @@ func readMetricsEngineServerInstanceResponseDefault(ctx context.Context, r *clie
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSetsDefault(ctx, state)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a AuthorizeServerInstanceResponse object into the model struct
-func readAuthorizeServerInstanceResponseDefault(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *defaultServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
+func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("authorize")
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
@@ -321,11 +501,11 @@ func readAuthorizeServerInstanceResponseDefault(ctx context.Context, r *client.A
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSetsDefault(ctx, state)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a DirectoryServerInstanceResponse object into the model struct
-func readDirectoryServerInstanceResponseDefault(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *defaultServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
+func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory")
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
@@ -354,11 +534,11 @@ func readDirectoryServerInstanceResponseDefault(ctx context.Context, r *client.D
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSetsDefault(ctx, state)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Read a SyncServerInstanceResponse object into the model struct
-func readSyncServerInstanceResponseDefault(ctx context.Context, r *client.SyncServerInstanceResponse, state *defaultServerInstanceResourceModel, diagnostics *diag.Diagnostics) {
+func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("sync")
 	state.Id = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
@@ -385,17 +565,11 @@ func readSyncServerInstanceResponseDefault(ctx context.Context, r *client.SyncSe
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSetsDefault(ctx, state)
+	populateServerInstanceNilSets(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan
 func createServerInstanceOperations(plan serverInstanceResourceModel, state serverInstanceResourceModel) []client.Operation {
-	var ops []client.Operation
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createServerInstanceOperationsDefault(plan defaultServerInstanceResourceModel, state defaultServerInstanceResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ServerInstanceType, state.ServerInstanceType, "server-instance-type")
 	operations.AddStringOperationIfNecessary(&ops, plan.ReplicationSetName, state.ReplicationSetName, "replication-set-name")
@@ -429,7 +603,7 @@ func createServerInstanceOperationsDefault(plan defaultServerInstanceResourceMod
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *serverInstanceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultServerInstanceResourceModel
+	var plan serverInstanceResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -450,26 +624,26 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Read the existing configuration
-	var state defaultServerInstanceResourceModel
+	var state serverInstanceResourceModel
 	if plan.Type.ValueString() == "proxy" {
-		readProxyServerInstanceResponseDefault(ctx, readResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
+		readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "metrics-engine" {
-		readMetricsEngineServerInstanceResponseDefault(ctx, readResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
+		readMetricsEngineServerInstanceResponse(ctx, readResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "authorize" {
-		readAuthorizeServerInstanceResponseDefault(ctx, readResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
+		readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "directory" {
-		readDirectoryServerInstanceResponseDefault(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
+		readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "sync" {
-		readSyncServerInstanceResponseDefault(ctx, readResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
+		readSyncServerInstanceResponse(ctx, readResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createServerInstanceOperationsDefault(plan, state)
+	ops := createServerInstanceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -489,19 +663,19 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 
 		// Read the response
 		if plan.Type.ValueString() == "proxy" {
-			readProxyServerInstanceResponseDefault(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
+			readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "metrics-engine" {
-			readMetricsEngineServerInstanceResponseDefault(ctx, updateResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
+			readMetricsEngineServerInstanceResponse(ctx, updateResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "authorize" {
-			readAuthorizeServerInstanceResponseDefault(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
+			readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "directory" {
-			readDirectoryServerInstanceResponseDefault(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
+			readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "sync" {
-			readSyncServerInstanceResponseDefault(ctx, updateResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
+			readSyncServerInstanceResponse(ctx, updateResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -538,6 +712,21 @@ func (r *serverInstanceResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	// Read the response into the state
+	if readResponse.ProxyServerInstanceResponse != nil {
+		readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.MetricsEngineServerInstanceResponse != nil {
+		readMetricsEngineServerInstanceResponse(ctx, readResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.AuthorizeServerInstanceResponse != nil {
+		readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.DirectoryServerInstanceResponse != nil {
+		readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.SyncServerInstanceResponse != nil {
+		readSyncServerInstanceResponse(ctx, readResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -583,6 +772,21 @@ func (r *serverInstanceResource) Update(ctx context.Context, req resource.Update
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "proxy" {
+			readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "metrics-engine" {
+			readMetricsEngineServerInstanceResponse(ctx, updateResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "authorize" {
+			readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "directory" {
+			readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "sync" {
+			readSyncServerInstanceResponse(ctx, updateResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
+		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

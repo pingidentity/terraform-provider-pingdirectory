@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -82,36 +83,6 @@ func (r *defaultSearchEntryCriteriaResource) Configure(_ context.Context, req re
 }
 
 type searchEntryCriteriaResourceModel struct {
-	Id                                types.String `tfsdk:"id"`
-	LastUpdated                       types.String `tfsdk:"last_updated"`
-	Notifications                     types.Set    `tfsdk:"notifications"`
-	RequiredActions                   types.Set    `tfsdk:"required_actions"`
-	Type                              types.String `tfsdk:"type"`
-	ExtensionClass                    types.String `tfsdk:"extension_class"`
-	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
-	AllIncludedSearchEntryCriteria    types.Set    `tfsdk:"all_included_search_entry_criteria"`
-	AnyIncludedSearchEntryCriteria    types.Set    `tfsdk:"any_included_search_entry_criteria"`
-	NotAllIncludedSearchEntryCriteria types.Set    `tfsdk:"not_all_included_search_entry_criteria"`
-	NoneIncludedSearchEntryCriteria   types.Set    `tfsdk:"none_included_search_entry_criteria"`
-	RequestCriteria                   types.String `tfsdk:"request_criteria"`
-	AllIncludedEntryControl           types.Set    `tfsdk:"all_included_entry_control"`
-	AnyIncludedEntryControl           types.Set    `tfsdk:"any_included_entry_control"`
-	NotAllIncludedEntryControl        types.Set    `tfsdk:"not_all_included_entry_control"`
-	NoneIncludedEntryControl          types.Set    `tfsdk:"none_included_entry_control"`
-	IncludedEntryBaseDN               types.Set    `tfsdk:"included_entry_base_dn"`
-	ExcludedEntryBaseDN               types.Set    `tfsdk:"excluded_entry_base_dn"`
-	AllIncludedEntryFilter            types.Set    `tfsdk:"all_included_entry_filter"`
-	AnyIncludedEntryFilter            types.Set    `tfsdk:"any_included_entry_filter"`
-	NotAllIncludedEntryFilter         types.Set    `tfsdk:"not_all_included_entry_filter"`
-	NoneIncludedEntryFilter           types.Set    `tfsdk:"none_included_entry_filter"`
-	AllIncludedEntryGroupDN           types.Set    `tfsdk:"all_included_entry_group_dn"`
-	AnyIncludedEntryGroupDN           types.Set    `tfsdk:"any_included_entry_group_dn"`
-	NotAllIncludedEntryGroupDN        types.Set    `tfsdk:"not_all_included_entry_group_dn"`
-	NoneIncludedEntryGroupDN          types.Set    `tfsdk:"none_included_entry_group_dn"`
-	Description                       types.String `tfsdk:"description"`
-}
-
-type defaultSearchEntryCriteriaResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
@@ -371,7 +342,7 @@ func (r *defaultSearchEntryCriteriaResource) ModifyPlan(ctx context.Context, req
 }
 
 func modifyPlanSearchEntryCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultSearchEntryCriteriaResourceModel
+	var model searchEntryCriteriaResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.NotAllIncludedEntryControl) && model.Type.ValueString() != "simple" {
 		resp.Diagnostics.AddError("Attribute 'not_all_included_entry_control' not supported by pingdirectory_search_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
@@ -643,67 +614,6 @@ func populateSearchEntryCriteriaNilSets(ctx context.Context, model *searchEntryC
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateSearchEntryCriteriaNilSetsDefault(ctx context.Context, model *defaultSearchEntryCriteriaResourceModel) {
-	if model.AllIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.AllIncludedEntryGroupDN = types.SetNull(types.StringType)
-	}
-	if model.ExcludedEntryBaseDN.ElementType(ctx) == nil {
-		model.ExcludedEntryBaseDN = types.SetNull(types.StringType)
-	}
-	if model.AnyIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.AnyIncludedSearchEntryCriteria = types.SetNull(types.StringType)
-	}
-	if model.AnyIncludedEntryFilter.ElementType(ctx) == nil {
-		model.AnyIncludedEntryFilter = types.SetNull(types.StringType)
-	}
-	if model.AllIncludedEntryControl.ElementType(ctx) == nil {
-		model.AllIncludedEntryControl = types.SetNull(types.StringType)
-	}
-	if model.IncludedEntryBaseDN.ElementType(ctx) == nil {
-		model.IncludedEntryBaseDN = types.SetNull(types.StringType)
-	}
-	if model.NoneIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.NoneIncludedSearchEntryCriteria = types.SetNull(types.StringType)
-	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
-	}
-	if model.AnyIncludedEntryControl.ElementType(ctx) == nil {
-		model.AnyIncludedEntryControl = types.SetNull(types.StringType)
-	}
-	if model.AllIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.AllIncludedSearchEntryCriteria = types.SetNull(types.StringType)
-	}
-	if model.AllIncludedEntryFilter.ElementType(ctx) == nil {
-		model.AllIncludedEntryFilter = types.SetNull(types.StringType)
-	}
-	if model.NoneIncludedEntryFilter.ElementType(ctx) == nil {
-		model.NoneIncludedEntryFilter = types.SetNull(types.StringType)
-	}
-	if model.NoneIncludedEntryControl.ElementType(ctx) == nil {
-		model.NoneIncludedEntryControl = types.SetNull(types.StringType)
-	}
-	if model.NotAllIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryGroupDN = types.SetNull(types.StringType)
-	}
-	if model.NotAllIncludedEntryControl.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryControl = types.SetNull(types.StringType)
-	}
-	if model.NotAllIncludedEntryFilter.ElementType(ctx) == nil {
-		model.NotAllIncludedEntryFilter = types.SetNull(types.StringType)
-	}
-	if model.AnyIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.AnyIncludedEntryGroupDN = types.SetNull(types.StringType)
-	}
-	if model.NotAllIncludedSearchEntryCriteria.ElementType(ctx) == nil {
-		model.NotAllIncludedSearchEntryCriteria = types.SetNull(types.StringType)
-	}
-	if model.NoneIncludedEntryGroupDN.ElementType(ctx) == nil {
-		model.NoneIncludedEntryGroupDN = types.SetNull(types.StringType)
-	}
-}
-
 // Read a SimpleSearchEntryCriteriaResponse object into the model struct
 func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.SimpleSearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
@@ -728,30 +638,6 @@ func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.Simple
 	populateSearchEntryCriteriaNilSets(ctx, state)
 }
 
-// Read a SimpleSearchEntryCriteriaResponse object into the model struct
-func readSimpleSearchEntryCriteriaResponseDefault(ctx context.Context, r *client.SimpleSearchEntryCriteriaResponse, state *defaultSearchEntryCriteriaResourceModel, expectedValues *defaultSearchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("simple")
-	state.Id = types.StringValue(r.Id)
-	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
-	state.AllIncludedEntryControl = internaltypes.GetStringSet(r.AllIncludedEntryControl)
-	state.AnyIncludedEntryControl = internaltypes.GetStringSet(r.AnyIncludedEntryControl)
-	state.NotAllIncludedEntryControl = internaltypes.GetStringSet(r.NotAllIncludedEntryControl)
-	state.NoneIncludedEntryControl = internaltypes.GetStringSet(r.NoneIncludedEntryControl)
-	state.IncludedEntryBaseDN = internaltypes.GetStringSet(r.IncludedEntryBaseDN)
-	state.ExcludedEntryBaseDN = internaltypes.GetStringSet(r.ExcludedEntryBaseDN)
-	state.AllIncludedEntryFilter = internaltypes.GetStringSet(r.AllIncludedEntryFilter)
-	state.AnyIncludedEntryFilter = internaltypes.GetStringSet(r.AnyIncludedEntryFilter)
-	state.NotAllIncludedEntryFilter = internaltypes.GetStringSet(r.NotAllIncludedEntryFilter)
-	state.NoneIncludedEntryFilter = internaltypes.GetStringSet(r.NoneIncludedEntryFilter)
-	state.AllIncludedEntryGroupDN = internaltypes.GetStringSet(r.AllIncludedEntryGroupDN)
-	state.AnyIncludedEntryGroupDN = internaltypes.GetStringSet(r.AnyIncludedEntryGroupDN)
-	state.NotAllIncludedEntryGroupDN = internaltypes.GetStringSet(r.NotAllIncludedEntryGroupDN)
-	state.NoneIncludedEntryGroupDN = internaltypes.GetStringSet(r.NoneIncludedEntryGroupDN)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaNilSetsDefault(ctx, state)
-}
-
 // Read a AggregateSearchEntryCriteriaResponse object into the model struct
 func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.AggregateSearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
@@ -765,19 +651,6 @@ func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.Agg
 	populateSearchEntryCriteriaNilSets(ctx, state)
 }
 
-// Read a AggregateSearchEntryCriteriaResponse object into the model struct
-func readAggregateSearchEntryCriteriaResponseDefault(ctx context.Context, r *client.AggregateSearchEntryCriteriaResponse, state *defaultSearchEntryCriteriaResourceModel, expectedValues *defaultSearchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("aggregate")
-	state.Id = types.StringValue(r.Id)
-	state.AllIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.AllIncludedSearchEntryCriteria)
-	state.AnyIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.AnyIncludedSearchEntryCriteria)
-	state.NotAllIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NotAllIncludedSearchEntryCriteria)
-	state.NoneIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchEntryCriteria)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaNilSetsDefault(ctx, state)
-}
-
 // Read a ThirdPartySearchEntryCriteriaResponse object into the model struct
 func readThirdPartySearchEntryCriteriaResponse(ctx context.Context, r *client.ThirdPartySearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -789,47 +662,8 @@ func readThirdPartySearchEntryCriteriaResponse(ctx context.Context, r *client.Th
 	populateSearchEntryCriteriaNilSets(ctx, state)
 }
 
-// Read a ThirdPartySearchEntryCriteriaResponse object into the model struct
-func readThirdPartySearchEntryCriteriaResponseDefault(ctx context.Context, r *client.ThirdPartySearchEntryCriteriaResponse, state *defaultSearchEntryCriteriaResourceModel, expectedValues *defaultSearchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("third-party")
-	state.Id = types.StringValue(r.Id)
-	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createSearchEntryCriteriaOperations(plan searchEntryCriteriaResourceModel, state searchEntryCriteriaResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllIncludedSearchEntryCriteria, state.AllIncludedSearchEntryCriteria, "all-included-search-entry-criteria")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AnyIncludedSearchEntryCriteria, state.AnyIncludedSearchEntryCriteria, "any-included-search-entry-criteria")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NotAllIncludedSearchEntryCriteria, state.NotAllIncludedSearchEntryCriteria, "not-all-included-search-entry-criteria")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NoneIncludedSearchEntryCriteria, state.NoneIncludedSearchEntryCriteria, "none-included-search-entry-criteria")
-	operations.AddStringOperationIfNecessary(&ops, plan.RequestCriteria, state.RequestCriteria, "request-criteria")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllIncludedEntryControl, state.AllIncludedEntryControl, "all-included-entry-control")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AnyIncludedEntryControl, state.AnyIncludedEntryControl, "any-included-entry-control")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NotAllIncludedEntryControl, state.NotAllIncludedEntryControl, "not-all-included-entry-control")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NoneIncludedEntryControl, state.NoneIncludedEntryControl, "none-included-entry-control")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludedEntryBaseDN, state.IncludedEntryBaseDN, "included-entry-base-dn")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExcludedEntryBaseDN, state.ExcludedEntryBaseDN, "excluded-entry-base-dn")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllIncludedEntryFilter, state.AllIncludedEntryFilter, "all-included-entry-filter")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AnyIncludedEntryFilter, state.AnyIncludedEntryFilter, "any-included-entry-filter")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NotAllIncludedEntryFilter, state.NotAllIncludedEntryFilter, "not-all-included-entry-filter")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NoneIncludedEntryFilter, state.NoneIncludedEntryFilter, "none-included-entry-filter")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllIncludedEntryGroupDN, state.AllIncludedEntryGroupDN, "all-included-entry-group-dn")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AnyIncludedEntryGroupDN, state.AnyIncludedEntryGroupDN, "any-included-entry-group-dn")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NotAllIncludedEntryGroupDN, state.NotAllIncludedEntryGroupDN, "not-all-included-entry-group-dn")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NoneIncludedEntryGroupDN, state.NoneIncludedEntryGroupDN, "none-included-entry-group-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createSearchEntryCriteriaOperationsDefault(plan defaultSearchEntryCriteriaResourceModel, state defaultSearchEntryCriteriaResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -1004,7 +838,7 @@ func (r *searchEntryCriteriaResource) Create(ctx context.Context, req resource.C
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultSearchEntryCriteriaResourceModel
+	var plan searchEntryCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1025,149 +859,19 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 	}
 
 	// Read the existing configuration
-	var state defaultSearchEntryCriteriaResourceModel
+	var state searchEntryCriteriaResourceModel
 	if plan.Type.ValueString() == "simple" {
-		readSimpleSearchEntryCriteriaResponseDefault(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readSimpleSearchEntryCriteriaResponse(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "aggregate" {
-		readAggregateSearchEntryCriteriaResponseDefault(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readAggregateSearchEntryCriteriaResponse(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartySearchEntryCriteriaResponseDefault(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createSearchEntryCriteriaOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteriaExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Search Entry Criteria", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "simple" {
-			readSimpleSearchEntryCriteriaResponseDefault(ctx, updateResponse.SimpleSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "aggregate" {
-			readAggregateSearchEntryCriteriaResponseDefault(ctx, updateResponse.AggregateSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "third-party" {
-			readThirdPartySearchEntryCriteriaResponseDefault(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *searchEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state searchEntryCriteriaResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.SimpleSearchEntryCriteriaResponse != nil {
-		readSimpleSearchEntryCriteriaResponse(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.AggregateSearchEntryCriteriaResponse != nil {
-		readAggregateSearchEntryCriteriaResponse(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartySearchEntryCriteriaResponse != nil {
-		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultSearchEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultSearchEntryCriteriaResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *searchEntryCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan searchEntryCriteriaResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state searchEntryCriteriaResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createSearchEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1198,8 +902,6 @@ func (r *searchEntryCriteriaResource) Update(ctx context.Context, req resource.U
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1209,9 +911,68 @@ func (r *searchEntryCriteriaResource) Update(ctx context.Context, req resource.U
 	}
 }
 
+// Read resource information
+func (r *searchEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultSearchEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state searchEntryCriteriaResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.SimpleSearchEntryCriteriaResponse != nil {
+		readSimpleSearchEntryCriteriaResponse(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.AggregateSearchEntryCriteriaResponse != nil {
+		readAggregateSearchEntryCriteriaResponse(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartySearchEntryCriteriaResponse != nil {
+		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *searchEntryCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultSearchEntryCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateSearchEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateSearchEntryCriteria(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultSearchEntryCriteriaResourceModel
+	var plan searchEntryCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1219,19 +980,19 @@ func (r *defaultSearchEntryCriteriaResource) Update(ctx context.Context, req res
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultSearchEntryCriteriaResourceModel
+	var state searchEntryCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createSearchEntryCriteriaOperationsDefault(plan, state)
+	ops := createSearchEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Search Entry Criteria", err, httpResp)
 			return
@@ -1245,13 +1006,13 @@ func (r *defaultSearchEntryCriteriaResource) Update(ctx context.Context, req res
 
 		// Read the response
 		if plan.Type.ValueString() == "simple" {
-			readSimpleSearchEntryCriteriaResponseDefault(ctx, updateResponse.SimpleSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readSimpleSearchEntryCriteriaResponse(ctx, updateResponse.SimpleSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "aggregate" {
-			readAggregateSearchEntryCriteriaResponseDefault(ctx, updateResponse.AggregateSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readAggregateSearchEntryCriteriaResponse(ctx, updateResponse.AggregateSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartySearchEntryCriteriaResponseDefault(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartySearchEntryCriteriaResponse(ctx, updateResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

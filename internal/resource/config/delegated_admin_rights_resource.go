@@ -87,17 +87,6 @@ type delegatedAdminRightsResourceModel struct {
 	AdminGroupDN    types.String `tfsdk:"admin_group_dn"`
 }
 
-type defaultDelegatedAdminRightsResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Description     types.String `tfsdk:"description"`
-	Enabled         types.Bool   `tfsdk:"enabled"`
-	AdminUserDN     types.String `tfsdk:"admin_user_dn"`
-	AdminGroupDN    types.String `tfsdk:"admin_group_dn"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *delegatedAdminRightsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	delegatedAdminRightsSchema(ctx, req, resp, false)
@@ -130,10 +119,6 @@ func delegatedAdminRightsSchema(ctx context.Context, req resource.SchemaRequest,
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"delegated-admin-rights"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -167,28 +152,8 @@ func readDelegatedAdminRightsResponse(ctx context.Context, r *client.DelegatedAd
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a DelegatedAdminRightsResponse object into the model struct
-func readDelegatedAdminRightsResponseDefault(ctx context.Context, r *client.DelegatedAdminRightsResponse, state *defaultDelegatedAdminRightsResourceModel, expectedValues *defaultDelegatedAdminRightsResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.AdminUserDN = internaltypes.StringTypeOrNil(r.AdminUserDN, internaltypes.IsEmptyString(expectedValues.AdminUserDN))
-	state.AdminGroupDN = internaltypes.StringTypeOrNil(r.AdminGroupDN, internaltypes.IsEmptyString(expectedValues.AdminGroupDN))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createDelegatedAdminRightsOperations(plan delegatedAdminRightsResourceModel, state delegatedAdminRightsResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	operations.AddStringOperationIfNecessary(&ops, plan.AdminUserDN, state.AdminUserDN, "admin-user-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.AdminGroupDN, state.AdminGroupDN, "admin-group-dn")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createDelegatedAdminRightsOperationsDefault(plan defaultDelegatedAdminRightsResourceModel, state defaultDelegatedAdminRightsResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
@@ -261,7 +226,7 @@ func (r *delegatedAdminRightsResource) Create(ctx context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultDelegatedAdminRightsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultDelegatedAdminRightsResourceModel
+	var plan delegatedAdminRightsResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -282,126 +247,11 @@ func (r *defaultDelegatedAdminRightsResource) Create(ctx context.Context, req re
 	}
 
 	// Read the existing configuration
-	var state defaultDelegatedAdminRightsResourceModel
-	readDelegatedAdminRightsResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state delegatedAdminRightsResourceModel
+	readDelegatedAdminRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRights(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createDelegatedAdminRightsOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRightsExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Rights", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readDelegatedAdminRightsResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *delegatedAdminRightsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state delegatedAdminRightsResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readDelegatedAdminRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultDelegatedAdminRightsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultDelegatedAdminRightsResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readDelegatedAdminRightsResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *delegatedAdminRightsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan delegatedAdminRightsResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state delegatedAdminRightsResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRights(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createDelegatedAdminRightsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -424,8 +274,6 @@ func (r *delegatedAdminRightsResource) Update(ctx context.Context, req resource.
 		readDelegatedAdminRightsResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -435,9 +283,60 @@ func (r *delegatedAdminRightsResource) Update(ctx context.Context, req resource.
 	}
 }
 
+// Read resource information
+func (r *delegatedAdminRightsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultDelegatedAdminRightsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readDelegatedAdminRights(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state delegatedAdminRightsResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readDelegatedAdminRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *delegatedAdminRightsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultDelegatedAdminRightsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateDelegatedAdminRights(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateDelegatedAdminRights(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultDelegatedAdminRightsResourceModel
+	var plan delegatedAdminRightsResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -445,19 +344,19 @@ func (r *defaultDelegatedAdminRightsResource) Update(ctx context.Context, req re
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultDelegatedAdminRightsResourceModel
+	var state delegatedAdminRightsResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRights(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRights(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createDelegatedAdminRightsOperationsDefault(plan, state)
+	ops := createDelegatedAdminRightsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRightsExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.DelegatedAdminRightsApi.UpdateDelegatedAdminRightsExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Delegated Admin Rights", err, httpResp)
 			return
@@ -470,7 +369,7 @@ func (r *defaultDelegatedAdminRightsResource) Update(ctx context.Context, req re
 		}
 
 		// Read the response
-		readDelegatedAdminRightsResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readDelegatedAdminRightsResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

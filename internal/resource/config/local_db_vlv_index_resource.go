@@ -95,21 +95,6 @@ type localDbVlvIndexResourceModel struct {
 	CacheMode       types.String `tfsdk:"cache_mode"`
 }
 
-type defaultLocalDbVlvIndexResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	BackendName     types.String `tfsdk:"backend_name"`
-	BaseDN          types.String `tfsdk:"base_dn"`
-	Scope           types.String `tfsdk:"scope"`
-	Filter          types.String `tfsdk:"filter"`
-	SortOrder       types.String `tfsdk:"sort_order"`
-	Name            types.String `tfsdk:"name"`
-	MaxBlockSize    types.Int64  `tfsdk:"max_block_size"`
-	CacheMode       types.String `tfsdk:"cache_mode"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *localDbVlvIndexResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	localDbVlvIndexSchema(ctx, req, resp, false)
@@ -172,10 +157,6 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"local-db-vlv-index"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"name", "backend_name"})
 	}
@@ -214,36 +195,8 @@ func readLocalDbVlvIndexResponse(ctx context.Context, r *client.LocalDbVlvIndexR
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a LocalDbVlvIndexResponse object into the model struct
-func readLocalDbVlvIndexResponseDefault(ctx context.Context, r *client.LocalDbVlvIndexResponse, state *defaultLocalDbVlvIndexResourceModel, expectedValues *defaultLocalDbVlvIndexResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.BackendName = expectedValues.BackendName
-	state.BaseDN = types.StringValue(r.BaseDN)
-	state.Scope = types.StringValue(r.Scope.String())
-	state.Filter = types.StringValue(r.Filter)
-	state.SortOrder = types.StringValue(r.SortOrder)
-	state.Name = types.StringValue(r.Name)
-	state.MaxBlockSize = internaltypes.Int64TypeOrNil(r.MaxBlockSize)
-	state.CacheMode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumlocalDbVlvIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createLocalDbVlvIndexOperations(plan localDbVlvIndexResourceModel, state localDbVlvIndexResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.BaseDN, state.BaseDN, "base-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.Scope, state.Scope, "scope")
-	operations.AddStringOperationIfNecessary(&ops, plan.Filter, state.Filter, "filter")
-	operations.AddStringOperationIfNecessary(&ops, plan.SortOrder, state.SortOrder, "sort-order")
-	operations.AddStringOperationIfNecessary(&ops, plan.Name, state.Name, "name")
-	operations.AddInt64OperationIfNecessary(&ops, plan.MaxBlockSize, state.MaxBlockSize, "max-block-size")
-	operations.AddStringOperationIfNecessary(&ops, plan.CacheMode, state.CacheMode, "cache-mode")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createLocalDbVlvIndexOperationsDefault(plan defaultLocalDbVlvIndexResourceModel, state defaultLocalDbVlvIndexResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.BaseDN, state.BaseDN, "base-dn")
 	operations.AddStringOperationIfNecessary(&ops, plan.Scope, state.Scope, "scope")
@@ -332,7 +285,7 @@ func (r *localDbVlvIndexResource) Create(ctx context.Context, req resource.Creat
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultLocalDbVlvIndexResourceModel
+	var plan localDbVlvIndexResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -353,126 +306,11 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 	}
 
 	// Read the existing configuration
-	var state defaultLocalDbVlvIndexResourceModel
-	readLocalDbVlvIndexResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state localDbVlvIndexResourceModel
+	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
-	ops := createLocalDbVlvIndexOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndexExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Vlv Index", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readLocalDbVlvIndexResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *localDbVlvIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state localDbVlvIndexResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultLocalDbVlvIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultLocalDbVlvIndexResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readLocalDbVlvIndexResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *localDbVlvIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan localDbVlvIndexResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state localDbVlvIndexResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createLocalDbVlvIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -495,8 +333,6 @@ func (r *localDbVlvIndexResource) Update(ctx context.Context, req resource.Updat
 		readLocalDbVlvIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -506,9 +342,60 @@ func (r *localDbVlvIndexResource) Update(ctx context.Context, req resource.Updat
 	}
 }
 
+// Read resource information
+func (r *localDbVlvIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLocalDbVlvIndexResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLocalDbVlvIndex(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state localDbVlvIndexResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.LocalDbVlvIndexApi.GetLocalDbVlvIndex(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Vlv Index", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *localDbVlvIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultLocalDbVlvIndexResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLocalDbVlvIndex(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLocalDbVlvIndex(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultLocalDbVlvIndexResourceModel
+	var plan localDbVlvIndexResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -516,19 +403,19 @@ func (r *defaultLocalDbVlvIndexResource) Update(ctx context.Context, req resourc
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultLocalDbVlvIndexResourceModel
+	var state localDbVlvIndexResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
+	updateRequest := apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createLocalDbVlvIndexOperationsDefault(plan, state)
+	ops := createLocalDbVlvIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndexExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndexExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Local Db Vlv Index", err, httpResp)
 			return
@@ -541,7 +428,7 @@ func (r *defaultLocalDbVlvIndexResource) Update(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		readLocalDbVlvIndexResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readLocalDbVlvIndexResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

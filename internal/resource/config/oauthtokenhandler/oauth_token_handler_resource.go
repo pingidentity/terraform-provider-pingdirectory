@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -82,19 +83,6 @@ func (r *defaultOauthTokenHandlerResource) Configure(_ context.Context, req reso
 }
 
 type oauthTokenHandlerResourceModel struct {
-	Id                types.String `tfsdk:"id"`
-	LastUpdated       types.String `tfsdk:"last_updated"`
-	Notifications     types.Set    `tfsdk:"notifications"`
-	RequiredActions   types.Set    `tfsdk:"required_actions"`
-	Type              types.String `tfsdk:"type"`
-	ExtensionClass    types.String `tfsdk:"extension_class"`
-	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
-	ScriptClass       types.String `tfsdk:"script_class"`
-	ScriptArgument    types.Set    `tfsdk:"script_argument"`
-	Description       types.String `tfsdk:"description"`
-}
-
-type defaultOauthTokenHandlerResourceModel struct {
 	Id                types.String `tfsdk:"id"`
 	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
@@ -184,7 +172,7 @@ func (r *defaultOauthTokenHandlerResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanOauthTokenHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultOauthTokenHandlerResourceModel
+	var model oauthTokenHandlerResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
 		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_oauth_token_handler resources with 'type' '"+model.Type.ValueString()+"'",
@@ -240,16 +228,6 @@ func populateOauthTokenHandlerNilSets(ctx context.Context, model *oauthTokenHand
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateOauthTokenHandlerNilSetsDefault(ctx context.Context, model *defaultOauthTokenHandlerResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
-	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
-	}
-}
-
 // Read a GroovyScriptedOauthTokenHandlerResponse object into the model struct
 func readGroovyScriptedOauthTokenHandlerResponse(ctx context.Context, r *client.GroovyScriptedOauthTokenHandlerResponse, state *oauthTokenHandlerResourceModel, expectedValues *oauthTokenHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
@@ -259,17 +237,6 @@ func readGroovyScriptedOauthTokenHandlerResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateOauthTokenHandlerNilSets(ctx, state)
-}
-
-// Read a GroovyScriptedOauthTokenHandlerResponse object into the model struct
-func readGroovyScriptedOauthTokenHandlerResponseDefault(ctx context.Context, r *client.GroovyScriptedOauthTokenHandlerResponse, state *defaultOauthTokenHandlerResourceModel, expectedValues *defaultOauthTokenHandlerResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("groovy-scripted")
-	state.Id = types.StringValue(r.Id)
-	state.ScriptClass = types.StringValue(r.ScriptClass)
-	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOauthTokenHandlerNilSetsDefault(ctx, state)
 }
 
 // Read a ThirdPartyOauthTokenHandlerResponse object into the model struct
@@ -283,30 +250,8 @@ func readThirdPartyOauthTokenHandlerResponse(ctx context.Context, r *client.Thir
 	populateOauthTokenHandlerNilSets(ctx, state)
 }
 
-// Read a ThirdPartyOauthTokenHandlerResponse object into the model struct
-func readThirdPartyOauthTokenHandlerResponseDefault(ctx context.Context, r *client.ThirdPartyOauthTokenHandlerResponse, state *defaultOauthTokenHandlerResourceModel, expectedValues *defaultOauthTokenHandlerResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("third-party")
-	state.Id = types.StringValue(r.Id)
-	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOauthTokenHandlerNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createOauthTokenHandlerOperations(plan oauthTokenHandlerResourceModel, state oauthTokenHandlerResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.ScriptClass, state.ScriptClass, "script-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScriptArgument, state.ScriptArgument, "script-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createOauthTokenHandlerOperationsDefault(plan defaultOauthTokenHandlerResourceModel, state defaultOauthTokenHandlerResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -426,7 +371,7 @@ func (r *oauthTokenHandlerResource) Create(ctx context.Context, req resource.Cre
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultOauthTokenHandlerResourceModel
+	var plan oauthTokenHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -447,140 +392,16 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 	}
 
 	// Read the existing configuration
-	var state defaultOauthTokenHandlerResourceModel
+	var state oauthTokenHandlerResourceModel
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedOauthTokenHandlerResponseDefault(ctx, readResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedOauthTokenHandlerResponse(ctx, readResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyOauthTokenHandlerResponseDefault(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyOauthTokenHandlerResponse(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createOauthTokenHandlerOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandlerExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Oauth Token Handler", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
-			readGroovyScriptedOauthTokenHandlerResponseDefault(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyOauthTokenHandlerResponseDefault(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *oauthTokenHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state oauthTokenHandlerResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
-		readGroovyScriptedOauthTokenHandlerResponse(ctx, readResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartyOauthTokenHandlerResponse != nil {
-		readThirdPartyOauthTokenHandlerResponse(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultOauthTokenHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultOauthTokenHandlerResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *oauthTokenHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan oauthTokenHandlerResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state oauthTokenHandlerResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createOauthTokenHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -608,8 +429,6 @@ func (r *oauthTokenHandlerResource) Update(ctx context.Context, req resource.Upd
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -619,9 +438,65 @@ func (r *oauthTokenHandlerResource) Update(ctx context.Context, req resource.Upd
 	}
 }
 
+// Read resource information
+func (r *oauthTokenHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readOauthTokenHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultOauthTokenHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readOauthTokenHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readOauthTokenHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state oauthTokenHandlerResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
+		readGroovyScriptedOauthTokenHandlerResponse(ctx, readResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyOauthTokenHandlerResponse != nil {
+		readThirdPartyOauthTokenHandlerResponse(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *oauthTokenHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateOauthTokenHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultOauthTokenHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateOauthTokenHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateOauthTokenHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultOauthTokenHandlerResourceModel
+	var plan oauthTokenHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -629,19 +504,19 @@ func (r *defaultOauthTokenHandlerResource) Update(ctx context.Context, req resou
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultOauthTokenHandlerResourceModel
+	var state oauthTokenHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createOauthTokenHandlerOperationsDefault(plan, state)
+	ops := createOauthTokenHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.OauthTokenHandlerApi.UpdateOauthTokenHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Oauth Token Handler", err, httpResp)
 			return
@@ -655,10 +530,10 @@ func (r *defaultOauthTokenHandlerResource) Update(ctx context.Context, req resou
 
 		// Read the response
 		if plan.Type.ValueString() == "groovy-scripted" {
-			readGroovyScriptedOauthTokenHandlerResponseDefault(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
+			readGroovyScriptedOauthTokenHandlerResponse(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyOauthTokenHandlerResponseDefault(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

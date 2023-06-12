@@ -136,58 +136,6 @@ type connectionHandlerResourceModel struct {
 	DeniedClient                           types.Set    `tfsdk:"denied_client"`
 }
 
-type defaultConnectionHandlerResourceModel struct {
-	Id                                     types.String `tfsdk:"id"`
-	LastUpdated                            types.String `tfsdk:"last_updated"`
-	Notifications                          types.Set    `tfsdk:"notifications"`
-	RequiredActions                        types.Set    `tfsdk:"required_actions"`
-	Type                                   types.String `tfsdk:"type"`
-	ListenAddress                          types.Set    `tfsdk:"listen_address"`
-	ListenPort                             types.Int64  `tfsdk:"listen_port"`
-	LdifDirectory                          types.String `tfsdk:"ldif_directory"`
-	PollInterval                           types.String `tfsdk:"poll_interval"`
-	HttpServletExtension                   types.Set    `tfsdk:"http_servlet_extension"`
-	WebApplicationExtension                types.Set    `tfsdk:"web_application_extension"`
-	HttpOperationLogPublisher              types.Set    `tfsdk:"http_operation_log_publisher"`
-	UseSSL                                 types.Bool   `tfsdk:"use_ssl"`
-	AllowStartTLS                          types.Bool   `tfsdk:"allow_start_tls"`
-	SslCertNickname                        types.String `tfsdk:"ssl_cert_nickname"`
-	KeyManagerProvider                     types.String `tfsdk:"key_manager_provider"`
-	TrustManagerProvider                   types.String `tfsdk:"trust_manager_provider"`
-	KeepStats                              types.Bool   `tfsdk:"keep_stats"`
-	AllowLDAPV2                            types.Bool   `tfsdk:"allow_ldap_v2"`
-	AllowTCPReuseAddress                   types.Bool   `tfsdk:"allow_tcp_reuse_address"`
-	IdleTimeLimit                          types.String `tfsdk:"idle_time_limit"`
-	LowResourcesConnectionThreshold        types.Int64  `tfsdk:"low_resources_connection_threshold"`
-	LowResourcesIdleTimeLimit              types.String `tfsdk:"low_resources_idle_time_limit"`
-	EnableMultipartMIMEParameters          types.Bool   `tfsdk:"enable_multipart_mime_parameters"`
-	UseForwardedHeaders                    types.Bool   `tfsdk:"use_forwarded_headers"`
-	HttpRequestHeaderSize                  types.Int64  `tfsdk:"http_request_header_size"`
-	ResponseHeader                         types.Set    `tfsdk:"response_header"`
-	UseCorrelationIDHeader                 types.Bool   `tfsdk:"use_correlation_id_header"`
-	CorrelationIDResponseHeader            types.String `tfsdk:"correlation_id_response_header"`
-	CorrelationIDRequestHeader             types.Set    `tfsdk:"correlation_id_request_header"`
-	UseTCPKeepAlive                        types.Bool   `tfsdk:"use_tcp_keep_alive"`
-	SendRejectionNotice                    types.Bool   `tfsdk:"send_rejection_notice"`
-	FailedBindResponseDelay                types.String `tfsdk:"failed_bind_response_delay"`
-	MaxRequestSize                         types.String `tfsdk:"max_request_size"`
-	MaxCancelHandlers                      types.Int64  `tfsdk:"max_cancel_handlers"`
-	NumAcceptHandlers                      types.Int64  `tfsdk:"num_accept_handlers"`
-	NumRequestHandlers                     types.Int64  `tfsdk:"num_request_handlers"`
-	SslClientAuthPolicy                    types.String `tfsdk:"ssl_client_auth_policy"`
-	AcceptBacklog                          types.Int64  `tfsdk:"accept_backlog"`
-	SslProtocol                            types.Set    `tfsdk:"ssl_protocol"`
-	SslCipherSuite                         types.Set    `tfsdk:"ssl_cipher_suite"`
-	MaxBlockedWriteTimeLimit               types.String `tfsdk:"max_blocked_write_time_limit"`
-	AutoAuthenticateUsingClientCertificate types.Bool   `tfsdk:"auto_authenticate_using_client_certificate"`
-	CloseConnectionsWhenUnavailable        types.Bool   `tfsdk:"close_connections_when_unavailable"`
-	CloseConnectionsOnExplicitGC           types.Bool   `tfsdk:"close_connections_on_explicit_gc"`
-	Description                            types.String `tfsdk:"description"`
-	Enabled                                types.Bool   `tfsdk:"enabled"`
-	AllowedClient                          types.Set    `tfsdk:"allowed_client"`
-	DeniedClient                           types.Set    `tfsdk:"denied_client"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *connectionHandlerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	connectionHandlerSchema(ctx, req, resp, false)
@@ -577,7 +525,7 @@ func (r *defaultConnectionHandlerResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanConnectionHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultConnectionHandlerResourceModel
+	var model connectionHandlerResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.KeepStats) && model.Type.ValueString() != "http" {
 		resp.Diagnostics.AddError("Attribute 'keep_stats' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
@@ -910,9 +858,9 @@ func addOptionalLdifConnectionHandlerFields(ctx context.Context, addRequest *cli
 
 // Add optional fields to create request for http connection-handler
 func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *client.AddHttpConnectionHandlerRequest, plan connectionHandlerResourceModel) error {
-	// Empty strings are treated as equivalent to null
-	if internaltypes.IsNonEmptyString(plan.ListenAddress) {
-		addRequest.ListenAddress = plan.ListenAddress.ValueStringPointer()
+	// Treat this set as a single string
+	if internaltypes.IsDefined(plan.ListenAddress) && len(plan.ListenAddress.Elements()) > 0 {
+		addRequest.ListenAddress = plan.ListenAddress.Elements()[0].(types.String).ValueStringPointer()
 	}
 	if internaltypes.IsDefined(plan.UseSSL) {
 		addRequest.UseSSL = plan.UseSSL.ValueBoolPointer()
@@ -1052,40 +1000,6 @@ func populateConnectionHandlerNilSets(ctx context.Context, model *connectionHand
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateConnectionHandlerNilSetsDefault(ctx context.Context, model *defaultConnectionHandlerResourceModel) {
-	if model.SslCipherSuite.ElementType(ctx) == nil {
-		model.SslCipherSuite = types.SetNull(types.StringType)
-	}
-	if model.SslProtocol.ElementType(ctx) == nil {
-		model.SslProtocol = types.SetNull(types.StringType)
-	}
-	if model.ResponseHeader.ElementType(ctx) == nil {
-		model.ResponseHeader = types.SetNull(types.StringType)
-	}
-	if model.AllowedClient.ElementType(ctx) == nil {
-		model.AllowedClient = types.SetNull(types.StringType)
-	}
-	if model.WebApplicationExtension.ElementType(ctx) == nil {
-		model.WebApplicationExtension = types.SetNull(types.StringType)
-	}
-	if model.HttpServletExtension.ElementType(ctx) == nil {
-		model.HttpServletExtension = types.SetNull(types.StringType)
-	}
-	if model.ListenAddress.ElementType(ctx) == nil {
-		model.ListenAddress = types.SetNull(types.StringType)
-	}
-	if model.CorrelationIDRequestHeader.ElementType(ctx) == nil {
-		model.CorrelationIDRequestHeader = types.SetNull(types.StringType)
-	}
-	if model.HttpOperationLogPublisher.ElementType(ctx) == nil {
-		model.HttpOperationLogPublisher = types.SetNull(types.StringType)
-	}
-	if model.DeniedClient.ElementType(ctx) == nil {
-		model.DeniedClient = types.SetNull(types.StringType)
-	}
-}
-
 // Read a JmxConnectionHandlerResponse object into the model struct
 func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
@@ -1100,22 +1014,6 @@ func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnecti
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateConnectionHandlerNilSets(ctx, state)
-}
-
-// Read a JmxConnectionHandlerResponse object into the model struct
-func readJmxConnectionHandlerResponseDefault(ctx context.Context, r *client.JmxConnectionHandlerResponse, state *defaultConnectionHandlerResourceModel, expectedValues *defaultConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("jmx")
-	state.Id = types.StringValue(r.Id)
-	state.ListenPort = types.Int64Value(r.ListenPort)
-	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
-	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSetsDefault(ctx, state)
 }
 
 // Read a LdapConnectionHandlerResponse object into the model struct
@@ -1160,48 +1058,6 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	populateConnectionHandlerNilSets(ctx, state)
 }
 
-// Read a LdapConnectionHandlerResponse object into the model struct
-func readLdapConnectionHandlerResponseDefault(ctx context.Context, r *client.LdapConnectionHandlerResponse, state *defaultConnectionHandlerResourceModel, expectedValues *defaultConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("ldap")
-	state.Id = types.StringValue(r.Id)
-	state.ListenAddress = internaltypes.GetStringSet(r.ListenAddress)
-	state.ListenPort = types.Int64Value(r.ListenPort)
-	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
-	state.AllowStartTLS = internaltypes.BoolTypeOrNil(r.AllowStartTLS)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
-	state.AllowLDAPV2 = internaltypes.BoolTypeOrNil(r.AllowLDAPV2)
-	state.UseTCPKeepAlive = internaltypes.BoolTypeOrNil(r.UseTCPKeepAlive)
-	state.SendRejectionNotice = internaltypes.BoolTypeOrNil(r.SendRejectionNotice)
-	state.FailedBindResponseDelay = internaltypes.StringTypeOrNil(r.FailedBindResponseDelay, internaltypes.IsEmptyString(expectedValues.FailedBindResponseDelay))
-	config.CheckMismatchedPDFormattedAttributes("failed_bind_response_delay",
-		expectedValues.FailedBindResponseDelay, state.FailedBindResponseDelay, diagnostics)
-	state.MaxRequestSize = internaltypes.StringTypeOrNil(r.MaxRequestSize, internaltypes.IsEmptyString(expectedValues.MaxRequestSize))
-	config.CheckMismatchedPDFormattedAttributes("max_request_size",
-		expectedValues.MaxRequestSize, state.MaxRequestSize, diagnostics)
-	state.MaxCancelHandlers = internaltypes.Int64TypeOrNil(r.MaxCancelHandlers)
-	state.NumAcceptHandlers = internaltypes.Int64TypeOrNil(r.NumAcceptHandlers)
-	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
-	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), internaltypes.IsEmptyString(expectedValues.SslClientAuthPolicy))
-	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
-	state.SslProtocol = internaltypes.GetStringSet(r.SslProtocol)
-	state.SslCipherSuite = internaltypes.GetStringSet(r.SslCipherSuite)
-	state.MaxBlockedWriteTimeLimit = internaltypes.StringTypeOrNil(r.MaxBlockedWriteTimeLimit, internaltypes.IsEmptyString(expectedValues.MaxBlockedWriteTimeLimit))
-	config.CheckMismatchedPDFormattedAttributes("max_blocked_write_time_limit",
-		expectedValues.MaxBlockedWriteTimeLimit, state.MaxBlockedWriteTimeLimit, diagnostics)
-	state.AutoAuthenticateUsingClientCertificate = internaltypes.BoolTypeOrNil(r.AutoAuthenticateUsingClientCertificate)
-	state.CloseConnectionsWhenUnavailable = internaltypes.BoolTypeOrNil(r.CloseConnectionsWhenUnavailable)
-	state.CloseConnectionsOnExplicitGC = internaltypes.BoolTypeOrNil(r.CloseConnectionsOnExplicitGC)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
-	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSetsDefault(ctx, state)
-}
-
 // Read a LdifConnectionHandlerResponse object into the model struct
 func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif")
@@ -1218,27 +1074,16 @@ func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnec
 	populateConnectionHandlerNilSets(ctx, state)
 }
 
-// Read a LdifConnectionHandlerResponse object into the model struct
-func readLdifConnectionHandlerResponseDefault(ctx context.Context, r *client.LdifConnectionHandlerResponse, state *defaultConnectionHandlerResourceModel, expectedValues *defaultConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("ldif")
-	state.Id = types.StringValue(r.Id)
-	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
-	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
-	state.LdifDirectory = types.StringValue(r.LdifDirectory)
-	state.PollInterval = types.StringValue(r.PollInterval)
-	config.CheckMismatchedPDFormattedAttributes("poll_interval",
-		expectedValues.PollInterval, state.PollInterval, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSetsDefault(ctx, state)
-}
-
 // Read a HttpConnectionHandlerResponse object into the model struct
 func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
-	state.ListenAddress = internaltypes.StringTypeOrNil(r.ListenAddress, internaltypes.IsEmptyString(expectedValues.ListenAddress))
+	listenAddressValues := []string{}
+	listenAddressType := internaltypes.StringTypeOrNil(r.ListenAddress, false)
+	if !listenAddressType.IsNull() {
+		listenAddressValues = append(listenAddressValues, listenAddressType.ValueString())
+	}
+	state.ListenAddress = internaltypes.GetStringSet(listenAddressValues)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
@@ -1275,99 +1120,8 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	populateConnectionHandlerNilSets(ctx, state)
 }
 
-// Read a HttpConnectionHandlerResponse object into the model struct
-func readHttpConnectionHandlerResponseDefault(ctx context.Context, r *client.HttpConnectionHandlerResponse, state *defaultConnectionHandlerResourceModel, expectedValues *defaultConnectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("http")
-	state.Id = types.StringValue(r.Id)
-	state.ListenAddress = internaltypes.StringTypeOrNil(r.ListenAddress, internaltypes.IsEmptyString(expectedValues.ListenAddress))
-	state.ListenPort = types.Int64Value(r.ListenPort)
-	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
-	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
-	state.HttpServletExtension = internaltypes.GetStringSet(r.HttpServletExtension)
-	state.WebApplicationExtension = internaltypes.GetStringSet(r.WebApplicationExtension)
-	state.HttpOperationLogPublisher = internaltypes.GetStringSet(r.HttpOperationLogPublisher)
-	state.SslProtocol = internaltypes.GetStringSet(r.SslProtocol)
-	state.SslCipherSuite = internaltypes.GetStringSet(r.SslCipherSuite)
-	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
-	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
-	state.NumRequestHandlers = internaltypes.Int64TypeOrNil(r.NumRequestHandlers)
-	state.KeepStats = internaltypes.BoolTypeOrNil(r.KeepStats)
-	state.AcceptBacklog = internaltypes.Int64TypeOrNil(r.AcceptBacklog)
-	state.AllowTCPReuseAddress = internaltypes.BoolTypeOrNil(r.AllowTCPReuseAddress)
-	state.IdleTimeLimit = internaltypes.StringTypeOrNil(r.IdleTimeLimit, internaltypes.IsEmptyString(expectedValues.IdleTimeLimit))
-	config.CheckMismatchedPDFormattedAttributes("idle_time_limit",
-		expectedValues.IdleTimeLimit, state.IdleTimeLimit, diagnostics)
-	state.LowResourcesConnectionThreshold = internaltypes.Int64TypeOrNil(r.LowResourcesConnectionThreshold)
-	state.LowResourcesIdleTimeLimit = internaltypes.StringTypeOrNil(r.LowResourcesIdleTimeLimit, internaltypes.IsEmptyString(expectedValues.LowResourcesIdleTimeLimit))
-	config.CheckMismatchedPDFormattedAttributes("low_resources_idle_time_limit",
-		expectedValues.LowResourcesIdleTimeLimit, state.LowResourcesIdleTimeLimit, diagnostics)
-	state.EnableMultipartMIMEParameters = internaltypes.BoolTypeOrNil(r.EnableMultipartMIMEParameters)
-	state.UseForwardedHeaders = internaltypes.BoolTypeOrNil(r.UseForwardedHeaders)
-	state.HttpRequestHeaderSize = internaltypes.Int64TypeOrNil(r.HttpRequestHeaderSize)
-	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
-	state.UseCorrelationIDHeader = internaltypes.BoolTypeOrNil(r.UseCorrelationIDHeader)
-	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
-	state.CorrelationIDRequestHeader = internaltypes.GetStringSet(r.CorrelationIDRequestHeader)
-	state.SslClientAuthPolicy = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumconnectionHandlerSslClientAuthPolicyProp(r.SslClientAuthPolicy), internaltypes.IsEmptyString(expectedValues.SslClientAuthPolicy))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createConnectionHandlerOperations(plan connectionHandlerResourceModel, state connectionHandlerResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ListenAddress, state.ListenAddress, "listen-address")
-	operations.AddInt64OperationIfNecessary(&ops, plan.ListenPort, state.ListenPort, "listen-port")
-	operations.AddStringOperationIfNecessary(&ops, plan.LdifDirectory, state.LdifDirectory, "ldif-directory")
-	operations.AddStringOperationIfNecessary(&ops, plan.PollInterval, state.PollInterval, "poll-interval")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.HttpServletExtension, state.HttpServletExtension, "http-servlet-extension")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.WebApplicationExtension, state.WebApplicationExtension, "web-application-extension")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.HttpOperationLogPublisher, state.HttpOperationLogPublisher, "http-operation-log-publisher")
-	operations.AddBoolOperationIfNecessary(&ops, plan.UseSSL, state.UseSSL, "use-ssl")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowStartTLS, state.AllowStartTLS, "allow-start-tls")
-	operations.AddStringOperationIfNecessary(&ops, plan.SslCertNickname, state.SslCertNickname, "ssl-cert-nickname")
-	operations.AddStringOperationIfNecessary(&ops, plan.KeyManagerProvider, state.KeyManagerProvider, "key-manager-provider")
-	operations.AddStringOperationIfNecessary(&ops, plan.TrustManagerProvider, state.TrustManagerProvider, "trust-manager-provider")
-	operations.AddBoolOperationIfNecessary(&ops, plan.KeepStats, state.KeepStats, "keep-stats")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowLDAPV2, state.AllowLDAPV2, "allow-ldap-v2")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowTCPReuseAddress, state.AllowTCPReuseAddress, "allow-tcp-reuse-address")
-	operations.AddStringOperationIfNecessary(&ops, plan.IdleTimeLimit, state.IdleTimeLimit, "idle-time-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.LowResourcesConnectionThreshold, state.LowResourcesConnectionThreshold, "low-resources-connection-threshold")
-	operations.AddStringOperationIfNecessary(&ops, plan.LowResourcesIdleTimeLimit, state.LowResourcesIdleTimeLimit, "low-resources-idle-time-limit")
-	operations.AddBoolOperationIfNecessary(&ops, plan.EnableMultipartMIMEParameters, state.EnableMultipartMIMEParameters, "enable-multipart-mime-parameters")
-	operations.AddBoolOperationIfNecessary(&ops, plan.UseForwardedHeaders, state.UseForwardedHeaders, "use-forwarded-headers")
-	operations.AddInt64OperationIfNecessary(&ops, plan.HttpRequestHeaderSize, state.HttpRequestHeaderSize, "http-request-header-size")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ResponseHeader, state.ResponseHeader, "response-header")
-	operations.AddBoolOperationIfNecessary(&ops, plan.UseCorrelationIDHeader, state.UseCorrelationIDHeader, "use-correlation-id-header")
-	operations.AddStringOperationIfNecessary(&ops, plan.CorrelationIDResponseHeader, state.CorrelationIDResponseHeader, "correlation-id-response-header")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorrelationIDRequestHeader, state.CorrelationIDRequestHeader, "correlation-id-request-header")
-	operations.AddBoolOperationIfNecessary(&ops, plan.UseTCPKeepAlive, state.UseTCPKeepAlive, "use-tcp-keep-alive")
-	operations.AddBoolOperationIfNecessary(&ops, plan.SendRejectionNotice, state.SendRejectionNotice, "send-rejection-notice")
-	operations.AddStringOperationIfNecessary(&ops, plan.FailedBindResponseDelay, state.FailedBindResponseDelay, "failed-bind-response-delay")
-	operations.AddStringOperationIfNecessary(&ops, plan.MaxRequestSize, state.MaxRequestSize, "max-request-size")
-	operations.AddInt64OperationIfNecessary(&ops, plan.MaxCancelHandlers, state.MaxCancelHandlers, "max-cancel-handlers")
-	operations.AddInt64OperationIfNecessary(&ops, plan.NumAcceptHandlers, state.NumAcceptHandlers, "num-accept-handlers")
-	operations.AddInt64OperationIfNecessary(&ops, plan.NumRequestHandlers, state.NumRequestHandlers, "num-request-handlers")
-	operations.AddStringOperationIfNecessary(&ops, plan.SslClientAuthPolicy, state.SslClientAuthPolicy, "ssl-client-auth-policy")
-	operations.AddInt64OperationIfNecessary(&ops, plan.AcceptBacklog, state.AcceptBacklog, "accept-backlog")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SslProtocol, state.SslProtocol, "ssl-protocol")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.SslCipherSuite, state.SslCipherSuite, "ssl-cipher-suite")
-	operations.AddStringOperationIfNecessary(&ops, plan.MaxBlockedWriteTimeLimit, state.MaxBlockedWriteTimeLimit, "max-blocked-write-time-limit")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AutoAuthenticateUsingClientCertificate, state.AutoAuthenticateUsingClientCertificate, "auto-authenticate-using-client-certificate")
-	operations.AddBoolOperationIfNecessary(&ops, plan.CloseConnectionsWhenUnavailable, state.CloseConnectionsWhenUnavailable, "close-connections-when-unavailable")
-	operations.AddBoolOperationIfNecessary(&ops, plan.CloseConnectionsOnExplicitGC, state.CloseConnectionsOnExplicitGC, "close-connections-on-explicit-gc")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedClient, state.AllowedClient, "allowed-client")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.DeniedClient, state.DeniedClient, "denied-client")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createConnectionHandlerOperationsDefault(plan defaultConnectionHandlerResourceModel, state defaultConnectionHandlerResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ListenAddress, state.ListenAddress, "listen-address")
 	operations.AddInt64OperationIfNecessary(&ops, plan.ListenPort, state.ListenPort, "listen-port")
@@ -1625,7 +1379,7 @@ func (r *connectionHandlerResource) Create(ctx context.Context, req resource.Cre
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultConnectionHandlerResourceModel
+	var plan connectionHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1646,158 +1400,22 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 	}
 
 	// Read the existing configuration
-	var state defaultConnectionHandlerResourceModel
+	var state connectionHandlerResourceModel
 	if plan.Type.ValueString() == "jmx" {
-		readJmxConnectionHandlerResponseDefault(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldap" {
-		readLdapConnectionHandlerResponseDefault(ctx, readResponse.LdapConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readLdapConnectionHandlerResponse(ctx, readResponse.LdapConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldif" {
-		readLdifConnectionHandlerResponseDefault(ctx, readResponse.LdifConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readLdifConnectionHandlerResponse(ctx, readResponse.LdifConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "http" {
-		readHttpConnectionHandlerResponseDefault(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createConnectionHandlerOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Connection Handler", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "jmx" {
-			readJmxConnectionHandlerResponseDefault(ctx, updateResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "ldap" {
-			readLdapConnectionHandlerResponseDefault(ctx, updateResponse.LdapConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "ldif" {
-			readLdifConnectionHandlerResponseDefault(ctx, updateResponse.LdifConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "http" {
-			readHttpConnectionHandlerResponseDefault(ctx, updateResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *connectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state connectionHandlerResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.JmxConnectionHandlerResponse != nil {
-		readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LdapConnectionHandlerResponse != nil {
-		readLdapConnectionHandlerResponse(ctx, readResponse.LdapConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LdifConnectionHandlerResponse != nil {
-		readLdifConnectionHandlerResponse(ctx, readResponse.LdifConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.HttpConnectionHandlerResponse != nil {
-		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultConnectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultConnectionHandlerResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *connectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan connectionHandlerResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state connectionHandlerResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createConnectionHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1831,8 +1449,6 @@ func (r *connectionHandlerResource) Update(ctx context.Context, req resource.Upd
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1842,9 +1458,71 @@ func (r *connectionHandlerResource) Update(ctx context.Context, req resource.Upd
 	}
 }
 
+// Read resource information
+func (r *connectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultConnectionHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state connectionHandlerResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.ConnectionHandlerApi.GetConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.JmxConnectionHandlerResponse != nil {
+		readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LdapConnectionHandlerResponse != nil {
+		readLdapConnectionHandlerResponse(ctx, readResponse.LdapConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LdifConnectionHandlerResponse != nil {
+		readLdifConnectionHandlerResponse(ctx, readResponse.LdifConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.HttpConnectionHandlerResponse != nil {
+		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *connectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultConnectionHandlerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateConnectionHandler(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultConnectionHandlerResourceModel
+	var plan connectionHandlerResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1852,19 +1530,19 @@ func (r *defaultConnectionHandlerResource) Update(ctx context.Context, req resou
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultConnectionHandlerResourceModel
+	var state connectionHandlerResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createConnectionHandlerOperationsDefault(plan, state)
+	ops := createConnectionHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.ConnectionHandlerApi.UpdateConnectionHandlerExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Connection Handler", err, httpResp)
 			return
@@ -1878,16 +1556,16 @@ func (r *defaultConnectionHandlerResource) Update(ctx context.Context, req resou
 
 		// Read the response
 		if plan.Type.ValueString() == "jmx" {
-			readJmxConnectionHandlerResponseDefault(ctx, updateResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+			readJmxConnectionHandlerResponse(ctx, updateResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "ldap" {
-			readLdapConnectionHandlerResponseDefault(ctx, updateResponse.LdapConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+			readLdapConnectionHandlerResponse(ctx, updateResponse.LdapConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "ldif" {
-			readLdifConnectionHandlerResponseDefault(ctx, updateResponse.LdifConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+			readLdifConnectionHandlerResponse(ctx, updateResponse.LdifConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "http" {
-			readHttpConnectionHandlerResponseDefault(ctx, updateResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+			readHttpConnectionHandlerResponse(ctx, updateResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

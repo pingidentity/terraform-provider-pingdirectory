@@ -98,24 +98,6 @@ type recurringTaskChainResourceModel struct {
 	ServerOfflineAtStartTimeBehavior types.String `tfsdk:"server_offline_at_start_time_behavior"`
 }
 
-type defaultRecurringTaskChainResourceModel struct {
-	Id                               types.String `tfsdk:"id"`
-	LastUpdated                      types.String `tfsdk:"last_updated"`
-	Notifications                    types.Set    `tfsdk:"notifications"`
-	RequiredActions                  types.Set    `tfsdk:"required_actions"`
-	Description                      types.String `tfsdk:"description"`
-	Enabled                          types.Bool   `tfsdk:"enabled"`
-	RecurringTask                    types.Set    `tfsdk:"recurring_task"`
-	ScheduledMonth                   types.Set    `tfsdk:"scheduled_month"`
-	ScheduledDateSelectionType       types.String `tfsdk:"scheduled_date_selection_type"`
-	ScheduledDayOfTheWeek            types.Set    `tfsdk:"scheduled_day_of_the_week"`
-	ScheduledDayOfTheMonth           types.Set    `tfsdk:"scheduled_day_of_the_month"`
-	ScheduledTimeOfDay               types.Set    `tfsdk:"scheduled_time_of_day"`
-	TimeZone                         types.String `tfsdk:"time_zone"`
-	InterruptedByShutdownBehavior    types.String `tfsdk:"interrupted_by_shutdown_behavior"`
-	ServerOfflineAtStartTimeBehavior types.String `tfsdk:"server_offline_at_start_time_behavior"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *recurringTaskChainResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	recurringTaskChainSchema(ctx, req, resp, false)
@@ -209,10 +191,6 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"recurring-task-chain"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -313,47 +291,8 @@ func readRecurringTaskChainResponse(ctx context.Context, r *client.RecurringTask
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a RecurringTaskChainResponse object into the model struct
-func readRecurringTaskChainResponseDefault(ctx context.Context, r *client.RecurringTaskChainResponse, state *defaultRecurringTaskChainResourceModel, expectedValues *defaultRecurringTaskChainResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.RecurringTask = internaltypes.GetStringSet(r.RecurringTask)
-	state.ScheduledMonth = internaltypes.GetStringSet(
-		client.StringSliceEnumrecurringTaskChainScheduledMonthProp(r.ScheduledMonth))
-	state.ScheduledDateSelectionType = types.StringValue(r.ScheduledDateSelectionType.String())
-	state.ScheduledDayOfTheWeek = internaltypes.GetStringSet(
-		client.StringSliceEnumrecurringTaskChainScheduledDayOfTheWeekProp(r.ScheduledDayOfTheWeek))
-	state.ScheduledDayOfTheMonth = internaltypes.GetStringSet(
-		client.StringSliceEnumrecurringTaskChainScheduledDayOfTheMonthProp(r.ScheduledDayOfTheMonth))
-	state.ScheduledTimeOfDay = internaltypes.GetStringSet(r.ScheduledTimeOfDay)
-	state.TimeZone = internaltypes.StringTypeOrNil(r.TimeZone, internaltypes.IsEmptyString(expectedValues.TimeZone))
-	state.InterruptedByShutdownBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskChainInterruptedByShutdownBehaviorProp(r.InterruptedByShutdownBehavior), internaltypes.IsEmptyString(expectedValues.InterruptedByShutdownBehavior))
-	state.ServerOfflineAtStartTimeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskChainServerOfflineAtStartTimeBehaviorProp(r.ServerOfflineAtStartTimeBehavior), internaltypes.IsEmptyString(expectedValues.ServerOfflineAtStartTimeBehavior))
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createRecurringTaskChainOperations(plan recurringTaskChainResourceModel, state recurringTaskChainResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.RecurringTask, state.RecurringTask, "recurring-task")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScheduledMonth, state.ScheduledMonth, "scheduled-month")
-	operations.AddStringOperationIfNecessary(&ops, plan.ScheduledDateSelectionType, state.ScheduledDateSelectionType, "scheduled-date-selection-type")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScheduledDayOfTheWeek, state.ScheduledDayOfTheWeek, "scheduled-day-of-the-week")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScheduledDayOfTheMonth, state.ScheduledDayOfTheMonth, "scheduled-day-of-the-month")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScheduledTimeOfDay, state.ScheduledTimeOfDay, "scheduled-time-of-day")
-	operations.AddStringOperationIfNecessary(&ops, plan.TimeZone, state.TimeZone, "time-zone")
-	operations.AddStringOperationIfNecessary(&ops, plan.InterruptedByShutdownBehavior, state.InterruptedByShutdownBehavior, "interrupted-by-shutdown-behavior")
-	operations.AddStringOperationIfNecessary(&ops, plan.ServerOfflineAtStartTimeBehavior, state.ServerOfflineAtStartTimeBehavior, "server-offline-at-start-time-behavior")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createRecurringTaskChainOperationsDefault(plan defaultRecurringTaskChainResourceModel, state defaultRecurringTaskChainResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
@@ -448,7 +387,7 @@ func (r *recurringTaskChainResource) Create(ctx context.Context, req resource.Cr
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultRecurringTaskChainResourceModel
+	var plan recurringTaskChainResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -469,126 +408,11 @@ func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the existing configuration
-	var state defaultRecurringTaskChainResourceModel
-	readRecurringTaskChainResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state recurringTaskChainResourceModel
+	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createRecurringTaskChainOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChainExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task Chain", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readRecurringTaskChainResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *recurringTaskChainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state recurringTaskChainResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task Chain", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultRecurringTaskChainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultRecurringTaskChainResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task Chain", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readRecurringTaskChainResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *recurringTaskChainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan recurringTaskChainResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state recurringTaskChainResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createRecurringTaskChainOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -611,8 +435,6 @@ func (r *recurringTaskChainResource) Update(ctx context.Context, req resource.Up
 		readRecurringTaskChainResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -622,9 +444,60 @@ func (r *recurringTaskChainResource) Update(ctx context.Context, req resource.Up
 	}
 }
 
+// Read resource information
+func (r *recurringTaskChainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRecurringTaskChain(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRecurringTaskChainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRecurringTaskChain(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readRecurringTaskChain(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state recurringTaskChainResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task Chain", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *recurringTaskChainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRecurringTaskChain(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultRecurringTaskChainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRecurringTaskChain(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateRecurringTaskChain(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultRecurringTaskChainResourceModel
+	var plan recurringTaskChainResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -632,19 +505,19 @@ func (r *defaultRecurringTaskChainResource) Update(ctx context.Context, req reso
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultRecurringTaskChainResourceModel
+	var state recurringTaskChainResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createRecurringTaskChainOperationsDefault(plan, state)
+	ops := createRecurringTaskChainOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChainExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskChainApi.UpdateRecurringTaskChainExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task Chain", err, httpResp)
 			return
@@ -657,7 +530,7 @@ func (r *defaultRecurringTaskChainResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readRecurringTaskChainResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readRecurringTaskChainResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

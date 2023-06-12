@@ -90,17 +90,6 @@ type jsonAttributeConstraintsResourceModel struct {
 	AllowUnnamedFields types.Bool   `tfsdk:"allow_unnamed_fields"`
 }
 
-type defaultJsonAttributeConstraintsResourceModel struct {
-	Id                 types.String `tfsdk:"id"`
-	LastUpdated        types.String `tfsdk:"last_updated"`
-	Notifications      types.Set    `tfsdk:"notifications"`
-	RequiredActions    types.Set    `tfsdk:"required_actions"`
-	Description        types.String `tfsdk:"description"`
-	Enabled            types.Bool   `tfsdk:"enabled"`
-	AttributeType      types.String `tfsdk:"attribute_type"`
-	AllowUnnamedFields types.Bool   `tfsdk:"allow_unnamed_fields"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *jsonAttributeConstraintsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	jsonAttributeConstraintsSchema(ctx, req, resp, false)
@@ -144,10 +133,6 @@ func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequ
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"json-attribute-constraints"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type"})
 	}
@@ -179,28 +164,8 @@ func readJsonAttributeConstraintsResponse(ctx context.Context, r *client.JsonAtt
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a JsonAttributeConstraintsResponse object into the model struct
-func readJsonAttributeConstraintsResponseDefault(ctx context.Context, r *client.JsonAttributeConstraintsResponse, state *defaultJsonAttributeConstraintsResourceModel, expectedValues *defaultJsonAttributeConstraintsResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
-	state.AttributeType = types.StringValue(r.AttributeType)
-	state.AllowUnnamedFields = internaltypes.BoolTypeOrNil(r.AllowUnnamedFields)
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createJsonAttributeConstraintsOperations(plan jsonAttributeConstraintsResourceModel, state jsonAttributeConstraintsResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	operations.AddStringOperationIfNecessary(&ops, plan.AttributeType, state.AttributeType, "attribute-type")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowUnnamedFields, state.AllowUnnamedFields, "allow-unnamed-fields")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createJsonAttributeConstraintsOperationsDefault(plan defaultJsonAttributeConstraintsResourceModel, state defaultJsonAttributeConstraintsResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
@@ -272,7 +237,7 @@ func (r *jsonAttributeConstraintsResource) Create(ctx context.Context, req resou
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultJsonAttributeConstraintsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultJsonAttributeConstraintsResourceModel
+	var plan jsonAttributeConstraintsResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -293,126 +258,11 @@ func (r *defaultJsonAttributeConstraintsResource) Create(ctx context.Context, re
 	}
 
 	// Read the existing configuration
-	var state defaultJsonAttributeConstraintsResourceModel
-	readJsonAttributeConstraintsResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state jsonAttributeConstraintsResourceModel
+	readJsonAttributeConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString())
-	ops := createJsonAttributeConstraintsOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraintsExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Attribute Constraints", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readJsonAttributeConstraintsResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *jsonAttributeConstraintsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state jsonAttributeConstraintsResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Attribute Constraints", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readJsonAttributeConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultJsonAttributeConstraintsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultJsonAttributeConstraintsResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.AttributeType.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Attribute Constraints", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readJsonAttributeConstraintsResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *jsonAttributeConstraintsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan jsonAttributeConstraintsResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state jsonAttributeConstraintsResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createJsonAttributeConstraintsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -435,8 +285,6 @@ func (r *jsonAttributeConstraintsResource) Update(ctx context.Context, req resou
 		readJsonAttributeConstraintsResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -446,9 +294,60 @@ func (r *jsonAttributeConstraintsResource) Update(ctx context.Context, req resou
 	}
 }
 
+// Read resource information
+func (r *jsonAttributeConstraintsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJsonAttributeConstraints(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultJsonAttributeConstraintsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readJsonAttributeConstraints(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readJsonAttributeConstraints(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state jsonAttributeConstraintsResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.JsonAttributeConstraintsApi.GetJsonAttributeConstraints(
+		ProviderBasicAuthContext(ctx, providerConfig), state.AttributeType.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Json Attribute Constraints", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readJsonAttributeConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *jsonAttributeConstraintsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJsonAttributeConstraints(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultJsonAttributeConstraintsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateJsonAttributeConstraints(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateJsonAttributeConstraints(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultJsonAttributeConstraintsResourceModel
+	var plan jsonAttributeConstraintsResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -456,19 +355,19 @@ func (r *defaultJsonAttributeConstraintsResource) Update(ctx context.Context, re
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultJsonAttributeConstraintsResourceModel
+	var state jsonAttributeConstraintsResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString())
+	updateRequest := apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.AttributeType.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createJsonAttributeConstraintsOperationsDefault(plan, state)
+	ops := createJsonAttributeConstraintsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraintsExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraintsExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Json Attribute Constraints", err, httpResp)
 			return
@@ -481,7 +380,7 @@ func (r *defaultJsonAttributeConstraintsResource) Update(ctx context.Context, re
 		}
 
 		// Read the response
-		readJsonAttributeConstraintsResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readJsonAttributeConstraintsResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

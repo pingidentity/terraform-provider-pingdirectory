@@ -84,14 +84,6 @@ type trustedCertificateResourceModel struct {
 	Certificate     types.String `tfsdk:"certificate"`
 }
 
-type defaultTrustedCertificateResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Certificate     types.String `tfsdk:"certificate"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *trustedCertificateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	trustedCertificateSchema(ctx, req, resp, false)
@@ -112,10 +104,6 @@ func trustedCertificateSchema(ctx context.Context, req resource.SchemaRequest, r
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"trusted-certificate"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -134,22 +122,8 @@ func readTrustedCertificateResponse(ctx context.Context, r *client.TrustedCertif
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a TrustedCertificateResponse object into the model struct
-func readTrustedCertificateResponseDefault(ctx context.Context, r *client.TrustedCertificateResponse, state *defaultTrustedCertificateResourceModel, expectedValues *defaultTrustedCertificateResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Certificate = types.StringValue(r.Certificate)
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createTrustedCertificateOperations(plan trustedCertificateResourceModel, state trustedCertificateResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Certificate, state.Certificate, "certificate")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createTrustedCertificateOperationsDefault(plan defaultTrustedCertificateResourceModel, state defaultTrustedCertificateResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Certificate, state.Certificate, "certificate")
 	return ops
@@ -219,7 +193,7 @@ func (r *trustedCertificateResource) Create(ctx context.Context, req resource.Cr
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultTrustedCertificateResourceModel
+	var plan trustedCertificateResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -240,126 +214,11 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the existing configuration
-	var state defaultTrustedCertificateResourceModel
-	readTrustedCertificateResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state trustedCertificateResourceModel
+	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createTrustedCertificateOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificateExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trusted Certificate", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readTrustedCertificateResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *trustedCertificateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state trustedCertificateResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.GetTrustedCertificate(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultTrustedCertificateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultTrustedCertificateResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.GetTrustedCertificate(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readTrustedCertificateResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *trustedCertificateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan trustedCertificateResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state trustedCertificateResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createTrustedCertificateOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -382,8 +241,6 @@ func (r *trustedCertificateResource) Update(ctx context.Context, req resource.Up
 		readTrustedCertificateResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -393,9 +250,60 @@ func (r *trustedCertificateResource) Update(ctx context.Context, req resource.Up
 	}
 }
 
+// Read resource information
+func (r *trustedCertificateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readTrustedCertificate(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultTrustedCertificateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readTrustedCertificate(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readTrustedCertificate(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state trustedCertificateResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.TrustedCertificateApi.GetTrustedCertificate(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *trustedCertificateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateTrustedCertificate(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultTrustedCertificateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateTrustedCertificate(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateTrustedCertificate(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultTrustedCertificateResourceModel
+	var plan trustedCertificateResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -403,19 +311,19 @@ func (r *defaultTrustedCertificateResource) Update(ctx context.Context, req reso
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultTrustedCertificateResourceModel
+	var state trustedCertificateResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.TrustedCertificateApi.UpdateTrustedCertificate(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createTrustedCertificateOperationsDefault(plan, state)
+	ops := createTrustedCertificateOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificateExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TrustedCertificateApi.UpdateTrustedCertificateExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Trusted Certificate", err, httpResp)
 			return
@@ -428,7 +336,7 @@ func (r *defaultTrustedCertificateResource) Update(ctx context.Context, req reso
 		}
 
 		// Read the response
-		readTrustedCertificateResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readTrustedCertificateResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

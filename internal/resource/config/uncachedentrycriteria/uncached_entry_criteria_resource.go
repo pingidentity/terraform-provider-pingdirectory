@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -83,23 +84,6 @@ func (r *defaultUncachedEntryCriteriaResource) Configure(_ context.Context, req 
 }
 
 type uncachedEntryCriteriaResourceModel struct {
-	Id                              types.String `tfsdk:"id"`
-	LastUpdated                     types.String `tfsdk:"last_updated"`
-	Notifications                   types.Set    `tfsdk:"notifications"`
-	RequiredActions                 types.Set    `tfsdk:"required_actions"`
-	Type                            types.String `tfsdk:"type"`
-	ExtensionClass                  types.String `tfsdk:"extension_class"`
-	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
-	ScriptClass                     types.String `tfsdk:"script_class"`
-	ScriptArgument                  types.Set    `tfsdk:"script_argument"`
-	Filter                          types.String `tfsdk:"filter"`
-	FilterIdentifiesUncachedEntries types.Bool   `tfsdk:"filter_identifies_uncached_entries"`
-	AccessTimeThreshold             types.String `tfsdk:"access_time_threshold"`
-	Description                     types.String `tfsdk:"description"`
-	Enabled                         types.Bool   `tfsdk:"enabled"`
-}
-
-type defaultUncachedEntryCriteriaResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
@@ -213,7 +197,7 @@ func (r *defaultUncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, r
 }
 
 func modifyPlanUncachedEntryCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultUncachedEntryCriteriaResourceModel
+	var model uncachedEntryCriteriaResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Filter) && model.Type.ValueString() != "filter-based" {
 		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
@@ -308,16 +292,6 @@ func populateUncachedEntryCriteriaNilSets(ctx context.Context, model *uncachedEn
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateUncachedEntryCriteriaNilSetsDefault(ctx context.Context, model *defaultUncachedEntryCriteriaResourceModel) {
-	if model.ScriptArgument.ElementType(ctx) == nil {
-		model.ScriptArgument = types.SetNull(types.StringType)
-	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
-	}
-}
-
 // Read a DefaultUncachedEntryCriteriaResponse object into the model struct
 func readDefaultUncachedEntryCriteriaResponse(ctx context.Context, r *client.DefaultUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
@@ -326,16 +300,6 @@ func readDefaultUncachedEntryCriteriaResponse(ctx context.Context, r *client.Def
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateUncachedEntryCriteriaNilSets(ctx, state)
-}
-
-// Read a DefaultUncachedEntryCriteriaResponse object into the model struct
-func readDefaultUncachedEntryCriteriaResponseDefault(ctx context.Context, r *client.DefaultUncachedEntryCriteriaResponse, state *defaultUncachedEntryCriteriaResourceModel, expectedValues *defaultUncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("default")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaNilSetsDefault(ctx, state)
 }
 
 // Read a LastAccessTimeUncachedEntryCriteriaResponse object into the model struct
@@ -351,19 +315,6 @@ func readLastAccessTimeUncachedEntryCriteriaResponse(ctx context.Context, r *cli
 	populateUncachedEntryCriteriaNilSets(ctx, state)
 }
 
-// Read a LastAccessTimeUncachedEntryCriteriaResponse object into the model struct
-func readLastAccessTimeUncachedEntryCriteriaResponseDefault(ctx context.Context, r *client.LastAccessTimeUncachedEntryCriteriaResponse, state *defaultUncachedEntryCriteriaResourceModel, expectedValues *defaultUncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("last-access-time")
-	state.Id = types.StringValue(r.Id)
-	state.AccessTimeThreshold = types.StringValue(r.AccessTimeThreshold)
-	config.CheckMismatchedPDFormattedAttributes("access_time_threshold",
-		expectedValues.AccessTimeThreshold, state.AccessTimeThreshold, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaNilSetsDefault(ctx, state)
-}
-
 // Read a FilterBasedUncachedEntryCriteriaResponse object into the model struct
 func readFilterBasedUncachedEntryCriteriaResponse(ctx context.Context, r *client.FilterBasedUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("filter-based")
@@ -374,18 +325,6 @@ func readFilterBasedUncachedEntryCriteriaResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateUncachedEntryCriteriaNilSets(ctx, state)
-}
-
-// Read a FilterBasedUncachedEntryCriteriaResponse object into the model struct
-func readFilterBasedUncachedEntryCriteriaResponseDefault(ctx context.Context, r *client.FilterBasedUncachedEntryCriteriaResponse, state *defaultUncachedEntryCriteriaResourceModel, expectedValues *defaultUncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("filter-based")
-	state.Id = types.StringValue(r.Id)
-	state.Filter = types.StringValue(r.Filter)
-	state.FilterIdentifiesUncachedEntries = types.BoolValue(r.FilterIdentifiesUncachedEntries)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaNilSetsDefault(ctx, state)
 }
 
 // Read a GroovyScriptedUncachedEntryCriteriaResponse object into the model struct
@@ -400,18 +339,6 @@ func readGroovyScriptedUncachedEntryCriteriaResponse(ctx context.Context, r *cli
 	populateUncachedEntryCriteriaNilSets(ctx, state)
 }
 
-// Read a GroovyScriptedUncachedEntryCriteriaResponse object into the model struct
-func readGroovyScriptedUncachedEntryCriteriaResponseDefault(ctx context.Context, r *client.GroovyScriptedUncachedEntryCriteriaResponse, state *defaultUncachedEntryCriteriaResourceModel, expectedValues *defaultUncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("groovy-scripted")
-	state.Id = types.StringValue(r.Id)
-	state.ScriptClass = types.StringValue(r.ScriptClass)
-	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaNilSetsDefault(ctx, state)
-}
-
 // Read a ThirdPartyUncachedEntryCriteriaResponse object into the model struct
 func readThirdPartyUncachedEntryCriteriaResponse(ctx context.Context, r *client.ThirdPartyUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -424,35 +351,8 @@ func readThirdPartyUncachedEntryCriteriaResponse(ctx context.Context, r *client.
 	populateUncachedEntryCriteriaNilSets(ctx, state)
 }
 
-// Read a ThirdPartyUncachedEntryCriteriaResponse object into the model struct
-func readThirdPartyUncachedEntryCriteriaResponseDefault(ctx context.Context, r *client.ThirdPartyUncachedEntryCriteriaResponse, state *defaultUncachedEntryCriteriaResourceModel, expectedValues *defaultUncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("third-party")
-	state.Id = types.StringValue(r.Id)
-	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateUncachedEntryCriteriaNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createUncachedEntryCriteriaOperations(plan uncachedEntryCriteriaResourceModel, state uncachedEntryCriteriaResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.ScriptClass, state.ScriptClass, "script-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScriptArgument, state.ScriptArgument, "script-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.Filter, state.Filter, "filter")
-	operations.AddBoolOperationIfNecessary(&ops, plan.FilterIdentifiesUncachedEntries, state.FilterIdentifiesUncachedEntries, "filter-identifies-uncached-entries")
-	operations.AddStringOperationIfNecessary(&ops, plan.AccessTimeThreshold, state.AccessTimeThreshold, "access-time-threshold")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createUncachedEntryCriteriaOperationsDefault(plan defaultUncachedEntryCriteriaResourceModel, state defaultUncachedEntryCriteriaResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -700,7 +600,7 @@ func (r *uncachedEntryCriteriaResource) Create(ctx context.Context, req resource
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultUncachedEntryCriteriaResourceModel
+	var plan uncachedEntryCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -721,167 +621,25 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 	}
 
 	// Read the existing configuration
-	var state defaultUncachedEntryCriteriaResourceModel
+	var state uncachedEntryCriteriaResourceModel
 	if plan.Type.ValueString() == "default" {
-		readDefaultUncachedEntryCriteriaResponseDefault(ctx, readResponse.DefaultUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readDefaultUncachedEntryCriteriaResponse(ctx, readResponse.DefaultUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "last-access-time" {
-		readLastAccessTimeUncachedEntryCriteriaResponseDefault(ctx, readResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readLastAccessTimeUncachedEntryCriteriaResponse(ctx, readResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "filter-based" {
-		readFilterBasedUncachedEntryCriteriaResponseDefault(ctx, readResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readFilterBasedUncachedEntryCriteriaResponse(ctx, readResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedUncachedEntryCriteriaResponseDefault(ctx, readResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedUncachedEntryCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyUncachedEntryCriteriaResponseDefault(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyUncachedEntryCriteriaResponse(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createUncachedEntryCriteriaOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteriaExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Uncached Entry Criteria", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "default" {
-			readDefaultUncachedEntryCriteriaResponseDefault(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "last-access-time" {
-			readLastAccessTimeUncachedEntryCriteriaResponseDefault(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "filter-based" {
-			readFilterBasedUncachedEntryCriteriaResponseDefault(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "groovy-scripted" {
-			readGroovyScriptedUncachedEntryCriteriaResponseDefault(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyUncachedEntryCriteriaResponseDefault(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *uncachedEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state uncachedEntryCriteriaResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.DefaultUncachedEntryCriteriaResponse != nil {
-		readDefaultUncachedEntryCriteriaResponse(ctx, readResponse.DefaultUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
-		readLastAccessTimeUncachedEntryCriteriaResponse(ctx, readResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
-		readFilterBasedUncachedEntryCriteriaResponse(ctx, readResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
-		readGroovyScriptedUncachedEntryCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
-		readThirdPartyUncachedEntryCriteriaResponse(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultUncachedEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultUncachedEntryCriteriaResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *uncachedEntryCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan uncachedEntryCriteriaResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state uncachedEntryCriteriaResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createUncachedEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -918,8 +676,6 @@ func (r *uncachedEntryCriteriaResource) Update(ctx context.Context, req resource
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -929,9 +685,74 @@ func (r *uncachedEntryCriteriaResource) Update(ctx context.Context, req resource
 	}
 }
 
+// Read resource information
+func (r *uncachedEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultUncachedEntryCriteriaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readUncachedEntryCriteria(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state uncachedEntryCriteriaResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.DefaultUncachedEntryCriteriaResponse != nil {
+		readDefaultUncachedEntryCriteriaResponse(ctx, readResponse.DefaultUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
+		readLastAccessTimeUncachedEntryCriteriaResponse(ctx, readResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
+		readFilterBasedUncachedEntryCriteriaResponse(ctx, readResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
+		readGroovyScriptedUncachedEntryCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
+		readThirdPartyUncachedEntryCriteriaResponse(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *uncachedEntryCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultUncachedEntryCriteriaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateUncachedEntryCriteria(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultUncachedEntryCriteriaResourceModel
+	var plan uncachedEntryCriteriaResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -939,19 +760,19 @@ func (r *defaultUncachedEntryCriteriaResource) Update(ctx context.Context, req r
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultUncachedEntryCriteriaResourceModel
+	var state uncachedEntryCriteriaResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createUncachedEntryCriteriaOperationsDefault(plan, state)
+	ops := createUncachedEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteriaExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteriaExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Uncached Entry Criteria", err, httpResp)
 			return
@@ -965,19 +786,19 @@ func (r *defaultUncachedEntryCriteriaResource) Update(ctx context.Context, req r
 
 		// Read the response
 		if plan.Type.ValueString() == "default" {
-			readDefaultUncachedEntryCriteriaResponseDefault(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readDefaultUncachedEntryCriteriaResponse(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "last-access-time" {
-			readLastAccessTimeUncachedEntryCriteriaResponseDefault(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readLastAccessTimeUncachedEntryCriteriaResponse(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "filter-based" {
-			readFilterBasedUncachedEntryCriteriaResponseDefault(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readFilterBasedUncachedEntryCriteriaResponse(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "groovy-scripted" {
-			readGroovyScriptedUncachedEntryCriteriaResponseDefault(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readGroovyScriptedUncachedEntryCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyUncachedEntryCriteriaResponseDefault(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartyUncachedEntryCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

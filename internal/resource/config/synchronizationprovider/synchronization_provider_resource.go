@@ -57,14 +57,6 @@ func (r *synchronizationProviderResource) Configure(_ context.Context, req resou
 }
 
 type synchronizationProviderResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Type            types.String `tfsdk:"type"`
-}
-
-type defaultSynchronizationProviderResourceModel struct {
 	Id                     types.String `tfsdk:"id"`
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
@@ -87,7 +79,31 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{}...),
+					stringvalidator.OneOf([]string{"replication", "custom"}...),
+				},
+			},
+			"num_update_replay_threads": schema.Int64Attribute{
+				Description: "Specifies the number of update replay threads.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
+			"description": schema.StringAttribute{
+				Description: "A description for this Synchronization Provider",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"enabled": schema.BoolAttribute{
+				Description: "Indicates whether the Synchronization Provider is enabled for use.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},
@@ -98,7 +114,7 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 
 // Validate that any restrictions are met in the plan
 func (r *synchronizationProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model defaultSynchronizationProviderResourceModel
+	var model synchronizationProviderResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.NumUpdateReplayThreads) && model.Type.ValueString() != "replication" {
 		resp.Diagnostics.AddError("Attribute 'num_update_replay_threads' not supported by pingdirectory_synchronization_provider resources with 'type' '"+model.Type.ValueString()+"'",
@@ -107,7 +123,7 @@ func (r *synchronizationProviderResource) ModifyPlan(ctx context.Context, req re
 }
 
 // Read a ReplicationSynchronizationProviderResponse object into the model struct
-func readReplicationSynchronizationProviderResponseDefault(ctx context.Context, r *client.ReplicationSynchronizationProviderResponse, state *defaultSynchronizationProviderResourceModel, diagnostics *diag.Diagnostics) {
+func readReplicationSynchronizationProviderResponse(ctx context.Context, r *client.ReplicationSynchronizationProviderResponse, state *synchronizationProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replication")
 	state.Id = types.StringValue(r.Id)
 	state.NumUpdateReplayThreads = internaltypes.Int64TypeOrNil(r.NumUpdateReplayThreads)
@@ -117,7 +133,7 @@ func readReplicationSynchronizationProviderResponseDefault(ctx context.Context, 
 }
 
 // Read a CustomSynchronizationProviderResponse object into the model struct
-func readCustomSynchronizationProviderResponseDefault(ctx context.Context, r *client.CustomSynchronizationProviderResponse, state *defaultSynchronizationProviderResourceModel, diagnostics *diag.Diagnostics) {
+func readCustomSynchronizationProviderResponse(ctx context.Context, r *client.CustomSynchronizationProviderResponse, state *synchronizationProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
@@ -127,12 +143,6 @@ func readCustomSynchronizationProviderResponseDefault(ctx context.Context, r *cl
 
 // Create any update operations necessary to make the state match the plan
 func createSynchronizationProviderOperations(plan synchronizationProviderResourceModel, state synchronizationProviderResourceModel) []client.Operation {
-	var ops []client.Operation
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createSynchronizationProviderOperationsDefault(plan defaultSynchronizationProviderResourceModel, state defaultSynchronizationProviderResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddInt64OperationIfNecessary(&ops, plan.NumUpdateReplayThreads, state.NumUpdateReplayThreads, "num-update-replay-threads")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
@@ -146,7 +156,7 @@ func createSynchronizationProviderOperationsDefault(plan defaultSynchronizationP
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *synchronizationProviderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultSynchronizationProviderResourceModel
+	var plan synchronizationProviderResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -167,17 +177,17 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 	}
 
 	// Read the existing configuration
-	var state defaultSynchronizationProviderResourceModel
+	var state synchronizationProviderResourceModel
 	if plan.Type.ValueString() == "replication" {
-		readReplicationSynchronizationProviderResponseDefault(ctx, readResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
+		readReplicationSynchronizationProviderResponse(ctx, readResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomSynchronizationProviderResponseDefault(ctx, readResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
+		readCustomSynchronizationProviderResponse(ctx, readResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createSynchronizationProviderOperationsDefault(plan, state)
+	ops := createSynchronizationProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -197,10 +207,10 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 
 		// Read the response
 		if plan.Type.ValueString() == "replication" {
-			readReplicationSynchronizationProviderResponseDefault(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
+			readReplicationSynchronizationProviderResponse(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "custom" {
-			readCustomSynchronizationProviderResponseDefault(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
+			readCustomSynchronizationProviderResponse(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
@@ -237,6 +247,12 @@ func (r *synchronizationProviderResource) Read(ctx context.Context, req resource
 	}
 
 	// Read the response into the state
+	if readResponse.ReplicationSynchronizationProviderResponse != nil {
+		readReplicationSynchronizationProviderResponse(ctx, readResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.CustomSynchronizationProviderResponse != nil {
+		readCustomSynchronizationProviderResponse(ctx, readResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -282,6 +298,12 @@ func (r *synchronizationProviderResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "replication" {
+			readReplicationSynchronizationProviderResponse(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "custom" {
+			readCustomSynchronizationProviderResponse(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
+		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

@@ -113,36 +113,6 @@ type restResourceTypeResourceModel struct {
 	NonmembersColumnName           types.String `tfsdk:"nonmembers_column_name"`
 }
 
-type defaultRestResourceTypeResourceModel struct {
-	Id                             types.String `tfsdk:"id"`
-	LastUpdated                    types.String `tfsdk:"last_updated"`
-	Notifications                  types.Set    `tfsdk:"notifications"`
-	RequiredActions                types.Set    `tfsdk:"required_actions"`
-	Type                           types.String `tfsdk:"type"`
-	PasswordAttributeCategory      types.String `tfsdk:"password_attribute_category"`
-	PasswordDisplayOrderIndex      types.Int64  `tfsdk:"password_display_order_index"`
-	Description                    types.String `tfsdk:"description"`
-	Enabled                        types.Bool   `tfsdk:"enabled"`
-	ResourceEndpoint               types.String `tfsdk:"resource_endpoint"`
-	StructuralLDAPObjectclass      types.String `tfsdk:"structural_ldap_objectclass"`
-	AuxiliaryLDAPObjectclass       types.Set    `tfsdk:"auxiliary_ldap_objectclass"`
-	SearchBaseDN                   types.String `tfsdk:"search_base_dn"`
-	IncludeFilter                  types.Set    `tfsdk:"include_filter"`
-	ParentDN                       types.String `tfsdk:"parent_dn"`
-	ParentResourceType             types.String `tfsdk:"parent_resource_type"`
-	RelativeDNFromParentResource   types.String `tfsdk:"relative_dn_from_parent_resource"`
-	CreateRDNAttributeType         types.String `tfsdk:"create_rdn_attribute_type"`
-	PostCreateConstructedAttribute types.Set    `tfsdk:"post_create_constructed_attribute"`
-	UpdateConstructedAttribute     types.Set    `tfsdk:"update_constructed_attribute"`
-	DisplayName                    types.String `tfsdk:"display_name"`
-	SearchFilterPattern            types.String `tfsdk:"search_filter_pattern"`
-	PrimaryDisplayAttributeType    types.String `tfsdk:"primary_display_attribute_type"`
-	DelegatedAdminSearchSizeLimit  types.Int64  `tfsdk:"delegated_admin_search_size_limit"`
-	DelegatedAdminReportSizeLimit  types.Int64  `tfsdk:"delegated_admin_report_size_limit"`
-	MembersColumnName              types.String `tfsdk:"members_column_name"`
-	NonmembersColumnName           types.String `tfsdk:"nonmembers_column_name"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *restResourceTypeResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	restResourceTypeSchema(ctx, req, resp, false)
@@ -330,7 +300,7 @@ func (r *defaultRestResourceTypeResource) ModifyPlan(ctx context.Context, req re
 }
 
 func modifyPlanRestResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultRestResourceTypeResourceModel
+	var model restResourceTypeResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.PasswordAttributeCategory) && model.Type.ValueString() != "user" {
 		resp.Diagnostics.AddError("Attribute 'password_attribute_category' not supported by pingdirectory_rest_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
@@ -588,64 +558,8 @@ func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestRes
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a UserRestResourceTypeResponse object into the model struct
-func readUserRestResourceTypeResponseDefault(ctx context.Context, r *client.UserRestResourceTypeResponse, state *defaultRestResourceTypeResourceModel, expectedValues *defaultRestResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("user")
-	state.Id = types.StringValue(r.Id)
-	state.PasswordAttributeCategory = internaltypes.StringTypeOrNil(r.PasswordAttributeCategory, internaltypes.IsEmptyString(expectedValues.PasswordAttributeCategory))
-	state.PasswordDisplayOrderIndex = internaltypes.Int64TypeOrNil(r.PasswordDisplayOrderIndex)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.ResourceEndpoint = types.StringValue(r.ResourceEndpoint)
-	state.StructuralLDAPObjectclass = types.StringValue(r.StructuralLDAPObjectclass)
-	state.AuxiliaryLDAPObjectclass = internaltypes.GetStringSet(r.AuxiliaryLDAPObjectclass)
-	state.SearchBaseDN = types.StringValue(r.SearchBaseDN)
-	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
-	state.ParentDN = internaltypes.StringTypeOrNil(r.ParentDN, internaltypes.IsEmptyString(expectedValues.ParentDN))
-	state.ParentResourceType = internaltypes.StringTypeOrNil(r.ParentResourceType, internaltypes.IsEmptyString(expectedValues.ParentResourceType))
-	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, internaltypes.IsEmptyString(expectedValues.RelativeDNFromParentResource))
-	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, internaltypes.IsEmptyString(expectedValues.CreateRDNAttributeType))
-	state.PostCreateConstructedAttribute = internaltypes.GetStringSet(r.PostCreateConstructedAttribute)
-	state.UpdateConstructedAttribute = internaltypes.GetStringSet(r.UpdateConstructedAttribute)
-	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
-	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
-	state.PrimaryDisplayAttributeType = internaltypes.StringTypeOrNil(r.PrimaryDisplayAttributeType, internaltypes.IsEmptyString(expectedValues.PrimaryDisplayAttributeType))
-	state.DelegatedAdminSearchSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminSearchSizeLimit)
-	state.DelegatedAdminReportSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminReportSizeLimit)
-	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
-	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Read a GenericRestResourceTypeResponse object into the model struct
 func readGenericRestResourceTypeResponse(ctx context.Context, r *client.GenericRestResourceTypeResponse, state *restResourceTypeResourceModel, expectedValues *restResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("generic")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.ResourceEndpoint = types.StringValue(r.ResourceEndpoint)
-	state.StructuralLDAPObjectclass = types.StringValue(r.StructuralLDAPObjectclass)
-	state.AuxiliaryLDAPObjectclass = internaltypes.GetStringSet(r.AuxiliaryLDAPObjectclass)
-	state.SearchBaseDN = types.StringValue(r.SearchBaseDN)
-	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
-	state.ParentDN = internaltypes.StringTypeOrNil(r.ParentDN, internaltypes.IsEmptyString(expectedValues.ParentDN))
-	state.ParentResourceType = internaltypes.StringTypeOrNil(r.ParentResourceType, internaltypes.IsEmptyString(expectedValues.ParentResourceType))
-	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, internaltypes.IsEmptyString(expectedValues.RelativeDNFromParentResource))
-	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, internaltypes.IsEmptyString(expectedValues.CreateRDNAttributeType))
-	state.PostCreateConstructedAttribute = internaltypes.GetStringSet(r.PostCreateConstructedAttribute)
-	state.UpdateConstructedAttribute = internaltypes.GetStringSet(r.UpdateConstructedAttribute)
-	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
-	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
-	state.PrimaryDisplayAttributeType = internaltypes.StringTypeOrNil(r.PrimaryDisplayAttributeType, internaltypes.IsEmptyString(expectedValues.PrimaryDisplayAttributeType))
-	state.DelegatedAdminSearchSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminSearchSizeLimit)
-	state.DelegatedAdminReportSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminReportSizeLimit)
-	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
-	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
-// Read a GenericRestResourceTypeResponse object into the model struct
-func readGenericRestResourceTypeResponseDefault(ctx context.Context, r *client.GenericRestResourceTypeResponse, state *defaultRestResourceTypeResourceModel, expectedValues *defaultRestResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -698,63 +612,8 @@ func readGroupRestResourceTypeResponse(ctx context.Context, r *client.GroupRestR
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a GroupRestResourceTypeResponse object into the model struct
-func readGroupRestResourceTypeResponseDefault(ctx context.Context, r *client.GroupRestResourceTypeResponse, state *defaultRestResourceTypeResourceModel, expectedValues *defaultRestResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("group")
-	state.Id = types.StringValue(r.Id)
-	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
-	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.ResourceEndpoint = types.StringValue(r.ResourceEndpoint)
-	state.StructuralLDAPObjectclass = types.StringValue(r.StructuralLDAPObjectclass)
-	state.AuxiliaryLDAPObjectclass = internaltypes.GetStringSet(r.AuxiliaryLDAPObjectclass)
-	state.SearchBaseDN = types.StringValue(r.SearchBaseDN)
-	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
-	state.ParentDN = internaltypes.StringTypeOrNil(r.ParentDN, internaltypes.IsEmptyString(expectedValues.ParentDN))
-	state.ParentResourceType = internaltypes.StringTypeOrNil(r.ParentResourceType, internaltypes.IsEmptyString(expectedValues.ParentResourceType))
-	state.RelativeDNFromParentResource = internaltypes.StringTypeOrNil(r.RelativeDNFromParentResource, internaltypes.IsEmptyString(expectedValues.RelativeDNFromParentResource))
-	state.CreateRDNAttributeType = internaltypes.StringTypeOrNil(r.CreateRDNAttributeType, internaltypes.IsEmptyString(expectedValues.CreateRDNAttributeType))
-	state.PostCreateConstructedAttribute = internaltypes.GetStringSet(r.PostCreateConstructedAttribute)
-	state.UpdateConstructedAttribute = internaltypes.GetStringSet(r.UpdateConstructedAttribute)
-	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, internaltypes.IsEmptyString(expectedValues.DisplayName))
-	state.SearchFilterPattern = internaltypes.StringTypeOrNil(r.SearchFilterPattern, internaltypes.IsEmptyString(expectedValues.SearchFilterPattern))
-	state.PrimaryDisplayAttributeType = internaltypes.StringTypeOrNil(r.PrimaryDisplayAttributeType, internaltypes.IsEmptyString(expectedValues.PrimaryDisplayAttributeType))
-	state.DelegatedAdminSearchSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminSearchSizeLimit)
-	state.DelegatedAdminReportSizeLimit = internaltypes.Int64TypeOrNil(r.DelegatedAdminReportSizeLimit)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createRestResourceTypeOperations(plan restResourceTypeResourceModel, state restResourceTypeResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.PasswordAttributeCategory, state.PasswordAttributeCategory, "password-attribute-category")
-	operations.AddInt64OperationIfNecessary(&ops, plan.PasswordDisplayOrderIndex, state.PasswordDisplayOrderIndex, "password-display-order-index")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
-	operations.AddStringOperationIfNecessary(&ops, plan.ResourceEndpoint, state.ResourceEndpoint, "resource-endpoint")
-	operations.AddStringOperationIfNecessary(&ops, plan.StructuralLDAPObjectclass, state.StructuralLDAPObjectclass, "structural-ldap-objectclass")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AuxiliaryLDAPObjectclass, state.AuxiliaryLDAPObjectclass, "auxiliary-ldap-objectclass")
-	operations.AddStringOperationIfNecessary(&ops, plan.SearchBaseDN, state.SearchBaseDN, "search-base-dn")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludeFilter, state.IncludeFilter, "include-filter")
-	operations.AddStringOperationIfNecessary(&ops, plan.ParentDN, state.ParentDN, "parent-dn")
-	operations.AddStringOperationIfNecessary(&ops, plan.ParentResourceType, state.ParentResourceType, "parent-resource-type")
-	operations.AddStringOperationIfNecessary(&ops, plan.RelativeDNFromParentResource, state.RelativeDNFromParentResource, "relative-dn-from-parent-resource")
-	operations.AddStringOperationIfNecessary(&ops, plan.CreateRDNAttributeType, state.CreateRDNAttributeType, "create-rdn-attribute-type")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.PostCreateConstructedAttribute, state.PostCreateConstructedAttribute, "post-create-constructed-attribute")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.UpdateConstructedAttribute, state.UpdateConstructedAttribute, "update-constructed-attribute")
-	operations.AddStringOperationIfNecessary(&ops, plan.DisplayName, state.DisplayName, "display-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.SearchFilterPattern, state.SearchFilterPattern, "search-filter-pattern")
-	operations.AddStringOperationIfNecessary(&ops, plan.PrimaryDisplayAttributeType, state.PrimaryDisplayAttributeType, "primary-display-attribute-type")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DelegatedAdminSearchSizeLimit, state.DelegatedAdminSearchSizeLimit, "delegated-admin-search-size-limit")
-	operations.AddInt64OperationIfNecessary(&ops, plan.DelegatedAdminReportSizeLimit, state.DelegatedAdminReportSizeLimit, "delegated-admin-report-size-limit")
-	operations.AddStringOperationIfNecessary(&ops, plan.MembersColumnName, state.MembersColumnName, "members-column-name")
-	operations.AddStringOperationIfNecessary(&ops, plan.NonmembersColumnName, state.NonmembersColumnName, "nonmembers-column-name")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createRestResourceTypeOperationsDefault(plan defaultRestResourceTypeResourceModel, state defaultRestResourceTypeResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordAttributeCategory, state.PasswordAttributeCategory, "password-attribute-category")
 	operations.AddInt64OperationIfNecessary(&ops, plan.PasswordDisplayOrderIndex, state.PasswordDisplayOrderIndex, "password-display-order-index")
@@ -940,7 +799,7 @@ func (r *restResourceTypeResource) Create(ctx context.Context, req resource.Crea
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultRestResourceTypeResourceModel
+	var plan restResourceTypeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -961,149 +820,19 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 	}
 
 	// Read the existing configuration
-	var state defaultRestResourceTypeResourceModel
+	var state restResourceTypeResourceModel
 	if plan.Type.ValueString() == "user" {
-		readUserRestResourceTypeResponseDefault(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericRestResourceTypeResponseDefault(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "group" {
-		readGroupRestResourceTypeResponseDefault(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createRestResourceTypeOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Rest Resource Type", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "user" {
-			readUserRestResourceTypeResponseDefault(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "generic" {
-			readGenericRestResourceTypeResponseDefault(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "group" {
-			readGroupRestResourceTypeResponseDefault(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *restResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state restResourceTypeResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.UserRestResourceTypeResponse != nil {
-		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.GenericRestResourceTypeResponse != nil {
-		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.GroupRestResourceTypeResponse != nil {
-		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultRestResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultRestResourceTypeResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *restResourceTypeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan restResourceTypeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state restResourceTypeResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createRestResourceTypeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1134,8 +863,6 @@ func (r *restResourceTypeResource) Update(ctx context.Context, req resource.Upda
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -1145,9 +872,68 @@ func (r *restResourceTypeResource) Update(ctx context.Context, req resource.Upda
 	}
 }
 
+// Read resource information
+func (r *restResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRestResourceTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state restResourceTypeResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.RestResourceTypeApi.GetRestResourceType(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.UserRestResourceTypeResponse != nil {
+		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.GenericRestResourceTypeResponse != nil {
+		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.GroupRestResourceTypeResponse != nil {
+		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *restResourceTypeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultRestResourceTypeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRestResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultRestResourceTypeResourceModel
+	var plan restResourceTypeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1155,19 +941,19 @@ func (r *defaultRestResourceTypeResource) Update(ctx context.Context, req resour
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultRestResourceTypeResourceModel
+	var state restResourceTypeResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RestResourceTypeApi.UpdateRestResourceType(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createRestResourceTypeOperationsDefault(plan, state)
+	ops := createRestResourceTypeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RestResourceTypeApi.UpdateRestResourceTypeExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Rest Resource Type", err, httpResp)
 			return
@@ -1181,13 +967,13 @@ func (r *defaultRestResourceTypeResource) Update(ctx context.Context, req resour
 
 		// Read the response
 		if plan.Type.ValueString() == "user" {
-			readUserRestResourceTypeResponseDefault(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+			readUserRestResourceTypeResponse(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "generic" {
-			readGenericRestResourceTypeResponseDefault(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+			readGenericRestResourceTypeResponse(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "group" {
-			readGroupRestResourceTypeResponseDefault(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

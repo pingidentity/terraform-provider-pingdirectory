@@ -53,14 +53,6 @@ func (r *httpConfigurationResource) Configure(_ context.Context, req resource.Co
 
 type httpConfigurationResourceModel struct {
 	// Id field required for acceptance testing framework
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-}
-
-type defaultHttpConfigurationResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                             types.String `tfsdk:"id"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
@@ -72,14 +64,23 @@ type defaultHttpConfigurationResourceModel struct {
 func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	schemaDef := schema.Schema{
 		Description: "Manages a Http Configuration.",
-		Attributes:  map[string]schema.Attribute{},
+		Attributes: map[string]schema.Attribute{
+			"include_stack_traces_in_error_pages": schema.BoolAttribute{
+				Description: "Indicates whether exceptions thrown by servlet or web application extensions will be included in the resulting error page response. Stack traces can be helpful in diagnosing application errors, but in production they may reveal information that might be useful to a malicious attacker.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+		},
 	}
 	AddCommonSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 
 // Read a HttpConfigurationResponse object into the model struct
-func readHttpConfigurationResponseDefault(ctx context.Context, r *client.HttpConfigurationResponse, state *defaultHttpConfigurationResourceModel, diagnostics *diag.Diagnostics) {
+func readHttpConfigurationResponse(ctx context.Context, r *client.HttpConfigurationResponse, state *httpConfigurationResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.IncludeStackTracesInErrorPages = internaltypes.BoolTypeOrNil(r.IncludeStackTracesInErrorPages)
@@ -88,12 +89,6 @@ func readHttpConfigurationResponseDefault(ctx context.Context, r *client.HttpCon
 
 // Create any update operations necessary to make the state match the plan
 func createHttpConfigurationOperations(plan httpConfigurationResourceModel, state httpConfigurationResourceModel) []client.Operation {
-	var ops []client.Operation
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createHttpConfigurationOperationsDefault(plan defaultHttpConfigurationResourceModel, state defaultHttpConfigurationResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeStackTracesInErrorPages, state.IncludeStackTracesInErrorPages, "include-stack-traces-in-error-pages")
 	return ops
@@ -105,7 +100,7 @@ func createHttpConfigurationOperationsDefault(plan defaultHttpConfigurationResou
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *httpConfigurationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultHttpConfigurationResourceModel
+	var plan httpConfigurationResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -126,12 +121,12 @@ func (r *httpConfigurationResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	// Read the existing configuration
-	var state defaultHttpConfigurationResourceModel
-	readHttpConfigurationResponseDefault(ctx, readResponse, &state, &resp.Diagnostics)
+	var state httpConfigurationResourceModel
+	readHttpConfigurationResponse(ctx, readResponse, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.HttpConfigurationApi.UpdateHttpConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))
-	ops := createHttpConfigurationOperationsDefault(plan, state)
+	ops := createHttpConfigurationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
@@ -150,7 +145,7 @@ func (r *httpConfigurationResource) Create(ctx context.Context, req resource.Cre
 		}
 
 		// Read the response
-		readHttpConfigurationResponseDefault(ctx, updateResponse, &state, &resp.Diagnostics)
+		readHttpConfigurationResponse(ctx, updateResponse, &state, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}

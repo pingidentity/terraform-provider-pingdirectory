@@ -94,20 +94,6 @@ type httpServletCrossOriginPolicyResourceModel struct {
 	CorsAllowCredentials types.Bool   `tfsdk:"cors_allow_credentials"`
 }
 
-type defaultHttpServletCrossOriginPolicyResourceModel struct {
-	Id                   types.String `tfsdk:"id"`
-	LastUpdated          types.String `tfsdk:"last_updated"`
-	Notifications        types.Set    `tfsdk:"notifications"`
-	RequiredActions      types.Set    `tfsdk:"required_actions"`
-	Description          types.String `tfsdk:"description"`
-	CorsAllowedMethods   types.Set    `tfsdk:"cors_allowed_methods"`
-	CorsAllowedOrigins   types.Set    `tfsdk:"cors_allowed_origins"`
-	CorsExposedHeaders   types.Set    `tfsdk:"cors_exposed_headers"`
-	CorsAllowedHeaders   types.Set    `tfsdk:"cors_allowed_headers"`
-	CorsPreflightMaxAge  types.String `tfsdk:"cors_preflight_max_age"`
-	CorsAllowCredentials types.Bool   `tfsdk:"cors_allow_credentials"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *httpServletCrossOriginPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	httpServletCrossOriginPolicySchema(ctx, req, resp, false)
@@ -180,10 +166,6 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 		},
 	}
 	if isDefault {
-		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"http-servlet-cross-origin-policy"}...),
-		}
 		// Add any default properties and set optional properties to computed where necessary
 		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
@@ -241,36 +223,8 @@ func readHttpServletCrossOriginPolicyResponse(ctx context.Context, r *client.Htt
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a HttpServletCrossOriginPolicyResponse object into the model struct
-func readHttpServletCrossOriginPolicyResponseDefault(ctx context.Context, r *client.HttpServletCrossOriginPolicyResponse, state *defaultHttpServletCrossOriginPolicyResourceModel, expectedValues *defaultHttpServletCrossOriginPolicyResourceModel, diagnostics *diag.Diagnostics) {
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CorsAllowedMethods = internaltypes.GetStringSet(r.CorsAllowedMethods)
-	state.CorsAllowedOrigins = internaltypes.GetStringSet(r.CorsAllowedOrigins)
-	state.CorsExposedHeaders = internaltypes.GetStringSet(r.CorsExposedHeaders)
-	state.CorsAllowedHeaders = internaltypes.GetStringSet(r.CorsAllowedHeaders)
-	state.CorsPreflightMaxAge = internaltypes.StringTypeOrNil(r.CorsPreflightMaxAge, internaltypes.IsEmptyString(expectedValues.CorsPreflightMaxAge))
-	CheckMismatchedPDFormattedAttributes("cors_preflight_max_age",
-		expectedValues.CorsPreflightMaxAge, state.CorsPreflightMaxAge, diagnostics)
-	state.CorsAllowCredentials = internaltypes.BoolTypeOrNil(r.CorsAllowCredentials)
-	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createHttpServletCrossOriginPolicyOperations(plan httpServletCrossOriginPolicyResourceModel, state httpServletCrossOriginPolicyResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorsAllowedMethods, state.CorsAllowedMethods, "cors-allowed-methods")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorsAllowedOrigins, state.CorsAllowedOrigins, "cors-allowed-origins")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorsExposedHeaders, state.CorsExposedHeaders, "cors-exposed-headers")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorsAllowedHeaders, state.CorsAllowedHeaders, "cors-allowed-headers")
-	operations.AddStringOperationIfNecessary(&ops, plan.CorsPreflightMaxAge, state.CorsPreflightMaxAge, "cors-preflight-max-age")
-	operations.AddBoolOperationIfNecessary(&ops, plan.CorsAllowCredentials, state.CorsAllowCredentials, "cors-allow-credentials")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createHttpServletCrossOriginPolicyOperationsDefault(plan defaultHttpServletCrossOriginPolicyResourceModel, state defaultHttpServletCrossOriginPolicyResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.CorsAllowedMethods, state.CorsAllowedMethods, "cors-allowed-methods")
@@ -345,7 +299,7 @@ func (r *httpServletCrossOriginPolicyResource) Create(ctx context.Context, req r
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultHttpServletCrossOriginPolicyResourceModel
+	var plan httpServletCrossOriginPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -366,126 +320,11 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context
 	}
 
 	// Read the existing configuration
-	var state defaultHttpServletCrossOriginPolicyResourceModel
-	readHttpServletCrossOriginPolicyResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	var state httpServletCrossOriginPolicyResourceModel
+	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createHttpServletCrossOriginPolicyOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
-		if err != nil {
-			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Cross Origin Policy", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		readHttpServletCrossOriginPolicyResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *httpServletCrossOriginPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state httpServletCrossOriginPolicyResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultHttpServletCrossOriginPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultHttpServletCrossOriginPolicyResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
-		ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	readHttpServletCrossOriginPolicyResponseDefault(ctx, readResponse, &state, &state, &resp.Diagnostics)
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan httpServletCrossOriginPolicyResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state httpServletCrossOriginPolicyResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createHttpServletCrossOriginPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -508,8 +347,6 @@ func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req r
 		readHttpServletCrossOriginPolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -519,9 +356,60 @@ func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req r
 	}
 }
 
+// Read resource information
+func (r *httpServletCrossOriginPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultHttpServletCrossOriginPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readHttpServletCrossOriginPolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state httpServletCrossOriginPolicyResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
+		ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *httpServletCrossOriginPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultHttpServletCrossOriginPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateHttpServletCrossOriginPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateHttpServletCrossOriginPolicy(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultHttpServletCrossOriginPolicyResourceModel
+	var plan httpServletCrossOriginPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -529,19 +417,19 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Update(ctx context.Context
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultHttpServletCrossOriginPolicyResourceModel
+	var state httpServletCrossOriginPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(
-		ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(
+		ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createHttpServletCrossOriginPolicyOperationsDefault(plan, state)
+	ops := createHttpServletCrossOriginPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicyExecute(updateRequest)
 		if err != nil {
 			ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Http Servlet Cross Origin Policy", err, httpResp)
 			return
@@ -554,7 +442,7 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Update(ctx context.Context
 		}
 
 		// Read the response
-		readHttpServletCrossOriginPolicyResponseDefault(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
+		readHttpServletCrossOriginPolicyResponse(ctx, updateResponse, &state, &plan, &resp.Diagnostics)
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	} else {

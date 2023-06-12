@@ -169,91 +169,6 @@ type recurringTaskResourceModel struct {
 	AlertOnFailure                          types.Bool   `tfsdk:"alert_on_failure"`
 }
 
-type defaultRecurringTaskResourceModel struct {
-	Id                                      types.String `tfsdk:"id"`
-	LastUpdated                             types.String `tfsdk:"last_updated"`
-	Notifications                           types.Set    `tfsdk:"notifications"`
-	RequiredActions                         types.Set    `tfsdk:"required_actions"`
-	Type                                    types.String `tfsdk:"type"`
-	ExtensionClass                          types.String `tfsdk:"extension_class"`
-	ExtensionArgument                       types.Set    `tfsdk:"extension_argument"`
-	TargetDirectory                         types.String `tfsdk:"target_directory"`
-	FilenamePattern                         types.String `tfsdk:"filename_pattern"`
-	TimestampFormat                         types.String `tfsdk:"timestamp_format"`
-	RetainFileCount                         types.Int64  `tfsdk:"retain_file_count"`
-	RetainFileAge                           types.String `tfsdk:"retain_file_age"`
-	RetainAggregateFileSize                 types.String `tfsdk:"retain_aggregate_file_size"`
-	CommandPath                             types.String `tfsdk:"command_path"`
-	CommandArguments                        types.String `tfsdk:"command_arguments"`
-	CommandOutputFileBaseName               types.String `tfsdk:"command_output_file_base_name"`
-	RetainPreviousOutputFileCount           types.Int64  `tfsdk:"retain_previous_output_file_count"`
-	RetainPreviousOutputFileAge             types.String `tfsdk:"retain_previous_output_file_age"`
-	LogCommandOutput                        types.Bool   `tfsdk:"log_command_output"`
-	TaskCompletionStateForNonzeroExitCode   types.String `tfsdk:"task_completion_state_for_nonzero_exit_code"`
-	WorkingDirectory                        types.String `tfsdk:"working_directory"`
-	BaseOutputDirectory                     types.String `tfsdk:"base_output_directory"`
-	DataSecurityAuditor                     types.Set    `tfsdk:"data_security_auditor"`
-	Backend                                 types.Set    `tfsdk:"backend"`
-	IncludeFilter                           types.Set    `tfsdk:"include_filter"`
-	RetainPreviousReportCount               types.Int64  `tfsdk:"retain_previous_report_count"`
-	RetainPreviousReportAge                 types.String `tfsdk:"retain_previous_report_age"`
-	LdifDirectory                           types.String `tfsdk:"ldif_directory"`
-	BackendID                               types.Set    `tfsdk:"backend_id"`
-	ExcludeBackendID                        types.Set    `tfsdk:"exclude_backend_id"`
-	OutputDirectory                         types.String `tfsdk:"output_directory"`
-	EncryptionPassphraseFile                types.String `tfsdk:"encryption_passphrase_file"`
-	IncludeExpensiveData                    types.Bool   `tfsdk:"include_expensive_data"`
-	IncludeReplicationStateDump             types.Bool   `tfsdk:"include_replication_state_dump"`
-	RetainPreviousLDIFExportCount           types.Int64  `tfsdk:"retain_previous_ldif_export_count"`
-	RetainPreviousLDIFExportAge             types.String `tfsdk:"retain_previous_ldif_export_age"`
-	IncludeBinaryFiles                      types.Bool   `tfsdk:"include_binary_files"`
-	IncludeExtensionSource                  types.Bool   `tfsdk:"include_extension_source"`
-	UseSequentialMode                       types.Bool   `tfsdk:"use_sequential_mode"`
-	SecurityLevel                           types.String `tfsdk:"security_level"`
-	JstackCount                             types.Int64  `tfsdk:"jstack_count"`
-	ReportCount                             types.Int64  `tfsdk:"report_count"`
-	ReportIntervalSeconds                   types.Int64  `tfsdk:"report_interval_seconds"`
-	LogDuration                             types.String `tfsdk:"log_duration"`
-	LogFileHeadCollectionSize               types.String `tfsdk:"log_file_head_collection_size"`
-	LogFileTailCollectionSize               types.String `tfsdk:"log_file_tail_collection_size"`
-	Comment                                 types.String `tfsdk:"comment"`
-	RetainPreviousSupportDataArchiveCount   types.Int64  `tfsdk:"retain_previous_support_data_archive_count"`
-	RetainPreviousSupportDataArchiveAge     types.String `tfsdk:"retain_previous_support_data_archive_age"`
-	TaskJavaClass                           types.String `tfsdk:"task_java_class"`
-	TaskObjectClass                         types.Set    `tfsdk:"task_object_class"`
-	TaskAttributeValue                      types.Set    `tfsdk:"task_attribute_value"`
-	SleepDuration                           types.String `tfsdk:"sleep_duration"`
-	DurationToWaitForWorkQueueIdle          types.String `tfsdk:"duration_to_wait_for_work_queue_idle"`
-	LdapURLForSearchExpectedToReturnEntries types.Set    `tfsdk:"ldap_url_for_search_expected_to_return_entries"`
-	SearchInterval                          types.String `tfsdk:"search_interval"`
-	SearchTimeLimit                         types.String `tfsdk:"search_time_limit"`
-	DurationToWaitForSearchToReturnEntries  types.String `tfsdk:"duration_to_wait_for_search_to_return_entries"`
-	TaskReturnStateIfTimeoutIsEncountered   types.String `tfsdk:"task_return_state_if_timeout_is_encountered"`
-	BackupDirectory                         types.String `tfsdk:"backup_directory"`
-	IncludedBackendID                       types.Set    `tfsdk:"included_backend_id"`
-	ExcludedBackendID                       types.Set    `tfsdk:"excluded_backend_id"`
-	Compress                                types.Bool   `tfsdk:"compress"`
-	Encrypt                                 types.Bool   `tfsdk:"encrypt"`
-	EncryptionSettingsDefinitionID          types.String `tfsdk:"encryption_settings_definition_id"`
-	Sign                                    types.Bool   `tfsdk:"sign"`
-	RetainPreviousFullBackupCount           types.Int64  `tfsdk:"retain_previous_full_backup_count"`
-	RetainPreviousFullBackupAge             types.String `tfsdk:"retain_previous_full_backup_age"`
-	MaxMegabytesPerSecond                   types.Int64  `tfsdk:"max_megabytes_per_second"`
-	Reason                                  types.String `tfsdk:"reason"`
-	ProfileDirectory                        types.String `tfsdk:"profile_directory"`
-	IncludePath                             types.Set    `tfsdk:"include_path"`
-	RetainPreviousProfileCount              types.Int64  `tfsdk:"retain_previous_profile_count"`
-	RetainPreviousProfileAge                types.String `tfsdk:"retain_previous_profile_age"`
-	Description                             types.String `tfsdk:"description"`
-	CancelOnTaskDependencyFailure           types.Bool   `tfsdk:"cancel_on_task_dependency_failure"`
-	EmailOnStart                            types.Set    `tfsdk:"email_on_start"`
-	EmailOnSuccess                          types.Set    `tfsdk:"email_on_success"`
-	EmailOnFailure                          types.Set    `tfsdk:"email_on_failure"`
-	AlertOnStart                            types.Bool   `tfsdk:"alert_on_start"`
-	AlertOnSuccess                          types.Bool   `tfsdk:"alert_on_success"`
-	AlertOnFailure                          types.Bool   `tfsdk:"alert_on_failure"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *recurringTaskResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	recurringTaskSchema(ctx, req, resp, false)
@@ -840,7 +755,7 @@ func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resou
 }
 
 func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultRecurringTaskResourceModel
+	var model recurringTaskResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Reason) && model.Type.ValueString() != "leave-lockdown-mode" && model.Type.ValueString() != "enter-lockdown-mode" {
 		resp.Diagnostics.AddError("Attribute 'reason' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
@@ -1855,46 +1770,6 @@ func populateRecurringTaskNilSets(ctx context.Context, model *recurringTaskResou
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateRecurringTaskNilSetsDefault(ctx context.Context, model *defaultRecurringTaskResourceModel) {
-	if model.IncludedBackendID.ElementType(ctx) == nil {
-		model.IncludedBackendID = types.SetNull(types.StringType)
-	}
-	if model.Backend.ElementType(ctx) == nil {
-		model.Backend = types.SetNull(types.StringType)
-	}
-	if model.IncludePath.ElementType(ctx) == nil {
-		model.IncludePath = types.SetNull(types.StringType)
-	}
-	if model.LdapURLForSearchExpectedToReturnEntries.ElementType(ctx) == nil {
-		model.LdapURLForSearchExpectedToReturnEntries = types.SetNull(types.StringType)
-	}
-	if model.TaskAttributeValue.ElementType(ctx) == nil {
-		model.TaskAttributeValue = types.SetNull(types.StringType)
-	}
-	if model.BackendID.ElementType(ctx) == nil {
-		model.BackendID = types.SetNull(types.StringType)
-	}
-	if model.DataSecurityAuditor.ElementType(ctx) == nil {
-		model.DataSecurityAuditor = types.SetNull(types.StringType)
-	}
-	if model.ExcludeBackendID.ElementType(ctx) == nil {
-		model.ExcludeBackendID = types.SetNull(types.StringType)
-	}
-	if model.ExtensionArgument.ElementType(ctx) == nil {
-		model.ExtensionArgument = types.SetNull(types.StringType)
-	}
-	if model.ExcludedBackendID.ElementType(ctx) == nil {
-		model.ExcludedBackendID = types.SetNull(types.StringType)
-	}
-	if model.TaskObjectClass.ElementType(ctx) == nil {
-		model.TaskObjectClass = types.SetNull(types.StringType)
-	}
-	if model.IncludeFilter.ElementType(ctx) == nil {
-		model.IncludeFilter = types.SetNull(types.StringType)
-	}
-}
-
 // Read a GenerateServerProfileRecurringTaskResponse object into the model struct
 func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *client.GenerateServerProfileRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generate-server-profile")
@@ -1917,28 +1792,6 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a GenerateServerProfileRecurringTaskResponse object into the model struct
-func readGenerateServerProfileRecurringTaskResponseDefault(ctx context.Context, r *client.GenerateServerProfileRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("generate-server-profile")
-	state.Id = types.StringValue(r.Id)
-	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
-	state.IncludePath = internaltypes.GetStringSet(r.IncludePath)
-	state.RetainPreviousProfileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousProfileCount)
-	state.RetainPreviousProfileAge = internaltypes.StringTypeOrNil(r.RetainPreviousProfileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousProfileAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_previous_profile_age",
-		expectedValues.RetainPreviousProfileAge, state.RetainPreviousProfileAge, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Read a LeaveLockdownModeRecurringTaskResponse object into the model struct
 func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.LeaveLockdownModeRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("leave-lockdown-mode")
@@ -1954,23 +1807,6 @@ func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.L
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateRecurringTaskNilSets(ctx, state)
-}
-
-// Read a LeaveLockdownModeRecurringTaskResponse object into the model struct
-func readLeaveLockdownModeRecurringTaskResponseDefault(ctx context.Context, r *client.LeaveLockdownModeRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("leave-lockdown-mode")
-	state.Id = types.StringValue(r.Id)
-	state.Reason = internaltypes.StringTypeOrNil(r.Reason, internaltypes.IsEmptyString(expectedValues.Reason))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
 }
 
 // Read a BackupRecurringTaskResponse object into the model struct
@@ -1999,34 +1835,6 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateRecurringTaskNilSets(ctx, state)
-}
-
-// Read a BackupRecurringTaskResponse object into the model struct
-func readBackupRecurringTaskResponseDefault(ctx context.Context, r *client.BackupRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("backup")
-	state.Id = types.StringValue(r.Id)
-	state.BackupDirectory = types.StringValue(r.BackupDirectory)
-	state.IncludedBackendID = internaltypes.GetStringSet(r.IncludedBackendID)
-	state.ExcludedBackendID = internaltypes.GetStringSet(r.ExcludedBackendID)
-	state.Compress = internaltypes.BoolTypeOrNil(r.Compress)
-	state.Encrypt = internaltypes.BoolTypeOrNil(r.Encrypt)
-	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
-	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
-	state.RetainPreviousFullBackupCount = internaltypes.Int64TypeOrNil(r.RetainPreviousFullBackupCount)
-	state.RetainPreviousFullBackupAge = internaltypes.StringTypeOrNil(r.RetainPreviousFullBackupAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousFullBackupAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_previous_full_backup_age",
-		expectedValues.RetainPreviousFullBackupAge, state.RetainPreviousFullBackupAge, diagnostics)
-	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
 }
 
 // Read a DelayRecurringTaskResponse object into the model struct
@@ -2063,40 +1871,6 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a DelayRecurringTaskResponse object into the model struct
-func readDelayRecurringTaskResponseDefault(ctx context.Context, r *client.DelayRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("delay")
-	state.Id = types.StringValue(r.Id)
-	state.SleepDuration = internaltypes.StringTypeOrNil(r.SleepDuration, internaltypes.IsEmptyString(expectedValues.SleepDuration))
-	config.CheckMismatchedPDFormattedAttributes("sleep_duration",
-		expectedValues.SleepDuration, state.SleepDuration, diagnostics)
-	state.DurationToWaitForWorkQueueIdle = internaltypes.StringTypeOrNil(r.DurationToWaitForWorkQueueIdle, internaltypes.IsEmptyString(expectedValues.DurationToWaitForWorkQueueIdle))
-	config.CheckMismatchedPDFormattedAttributes("duration_to_wait_for_work_queue_idle",
-		expectedValues.DurationToWaitForWorkQueueIdle, state.DurationToWaitForWorkQueueIdle, diagnostics)
-	state.LdapURLForSearchExpectedToReturnEntries = internaltypes.GetStringSet(r.LdapURLForSearchExpectedToReturnEntries)
-	state.SearchInterval = internaltypes.StringTypeOrNil(r.SearchInterval, internaltypes.IsEmptyString(expectedValues.SearchInterval))
-	config.CheckMismatchedPDFormattedAttributes("search_interval",
-		expectedValues.SearchInterval, state.SearchInterval, diagnostics)
-	state.SearchTimeLimit = internaltypes.StringTypeOrNil(r.SearchTimeLimit, internaltypes.IsEmptyString(expectedValues.SearchTimeLimit))
-	config.CheckMismatchedPDFormattedAttributes("search_time_limit",
-		expectedValues.SearchTimeLimit, state.SearchTimeLimit, diagnostics)
-	state.DurationToWaitForSearchToReturnEntries = internaltypes.StringTypeOrNil(r.DurationToWaitForSearchToReturnEntries, internaltypes.IsEmptyString(expectedValues.DurationToWaitForSearchToReturnEntries))
-	config.CheckMismatchedPDFormattedAttributes("duration_to_wait_for_search_to_return_entries",
-		expectedValues.DurationToWaitForSearchToReturnEntries, state.DurationToWaitForSearchToReturnEntries, diagnostics)
-	state.TaskReturnStateIfTimeoutIsEncountered = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskReturnStateIfTimeoutIsEncounteredProp(r.TaskReturnStateIfTimeoutIsEncountered), internaltypes.IsEmptyString(expectedValues.TaskReturnStateIfTimeoutIsEncountered))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Read a StaticallyDefinedRecurringTaskResponse object into the model struct
 func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.StaticallyDefinedRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("statically-defined")
@@ -2114,25 +1888,6 @@ func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.S
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateRecurringTaskNilSets(ctx, state)
-}
-
-// Read a StaticallyDefinedRecurringTaskResponse object into the model struct
-func readStaticallyDefinedRecurringTaskResponseDefault(ctx context.Context, r *client.StaticallyDefinedRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("statically-defined")
-	state.Id = types.StringValue(r.Id)
-	state.TaskJavaClass = types.StringValue(r.TaskJavaClass)
-	state.TaskObjectClass = internaltypes.GetStringSet(r.TaskObjectClass)
-	state.TaskAttributeValue = internaltypes.GetStringSet(r.TaskAttributeValue)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
 }
 
 // Read a CollectSupportDataRecurringTaskResponse object into the model struct
@@ -2177,48 +1932,6 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a CollectSupportDataRecurringTaskResponse object into the model struct
-func readCollectSupportDataRecurringTaskResponseDefault(ctx context.Context, r *client.CollectSupportDataRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("collect-support-data")
-	state.Id = types.StringValue(r.Id)
-	state.OutputDirectory = types.StringValue(r.OutputDirectory)
-	state.EncryptionPassphraseFile = internaltypes.StringTypeOrNil(r.EncryptionPassphraseFile, internaltypes.IsEmptyString(expectedValues.EncryptionPassphraseFile))
-	state.IncludeExpensiveData = internaltypes.BoolTypeOrNil(r.IncludeExpensiveData)
-	state.IncludeReplicationStateDump = internaltypes.BoolTypeOrNil(r.IncludeReplicationStateDump)
-	state.IncludeBinaryFiles = internaltypes.BoolTypeOrNil(r.IncludeBinaryFiles)
-	state.IncludeExtensionSource = internaltypes.BoolTypeOrNil(r.IncludeExtensionSource)
-	state.UseSequentialMode = internaltypes.BoolTypeOrNil(r.UseSequentialMode)
-	state.SecurityLevel = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskSecurityLevelProp(r.SecurityLevel), internaltypes.IsEmptyString(expectedValues.SecurityLevel))
-	state.JstackCount = internaltypes.Int64TypeOrNil(r.JstackCount)
-	state.ReportCount = internaltypes.Int64TypeOrNil(r.ReportCount)
-	state.ReportIntervalSeconds = internaltypes.Int64TypeOrNil(r.ReportIntervalSeconds)
-	state.LogDuration = internaltypes.StringTypeOrNil(r.LogDuration, internaltypes.IsEmptyString(expectedValues.LogDuration))
-	config.CheckMismatchedPDFormattedAttributes("log_duration",
-		expectedValues.LogDuration, state.LogDuration, diagnostics)
-	state.LogFileHeadCollectionSize = internaltypes.StringTypeOrNil(r.LogFileHeadCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileHeadCollectionSize))
-	config.CheckMismatchedPDFormattedAttributes("log_file_head_collection_size",
-		expectedValues.LogFileHeadCollectionSize, state.LogFileHeadCollectionSize, diagnostics)
-	state.LogFileTailCollectionSize = internaltypes.StringTypeOrNil(r.LogFileTailCollectionSize, internaltypes.IsEmptyString(expectedValues.LogFileTailCollectionSize))
-	config.CheckMismatchedPDFormattedAttributes("log_file_tail_collection_size",
-		expectedValues.LogFileTailCollectionSize, state.LogFileTailCollectionSize, diagnostics)
-	state.Comment = internaltypes.StringTypeOrNil(r.Comment, internaltypes.IsEmptyString(expectedValues.Comment))
-	state.RetainPreviousSupportDataArchiveCount = internaltypes.Int64TypeOrNil(r.RetainPreviousSupportDataArchiveCount)
-	state.RetainPreviousSupportDataArchiveAge = internaltypes.StringTypeOrNil(r.RetainPreviousSupportDataArchiveAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousSupportDataArchiveAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_previous_support_data_archive_age",
-		expectedValues.RetainPreviousSupportDataArchiveAge, state.RetainPreviousSupportDataArchiveAge, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Read a LdifExportRecurringTaskResponse object into the model struct
 func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExportRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif-export")
@@ -2247,34 +1960,6 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a LdifExportRecurringTaskResponse object into the model struct
-func readLdifExportRecurringTaskResponseDefault(ctx context.Context, r *client.LdifExportRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("ldif-export")
-	state.Id = types.StringValue(r.Id)
-	state.LdifDirectory = types.StringValue(r.LdifDirectory)
-	state.BackendID = internaltypes.GetStringSet(r.BackendID)
-	state.ExcludeBackendID = internaltypes.GetStringSet(r.ExcludeBackendID)
-	state.Compress = internaltypes.BoolTypeOrNil(r.Compress)
-	state.Encrypt = internaltypes.BoolTypeOrNil(r.Encrypt)
-	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
-	state.Sign = internaltypes.BoolTypeOrNil(r.Sign)
-	state.RetainPreviousLDIFExportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousLDIFExportCount)
-	state.RetainPreviousLDIFExportAge = internaltypes.StringTypeOrNil(r.RetainPreviousLDIFExportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousLDIFExportAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_previous_ldif_export_age",
-		expectedValues.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, diagnostics)
-	state.MaxMegabytesPerSecond = internaltypes.Int64TypeOrNil(r.MaxMegabytesPerSecond)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Read a EnterLockdownModeRecurringTaskResponse object into the model struct
 func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.EnterLockdownModeRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("enter-lockdown-mode")
@@ -2290,23 +1975,6 @@ func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.E
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateRecurringTaskNilSets(ctx, state)
-}
-
-// Read a EnterLockdownModeRecurringTaskResponse object into the model struct
-func readEnterLockdownModeRecurringTaskResponseDefault(ctx context.Context, r *client.EnterLockdownModeRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("enter-lockdown-mode")
-	state.Id = types.StringValue(r.Id)
-	state.Reason = internaltypes.StringTypeOrNil(r.Reason, internaltypes.IsEmptyString(expectedValues.Reason))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
 }
 
 // Read a AuditDataSecurityRecurringTaskResponse object into the model struct
@@ -2331,30 +1999,6 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateRecurringTaskNilSets(ctx, state)
-}
-
-// Read a AuditDataSecurityRecurringTaskResponse object into the model struct
-func readAuditDataSecurityRecurringTaskResponseDefault(ctx context.Context, r *client.AuditDataSecurityRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("audit-data-security")
-	state.Id = types.StringValue(r.Id)
-	state.BaseOutputDirectory = types.StringValue(r.BaseOutputDirectory)
-	state.DataSecurityAuditor = internaltypes.GetStringSet(r.DataSecurityAuditor)
-	state.Backend = internaltypes.GetStringSet(r.Backend)
-	state.IncludeFilter = internaltypes.GetStringSet(r.IncludeFilter)
-	state.RetainPreviousReportCount = internaltypes.Int64TypeOrNil(r.RetainPreviousReportCount)
-	state.RetainPreviousReportAge = internaltypes.StringTypeOrNil(r.RetainPreviousReportAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousReportAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_previous_report_age",
-		expectedValues.RetainPreviousReportAge, state.RetainPreviousReportAge, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
 }
 
 // Read a ExecRecurringTaskResponse object into the model struct
@@ -2384,33 +2028,6 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a ExecRecurringTaskResponse object into the model struct
-func readExecRecurringTaskResponseDefault(ctx context.Context, r *client.ExecRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("exec")
-	state.Id = types.StringValue(r.Id)
-	state.CommandPath = types.StringValue(r.CommandPath)
-	state.CommandArguments = internaltypes.StringTypeOrNil(r.CommandArguments, internaltypes.IsEmptyString(expectedValues.CommandArguments))
-	state.CommandOutputFileBaseName = internaltypes.StringTypeOrNil(r.CommandOutputFileBaseName, internaltypes.IsEmptyString(expectedValues.CommandOutputFileBaseName))
-	state.RetainPreviousOutputFileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousOutputFileCount)
-	state.RetainPreviousOutputFileAge = internaltypes.StringTypeOrNil(r.RetainPreviousOutputFileAge, internaltypes.IsEmptyString(expectedValues.RetainPreviousOutputFileAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_previous_output_file_age",
-		expectedValues.RetainPreviousOutputFileAge, state.RetainPreviousOutputFileAge, diagnostics)
-	state.LogCommandOutput = internaltypes.BoolTypeOrNil(r.LogCommandOutput)
-	state.TaskCompletionStateForNonzeroExitCode = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumrecurringTaskTaskCompletionStateForNonzeroExitCodeProp(r.TaskCompletionStateForNonzeroExitCode), internaltypes.IsEmptyString(expectedValues.TaskCompletionStateForNonzeroExitCode))
-	state.WorkingDirectory = internaltypes.StringTypeOrNil(r.WorkingDirectory, internaltypes.IsEmptyString(expectedValues.WorkingDirectory))
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Read a FileRetentionRecurringTaskResponse object into the model struct
 func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileRetentionRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-retention")
@@ -2437,32 +2054,6 @@ func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileR
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a FileRetentionRecurringTaskResponse object into the model struct
-func readFileRetentionRecurringTaskResponseDefault(ctx context.Context, r *client.FileRetentionRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("file-retention")
-	state.Id = types.StringValue(r.Id)
-	state.TargetDirectory = types.StringValue(r.TargetDirectory)
-	state.FilenamePattern = types.StringValue(r.FilenamePattern)
-	state.TimestampFormat = types.StringValue(r.TimestampFormat.String())
-	state.RetainFileCount = internaltypes.Int64TypeOrNil(r.RetainFileCount)
-	state.RetainFileAge = internaltypes.StringTypeOrNil(r.RetainFileAge, internaltypes.IsEmptyString(expectedValues.RetainFileAge))
-	config.CheckMismatchedPDFormattedAttributes("retain_file_age",
-		expectedValues.RetainFileAge, state.RetainFileAge, diagnostics)
-	state.RetainAggregateFileSize = internaltypes.StringTypeOrNil(r.RetainAggregateFileSize, internaltypes.IsEmptyString(expectedValues.RetainAggregateFileSize))
-	config.CheckMismatchedPDFormattedAttributes("retain_aggregate_file_size",
-		expectedValues.RetainAggregateFileSize, state.RetainAggregateFileSize, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Read a ThirdPartyRecurringTaskResponse object into the model struct
 func readThirdPartyRecurringTaskResponse(ctx context.Context, r *client.ThirdPartyRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -2481,109 +2072,8 @@ func readThirdPartyRecurringTaskResponse(ctx context.Context, r *client.ThirdPar
 	populateRecurringTaskNilSets(ctx, state)
 }
 
-// Read a ThirdPartyRecurringTaskResponse object into the model struct
-func readThirdPartyRecurringTaskResponseDefault(ctx context.Context, r *client.ThirdPartyRecurringTaskResponse, state *defaultRecurringTaskResourceModel, expectedValues *defaultRecurringTaskResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("third-party")
-	state.Id = types.StringValue(r.Id)
-	state.ExtensionClass = types.StringValue(r.ExtensionClass)
-	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
-	state.EmailOnStart = internaltypes.GetStringSet(r.EmailOnStart)
-	state.EmailOnSuccess = internaltypes.GetStringSet(r.EmailOnSuccess)
-	state.EmailOnFailure = internaltypes.GetStringSet(r.EmailOnFailure)
-	state.AlertOnStart = internaltypes.BoolTypeOrNil(r.AlertOnStart)
-	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
-	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createRecurringTaskOperations(plan recurringTaskResourceModel, state recurringTaskResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
-	operations.AddStringOperationIfNecessary(&ops, plan.TargetDirectory, state.TargetDirectory, "target-directory")
-	operations.AddStringOperationIfNecessary(&ops, plan.FilenamePattern, state.FilenamePattern, "filename-pattern")
-	operations.AddStringOperationIfNecessary(&ops, plan.TimestampFormat, state.TimestampFormat, "timestamp-format")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainFileCount, state.RetainFileCount, "retain-file-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainFileAge, state.RetainFileAge, "retain-file-age")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainAggregateFileSize, state.RetainAggregateFileSize, "retain-aggregate-file-size")
-	operations.AddStringOperationIfNecessary(&ops, plan.CommandPath, state.CommandPath, "command-path")
-	operations.AddStringOperationIfNecessary(&ops, plan.CommandArguments, state.CommandArguments, "command-arguments")
-	operations.AddStringOperationIfNecessary(&ops, plan.CommandOutputFileBaseName, state.CommandOutputFileBaseName, "command-output-file-base-name")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousOutputFileCount, state.RetainPreviousOutputFileCount, "retain-previous-output-file-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousOutputFileAge, state.RetainPreviousOutputFileAge, "retain-previous-output-file-age")
-	operations.AddBoolOperationIfNecessary(&ops, plan.LogCommandOutput, state.LogCommandOutput, "log-command-output")
-	operations.AddStringOperationIfNecessary(&ops, plan.TaskCompletionStateForNonzeroExitCode, state.TaskCompletionStateForNonzeroExitCode, "task-completion-state-for-nonzero-exit-code")
-	operations.AddStringOperationIfNecessary(&ops, plan.WorkingDirectory, state.WorkingDirectory, "working-directory")
-	operations.AddStringOperationIfNecessary(&ops, plan.BaseOutputDirectory, state.BaseOutputDirectory, "base-output-directory")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.DataSecurityAuditor, state.DataSecurityAuditor, "data-security-auditor")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.Backend, state.Backend, "backend")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludeFilter, state.IncludeFilter, "include-filter")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousReportCount, state.RetainPreviousReportCount, "retain-previous-report-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousReportAge, state.RetainPreviousReportAge, "retain-previous-report-age")
-	operations.AddStringOperationIfNecessary(&ops, plan.LdifDirectory, state.LdifDirectory, "ldif-directory")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.BackendID, state.BackendID, "backend-id")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExcludeBackendID, state.ExcludeBackendID, "exclude-backend-id")
-	operations.AddStringOperationIfNecessary(&ops, plan.OutputDirectory, state.OutputDirectory, "output-directory")
-	operations.AddStringOperationIfNecessary(&ops, plan.EncryptionPassphraseFile, state.EncryptionPassphraseFile, "encryption-passphrase-file")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeExpensiveData, state.IncludeExpensiveData, "include-expensive-data")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeReplicationStateDump, state.IncludeReplicationStateDump, "include-replication-state-dump")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousLDIFExportCount, state.RetainPreviousLDIFExportCount, "retain-previous-ldif-export-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousLDIFExportAge, state.RetainPreviousLDIFExportAge, "retain-previous-ldif-export-age")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeBinaryFiles, state.IncludeBinaryFiles, "include-binary-files")
-	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeExtensionSource, state.IncludeExtensionSource, "include-extension-source")
-	operations.AddBoolOperationIfNecessary(&ops, plan.UseSequentialMode, state.UseSequentialMode, "use-sequential-mode")
-	operations.AddStringOperationIfNecessary(&ops, plan.SecurityLevel, state.SecurityLevel, "security-level")
-	operations.AddInt64OperationIfNecessary(&ops, plan.JstackCount, state.JstackCount, "jstack-count")
-	operations.AddInt64OperationIfNecessary(&ops, plan.ReportCount, state.ReportCount, "report-count")
-	operations.AddInt64OperationIfNecessary(&ops, plan.ReportIntervalSeconds, state.ReportIntervalSeconds, "report-interval-seconds")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogDuration, state.LogDuration, "log-duration")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFileHeadCollectionSize, state.LogFileHeadCollectionSize, "log-file-head-collection-size")
-	operations.AddStringOperationIfNecessary(&ops, plan.LogFileTailCollectionSize, state.LogFileTailCollectionSize, "log-file-tail-collection-size")
-	operations.AddStringOperationIfNecessary(&ops, plan.Comment, state.Comment, "comment")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousSupportDataArchiveCount, state.RetainPreviousSupportDataArchiveCount, "retain-previous-support-data-archive-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousSupportDataArchiveAge, state.RetainPreviousSupportDataArchiveAge, "retain-previous-support-data-archive-age")
-	operations.AddStringOperationIfNecessary(&ops, plan.TaskJavaClass, state.TaskJavaClass, "task-java-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TaskObjectClass, state.TaskObjectClass, "task-object-class")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.TaskAttributeValue, state.TaskAttributeValue, "task-attribute-value")
-	operations.AddStringOperationIfNecessary(&ops, plan.SleepDuration, state.SleepDuration, "sleep-duration")
-	operations.AddStringOperationIfNecessary(&ops, plan.DurationToWaitForWorkQueueIdle, state.DurationToWaitForWorkQueueIdle, "duration-to-wait-for-work-queue-idle")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.LdapURLForSearchExpectedToReturnEntries, state.LdapURLForSearchExpectedToReturnEntries, "ldap-url-for-search-expected-to-return-entries")
-	operations.AddStringOperationIfNecessary(&ops, plan.SearchInterval, state.SearchInterval, "search-interval")
-	operations.AddStringOperationIfNecessary(&ops, plan.SearchTimeLimit, state.SearchTimeLimit, "search-time-limit")
-	operations.AddStringOperationIfNecessary(&ops, plan.DurationToWaitForSearchToReturnEntries, state.DurationToWaitForSearchToReturnEntries, "duration-to-wait-for-search-to-return-entries")
-	operations.AddStringOperationIfNecessary(&ops, plan.TaskReturnStateIfTimeoutIsEncountered, state.TaskReturnStateIfTimeoutIsEncountered, "task-return-state-if-timeout-is-encountered")
-	operations.AddStringOperationIfNecessary(&ops, plan.BackupDirectory, state.BackupDirectory, "backup-directory")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludedBackendID, state.IncludedBackendID, "included-backend-id")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExcludedBackendID, state.ExcludedBackendID, "excluded-backend-id")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Compress, state.Compress, "compress")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Encrypt, state.Encrypt, "encrypt")
-	operations.AddStringOperationIfNecessary(&ops, plan.EncryptionSettingsDefinitionID, state.EncryptionSettingsDefinitionID, "encryption-settings-definition-id")
-	operations.AddBoolOperationIfNecessary(&ops, plan.Sign, state.Sign, "sign")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousFullBackupCount, state.RetainPreviousFullBackupCount, "retain-previous-full-backup-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousFullBackupAge, state.RetainPreviousFullBackupAge, "retain-previous-full-backup-age")
-	operations.AddInt64OperationIfNecessary(&ops, plan.MaxMegabytesPerSecond, state.MaxMegabytesPerSecond, "max-megabytes-per-second")
-	operations.AddStringOperationIfNecessary(&ops, plan.Reason, state.Reason, "reason")
-	operations.AddStringOperationIfNecessary(&ops, plan.ProfileDirectory, state.ProfileDirectory, "profile-directory")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludePath, state.IncludePath, "include-path")
-	operations.AddInt64OperationIfNecessary(&ops, plan.RetainPreviousProfileCount, state.RetainPreviousProfileCount, "retain-previous-profile-count")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainPreviousProfileAge, state.RetainPreviousProfileAge, "retain-previous-profile-age")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddBoolOperationIfNecessary(&ops, plan.CancelOnTaskDependencyFailure, state.CancelOnTaskDependencyFailure, "cancel-on-task-dependency-failure")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.EmailOnStart, state.EmailOnStart, "email-on-start")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.EmailOnSuccess, state.EmailOnSuccess, "email-on-success")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.EmailOnFailure, state.EmailOnFailure, "email-on-failure")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AlertOnStart, state.AlertOnStart, "alert-on-start")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AlertOnSuccess, state.AlertOnSuccess, "alert-on-success")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AlertOnFailure, state.AlertOnFailure, "alert-on-failure")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createRecurringTaskOperationsDefault(plan defaultRecurringTaskResourceModel, state defaultRecurringTaskResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
@@ -3227,7 +2717,7 @@ func (r *recurringTaskResource) Create(ctx context.Context, req resource.CreateR
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultRecurringTaskResourceModel
+	var plan recurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3248,230 +2738,46 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 	}
 
 	// Read the existing configuration
-	var state defaultRecurringTaskResourceModel
+	var state recurringTaskResourceModel
 	if plan.Type.ValueString() == "generate-server-profile" {
-		readGenerateServerProfileRecurringTaskResponseDefault(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "leave-lockdown-mode" {
-		readLeaveLockdownModeRecurringTaskResponseDefault(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "backup" {
-		readBackupRecurringTaskResponseDefault(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "delay" {
-		readDelayRecurringTaskResponseDefault(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "statically-defined" {
-		readStaticallyDefinedRecurringTaskResponseDefault(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "collect-support-data" {
-		readCollectSupportDataRecurringTaskResponseDefault(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldif-export" {
-		readLdifExportRecurringTaskResponseDefault(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "enter-lockdown-mode" {
-		readEnterLockdownModeRecurringTaskResponseDefault(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "audit-data-security" {
-		readAuditDataSecurityRecurringTaskResponseDefault(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "exec" {
-		readExecRecurringTaskResponseDefault(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-retention" {
-		readFileRetentionRecurringTaskResponseDefault(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyRecurringTaskResponseDefault(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createRecurringTaskOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "generate-server-profile" {
-			readGenerateServerProfileRecurringTaskResponseDefault(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "leave-lockdown-mode" {
-			readLeaveLockdownModeRecurringTaskResponseDefault(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "backup" {
-			readBackupRecurringTaskResponseDefault(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "delay" {
-			readDelayRecurringTaskResponseDefault(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "statically-defined" {
-			readStaticallyDefinedRecurringTaskResponseDefault(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "collect-support-data" {
-			readCollectSupportDataRecurringTaskResponseDefault(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "ldif-export" {
-			readLdifExportRecurringTaskResponseDefault(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "enter-lockdown-mode" {
-			readEnterLockdownModeRecurringTaskResponseDefault(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "audit-data-security" {
-			readAuditDataSecurityRecurringTaskResponseDefault(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "exec" {
-			readExecRecurringTaskResponseDefault(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "file-retention" {
-			readFileRetentionRecurringTaskResponseDefault(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyRecurringTaskResponseDefault(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *recurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state recurringTaskResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.GenerateServerProfileRecurringTaskResponse != nil {
-		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LeaveLockdownModeRecurringTaskResponse != nil {
-		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.BackupRecurringTaskResponse != nil {
-		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.DelayRecurringTaskResponse != nil {
-		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.StaticallyDefinedRecurringTaskResponse != nil {
-		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.CollectSupportDataRecurringTaskResponse != nil {
-		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.LdifExportRecurringTaskResponse != nil {
-		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.EnterLockdownModeRecurringTaskResponse != nil {
-		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.AuditDataSecurityRecurringTaskResponse != nil {
-		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ExecRecurringTaskResponse != nil {
-		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.FileRetentionRecurringTaskResponse != nil {
-		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.ThirdPartyRecurringTaskResponse != nil {
-		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultRecurringTaskResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *recurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan recurringTaskResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state recurringTaskResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createRecurringTaskOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -3529,8 +2835,6 @@ func (r *recurringTaskResource) Update(ctx context.Context, req resource.UpdateR
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -3540,9 +2844,95 @@ func (r *recurringTaskResource) Update(ctx context.Context, req resource.UpdateR
 	}
 }
 
+// Read resource information
+func (r *recurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultRecurringTaskResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state recurringTaskResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.GenerateServerProfileRecurringTaskResponse != nil {
+		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LeaveLockdownModeRecurringTaskResponse != nil {
+		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.BackupRecurringTaskResponse != nil {
+		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.DelayRecurringTaskResponse != nil {
+		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.StaticallyDefinedRecurringTaskResponse != nil {
+		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.CollectSupportDataRecurringTaskResponse != nil {
+		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.LdifExportRecurringTaskResponse != nil {
+		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.EnterLockdownModeRecurringTaskResponse != nil {
+		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.AuditDataSecurityRecurringTaskResponse != nil {
+		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ExecRecurringTaskResponse != nil {
+		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.FileRetentionRecurringTaskResponse != nil {
+		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ThirdPartyRecurringTaskResponse != nil {
+		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *recurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultRecurringTaskResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateRecurringTask(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultRecurringTaskResourceModel
+	var plan recurringTaskResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3550,19 +2940,19 @@ func (r *defaultRecurringTaskResource) Update(ctx context.Context, req resource.
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultRecurringTaskResourceModel
+	var state recurringTaskResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createRecurringTaskOperationsDefault(plan, state)
+	ops := createRecurringTaskOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.RecurringTaskApi.UpdateRecurringTaskExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Recurring Task", err, httpResp)
 			return
@@ -3576,40 +2966,40 @@ func (r *defaultRecurringTaskResource) Update(ctx context.Context, req resource.
 
 		// Read the response
 		if plan.Type.ValueString() == "generate-server-profile" {
-			readGenerateServerProfileRecurringTaskResponseDefault(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readGenerateServerProfileRecurringTaskResponse(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "leave-lockdown-mode" {
-			readLeaveLockdownModeRecurringTaskResponseDefault(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readLeaveLockdownModeRecurringTaskResponse(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "backup" {
-			readBackupRecurringTaskResponseDefault(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readBackupRecurringTaskResponse(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "delay" {
-			readDelayRecurringTaskResponseDefault(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readDelayRecurringTaskResponse(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "statically-defined" {
-			readStaticallyDefinedRecurringTaskResponseDefault(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readStaticallyDefinedRecurringTaskResponse(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "collect-support-data" {
-			readCollectSupportDataRecurringTaskResponseDefault(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "ldif-export" {
-			readLdifExportRecurringTaskResponseDefault(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readLdifExportRecurringTaskResponse(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "enter-lockdown-mode" {
-			readEnterLockdownModeRecurringTaskResponseDefault(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readEnterLockdownModeRecurringTaskResponse(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "audit-data-security" {
-			readAuditDataSecurityRecurringTaskResponseDefault(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readAuditDataSecurityRecurringTaskResponse(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "exec" {
-			readExecRecurringTaskResponseDefault(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readExecRecurringTaskResponse(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "file-retention" {
-			readFileRetentionRecurringTaskResponseDefault(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readFileRetentionRecurringTaskResponse(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
-			readThirdPartyRecurringTaskResponseDefault(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

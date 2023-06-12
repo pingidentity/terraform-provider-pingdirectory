@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -92,19 +94,6 @@ type logRetentionPolicyResourceModel struct {
 	Description     types.String `tfsdk:"description"`
 }
 
-type defaultLogRetentionPolicyResourceModel struct {
-	Id              types.String `tfsdk:"id"`
-	LastUpdated     types.String `tfsdk:"last_updated"`
-	Notifications   types.Set    `tfsdk:"notifications"`
-	RequiredActions types.Set    `tfsdk:"required_actions"`
-	Type            types.String `tfsdk:"type"`
-	DiskSpaceUsed   types.String `tfsdk:"disk_space_used"`
-	FreeDiskSpace   types.String `tfsdk:"free_disk_space"`
-	NumberOfFiles   types.Int64  `tfsdk:"number_of_files"`
-	RetainDuration  types.String `tfsdk:"retain_duration"`
-	Description     types.String `tfsdk:"description"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *logRetentionPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	logRetentionPolicySchema(ctx, req, resp, false)
@@ -172,7 +161,7 @@ func (r *defaultLogRetentionPolicyResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanLogRetentionPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultLogRetentionPolicyResourceModel
+	var model logRetentionPolicyResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.RetainDuration) && model.Type.ValueString() != "time-limit" {
 		resp.Diagnostics.AddError("Attribute 'retain_duration' not supported by pingdirectory_log_retention_policy resources with 'type' '"+model.Type.ValueString()+"'",
@@ -243,27 +232,8 @@ func readTimeLimitLogRetentionPolicyResponse(ctx context.Context, r *client.Time
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a TimeLimitLogRetentionPolicyResponse object into the model struct
-func readTimeLimitLogRetentionPolicyResponseDefault(ctx context.Context, r *client.TimeLimitLogRetentionPolicyResponse, state *defaultLogRetentionPolicyResourceModel, expectedValues *defaultLogRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("time-limit")
-	state.Id = types.StringValue(r.Id)
-	state.RetainDuration = types.StringValue(r.RetainDuration)
-	config.CheckMismatchedPDFormattedAttributes("retain_duration",
-		expectedValues.RetainDuration, state.RetainDuration, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Read a NeverDeleteLogRetentionPolicyResponse object into the model struct
 func readNeverDeleteLogRetentionPolicyResponse(ctx context.Context, r *client.NeverDeleteLogRetentionPolicyResponse, state *logRetentionPolicyResourceModel, expectedValues *logRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("never-delete")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
-// Read a NeverDeleteLogRetentionPolicyResponse object into the model struct
-func readNeverDeleteLogRetentionPolicyResponseDefault(ctx context.Context, r *client.NeverDeleteLogRetentionPolicyResponse, state *defaultLogRetentionPolicyResourceModel, expectedValues *defaultLogRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("never-delete")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -279,28 +249,8 @@ func readFileCountLogRetentionPolicyResponse(ctx context.Context, r *client.File
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a FileCountLogRetentionPolicyResponse object into the model struct
-func readFileCountLogRetentionPolicyResponseDefault(ctx context.Context, r *client.FileCountLogRetentionPolicyResponse, state *defaultLogRetentionPolicyResourceModel, expectedValues *defaultLogRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("file-count")
-	state.Id = types.StringValue(r.Id)
-	state.NumberOfFiles = types.Int64Value(r.NumberOfFiles)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Read a FreeDiskSpaceLogRetentionPolicyResponse object into the model struct
 func readFreeDiskSpaceLogRetentionPolicyResponse(ctx context.Context, r *client.FreeDiskSpaceLogRetentionPolicyResponse, state *logRetentionPolicyResourceModel, expectedValues *logRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("free-disk-space")
-	state.Id = types.StringValue(r.Id)
-	state.FreeDiskSpace = types.StringValue(r.FreeDiskSpace)
-	config.CheckMismatchedPDFormattedAttributes("free_disk_space",
-		expectedValues.FreeDiskSpace, state.FreeDiskSpace, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
-// Read a FreeDiskSpaceLogRetentionPolicyResponse object into the model struct
-func readFreeDiskSpaceLogRetentionPolicyResponseDefault(ctx context.Context, r *client.FreeDiskSpaceLogRetentionPolicyResponse, state *defaultLogRetentionPolicyResourceModel, expectedValues *defaultLogRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("free-disk-space")
 	state.Id = types.StringValue(r.Id)
 	state.FreeDiskSpace = types.StringValue(r.FreeDiskSpace)
@@ -321,30 +271,8 @@ func readSizeLimitLogRetentionPolicyResponse(ctx context.Context, r *client.Size
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
-// Read a SizeLimitLogRetentionPolicyResponse object into the model struct
-func readSizeLimitLogRetentionPolicyResponseDefault(ctx context.Context, r *client.SizeLimitLogRetentionPolicyResponse, state *defaultLogRetentionPolicyResourceModel, expectedValues *defaultLogRetentionPolicyResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("size-limit")
-	state.Id = types.StringValue(r.Id)
-	state.DiskSpaceUsed = types.StringValue(r.DiskSpaceUsed)
-	config.CheckMismatchedPDFormattedAttributes("disk_space_used",
-		expectedValues.DiskSpaceUsed, state.DiskSpaceUsed, diagnostics)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createLogRetentionPolicyOperations(plan logRetentionPolicyResourceModel, state logRetentionPolicyResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.DiskSpaceUsed, state.DiskSpaceUsed, "disk-space-used")
-	operations.AddStringOperationIfNecessary(&ops, plan.FreeDiskSpace, state.FreeDiskSpace, "free-disk-space")
-	operations.AddInt64OperationIfNecessary(&ops, plan.NumberOfFiles, state.NumberOfFiles, "number-of-files")
-	operations.AddStringOperationIfNecessary(&ops, plan.RetainDuration, state.RetainDuration, "retain-duration")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createLogRetentionPolicyOperationsDefault(plan defaultLogRetentionPolicyResourceModel, state defaultLogRetentionPolicyResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.DiskSpaceUsed, state.DiskSpaceUsed, "disk-space-used")
 	operations.AddStringOperationIfNecessary(&ops, plan.FreeDiskSpace, state.FreeDiskSpace, "free-disk-space")
@@ -583,7 +511,7 @@ func (r *logRetentionPolicyResource) Create(ctx context.Context, req resource.Cr
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultLogRetentionPolicyResourceModel
+	var plan logRetentionPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -604,167 +532,25 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 	}
 
 	// Read the existing configuration
-	var state defaultLogRetentionPolicyResourceModel
+	var state logRetentionPolicyResourceModel
 	if plan.Type.ValueString() == "time-limit" {
-		readTimeLimitLogRetentionPolicyResponseDefault(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "never-delete" {
-		readNeverDeleteLogRetentionPolicyResponseDefault(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-count" {
-		readFileCountLogRetentionPolicyResponseDefault(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "free-disk-space" {
-		readFreeDiskSpaceLogRetentionPolicyResponseDefault(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "size-limit" {
-		readSizeLimitLogRetentionPolicyResponseDefault(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-	ops := createLogRetentionPolicyOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicyExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Retention Policy", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
-			readTimeLimitLogRetentionPolicyResponseDefault(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "never-delete" {
-			readNeverDeleteLogRetentionPolicyResponseDefault(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "file-count" {
-			readFileCountLogRetentionPolicyResponseDefault(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "free-disk-space" {
-			readFreeDiskSpaceLogRetentionPolicyResponseDefault(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "size-limit" {
-			readSizeLimitLogRetentionPolicyResponseDefault(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *logRetentionPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state logRetentionPolicyResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Retention Policy", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.TimeLimitLogRetentionPolicyResponse != nil {
-		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.NeverDeleteLogRetentionPolicyResponse != nil {
-		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.FileCountLogRetentionPolicyResponse != nil {
-		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
-		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.SizeLimitLogRetentionPolicyResponse != nil {
-		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultLogRetentionPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultLogRetentionPolicyResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Retention Policy", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *logRetentionPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan logRetentionPolicyResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state logRetentionPolicyResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createLogRetentionPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -801,8 +587,6 @@ func (r *logRetentionPolicyResource) Update(ctx context.Context, req resource.Up
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -812,9 +596,74 @@ func (r *logRetentionPolicyResource) Update(ctx context.Context, req resource.Up
 	}
 }
 
+// Read resource information
+func (r *logRetentionPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogRetentionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultLogRetentionPolicyResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readLogRetentionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readLogRetentionPolicy(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state logRetentionPolicyResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Retention Policy", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.TimeLimitLogRetentionPolicyResponse != nil {
+		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.NeverDeleteLogRetentionPolicyResponse != nil {
+		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.FileCountLogRetentionPolicyResponse != nil {
+		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
+		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.SizeLimitLogRetentionPolicyResponse != nil {
+		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *logRetentionPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogRetentionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultLogRetentionPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateLogRetentionPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateLogRetentionPolicy(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultLogRetentionPolicyResourceModel
+	var plan logRetentionPolicyResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -822,19 +671,19 @@ func (r *defaultLogRetentionPolicyResource) Update(ctx context.Context, req reso
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultLogRetentionPolicyResourceModel
+	var state logRetentionPolicyResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicy(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createLogRetentionPolicyOperationsDefault(plan, state)
+	ops := createLogRetentionPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicyExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.LogRetentionPolicyApi.UpdateLogRetentionPolicyExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Log Retention Policy", err, httpResp)
 			return
@@ -848,19 +697,19 @@ func (r *defaultLogRetentionPolicyResource) Update(ctx context.Context, req reso
 
 		// Read the response
 		if plan.Type.ValueString() == "time-limit" {
-			readTimeLimitLogRetentionPolicyResponseDefault(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
+			readTimeLimitLogRetentionPolicyResponse(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "never-delete" {
-			readNeverDeleteLogRetentionPolicyResponseDefault(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
+			readNeverDeleteLogRetentionPolicyResponse(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "file-count" {
-			readFileCountLogRetentionPolicyResponseDefault(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
+			readFileCountLogRetentionPolicyResponse(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "free-disk-space" {
-			readFreeDiskSpaceLogRetentionPolicyResponseDefault(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
+			readFreeDiskSpaceLogRetentionPolicyResponse(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "size-limit" {
-			readSizeLimitLogRetentionPolicyResponseDefault(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
+			readSizeLimitLogRetentionPolicyResponse(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))

@@ -97,20 +97,6 @@ type tokenClaimValidationResourceModel struct {
 	ClaimName            types.String `tfsdk:"claim_name"`
 }
 
-type defaultTokenClaimValidationResourceModel struct {
-	Id                   types.String `tfsdk:"id"`
-	LastUpdated          types.String `tfsdk:"last_updated"`
-	Notifications        types.Set    `tfsdk:"notifications"`
-	RequiredActions      types.Set    `tfsdk:"required_actions"`
-	Type                 types.String `tfsdk:"type"`
-	IdTokenValidatorName types.String `tfsdk:"id_token_validator_name"`
-	RequiredValue        types.String `tfsdk:"required_value"`
-	AllRequiredValue     types.Set    `tfsdk:"all_required_value"`
-	AnyRequiredValue     types.Set    `tfsdk:"any_required_value"`
-	Description          types.String `tfsdk:"description"`
-	ClaimName            types.String `tfsdk:"claim_name"`
-}
-
 // GetSchema defines the schema for the resource.
 func (r *tokenClaimValidationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	tokenClaimValidationSchema(ctx, req, resp, false)
@@ -195,7 +181,7 @@ func (r *defaultTokenClaimValidationResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanTokenClaimValidation(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultTokenClaimValidationResourceModel
+	var model tokenClaimValidationResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.AnyRequiredValue) && model.Type.ValueString() != "string-array" && model.Type.ValueString() != "string" {
 		resp.Diagnostics.AddError("Attribute 'any_required_value' not supported by pingdirectory_token_claim_validation resources with 'type' '"+model.Type.ValueString()+"'",
@@ -255,16 +241,6 @@ func populateTokenClaimValidationNilSets(ctx context.Context, model *tokenClaimV
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateTokenClaimValidationNilSetsDefault(ctx context.Context, model *defaultTokenClaimValidationResourceModel) {
-	if model.AnyRequiredValue.ElementType(ctx) == nil {
-		model.AnyRequiredValue = types.SetNull(types.StringType)
-	}
-	if model.AllRequiredValue.ElementType(ctx) == nil {
-		model.AllRequiredValue = types.SetNull(types.StringType)
-	}
-}
-
 // Read a StringArrayTokenClaimValidationResponse object into the model struct
 func readStringArrayTokenClaimValidationResponse(ctx context.Context, r *client.StringArrayTokenClaimValidationResponse, state *tokenClaimValidationResourceModel, expectedValues *tokenClaimValidationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("string-array")
@@ -276,19 +252,6 @@ func readStringArrayTokenClaimValidationResponse(ctx context.Context, r *client.
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateTokenClaimValidationNilSets(ctx, state)
-}
-
-// Read a StringArrayTokenClaimValidationResponse object into the model struct
-func readStringArrayTokenClaimValidationResponseDefault(ctx context.Context, r *client.StringArrayTokenClaimValidationResponse, state *defaultTokenClaimValidationResourceModel, expectedValues *defaultTokenClaimValidationResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("string-array")
-	state.Id = types.StringValue(r.Id)
-	state.IdTokenValidatorName = expectedValues.IdTokenValidatorName
-	state.AllRequiredValue = internaltypes.GetStringSet(r.AllRequiredValue)
-	state.AnyRequiredValue = internaltypes.GetStringSet(r.AnyRequiredValue)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.ClaimName = types.StringValue(r.ClaimName)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationNilSetsDefault(ctx, state)
 }
 
 // Read a BooleanTokenClaimValidationResponse object into the model struct
@@ -303,18 +266,6 @@ func readBooleanTokenClaimValidationResponse(ctx context.Context, r *client.Bool
 	populateTokenClaimValidationNilSets(ctx, state)
 }
 
-// Read a BooleanTokenClaimValidationResponse object into the model struct
-func readBooleanTokenClaimValidationResponseDefault(ctx context.Context, r *client.BooleanTokenClaimValidationResponse, state *defaultTokenClaimValidationResourceModel, expectedValues *defaultTokenClaimValidationResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("boolean")
-	state.Id = types.StringValue(r.Id)
-	state.IdTokenValidatorName = expectedValues.IdTokenValidatorName
-	state.RequiredValue = types.StringValue(r.RequiredValue.String())
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.ClaimName = types.StringValue(r.ClaimName)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationNilSetsDefault(ctx, state)
-}
-
 // Read a StringTokenClaimValidationResponse object into the model struct
 func readStringTokenClaimValidationResponse(ctx context.Context, r *client.StringTokenClaimValidationResponse, state *tokenClaimValidationResourceModel, expectedValues *tokenClaimValidationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("string")
@@ -327,31 +278,8 @@ func readStringTokenClaimValidationResponse(ctx context.Context, r *client.Strin
 	populateTokenClaimValidationNilSets(ctx, state)
 }
 
-// Read a StringTokenClaimValidationResponse object into the model struct
-func readStringTokenClaimValidationResponseDefault(ctx context.Context, r *client.StringTokenClaimValidationResponse, state *defaultTokenClaimValidationResourceModel, expectedValues *defaultTokenClaimValidationResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("string")
-	state.Id = types.StringValue(r.Id)
-	state.IdTokenValidatorName = expectedValues.IdTokenValidatorName
-	state.AnyRequiredValue = internaltypes.GetStringSet(r.AnyRequiredValue)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.ClaimName = types.StringValue(r.ClaimName)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationNilSetsDefault(ctx, state)
-}
-
 // Create any update operations necessary to make the state match the plan
 func createTokenClaimValidationOperations(plan tokenClaimValidationResourceModel, state tokenClaimValidationResourceModel) []client.Operation {
-	var ops []client.Operation
-	operations.AddStringOperationIfNecessary(&ops, plan.RequiredValue, state.RequiredValue, "required-value")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllRequiredValue, state.AllRequiredValue, "all-required-value")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.AnyRequiredValue, state.AnyRequiredValue, "any-required-value")
-	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
-	operations.AddStringOperationIfNecessary(&ops, plan.ClaimName, state.ClaimName, "claim-name")
-	return ops
-}
-
-// Create any update operations necessary to make the state match the plan
-func createTokenClaimValidationOperationsDefault(plan defaultTokenClaimValidationResourceModel, state defaultTokenClaimValidationResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.RequiredValue, state.RequiredValue, "required-value")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllRequiredValue, state.AllRequiredValue, "all-required-value")
@@ -520,7 +448,7 @@ func (r *tokenClaimValidationResource) Create(ctx context.Context, req resource.
 // and makes any changes needed to make it match the plan - similar to the Update method.
 func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan defaultTokenClaimValidationResourceModel
+	var plan tokenClaimValidationResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -541,149 +469,19 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 	}
 
 	// Read the existing configuration
-	var state defaultTokenClaimValidationResourceModel
+	var state tokenClaimValidationResourceModel
 	if plan.Type.ValueString() == "string-array" {
-		readStringArrayTokenClaimValidationResponseDefault(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "boolean" {
-		readBooleanTokenClaimValidationResponseDefault(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "string" {
-		readStringTokenClaimValidationResponseDefault(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.TokenClaimValidationApi.UpdateTokenClaimValidation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.IdTokenValidatorName.ValueString())
-	ops := createTokenClaimValidationOperationsDefault(plan, state)
-	if len(ops) > 0 {
-		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
-		// Log operations
-		operations.LogUpdateOperations(ctx, ops)
-
-		updateResponse, httpResp, err := r.apiClient.TokenClaimValidationApi.UpdateTokenClaimValidationExecute(updateRequest)
-		if err != nil {
-			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Token Claim Validation", err, httpResp)
-			return
-		}
-
-		// Log response JSON
-		responseJson, err := updateResponse.MarshalJSON()
-		if err == nil {
-			tflog.Debug(ctx, "Update response: "+string(responseJson))
-		}
-
-		// Read the response
-		if plan.Type.ValueString() == "string-array" {
-			readStringArrayTokenClaimValidationResponseDefault(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "boolean" {
-			readBooleanTokenClaimValidationResponseDefault(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "string" {
-			readStringTokenClaimValidationResponseDefault(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
-		}
-		// Update computed values
-		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	}
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Read resource information
-func (r *tokenClaimValidationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state tokenClaimValidationResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.TokenClaimValidationApi.GetTokenClaimValidation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.IdTokenValidatorName.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Token Claim Validation", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-	if readResponse.StringArrayTokenClaimValidationResponse != nil {
-		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.BooleanTokenClaimValidationResponse != nil {
-		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.StringTokenClaimValidationResponse != nil {
-		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
-	}
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-func (r *defaultTokenClaimValidationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// Get current state
-	var state defaultTokenClaimValidationResourceModel
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	readResponse, httpResp, err := r.apiClient.TokenClaimValidationApi.GetTokenClaimValidation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.IdTokenValidatorName.ValueString()).Execute()
-	if err != nil {
-		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Token Claim Validation", err, httpResp)
-		return
-	}
-
-	// Log response JSON
-	responseJson, err := readResponse.MarshalJSON()
-	if err == nil {
-		tflog.Debug(ctx, "Read response: "+string(responseJson))
-	}
-
-	// Read the response into the state
-
-	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// Update a resource
-func (r *tokenClaimValidationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// Retrieve values from plan
-	var plan tokenClaimValidationResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// Get the current state to see how any attributes are changing
-	var state tokenClaimValidationResourceModel
-	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TokenClaimValidationApi.UpdateTokenClaimValidation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.IdTokenValidatorName.ValueString())
-
-	// Determine what update operations are necessary
 	ops := createTokenClaimValidationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -714,8 +512,6 @@ func (r *tokenClaimValidationResource) Update(ctx context.Context, req resource.
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
-	} else {
-		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -725,9 +521,68 @@ func (r *tokenClaimValidationResource) Update(ctx context.Context, req resource.
 	}
 }
 
+// Read resource information
+func (r *tokenClaimValidationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readTokenClaimValidation(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultTokenClaimValidationResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	readTokenClaimValidation(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func readTokenClaimValidation(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	// Get current state
+	var state tokenClaimValidationResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	readResponse, httpResp, err := apiClient.TokenClaimValidationApi.GetTokenClaimValidation(
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.IdTokenValidatorName.ValueString()).Execute()
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Token Claim Validation", err, httpResp)
+		return
+	}
+
+	// Log response JSON
+	responseJson, err := readResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Read response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	if readResponse.StringArrayTokenClaimValidationResponse != nil {
+		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.BooleanTokenClaimValidationResponse != nil {
+		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.StringTokenClaimValidationResponse != nil {
+		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
+	}
+
+	// Set refreshed state
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+// Update a resource
+func (r *tokenClaimValidationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateTokenClaimValidation(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
 func (r *defaultTokenClaimValidationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	updateTokenClaimValidation(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func updateTokenClaimValidation(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
 	// Retrieve values from plan
-	var plan defaultTokenClaimValidationResourceModel
+	var plan tokenClaimValidationResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -735,19 +590,19 @@ func (r *defaultTokenClaimValidationResource) Update(ctx context.Context, req re
 	}
 
 	// Get the current state to see how any attributes are changing
-	var state defaultTokenClaimValidationResourceModel
+	var state tokenClaimValidationResourceModel
 	req.State.Get(ctx, &state)
-	updateRequest := r.apiClient.TokenClaimValidationApi.UpdateTokenClaimValidation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.IdTokenValidatorName.ValueString())
+	updateRequest := apiClient.TokenClaimValidationApi.UpdateTokenClaimValidation(
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.IdTokenValidatorName.ValueString())
 
 	// Determine what update operations are necessary
-	ops := createTokenClaimValidationOperationsDefault(plan, state)
+	ops := createTokenClaimValidationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
 		// Log operations
 		operations.LogUpdateOperations(ctx, ops)
 
-		updateResponse, httpResp, err := r.apiClient.TokenClaimValidationApi.UpdateTokenClaimValidationExecute(updateRequest)
+		updateResponse, httpResp, err := apiClient.TokenClaimValidationApi.UpdateTokenClaimValidationExecute(updateRequest)
 		if err != nil {
 			config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while updating the Token Claim Validation", err, httpResp)
 			return
@@ -761,13 +616,13 @@ func (r *defaultTokenClaimValidationResource) Update(ctx context.Context, req re
 
 		// Read the response
 		if plan.Type.ValueString() == "string-array" {
-			readStringArrayTokenClaimValidationResponseDefault(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
+			readStringArrayTokenClaimValidationResponse(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "boolean" {
-			readBooleanTokenClaimValidationResponseDefault(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
+			readBooleanTokenClaimValidationResponse(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "string" {
-			readStringTokenClaimValidationResponseDefault(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
+			readStringTokenClaimValidationResponse(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
