@@ -36,7 +36,6 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-// http_servlet_extension_name must exist; default is "Velocity"
 resource "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
   id                          = "MyVelocityTemplateLoader"
   evaluation_order_index      = 10100

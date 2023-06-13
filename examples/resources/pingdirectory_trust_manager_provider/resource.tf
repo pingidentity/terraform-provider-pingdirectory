@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source = "pingidentity/pingdirectory"
+      source  = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,11 +19,11 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version = "9.2.0.0"
+  product_version        = "9.2.0.0"
 }
 
 resource "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
-  id                            = "MyTrustManagerProvider"
-  type                            = "blind"
+  id      = "MyTrustManagerProvider"
+  type    = "blind"
   enabled = false
 }

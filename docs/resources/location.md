@@ -36,7 +36,6 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_location" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_location" "drangleic" {
   id          = "Drangleic"
   description = "Seek the king"

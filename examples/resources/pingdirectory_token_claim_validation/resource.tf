@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source = "pingidentity/pingdirectory"
+      source  = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,11 +19,11 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version = "9.2.0.0"
+  product_version        = "9.2.0.0"
 }
 
 resource "pingdirectory_id_token_validator" "myPingOneIdTokenValidator" {
-  type = "ping-one"
+  type                   = "ping-one"
   id                     = "MyPingOneIdTokenValidator"
   issuer_url             = "example.com"
   enabled                = false
@@ -32,7 +32,7 @@ resource "pingdirectory_id_token_validator" "myPingOneIdTokenValidator" {
 }
 
 resource "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
-  id                            = "MyTokenClaimValidation"
+  id                      = "MyTokenClaimValidation"
   id_token_validator_name = pingdirectory_id_token_validator.myPingOneIdTokenValidator.id
   any_required_value      = ["my_example_value"]
   claim_name              = "my_example_claim_name"
