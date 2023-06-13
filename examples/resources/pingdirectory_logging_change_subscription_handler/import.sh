@@ -1,2 +1,0 @@
-# "loggingChangeSubscriptionHandlerId" should be the id of the Logging Change Subscription Handler to be imported
-terraform import pingdirectory_logging_change_subscription_handler.myLoggingChangeSubscriptionHandler loggingChangeSubscriptionHandlerId

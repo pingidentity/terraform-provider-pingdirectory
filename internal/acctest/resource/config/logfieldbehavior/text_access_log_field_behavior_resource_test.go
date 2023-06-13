@@ -52,7 +52,7 @@ func TestAccTextAccessLogFieldBehavior(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccTextAccessLogFieldBehaviorResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_text_access_log_field_behavior." + resourceName,
+				ResourceName:      "pingdirectory_log_field_behavior." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccTextAccessLogFieldBehavior(t *testing.T) {
 
 func testAccTextAccessLogFieldBehaviorResource(resourceName string, resourceModel textAccessLogFieldBehaviorTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_text_access_log_field_behavior" "%[1]s" {
+resource "pingdirectory_log_field_behavior" "%[1]s" {
+  type        = "text-access"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName,

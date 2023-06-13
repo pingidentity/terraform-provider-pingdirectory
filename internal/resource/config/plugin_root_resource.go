@@ -111,7 +111,7 @@ type pluginRootResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Plugin Root.",
 		Attributes: map[string]schema.Attribute{
 			"plugin_order_startup": schema.StringAttribute{
@@ -516,8 +516,8 @@ func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequ
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a PluginRootResponse object into the model struct

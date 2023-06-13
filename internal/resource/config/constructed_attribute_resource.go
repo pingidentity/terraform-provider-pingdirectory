@@ -95,8 +95,8 @@ func (r *defaultConstructedAttributeResource) Schema(ctx context.Context, req re
 	constructedAttributeSchema(ctx, req, resp, true)
 }
 
-func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Constructed Attribute.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -114,14 +114,15 @@ func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for constructed-attribute constructed-attribute
 func addOptionalConstructedAttributeFields(ctx context.Context, addRequest *client.AddConstructedAttributeRequest, plan constructedAttributeResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -147,16 +148,8 @@ func createConstructedAttributeOperations(plan constructedAttributeResourceModel
 	return ops
 }
 
-// Create a new resource
-func (r *constructedAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan constructedAttributeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a constructed-attribute constructed-attribute
+func (r *constructedAttributeResource) CreateConstructedAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan constructedAttributeResourceModel) (*constructedAttributeResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
 	addRequest := client.NewAddConstructedAttributeRequest(plan.Id.ValueString(),
@@ -175,7 +168,7 @@ func (r *constructedAttributeResource) Create(ctx context.Context, req resource.
 	addResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.AddConstructedAttributeExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Constructed Attribute", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -187,12 +180,29 @@ func (r *constructedAttributeResource) Create(ctx context.Context, req resource.
 	// Read the response into the state
 	var state constructedAttributeResourceModel
 	readConstructedAttributeResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *constructedAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan constructedAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateConstructedAttribute(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

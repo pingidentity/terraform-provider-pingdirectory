@@ -1,2 +1,0 @@
-# "identifyReferencesVirtualAttributeId" should be the id of the Identify References Virtual Attribute to be imported
-terraform import pingdirectory_identify_references_virtual_attribute.myIdentifyReferencesVirtualAttribute identifyReferencesVirtualAttributeId

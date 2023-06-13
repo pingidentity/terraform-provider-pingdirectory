@@ -29,7 +29,7 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := localDbVlvIndexTestModel{
 		backendName: testBackendNametest,
-		baseDn:      "dc=example,dc=com",
+		baseDn:      "dc=examplevlv,dc=com",
 		scope:       "base-object",
 		filter:      "uid=user.1",
 		sortOrder:   "givenName",
@@ -37,7 +37,7 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 	}
 	updatedResourceModel := localDbVlvIndexTestModel{
 		backendName: testBackendNametest,
-		baseDn:      "dc=example,dc=com",
+		baseDn:      "dc=examplevlv,dc=com",
 		scope:       "base-object",
 		filter:      "uid=user.2",
 		sortOrder:   "mail",
@@ -80,9 +80,11 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 func testAccLocalDbVlvIndexResource(resourceName string, resourceModel localDbVlvIndexTestModel) string {
 	return fmt.Sprintf(`
 
-resource "pingdirectory_local_db_backend" "%[2]s" {
+
+resource "pingdirectory_backend" "%[2]s" {
+  type                  = "local-db"
   backend_id            = "%[2]s"
-  base_dn               = ["dc=example1,dc=com"]
+  base_dn               = ["dc=examplevlv,dc=com"]
   writability_mode      = "enabled"
   db_directory          = "db"
   import_temp_directory = "tmp"
@@ -90,7 +92,7 @@ resource "pingdirectory_local_db_backend" "%[2]s" {
 }
 
 resource "pingdirectory_local_db_vlv_index" "%[1]s" {
-  backend_name = pingdirectory_local_db_backend.%[2]s.backend_id
+  backend_name = pingdirectory_backend.%[2]s.backend_id
   base_dn      = "%[3]s"
   scope        = "%[4]s"
   filter       = "%[5]s"

@@ -52,7 +52,7 @@ func TestAccValidateTotpPasswordExtendedOperationHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccValidateTotpPasswordExtendedOperationHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_validate_totp_password_extended_operation_handler." + resourceName,
+				ResourceName:      "pingdirectory_extended_operation_handler." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccValidateTotpPasswordExtendedOperationHandler(t *testing.T) {
 
 func testAccValidateTotpPasswordExtendedOperationHandlerResource(resourceName string, resourceModel validateTotpPasswordExtendedOperationHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_validate_totp_password_extended_operation_handler" "%[1]s" {
+resource "pingdirectory_extended_operation_handler" "%[1]s" {
+  type    = "validate-totp-password"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

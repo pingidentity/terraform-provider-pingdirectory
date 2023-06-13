@@ -1,2 +1,0 @@
-# "thirdPartyHttpOperationLogPublisherId" should be the id of the Third Party Http Operation Log Publisher to be imported
-terraform import pingdirectory_third_party_http_operation_log_publisher.myThirdPartyHttpOperationLogPublisher thirdPartyHttpOperationLogPublisherId

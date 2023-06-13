@@ -1,2 +1,0 @@
-# "validateTotpPasswordExtendedOperationHandlerId" should be the id of the Validate Totp Password Extended Operation Handler to be imported
-terraform import pingdirectory_validate_totp_password_extended_operation_handler.myValidateTotpPasswordExtendedOperationHandler validateTotpPasswordExtendedOperationHandlerId

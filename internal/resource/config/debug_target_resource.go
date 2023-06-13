@@ -107,8 +107,8 @@ func (r *defaultDebugTargetResource) Schema(ctx context.Context, req resource.Sc
 	debugTargetSchema(ctx, req, resp, true)
 }
 
-func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Debug Target.",
 		Attributes: map[string]schema.Attribute{
 			"log_publisher_name": schema.StringAttribute{
@@ -133,10 +133,10 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "Specifies the debug message categories to be logged.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"omit_method_entry_arguments": schema.BoolAttribute{
 				Description: "Specifies the property to indicate whether to include method arguments in debug messages.",
@@ -176,14 +176,15 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"debug_scope", "log_publisher_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"debug_scope", "log_publisher_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for debug-target debug-target
 func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDebugTargetRequest, plan debugTargetResourceModel) error {
 	if internaltypes.IsDefined(plan.DebugCategory) {
 		var slice []string
@@ -247,20 +248,12 @@ func createDebugTargetOperations(plan debugTargetResourceModel, state debugTarge
 	return ops
 }
 
-// Create a new resource
-func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan debugTargetResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a debug-target debug-target
+func (r *debugTargetResource) CreateDebugTarget(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan debugTargetResourceModel) (*debugTargetResourceModel, error) {
 	debugLevel, err := client.NewEnumdebugTargetDebugLevelPropFromValue(plan.DebugLevel.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to parse enum value for DebugLevel", err.Error())
-		return
+		return nil, err
 	}
 	addRequest := client.NewAddDebugTargetRequest(plan.DebugScope.ValueString(),
 		plan.DebugScope.ValueString(),
@@ -268,7 +261,7 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 	err = addOptionalDebugTargetFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Debug Target", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -282,7 +275,7 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 	addResponse, httpResp, err := r.apiClient.DebugTargetApi.AddDebugTargetExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Debug Target", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -294,12 +287,29 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 	// Read the response into the state
 	var state debugTargetResourceModel
 	readDebugTargetResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan debugTargetResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateDebugTarget(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

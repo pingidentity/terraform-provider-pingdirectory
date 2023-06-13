@@ -52,7 +52,7 @@ func TestAccSubjectEqualsDnCertificateMapper(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccSubjectEqualsDnCertificateMapperResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_subject_equals_dn_certificate_mapper." + resourceName,
+				ResourceName:      "pingdirectory_certificate_mapper." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccSubjectEqualsDnCertificateMapper(t *testing.T) {
 
 func testAccSubjectEqualsDnCertificateMapperResource(resourceName string, resourceModel subjectEqualsDnCertificateMapperTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_subject_equals_dn_certificate_mapper" "%[1]s" {
+resource "pingdirectory_certificate_mapper" "%[1]s" {
+  type    = "subject-equals-dn"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

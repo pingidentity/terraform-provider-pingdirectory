@@ -62,7 +62,7 @@ type httpConfigurationResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Http Configuration.",
 		Attributes: map[string]schema.Attribute{
 			"include_stack_traces_in_error_pages": schema.BoolAttribute{
@@ -75,8 +75,8 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a HttpConfigurationResponse object into the model struct

@@ -103,8 +103,8 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Schema(ctx context.Context
 	httpServletCrossOriginPolicySchema(ctx, req, resp, true)
 }
 
-func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Http Servlet Cross Origin Policy.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -115,37 +115,37 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 				Description: "A list of HTTP methods allowed for cross-origin access to resources. i.e. one or more of GET, POST, PUT, DELETE, etc.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"cors_allowed_origins": schema.SetAttribute{
 				Description: "A list of origins that are allowed to execute cross-origin requests.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"cors_exposed_headers": schema.SetAttribute{
 				Description: "A list of HTTP headers other than the simple response headers that browsers are allowed to access.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"cors_allowed_headers": schema.SetAttribute{
 				Description: "A list of HTTP headers that are supported by the resource and can be specified in a cross-origin request.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"cors_preflight_max_age": schema.StringAttribute{
 				Description: "The maximum amount of time that a preflight request can be cached by a client.",
@@ -165,14 +165,15 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for http-servlet-cross-origin-policy http-servlet-cross-origin-policy
 func addOptionalHttpServletCrossOriginPolicyFields(ctx context.Context, addRequest *client.AddHttpServletCrossOriginPolicyRequest, plan httpServletCrossOriginPolicyResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -235,16 +236,8 @@ func createHttpServletCrossOriginPolicyOperations(plan httpServletCrossOriginPol
 	return ops
 }
 
-// Create a new resource
-func (r *httpServletCrossOriginPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan httpServletCrossOriginPolicyResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a http-servlet-cross-origin-policy http-servlet-cross-origin-policy
+func (r *httpServletCrossOriginPolicyResource) CreateHttpServletCrossOriginPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletCrossOriginPolicyResourceModel) (*httpServletCrossOriginPolicyResourceModel, error) {
 	addRequest := client.NewAddHttpServletCrossOriginPolicyRequest(plan.Id.ValueString())
 	addOptionalHttpServletCrossOriginPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -259,7 +252,7 @@ func (r *httpServletCrossOriginPolicyResource) Create(ctx context.Context, req r
 	addResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.AddHttpServletCrossOriginPolicyExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Http Servlet Cross Origin Policy", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -271,12 +264,29 @@ func (r *httpServletCrossOriginPolicyResource) Create(ctx context.Context, req r
 	// Read the response into the state
 	var state httpServletCrossOriginPolicyResourceModel
 	readHttpServletCrossOriginPolicyResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *httpServletCrossOriginPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan httpServletCrossOriginPolicyResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateHttpServletCrossOriginPolicy(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

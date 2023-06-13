@@ -40,7 +40,7 @@ func TestAccDefaultAzureAuthenticationMethod(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccDefaultAzureAuthenticationMethodResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_default_azure_authentication_method." + resourceName,
+				ResourceName:      "pingdirectory_azure_authentication_method." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -54,8 +54,9 @@ func TestAccDefaultAzureAuthenticationMethod(t *testing.T) {
 
 func testAccDefaultAzureAuthenticationMethodResource(resourceName string, resourceModel defaultAzureAuthenticationMethodTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_azure_authentication_method" "%[1]s" {
-  id = "%[2]s"
+resource "pingdirectory_azure_authentication_method" "%[1]s" {
+  type = "default"
+  id   = "%[2]s"
 }`, resourceName,
 		resourceModel.id)
 }

@@ -52,7 +52,7 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccQuickstartHttpServletExtensionResource(resourceName, initialResourceModel),
-				ResourceName:            "pingdirectory_quickstart_http_servlet_extension." + resourceName,
+				ResourceName:            "pingdirectory_http_servlet_extension." + resourceName,
 				ImportStateId:           initialResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -64,7 +64,8 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 
 func testAccQuickstartHttpServletExtensionResource(resourceName string, resourceModel quickstartHttpServletExtensionTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_quickstart_http_servlet_extension" "%[1]s" {
+resource "pingdirectory_http_servlet_extension" "%[1]s" {
+  type        = "quickstart"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName, resourceModel.id, resourceModel.description)

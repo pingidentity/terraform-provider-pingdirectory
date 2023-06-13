@@ -1,2 +1,0 @@
-# "defaultUncachedAttributeCriteriaId" should be the id of the Default Uncached Attribute Criteria to be imported
-terraform import pingdirectory_default_uncached_attribute_criteria.myDefaultUncachedAttributeCriteria defaultUncachedAttributeCriteriaId

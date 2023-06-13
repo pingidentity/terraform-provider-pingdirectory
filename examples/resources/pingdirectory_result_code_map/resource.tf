@@ -28,4 +28,3 @@ resource "pingdirectory_result_code_map" "myResultCodeMap" {
   bind_missing_user_result_code = 59
   server_error_result_code      = 81
 }
-

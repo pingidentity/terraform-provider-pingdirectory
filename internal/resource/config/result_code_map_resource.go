@@ -99,8 +99,8 @@ func (r *defaultResultCodeMapResource) Schema(ctx context.Context, req resource.
 	resultCodeMapSchema(ctx, req, resp, true)
 }
 
-func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Result Code Map.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -141,14 +141,15 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for result-code-map result-code-map
 func addOptionalResultCodeMapFields(ctx context.Context, addRequest *client.AddResultCodeMapRequest, plan resultCodeMapResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -190,16 +191,8 @@ func createResultCodeMapOperations(plan resultCodeMapResourceModel, state result
 	return ops
 }
 
-// Create a new resource
-func (r *resultCodeMapResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan resultCodeMapResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a result-code-map result-code-map
+func (r *resultCodeMapResource) CreateResultCodeMap(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCodeMapResourceModel) (*resultCodeMapResourceModel, error) {
 	addRequest := client.NewAddResultCodeMapRequest(plan.Id.ValueString())
 	addOptionalResultCodeMapFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -214,7 +207,7 @@ func (r *resultCodeMapResource) Create(ctx context.Context, req resource.CreateR
 	addResponse, httpResp, err := r.apiClient.ResultCodeMapApi.AddResultCodeMapExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Result Code Map", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -226,12 +219,29 @@ func (r *resultCodeMapResource) Create(ctx context.Context, req resource.CreateR
 	// Read the response into the state
 	var state resultCodeMapResourceModel
 	readResultCodeMapResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *resultCodeMapResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan resultCodeMapResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateResultCodeMap(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

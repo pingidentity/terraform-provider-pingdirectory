@@ -97,8 +97,8 @@ func (r *defaultScimSchemaResource) Schema(ctx context.Context, req resource.Sch
 	scimSchemaSchema(ctx, req, resp, true)
 }
 
-func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Scim Schema.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -118,14 +118,15 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"schema_urn"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"schema_urn"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for scim-schema scim-schema
 func addOptionalScimSchemaFields(ctx context.Context, addRequest *client.AddScimSchemaRequest, plan scimSchemaResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -155,16 +156,8 @@ func createScimSchemaOperations(plan scimSchemaResourceModel, state scimSchemaRe
 	return ops
 }
 
-// Create a new resource
-func (r *scimSchemaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan scimSchemaResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a scim-schema scim-schema
+func (r *scimSchemaResource) CreateScimSchema(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimSchemaResourceModel) (*scimSchemaResourceModel, error) {
 	addRequest := client.NewAddScimSchemaRequest(plan.SchemaURN.ValueString(),
 		plan.SchemaURN.ValueString())
 	addOptionalScimSchemaFields(ctx, addRequest, plan)
@@ -180,7 +173,7 @@ func (r *scimSchemaResource) Create(ctx context.Context, req resource.CreateRequ
 	addResponse, httpResp, err := r.apiClient.ScimSchemaApi.AddScimSchemaExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Schema", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -192,12 +185,29 @@ func (r *scimSchemaResource) Create(ctx context.Context, req resource.CreateRequ
 	// Read the response into the state
 	var state scimSchemaResourceModel
 	readScimSchemaResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *scimSchemaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan scimSchemaResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateScimSchema(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

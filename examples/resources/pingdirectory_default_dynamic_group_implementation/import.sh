@@ -1,2 +1,0 @@
-# "dynamicGroupImplementationId" should be the id of the Dynamic Group Implementation to be imported
-terraform import pingdirectory_default_dynamic_group_implementation.myDynamicGroupImplementation dynamicGroupImplementationId

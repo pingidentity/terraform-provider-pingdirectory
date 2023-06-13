@@ -1,2 +1,0 @@
-# "groovyScriptedErrorLogPublisherId" should be the id of the Groovy Scripted Error Log Publisher to be imported
-terraform import pingdirectory_groovy_scripted_error_log_publisher.myGroovyScriptedErrorLogPublisher groovyScriptedErrorLogPublisherId

@@ -36,7 +36,6 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_consent_definition" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_consent_definition" "myConsentDefinition" {
   unique_id    = "myConsentDefinition"
   display_name = "example display name"

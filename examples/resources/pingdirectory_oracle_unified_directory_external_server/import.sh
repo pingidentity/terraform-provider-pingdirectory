@@ -1,2 +1,0 @@
-# "oracleUnifiedDirectoryExternalServerId" should be the id of the Oracle Unified Directory External Server to be imported
-terraform import pingdirectory_oracle_unified_directory_external_server.myOracleUnifiedDirectoryExternalServer oracleUnifiedDirectoryExternalServerId

@@ -1,2 +1,0 @@
-# "thirdPartyPassThroughAuthenticationHandlerId" should be the id of the Third Party Pass Through Authentication Handler to be imported
-terraform import pingdirectory_third_party_pass_through_authentication_handler.myThirdPartyPassThroughAuthenticationHandler thirdPartyPassThroughAuthenticationHandlerId

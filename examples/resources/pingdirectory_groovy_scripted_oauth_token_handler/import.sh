@@ -1,2 +1,0 @@
-# "groovyScriptedOauthTokenHandlerId" should be the id of the Groovy Scripted Oauth Token Handler to be imported
-terraform import pingdirectory_groovy_scripted_oauth_token_handler.myGroovyScriptedOauthTokenHandler groovyScriptedOauthTokenHandlerId

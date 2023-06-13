@@ -97,8 +97,8 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Schema(ctx context.Cont
 	delegatedAdminAttributeCategorySchema(ctx, req, resp, true)
 }
 
-func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Attribute Category.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -118,14 +118,15 @@ func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.Sch
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"display_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"display_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for delegated-admin-attribute-category delegated-admin-attribute-category
 func addOptionalDelegatedAdminAttributeCategoryFields(ctx context.Context, addRequest *client.AddDelegatedAdminAttributeCategoryRequest, plan delegatedAdminAttributeCategoryResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -151,16 +152,8 @@ func createDelegatedAdminAttributeCategoryOperations(plan delegatedAdminAttribut
 	return ops
 }
 
-// Create a new resource
-func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan delegatedAdminAttributeCategoryResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a delegated-admin-attribute-category delegated-admin-attribute-category
+func (r *delegatedAdminAttributeCategoryResource) CreateDelegatedAdminAttributeCategory(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminAttributeCategoryResourceModel) (*delegatedAdminAttributeCategoryResourceModel, error) {
 	addRequest := client.NewAddDelegatedAdminAttributeCategoryRequest(plan.DisplayName.ValueString(),
 		plan.DisplayOrderIndex.ValueInt64())
 	addOptionalDelegatedAdminAttributeCategoryFields(ctx, addRequest, plan)
@@ -176,7 +169,7 @@ func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, re
 	addResponse, httpResp, err := r.apiClient.DelegatedAdminAttributeCategoryApi.AddDelegatedAdminAttributeCategoryExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Attribute Category", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -188,12 +181,29 @@ func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, re
 	// Read the response into the state
 	var state delegatedAdminAttributeCategoryResourceModel
 	readDelegatedAdminAttributeCategoryResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *delegatedAdminAttributeCategoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan delegatedAdminAttributeCategoryResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateDelegatedAdminAttributeCategory(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

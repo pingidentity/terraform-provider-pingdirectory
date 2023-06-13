@@ -1,2 +1,0 @@
-# "delayBindResponseFailureLockoutActionId" should be the id of the Delay Bind Response Failure Lockout Action to be imported
-terraform import pingdirectory_delay_bind_response_failure_lockout_action.myDelayBindResponseFailureLockoutAction delayBindResponseFailureLockoutActionId

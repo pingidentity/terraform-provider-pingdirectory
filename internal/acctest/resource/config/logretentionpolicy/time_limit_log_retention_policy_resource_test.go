@@ -52,7 +52,7 @@ func TestAccTimeLimitLogRetentionPolicy(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccTimeLimitLogRetentionPolicyResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_time_limit_log_retention_policy." + resourceName,
+				ResourceName:      "pingdirectory_log_retention_policy." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccTimeLimitLogRetentionPolicy(t *testing.T) {
 
 func testAccTimeLimitLogRetentionPolicyResource(resourceName string, resourceModel timeLimitLogRetentionPolicyTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_time_limit_log_retention_policy" "%[1]s" {
+resource "pingdirectory_log_retention_policy" "%[1]s" {
+  type            = "time-limit"
   id              = "%[2]s"
   retain_duration = "%[3]s"
 }`, resourceName,

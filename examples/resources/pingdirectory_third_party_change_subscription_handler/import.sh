@@ -1,2 +1,0 @@
-# "thirdPartyChangeSubscriptionHandlerId" should be the id of the Third Party Change Subscription Handler to be imported
-terraform import pingdirectory_third_party_change_subscription_handler.myThirdPartyChangeSubscriptionHandler thirdPartyChangeSubscriptionHandlerId

@@ -27,7 +27,7 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 				// Test basic resource
 				Config: testAccFileBasedTrustManagerProviderResource(resourceName, tmpName, false, "config/keystore", "JKS"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_file_based_trust_manager_provider.%s", resourceName), "include_jvm_default_issuers", "false"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_trust_manager_provider.%s", resourceName), "include_jvm_default_issuers", "false"),
 					testAccCheckExpectedFileBasedTrustManagerProviderAttributes(false, "config/keystore", "JKS"),
 				),
 			},
@@ -41,7 +41,7 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccFileBasedTrustManagerProviderResource(resourceName, tmpName, false, "config/truststore", "PKCS12"),
-				ResourceName:            "pingdirectory_file_based_trust_manager_provider." + resourceName,
+				ResourceName:            "pingdirectory_trust_manager_provider." + resourceName,
 				ImportStateId:           tmpName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -76,7 +76,7 @@ func TestAccJvmDefaultTrustManagerProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccJvmDefaultTrustManagerProviderResource(resourceName, tmpName, true),
-				ResourceName:            "pingdirectory_jvm_default_trust_manager_provider." + resourceName,
+				ResourceName:            "pingdirectory_trust_manager_provider." + resourceName,
 				ImportStateId:           tmpName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -102,7 +102,7 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 				Config: testAccThirdPartyTrustManagerProviderResource(resourceName, tmpName, false,
 					extensionClass, initialArguments),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_third_party_trust_manager_provider.%s", resourceName), "include_jvm_default_issuers", "false"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_trust_manager_provider.%s", resourceName), "include_jvm_default_issuers", "false"),
 					testAccCheckExpectedThirdPartyTrustManagerProviderAttributes(false, extensionClass, initialArguments),
 				),
 			},
@@ -118,7 +118,7 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 				// Test importing the resource
 				Config: testAccThirdPartyTrustManagerProviderResource(resourceName, tmpName, false,
 					extensionClass, updatedArguments),
-				ResourceName:            "pingdirectory_third_party_trust_manager_provider." + resourceName,
+				ResourceName:            "pingdirectory_trust_manager_provider." + resourceName,
 				ImportStateId:           tmpName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -130,7 +130,8 @@ func TestAccThirdPartyTrustManagerProvider(t *testing.T) {
 
 func testAccFileBasedTrustManagerProviderResource(resourceName, providerName string, enabled bool, trustStoreFile, trustStoreType string) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
+resource "pingdirectory_trust_manager_provider" "%[1]s" {
+  type             = "file-based"
   id               = "%[2]s"
   enabled          = %[3]t
   trust_store_file = "%[4]s"
@@ -140,7 +141,8 @@ resource "pingdirectory_file_based_trust_manager_provider" "%[1]s" {
 
 func testAccJvmDefaultTrustManagerProviderResource(resourceName, providerName string, enabled bool) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
+resource "pingdirectory_trust_manager_provider" "%[1]s" {
+  type    = "jvm-default"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName, providerName, enabled)
@@ -148,7 +150,8 @@ resource "pingdirectory_jvm_default_trust_manager_provider" "%[1]s" {
 
 func testAccThirdPartyTrustManagerProviderResource(resourceName, providerName string, enabled bool, extensionClass string, extensionArgument []string) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_third_party_trust_manager_provider" "%[1]s" {
+resource "pingdirectory_trust_manager_provider" "%[1]s" {
+  type               = "third-party"
   id                 = "%[2]s"
   enabled            = %[3]t
   extension_class    = "%[4]s"

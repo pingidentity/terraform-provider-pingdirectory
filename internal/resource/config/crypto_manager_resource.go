@@ -79,7 +79,7 @@ type cryptoManagerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Crypto Manager.",
 		Attributes: map[string]schema.Attribute{
 			"digest_algorithm": schema.StringAttribute{
@@ -142,37 +142,37 @@ func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaR
 				Description: "Specifies the names of TLS protocols that are allowed for use in secure communication.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"ssl_cipher_suite": schema.SetAttribute{
 				Description: "Specifies the names of the TLS cipher suites that are allowed for use in secure communication.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"outbound_ssl_protocol": schema.SetAttribute{
 				Description: "Specifies the names of the TLS protocols that will be enabled for outbound connections initiated by the Directory Server.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"outbound_ssl_cipher_suite": schema.SetAttribute{
 				Description: "Specifies the names of the TLS cipher suites that will be enabled for outbound connections initiated by the Directory Server.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"enable_sha_1_cipher_suites": schema.BoolAttribute{
 				Description: "Indicates whether to enable support for TLS cipher suites that use the SHA-1 digest algorithm. The SHA-1 digest algorithm is no longer considered secure and is not recommended for use.",
@@ -200,11 +200,11 @@ func (r *cryptoManagerResource) Schema(ctx context.Context, req resource.SchemaR
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Validate that any version restrictions are met in the plan
+// Validate that any restrictions are met in the plan
 func (r *cryptoManagerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {

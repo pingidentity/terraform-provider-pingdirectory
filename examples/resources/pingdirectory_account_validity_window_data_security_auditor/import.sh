@@ -1,2 +1,0 @@
-# "accountValidityWindowDataSecurityAuditorId" should be the id of the Account Validity Window Data Security Auditor to be imported
-terraform import pingdirectory_account_validity_window_data_security_auditor.myAccountValidityWindowDataSecurityAuditor accountValidityWindowDataSecurityAuditorId

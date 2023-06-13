@@ -95,8 +95,8 @@ func (r *defaultDnMapResource) Schema(ctx context.Context, req resource.SchemaRe
 	dnMapSchema(ctx, req, resp, true)
 }
 
-func dnMapSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func dnMapSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Dn Map.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -113,14 +113,15 @@ func dnMapSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for dn-map dn-map
 func addOptionalDnMapFields(ctx context.Context, addRequest *client.AddDnMapRequest, plan dnMapResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -146,16 +147,8 @@ func createDnMapOperations(plan dnMapResourceModel, state dnMapResourceModel) []
 	return ops
 }
 
-// Create a new resource
-func (r *dnMapResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan dnMapResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a dn-map dn-map
+func (r *dnMapResource) CreateDnMap(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dnMapResourceModel) (*dnMapResourceModel, error) {
 	addRequest := client.NewAddDnMapRequest(plan.Id.ValueString(),
 		plan.FromDNPattern.ValueString(),
 		plan.ToDNPattern.ValueString())
@@ -172,7 +165,7 @@ func (r *dnMapResource) Create(ctx context.Context, req resource.CreateRequest, 
 	addResponse, httpResp, err := r.apiClient.DnMapApi.AddDnMapExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Dn Map", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -184,12 +177,29 @@ func (r *dnMapResource) Create(ctx context.Context, req resource.CreateRequest, 
 	// Read the response into the state
 	var state dnMapResourceModel
 	readDnMapResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *dnMapResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan dnMapResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateDnMap(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -99,8 +99,8 @@ func (r *defaultConsentDefinitionResource) Schema(ctx context.Context, req resou
 	consentDefinitionSchema(ctx, req, resp, true)
 }
 
-func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Consent Definition.",
 		Attributes: map[string]schema.Attribute{
 			"unique_id": schema.StringAttribute{
@@ -118,10 +118,10 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Optional parameters for this Consent Definition.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Consent Definition",
@@ -129,14 +129,15 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"unique_id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"unique_id"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for consent-definition consent-definition
 func addOptionalConsentDefinitionFields(ctx context.Context, addRequest *client.AddConsentDefinitionRequest, plan consentDefinitionResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.DisplayName) {
@@ -173,16 +174,8 @@ func createConsentDefinitionOperations(plan consentDefinitionResourceModel, stat
 	return ops
 }
 
-// Create a new resource
-func (r *consentDefinitionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan consentDefinitionResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a consent-definition consent-definition
+func (r *consentDefinitionResource) CreateConsentDefinition(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan consentDefinitionResourceModel) (*consentDefinitionResourceModel, error) {
 	addRequest := client.NewAddConsentDefinitionRequest(plan.UniqueID.ValueString(),
 		plan.UniqueID.ValueString())
 	addOptionalConsentDefinitionFields(ctx, addRequest, plan)
@@ -198,7 +191,7 @@ func (r *consentDefinitionResource) Create(ctx context.Context, req resource.Cre
 	addResponse, httpResp, err := r.apiClient.ConsentDefinitionApi.AddConsentDefinitionExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Consent Definition", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -210,12 +203,29 @@ func (r *consentDefinitionResource) Create(ctx context.Context, req resource.Cre
 	// Read the response into the state
 	var state consentDefinitionResourceModel
 	readConsentDefinitionResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *consentDefinitionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan consentDefinitionResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateConsentDefinition(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

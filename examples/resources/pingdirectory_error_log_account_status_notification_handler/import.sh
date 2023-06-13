@@ -1,2 +1,0 @@
-# "errorLogAccountStatusNotificationHandlerId" should be the id of the Error Log Account Status Notification Handler to be imported
-terraform import pingdirectory_error_log_account_status_notification_handler.myErrorLogAccountStatusNotificationHandler errorLogAccountStatusNotificationHandlerId

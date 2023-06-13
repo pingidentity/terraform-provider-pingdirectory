@@ -1,2 +1,0 @@
-# "distinguishedNameAttributeSyntaxId" should be the id of the Distinguished Name Attribute Syntax to be imported
-terraform import pingdirectory_default_distinguished_name_attribute_syntax.myDistinguishedNameAttributeSyntax distinguishedNameAttributeSyntaxId

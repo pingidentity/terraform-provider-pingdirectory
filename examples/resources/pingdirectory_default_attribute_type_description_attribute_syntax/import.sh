@@ -1,2 +1,0 @@
-# "attributeTypeDescriptionAttributeSyntaxId" should be the id of the Attribute Type Description Attribute Syntax to be imported
-terraform import pingdirectory_default_attribute_type_description_attribute_syntax.myAttributeTypeDescriptionAttributeSyntax attributeTypeDescriptionAttributeSyntaxId

@@ -147,8 +147,8 @@ func (r *defaultPasswordPolicyResource) Schema(ctx context.Context, req resource
 	passwordPolicySchema(ctx, req, resp, true)
 }
 
-func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Password Policy.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -175,10 +175,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the account status notification handlers that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"state_update_failure_policy": schema.StringAttribute{
 				Description: "Specifies how the server deals with the inability to update password policy state information during an authentication attempt.",
@@ -209,10 +209,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password storage schemes that are considered deprecated for this password policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allow_multiple_password_values": schema.BoolAttribute{
 				Description: "Indicates whether user entries can have multiple distinct values for the password attribute.",
@@ -234,19 +234,19 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the names of the password validators that are used with the associated password storage scheme.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"bind_password_validator": schema.SetAttribute{
 				Description: "Specifies the names of the password validators that should be invoked for bind operations.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"minimum_bind_password_validation_frequency": schema.StringAttribute{
 				Description: "Indicates how frequently password validation should be performed during bind operations for each user to whom this password policy is assigned.",
@@ -412,10 +412,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the conditions under which the server may retire a user's current password in the course of setting a new password for that user (whether via a modify operation or a password modify extended operation).",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"max_retired_password_age": schema.StringAttribute{
 				Description: "Specifies the maximum length of time that a retired password should be considered valid and may be used to authenticate to the server.",
@@ -429,10 +429,10 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "The set of conditions under which a user governed by this Password Policy will be permitted to generate a password reset token via the deliver password reset token extended operation, and to use that token in lieu of the current password via the password modify extended operation.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"force_change_on_add": schema.BoolAttribute{
 				Description: "Indicates whether users are forced to change their passwords upon first authenticating to the Directory Server after their account has been created.",
@@ -526,21 +526,22 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Description: "Specifies the format string(s) that might have been used with the last login time at any point in the past for users associated with the password policy.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for password-policy password-policy
 func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.AddPasswordPolicyRequest, plan passwordPolicyResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -900,16 +901,8 @@ func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state pass
 	return ops
 }
 
-// Create a new resource
-func (r *passwordPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan passwordPolicyResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a password-policy password-policy
+func (r *passwordPolicyResource) CreatePasswordPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordPolicyResourceModel) (*passwordPolicyResourceModel, error) {
 	var DefaultPasswordStorageSchemeSlice []string
 	plan.DefaultPasswordStorageScheme.ElementsAs(ctx, &DefaultPasswordStorageSchemeSlice, false)
 	addRequest := client.NewAddPasswordPolicyRequest(plan.Id.ValueString(),
@@ -918,7 +911,7 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 	err := addOptionalPasswordPolicyFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Password Policy", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -932,7 +925,7 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 	addResponse, httpResp, err := r.apiClient.PasswordPolicyApi.AddPasswordPolicyExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Password Policy", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -944,12 +937,29 @@ func (r *passwordPolicyResource) Create(ctx context.Context, req resource.Create
 	// Read the response into the state
 	var state passwordPolicyResourceModel
 	readPasswordPolicyResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *passwordPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan passwordPolicyResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreatePasswordPolicy(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

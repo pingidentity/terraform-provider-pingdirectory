@@ -22,7 +22,6 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_http_servlet_cross_origin_policy" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginPolicy" {
   id                   = "MyHttpServletCrossOriginPolicy"
   cors_allowed_headers = ["Accept, Access-Control-Request-Headers"]

@@ -108,8 +108,8 @@ func (r *defaultScimAttributeResource) Schema(ctx context.Context, req resource.
 	scimAttributeSchema(ctx, req, resp, true)
 }
 
-func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Scim Attribute.",
 		Attributes: map[string]schema.Attribute{
 			"scim_schema_name": schema.StringAttribute{
@@ -166,10 +166,10 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the suggested canonical type values for the attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"mutability": schema.StringAttribute{
 				Description: "Specifies the circumstances under which the values of the attribute can be written.",
@@ -191,21 +191,22 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 				Description: "Specifies the SCIM resource types that may be referenced. This property is only applicable for attributes that are of type 'reference'. Valid values are: A SCIM resource type (e.g., 'User' or 'Group'), 'external' - indicating the resource is an external resource (e.g., such as a photo), or 'uri' - indicating that the reference is to a service endpoint or an identifier (such as a schema urn).",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"name", "scim_schema_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"name", "scim_schema_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for scim-attribute scim-attribute
 func addOptionalScimAttributeFields(ctx context.Context, addRequest *client.AddScimAttributeRequest, plan scimAttributeResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -290,22 +291,14 @@ func createScimAttributeOperations(plan scimAttributeResourceModel, state scimAt
 	return ops
 }
 
-// Create a new resource
-func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan scimAttributeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a scim-attribute scim-attribute
+func (r *scimAttributeResource) CreateScimAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimAttributeResourceModel) (*scimAttributeResourceModel, error) {
 	addRequest := client.NewAddScimAttributeRequest(plan.Name.ValueString(),
 		plan.Name.ValueString())
 	err := addOptionalScimAttributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Attribute", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -319,7 +312,7 @@ func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateR
 	addResponse, httpResp, err := r.apiClient.ScimAttributeApi.AddScimAttributeExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Attribute", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -331,12 +324,29 @@ func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateR
 	// Read the response into the state
 	var state scimAttributeResourceModel
 	readScimAttributeResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *scimAttributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan scimAttributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateScimAttribute(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -1,2 +1,0 @@
-# "azureKeyVaultCipherStreamProviderId" should be the id of the Azure Key Vault Cipher Stream Provider to be imported
-terraform import pingdirectory_azure_key_vault_cipher_stream_provider.myAzureKeyVaultCipherStreamProvider azureKeyVaultCipherStreamProviderId

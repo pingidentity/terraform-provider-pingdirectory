@@ -1,2 +1,0 @@
-# "groovyScriptedChangeSubscriptionHandlerId" should be the id of the Groovy Scripted Change Subscription Handler to be imported
-terraform import pingdirectory_groovy_scripted_change_subscription_handler.myGroovyScriptedChangeSubscriptionHandler groovyScriptedChangeSubscriptionHandlerId

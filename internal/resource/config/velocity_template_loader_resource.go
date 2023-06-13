@@ -104,8 +104,8 @@ func (r *defaultVelocityTemplateLoaderResource) Schema(ctx context.Context, req 
 	velocityTemplateLoaderSchema(ctx, req, resp, true)
 }
 
-func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Velocity Template Loader.",
 		Attributes: map[string]schema.Attribute{
 			"http_servlet_extension_name": schema.StringAttribute{
@@ -157,14 +157,15 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id", "http_servlet_extension_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "http_servlet_extension_name"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for velocity-template-loader velocity-template-loader
 func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *client.AddVelocityTemplateLoaderRequest, plan velocityTemplateLoaderResourceModel) {
 	if internaltypes.IsDefined(plan.Enabled) {
 		addRequest.Enabled = plan.Enabled.ValueBoolPointer()
@@ -211,16 +212,8 @@ func createVelocityTemplateLoaderOperations(plan velocityTemplateLoaderResourceM
 	return ops
 }
 
-// Create a new resource
-func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan velocityTemplateLoaderResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a velocity-template-loader velocity-template-loader
+func (r *velocityTemplateLoaderResource) CreateVelocityTemplateLoader(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityTemplateLoaderResourceModel) (*velocityTemplateLoaderResourceModel, error) {
 	addRequest := client.NewAddVelocityTemplateLoaderRequest(plan.Id.ValueString(),
 		plan.MimeTypeMatcher.ValueString())
 	addOptionalVelocityTemplateLoaderFields(ctx, addRequest, plan)
@@ -236,7 +229,7 @@ func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resourc
 	addResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.AddVelocityTemplateLoaderExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Velocity Template Loader", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -248,12 +241,29 @@ func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resourc
 	// Read the response into the state
 	var state velocityTemplateLoaderResourceModel
 	readVelocityTemplateLoaderResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan velocityTemplateLoaderResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateVelocityTemplateLoader(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

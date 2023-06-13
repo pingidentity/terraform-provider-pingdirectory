@@ -63,7 +63,7 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccPingFederateAccessTokenValidatorResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_ping_federate_access_token_validator." + resourceName,
+				ResourceName:      "pingdirectory_access_token_validator." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -76,7 +76,8 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 
 func testAccPingFederateAccessTokenValidatorResource(resourceName string, resourceModel pingFederateAccessTokenValidatorTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_ping_federate_access_token_validator" "%[1]s" {
+resource "pingdirectory_access_token_validator" "%[1]s" {
+  type                 = "ping-federate"
   id                   = "%[2]s"
   client_id            = "%[3]s"
   client_secret        = "%[4]s"

@@ -52,7 +52,7 @@ func TestAccDelayBindResponseFailureLockoutAction(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccDelayBindResponseFailureLockoutActionResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_delay_bind_response_failure_lockout_action." + resourceName,
+				ResourceName:      "pingdirectory_failure_lockout_action." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccDelayBindResponseFailureLockoutAction(t *testing.T) {
 
 func testAccDelayBindResponseFailureLockoutActionResource(resourceName string, resourceModel delayBindResponseFailureLockoutActionTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_delay_bind_response_failure_lockout_action" "%[1]s" {
+resource "pingdirectory_failure_lockout_action" "%[1]s" {
+  type  = "delay-bind-response"
   id    = "%[2]s"
   delay = "%[3]s"
 }`, resourceName,

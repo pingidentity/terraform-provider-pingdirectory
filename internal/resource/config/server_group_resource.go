@@ -95,29 +95,30 @@ func (r *defaultServerGroupResource) Schema(ctx context.Context, req resource.Sc
 	serverGroupSchema(ctx, req, resp, true)
 }
 
-func serverGroupSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func serverGroupSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Server Group.",
 		Attributes: map[string]schema.Attribute{
 			"member": schema.SetAttribute{
 				Description: "A server instance that is a member of this group.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for server-group server-group
 func addOptionalServerGroupFields(ctx context.Context, addRequest *client.AddServerGroupRequest, plan serverGroupResourceModel) {
 	if internaltypes.IsDefined(plan.Member) {
 		var slice []string
@@ -140,16 +141,8 @@ func createServerGroupOperations(plan serverGroupResourceModel, state serverGrou
 	return ops
 }
 
-// Create a new resource
-func (r *serverGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan serverGroupResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a server-group server-group
+func (r *serverGroupResource) CreateServerGroup(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan serverGroupResourceModel) (*serverGroupResourceModel, error) {
 	addRequest := client.NewAddServerGroupRequest(plan.Id.ValueString())
 	addOptionalServerGroupFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -164,7 +157,7 @@ func (r *serverGroupResource) Create(ctx context.Context, req resource.CreateReq
 	addResponse, httpResp, err := r.apiClient.ServerGroupApi.AddServerGroupExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Server Group", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -176,12 +169,29 @@ func (r *serverGroupResource) Create(ctx context.Context, req resource.CreateReq
 	// Read the response into the state
 	var state serverGroupResourceModel
 	readServerGroupResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *serverGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan serverGroupResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateServerGroup(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -22,7 +22,6 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_delegated_admin_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
   id            = "MyDelegatedAdminRights"
   enabled       = true

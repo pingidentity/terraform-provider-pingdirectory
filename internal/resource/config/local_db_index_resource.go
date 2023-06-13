@@ -110,8 +110,8 @@ func (r *defaultLocalDbIndexResource) Schema(ctx context.Context, req resource.S
 	localDbIndexSchema(ctx, req, resp, true)
 }
 
-func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Local Db Index.",
 		Attributes: map[string]schema.Attribute{
 			"backend_name": schema.StringAttribute{
@@ -185,10 +185,10 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				Description: "A search filter that may be used in conjunction with an equality component for the associated attribute type. If an equality index filter is defined, then an additional equality index will be maintained for the associated attribute, but only for entries which match the provided filter. Further, the index will be used only for searches containing an equality component with the associated attribute type ANDed with this filter.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"maintain_equality_index_without_filter": schema.BoolAttribute{
 				Description: "Indicates whether to maintain a separate equality index for the associated attribute without any filter, in addition to maintaining an index for each equality index filter that is defined. If this is false, then the attribute will not be indexed for equality by itself but only in conjunction with the defined equality index filters.",
@@ -208,14 +208,15 @@ func localDbIndexSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"attribute", "backend_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"attribute", "backend_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for local-db-index local-db-index
 func addOptionalLocalDbIndexFields(ctx context.Context, addRequest *client.AddLocalDbIndexRequest, plan localDbIndexResourceModel) error {
 	if internaltypes.IsDefined(plan.IndexEntryLimit) {
 		addRequest.IndexEntryLimit = plan.IndexEntryLimit.ValueInt64Pointer()
@@ -291,16 +292,8 @@ func createLocalDbIndexOperations(plan localDbIndexResourceModel, state localDbI
 	return ops
 }
 
-// Create a new resource
-func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan localDbIndexResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a local-db-index local-db-index
+func (r *localDbIndexResource) CreateLocalDbIndex(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan localDbIndexResourceModel) (*localDbIndexResourceModel, error) {
 	var IndexTypeSlice []client.EnumlocalDbIndexIndexTypeProp
 	plan.IndexType.ElementsAs(ctx, &IndexTypeSlice, false)
 	addRequest := client.NewAddLocalDbIndexRequest(plan.Attribute.ValueString(),
@@ -309,7 +302,7 @@ func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRe
 	err := addOptionalLocalDbIndexFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Local Db Index", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -323,7 +316,7 @@ func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRe
 	addResponse, httpResp, err := r.apiClient.LocalDbIndexApi.AddLocalDbIndexExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Local Db Index", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -335,12 +328,29 @@ func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRe
 	// Read the response into the state
 	var state localDbIndexResourceModel
 	readLocalDbIndexResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *localDbIndexResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan localDbIndexResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateLocalDbIndex(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

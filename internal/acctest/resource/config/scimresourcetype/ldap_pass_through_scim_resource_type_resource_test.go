@@ -58,7 +58,7 @@ func TestAccLdapPassThroughScimResourceType(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccLdapPassThroughScimResourceTypeResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_ldap_pass_through_scim_resource_type." + resourceName,
+				ResourceName:      "pingdirectory_scim_resource_type." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -72,7 +72,8 @@ func TestAccLdapPassThroughScimResourceType(t *testing.T) {
 
 func testAccLdapPassThroughScimResourceTypeResource(resourceName string, resourceModel ldapPassThroughScimResourceTypeTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_ldap_pass_through_scim_resource_type" "%[1]s" {
+resource "pingdirectory_scim_resource_type" "%[1]s" {
+  type        = "ldap-pass-through"
   id          = "%[2]s"
   enabled     = %[3]t
   endpoint    = "%[4]s"

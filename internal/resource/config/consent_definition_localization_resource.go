@@ -101,8 +101,8 @@ func (r *defaultConsentDefinitionLocalizationResource) Schema(ctx context.Contex
 	consentDefinitionLocalizationSchema(ctx, req, resp, true)
 }
 
-func consentDefinitionLocalizationSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func consentDefinitionLocalizationSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Consent Definition Localization.",
 		Attributes: map[string]schema.Attribute{
 			"consent_definition_name": schema.StringAttribute{
@@ -137,14 +137,15 @@ func consentDefinitionLocalizationSchema(ctx context.Context, req resource.Schem
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"locale", "consent_definition_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"locale", "consent_definition_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for consent-definition-localization consent-definition-localization
 func addOptionalConsentDefinitionLocalizationFields(ctx context.Context, addRequest *client.AddConsentDefinitionLocalizationRequest, plan consentDefinitionLocalizationResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TitleText) {
@@ -175,16 +176,8 @@ func createConsentDefinitionLocalizationOperations(plan consentDefinitionLocaliz
 	return ops
 }
 
-// Create a new resource
-func (r *consentDefinitionLocalizationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan consentDefinitionLocalizationResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a consent-definition-localization consent-definition-localization
+func (r *consentDefinitionLocalizationResource) CreateConsentDefinitionLocalization(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan consentDefinitionLocalizationResourceModel) (*consentDefinitionLocalizationResourceModel, error) {
 	addRequest := client.NewAddConsentDefinitionLocalizationRequest(plan.Locale.ValueString(),
 		plan.Locale.ValueString(),
 		plan.Version.ValueString(),
@@ -203,7 +196,7 @@ func (r *consentDefinitionLocalizationResource) Create(ctx context.Context, req 
 	addResponse, httpResp, err := r.apiClient.ConsentDefinitionLocalizationApi.AddConsentDefinitionLocalizationExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Consent Definition Localization", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -215,12 +208,29 @@ func (r *consentDefinitionLocalizationResource) Create(ctx context.Context, req 
 	// Read the response into the state
 	var state consentDefinitionLocalizationResourceModel
 	readConsentDefinitionLocalizationResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *consentDefinitionLocalizationResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan consentDefinitionLocalizationResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateConsentDefinitionLocalization(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

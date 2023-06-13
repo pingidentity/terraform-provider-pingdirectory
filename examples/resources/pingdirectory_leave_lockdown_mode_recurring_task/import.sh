@@ -1,2 +1,0 @@
-# "leaveLockdownModeRecurringTaskId" should be the id of the Leave Lockdown Mode Recurring Task to be imported
-terraform import pingdirectory_leave_lockdown_mode_recurring_task.myLeaveLockdownModeRecurringTask leaveLockdownModeRecurringTaskId

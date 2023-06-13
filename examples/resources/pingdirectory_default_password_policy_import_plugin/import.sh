@@ -1,2 +1,0 @@
-# "passwordPolicyImportPluginId" should be the id of the Password Policy Import Plugin to be imported
-terraform import pingdirectory_default_password_policy_import_plugin.myPasswordPolicyImportPlugin passwordPolicyImportPluginId

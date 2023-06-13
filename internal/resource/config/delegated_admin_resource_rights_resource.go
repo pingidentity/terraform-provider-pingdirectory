@@ -104,8 +104,8 @@ func (r *defaultDelegatedAdminResourceRightsResource) Schema(ctx context.Context
 	delegatedAdminResourceRightsSchema(ctx, req, resp, true)
 }
 
-func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Resource Rights.",
 		Attributes: map[string]schema.Attribute{
 			"delegated_admin_rights_name": schema.StringAttribute{
@@ -134,10 +134,10 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Description: "Specifies administrator(s) permissions.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"admin_scope": schema.StringAttribute{
 				Description: "Specifies the scope of these Delegated Admin Resource Rights.",
@@ -151,30 +151,31 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Description: "Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"resources_in_group": schema.SetAttribute{
 				Description: "Specifies groups whose members can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-groups.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"rest_resource_type", "delegated_admin_rights_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"rest_resource_type", "delegated_admin_rights_name"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for delegated-admin-resource-rights delegated-admin-resource-rights
 func addOptionalDelegatedAdminResourceRightsFields(ctx context.Context, addRequest *client.AddDelegatedAdminResourceRightsRequest, plan delegatedAdminResourceRightsResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -243,22 +244,14 @@ func createDelegatedAdminResourceRightsOperations(plan delegatedAdminResourceRig
 	return ops
 }
 
-// Create a new resource
-func (r *delegatedAdminResourceRightsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan delegatedAdminResourceRightsResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a delegated-admin-resource-rights delegated-admin-resource-rights
+func (r *delegatedAdminResourceRightsResource) CreateDelegatedAdminResourceRights(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminResourceRightsResourceModel) (*delegatedAdminResourceRightsResourceModel, error) {
 	addRequest := client.NewAddDelegatedAdminResourceRightsRequest(plan.RestResourceType.ValueString(),
 		plan.Enabled.ValueBool())
 	err := addOptionalDelegatedAdminResourceRightsFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Delegated Admin Resource Rights", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -272,7 +265,7 @@ func (r *delegatedAdminResourceRightsResource) Create(ctx context.Context, req r
 	addResponse, httpResp, err := r.apiClient.DelegatedAdminResourceRightsApi.AddDelegatedAdminResourceRightsExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Delegated Admin Resource Rights", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -284,12 +277,29 @@ func (r *delegatedAdminResourceRightsResource) Create(ctx context.Context, req r
 	// Read the response into the state
 	var state delegatedAdminResourceRightsResourceModel
 	readDelegatedAdminResourceRightsResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *delegatedAdminResourceRightsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan delegatedAdminResourceRightsResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateDelegatedAdminResourceRights(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

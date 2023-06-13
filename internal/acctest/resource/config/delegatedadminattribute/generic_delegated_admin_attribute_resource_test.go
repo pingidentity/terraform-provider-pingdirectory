@@ -59,7 +59,7 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccGenericDelegatedAdminAttributeResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_generic_delegated_admin_attribute." + resourceName,
+				ResourceName:      "pingdirectory_delegated_admin_attribute." + resourceName,
 				ImportStateId:     updatedResourceModel.restResourceTypeName + "/" + updatedResourceModel.attributeType,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -73,7 +73,8 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 
 func testAccGenericDelegatedAdminAttributeResource(resourceName string, resourceModel genericDelegatedAdminAttributeTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_generic_rest_resource_type" "%[2]s" {
+resource "pingdirectory_rest_resource_type" "%[2]s" {
+  type                           = "generic"
   id                             = "%[2]s"
   enabled                        = true
   resource_endpoint              = "device"
@@ -84,8 +85,9 @@ resource "pingdirectory_generic_rest_resource_type" "%[2]s" {
   search_filter_pattern          = "(cn=*%%%%*)"
   primary_display_attribute_type = "cn"
 }
-resource "pingdirectory_generic_delegated_admin_attribute" "%[1]s" {
-  rest_resource_type_name = pingdirectory_generic_rest_resource_type.%[2]s.id
+resource "pingdirectory_delegated_admin_attribute" "%[1]s" {
+  type                    = "generic"
+  rest_resource_type_name = pingdirectory_rest_resource_type.%[2]s.id
   attribute_type          = "%[3]s"
   display_name            = "%[4]s"
   display_order_index     = %[5]d

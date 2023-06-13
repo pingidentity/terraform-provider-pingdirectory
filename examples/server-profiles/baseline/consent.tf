@@ -13,23 +13,26 @@ resource "pingdirectory_consent_definition_localization" "emailConsentDefinition
   purpose_text            = "Join Mailing List"
 }
 
-resource "pingdirectory_default_directory_rest_api_http_servlet_extension" "defaultDirectoryRestApiExtension" {
+resource "pingdirectory_default_http_servlet_extension" "defaultDirectoryRestApiExtension" {
+  type               = "directory-rest-api"
   id                 = "Directory REST API"
   access_token_scope = "ds"
 }
 
-resource "pingdirectory_exact_match_identity_mapper" "userIdIdentityMapper" {
+resource "pingdirectory_identity_mapper" "userIdIdentityMapper" {
+  type            = "exact-match"
   id              = "user-id-identity-mapper"
   enabled         = true
   match_attribute = ["cn", "entryUUID", "uid"]
   match_base_dn   = ["cn=config", "ou=people,${var.user_base_dn}"]
 }
 
-resource "pingdirectory_mock_access_token_validator" "mockAccessTokenValidate" {
+resource "pingdirectory_access_token_validator" "mockAccessTokenValidate" {
+  type                   = "mock"
   id                     = "mock-access-token-validator"
-  identity_mapper        = pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id
+  identity_mapper        = pingdirectory_identity_mapper.userIdIdentityMapper.id
   enabled                = true
-  evaluation_order_index = 1
+  evaluation_order_index = 2
 }
 
 resource "pingdirectory_topology_admin_user" "consentInternalServiceAccount" {
@@ -46,7 +49,7 @@ resource "pingdirectory_default_consent_service" "defaultConsentService" {
   enabled                        = true
   base_dn                        = "ou=Consents,${var.user_base_dn}"
   bind_dn                        = "cn=consent service account"
-  consent_record_identity_mapper = [pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id]
+  consent_record_identity_mapper = [pingdirectory_identity_mapper.userIdIdentityMapper.id]
   # The above attribute must be changed to allow destroying the user-id-identity-mapper object.
   # consent_record_identity_mapper = []
   service_account_dn         = ["uid=Consent Admin,ou=people,${var.user_base_dn}"]
@@ -54,9 +57,10 @@ resource "pingdirectory_default_consent_service" "defaultConsentService" {
   privileged_consent_scope   = "consent_admin"
 }
 
-resource "pingdirectory_default_consent_http_servlet_extension" "defaultConsentServletExtension" {
+resource "pingdirectory_default_http_servlet_extension" "defaultConsentServletExtension" {
+  type            = "consent"
   id              = "Consent"
-  identity_mapper = pingdirectory_exact_match_identity_mapper.userIdIdentityMapper.id
+  identity_mapper = pingdirectory_identity_mapper.userIdIdentityMapper.id
   # The above attribute must be changed to allow destroying the user-id-identity-mapper object.
   # Exact Match is the default identity mapper.
   # identity_mapper = "Exact Match"

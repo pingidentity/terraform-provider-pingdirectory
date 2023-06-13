@@ -1,2 +1,0 @@
-# "directoryStringAttributeSyntaxId" should be the id of the Directory String Attribute Syntax to be imported
-terraform import pingdirectory_default_directory_string_attribute_syntax.myDirectoryStringAttributeSyntax directoryStringAttributeSyntaxId

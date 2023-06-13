@@ -22,7 +22,6 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_local_db_index" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_local_db_index" "myLocalDbIndex" {
   backend_name = "userRoot"
   attribute    = "dc"

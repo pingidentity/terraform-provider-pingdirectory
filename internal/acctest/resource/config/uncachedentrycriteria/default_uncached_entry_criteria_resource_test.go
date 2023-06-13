@@ -55,7 +55,7 @@ func TestAccDefaultUncachedEntryCriteria(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccDefaultUncachedEntryCriteriaResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_default_uncached_entry_criteria." + resourceName,
+				ResourceName:      "pingdirectory_uncached_entry_criteria." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,8 @@ func TestAccDefaultUncachedEntryCriteria(t *testing.T) {
 
 func testAccDefaultUncachedEntryCriteriaResource(resourceName string, resourceModel defaultUncachedEntryCriteriaTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_uncached_entry_criteria" "%[1]s" {
+resource "pingdirectory_uncached_entry_criteria" "%[1]s" {
+  type        = "default"
   id          = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t

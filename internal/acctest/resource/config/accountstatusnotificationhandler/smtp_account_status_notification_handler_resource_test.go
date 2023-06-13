@@ -67,7 +67,7 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccSmtpAccountStatusNotificationHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_smtp_account_status_notification_handler." + resourceName,
+				ResourceName:            "pingdirectory_account_status_notification_handler." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -79,7 +79,8 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 
 func testAccSmtpAccountStatusNotificationHandlerResource(resourceName string, resourceModel smtpAccountStatusNotificationHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_smtp_account_status_notification_handler" "%[1]s" {
+resource "pingdirectory_account_status_notification_handler" "%[1]s" {
+  type                                  = "smtp"
   id                                    = "%[2]s"
   send_message_without_end_user_address = %[3]t
   recipient_address                     = %[4]s

@@ -1,2 +1,0 @@
-# "multiplePasswordDataSecurityAuditorId" should be the id of the Multiple Password Data Security Auditor to be imported
-terraform import pingdirectory_multiple_password_data_security_auditor.myMultiplePasswordDataSecurityAuditor multiplePasswordDataSecurityAuditorId

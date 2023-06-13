@@ -1,2 +1,0 @@
-# "thirdPartyAccessTokenValidatorId" should be the id of the Third Party Access Token Validator to be imported
-terraform import pingdirectory_third_party_access_token_validator.myThirdPartyAccessTokenValidator thirdPartyAccessTokenValidatorId

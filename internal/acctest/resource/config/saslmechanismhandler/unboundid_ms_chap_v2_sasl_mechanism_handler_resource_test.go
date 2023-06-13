@@ -55,7 +55,7 @@ func TestAccUnboundidMsChapV2SaslMechanismHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccUnboundidMsChapV2SaslMechanismHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_unboundid_ms_chap_v2_sasl_mechanism_handler." + resourceName,
+				ResourceName:      "pingdirectory_sasl_mechanism_handler." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,8 @@ func TestAccUnboundidMsChapV2SaslMechanismHandler(t *testing.T) {
 
 func testAccUnboundidMsChapV2SaslMechanismHandlerResource(resourceName string, resourceModel unboundidMsChapV2SaslMechanismHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_unboundid_ms_chap_v2_sasl_mechanism_handler" "%[1]s" {
+resource "pingdirectory_sasl_mechanism_handler" "%[1]s" {
+  type            = "unboundid-ms-chap-v2"
   id              = "%[2]s"
   identity_mapper = "%[3]s"
   enabled         = %[4]t

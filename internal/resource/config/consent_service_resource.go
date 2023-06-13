@@ -73,7 +73,7 @@ type consentServiceResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *consentServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Consent Service.",
 		Attributes: map[string]schema.Attribute{
 			"enabled": schema.BoolAttribute{
@@ -112,19 +112,19 @@ func (r *consentServiceResource) Schema(ctx context.Context, req resource.Schema
 				Description: "If specified, the Identity Mapper(s) that may be used to map consent record subject and actor values to DNs. This is typically only needed if privileged API clients will be used.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"service_account_dn": schema.SetAttribute{
 				Description: "The set of account DNs that the Consent Service will consider to be privileged.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"unprivileged_consent_scope": schema.StringAttribute{
 				Description: "The name of a scope that must be present in an access token accepted by the Consent Service for unprivileged clients.",
@@ -152,8 +152,8 @@ func (r *consentServiceResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ConsentServiceResponse object into the model struct

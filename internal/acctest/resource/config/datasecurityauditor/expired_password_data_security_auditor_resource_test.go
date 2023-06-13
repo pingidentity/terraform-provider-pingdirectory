@@ -40,7 +40,7 @@ func TestAccExpiredPasswordDataSecurityAuditor(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccExpiredPasswordDataSecurityAuditorResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_expired_password_data_security_auditor." + resourceName,
+				ResourceName:      "pingdirectory_data_security_auditor." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -54,8 +54,9 @@ func TestAccExpiredPasswordDataSecurityAuditor(t *testing.T) {
 
 func testAccExpiredPasswordDataSecurityAuditorResource(resourceName string, resourceModel expiredPasswordDataSecurityAuditorTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_expired_password_data_security_auditor" "%[1]s" {
-  id = "%[2]s"
+resource "pingdirectory_data_security_auditor" "%[1]s" {
+  type = "expired-password"
+  id   = "%[2]s"
 }`, resourceName,
 		resourceModel.id)
 }

@@ -66,26 +66,26 @@ type rootDseBackendResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *rootDseBackendResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Root Dse Backend.",
 		Attributes: map[string]schema.Attribute{
 			"subordinate_base_dn": schema.SetAttribute{
 				Description: "Specifies the set of base DNs used for singleLevel, wholeSubtree, and subordinateSubtree searches based at the root DSE.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"additional_supported_control_oid": schema.SetAttribute{
 				Description: "Specifies an additional OID that should appear in the list of supportedControl values in the server's root DSE.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"show_all_attributes": schema.BoolAttribute{
 				Description: "Indicates whether all attributes in the root DSE are to be treated like user attributes (and therefore returned to clients by default) regardless of the Directory Server schema configuration.",
@@ -105,8 +105,8 @@ func (r *rootDseBackendResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a RootDseBackendResponse object into the model struct

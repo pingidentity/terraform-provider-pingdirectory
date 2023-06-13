@@ -1,2 +1,0 @@
-# "directoryRestApiHttpServletExtensionId" should be the id of the Directory Rest Api Http Servlet Extension to be imported
-terraform import pingdirectory_default_directory_rest_api_http_servlet_extension.myDirectoryRestApiHttpServletExtension directoryRestApiHttpServletExtensionId

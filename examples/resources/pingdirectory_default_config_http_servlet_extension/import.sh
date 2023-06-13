@@ -1,2 +1,0 @@
-# "configHttpServletExtensionId" should be the id of the Config Http Servlet Extension to be imported
-terraform import pingdirectory_default_config_http_servlet_extension.myConfigHttpServletExtension configHttpServletExtensionId

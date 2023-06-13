@@ -1,2 +1,0 @@
-# "ldapPassThroughAuthenticationHandlerId" should be the id of the Ldap Pass Through Authentication Handler to be imported
-terraform import pingdirectory_ldap_pass_through_authentication_handler.myLdapPassThroughAuthenticationHandler ldapPassThroughAuthenticationHandlerId

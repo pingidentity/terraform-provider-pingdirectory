@@ -52,7 +52,7 @@ func TestAccBlindTrustManagerProvider(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccBlindTrustManagerProviderResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_blind_trust_manager_provider." + resourceName,
+				ResourceName:      "pingdirectory_trust_manager_provider." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccBlindTrustManagerProvider(t *testing.T) {
 
 func testAccBlindTrustManagerProviderResource(resourceName string, resourceModel blindTrustManagerProviderTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_blind_trust_manager_provider" "%[1]s" {
+resource "pingdirectory_trust_manager_provider" "%[1]s" {
+  type    = "blind"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

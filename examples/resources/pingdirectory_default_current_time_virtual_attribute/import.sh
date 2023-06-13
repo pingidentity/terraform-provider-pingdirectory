@@ -1,2 +1,0 @@
-# "currentTimeVirtualAttributeId" should be the id of the Current Time Virtual Attribute to be imported
-terraform import pingdirectory_default_current_time_virtual_attribute.myCurrentTimeVirtualAttribute currentTimeVirtualAttributeId

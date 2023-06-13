@@ -58,7 +58,7 @@ func TestAccSmtpAlertHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccSmtpAlertHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_smtp_alert_handler." + resourceName,
+				ResourceName:      "pingdirectory_alert_handler." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -72,7 +72,8 @@ func TestAccSmtpAlertHandler(t *testing.T) {
 
 func testAccSmtpAlertHandlerResource(resourceName string, resourceModel smtpAlertHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_smtp_alert_handler" "%[1]s" {
+resource "pingdirectory_alert_handler" "%[1]s" {
+  type              = "smtp"
   id                = "%[2]s"
   sender_address    = "%[3]s"
   recipient_address = %[4]s

@@ -1,2 +1,0 @@
-# "expiredPasswordDataSecurityAuditorId" should be the id of the Expired Password Data Security Auditor to be imported
-terraform import pingdirectory_expired_password_data_security_auditor.myExpiredPasswordDataSecurityAuditor expiredPasswordDataSecurityAuditorId

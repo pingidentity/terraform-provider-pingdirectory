@@ -1,2 +1,0 @@
-# "replicationStateDetailVirtualAttributeId" should be the id of the Replication State Detail Virtual Attribute to be imported
-terraform import pingdirectory_default_replication_state_detail_virtual_attribute.myReplicationStateDetailVirtualAttribute replicationStateDetailVirtualAttributeId

@@ -1,2 +1,0 @@
-# "startTlsExtendedOperationHandlerId" should be the id of the Start Tls Extended Operation Handler to be imported
-terraform import pingdirectory_default_start_tls_extended_operation_handler.myStartTlsExtendedOperationHandler startTlsExtendedOperationHandlerId

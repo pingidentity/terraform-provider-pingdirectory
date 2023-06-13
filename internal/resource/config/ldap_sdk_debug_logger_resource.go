@@ -86,7 +86,7 @@ type ldapSdkDebugLoggerResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Ldap Sdk Debug Logger.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -125,10 +125,10 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Description: "The types of debug messages that should be logged.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"include_stack_trace": schema.BoolAttribute{
 				Description: "Indicates whether a stack trace of the thread which called the debug method should be included in debug log messages.",
@@ -198,28 +198,28 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 				Description: "The rotation policy to use for the LDAP SDK Debug Logger .",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"rotation_listener": schema.SetAttribute{
 				Description: "A listener that should be notified whenever a log file is rotated out of service.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"retention_policy": schema.SetAttribute{
 				Description: "The retention policy to use for the LDAP SDK Debug Logger .",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"compression_mechanism": schema.StringAttribute{
 				Description: "Specifies the type of compression (if any) to use for log files that are written.",
@@ -271,8 +271,8 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a LdapSdkDebugLoggerResponse object into the model struct

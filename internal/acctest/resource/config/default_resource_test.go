@@ -140,7 +140,7 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccDefaultLogPublisherResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_default_file_based_audit_log_publisher." + resourceName,
+				ResourceName:            "pingdirectory_default_log_publisher." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -152,7 +152,8 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 
 func testAccDefaultLogPublisherResource(resourceName string, resourceModel defaultLogPublisherTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_default_file_based_audit_log_publisher" "%[1]s" {
+resource "pingdirectory_default_log_publisher" "%[1]s" {
+  type    = "file-based-audit"
   id      = "%[2]s"
   enabled = "%[3]t"
 }`, resourceName, resourceModel.id,

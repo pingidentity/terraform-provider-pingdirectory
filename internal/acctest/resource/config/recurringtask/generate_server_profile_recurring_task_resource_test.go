@@ -55,7 +55,7 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccGenerateServerProfileRecurringTaskResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_generate_server_profile_recurring_task." + resourceName,
+				ResourceName:            "pingdirectory_recurring_task." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -67,7 +67,8 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 
 func testAccGenerateServerProfileRecurringTaskResource(resourceName string, resourceModel generateServerProfileRecurringTaskTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_generate_server_profile_recurring_task" "%[1]s" {
+resource "pingdirectory_recurring_task" "%[1]s" {
+  type                          = "generate-server-profile"
   id                            = "%[2]s"
   profile_directory             = "%[3]s"
   retain_previous_profile_count = "%[4]d"

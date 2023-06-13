@@ -55,7 +55,7 @@ func TestAccGroovyScriptedOauthTokenHandler(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccGroovyScriptedOauthTokenHandlerResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_groovy_scripted_oauth_token_handler." + resourceName,
+				ResourceName:      "pingdirectory_oauth_token_handler." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -69,7 +69,8 @@ func TestAccGroovyScriptedOauthTokenHandler(t *testing.T) {
 
 func testAccGroovyScriptedOauthTokenHandlerResource(resourceName string, resourceModel groovyScriptedOauthTokenHandlerTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_groovy_scripted_oauth_token_handler" "%[1]s" {
+resource "pingdirectory_oauth_token_handler" "%[1]s" {
+  type         = "groovy-scripted"
   id           = "%[2]s"
   description  = "%[3]s"
   script_class = "%[4]s"

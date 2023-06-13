@@ -1,2 +1,0 @@
-# "diskSpaceUsageMonitorProviderId" should be the id of the Disk Space Usage Monitor Provider to be imported
-terraform import pingdirectory_default_disk_space_usage_monitor_provider.myDiskSpaceUsageMonitorProvider diskSpaceUsageMonitorProviderId

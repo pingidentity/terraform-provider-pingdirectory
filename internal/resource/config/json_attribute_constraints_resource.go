@@ -99,8 +99,8 @@ func (r *defaultJsonAttributeConstraintsResource) Schema(ctx context.Context, re
 	jsonAttributeConstraintsSchema(ctx, req, resp, true)
 }
 
-func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Json Attribute Constraints.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -132,14 +132,15 @@ func jsonAttributeConstraintsSchema(ctx context.Context, req resource.SchemaRequ
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"attribute_type"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type"})
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for json-attribute-constraints json-attribute-constraints
 func addOptionalJsonAttributeConstraintsFields(ctx context.Context, addRequest *client.AddJsonAttributeConstraintsRequest, plan jsonAttributeConstraintsResourceModel) {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -173,16 +174,8 @@ func createJsonAttributeConstraintsOperations(plan jsonAttributeConstraintsResou
 	return ops
 }
 
-// Create a new resource
-func (r *jsonAttributeConstraintsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan jsonAttributeConstraintsResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a json-attribute-constraints json-attribute-constraints
+func (r *jsonAttributeConstraintsResource) CreateJsonAttributeConstraints(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan jsonAttributeConstraintsResourceModel) (*jsonAttributeConstraintsResourceModel, error) {
 	addRequest := client.NewAddJsonAttributeConstraintsRequest(plan.AttributeType.ValueString())
 	addOptionalJsonAttributeConstraintsFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -197,7 +190,7 @@ func (r *jsonAttributeConstraintsResource) Create(ctx context.Context, req resou
 	addResponse, httpResp, err := r.apiClient.JsonAttributeConstraintsApi.AddJsonAttributeConstraintsExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Json Attribute Constraints", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -209,12 +202,29 @@ func (r *jsonAttributeConstraintsResource) Create(ctx context.Context, req resou
 	// Read the response into the state
 	var state jsonAttributeConstraintsResourceModel
 	readJsonAttributeConstraintsResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *jsonAttributeConstraintsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan jsonAttributeConstraintsResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateJsonAttributeConstraints(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

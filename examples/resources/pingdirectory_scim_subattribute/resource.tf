@@ -22,10 +22,8 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-resource "pingdirectory_scim_subattribute" "myScimSubattribute" {
-  id                  = "MyScimSubattribute"
-  scim_attribute_name = pingdirectory_scim_attribute.myScimAttribute.name
-  scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
+resource "pingdirectory_scim_schema" "myScimSchema" {
+  schema_urn = "urn:com:example"
 }
 
 resource "pingdirectory_scim_attribute" "myScimAttribute" {
@@ -33,6 +31,8 @@ resource "pingdirectory_scim_attribute" "myScimAttribute" {
   name             = "cn"
 }
 
-resource "pingdirectory_scim_schema" "myScimSchema" {
-  schema_urn = "urn:com:example"
+resource "pingdirectory_scim_subattribute" "myScimSubattribute" {
+  id                  = "MyScimSubattribute"
+  scim_attribute_name = pingdirectory_scim_attribute.myScimAttribute.name
+  scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
 }

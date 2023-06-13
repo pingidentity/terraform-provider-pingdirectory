@@ -60,6 +60,7 @@ provider "pingdirectory" {
   https_host = "https://localhost:1443"
   # Warning: The insecure_trust_all_tls attribute configures the provider to trust any certificate presented by the PingDirectory server.
   insecure_trust_all_tls = true
+  product_version        = "9.2.0.0"
 }
 
 # Create a sample location
@@ -110,13 +111,15 @@ provider "pingdirectory" {
 }
 
 # Disable the default failed operations access logger
-resource "pingdirectory_default_file_based_access_log_publisher" "defaultFileBasedAccessLogPublisher" {
+resource "pingdirectory_default_log_publisher" "defaultFileBasedAccessLogPublisher" {
   id      = "Failed Operations Access Logger"
+  type    = "file-based-access"
   enabled = false
 }
 
 # Create a new custom file based access logger
-resource "pingdirectory_file_based_access_log_publisher" "myNewFileBasedAccessLogPublisher" {
+resource "pingdirectory_log_publisher" "myNewFileBasedAccessLogPublisher" {
+  type                 = "file-based-access"
   id                   = "MyNewFileBasedAccessLogPublisher"
   log_file             = "logs/example.log"
   log_file_permissions = "600"
@@ -127,13 +130,15 @@ resource "pingdirectory_file_based_access_log_publisher" "myNewFileBasedAccessLo
 }
 
 # Enable the default JMX connection handler
-resource "pingdirectory_default_jmx_connection_handler" "defaultJmxConnHandler" {
+resource "pingdirectory_default_connection_handler" "defaultJmxConnHandler" {
+  type    = "jmx"
   id      = "JMX Connection Handler"
   enabled = true
 }
 
 # Create a new custom JMX connection handler
-resource "pingdirectory_jmx_connection_handler" "myJmxConnHandler" {
+resource "pingdirectory_connection_handler" "myJmxConnHandler" {
+  type        = "jmx"
   id          = "MyJmxConnHandler"
   enabled     = false
   listen_port = 8888

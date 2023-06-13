@@ -61,7 +61,7 @@ func TestAccPingOneIdTokenValidator(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccPingOneIdTokenValidatorResource(resourceName, updatedResourceModel),
-				ResourceName:      "pingdirectory_ping_one_id_token_validator." + resourceName,
+				ResourceName:      "pingdirectory_id_token_validator." + resourceName,
 				ImportStateId:     updatedResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -75,7 +75,8 @@ func TestAccPingOneIdTokenValidator(t *testing.T) {
 
 func testAccPingOneIdTokenValidatorResource(resourceName string, resourceModel pingOneIdTokenValidatorTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_ping_one_id_token_validator" "%[1]s" {
+resource "pingdirectory_id_token_validator" "%[1]s" {
+  type                   = "ping-one"
   id                     = "%[2]s"
   issuer_url             = "%[3]s"
   enabled                = %[4]t

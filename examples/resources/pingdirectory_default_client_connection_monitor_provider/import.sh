@@ -1,2 +1,0 @@
-# "clientConnectionMonitorProviderId" should be the id of the Client Connection Monitor Provider to be imported
-terraform import pingdirectory_default_client_connection_monitor_provider.myClientConnectionMonitorProvider clientConnectionMonitorProviderId

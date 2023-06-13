@@ -1,2 +1,0 @@
-# "consoleWebApplicationExtensionId" should be the id of the Console Web Application Extension to be imported
-terraform import pingdirectory_default_console_web_application_extension.myConsoleWebApplicationExtension consoleWebApplicationExtensionId

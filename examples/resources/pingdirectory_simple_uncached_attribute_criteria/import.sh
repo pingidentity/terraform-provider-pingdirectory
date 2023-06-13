@@ -1,2 +1,0 @@
-# "simpleUncachedAttributeCriteriaId" should be the id of the Simple Uncached Attribute Criteria to be imported
-terraform import pingdirectory_simple_uncached_attribute_criteria.mySimpleUncachedAttributeCriteria simpleUncachedAttributeCriteriaId

@@ -1,2 +1,0 @@
-# "groovyScriptedCertificateMapperId" should be the id of the Groovy Scripted Certificate Mapper to be imported
-terraform import pingdirectory_groovy_scripted_certificate_mapper.myGroovyScriptedCertificateMapper groovyScriptedCertificateMapperId

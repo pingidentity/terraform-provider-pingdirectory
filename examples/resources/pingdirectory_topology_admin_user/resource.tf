@@ -22,9 +22,8 @@ provider "pingdirectory" {
   product_version        = "9.2.0.0"
 }
 
-# Use "pingdirectory_default_topology_admin_user" if you are adopting existing configuration from the PingDirectory server into Terraform
-resource "pingdirectory_topology_admin_user" "myuser" {
-  id                              = "my_topology_admin_user"
+resource "pingdirectory_topology_admin_user" "myTopologyAdminUser" {
+  id                              = "MyTopologyAdminUser"
   inherit_default_root_privileges = true
   search_result_entry_limit       = 100
   time_limit_seconds              = 60

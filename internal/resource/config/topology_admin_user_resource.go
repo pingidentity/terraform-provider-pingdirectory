@@ -130,18 +130,18 @@ func (r *defaultTopologyAdminUserResource) Schema(ctx context.Context, req resou
 	topologyAdminUserSchema(ctx, req, resp, true)
 }
 
-func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Topology Admin User.",
 		Attributes: map[string]schema.Attribute{
 			"alternate_bind_dn": schema.SetAttribute{
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this User.",
@@ -156,19 +156,19 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the user's first name. This is stored in the givenName LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"last_name": schema.SetAttribute{
 				Description: "Specifies the user's last name. This is stored in the sn LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"user_id": schema.StringAttribute{
 				Description: "Specifies the user's user ID. This is stored in the uid LDAP attribute.",
@@ -178,46 +178,46 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the user's email address. This is stored in the mail LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"work_telephone_number": schema.SetAttribute{
 				Description: "Specifies the user's work telephone number. This is stored in the telephoneNumber LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"home_telephone_number": schema.SetAttribute{
 				Description: "Specifies the user's home telephone number. This is stored in the homePhone LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"mobile_telephone_number": schema.SetAttribute{
 				Description: "Specifies the user's mobile telephone number. This is stored in the mobile LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"pager_telephone_number": schema.SetAttribute{
 				Description: "Specifies the user's pager telephone number. This is stored in the pager LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"inherit_default_root_privileges": schema.BoolAttribute{
 				Description: "Indicates whether this User should be automatically granted the set of privileges defined in the default-root-privilege-name property of the Root DN configuration object.",
@@ -231,10 +231,10 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Privileges that are either explicitly granted or revoked from the root user. Privileges can be revoked by including a minus sign (-) before the privilege name. This is stored in the ds-privilege-name LDAP attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"search_result_entry_limit": schema.Int64Attribute{
 				Description: "Specifies the maximum number of entries that the server may return to the user in response to any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-size-limit LDAP attribute.",
@@ -312,28 +312,28 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Indicates that User should only be allowed to authenticate in certain ways. Allowed values include \"simple\" (to indicate that the user should be allowed to bind using simple authentication) or \"sasl {mech}\" (to indicate that the user should be allowed to bind using the specified SASL mechanism, like \"sasl PLAIN\"). The list of available SASL mechanisms can be retrieved by running \"dsconfig --advanced list-sasl-mechanism-handlers\".",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"allowed_authentication_ip_address": schema.SetAttribute{
 				Description: "An IPv4 or IPv6 address mask that controls the set of IP addresses from which this User can authenticate to the server. For instance a value of 127.0.0.1 (or ::1 in IPv6) would restricted access only to localhost connections, whereas 10.6.1.* would restrict access to servers on the 10.6.1.* subnet.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"preferred_otp_delivery_mechanism": schema.SetAttribute{
 				Description: "Overrides the default settings for the mechanisms (e.g., email or SMS) that are used to deliver one time passwords to Users.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"is_proxyable": schema.StringAttribute{
 				Description: "This can be used to indicate whether the User can be used as an alternate authorization identity (using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity).",
@@ -347,66 +347,67 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 				Description: "Specifies the DNs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"is_proxyable_by_group": schema.SetAttribute{
 				Description: "Specifies the DNs of groups whose members can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"is_proxyable_by_url": schema.SetAttribute{
 				Description: "Specifies LDAP URLs of accounts that can proxy as this User using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity. This property is only applicable if is-proxyable is set to \"allowed\" or \"required\".",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"may_proxy_as_dn": schema.SetAttribute{
 				Description: "This restricts the set of accounts that this User can proxy as to entries with the specified DNs.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"may_proxy_as_group": schema.SetAttribute{
 				Description: "This restricts the set of accounts that this User can proxy as to entries that are in the group with the specified DN.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"may_proxy_as_url": schema.SetAttribute{
 				Description: "This restricts the set of accounts that this User can proxy as to entries that are matched by the specified LDAP URL.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for topology-admin-user topology-admin-user
 func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.AddTopologyAdminUserRequest, plan topologyAdminUserResourceModel) error {
 	if internaltypes.IsDefined(plan.AlternateBindDN) {
 		var slice []string
@@ -646,21 +647,13 @@ func createTopologyAdminUserOperations(plan topologyAdminUserResourceModel, stat
 	return ops
 }
 
-// Create a new resource
-func (r *topologyAdminUserResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan topologyAdminUserResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a topology-admin-user topology-admin-user
+func (r *topologyAdminUserResource) CreateTopologyAdminUser(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan topologyAdminUserResourceModel) (*topologyAdminUserResourceModel, error) {
 	addRequest := client.NewAddTopologyAdminUserRequest(plan.Id.ValueString())
 	err := addOptionalTopologyAdminUserFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Topology Admin User", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -674,7 +667,7 @@ func (r *topologyAdminUserResource) Create(ctx context.Context, req resource.Cre
 	addResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.AddTopologyAdminUserExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Topology Admin User", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -686,12 +679,29 @@ func (r *topologyAdminUserResource) Create(ctx context.Context, req resource.Cre
 	// Read the response into the state
 	var state topologyAdminUserResourceModel
 	readTopologyAdminUserResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *topologyAdminUserResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan topologyAdminUserResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateTopologyAdminUser(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

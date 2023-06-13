@@ -107,8 +107,8 @@ func (r *defaultRecurringTaskChainResource) Schema(ctx context.Context, req reso
 	recurringTaskChainSchema(ctx, req, resp, true)
 }
 
-func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Recurring Task Chain.",
 		Attributes: map[string]schema.Attribute{
 			"description": schema.StringAttribute{
@@ -132,10 +132,10 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The months of the year in which instances of this Recurring Task Chain may be scheduled to start.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"scheduled_date_selection_type": schema.StringAttribute{
 				Description: "The mechanism used to determine the dates on which instances of this Recurring Task Chain may be scheduled to start.",
@@ -145,19 +145,19 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "The specific days of the week on which instances of this Recurring Task Chain may be scheduled to start. If the scheduled-day-selection-type property has a value of selected-days-of-the-week, then this property must have one or more values; otherwise, it must be left undefined.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"scheduled_day_of_the_month": schema.SetAttribute{
 				Description: "The specific days of the month on which instances of this Recurring Task Chain may be scheduled to start. If the scheduled-day-selection-type property has a value of selected-days-of-the-month, then this property must have one or more values; otherwise, it must be left undefined.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"scheduled_time_of_day": schema.SetAttribute{
 				Description: "The time of day at which instances of the Recurring Task Chain should be eligible to start running. Values should be in the format HH:MM (where HH is a two-digit representation of the hour of the day, between 00 and 23, inclusive), and MM is a two-digit representation of the minute of the hour (between 00 and 59, inclusive). Alternately, the value can be in the form *:MM, which indicates that the task should be eligible to start at the specified minute of every hour. At least one value must be provided, but multiple values may be given to indicate multiple start times within the same day.",
@@ -190,14 +190,15 @@ func recurringTaskChainSchema(ctx context.Context, req resource.SchemaRequest, r
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for recurring-task-chain recurring-task-chain
 func addOptionalRecurringTaskChainFields(ctx context.Context, addRequest *client.AddRecurringTaskChainRequest, plan recurringTaskChainResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -307,22 +308,14 @@ func createRecurringTaskChainOperations(plan recurringTaskChainResourceModel, st
 	return ops
 }
 
-// Create a new resource
-func (r *recurringTaskChainResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan recurringTaskChainResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a recurring-task-chain recurring-task-chain
+func (r *recurringTaskChainResource) CreateRecurringTaskChain(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskChainResourceModel) (*recurringTaskChainResourceModel, error) {
 	var RecurringTaskSlice []string
 	plan.RecurringTask.ElementsAs(ctx, &RecurringTaskSlice, false)
 	scheduledDateSelectionType, err := client.NewEnumrecurringTaskChainScheduledDateSelectionTypePropFromValue(plan.ScheduledDateSelectionType.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to parse enum value for ScheduledDateSelectionType", err.Error())
-		return
+		return nil, err
 	}
 	var ScheduledTimeOfDaySlice []string
 	plan.ScheduledTimeOfDay.ElementsAs(ctx, &ScheduledTimeOfDaySlice, false)
@@ -333,7 +326,7 @@ func (r *recurringTaskChainResource) Create(ctx context.Context, req resource.Cr
 	err = addOptionalRecurringTaskChainFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Recurring Task Chain", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -347,7 +340,7 @@ func (r *recurringTaskChainResource) Create(ctx context.Context, req resource.Cr
 	addResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.AddRecurringTaskChainExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Recurring Task Chain", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -359,12 +352,29 @@ func (r *recurringTaskChainResource) Create(ctx context.Context, req resource.Cr
 	// Read the response into the state
 	var state recurringTaskChainResourceModel
 	readRecurringTaskChainResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *recurringTaskChainResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan recurringTaskChainResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateRecurringTaskChain(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

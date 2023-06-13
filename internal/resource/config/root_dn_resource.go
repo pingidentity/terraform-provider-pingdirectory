@@ -62,22 +62,22 @@ type rootDnResourceModel struct {
 
 // GetSchema defines the schema for the resource.
 func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	schema := schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Manages a Root Dn.",
 		Attributes: map[string]schema.Attribute{
 			"default_root_privilege_name": schema.SetAttribute{
 				Description: "Specifies the names of the privileges that root users will be granted by default.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	AddCommonSchema(&schema, false)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a RootDnResponse object into the model struct

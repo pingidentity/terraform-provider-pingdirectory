@@ -68,7 +68,7 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccInternalSearchRatePluginResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_internal_search_rate_plugin." + resourceName,
+				ResourceName:            "pingdirectory_plugin." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -80,12 +80,13 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 
 func testAccInternalSearchRatePluginResource(resourceName string, resourceModel internalSearchRatePluginTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_internal_search_rate_plugin" "%[1]s" {
+resource "pingdirectory_plugin" "%[1]s" {
+  resource_type = "internal-search-rate"
   id            = "%[2]s"
   description   = "%[3]s"
   plugin_type   = %[4]s
   num_threads   = %[5]d
-  base_dn       = "%[6]s"
+  base_dn       = ["%[6]s"]
   filter_prefix = "%[7]s"
   enabled       = %[8]t
 }`, resourceName,

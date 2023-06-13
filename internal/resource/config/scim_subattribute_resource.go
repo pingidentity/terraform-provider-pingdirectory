@@ -108,8 +108,8 @@ func (r *defaultScimSubattributeResource) Schema(ctx context.Context, req resour
 	scimSubattributeSchema(ctx, req, resp, true)
 }
 
-func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, setOptionalToComputed bool) {
-	schema := schema.Schema{
+func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
+	schemaDef := schema.Schema{
 		Description: "Manages a Scim Subattribute.",
 		Attributes: map[string]schema.Attribute{
 			"scim_attribute_name": schema.StringAttribute{
@@ -166,10 +166,10 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the suggested canonical type values for the sub-attribute.",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 			"mutability": schema.StringAttribute{
 				Description: "Specifies the circumstances under which the values of the sub-attribute can be written.",
@@ -191,21 +191,22 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "Specifies the SCIM resource types that may be referenced. This property is only applicable for sub-attributes that are of type 'reference'. Valid values are: A SCIM resource type (e.g., 'User' or 'Group'), 'external' - indicating the resource is an external resource (e.g., such as a photo), or 'uri' - indicating that the reference is to a service endpoint or an identifier (such as a schema urn).",
 				Optional:    true,
 				Computed:    true,
+				ElementType: types.StringType,
 				PlanModifiers: []planmodifier.Set{
 					setplanmodifier.UseStateForUnknown(),
 				},
-				ElementType: types.StringType,
 			},
 		},
 	}
-	if setOptionalToComputed {
-		SetAllAttributesToOptionalAndComputed(&schema, []string{"id", "scim_attribute_name", "scim_schema_name"})
+	if isDefault {
+		// Add any default properties and set optional properties to computed where necessary
+		SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "scim_attribute_name", "scim_schema_name"})
 	}
-	AddCommonSchema(&schema, true)
-	resp.Schema = schema
+	AddCommonSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
-// Add optional fields to create request
+// Add optional fields to create request for scim-subattribute scim-subattribute
 func addOptionalScimSubattributeFields(ctx context.Context, addRequest *client.AddScimSubattributeRequest, plan scimSubattributeResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -289,21 +290,13 @@ func createScimSubattributeOperations(plan scimSubattributeResourceModel, state 
 	return ops
 }
 
-// Create a new resource
-func (r *scimSubattributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// Retrieve values from plan
-	var plan scimSubattributeResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+// Create a scim-subattribute scim-subattribute
+func (r *scimSubattributeResource) CreateScimSubattribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimSubattributeResourceModel) (*scimSubattributeResourceModel, error) {
 	addRequest := client.NewAddScimSubattributeRequest(plan.Id.ValueString())
 	err := addOptionalScimSubattributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Subattribute", err.Error())
-		return
+		return nil, err
 	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -317,7 +310,7 @@ func (r *scimSubattributeResource) Create(ctx context.Context, req resource.Crea
 	addResponse, httpResp, err := r.apiClient.ScimSubattributeApi.AddScimSubattributeExecute(apiAddRequest)
 	if err != nil {
 		ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Scim Subattribute", err, httpResp)
-		return
+		return nil, err
 	}
 
 	// Log response JSON
@@ -329,12 +322,29 @@ func (r *scimSubattributeResource) Create(ctx context.Context, req resource.Crea
 	// Read the response into the state
 	var state scimSubattributeResourceModel
 	readScimSubattributeResponse(ctx, addResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a new resource
+func (r *scimSubattributeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	// Retrieve values from plan
+	var plan scimSubattributeResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	state, err := r.CreateScimSubattribute(ctx, req, resp, plan)
+	if err != nil {
+		return
+	}
 
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
 	// Set state to fully populated data
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

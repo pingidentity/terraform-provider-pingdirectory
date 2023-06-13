@@ -52,7 +52,7 @@ func TestAccSimpleSearchEntryCriteria(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:            testAccSimpleSearchEntryCriteriaResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_simple_search_entry_criteria." + resourceName,
+				ResourceName:      "pingdirectory_search_entry_criteria." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -66,7 +66,8 @@ func TestAccSimpleSearchEntryCriteria(t *testing.T) {
 
 func testAccSimpleSearchEntryCriteriaResource(resourceName string, resourceModel simpleSearchEntryCriteriaTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_simple_search_entry_criteria" "%[1]s" {
+resource "pingdirectory_search_entry_criteria" "%[1]s" {
+  type        = "simple"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName,

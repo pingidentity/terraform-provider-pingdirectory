@@ -55,7 +55,7 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 			{
 				// Test importing the resource
 				Config:                  testAccExactMatchIdentityMapperResource(resourceName, updatedResourceModel),
-				ResourceName:            "pingdirectory_exact_match_identity_mapper." + resourceName,
+				ResourceName:            "pingdirectory_identity_mapper." + resourceName,
 				ImportStateId:           updatedResourceModel.id,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -67,7 +67,8 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 
 func testAccExactMatchIdentityMapperResource(resourceName string, resourceModel exactMatchIdentityMapperTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_exact_match_identity_mapper" "%[1]s" {
+resource "pingdirectory_identity_mapper" "%[1]s" {
+  type            = "exact-match"
   id              = "%[2]s"
   match_attribute = %[3]s
   enabled         = %[4]t
