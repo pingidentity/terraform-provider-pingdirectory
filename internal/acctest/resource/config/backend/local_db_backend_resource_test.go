@@ -77,7 +77,7 @@ func TestAccLocalDbBackend(t *testing.T) {
 func testAccLocalDbBackendResource(resourceName string, resourceModel localDbBackendTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_backend" "%[1]s" {
-	type = "local-db"
+  type                  = "local-db"
   backend_id            = "%[2]s"
   base_dn               = %[3]s
   writability_mode      = "%[4]s"

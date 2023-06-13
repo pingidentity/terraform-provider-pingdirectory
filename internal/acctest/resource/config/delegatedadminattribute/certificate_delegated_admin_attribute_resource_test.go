@@ -71,7 +71,7 @@ func TestAccCertificateDelegatedAdminAttribute(t *testing.T) {
 func testAccCertificateDelegatedAdminAttributeResource(resourceName string, resourceModel certificateDelegatedAdminAttributeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[2]s" {
-	type = "generic"
+  type                        = "generic"
   id                          = "%[2]s"
   enabled                     = false
   resource_endpoint           = "myendpoint"
@@ -80,7 +80,7 @@ resource "pingdirectory_rest_resource_type" "%[2]s" {
 }
 
 resource "pingdirectory_delegated_admin_attribute" "%[1]s" {
-	type = "certificate"
+  type                    = "certificate"
   rest_resource_type_name = pingdirectory_rest_resource_type.%[2]s.id
   attribute_type          = "%[3]s"
   display_name            = "%[4]s"

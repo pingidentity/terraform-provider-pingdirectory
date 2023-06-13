@@ -70,14 +70,14 @@ func TestAccLdapPassThroughAuthenticationHandler(t *testing.T) {
 func testAccLdapPassThroughAuthenticationHandlerResource(resourceName string, resourceModel ldapPassThroughAuthenticationHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_external_server" "%[4]s" {
-	type = "ldap"
+  type                  = "ldap"
   id                    = "%[4]s"
   server_host_name      = "localhost"
   authentication_method = "none"
 }
 
 resource "pingdirectory_pass_through_authentication_handler" "%[1]s" {
-	type = "ldap"
+  type        = "ldap"
   id          = "%[2]s"
   description = "%[3]s"
   server      = [pingdirectory_external_server.%[4]s.id]

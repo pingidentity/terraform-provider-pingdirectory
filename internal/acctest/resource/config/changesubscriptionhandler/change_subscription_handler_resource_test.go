@@ -67,7 +67,7 @@ func TestAccLoggingChangeSubscriptionHandler(t *testing.T) {
 func testAccLoggingChangeSubscriptionHandlerResource(resourceName string, resourceModel loggingChangeSubscriptionHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_change_subscription_handler" "%[1]s" {
-	type = "logging"
+  type    = "logging"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

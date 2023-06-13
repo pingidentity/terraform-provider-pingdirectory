@@ -80,8 +80,9 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 func testAccLocalDbVlvIndexResource(resourceName string, resourceModel localDbVlvIndexTestModel) string {
 	return fmt.Sprintf(`
 
+
 resource "pingdirectory_backend" "%[2]s" {
-	type = "local-db"
+  type                  = "local-db"
   backend_id            = "%[2]s"
   base_dn               = ["dc=examplevlv,dc=com"]
   writability_mode      = "enabled"

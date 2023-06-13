@@ -71,7 +71,7 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 func testAccMirrorVirtualAttributeResource(resourceName string, resourceModel mirrorVirtualAttributeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_virtual_attribute" "%[1]s" {
-	type = "mirror"
+  type             = "mirror"
   id               = "%[2]s"
   source_attribute = "%[3]s"
   enabled          = %[4]t

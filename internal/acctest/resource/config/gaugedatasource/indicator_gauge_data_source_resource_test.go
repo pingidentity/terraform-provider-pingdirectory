@@ -70,7 +70,7 @@ func TestAccIndicatorGaugeDataSource(t *testing.T) {
 func testAccIndicatorGaugeDataSourceResource(resourceName string, resourceModel indicatorGaugeDataSourceTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_gauge_data_source" "%[1]s" {
-	type = "indicator"
+  type                = "indicator"
   id                  = "%[2]s"
   monitor_objectclass = "%[3]s"
   monitor_attribute   = "%[4]s"

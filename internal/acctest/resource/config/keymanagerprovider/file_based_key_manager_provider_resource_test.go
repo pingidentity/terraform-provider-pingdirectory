@@ -75,7 +75,7 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 func testAccFileBasedKeyManagerProviderResource(resourceName string, resourceModel fileBasedKeyManagerProviderTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_key_manager_provider" "%[1]s" {
-	type = "file-based"
+  type           = "file-based"
   id             = "%[2]s"
   key_store_file = "%[3]s"
   enabled        = %[4]t

@@ -67,7 +67,7 @@ func TestAccSubjectEqualsDnCertificateMapper(t *testing.T) {
 func testAccSubjectEqualsDnCertificateMapperResource(resourceName string, resourceModel subjectEqualsDnCertificateMapperTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_certificate_mapper" "%[1]s" {
-	type = "subject-equals-dn"
+  type    = "subject-equals-dn"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

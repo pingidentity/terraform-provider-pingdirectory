@@ -66,7 +66,7 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 func testAccRootDseRequestCriteriaResource(resourceName string, resourceModel rootDseRequestCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_request_criteria" "%[1]s" {
-	type = "root-dse"
+  type        = "root-dse"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName, resourceModel.id, resourceModel.description)

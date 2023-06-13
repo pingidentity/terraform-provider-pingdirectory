@@ -65,7 +65,7 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 func testAccQuickstartHttpServletExtensionResource(resourceName string, resourceModel quickstartHttpServletExtensionTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_http_servlet_extension" "%[1]s" {
-	type = "quickstart"
+  type        = "quickstart"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName, resourceModel.id, resourceModel.description)

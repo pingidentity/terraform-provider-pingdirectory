@@ -71,14 +71,14 @@ func TestAccSyslogJsonAuditLogPublisher(t *testing.T) {
 func testAccSyslogJsonAuditLogPublisherResource(resourceName string, resourceModel syslogJsonAuditLogPublisherTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_external_server" "%[3]s" {
-	type = "syslog"
+  type                = "syslog"
   id                  = "%[3]s"
   server_host_name    = "localhost"
   transport_mechanism = "tls-encrypted-tcp"
 }
 
 resource "pingdirectory_log_publisher" "%[1]s" {
-	type = "syslog-json-audit"
+  type                   = "syslog-json-audit"
   id                     = "%[2]s"
   syslog_external_server = [pingdirectory_external_server.%[3]s.id]
   enabled                = %[4]t

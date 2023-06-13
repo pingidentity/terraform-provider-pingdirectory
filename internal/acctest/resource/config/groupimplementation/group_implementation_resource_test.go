@@ -66,7 +66,7 @@ func TestAccStaticGroupImplementation(t *testing.T) {
 func testAccStaticGroupImplementationResource(resourceName string, resourceModel staticGroupImplementationTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_group_implementation" "%[1]s" {
-	type = "static"
+  type    = "static"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

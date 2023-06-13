@@ -1,6 +1,6 @@
 resource "pingdirectory_plugin" "expiredSessionAutoPurgePlugin" {
   id                 = "ExpiredSessionAutoPurge"
-  resource_type               = "purge-expired-data"
+  resource_type      = "purge-expired-data"
   enabled            = true
   datetime_attribute = "pf-authn-session-group-expiry-time"
   expiration_offset  = "1 h"
@@ -11,7 +11,7 @@ resource "pingdirectory_plugin" "expiredSessionAutoPurgePlugin" {
 }
 
 resource "pingdirectory_plugin" "idleSessionAutoPurgePlugin" {
-  resource_type               = "purge-expired-data"
+  resource_type      = "purge-expired-data"
   id                 = "IdleSessionAutoPurge"
   enabled            = true
   datetime_attribute = "pf-authn-session-group-last-activity-time"

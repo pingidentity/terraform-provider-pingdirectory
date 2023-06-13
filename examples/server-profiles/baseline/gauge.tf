@@ -17,7 +17,7 @@ resource "pingdirectory_default_gauge" "defaultAvailableFileDescriptorsGauge" {
 }
 
 resource "pingdirectory_default_log_publisher" "defaultDataRecoveryLog" {
-  type = "file-based-audit"
+  type    = "file-based-audit"
   id      = "Data Recovery Log"
   enabled = false
 }

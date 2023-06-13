@@ -70,7 +70,7 @@ func TestAccGroovyScriptedOauthTokenHandler(t *testing.T) {
 func testAccGroovyScriptedOauthTokenHandlerResource(resourceName string, resourceModel groovyScriptedOauthTokenHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_oauth_token_handler" "%[1]s" {
-	type = "groovy-scripted"
+  type         = "groovy-scripted"
   id           = "%[2]s"
   description  = "%[3]s"
   script_class = "%[4]s"

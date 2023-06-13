@@ -68,7 +68,7 @@ func TestAccWaitForPassphraseCipherStreamProvider(t *testing.T) {
 func testAccWaitForPassphraseCipherStreamProviderResource(resourceName string, resourceModel waitForPassphraseCipherStreamProviderTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_cipher_stream_provider" "%[1]s" {
-	type = "wait-for-passphrase"
+  type    = "wait-for-passphrase"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

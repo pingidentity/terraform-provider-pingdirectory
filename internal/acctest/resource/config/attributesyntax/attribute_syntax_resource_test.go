@@ -67,7 +67,7 @@ func TestAccNameAndOptionalUidAttributeSyntax(t *testing.T) {
 func testAccNameAndOptionalUidAttributeSyntaxResource(resourceName string, resourceModel nameAndOptionalUidAttributeSyntaxTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_attribute_syntax" "%[1]s" {
-	type = "name-and-optional-uid"
+  type                    = "name-and-optional-uid"
   id                      = "%[2]s"
   enable_compaction       = %[3]t
   require_binary_transfer = %[4]t

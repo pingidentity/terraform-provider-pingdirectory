@@ -67,7 +67,7 @@ func TestAccTimeLimitLogRotationPolicy(t *testing.T) {
 func testAccTimeLimitLogRotationPolicyResource(resourceName string, resourceModel timeLimitLogRotationPolicyTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_log_rotation_policy" "%[1]s" {
-	type = "time-limit"
+  type              = "time-limit"
   id                = "%[2]s"
   rotation_interval = "%[3]s"
 }`, resourceName,

@@ -74,7 +74,7 @@ func TestAccStringArrayTokenClaimValidation(t *testing.T) {
 func testAccStringArrayTokenClaimValidationResource(resourceName string, resourceModel stringArrayTokenClaimValidationTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_id_token_validator" "%[3]s" {
-	type = "ping-one"
+  type                   = "ping-one"
   id                     = "%[3]s"
   issuer_url             = "example.com"
   enabled                = false
@@ -83,7 +83,7 @@ resource "pingdirectory_id_token_validator" "%[3]s" {
 }
 
 resource "pingdirectory_token_claim_validation" "%[1]s" {
-	type = "string-array"
+  type                    = "string-array"
   id                      = "%[2]s"
   id_token_validator_name = pingdirectory_id_token_validator.%[3]s.id
   any_required_value      = %[4]s

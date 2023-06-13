@@ -73,7 +73,7 @@ func TestAccSmtpAlertHandler(t *testing.T) {
 func testAccSmtpAlertHandlerResource(resourceName string, resourceModel smtpAlertHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_alert_handler" "%[1]s" {
-	type = "smtp"
+  type              = "smtp"
   id                = "%[2]s"
   sender_address    = "%[3]s"
   recipient_address = %[4]s

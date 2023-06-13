@@ -67,7 +67,7 @@ func TestAccSimpleSearchEntryCriteria(t *testing.T) {
 func testAccSimpleSearchEntryCriteriaResource(resourceName string, resourceModel simpleSearchEntryCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_search_entry_criteria" "%[1]s" {
-	type = "simple"
+  type        = "simple"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName,

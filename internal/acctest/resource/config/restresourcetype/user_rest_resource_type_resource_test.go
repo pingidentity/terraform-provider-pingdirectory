@@ -74,7 +74,7 @@ func TestAccUserRestResourceType(t *testing.T) {
 func testAccUserRestResourceTypeResource(resourceName string, resourceModel userRestResourceTypeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[1]s" {
-	type = "user"
+  type                        = "user"
   id                          = "%[2]s"
   enabled                     = %[3]t
   resource_endpoint           = "%[4]s"

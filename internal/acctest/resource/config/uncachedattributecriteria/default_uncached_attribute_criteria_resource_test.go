@@ -70,7 +70,7 @@ func TestAccDefaultUncachedAttributeCriteria(t *testing.T) {
 func testAccDefaultUncachedAttributeCriteriaResource(resourceName string, resourceModel defaultUncachedAttributeCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_uncached_attribute_criteria" "%[1]s" {
-	type = "default"
+  type        = "default"
   id          = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t

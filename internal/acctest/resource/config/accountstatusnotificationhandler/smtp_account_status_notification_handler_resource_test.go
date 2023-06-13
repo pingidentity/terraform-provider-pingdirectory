@@ -80,7 +80,7 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 func testAccSmtpAccountStatusNotificationHandlerResource(resourceName string, resourceModel smtpAccountStatusNotificationHandlerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_account_status_notification_handler" "%[1]s" {
-	type = "smtp"
+  type                                  = "smtp"
   id                                    = "%[2]s"
   send_message_without_end_user_address = %[3]t
   recipient_address                     = %[4]s

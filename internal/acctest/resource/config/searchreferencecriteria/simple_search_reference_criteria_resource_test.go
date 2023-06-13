@@ -67,7 +67,7 @@ func TestAccSimpleSearchReferenceCriteria(t *testing.T) {
 func testAccSimpleSearchReferenceCriteriaResource(resourceName string, resourceModel simpleSearchReferenceCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_search_reference_criteria" "%[1]s" {
-	type = "simple"
+  type        = "simple"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName,

@@ -79,21 +79,21 @@ func TestAccDelegatedAdminCorrelatedRestResource(t *testing.T) {
 
 func testAccDelegatedAdminCorrelatedRestResourceResource(resourceName string, resourceModel delegatedAdminCorrelatedRestResourceTestModel) string {
 	return fmt.Sprintf(`
-	resource "pingdirectory_rest_resource_type" "%[4]s" {
-		type = "user"
-	  id                          = "%[4]s"
-	  enabled                     = true
-	  resource_endpoint           = "userRestResource"
-	  structural_ldap_objectclass = "inetOrgPerson"
-	  search_base_dn              = "cn=users,dc=test,dc=com"
-	}
+resource "pingdirectory_rest_resource_type" "%[4]s" {
+  type                        = "user"
+  id                          = "%[4]s"
+  enabled                     = true
+  resource_endpoint           = "userRestResource"
+  structural_ldap_objectclass = "inetOrgPerson"
+  search_base_dn              = "cn=users,dc=test,dc=com"
+}
 resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
-	 id = "%[2]s"
-	 rest_resource_type_name = pingdirectory_rest_resource_type.%[4]s.id
-	 display_name = "%[4]s"
-	 correlated_rest_resource = "%[5]s"
-	 primary_rest_resource_correlation_attribute = "%[6]s"
-	 secondary_rest_resource_correlation_attribute = "%[7]s"
+  id                                            = "%[2]s"
+  rest_resource_type_name                       = pingdirectory_rest_resource_type.%[4]s.id
+  display_name                                  = "%[4]s"
+  correlated_rest_resource                      = "%[5]s"
+  primary_rest_resource_correlation_attribute   = "%[6]s"
+  secondary_rest_resource_correlation_attribute = "%[7]s"
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.restResourceTypeName,

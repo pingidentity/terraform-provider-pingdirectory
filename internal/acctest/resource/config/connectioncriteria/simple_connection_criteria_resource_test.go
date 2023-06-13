@@ -70,7 +70,7 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 func testAccSimpleConnectionCriteriaResource(resourceName string, resourceModel simpleConnectionCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_connection_criteria" "%[1]s" {
-	type = "simple"
+  type           = "simple"
   id             = "%[2]s"
   description    = "%[3]s"
   user_auth_type = %[4]s

@@ -66,7 +66,7 @@ func TestAccCustomSynchronizationProvider(t *testing.T) {
 func testAccCustomSynchronizationProviderResource(resourceName string, resourceModel customSynchronizationProviderTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_synchronization_provider" "%[1]s" {
-	type = "custom"
+  type    = "custom"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

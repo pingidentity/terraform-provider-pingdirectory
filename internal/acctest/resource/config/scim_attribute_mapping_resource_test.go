@@ -78,7 +78,7 @@ resource "pingdirectory_scim_schema" "mySchema" {
 }
 
 resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
-	type = "ldap-mapping"
+  type        = "ldap-mapping"
   id          = "%[3]s"
   core_schema = pingdirectory_scim_schema.mySchema.schema_urn
   enabled     = false

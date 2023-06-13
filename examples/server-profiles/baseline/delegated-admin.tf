@@ -2,7 +2,7 @@
 # Configure pf-connected-identities for DA configuration
 #
 resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
-  resource_type                                                       = "composed-attribute"
+  resource_type                                              = "composed-attribute"
   id                                                         = "pf-connected-identities"
   enabled                                                    = true
   attribute_type                                             = ["objectClass"]
@@ -13,7 +13,7 @@ resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
 }
 
 resource "pingdirectory_plugin" "pfConnectedIdentityPlugin" {
-  resource_type                                                       = "composed-attribute"
+  resource_type   = "composed-attribute"
   id              = "pf-connected-identity"
   enabled         = true
   attribute_type  = ["pf-connected-identity"]

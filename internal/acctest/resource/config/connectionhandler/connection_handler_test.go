@@ -77,7 +77,7 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 func testAccHttpConnectionHandler(resourceName string, resourceModel testModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_connection_handler" "%[1]s" {
-	type = "http"
+  type                   = "http"
   id                     = "%[2]s"
   listen_port            = %[3]d
   enabled                = %[4]t

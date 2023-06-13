@@ -76,7 +76,7 @@ func TestAccPingOneIdTokenValidator(t *testing.T) {
 func testAccPingOneIdTokenValidatorResource(resourceName string, resourceModel pingOneIdTokenValidatorTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_id_token_validator" "%[1]s" {
-	type = "ping-one"
+  type                   = "ping-one"
   id                     = "%[2]s"
   issuer_url             = "%[3]s"
   enabled                = %[4]t

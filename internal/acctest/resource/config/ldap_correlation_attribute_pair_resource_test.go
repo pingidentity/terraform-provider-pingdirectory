@@ -78,7 +78,7 @@ func TestAccLdapCorrelationAttributePair(t *testing.T) {
 func testAccLdapCorrelationAttributePairResource(resourceName string, resourceModel ldapCorrelationAttributePairTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_resource_type" "%[4]s" {
-	type = "ldap-mapping"
+  type        = "ldap-mapping"
   id          = "%[4]s"
   core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
   enabled     = false

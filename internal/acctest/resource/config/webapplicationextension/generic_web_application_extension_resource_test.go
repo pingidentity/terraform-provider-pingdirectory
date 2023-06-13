@@ -70,7 +70,7 @@ func TestAccGenericWebApplicationExtension(t *testing.T) {
 func testAccGenericWebApplicationExtensionResource(resourceName string, resourceModel genericWebApplicationExtensionTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_web_application_extension" "%[1]s" {
-	type = "generic"
+  type                    = "generic"
   id                      = "%[2]s"
   base_context_path       = "%[3]s"
   document_root_directory = "%[4]s"

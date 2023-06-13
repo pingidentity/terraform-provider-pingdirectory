@@ -67,7 +67,7 @@ func TestAccTextAccessLogFieldBehavior(t *testing.T) {
 func testAccTextAccessLogFieldBehaviorResource(resourceName string, resourceModel textAccessLogFieldBehaviorTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_log_field_behavior" "%[1]s" {
-	type = "text-access"
+  type        = "text-access"
   id          = "%[2]s"
   description = "%[3]s"
 }`, resourceName,

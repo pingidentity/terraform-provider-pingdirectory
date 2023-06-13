@@ -70,10 +70,10 @@ func TestAccGauge(t *testing.T) {
 func testAccGaugeResource(resourceName string, resourceModel gaugeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_gauge" "%[1]s" {
-  type = "indicator"
-	 id = "%[2]s"
-	 gauge_data_source = "%[3]s"
-	 enabled           = %[4]t
+  type              = "indicator"
+  id                = "%[2]s"
+  gauge_data_source = "%[3]s"
+  enabled           = %[4]t
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.gaugeDataSource,

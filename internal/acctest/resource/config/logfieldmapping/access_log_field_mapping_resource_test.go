@@ -69,7 +69,7 @@ func TestAccAccessLogFieldMapping(t *testing.T) {
 func testAccAccessLogFieldMappingResource(resourceName string, resourceModel accessLogFieldMappingTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_log_field_mapping" "%[1]s" {
-	type = "access"
+  type              = "access"
   id                = "%[2]s"
   description       = "%[3]s"
   log_field_message = "%[4]s"

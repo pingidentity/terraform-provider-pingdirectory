@@ -70,7 +70,7 @@ func TestAccDefaultUncachedEntryCriteria(t *testing.T) {
 func testAccDefaultUncachedEntryCriteriaResource(resourceName string, resourceModel defaultUncachedEntryCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_uncached_entry_criteria" "%[1]s" {
-	type = "default"
+  type        = "default"
   id          = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t

@@ -67,7 +67,7 @@ func TestAccSummarizeLogFileRotationListener(t *testing.T) {
 func testAccSummarizeLogFileRotationListenerResource(resourceName string, resourceModel summarizeLogFileRotationListenerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_log_file_rotation_listener" "%[1]s" {
-	type = "summarize"
+  type    = "summarize"
   id      = "%[2]s"
   enabled = %[3]t
 }`, resourceName,

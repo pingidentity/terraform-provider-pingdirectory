@@ -73,7 +73,7 @@ func TestAccDelegatedAdminResourceRights(t *testing.T) {
 func testAccDelegatedAdminResourceRightsResource(resourceName string, resourceModel delegatedAdminResourceRightsTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[4]s" {
-	type = "user"
+  type                        = "user"
   id                          = "%[4]s"
   enabled                     = true
   resource_endpoint           = "userRestResource"
