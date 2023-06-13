@@ -1,6 +1,7 @@
 # v0.7.0 (Unreleased)
 
 ### FEATURES
+* Collapsed subresources into single parent resources, differentiated by a new `type` attribute. For example, the `pingdirectory_indicator_gauge` and `pingdirectory_numeric_gauge` resources are now combined into a single `pingdirectory_gauge` resource, with a `type` attribute that can be set to either `indicator` or `numeric`. See the documentation for more information. (#221)
 * **New Resource:** `pingdirectory_root_dse_backend ` (#206)
 * **New Resource:** `pingdirectory_search_entry_criteria ` (#207)
 * **New Resource:** `pingdirectory_search_reference_criteria ` (#208)
