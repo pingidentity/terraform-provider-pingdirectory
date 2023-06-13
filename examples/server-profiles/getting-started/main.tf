@@ -27,32 +27,38 @@ variable "root_user_dn" {
   default  = "cn=administrator"
 }
 
-resource "pingdirectory_default_http_connection_handler" "defaultHttpsConnectionHandler" {
+resource "pingdirectory_default_connection_handler" "defaultHttpsConnectionHandler" {
+  type                      = "http"
   id                        = "HTTPS Connection Handler"
   web_application_extension = []
 }
 
-resource "pingdirectory_default_numeric_gauge" "defaultCpuUsageGauge" {
+resource "pingdirectory_default_gauge" "defaultCpuUsageGauge" {
+  type    = "numeric"
   id      = "CPU Usage (Percent)"
   enabled = false
 }
 
-resource "pingdirectory_default_numeric_gauge" "defaultLicenseExpirationGauge" {
+resource "pingdirectory_default_gauge" "defaultLicenseExpirationGauge" {
+  type    = "numeric"
   id      = "License Expiration (Days)"
   enabled = false
 }
 
-resource "pingdirectory_default_numeric_gauge" "defaultAvailableFileDescriptorsGauge" {
+resource "pingdirectory_default_gauge" "defaultAvailableFileDescriptorsGauge" {
+  type    = "numeric"
   id      = "Available File Descriptors"
   enabled = false
 }
 
-resource "pingdirectory_default_file_based_audit_log_publisher" "defaultDataRecoveryLog" {
+resource "pingdirectory_default_log_publisher" "defaultDataRecoveryLog" {
+  type    = "file-based-audit"
   id      = "Data Recovery Log"
   enabled = false
 }
 
-resource "pingdirectory_default_file_based_audit_log_publisher" "defaultFileBasedAuditLogger" {
+resource "pingdirectory_default_log_publisher" "defaultFileBasedAuditLogger" {
+  type    = "file-based-audit"
   id      = "File-Based Audit Logger"
   enabled = true
 }

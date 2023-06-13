@@ -1,7 +1,8 @@
 #
 # Configure pf-connected-identities for DA configuration
 #
-resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentitiesPlugin" {
+resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
+  type                                                       = "composed-attribute"
   id                                                         = "pf-connected-identities"
   enabled                                                    = true
   attribute_type                                             = "objectClass"
@@ -11,7 +12,8 @@ resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentitiesPlugin"
   include_filter                                             = ["(objectClass=inetOrgPerson)"]
 }
 
-resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentityPlugin" {
+resource "pingdirectory_plugin" "pfConnectedIdentityPlugin" {
+  type            = "composed-attribute"
   id              = "pf-connected-identity"
   enabled         = true
   attribute_type  = "pf-connected-identity"
@@ -24,7 +26,8 @@ resource "pingdirectory_composed_attribute_plugin" "pfConnectedIdentityPlugin" {
 # The search-base-dn value is the DN of a valid base entry where
 # managed users are stored.
 #
-resource "pingdirectory_user_rest_resource_type" "usersRestResourceType" {
+resource "pingdirectory_rest_resource_type" "usersRestResourceType" {
+  type                           = "user"
   id                             = "users"
   display_name                   = "Users"
   enabled                        = true
@@ -37,7 +40,8 @@ resource "pingdirectory_user_rest_resource_type" "usersRestResourceType" {
   create_rdn_attribute_type      = "uid"
 }
 
-resource "pingdirectory_group_rest_resource_type" "groupsRestResourceType" {
+resource "pingdirectory_rest_resource_type" "groupsRestResourceType" {
+  type                           = "group"
   id                             = "groups"
   display_name                   = "Groups"
   enabled                        = true
@@ -52,55 +56,63 @@ resource "pingdirectory_group_rest_resource_type" "groupsRestResourceType" {
 #
 # Specify the attributes that will be made available through the Delegated Admin API
 #
-resource "pingdirectory_generic_delegated_admin_attribute" "cnAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "cnAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
   attribute_type          = "cn"
   display_name            = "Full Name"
   display_order_index     = 0
 }
 
-resource "pingdirectory_generic_delegated_admin_attribute" "givenNameAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "givenNameAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
   attribute_type          = "givenName"
   display_name            = "First Name"
   display_order_index     = 1
 }
 
-resource "pingdirectory_generic_delegated_admin_attribute" "snAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "snAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
   attribute_type          = "sn"
   display_name            = "Last Name"
   display_order_index     = 2
 }
 
-resource "pingdirectory_generic_delegated_admin_attribute" "mailAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "mailAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
   attribute_type          = "mail"
   display_name            = "Email"
   display_order_index     = 3
 }
 
-resource "pingdirectory_generic_delegated_admin_attribute" "uidAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "uidAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
   attribute_type          = "uid"
   display_name            = "User ID"
   display_order_index     = 4
 }
 
-resource "pingdirectory_generic_delegated_admin_attribute" "accountDisabledAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "accountDisabledAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
   attribute_type          = "ds-pwp-account-disabled"
   display_name            = "Account Disabled"
 }
 
 
-resource "pingdirectory_generic_delegated_admin_attribute" "cnGroupAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "cnGroupAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_group_rest_resource_type.groupsRestResourceType.id
   attribute_type          = "cn"
   display_name            = "Group"
 }
 
-resource "pingdirectory_generic_delegated_admin_attribute" "descriptionGroupAttribute" {
+resource "pingdirectory_delegated_admin_attribute" "descriptionGroupAttribute" {
+  type                    = "generic"
   rest_resource_type_name = pingdirectory_group_rest_resource_type.groupsRestResourceType.id
   attribute_type          = "description"
   display_name            = "Description"
@@ -144,26 +156,30 @@ resource "pingdirectory_delegated_admin_resource_rights" "groupsRights" {
 #          command.  Then, update the PingFederateInstance external server to use the JKS Trust Manager Provider.
 #          Consult the PingDirectory and PingData Security Guide for more information about configuring Trust Manager Providers.
 #
-resource "pingdirectory_default_blind_trust_manager_provider" "blindTrustManagerProvider" {
+resource "pingdirectory_default_trust_manager_provider" "blindTrustManagerProvider" {
+  type    = "blind"
   id      = "Blind Trust"
   enabled = true
 }
 
-resource "pingdirectory_http_external_server" "pfExternalServer" {
+resource "pingdirectory_external_server" "pfExternalServer" {
+  type                         = "http"
   id                           = "pingfederate"
   base_url                     = "https://${var.pingfederate_hostname}:${var.pingfederate_https_port}"
   hostname_verification_method = "allow-all"
   trust_manager_provider       = pingdirectory_default_blind_trust_manager_provider.blindTrustManagerProvider.id
 }
 
-resource "pingdirectory_exact_match_identity_mapper" "entryUUIDMatchMapper" {
+resource "pingdirectory_identity_mapper" "entryUUIDMatchMapper" {
+  type            = "exact-match"
   id              = "entryUUIDMatch"
   enabled         = true
   match_attribute = ["entryUUID"]
   match_base_dn   = [var.user_base_dn]
 }
 
-resource "pingdirectory_ping_federate_access_token_validator" "pfAccessTokenValidator" {
+resource "pingdirectory_access_token_validator" "pfAccessTokenValidator" {
+  type                 = "ping-federate"
   id                   = "pingfederate-validator"
   enabled              = true
   identity_mapper      = pingdirectory_exact_match_identity_mapper.entryUUIDMatchMapper.id
@@ -176,7 +192,8 @@ resource "pingdirectory_ping_federate_access_token_validator" "pfAccessTokenVali
 #
 # Complete the configuration of the Delegated Admin API.
 #
-resource "pingdirectory_default_custom_virtual_attribute" "delegatedAdminPrivilegeVirtualAttribute" {
+resource "pingdirectory_default_virtual_attribute" "delegatedAdminPrivilegeVirtualAttribute" {
+  type    = "custom"
   id      = "Delegated Admin Privilege"
   enabled = true
 }
@@ -192,7 +209,8 @@ resource "pingdirectory_http_servlet_cross_origin_policy" "daCrossOriginPolicy" 
   cors_allowed_origins = ["*"]
 }
 
-resource "pingdirectory_default_delegated_admin_http_servlet_extension" "daServletExtension" {
+resource "pingdirectory_default_http_servlet_extension" "daServletExtension" {
+  type                = "delegated-admin"
   id                  = "Delegated Admin"
   access_token_scope  = "urn:pingidentity:directory-delegated-admin"
   response_header     = ["Cache-Control: no-cache, no-store, must-revalidate", "Expires: 0", "Pragma: no-cache"]
@@ -206,7 +224,8 @@ resource "pingdirectory_default_delegated_admin_http_servlet_extension" "daServl
 # Create an email account status notification handler for user creation.
 # This handler cannot be enabled until an SMTP server is available in the global configuration.
 #
-resource "pingdirectory_simple_request_criteria" "daUserCreationRequestCriteria" {
+resource "pingdirectory_request_criteria" "daUserCreationRequestCriteria" {
+  type                             = "simple"
   id                               = "Delegated Admin User Creation Request Criteria"
   operation_type                   = ["add"]
   included_target_entry_dn         = ["ou=people,${var.user_base_dn}"]
@@ -214,9 +233,10 @@ resource "pingdirectory_simple_request_criteria" "daUserCreationRequestCriteria"
   included_application_name        = ["PingDirectory Delegated Admin"]
 }
 
-resource "pingdirectory_multi_part_email_account_status_notification_handler" "daEmailAccountStatusNotificationHandler" {
+resource "pingdirectory_account_status_notification_handler" "daEmailAccountStatusNotificationHandler" {
+  type                                           = "multi-part-email"
   id                                             = "Delegated Admin Email Account Status Notification Handler"
   enabled                                        = false
-  account_creation_notification_request_criteria = pingdirectory_simple_request_criteria.daUserCreationRequestCriteria.id
+  account_creation_notification_request_criteria = pingdirectory_request_criteria.daUserCreationRequestCriteria.id
   account_created_message_template               = "config/account-status-notification-email-templates/delegated-admin-account-created.template"
 }
