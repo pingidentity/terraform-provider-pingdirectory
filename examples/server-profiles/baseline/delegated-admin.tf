@@ -2,10 +2,10 @@
 # Configure pf-connected-identities for DA configuration
 #
 resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
-  type                                                       = "composed-attribute"
+  resource_type                                                       = "composed-attribute"
   id                                                         = "pf-connected-identities"
   enabled                                                    = true
-  attribute_type                                             = "objectClass"
+  attribute_type                                             = ["objectClass"]
   value_pattern                                              = ["pf-connected-identities"]
   target_attribute_exists_during_initial_population_behavior = "merge-existing-and-composed-values"
   include_base_dn                                            = [var.user_base_dn]
@@ -13,10 +13,10 @@ resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
 }
 
 resource "pingdirectory_plugin" "pfConnectedIdentityPlugin" {
-  type            = "composed-attribute"
+  resource_type                                                       = "composed-attribute"
   id              = "pf-connected-identity"
   enabled         = true
-  attribute_type  = "pf-connected-identity"
+  attribute_type  = ["pf-connected-identity"]
   value_pattern   = ["auth-source=pf-local-identity:user-id={uid}"]
   include_base_dn = [var.user_base_dn]
   include_filter  = ["(objectClass=inetOrgPerson)"]
@@ -58,7 +58,7 @@ resource "pingdirectory_rest_resource_type" "groupsRestResourceType" {
 #
 resource "pingdirectory_delegated_admin_attribute" "cnAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.usersRestResourceType.id
   attribute_type          = "cn"
   display_name            = "Full Name"
   display_order_index     = 0
@@ -66,7 +66,7 @@ resource "pingdirectory_delegated_admin_attribute" "cnAttribute" {
 
 resource "pingdirectory_delegated_admin_attribute" "givenNameAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.usersRestResourceType.id
   attribute_type          = "givenName"
   display_name            = "First Name"
   display_order_index     = 1
@@ -74,7 +74,7 @@ resource "pingdirectory_delegated_admin_attribute" "givenNameAttribute" {
 
 resource "pingdirectory_delegated_admin_attribute" "snAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.usersRestResourceType.id
   attribute_type          = "sn"
   display_name            = "Last Name"
   display_order_index     = 2
@@ -82,7 +82,7 @@ resource "pingdirectory_delegated_admin_attribute" "snAttribute" {
 
 resource "pingdirectory_delegated_admin_attribute" "mailAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.usersRestResourceType.id
   attribute_type          = "mail"
   display_name            = "Email"
   display_order_index     = 3
@@ -90,7 +90,7 @@ resource "pingdirectory_delegated_admin_attribute" "mailAttribute" {
 
 resource "pingdirectory_delegated_admin_attribute" "uidAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.usersRestResourceType.id
   attribute_type          = "uid"
   display_name            = "User ID"
   display_order_index     = 4
@@ -98,7 +98,7 @@ resource "pingdirectory_delegated_admin_attribute" "uidAttribute" {
 
 resource "pingdirectory_delegated_admin_attribute" "accountDisabledAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.usersRestResourceType.id
   attribute_type          = "ds-pwp-account-disabled"
   display_name            = "Account Disabled"
 }
@@ -106,14 +106,14 @@ resource "pingdirectory_delegated_admin_attribute" "accountDisabledAttribute" {
 
 resource "pingdirectory_delegated_admin_attribute" "cnGroupAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_group_rest_resource_type.groupsRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.groupsRestResourceType.id
   attribute_type          = "cn"
   display_name            = "Group"
 }
 
 resource "pingdirectory_delegated_admin_attribute" "descriptionGroupAttribute" {
   type                    = "generic"
-  rest_resource_type_name = pingdirectory_group_rest_resource_type.groupsRestResourceType.id
+  rest_resource_type_name = pingdirectory_rest_resource_type.groupsRestResourceType.id
   attribute_type          = "description"
   display_name            = "Description"
 }
@@ -134,7 +134,7 @@ resource "pingdirectory_delegated_admin_rights" "deladminRights" {
 #
 resource "pingdirectory_delegated_admin_resource_rights" "usersRights" {
   delegated_admin_rights_name = pingdirectory_delegated_admin_rights.deladminRights.id
-  rest_resource_type          = pingdirectory_user_rest_resource_type.usersRestResourceType.id
+  rest_resource_type          = pingdirectory_rest_resource_type.usersRestResourceType.id
   admin_scope                 = "all-resources-in-base"
   admin_permission            = ["create", "read", "update", "delete", "manage-group-membership"]
   enabled                     = true
@@ -142,7 +142,7 @@ resource "pingdirectory_delegated_admin_resource_rights" "usersRights" {
 
 resource "pingdirectory_delegated_admin_resource_rights" "groupsRights" {
   delegated_admin_rights_name = pingdirectory_delegated_admin_rights.deladminRights.id
-  rest_resource_type          = pingdirectory_group_rest_resource_type.groupsRestResourceType.id
+  rest_resource_type          = pingdirectory_rest_resource_type.groupsRestResourceType.id
   admin_scope                 = "all-resources-in-base"
   admin_permission            = ["create", "read", "update", "delete", "manage-group-membership"]
   enabled                     = true
@@ -167,7 +167,7 @@ resource "pingdirectory_external_server" "pfExternalServer" {
   id                           = "pingfederate"
   base_url                     = "https://${var.pingfederate_hostname}:${var.pingfederate_https_port}"
   hostname_verification_method = "allow-all"
-  trust_manager_provider       = pingdirectory_default_blind_trust_manager_provider.blindTrustManagerProvider.id
+  trust_manager_provider       = pingdirectory_default_trust_manager_provider.blindTrustManagerProvider.id
 }
 
 resource "pingdirectory_identity_mapper" "entryUUIDMatchMapper" {
@@ -182,9 +182,9 @@ resource "pingdirectory_access_token_validator" "pfAccessTokenValidator" {
   type                 = "ping-federate"
   id                   = "pingfederate-validator"
   enabled              = true
-  identity_mapper      = pingdirectory_exact_match_identity_mapper.entryUUIDMatchMapper.id
+  identity_mapper      = pingdirectory_identity_mapper.entryUUIDMatchMapper.id
   subject_claim_name   = "Username"
-  authorization_server = pingdirectory_http_external_server.pfExternalServer.id
+  authorization_server = pingdirectory_external_server.pfExternalServer.id
   client_id            = "pingdirectory"
   client_secret        = "2FederateM0re"
 }
