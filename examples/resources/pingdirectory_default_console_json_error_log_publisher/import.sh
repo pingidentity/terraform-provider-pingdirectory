@@ -1,2 +1,0 @@
-# "consoleJsonErrorLogPublisherId" should be the id of the Console Json Error Log Publisher to be imported
-terraform import pingdirectory_default_console_json_error_log_publisher.myConsoleJsonErrorLogPublisher consoleJsonErrorLogPublisherId

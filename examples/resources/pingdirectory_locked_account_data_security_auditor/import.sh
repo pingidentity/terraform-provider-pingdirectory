@@ -1,2 +1,0 @@
-# "lockedAccountDataSecurityAuditorId" should be the id of the Locked Account Data Security Auditor to be imported
-terraform import pingdirectory_locked_account_data_security_auditor.myLockedAccountDataSecurityAuditor lockedAccountDataSecurityAuditorId

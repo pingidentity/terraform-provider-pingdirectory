@@ -1,2 +1,0 @@
-# "generatePasswordExtendedOperationHandlerId" should be the id of the Generate Password Extended Operation Handler to be imported
-terraform import pingdirectory_default_generate_password_extended_operation_handler.myGeneratePasswordExtendedOperationHandler generatePasswordExtendedOperationHandlerId

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source  = "pingidentity/pingdirectory"
+      source = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,17 +19,17 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
-}
-
-resource "pingdirectory_json_field_constraints" "myJsonFieldConstraints" {
-  json_attribute_constraints_name = pingdirectory_json_attribute_constraints.myJsonAttributeConstraints.attribute_type
-  json_field                      = "id"
-  value_type                      = "string"
+  product_version = "9.2.0.0"
 }
 
 resource "pingdirectory_json_attribute_constraints" "myJsonAttributeConstraints" {
   attribute_type       = "ubidEntitlement"
   description          = "ubidEntitlement attribute constraint"
   allow_unnamed_fields = false
+}
+
+resource "pingdirectory_json_field_constraints" "myJsonFieldConstraints" {
+  json_attribute_constraints_name = pingdirectory_json_attribute_constraints.myJsonAttributeConstraints.attribute_type
+  json_field                      = "id"
+  value_type                      = "string"
 }

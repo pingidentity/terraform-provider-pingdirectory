@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source  = "pingidentity/pingdirectory"
+      source = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,13 +19,11 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version = "9.2.0.0"
 }
 
-resource "pingdirectory_scim_subattribute" "myScimSubattribute" {
-  id                  = "MyScimSubattribute"
-  scim_attribute_name = pingdirectory_scim_attribute.myScimAttribute.name
-  scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
+resource "pingdirectory_scim_schema" "myScimSchema" {
+  schema_urn = "urn:com:example"
 }
 
 resource "pingdirectory_scim_attribute" "myScimAttribute" {
@@ -33,6 +31,8 @@ resource "pingdirectory_scim_attribute" "myScimAttribute" {
   name             = "cn"
 }
 
-resource "pingdirectory_scim_schema" "myScimSchema" {
-  schema_urn = "urn:com:example"
+resource "pingdirectory_scim_subattribute" "myScimSubattribute" {
+  id                            = "MyScimSubattribute"
+  scim_attribute_name = pingdirectory_scim_attribute.myScimAttribute.name
+  scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
 }

@@ -1,2 +1,0 @@
-# "notificationSubscriptionExtendedOperationHandlerId" should be the id of the Notification Subscription Extended Operation Handler to be imported
-terraform import pingdirectory_default_notification_subscription_extended_operation_handler.myNotificationSubscriptionExtendedOperationHandler notificationSubscriptionExtendedOperationHandlerId

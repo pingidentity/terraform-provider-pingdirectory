@@ -1,2 +1,0 @@
-# "oauthBearerSaslMechanismHandlerId" should be the id of the Oauth Bearer Sasl Mechanism Handler to be imported
-terraform import pingdirectory_oauth_bearer_sasl_mechanism_handler.myOauthBearerSaslMechanismHandler oauthBearerSaslMechanismHandlerId

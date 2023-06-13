@@ -1,2 +1,0 @@
-# "regularExpressionIdentityMapperId" should be the id of the Regular Expression Identity Mapper to be imported
-terraform import pingdirectory_regular_expression_identity_mapper.myRegularExpressionIdentityMapper regularExpressionIdentityMapperId

@@ -1,2 +1,0 @@
-# "clientSecretAzureAuthenticationMethodId" should be the id of the Client Secret Azure Authentication Method to be imported
-terraform import pingdirectory_client_secret_azure_authentication_method.myClientSecretAzureAuthenticationMethod clientSecretAzureAuthenticationMethodId

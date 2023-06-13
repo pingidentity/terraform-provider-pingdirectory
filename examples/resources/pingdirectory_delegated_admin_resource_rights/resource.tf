@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source  = "pingidentity/pingdirectory"
+      source = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,7 +19,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version = "9.2.0.0"
 }
 
 # Use "pingdirectory_default_delegated_admin_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
@@ -29,8 +29,9 @@ resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
 
-# Use "pingdirectory_default_user_rest_resource_type" if you are adopting existing configuration from the PingDirectory server into Terraform
-resource "pingdirectory_user_rest_resource_type" "myUserRestResourceType" {
+# Use "pingdirectory_default_rest_resource_type" if you are adopting existing configuration from the PingDirectory server into Terraform
+resource "pingdirectory_rest_resource_type" "myUserRestResourceType" {
+  type = "user"
   id                          = "MyUserRestResourceType"
   enabled                     = true
   resource_endpoint           = "userRestResource"
@@ -43,5 +44,5 @@ resource "pingdirectory_delegated_admin_resource_rights" "myDelegatedAdminResour
   delegated_admin_rights_name = pingdirectory_delegated_admin_rights.myDelegatedAdminRights.id
   enabled                     = true
   admin_permission            = ["create", "read"]
-  rest_resource_type          = pingdirectory_user_rest_resource_type.myUserRestResourceType.id
+  rest_resource_type          = pingdirectory_rest_resource_type.myUserRestResourceType.id
 }

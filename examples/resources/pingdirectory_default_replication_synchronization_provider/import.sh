@@ -1,2 +1,0 @@
-# "replicationSynchronizationProviderId" should be the id of the Replication Synchronization Provider to be imported
-terraform import pingdirectory_default_replication_synchronization_provider.myReplicationSynchronizationProvider replicationSynchronizationProviderId

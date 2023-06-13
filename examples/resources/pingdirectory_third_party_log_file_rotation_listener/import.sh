@@ -1,2 +1,0 @@
-# "thirdPartyLogFileRotationListenerId" should be the id of the Third Party Log File Rotation Listener to be imported
-terraform import pingdirectory_third_party_log_file_rotation_listener.myThirdPartyLogFileRotationListener thirdPartyLogFileRotationListenerId

@@ -1,2 +1,0 @@
-# "shortUniqueIdVirtualAttributeId" should be the id of the Short Unique Id Virtual Attribute to be imported
-terraform import pingdirectory_default_short_unique_id_virtual_attribute.myShortUniqueIdVirtualAttribute shortUniqueIdVirtualAttributeId

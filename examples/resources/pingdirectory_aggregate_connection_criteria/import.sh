@@ -1,2 +1,0 @@
-# "aggregateConnectionCriteriaId" should be the id of the Aggregate Connection Criteria to be imported
-terraform import pingdirectory_aggregate_connection_criteria.myAggregateConnectionCriteria aggregateConnectionCriteriaId

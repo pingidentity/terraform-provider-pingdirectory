@@ -1,2 +1,0 @@
-# "detailedHttpOperationLogPublisherId" should be the id of the Detailed Http Operation Log Publisher to be imported
-terraform import pingdirectory_detailed_http_operation_log_publisher.myDetailedHttpOperationLogPublisher detailedHttpOperationLogPublisherId

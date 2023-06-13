@@ -1,2 +1,0 @@
-# "filterBasedUncachedEntryCriteriaId" should be the id of the Filter Based Uncached Entry Criteria to be imported
-terraform import pingdirectory_filter_based_uncached_entry_criteria.myFilterBasedUncachedEntryCriteria filterBasedUncachedEntryCriteriaId

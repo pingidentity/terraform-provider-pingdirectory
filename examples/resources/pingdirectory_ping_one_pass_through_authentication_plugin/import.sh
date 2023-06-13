@@ -1,2 +1,0 @@
-# "pingOnePassThroughAuthenticationPluginId" should be the id of the Ping One Pass Through Authentication Plugin to be imported
-terraform import pingdirectory_ping_one_pass_through_authentication_plugin.myPingOnePassThroughAuthenticationPlugin pingOnePassThroughAuthenticationPluginId

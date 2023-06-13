@@ -1,2 +1,0 @@
-# "modifiablePasswordPolicyStatePluginId" should be the id of the Modifiable Password Policy State Plugin to be imported
-terraform import pingdirectory_modifiable_password_policy_state_plugin.myModifiablePasswordPolicyStatePlugin modifiablePasswordPolicyStatePluginId

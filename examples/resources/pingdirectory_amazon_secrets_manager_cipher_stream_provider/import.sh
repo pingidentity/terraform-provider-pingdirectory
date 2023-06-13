@@ -1,2 +1,0 @@
-# "amazonSecretsManagerCipherStreamProviderId" should be the id of the Amazon Secrets Manager Cipher Stream Provider to be imported
-terraform import pingdirectory_amazon_secrets_manager_cipher_stream_provider.myAmazonSecretsManagerCipherStreamProvider amazonSecretsManagerCipherStreamProviderId

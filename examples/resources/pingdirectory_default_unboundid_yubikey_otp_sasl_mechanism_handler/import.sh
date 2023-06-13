@@ -1,2 +1,0 @@
-# "unboundidYubikeyOtpSaslMechanismHandlerId" should be the id of the Unboundid Yubikey Otp Sasl Mechanism Handler to be imported
-terraform import pingdirectory_default_unboundid_yubikey_otp_sasl_mechanism_handler.myUnboundidYubikeyOtpSaslMechanismHandler unboundidYubikeyOtpSaslMechanismHandlerId

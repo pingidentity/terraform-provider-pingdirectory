@@ -1,2 +1,0 @@
-# "lockAccountFailureLockoutActionId" should be the id of the Lock Account Failure Lockout Action to be imported
-terraform import pingdirectory_lock_account_failure_lockout_action.myLockAccountFailureLockoutAction lockAccountFailureLockoutActionId

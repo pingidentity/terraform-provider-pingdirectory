@@ -1,2 +1,0 @@
-# "collectSupportDataExtendedOperationHandlerId" should be the id of the Collect Support Data Extended Operation Handler to be imported
-terraform import pingdirectory_collect_support_data_extended_operation_handler.myCollectSupportDataExtendedOperationHandler collectSupportDataExtendedOperationHandlerId

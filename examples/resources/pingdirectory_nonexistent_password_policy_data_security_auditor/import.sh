@@ -1,2 +1,0 @@
-# "nonexistentPasswordPolicyDataSecurityAuditorId" should be the id of the Nonexistent Password Policy Data Security Auditor to be imported
-terraform import pingdirectory_nonexistent_password_policy_data_security_auditor.myNonexistentPasswordPolicyDataSecurityAuditor nonexistentPasswordPolicyDataSecurityAuditorId

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source  = "pingidentity/pingdirectory"
+      source = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,23 +19,14 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version = "9.2.0.0"
 }
 
 resource "pingdirectory_local_db_vlv_index" "myLocalDbVlvIndex" {
-  backend_name = pingdirectory_local_db_backend.myLocalDbBackend.backend_id
+  backend_name = "userRoot"
   base_dn      = ["dc=example,dc=com"]
   scope        = "base-object"
   filter       = "uid=user.1"
   sort_order   = "givenName"
   name         = "my_example"
-}
-
-resource "pingdirectory_local_db_backend" "myLocalDbBackend" {
-  backend_id            = "MyLocalDbBackend"
-  base_dn               = ["dc=example1,dc=com"]
-  writability_mode      = "enabled"
-  db_directory          = "db"
-  import_temp_directory = "tmp"
-  enabled               = true
 }

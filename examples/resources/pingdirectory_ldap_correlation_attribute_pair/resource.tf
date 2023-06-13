@@ -3,7 +3,7 @@ terraform {
   required_providers {
     pingdirectory = {
       version = "~> 0.3.0"
-      source  = "pingidentity/pingdirectory"
+      source = "pingidentity/pingdirectory"
     }
   }
 }
@@ -19,38 +19,36 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version = "9.2.0.0"
 }
 
-resource "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttributePair" {
-  id                              = "MyLdapCorrelationAttributePair"
-  correlated_ldap_data_view_name  = pingdirectory_correlated_ldap_data_view.myCorrelatedLdapDataView.id
-  scim_resource_type_name         = pingdirectory_ldap_mapping_scim_resource_type.myLdapMappingScimResourceType.id
-  primary_correlation_attribute   = "cn"
-  secondary_correlation_attribute = "cn"
+//URN is needed for the LDAP mapping SCIM resource type
+resource "pingdirectory_scim_schema" "myScimSchema" {
+  schema_urn = "urn:com:example2"
 }
 
-// Dependencies
-// OOTB these resources do not exist
+// LDAP mapping SCIM resource type is needed for the correlated data view resource
+resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
+  id          = "MyLdapMappingScimResourceType2"
+  type = "ldap-mapping"
+  core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
+  enabled     = false
+  endpoint    = "myendpoint"
+}
 
 resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
   id                              = "MyCorrelatedLdapDataView"
-  scim_resource_type_name         = pingdirectory_ldap_mapping_scim_resource_type.myLdapMappingScimResourceType.id
+  scim_resource_type_name         = pingdirectory_scim_resource_type.myLdapMappingScimResourceType.id
   structural_ldap_objectclass     = "ldapObject"
   include_base_dn                 = "cn=com.example"
   primary_correlation_attribute   = "cn"
   secondary_correlation_attribute = "cn"
 }
 
-// LDAP mapping SCIM resource type is needed for the correlated data view resource
-resource "pingdirectory_ldap_mapping_scim_resource_type" "myLdapMappingScimResourceType" {
-  id          = "MyLdapMappingScimResourceType2"
-  core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
-  enabled     = false
-  endpoint    = "myendpoint"
-}
-
-//URN is needed for the LDAP mapping SCIM resource type
-resource "pingdirectory_scim_schema" "myScimSchema" {
-  schema_urn = "urn:com:example2"
+resource "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttributePair" {
+  id                            = "MyLdapCorrelationAttributePair"
+  correlated_ldap_data_view_name  = pingdirectory_correlated_ldap_data_view.myCorrelatedLdapDataView.id
+  scim_resource_type_name         = pingdirectory_scim_resource_type.myLdapMappingScimResourceType.id
+  primary_correlation_attribute   = "cn"
+  secondary_correlation_attribute = "cn"
 }

@@ -1,2 +1,0 @@
-# "replaceCertificateExtendedOperationHandlerId" should be the id of the Replace Certificate Extended Operation Handler to be imported
-terraform import pingdirectory_replace_certificate_extended_operation_handler.myReplaceCertificateExtendedOperationHandler replaceCertificateExtendedOperationHandlerId

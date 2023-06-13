@@ -1,2 +1,0 @@
-# "lastAccessTimeUncachedEntryCriteriaId" should be the id of the Last Access Time Uncached Entry Criteria to be imported
-terraform import pingdirectory_last_access_time_uncached_entry_criteria.myLastAccessTimeUncachedEntryCriteria lastAccessTimeUncachedEntryCriteriaId

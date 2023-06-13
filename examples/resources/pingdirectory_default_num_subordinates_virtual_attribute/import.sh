@@ -1,2 +1,0 @@
-# "numSubordinatesVirtualAttributeId" should be the id of the Num Subordinates Virtual Attribute to be imported
-terraform import pingdirectory_default_num_subordinates_virtual_attribute.myNumSubordinatesVirtualAttribute numSubordinatesVirtualAttributeId

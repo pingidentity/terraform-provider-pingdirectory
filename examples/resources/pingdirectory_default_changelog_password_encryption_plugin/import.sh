@@ -1,2 +1,0 @@
-# "changelogPasswordEncryptionPluginId" should be the id of the Changelog Password Encryption Plugin to be imported
-terraform import pingdirectory_default_changelog_password_encryption_plugin.myChangelogPasswordEncryptionPlugin changelogPasswordEncryptionPluginId
