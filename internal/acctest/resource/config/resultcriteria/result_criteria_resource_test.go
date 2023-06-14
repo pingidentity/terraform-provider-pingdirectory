@@ -12,17 +12,23 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdResultCriteria = "MyId"
+const testIdSimpleResultCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
-type resultCriteriaTestModel struct {
-	id string
+type simpleResultCriteriaTestModel struct {
+	id          string
+	description string
 }
 
-func TestAccResultCriteria(t *testing.T) {
+func TestAccSimpleResultCriteria(t *testing.T) {
 	resourceName := "myresource"
-	initialResourceModel := resultCriteriaTestModel{
-		id: testIdResultCriteria,
+	initialResourceModel := simpleResultCriteriaTestModel{
+		id:          testIdSimpleResultCriteria,
+		description: "my_description",
+	}
+	updatedResourceModel := simpleResultCriteriaTestModel{
+		id:          testIdSimpleResultCriteria,
+		description: "my_updated_description",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -30,16 +36,22 @@ func TestAccResultCriteria(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
-		CheckDestroy: testAccCheckResultCriteriaDestroy,
+		CheckDestroy: testAccCheckSimpleResultCriteriaDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
-				Config: testAccResultCriteriaResource(resourceName, initialResourceModel),
+				Config: testAccSimpleResultCriteriaResource(resourceName, initialResourceModel),
+				Check:  testAccCheckExpectedSimpleResultCriteriaAttributes(initialResourceModel),
+			},
+			{
+				// Test updating some fields
+				Config: testAccSimpleResultCriteriaResource(resourceName, updatedResourceModel),
+				Check:  testAccCheckExpectedSimpleResultCriteriaAttributes(updatedResourceModel),
 			},
 			{
 				// Test importing the resource
-				Config:            testAccResultCriteriaResource(resourceName, initialResourceModel),
+				Config:            testAccSimpleResultCriteriaResource(resourceName, initialResourceModel),
 				ResourceName:      "pingdirectory_result_criteria." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
@@ -52,21 +64,29 @@ func TestAccResultCriteria(t *testing.T) {
 	})
 }
 
-func testAccResultCriteriaResource(resourceName string, resourceModel resultCriteriaTestModel) string {
+func testAccSimpleResultCriteriaResource(resourceName string, resourceModel simpleResultCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_result_criteria" "%[1]s" {
-  type = "simple"
-	 id = "%[2]s"
+  type        = "simple"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName,
-		resourceModel.id)
+		resourceModel.id,
+		resourceModel.description)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedResultCriteriaAttributes(config resultCriteriaTestModel) resource.TestCheckFunc {
+func testAccCheckExpectedSimpleResultCriteriaAttributes(config simpleResultCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		resourceType := "Result Criteria"
+		err = acctest.TestAttributesMatchString(resourceType, &config.id, "description",
+			config.description, *response.SimpleResultCriteriaResponse.Description)
 		if err != nil {
 			return err
 		}
@@ -75,12 +95,12 @@ func testAccCheckExpectedResultCriteriaAttributes(config resultCriteriaTestModel
 }
 
 // Test that any objects created by the test are destroyed
-func testAccCheckResultCriteriaDestroy(s *terraform.State) error {
+func testAccCheckSimpleResultCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, testIdResultCriteria).Execute()
+	_, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, testIdSimpleResultCriteria).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("Result Criteria", testIdResultCriteria)
+		return acctest.ExpectedDestroyError("Simple Result Criteria", testIdSimpleResultCriteria)
 	}
 	return nil
 }

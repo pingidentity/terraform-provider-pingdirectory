@@ -12,17 +12,23 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdSearchReferenceCriteria = "MyId"
+const testIdSimpleSearchReferenceCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
-type searchReferenceCriteriaTestModel struct {
-	id string
+type simpleSearchReferenceCriteriaTestModel struct {
+	id          string
+	description string
 }
 
-func TestAccSearchReferenceCriteria(t *testing.T) {
+func TestAccSimpleSearchReferenceCriteria(t *testing.T) {
 	resourceName := "myresource"
-	initialResourceModel := searchReferenceCriteriaTestModel{
-		id: testIdSearchReferenceCriteria,
+	initialResourceModel := simpleSearchReferenceCriteriaTestModel{
+		id:          testIdSimpleSearchReferenceCriteria,
+		description: "my_description",
+	}
+	updatedResourceModel := simpleSearchReferenceCriteriaTestModel{
+		id:          testIdSimpleSearchReferenceCriteria,
+		description: "my_updated_description",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -30,16 +36,22 @@ func TestAccSearchReferenceCriteria(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
-		CheckDestroy: testAccCheckSearchReferenceCriteriaDestroy,
+		CheckDestroy: testAccCheckSimpleSearchReferenceCriteriaDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
-				Config: testAccSearchReferenceCriteriaResource(resourceName, initialResourceModel),
+				Config: testAccSimpleSearchReferenceCriteriaResource(resourceName, initialResourceModel),
+				Check:  testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(initialResourceModel),
+			},
+			{
+				// Test updating some fields
+				Config: testAccSimpleSearchReferenceCriteriaResource(resourceName, updatedResourceModel),
+				Check:  testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(updatedResourceModel),
 			},
 			{
 				// Test importing the resource
-				Config:            testAccSearchReferenceCriteriaResource(resourceName, initialResourceModel),
+				Config:            testAccSimpleSearchReferenceCriteriaResource(resourceName, initialResourceModel),
 				ResourceName:      "pingdirectory_search_reference_criteria." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
@@ -52,21 +64,29 @@ func TestAccSearchReferenceCriteria(t *testing.T) {
 	})
 }
 
-func testAccSearchReferenceCriteriaResource(resourceName string, resourceModel searchReferenceCriteriaTestModel) string {
+func testAccSimpleSearchReferenceCriteriaResource(resourceName string, resourceModel simpleSearchReferenceCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_search_reference_criteria" "%[1]s" {
-  type = "simple"
-	 id = "%[2]s"
+  type        = "simple"
+  id          = "%[2]s"
+  description = "%[3]s"
 }`, resourceName,
-		resourceModel.id)
+		resourceModel.id,
+		resourceModel.description)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedSearchReferenceCriteriaAttributes(config searchReferenceCriteriaTestModel) resource.TestCheckFunc {
+func testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(config simpleSearchReferenceCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		resourceType := "Search Reference Criteria"
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.SimpleSearchReferenceCriteriaResponse.Description)
 		if err != nil {
 			return err
 		}
@@ -75,12 +95,12 @@ func testAccCheckExpectedSearchReferenceCriteriaAttributes(config searchReferenc
 }
 
 // Test that any objects created by the test are destroyed
-func testAccCheckSearchReferenceCriteriaDestroy(s *terraform.State) error {
+func testAccCheckSimpleSearchReferenceCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(ctx, testIdSearchReferenceCriteria).Execute()
+	_, _, err := testClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(ctx, testIdSimpleSearchReferenceCriteria).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("Search Reference Criteria", testIdSearchReferenceCriteria)
+		return acctest.ExpectedDestroyError("Simple Search Reference Criteria", testIdSimpleSearchReferenceCriteria)
 	}
 	return nil
 }

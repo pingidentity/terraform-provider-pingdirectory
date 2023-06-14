@@ -12,17 +12,24 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdRequestCriteria = "MyId"
+const testIdRootDseRequestCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
-type requestCriteriaTestModel struct {
-	id string
+type rootDseRequestCriteriaTestModel struct {
+	id          string
+	description string
 }
 
-func TestAccRequestCriteria(t *testing.T) {
+func TestAccRootDseRequestCriteria(t *testing.T) {
 	resourceName := "myresource"
-	initialResourceModel := requestCriteriaTestModel{
-		id: testIdRequestCriteria,
+	initialResourceModel := rootDseRequestCriteriaTestModel{
+		id:          testIdRootDseRequestCriteria,
+		description: "test description",
+	}
+
+	updatedResourceModel := rootDseRequestCriteriaTestModel{
+		id:          testIdRootDseRequestCriteria,
+		description: "updated test description",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -30,43 +37,54 @@ func TestAccRequestCriteria(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
-		CheckDestroy: testAccCheckRequestCriteriaDestroy,
+		CheckDestroy: testAccCheckRootDseRequestCriteriaDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
-				Config: testAccRequestCriteriaResource(resourceName, initialResourceModel),
+				Config: testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
+				Check:  testAccCheckExpectedRootDseRequestCriteriaAttributes(initialResourceModel),
+			},
+			{
+				// Test updating some fields
+				Config: testAccRootDseRequestCriteriaResource(resourceName, updatedResourceModel),
+				Check:  testAccCheckExpectedRootDseRequestCriteriaAttributes(updatedResourceModel),
 			},
 			{
 				// Test importing the resource
-				Config:            testAccRequestCriteriaResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_request_criteria." + resourceName,
-				ImportStateId:     initialResourceModel.id,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"last_updated",
-				},
+				Config:                  testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
+				ResourceName:            "pingdirectory_request_criteria." + resourceName,
+				ImportStateId:           initialResourceModel.id,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"last_updated"},
 			},
 		},
 	})
 }
 
-func testAccRequestCriteriaResource(resourceName string, resourceModel requestCriteriaTestModel) string {
+func testAccRootDseRequestCriteriaResource(resourceName string, resourceModel rootDseRequestCriteriaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_request_criteria" "%[1]s" {
-  type = "root-dse"
-	 id = "%[2]s"
-}`, resourceName,
-		resourceModel.id)
+  type        = "root-dse"
+  id          = "%[2]s"
+  description = "%[3]s"
+}`, resourceName, resourceModel.id, resourceModel.description)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedRequestCriteriaAttributes(config requestCriteriaTestModel) resource.TestCheckFunc {
+func testAccCheckExpectedRootDseRequestCriteriaAttributes(config rootDseRequestCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
+		resourceType := "root dse request criteria"
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, config.id).Execute()
+		response, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, config.id).Execute()
+		if err != nil {
+			return err
+		}
+		// Verify that description matches expected
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.id, "description",
+			config.description, response.RootDseRequestCriteriaResponse.Description)
 		if err != nil {
 			return err
 		}
@@ -75,12 +93,12 @@ func testAccCheckExpectedRequestCriteriaAttributes(config requestCriteriaTestMod
 }
 
 // Test that any objects created by the test are destroyed
-func testAccCheckRequestCriteriaDestroy(s *terraform.State) error {
+func testAccCheckRootDseRequestCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, testIdRequestCriteria).Execute()
+	_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, testIdRootDseRequestCriteria).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("Request Criteria", testIdRequestCriteria)
+		return acctest.ExpectedDestroyError("Root Dse Request Criteria", testIdRootDseRequestCriteria)
 	}
 	return nil
 }
