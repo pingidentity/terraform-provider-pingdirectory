@@ -41,6 +41,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/interserverauthenticationinfo"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/keymanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldbehavior"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldmapping"
@@ -446,6 +447,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		identitymapper.NewDefaultIdentityMapperResource,
 		idtokenvalidator.NewIdTokenValidatorResource,
 		idtokenvalidator.NewDefaultIdTokenValidatorResource,
+		interserverauthenticationinfo.NewInterServerAuthenticationInfoResource,
 		keymanagerprovider.NewKeyManagerProviderResource,
 		keymanagerprovider.NewDefaultKeyManagerProviderResource,
 		logfieldbehavior.NewLogFieldBehaviorResource,
