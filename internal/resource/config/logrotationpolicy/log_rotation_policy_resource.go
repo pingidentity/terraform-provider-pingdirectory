@@ -485,16 +485,16 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 	// Read the existing configuration
 	var state logRotationPolicyResourceModel
 	if plan.Type.ValueString() == "time-limit" {
-		readTimeLimitLogRotationPolicyResponse(ctx, readResponse.TimeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
+		readTimeLimitLogRotationPolicyResponse(ctx, readResponse.TimeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "fixed-time" {
-		readFixedTimeLogRotationPolicyResponse(ctx, readResponse.FixedTimeLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
+		readFixedTimeLogRotationPolicyResponse(ctx, readResponse.FixedTimeLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "never-rotate" {
-		readNeverRotateLogRotationPolicyResponse(ctx, readResponse.NeverRotateLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
+		readNeverRotateLogRotationPolicyResponse(ctx, readResponse.NeverRotateLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "size-limit" {
-		readSizeLimitLogRotationPolicyResponse(ctx, readResponse.SizeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
+		readSizeLimitLogRotationPolicyResponse(ctx, readResponse.SizeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

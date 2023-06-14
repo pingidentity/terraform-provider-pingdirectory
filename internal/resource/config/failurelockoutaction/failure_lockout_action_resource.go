@@ -426,13 +426,13 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state failureLockoutActionResourceModel
 	if plan.Type.ValueString() == "delay-bind-response" {
-		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "no-operation" {
-		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "lock-account" {
-		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
+		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

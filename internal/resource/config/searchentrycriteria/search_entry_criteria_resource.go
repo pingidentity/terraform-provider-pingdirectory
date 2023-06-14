@@ -862,13 +862,13 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 	// Read the existing configuration
 	var state searchEntryCriteriaResourceModel
 	if plan.Type.ValueString() == "simple" {
-		readSimpleSearchEntryCriteriaResponse(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readSimpleSearchEntryCriteriaResponse(ctx, readResponse.SimpleSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "aggregate" {
-		readAggregateSearchEntryCriteriaResponse(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readAggregateSearchEntryCriteriaResponse(ctx, readResponse.AggregateSearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartySearchEntryCriteriaResponse(ctx, readResponse.ThirdPartySearchEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

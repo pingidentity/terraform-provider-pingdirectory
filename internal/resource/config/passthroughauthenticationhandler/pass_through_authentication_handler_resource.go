@@ -603,10 +603,10 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 	// Read the existing configuration
 	var state passThroughAuthenticationHandlerResourceModel
 	if plan.Type.ValueString() == "ldap" {
-		readLdapPassThroughAuthenticationHandlerResponse(ctx, readResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readLdapPassThroughAuthenticationHandlerResponse(ctx, readResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

@@ -1255,22 +1255,22 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 	// Read the existing configuration
 	var state accountStatusNotificationHandlerResourceModel
 	if plan.Type.ValueString() == "smtp" {
-		readSmtpAccountStatusNotificationHandlerResponse(ctx, readResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readSmtpAccountStatusNotificationHandlerResponse(ctx, readResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, readResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, readResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "admin-alert" {
-		readAdminAlertAccountStatusNotificationHandlerResponse(ctx, readResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readAdminAlertAccountStatusNotificationHandlerResponse(ctx, readResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "error-log" {
-		readErrorLogAccountStatusNotificationHandlerResponse(ctx, readResponse.ErrorLogAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readErrorLogAccountStatusNotificationHandlerResponse(ctx, readResponse.ErrorLogAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "multi-part-email" {
-		readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, readResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, readResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyAccountStatusNotificationHandlerResponse(ctx, readResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyAccountStatusNotificationHandlerResponse(ctx, readResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

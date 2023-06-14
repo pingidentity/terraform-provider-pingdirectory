@@ -583,16 +583,16 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 	// Read the existing configuration
 	var state uncachedAttributeCriteriaResourceModel
 	if plan.Type.ValueString() == "default" {
-		readDefaultUncachedAttributeCriteriaResponse(ctx, readResponse.DefaultUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readDefaultUncachedAttributeCriteriaResponse(ctx, readResponse.DefaultUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "simple" {
-		readSimpleUncachedAttributeCriteriaResponse(ctx, readResponse.SimpleUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readSimpleUncachedAttributeCriteriaResponse(ctx, readResponse.SimpleUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyUncachedAttributeCriteriaResponse(ctx, readResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyUncachedAttributeCriteriaResponse(ctx, readResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

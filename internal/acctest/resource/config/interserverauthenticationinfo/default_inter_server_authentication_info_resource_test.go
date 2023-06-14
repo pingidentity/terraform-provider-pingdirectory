@@ -103,7 +103,7 @@ func testAccCheckExpectedInterServerAuthenticationInfoAttributes(config interSer
 		// Verify that attributes have expected values
 		resourceType := "Inter Server Authentication Info"
 		err = acctest.TestAttributesMatchStringSlice(resourceType, &config.id, "purpose",
-			config.purpose, client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(response.PasswordInterServerAuthenticationInfoResponse.Purpose))
+			config.purpose, client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(response.CertificateInterServerAuthenticationInfoResponse.Purpose))
 		if err != nil {
 			return err
 		}

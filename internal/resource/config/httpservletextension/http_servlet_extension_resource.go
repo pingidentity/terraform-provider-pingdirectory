@@ -2468,43 +2468,43 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state defaultHttpServletExtensionResourceModel
 	if plan.Type.ValueString() == "delegated-admin" {
-		readDelegatedAdminHttpServletExtensionResponseDefault(ctx, readResponse.DelegatedAdminHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readDelegatedAdminHttpServletExtensionResponseDefault(ctx, readResponse.DelegatedAdminHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "quickstart" {
-		readQuickstartHttpServletExtensionResponseDefault(ctx, readResponse.QuickstartHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readQuickstartHttpServletExtensionResponseDefault(ctx, readResponse.QuickstartHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "availability-state" {
-		readAvailabilityStateHttpServletExtensionResponseDefault(ctx, readResponse.AvailabilityStateHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readAvailabilityStateHttpServletExtensionResponseDefault(ctx, readResponse.AvailabilityStateHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "prometheus-monitoring" {
-		readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx, readResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx, readResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "velocity" {
-		readVelocityHttpServletExtensionResponseDefault(ctx, readResponse.VelocityHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readVelocityHttpServletExtensionResponseDefault(ctx, readResponse.VelocityHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "consent" {
-		readConsentHttpServletExtensionResponseDefault(ctx, readResponse.ConsentHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readConsentHttpServletExtensionResponseDefault(ctx, readResponse.ConsentHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldap-mapped-scim" {
-		readLdapMappedScimHttpServletExtensionResponseDefault(ctx, readResponse.LdapMappedScimHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readLdapMappedScimHttpServletExtensionResponseDefault(ctx, readResponse.LdapMappedScimHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedHttpServletExtensionResponseDefault(ctx, readResponse.GroovyScriptedHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedHttpServletExtensionResponseDefault(ctx, readResponse.GroovyScriptedHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-server" {
-		readFileServerHttpServletExtensionResponseDefault(ctx, readResponse.FileServerHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readFileServerHttpServletExtensionResponseDefault(ctx, readResponse.FileServerHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "config" {
-		readConfigHttpServletExtensionResponseDefault(ctx, readResponse.ConfigHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readConfigHttpServletExtensionResponseDefault(ctx, readResponse.ConfigHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "scim2" {
-		readScim2HttpServletExtensionResponseDefault(ctx, readResponse.Scim2HttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readScim2HttpServletExtensionResponseDefault(ctx, readResponse.Scim2HttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "directory-rest-api" {
-		readDirectoryRestApiHttpServletExtensionResponseDefault(ctx, readResponse.DirectoryRestApiHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readDirectoryRestApiHttpServletExtensionResponseDefault(ctx, readResponse.DirectoryRestApiHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyHttpServletExtensionResponseDefault(ctx, readResponse.ThirdPartyHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyHttpServletExtensionResponseDefault(ctx, readResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

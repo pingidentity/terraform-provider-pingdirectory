@@ -260,7 +260,7 @@ func (r *defaultConsentDefinitionResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state consentDefinitionResourceModel
-	readConsentDefinitionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readConsentDefinitionResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConsentDefinitionApi.UpdateConsentDefinition(ProviderBasicAuthContext(ctx, r.providerConfig), plan.UniqueID.ValueString())

@@ -238,7 +238,7 @@ func (r *defaultDelegatedAdminAttributeCategoryResource) Create(ctx context.Cont
 
 	// Read the existing configuration
 	var state delegatedAdminAttributeCategoryResourceModel
-	readDelegatedAdminAttributeCategoryResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readDelegatedAdminAttributeCategoryResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DelegatedAdminAttributeCategoryApi.UpdateDelegatedAdminAttributeCategory(ProviderBasicAuthContext(ctx, r.providerConfig), plan.DisplayName.ValueString())

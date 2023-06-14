@@ -750,22 +750,22 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 	// Read the existing configuration
 	var state certificateMapperResourceModel
 	if plan.Type.ValueString() == "subject-equals-dn" {
-		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
-		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
-		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "fingerprint" {
-		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

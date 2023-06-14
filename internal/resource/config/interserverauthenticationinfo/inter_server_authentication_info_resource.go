@@ -238,10 +238,10 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 	// Read the existing configuration
 	var state interServerAuthenticationInfoResourceModel
 	if plan.Type.ValueString() == "password" {
-		readPasswordInterServerAuthenticationInfoResponse(ctx, readResponse.PasswordInterServerAuthenticationInfoResponse, &state, &state, &resp.Diagnostics)
+		readPasswordInterServerAuthenticationInfoResponse(ctx, readResponse.PasswordInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "certificate" {
-		readCertificateInterServerAuthenticationInfoResponse(ctx, readResponse.CertificateInterServerAuthenticationInfoResponse, &state, &state, &resp.Diagnostics)
+		readCertificateInterServerAuthenticationInfoResponse(ctx, readResponse.CertificateInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

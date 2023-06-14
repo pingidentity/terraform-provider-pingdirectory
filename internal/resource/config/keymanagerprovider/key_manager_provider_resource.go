@@ -631,16 +631,16 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	// Read the existing configuration
 	var state keyManagerProviderResourceModel
 	if plan.Type.ValueString() == "file-based" {
-		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomKeyManagerProviderResponse(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readCustomKeyManagerProviderResponse(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "pkcs11" {
-		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

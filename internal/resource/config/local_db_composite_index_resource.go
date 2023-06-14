@@ -318,7 +318,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 
 	// Read the existing configuration
 	var state localDbCompositeIndexResourceModel
-	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.BackendName.ValueString())

@@ -535,19 +535,19 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 	// Read the existing configuration
 	var state logRetentionPolicyResourceModel
 	if plan.Type.ValueString() == "time-limit" {
-		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "never-delete" {
-		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-count" {
-		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "free-disk-space" {
-		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "size-limit" {
-		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
+		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

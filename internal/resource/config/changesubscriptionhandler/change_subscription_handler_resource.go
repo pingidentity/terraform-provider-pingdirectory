@@ -511,13 +511,13 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 	// Read the existing configuration
 	var state changeSubscriptionHandlerResourceModel
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, readResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, readResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "logging" {
-		readLoggingChangeSubscriptionHandlerResponse(ctx, readResponse.LoggingChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readLoggingChangeSubscriptionHandlerResponse(ctx, readResponse.LoggingChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyChangeSubscriptionHandlerResponse(ctx, readResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyChangeSubscriptionHandlerResponse(ctx, readResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
