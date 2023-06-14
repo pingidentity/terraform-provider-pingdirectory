@@ -1,4 +1,4 @@
-package azureauthenticationmethod_test
+package requestcriteria_test
 
 import (
 	"fmt"
@@ -12,17 +12,17 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdAzureAuthenticationMethod = "MyId"
+const testIdRequestCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
-type azureAuthenticationMethodTestModel struct {
+type requestCriteriaTestModel struct {
 	id string
 }
 
-func TestAccAzureAuthenticationMethod(t *testing.T) {
+func TestAccRequestCriteria(t *testing.T) {
 	resourceName := "myresource"
-	initialResourceModel := azureAuthenticationMethodTestModel{
-		id: testIdAzureAuthenticationMethod,
+	initialResourceModel := requestCriteriaTestModel{
+		id: testIdRequestCriteria,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -30,17 +30,17 @@ func TestAccAzureAuthenticationMethod(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
-		CheckDestroy: testAccCheckAzureAuthenticationMethodDestroy,
+		CheckDestroy: testAccCheckRequestCriteriaDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
-				Config: testAccAzureAuthenticationMethodResource(resourceName, initialResourceModel),
+				Config: testAccRequestCriteriaResource(resourceName, initialResourceModel),
 			},
 			{
 				// Test importing the resource
-				Config:            testAccAzureAuthenticationMethodResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_azure_authentication_method." + resourceName,
+				Config:            testAccRequestCriteriaResource(resourceName, initialResourceModel),
+				ResourceName:      "pingdirectory_request_criteria." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -52,21 +52,21 @@ func TestAccAzureAuthenticationMethod(t *testing.T) {
 	})
 }
 
-func testAccAzureAuthenticationMethodResource(resourceName string, resourceModel azureAuthenticationMethodTestModel) string {
+func testAccRequestCriteriaResource(resourceName string, resourceModel requestCriteriaTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_azure_authentication_method" "%[1]s" {
-  type = "default"
+resource "pingdirectory_request_criteria" "%[1]s" {
+  type = "root-dse"
 	 id = "%[2]s"
 }`, resourceName,
 		resourceModel.id)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedAzureAuthenticationMethodAttributes(config azureAuthenticationMethodTestModel) resource.TestCheckFunc {
+func testAccCheckExpectedRequestCriteriaAttributes(config requestCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(ctx, config.id).Execute()
+		_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -75,12 +75,12 @@ func testAccCheckExpectedAzureAuthenticationMethodAttributes(config azureAuthent
 }
 
 // Test that any objects created by the test are destroyed
-func testAccCheckAzureAuthenticationMethodDestroy(s *terraform.State) error {
+func testAccCheckRequestCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(ctx, testIdAzureAuthenticationMethod).Execute()
+	_, _, err := testClient.RequestCriteriaApi.GetRequestCriteria(ctx, testIdRequestCriteria).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("Azure Authentication Method", testIdAzureAuthenticationMethod)
+		return acctest.ExpectedDestroyError("Request Criteria", testIdRequestCriteria)
 	}
 	return nil
 }

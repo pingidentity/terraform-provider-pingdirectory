@@ -1,4 +1,4 @@
-package azureauthenticationmethod_test
+package resultcriteria_test
 
 import (
 	"fmt"
@@ -12,17 +12,17 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdAzureAuthenticationMethod = "MyId"
+const testIdResultCriteria = "MyId"
 
 // Attributes to test with. Add optional properties to test here if desired.
-type azureAuthenticationMethodTestModel struct {
+type resultCriteriaTestModel struct {
 	id string
 }
 
-func TestAccAzureAuthenticationMethod(t *testing.T) {
+func TestAccResultCriteria(t *testing.T) {
 	resourceName := "myresource"
-	initialResourceModel := azureAuthenticationMethodTestModel{
-		id: testIdAzureAuthenticationMethod,
+	initialResourceModel := resultCriteriaTestModel{
+		id: testIdResultCriteria,
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -30,17 +30,17 @@ func TestAccAzureAuthenticationMethod(t *testing.T) {
 		ProtoV6ProviderFactories: map[string]func() (tfprotov6.ProviderServer, error){
 			"pingdirectory": providerserver.NewProtocol6WithError(provider.New()),
 		},
-		CheckDestroy: testAccCheckAzureAuthenticationMethodDestroy,
+		CheckDestroy: testAccCheckResultCriteriaDestroy,
 		Steps: []resource.TestStep{
 			{
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
-				Config: testAccAzureAuthenticationMethodResource(resourceName, initialResourceModel),
+				Config: testAccResultCriteriaResource(resourceName, initialResourceModel),
 			},
 			{
 				// Test importing the resource
-				Config:            testAccAzureAuthenticationMethodResource(resourceName, initialResourceModel),
-				ResourceName:      "pingdirectory_azure_authentication_method." + resourceName,
+				Config:            testAccResultCriteriaResource(resourceName, initialResourceModel),
+				ResourceName:      "pingdirectory_result_criteria." + resourceName,
 				ImportStateId:     initialResourceModel.id,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -52,21 +52,21 @@ func TestAccAzureAuthenticationMethod(t *testing.T) {
 	})
 }
 
-func testAccAzureAuthenticationMethodResource(resourceName string, resourceModel azureAuthenticationMethodTestModel) string {
+func testAccResultCriteriaResource(resourceName string, resourceModel resultCriteriaTestModel) string {
 	return fmt.Sprintf(`
-resource "pingdirectory_azure_authentication_method" "%[1]s" {
-  type = "default"
+resource "pingdirectory_result_criteria" "%[1]s" {
+  type = "simple"
 	 id = "%[2]s"
 }`, resourceName,
 		resourceModel.id)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
-func testAccCheckExpectedAzureAuthenticationMethodAttributes(config azureAuthenticationMethodTestModel) resource.TestCheckFunc {
+func testAccCheckExpectedResultCriteriaAttributes(config resultCriteriaTestModel) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		testClient := acctest.TestClient()
 		ctx := acctest.TestBasicAuthContext()
-		_, _, err := testClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(ctx, config.id).Execute()
+		_, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, config.id).Execute()
 		if err != nil {
 			return err
 		}
@@ -75,12 +75,12 @@ func testAccCheckExpectedAzureAuthenticationMethodAttributes(config azureAuthent
 }
 
 // Test that any objects created by the test are destroyed
-func testAccCheckAzureAuthenticationMethodDestroy(s *terraform.State) error {
+func testAccCheckResultCriteriaDestroy(s *terraform.State) error {
 	testClient := acctest.TestClient()
 	ctx := acctest.TestBasicAuthContext()
-	_, _, err := testClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(ctx, testIdAzureAuthenticationMethod).Execute()
+	_, _, err := testClient.ResultCriteriaApi.GetResultCriteria(ctx, testIdResultCriteria).Execute()
 	if err == nil {
-		return acctest.ExpectedDestroyError("Azure Authentication Method", testIdAzureAuthenticationMethod)
+		return acctest.ExpectedDestroyError("Result Criteria", testIdResultCriteria)
 	}
 	return nil
 }
