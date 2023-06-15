@@ -751,7 +751,6 @@ func readUnboundidMsChapV2SaslMechanismHandlerResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
 }
 
 // Read a UnboundidMsChapV2SaslMechanismHandlerResponse object into the model struct
@@ -851,7 +850,6 @@ func readUnboundidDeliveredOtpSaslMechanismHandlerResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
 }
 
 // Read a UnboundidDeliveredOtpSaslMechanismHandlerResponse object into the model struct
@@ -916,7 +914,6 @@ func readOauthBearerSaslMechanismHandlerResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
 }
 
 // Read a OauthBearerSaslMechanismHandlerResponse object into the model struct
@@ -983,7 +980,6 @@ func readThirdPartySaslMechanismHandlerResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartySaslMechanismHandlerResponse object into the model struct

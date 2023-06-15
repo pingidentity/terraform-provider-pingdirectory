@@ -606,7 +606,6 @@ func readValidateTotpPasswordExtendedOperationHandlerResponse(ctx context.Contex
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ValidateTotpPasswordExtendedOperationHandlerResponse object into the model struct
@@ -637,7 +636,6 @@ func readReplaceCertificateExtendedOperationHandlerResponse(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ReplaceCertificateExtendedOperationHandlerResponse object into the model struct
@@ -713,7 +711,6 @@ func readCollectSupportDataExtendedOperationHandlerResponse(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a CollectSupportDataExtendedOperationHandlerResponse object into the model struct
@@ -733,7 +730,6 @@ func readExportReversiblePasswordsExtendedOperationHandlerResponse(ctx context.C
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ExportReversiblePasswordsExtendedOperationHandlerResponse object into the model struct
@@ -788,7 +784,6 @@ func readSingleUseTokensExtendedOperationHandlerResponse(ctx context.Context, r 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a SingleUseTokensExtendedOperationHandlerResponse object into the model struct
@@ -852,7 +847,6 @@ func readDeliverPasswordResetTokenExtendedOperationHandlerResponse(ctx context.C
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a DeliverPasswordResetTokenExtendedOperationHandlerResponse object into the model struct
@@ -900,7 +894,6 @@ func readDeliverOtpExtendedOperationHandlerResponse(ctx context.Context, r *clie
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a DeliverOtpExtendedOperationHandlerResponse object into the model struct
@@ -925,7 +918,6 @@ func readThirdPartyExtendedOperationHandlerResponse(ctx context.Context, r *clie
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateExtendedOperationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyExtendedOperationHandlerResponse object into the model struct

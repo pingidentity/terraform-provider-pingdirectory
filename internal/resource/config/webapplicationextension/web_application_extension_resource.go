@@ -457,7 +457,6 @@ func readGenericWebApplicationExtensionResponse(ctx context.Context, r *client.G
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateWebApplicationExtensionUnknownValues(ctx, state)
 }
 
 // Read a GenericWebApplicationExtensionResponse object into the model struct
