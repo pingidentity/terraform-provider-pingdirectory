@@ -391,6 +391,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewLocalDbCompositeIndexResource,
 		config.NewDefaultLocalDbCompositeIndexResource,
 		config.NewLocationResource,
+		config.NewMacSecretKeyResource,
 		config.NewPasswordPolicyResource,
 		config.NewDefaultPasswordPolicyResource,
 		config.NewPluginRootResource,
