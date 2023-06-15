@@ -27,6 +27,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/changesubscriptionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/cipherstreamprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/conjurauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/datasecurityauditor"
@@ -421,6 +422,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultTrustedCertificateResource,
 		config.NewVelocityTemplateLoaderResource,
 		config.NewDefaultVelocityTemplateLoaderResource,
+		conjurauthenticationmethod.NewConjurAuthenticationMethodResource,
+		conjurauthenticationmethod.NewDefaultConjurAuthenticationMethodResource,
 		connectioncriteria.NewConnectionCriteriaResource,
 		connectioncriteria.NewDefaultConnectionCriteriaResource,
 		connectionhandler.NewConnectionHandlerResource,

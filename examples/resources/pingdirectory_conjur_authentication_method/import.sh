@@ -1,0 +1,2 @@
+# "conjurAuthenticationMethodId" should be the id of the Conjur Authentication Method to be imported
+terraform import pingdirectory_conjur_authentication_method.myConjurAuthenticationMethod conjurAuthenticationMethodId
