@@ -2231,6 +2231,7 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateBackendUnknownValues(ctx, state)
 }
 
 // Read a LocalDbBackendResponse object into the model struct

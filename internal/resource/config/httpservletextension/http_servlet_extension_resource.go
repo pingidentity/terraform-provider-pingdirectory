@@ -1595,6 +1595,7 @@ func readQuickstartHttpServletExtensionResponse(ctx context.Context, r *client.Q
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a QuickstartHttpServletExtensionResponse object into the model struct
@@ -1626,6 +1627,7 @@ func readAvailabilityStateHttpServletExtensionResponse(ctx context.Context, r *c
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a AvailabilityStateHttpServletExtensionResponse object into the model struct
@@ -1664,6 +1666,7 @@ func readPrometheusMonitoringHttpServletExtensionResponse(ctx context.Context, r
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a PrometheusMonitoringHttpServletExtensionResponse object into the model struct
@@ -1761,6 +1764,7 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a LdapMappedScimHttpServletExtensionResponse object into the model struct
@@ -1809,6 +1813,7 @@ func readGroovyScriptedHttpServletExtensionResponse(ctx context.Context, r *clie
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a GroovyScriptedHttpServletExtensionResponse object into the model struct
@@ -1848,6 +1853,7 @@ func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.F
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a FileServerHttpServletExtensionResponse object into the model struct
@@ -1945,6 +1951,7 @@ func readThirdPartyHttpServletExtensionResponse(ctx context.Context, r *client.T
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, internaltypes.IsEmptyString(expectedValues.CorrelationIDResponseHeader))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateHttpServletExtensionUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyHttpServletExtensionResponse object into the model struct

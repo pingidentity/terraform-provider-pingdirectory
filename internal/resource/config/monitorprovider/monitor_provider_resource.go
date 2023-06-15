@@ -465,6 +465,7 @@ func readThirdPartyMonitorProviderResponse(ctx context.Context, r *client.ThirdP
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyMonitorProviderResponse object into the model struct

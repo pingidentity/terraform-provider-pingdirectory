@@ -1075,6 +1075,7 @@ func readSmtpAlertHandlerResponse(ctx context.Context, r *client.SmtpAlertHandle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a SmtpAlertHandlerResponse object into the model struct
@@ -1113,6 +1114,7 @@ func readJmxAlertHandlerResponse(ctx context.Context, r *client.JmxAlertHandlerR
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a JmxAlertHandlerResponse object into the model struct
@@ -1148,6 +1150,7 @@ func readGroovyScriptedAlertHandlerResponse(ctx context.Context, r *client.Groov
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a GroovyScriptedAlertHandlerResponse object into the model struct
@@ -1203,6 +1206,7 @@ func readSnmpAlertHandlerResponse(ctx context.Context, r *client.SnmpAlertHandle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a SnmpAlertHandlerResponse object into the model struct
@@ -1247,6 +1251,7 @@ func readTwilioAlertHandlerResponse(ctx context.Context, r *client.TwilioAlertHa
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a TwilioAlertHandlerResponse object into the model struct
@@ -1288,6 +1293,7 @@ func readErrorLogAlertHandlerResponse(ctx context.Context, r *client.ErrorLogAle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a ErrorLogAlertHandlerResponse object into the model struct
@@ -1321,6 +1327,7 @@ func readSnmpSubAgentAlertHandlerResponse(ctx context.Context, r *client.SnmpSub
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a SnmpSubAgentAlertHandlerResponse object into the model struct
@@ -1355,6 +1362,7 @@ func readExecAlertHandlerResponse(ctx context.Context, r *client.ExecAlertHandle
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a ExecAlertHandlerResponse object into the model struct
@@ -1391,6 +1399,7 @@ func readThirdPartyAlertHandlerResponse(ctx context.Context, r *client.ThirdPart
 	state.DisabledAlertType = internaltypes.GetStringSet(
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateAlertHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyAlertHandlerResponse object into the model struct
