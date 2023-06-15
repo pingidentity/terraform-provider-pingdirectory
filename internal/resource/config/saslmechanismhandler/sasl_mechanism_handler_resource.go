@@ -696,8 +696,8 @@ func addOptionalThirdPartySaslMechanismHandlerFields(ctx context.Context, addReq
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateSaslMechanismHandlerNilSets(ctx context.Context, model *saslMechanismHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateSaslMechanismHandlerUnknownValues(ctx context.Context, model *saslMechanismHandlerResourceModel) {
 	if model.AccessTokenValidator.ElementType(ctx) == nil {
 		model.AccessTokenValidator = types.SetNull(types.StringType)
 	}
@@ -715,8 +715,8 @@ func populateSaslMechanismHandlerNilSets(ctx context.Context, model *saslMechani
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateSaslMechanismHandlerNilSetsDefault(ctx context.Context, model *defaultSaslMechanismHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateSaslMechanismHandlerUnknownValuesDefault(ctx context.Context, model *defaultSaslMechanismHandlerResourceModel) {
 	if model.AccessTokenValidator.ElementType(ctx) == nil {
 		model.AccessTokenValidator = types.SetNull(types.StringType)
 	}
@@ -738,6 +738,9 @@ func populateSaslMechanismHandlerNilSetsDefault(ctx context.Context, model *defa
 	if model.IdTokenValidator.ElementType(ctx) == nil {
 		model.IdTokenValidator = types.SetNull(types.StringType)
 	}
+	if model.YubikeyAPIKey.IsUnknown() {
+		model.YubikeyAPIKey = types.StringNull()
+	}
 }
 
 // Read a UnboundidMsChapV2SaslMechanismHandlerResponse object into the model struct
@@ -748,7 +751,6 @@ func readUnboundidMsChapV2SaslMechanismHandlerResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSets(ctx, state)
 }
 
 // Read a UnboundidMsChapV2SaslMechanismHandlerResponse object into the model struct
@@ -759,7 +761,7 @@ func readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx context.Contex
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a UnboundidTotpSaslMechanismHandlerResponse object into the model struct
@@ -777,7 +779,7 @@ func readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a UnboundidYubikeyOtpSaslMechanismHandlerResponse object into the model struct
@@ -797,7 +799,7 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx context.Cont
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a ExternalSaslMechanismHandlerResponse object into the model struct
@@ -810,7 +812,7 @@ func readExternalSaslMechanismHandlerResponseDefault(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a DigestMd5SaslMechanismHandlerResponse object into the model struct
@@ -823,7 +825,7 @@ func readDigestMd5SaslMechanismHandlerResponseDefault(ctx context.Context, r *cl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a PlainSaslMechanismHandlerResponse object into the model struct
@@ -834,7 +836,7 @@ func readPlainSaslMechanismHandlerResponseDefault(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a UnboundidDeliveredOtpSaslMechanismHandlerResponse object into the model struct
@@ -848,7 +850,6 @@ func readUnboundidDeliveredOtpSaslMechanismHandlerResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSets(ctx, state)
 }
 
 // Read a UnboundidDeliveredOtpSaslMechanismHandlerResponse object into the model struct
@@ -862,7 +863,7 @@ func readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx context.Co
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a UnboundidExternalAuthSaslMechanismHandlerResponse object into the model struct
@@ -873,7 +874,7 @@ func readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx context.Co
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a AnonymousSaslMechanismHandlerResponse object into the model struct
@@ -883,7 +884,7 @@ func readAnonymousSaslMechanismHandlerResponseDefault(ctx context.Context, r *cl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a CramMd5SaslMechanismHandlerResponse object into the model struct
@@ -894,7 +895,7 @@ func readCramMd5SaslMechanismHandlerResponseDefault(ctx context.Context, r *clie
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a OauthBearerSaslMechanismHandlerResponse object into the model struct
@@ -913,7 +914,6 @@ func readOauthBearerSaslMechanismHandlerResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSets(ctx, state)
 }
 
 // Read a OauthBearerSaslMechanismHandlerResponse object into the model struct
@@ -932,7 +932,7 @@ func readOauthBearerSaslMechanismHandlerResponseDefault(ctx context.Context, r *
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse object into the model struct
@@ -943,7 +943,7 @@ func readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a GssapiSaslMechanismHandlerResponse object into the model struct
@@ -967,7 +967,7 @@ func readGssapiSaslMechanismHandlerResponseDefault(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Read a ThirdPartySaslMechanismHandlerResponse object into the model struct
@@ -980,7 +980,6 @@ func readThirdPartySaslMechanismHandlerResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSets(ctx, state)
 }
 
 // Read a ThirdPartySaslMechanismHandlerResponse object into the model struct
@@ -993,7 +992,7 @@ func readThirdPartySaslMechanismHandlerResponseDefault(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSaslMechanismHandlerNilSetsDefault(ctx, state)
+	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

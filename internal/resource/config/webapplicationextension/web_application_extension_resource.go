@@ -405,6 +405,13 @@ func addOptionalGenericWebApplicationExtensionFields(ctx context.Context, addReq
 	return nil
 }
 
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateWebApplicationExtensionUnknownValuesDefault(ctx context.Context, model *defaultWebApplicationExtensionResourceModel) {
+	if model.OidcClientSecret.IsUnknown() {
+		model.OidcClientSecret = types.StringNull()
+	}
+}
+
 // Read a ConsoleWebApplicationExtensionResponse object into the model struct
 func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *client.ConsoleWebApplicationExtensionResponse, state *defaultWebApplicationExtensionResourceModel, expectedValues *defaultWebApplicationExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console")
@@ -435,6 +442,7 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
 }
 
 // Read a GenericWebApplicationExtensionResponse object into the model struct
@@ -463,6 +471,7 @@ func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, internaltypes.IsEmptyString(expectedValues.TemporaryDirectory))
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

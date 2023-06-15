@@ -797,8 +797,8 @@ func addOptionalThirdPartyConnectionCriteriaFields(ctx context.Context, addReque
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateConnectionCriteriaNilSets(ctx context.Context, model *connectionCriteriaResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateConnectionCriteriaUnknownValues(ctx context.Context, model *connectionCriteriaResourceModel) {
 	if model.ExcludedClientAddress.ElementType(ctx) == nil {
 		model.ExcludedClientAddress = types.SetNull(types.StringType)
 	}
@@ -923,7 +923,7 @@ func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleC
 		client.StringSliceEnumconnectionCriteriaNoneIncludedUserPrivilegeProp(r.NoneIncludedUserPrivilege))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaNilSets(ctx, state)
+	populateConnectionCriteriaUnknownValues(ctx, state)
 }
 
 // Read a AggregateConnectionCriteriaResponse object into the model struct
@@ -936,7 +936,7 @@ func readAggregateConnectionCriteriaResponse(ctx context.Context, r *client.Aggr
 	state.NoneIncludedConnectionCriteria = internaltypes.GetStringSet(r.NoneIncludedConnectionCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaNilSets(ctx, state)
+	populateConnectionCriteriaUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyConnectionCriteriaResponse object into the model struct
@@ -947,7 +947,7 @@ func readThirdPartyConnectionCriteriaResponse(ctx context.Context, r *client.Thi
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionCriteriaNilSets(ctx, state)
+	populateConnectionCriteriaUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

@@ -1731,8 +1731,8 @@ func addOptionalThirdPartyRecurringTaskFields(ctx context.Context, addRequest *c
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateRecurringTaskNilSets(ctx context.Context, model *recurringTaskResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateRecurringTaskUnknownValues(ctx context.Context, model *recurringTaskResourceModel) {
 	if model.IncludedBackendID.ElementType(ctx) == nil {
 		model.IncludedBackendID = types.SetNull(types.StringType)
 	}
@@ -1790,7 +1790,7 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a LeaveLockdownModeRecurringTaskResponse object into the model struct
@@ -1807,7 +1807,7 @@ func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.L
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a BackupRecurringTaskResponse object into the model struct
@@ -1835,7 +1835,7 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a DelayRecurringTaskResponse object into the model struct
@@ -1869,7 +1869,7 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a StaticallyDefinedRecurringTaskResponse object into the model struct
@@ -1888,7 +1888,7 @@ func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.S
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a CollectSupportDataRecurringTaskResponse object into the model struct
@@ -1930,7 +1930,7 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a LdifExportRecurringTaskResponse object into the model struct
@@ -1958,7 +1958,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a EnterLockdownModeRecurringTaskResponse object into the model struct
@@ -1975,7 +1975,7 @@ func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.E
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a AuditDataSecurityRecurringTaskResponse object into the model struct
@@ -1999,7 +1999,7 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a ExecRecurringTaskResponse object into the model struct
@@ -2026,7 +2026,7 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a FileRetentionRecurringTaskResponse object into the model struct
@@ -2052,7 +2052,7 @@ func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileR
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyRecurringTaskResponse object into the model struct
@@ -2070,7 +2070,7 @@ func readThirdPartyRecurringTaskResponse(ctx context.Context, r *client.ThirdPar
 	state.AlertOnSuccess = internaltypes.BoolTypeOrNil(r.AlertOnSuccess)
 	state.AlertOnFailure = internaltypes.BoolTypeOrNil(r.AlertOnFailure)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateRecurringTaskNilSets(ctx, state)
+	populateRecurringTaskUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

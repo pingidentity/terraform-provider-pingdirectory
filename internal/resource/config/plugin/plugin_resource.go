@@ -3210,8 +3210,8 @@ func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *cli
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populatePluginNilSets(ctx context.Context, model *pluginResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populatePluginUnknownValues(ctx context.Context, model *pluginResourceModel) {
 	if model.ValuePattern.ElementType(ctx) == nil {
 		model.ValuePattern = types.SetNull(types.StringType)
 	}
@@ -3305,10 +3305,13 @@ func populatePluginNilSets(ctx context.Context, model *pluginResourceModel) {
 	if model.IncludeFilter.ElementType(ctx) == nil {
 		model.IncludeFilter = types.SetNull(types.StringType)
 	}
+	if model.OAuthClientSecret.IsUnknown() {
+		model.OAuthClientSecret = types.StringNull()
+	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populatePluginNilSetsDefault(ctx context.Context, model *defaultPluginResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPluginResourceModel) {
 	if model.ValuePattern.ElementType(ctx) == nil {
 		model.ValuePattern = types.SetNull(types.StringType)
 	}
@@ -3417,6 +3420,12 @@ func populatePluginNilSetsDefault(ctx context.Context, model *defaultPluginResou
 	if model.IncludeFilter.ElementType(ctx) == nil {
 		model.IncludeFilter = types.SetNull(types.StringType)
 	}
+	if model.OAuthClientSecret.IsUnknown() {
+		model.OAuthClientSecret = types.StringNull()
+	}
+	if model.ChangelogPasswordEncryptionKey.IsUnknown() {
+		model.ChangelogPasswordEncryptionKey = types.StringNull()
+	}
 }
 
 // Read a LastAccessTimePluginResponse object into the model struct
@@ -3435,7 +3444,7 @@ func readLastAccessTimePluginResponseDefault(ctx context.Context, r *client.Last
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a StatsCollectorPluginResponse object into the model struct
@@ -3471,7 +3480,7 @@ func readStatsCollectorPluginResponseDefault(ctx context.Context, r *client.Stat
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -3491,7 +3500,6 @@ func readInternalSearchRatePluginResponse(ctx context.Context, r *client.Interna
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -3511,7 +3519,7 @@ func readInternalSearchRatePluginResponseDefault(ctx context.Context, r *client.
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ModifiablePasswordPolicyStatePluginResponse object into the model struct
@@ -3523,7 +3531,6 @@ func readModifiablePasswordPolicyStatePluginResponse(ctx context.Context, r *cli
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a ModifiablePasswordPolicyStatePluginResponse object into the model struct
@@ -3535,7 +3542,7 @@ func readModifiablePasswordPolicyStatePluginResponseDefault(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a SevenBitCleanPluginResponse object into the model struct
@@ -3550,7 +3557,6 @@ func readSevenBitCleanPluginResponse(ctx context.Context, r *client.SevenBitClea
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a SevenBitCleanPluginResponse object into the model struct
@@ -3565,7 +3571,7 @@ func readSevenBitCleanPluginResponseDefault(ctx context.Context, r *client.Seven
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse object into the model struct
@@ -3586,7 +3592,6 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx cont
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse object into the model struct
@@ -3607,7 +3612,7 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(c
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PeriodicGcPluginResponse object into the model struct
@@ -3629,7 +3634,6 @@ func readPeriodicGcPluginResponse(ctx context.Context, r *client.PeriodicGcPlugi
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a PeriodicGcPluginResponse object into the model struct
@@ -3651,7 +3655,7 @@ func readPeriodicGcPluginResponseDefault(ctx context.Context, r *client.Periodic
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PingOnePassThroughAuthenticationPluginResponse object into the model struct
@@ -3683,7 +3687,6 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a PingOnePassThroughAuthenticationPluginResponse object into the model struct
@@ -3715,7 +3718,7 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ChangelogPasswordEncryptionPluginResponse object into the model struct
@@ -3731,7 +3734,7 @@ func readChangelogPasswordEncryptionPluginResponseDefault(ctx context.Context, r
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ProcessingTimeHistogramPluginResponse object into the model struct
@@ -3747,7 +3750,7 @@ func readProcessingTimeHistogramPluginResponseDefault(ctx context.Context, r *cl
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a SearchShutdownPluginResponse object into the model struct
@@ -3769,7 +3772,6 @@ func readSearchShutdownPluginResponse(ctx context.Context, r *client.SearchShutd
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a SearchShutdownPluginResponse object into the model struct
@@ -3791,7 +3793,7 @@ func readSearchShutdownPluginResponseDefault(ctx context.Context, r *client.Sear
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PeriodicStatsLoggerPluginResponse object into the model struct
@@ -3845,7 +3847,6 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a PeriodicStatsLoggerPluginResponse object into the model struct
@@ -3899,7 +3900,7 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PurgeExpiredDataPluginResponse object into the model struct
@@ -3937,7 +3938,6 @@ func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a PurgeExpiredDataPluginResponse object into the model struct
@@ -3975,7 +3975,7 @@ func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.Pu
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ChangeSubscriptionNotificationPluginResponse object into the model struct
@@ -3988,7 +3988,7 @@ func readChangeSubscriptionNotificationPluginResponseDefault(ctx context.Context
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a SubOperationTimingPluginResponse object into the model struct
@@ -4003,7 +4003,6 @@ func readSubOperationTimingPluginResponse(ctx context.Context, r *client.SubOper
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a SubOperationTimingPluginResponse object into the model struct
@@ -4018,7 +4017,7 @@ func readSubOperationTimingPluginResponseDefault(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ThirdPartyPluginResponse object into the model struct
@@ -4034,7 +4033,6 @@ func readThirdPartyPluginResponse(ctx context.Context, r *client.ThirdPartyPlugi
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a ThirdPartyPluginResponse object into the model struct
@@ -4050,7 +4048,7 @@ func readThirdPartyPluginResponseDefault(ctx context.Context, r *client.ThirdPar
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a EncryptAttributeValuesPluginResponse object into the model struct
@@ -4066,7 +4064,7 @@ func readEncryptAttributeValuesPluginResponseDefault(ctx context.Context, r *cli
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PassThroughAuthenticationPluginResponse object into the model struct
@@ -4094,7 +4092,6 @@ func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a PassThroughAuthenticationPluginResponse object into the model struct
@@ -4122,7 +4119,7 @@ func readPassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a DnMapperPluginResponse object into the model struct
@@ -4141,7 +4138,6 @@ func readDnMapperPluginResponse(ctx context.Context, r *client.DnMapperPluginRes
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a DnMapperPluginResponse object into the model struct
@@ -4160,7 +4156,7 @@ func readDnMapperPluginResponseDefault(ctx context.Context, r *client.DnMapperPl
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a MonitorHistoryPluginResponse object into the model struct
@@ -4180,7 +4176,7 @@ func readMonitorHistoryPluginResponseDefault(ctx context.Context, r *client.Moni
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ReferralOnUpdatePluginResponse object into the model struct
@@ -4195,7 +4191,6 @@ func readReferralOnUpdatePluginResponse(ctx context.Context, r *client.ReferralO
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a ReferralOnUpdatePluginResponse object into the model struct
@@ -4210,7 +4205,7 @@ func readReferralOnUpdatePluginResponseDefault(ctx context.Context, r *client.Re
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a SimpleToExternalBindPluginResponse object into the model struct
@@ -4222,7 +4217,6 @@ func readSimpleToExternalBindPluginResponse(ctx context.Context, r *client.Simpl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a SimpleToExternalBindPluginResponse object into the model struct
@@ -4234,7 +4228,7 @@ func readSimpleToExternalBindPluginResponseDefault(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a CustomPluginResponse object into the model struct
@@ -4247,7 +4241,7 @@ func readCustomPluginResponseDefault(ctx context.Context, r *client.CustomPlugin
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a SnmpSubagentPluginResponse object into the model struct
@@ -4271,7 +4265,6 @@ func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentP
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a SnmpSubagentPluginResponse object into the model struct
@@ -4295,7 +4288,7 @@ func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSu
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PasswordPolicyImportPluginResponse object into the model struct
@@ -4308,7 +4301,7 @@ func readPasswordPolicyImportPluginResponseDefault(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ProfilerPluginResponse object into the model struct
@@ -4325,7 +4318,7 @@ func readProfilerPluginResponseDefault(ctx context.Context, r *client.ProfilerPl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a CleanUpInactivePingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4349,7 +4342,6 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx context
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a CleanUpInactivePingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4373,7 +4365,7 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx 
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ComposedAttributePluginResponse object into the model struct
@@ -4409,7 +4401,6 @@ func readComposedAttributePluginResponse(ctx context.Context, r *client.Composed
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a ComposedAttributePluginResponse object into the model struct
@@ -4445,7 +4436,7 @@ func readComposedAttributePluginResponseDefault(ctx context.Context, r *client.C
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a LdapResultCodeTrackerPluginResponse object into the model struct
@@ -4458,7 +4449,7 @@ func readLdapResultCodeTrackerPluginResponseDefault(ctx context.Context, r *clie
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a AttributeMapperPluginResponse object into the model struct
@@ -4475,7 +4466,6 @@ func readAttributeMapperPluginResponse(ctx context.Context, r *client.AttributeM
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a AttributeMapperPluginResponse object into the model struct
@@ -4492,7 +4482,7 @@ func readAttributeMapperPluginResponseDefault(ctx context.Context, r *client.Att
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a DelayPluginResponse object into the model struct
@@ -4510,7 +4500,6 @@ func readDelayPluginResponse(ctx context.Context, r *client.DelayPluginResponse,
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a DelayPluginResponse object into the model struct
@@ -4528,7 +4517,7 @@ func readDelayPluginResponseDefault(ctx context.Context, r *client.DelayPluginRe
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4549,7 +4538,6 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponse(ctx context.
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a CleanUpExpiredPingfederatePersistentSessionsPluginResponse object into the model struct
@@ -4570,7 +4558,7 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx c
 	state.NumDeleteThreads = types.Int64Value(r.NumDeleteThreads)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a GroovyScriptedPluginResponse object into the model struct
@@ -4586,7 +4574,6 @@ func readGroovyScriptedPluginResponse(ctx context.Context, r *client.GroovyScrip
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a GroovyScriptedPluginResponse object into the model struct
@@ -4602,7 +4589,7 @@ func readGroovyScriptedPluginResponseDefault(ctx context.Context, r *client.Groo
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a LastModPluginResponse object into the model struct
@@ -4617,7 +4604,7 @@ func readLastModPluginResponseDefault(ctx context.Context, r *client.LastModPlug
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a PluggablePassThroughAuthenticationPluginResponse object into the model struct
@@ -4639,7 +4626,6 @@ func readPluggablePassThroughAuthenticationPluginResponse(ctx context.Context, r
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a PluggablePassThroughAuthenticationPluginResponse object into the model struct
@@ -4661,7 +4647,7 @@ func readPluggablePassThroughAuthenticationPluginResponseDefault(ctx context.Con
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a ReferentialIntegrityPluginResponse object into the model struct
@@ -4680,7 +4666,6 @@ func readReferentialIntegrityPluginResponse(ctx context.Context, r *client.Refer
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a ReferentialIntegrityPluginResponse object into the model struct
@@ -4699,7 +4684,7 @@ func readReferentialIntegrityPluginResponseDefault(ctx context.Context, r *clien
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Read a UniqueAttributePluginResponse object into the model struct
@@ -4723,7 +4708,6 @@ func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttr
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSets(ctx, state)
 }
 
 // Read a UniqueAttributePluginResponse object into the model struct
@@ -4747,7 +4731,7 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePluginNilSetsDefault(ctx, state)
+	populatePluginUnknownValuesDefault(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

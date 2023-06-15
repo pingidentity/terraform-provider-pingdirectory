@@ -770,8 +770,8 @@ func addOptionalThirdPartyAccountStatusNotificationHandlerFields(ctx context.Con
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateAccountStatusNotificationHandlerNilSets(ctx context.Context, model *accountStatusNotificationHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateAccountStatusNotificationHandlerUnknownValues(ctx context.Context, model *accountStatusNotificationHandlerResourceModel) {
 	if model.MessageTemplateFile.ElementType(ctx) == nil {
 		model.MessageTemplateFile = types.SetNull(types.StringType)
 	}
@@ -813,7 +813,7 @@ func readSmtpAccountStatusNotificationHandlerResponse(ctx context.Context, r *cl
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerNilSets(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
 }
 
 // Read a GroovyScriptedAccountStatusNotificationHandlerResponse object into the model struct
@@ -828,7 +828,7 @@ func readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerNilSets(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
 }
 
 // Read a AdminAlertAccountStatusNotificationHandlerResponse object into the model struct
@@ -843,7 +843,7 @@ func readAdminAlertAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerNilSets(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ErrorLogAccountStatusNotificationHandlerResponse object into the model struct
@@ -858,7 +858,7 @@ func readErrorLogAccountStatusNotificationHandlerResponse(ctx context.Context, r
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerNilSets(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
 }
 
 // Read a MultiPartEmailAccountStatusNotificationHandlerResponse object into the model struct
@@ -888,7 +888,7 @@ func readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerNilSets(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyAccountStatusNotificationHandlerResponse object into the model struct
@@ -903,7 +903,7 @@ func readThirdPartyAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccountStatusNotificationHandlerNilSets(ctx, state)
+	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

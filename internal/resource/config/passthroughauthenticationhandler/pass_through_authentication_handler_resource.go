@@ -390,8 +390,8 @@ func addOptionalThirdPartyPassThroughAuthenticationHandlerFields(ctx context.Con
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populatePassThroughAuthenticationHandlerNilSets(ctx context.Context, model *passThroughAuthenticationHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, model *passThroughAuthenticationHandlerResourceModel) {
 	if model.DnMap.ElementType(ctx) == nil {
 		model.DnMap = types.SetNull(types.StringType)
 	}
@@ -425,7 +425,7 @@ func readLdapPassThroughAuthenticationHandlerResponse(ctx context.Context, r *cl
 	state.UsePasswordPolicyControl = internaltypes.BoolTypeOrNil(r.UsePasswordPolicyControl)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerNilSets(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyPassThroughAuthenticationHandlerResponse object into the model struct
@@ -436,7 +436,7 @@ func readThirdPartyPassThroughAuthenticationHandlerResponse(ctx context.Context,
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populatePassThroughAuthenticationHandlerNilSets(ctx, state)
+	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

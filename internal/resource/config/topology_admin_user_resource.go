@@ -566,6 +566,13 @@ func addOptionalTopologyAdminUserFields(ctx context.Context, addRequest *client.
 	return nil
 }
 
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateTopologyAdminUserUnknownValues(ctx context.Context, model *topologyAdminUserResourceModel) {
+	if model.Password.IsUnknown() {
+		model.Password = types.StringNull()
+	}
+}
+
 // Read a TopologyAdminUserResponse object into the model struct
 func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminUserResponse, state *topologyAdminUserResourceModel, expectedValues *topologyAdminUserResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
@@ -606,6 +613,7 @@ func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminU
 	state.MayProxyAsGroup = internaltypes.GetStringSet(r.MayProxyAsGroup)
 	state.MayProxyAsURL = internaltypes.GetStringSet(r.MayProxyAsURL)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateTopologyAdminUserUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

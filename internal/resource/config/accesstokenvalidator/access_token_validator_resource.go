@@ -586,8 +586,8 @@ func addOptionalThirdPartyAccessTokenValidatorFields(ctx context.Context, addReq
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateAccessTokenValidatorNilSets(ctx context.Context, model *accessTokenValidatorResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateAccessTokenValidatorUnknownValues(ctx context.Context, model *accessTokenValidatorResourceModel) {
 	if model.AllowedKeyEncryptionAlgorithm.ElementType(ctx) == nil {
 		model.AllowedKeyEncryptionAlgorithm = types.SetNull(types.StringType)
 	}
@@ -602,6 +602,9 @@ func populateAccessTokenValidatorNilSets(ctx context.Context, model *accessToken
 	}
 	if model.AllowedContentEncryptionAlgorithm.ElementType(ctx) == nil {
 		model.AllowedContentEncryptionAlgorithm = types.SetNull(types.StringType)
+	}
+	if model.ClientSecret.IsUnknown() {
+		model.ClientSecret = types.StringNull()
 	}
 }
 
@@ -625,7 +628,7 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSets(ctx, state)
+	populateAccessTokenValidatorUnknownValues(ctx, state)
 }
 
 // Read a JwtAccessTokenValidatorResponse object into the model struct
@@ -653,7 +656,7 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSets(ctx, state)
+	populateAccessTokenValidatorUnknownValues(ctx, state)
 }
 
 // Read a MockAccessTokenValidatorResponse object into the model struct
@@ -668,7 +671,7 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSets(ctx, state)
+	populateAccessTokenValidatorUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyAccessTokenValidatorResponse object into the model struct
@@ -683,7 +686,7 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateAccessTokenValidatorNilSets(ctx, state)
+	populateAccessTokenValidatorUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

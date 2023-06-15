@@ -308,15 +308,15 @@ func addOptionalThirdPartyMonitorProviderFields(ctx context.Context, addRequest 
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateMonitorProviderNilSets(ctx context.Context, model *monitorProviderResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateMonitorProviderUnknownValues(ctx context.Context, model *monitorProviderResourceModel) {
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateMonitorProviderNilSetsDefault(ctx context.Context, model *defaultMonitorProviderResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateMonitorProviderUnknownValuesDefault(ctx context.Context, model *defaultMonitorProviderResourceModel) {
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
 	}
@@ -335,7 +335,7 @@ func readGeneralMonitorProviderResponseDefault(ctx context.Context, r *client.Ge
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a MemoryUsageMonitorProviderResponse object into the model struct
@@ -345,7 +345,7 @@ func readMemoryUsageMonitorProviderResponseDefault(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a StackTraceMonitorProviderResponse object into the model struct
@@ -355,7 +355,7 @@ func readStackTraceMonitorProviderResponseDefault(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a DiskSpaceUsageMonitorProviderResponse object into the model struct
@@ -380,7 +380,7 @@ func readDiskSpaceUsageMonitorProviderResponseDefault(ctx context.Context, r *cl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a SystemInfoMonitorProviderResponse object into the model struct
@@ -390,7 +390,7 @@ func readSystemInfoMonitorProviderResponseDefault(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a CustomMonitorProviderResponse object into the model struct
@@ -400,7 +400,7 @@ func readCustomMonitorProviderResponseDefault(ctx context.Context, r *client.Cus
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a ActiveOperationsMonitorProviderResponse object into the model struct
@@ -410,7 +410,7 @@ func readActiveOperationsMonitorProviderResponseDefault(ctx context.Context, r *
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a SslContextMonitorProviderResponse object into the model struct
@@ -420,7 +420,7 @@ func readSslContextMonitorProviderResponseDefault(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a ClientConnectionMonitorProviderResponse object into the model struct
@@ -430,7 +430,7 @@ func readClientConnectionMonitorProviderResponseDefault(ctx context.Context, r *
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a VersionMonitorProviderResponse object into the model struct
@@ -440,7 +440,7 @@ func readVersionMonitorProviderResponseDefault(ctx context.Context, r *client.Ve
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a HostSystemMonitorProviderResponse object into the model struct
@@ -453,7 +453,7 @@ func readHostSystemMonitorProviderResponseDefault(ctx context.Context, r *client
 	state.SystemUtilizationMonitorLogDirectory = types.StringValue(r.SystemUtilizationMonitorLogDirectory)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Read a ThirdPartyMonitorProviderResponse object into the model struct
@@ -465,7 +465,6 @@ func readThirdPartyMonitorProviderResponse(ctx context.Context, r *client.ThirdP
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSets(ctx, state)
 }
 
 // Read a ThirdPartyMonitorProviderResponse object into the model struct
@@ -477,7 +476,7 @@ func readThirdPartyMonitorProviderResponseDefault(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderNilSetsDefault(ctx, state)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

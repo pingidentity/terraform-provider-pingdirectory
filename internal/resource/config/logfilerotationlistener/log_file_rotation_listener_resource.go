@@ -243,8 +243,8 @@ func addOptionalThirdPartyLogFileRotationListenerFields(ctx context.Context, add
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateLogFileRotationListenerNilSets(ctx context.Context, model *logFileRotationListenerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateLogFileRotationListenerUnknownValues(ctx context.Context, model *logFileRotationListenerResourceModel) {
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
 	}
@@ -258,7 +258,7 @@ func readSummarizeLogFileRotationListenerResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFileRotationListenerNilSets(ctx, state)
+	populateLogFileRotationListenerUnknownValues(ctx, state)
 }
 
 // Read a CopyLogFileRotationListenerResponse object into the model struct
@@ -270,7 +270,7 @@ func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.Copy
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFileRotationListenerNilSets(ctx, state)
+	populateLogFileRotationListenerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyLogFileRotationListenerResponse object into the model struct
@@ -282,7 +282,7 @@ func readThirdPartyLogFileRotationListenerResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogFileRotationListenerNilSets(ctx, state)
+	populateLogFileRotationListenerUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

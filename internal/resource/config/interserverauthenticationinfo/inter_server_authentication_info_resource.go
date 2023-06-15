@@ -170,6 +170,13 @@ func (r *interServerAuthenticationInfoResource) ModifyPlan(ctx context.Context, 
 	}
 }
 
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateInterServerAuthenticationInfoUnknownValues(ctx context.Context, model *interServerAuthenticationInfoResourceModel) {
+	if model.Password.IsUnknown() {
+		model.Password = types.StringNull()
+	}
+}
+
 // Read a PasswordInterServerAuthenticationInfoResponse object into the model struct
 func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *client.PasswordInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoResourceModel, expectedValues *interServerAuthenticationInfoResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password")
@@ -185,6 +192,7 @@ func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *c
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateInterServerAuthenticationInfoUnknownValues(ctx, state)
 }
 
 // Read a CertificateInterServerAuthenticationInfoResponse object into the model struct
@@ -196,6 +204,7 @@ func readCertificateInterServerAuthenticationInfoResponse(ctx context.Context, r
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateInterServerAuthenticationInfoUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

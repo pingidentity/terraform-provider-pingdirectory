@@ -145,6 +145,16 @@ func addOptionalApiKeyConjurAuthenticationMethodFields(ctx context.Context, addR
 	}
 }
 
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model *conjurAuthenticationMethodResourceModel) {
+	if model.ApiKey.IsUnknown() {
+		model.ApiKey = types.StringNull()
+	}
+	if model.Password.IsUnknown() {
+		model.Password = types.StringNull()
+	}
+}
+
 // Read a ApiKeyConjurAuthenticationMethodResponse object into the model struct
 func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodResourceModel, expectedValues *conjurAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
@@ -155,6 +165,7 @@ func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client
 	state.ApiKey = expectedValues.ApiKey
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateConjurAuthenticationMethodUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -254,7 +265,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 
 	// Read the existing configuration
 	var state conjurAuthenticationMethodResourceModel
-	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
