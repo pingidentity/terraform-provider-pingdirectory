@@ -232,8 +232,8 @@ func addOptionalStringTokenClaimValidationFields(ctx context.Context, addRequest
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateTokenClaimValidationNilSets(ctx context.Context, model *tokenClaimValidationResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateTokenClaimValidationUnknownValues(ctx context.Context, model *tokenClaimValidationResourceModel) {
 	if model.AnyRequiredValue.ElementType(ctx) == nil {
 		model.AnyRequiredValue = types.SetNull(types.StringType)
 	}
@@ -252,7 +252,7 @@ func readStringArrayTokenClaimValidationResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationNilSets(ctx, state)
+	populateTokenClaimValidationUnknownValues(ctx, state)
 }
 
 // Read a BooleanTokenClaimValidationResponse object into the model struct
@@ -264,7 +264,7 @@ func readBooleanTokenClaimValidationResponse(ctx context.Context, r *client.Bool
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationNilSets(ctx, state)
+	populateTokenClaimValidationUnknownValues(ctx, state)
 }
 
 // Read a StringTokenClaimValidationResponse object into the model struct
@@ -276,7 +276,7 @@ func readStringTokenClaimValidationResponse(ctx context.Context, r *client.Strin
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ClaimName = types.StringValue(r.ClaimName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTokenClaimValidationNilSets(ctx, state)
+	populateTokenClaimValidationUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

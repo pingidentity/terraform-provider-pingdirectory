@@ -276,10 +276,13 @@ func addOptionalThirdPartyTrustManagerProviderFields(ctx context.Context, addReq
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateTrustManagerProviderNilSets(ctx context.Context, model *trustManagerProviderResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateTrustManagerProviderUnknownValues(ctx context.Context, model *trustManagerProviderResourceModel) {
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
+	}
+	if model.TrustStorePin.IsUnknown() {
+		model.TrustStorePin = types.StringNull()
 	}
 }
 
@@ -290,7 +293,7 @@ func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindT
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderNilSets(ctx, state)
+	populateTrustManagerProviderUnknownValues(ctx, state)
 }
 
 // Read a FileBasedTrustManagerProviderResponse object into the model struct
@@ -306,7 +309,7 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderNilSets(ctx, state)
+	populateTrustManagerProviderUnknownValues(ctx, state)
 }
 
 // Read a JvmDefaultTrustManagerProviderResponse object into the model struct
@@ -315,7 +318,7 @@ func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.J
 	state.Id = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderNilSets(ctx, state)
+	populateTrustManagerProviderUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyTrustManagerProviderResponse object into the model struct
@@ -327,7 +330,7 @@ func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateTrustManagerProviderNilSets(ctx, state)
+	populateTrustManagerProviderUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

@@ -369,10 +369,16 @@ func addOptionalThirdPartyKeyManagerProviderFields(ctx context.Context, addReque
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateKeyManagerProviderNilSets(ctx context.Context, model *keyManagerProviderResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateKeyManagerProviderUnknownValues(ctx context.Context, model *keyManagerProviderResourceModel) {
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
+	}
+	if model.KeyStorePin.IsUnknown() {
+		model.KeyStorePin = types.StringNull()
+	}
+	if model.PrivateKeyPin.IsUnknown() {
+		model.PrivateKeyPin = types.StringNull()
 	}
 }
 
@@ -393,7 +399,7 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderNilSets(ctx, state)
+	populateKeyManagerProviderUnknownValues(ctx, state)
 }
 
 // Read a CustomKeyManagerProviderResponse object into the model struct
@@ -403,7 +409,7 @@ func readCustomKeyManagerProviderResponse(ctx context.Context, r *client.CustomK
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderNilSets(ctx, state)
+	populateKeyManagerProviderUnknownValues(ctx, state)
 }
 
 // Read a Pkcs11KeyManagerProviderResponse object into the model struct
@@ -420,7 +426,7 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderNilSets(ctx, state)
+	populateKeyManagerProviderUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyKeyManagerProviderResponse object into the model struct
@@ -432,7 +438,7 @@ func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.Thi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateKeyManagerProviderNilSets(ctx, state)
+	populateKeyManagerProviderUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

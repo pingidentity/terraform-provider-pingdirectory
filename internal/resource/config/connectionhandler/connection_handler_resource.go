@@ -967,8 +967,8 @@ func addOptionalHttpConnectionHandlerFields(ctx context.Context, addRequest *cli
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateConnectionHandlerNilSets(ctx context.Context, model *connectionHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateConnectionHandlerUnknownValues(ctx context.Context, model *connectionHandlerResourceModel) {
 	if model.SslCipherSuite.ElementType(ctx) == nil {
 		model.SslCipherSuite = types.SetNull(types.StringType)
 	}
@@ -1014,7 +1014,7 @@ func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnecti
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSets(ctx, state)
+	populateConnectionHandlerUnknownValues(ctx, state)
 }
 
 // Read a LdapConnectionHandlerResponse object into the model struct
@@ -1056,7 +1056,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSets(ctx, state)
+	populateConnectionHandlerUnknownValues(ctx, state)
 }
 
 // Read a LdifConnectionHandlerResponse object into the model struct
@@ -1072,7 +1072,7 @@ func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnec
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSets(ctx, state)
+	populateConnectionHandlerUnknownValues(ctx, state)
 }
 
 // Read a HttpConnectionHandlerResponse object into the model struct
@@ -1118,7 +1118,7 @@ func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnec
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateConnectionHandlerNilSets(ctx, state)
+	populateConnectionHandlerUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

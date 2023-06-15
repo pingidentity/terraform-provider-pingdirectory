@@ -566,6 +566,13 @@ func addOptionalRootDnUserFields(ctx context.Context, addRequest *client.AddRoot
 	return nil
 }
 
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateRootDnUserUnknownValues(ctx context.Context, model *rootDnUserResourceModel) {
+	if model.Password.IsUnknown() {
+		model.Password = types.StringNull()
+	}
+}
+
 // Read a RootDnUserResponse object into the model struct
 func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, state *rootDnUserResourceModel, expectedValues *rootDnUserResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
@@ -606,6 +613,7 @@ func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, s
 	state.MayProxyAsGroup = internaltypes.GetStringSet(r.MayProxyAsGroup)
 	state.MayProxyAsURL = internaltypes.GetStringSet(r.MayProxyAsURL)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateRootDnUserUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

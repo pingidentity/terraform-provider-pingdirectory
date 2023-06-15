@@ -274,8 +274,8 @@ func addOptionalThirdPartyChangeSubscriptionHandlerFields(ctx context.Context, a
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateChangeSubscriptionHandlerNilSets(ctx context.Context, model *changeSubscriptionHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateChangeSubscriptionHandlerUnknownValues(ctx context.Context, model *changeSubscriptionHandlerResourceModel) {
 	if model.ScriptArgument.ElementType(ctx) == nil {
 		model.ScriptArgument = types.SetNull(types.StringType)
 	}
@@ -294,7 +294,7 @@ func readGroovyScriptedChangeSubscriptionHandlerResponse(ctx context.Context, r 
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ChangeSubscription = internaltypes.GetStringSet(r.ChangeSubscription)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateChangeSubscriptionHandlerNilSets(ctx, state)
+	populateChangeSubscriptionHandlerUnknownValues(ctx, state)
 }
 
 // Read a LoggingChangeSubscriptionHandlerResponse object into the model struct
@@ -306,7 +306,7 @@ func readLoggingChangeSubscriptionHandlerResponse(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ChangeSubscription = internaltypes.GetStringSet(r.ChangeSubscription)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateChangeSubscriptionHandlerNilSets(ctx, state)
+	populateChangeSubscriptionHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyChangeSubscriptionHandlerResponse object into the model struct
@@ -319,7 +319,7 @@ func readThirdPartyChangeSubscriptionHandlerResponse(ctx context.Context, r *cli
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ChangeSubscription = internaltypes.GetStringSet(r.ChangeSubscription)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateChangeSubscriptionHandlerNilSets(ctx, state)
+	populateChangeSubscriptionHandlerUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

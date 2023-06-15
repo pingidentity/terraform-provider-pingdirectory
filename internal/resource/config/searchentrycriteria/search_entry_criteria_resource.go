@@ -554,8 +554,8 @@ func addOptionalThirdPartySearchEntryCriteriaFields(ctx context.Context, addRequ
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateSearchEntryCriteriaNilSets(ctx context.Context, model *searchEntryCriteriaResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateSearchEntryCriteriaUnknownValues(ctx context.Context, model *searchEntryCriteriaResourceModel) {
 	if model.AllIncludedEntryGroupDN.ElementType(ctx) == nil {
 		model.AllIncludedEntryGroupDN = types.SetNull(types.StringType)
 	}
@@ -636,7 +636,7 @@ func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.Simple
 	state.NoneIncludedEntryGroupDN = internaltypes.GetStringSet(r.NoneIncludedEntryGroupDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaNilSets(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(ctx, state)
 }
 
 // Read a AggregateSearchEntryCriteriaResponse object into the model struct
@@ -649,7 +649,7 @@ func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.Agg
 	state.NoneIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchEntryCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaNilSets(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartySearchEntryCriteriaResponse object into the model struct
@@ -660,7 +660,7 @@ func readThirdPartySearchEntryCriteriaResponse(ctx context.Context, r *client.Th
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchEntryCriteriaNilSets(ctx, state)
+	populateSearchEntryCriteriaUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan
