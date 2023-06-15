@@ -716,13 +716,22 @@ func addOptionalThirdPartyCipherStreamProviderFields(ctx context.Context, addReq
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateCipherStreamProviderNilSets(ctx context.Context, model *cipherStreamProviderResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateCipherStreamProviderUnknownValues(ctx context.Context, model *cipherStreamProviderResourceModel) {
 	if model.VaultServerBaseURI.ElementType(ctx) == nil {
 		model.VaultServerBaseURI = types.SetNull(types.StringType)
 	}
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
+	}
+	if model.KeyStorePin.IsUnknown() {
+		model.KeyStorePin = types.StringNull()
+	}
+	if model.AwsSecretAccessKey.IsUnknown() {
+		model.AwsSecretAccessKey = types.StringNull()
+	}
+	if model.TrustStorePin.IsUnknown() {
+		model.TrustStorePin = types.StringNull()
 	}
 }
 
@@ -740,7 +749,7 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Cont
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a AmazonSecretsManagerCipherStreamProviderResponse object into the model struct
@@ -756,7 +765,7 @@ func readAmazonSecretsManagerCipherStreamProviderResponse(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a AzureKeyVaultCipherStreamProviderResponse object into the model struct
@@ -771,7 +780,7 @@ func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *clien
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a FileBasedCipherStreamProviderResponse object into the model struct
@@ -783,7 +792,7 @@ func readFileBasedCipherStreamProviderResponse(ctx context.Context, r *client.Fi
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a WaitForPassphraseCipherStreamProviderResponse object into the model struct
@@ -793,7 +802,7 @@ func readWaitForPassphraseCipherStreamProviderResponse(ctx context.Context, r *c
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a ConjurCipherStreamProviderResponse object into the model struct
@@ -806,7 +815,7 @@ func readConjurCipherStreamProviderResponse(ctx context.Context, r *client.Conju
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a Pkcs11CipherStreamProviderResponse object into the model struct
@@ -825,7 +834,7 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a VaultCipherStreamProviderResponse object into the model struct
@@ -845,7 +854,7 @@ func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultC
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyCipherStreamProviderResponse object into the model struct
@@ -857,7 +866,7 @@ func readThirdPartyCipherStreamProviderResponse(ctx context.Context, r *client.T
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCipherStreamProviderNilSets(ctx, state)
+	populateCipherStreamProviderUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

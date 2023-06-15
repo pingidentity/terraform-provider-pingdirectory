@@ -1024,8 +1024,8 @@ func addOptionalThirdPartyResultCriteriaFields(ctx context.Context, addRequest *
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateResultCriteriaNilSets(ctx context.Context, model *resultCriteriaResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateResultCriteriaUnknownValues(ctx context.Context, model *resultCriteriaResourceModel) {
 	if model.NoneIncludedResponseControl.ElementType(ctx) == nil {
 		model.NoneIncludedResponseControl = types.SetNull(types.StringType)
 	}
@@ -1141,7 +1141,7 @@ func readSimpleResultCriteriaResponse(ctx context.Context, r *client.SimpleResul
 	state.NoneIncludedAuthzUserGroupDN = internaltypes.GetStringSet(r.NoneIncludedAuthzUserGroupDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaNilSets(ctx, state)
+	populateResultCriteriaUnknownValues(ctx, state)
 }
 
 // Read a AggregateResultCriteriaResponse object into the model struct
@@ -1154,7 +1154,7 @@ func readAggregateResultCriteriaResponse(ctx context.Context, r *client.Aggregat
 	state.NoneIncludedResultCriteria = internaltypes.GetStringSet(r.NoneIncludedResultCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaNilSets(ctx, state)
+	populateResultCriteriaUnknownValues(ctx, state)
 }
 
 // Read a ReplicationAssuranceResultCriteriaResponse object into the model struct
@@ -1178,7 +1178,7 @@ func readReplicationAssuranceResultCriteriaResponse(ctx context.Context, r *clie
 		client.StringPointerEnumresultCriteriaAssuranceSatisfiedProp(r.AssuranceSatisfied), internaltypes.IsEmptyString(expectedValues.AssuranceSatisfied))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaNilSets(ctx, state)
+	populateResultCriteriaUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyResultCriteriaResponse object into the model struct
@@ -1189,7 +1189,7 @@ func readThirdPartyResultCriteriaResponse(ctx context.Context, r *client.ThirdPa
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateResultCriteriaNilSets(ctx, state)
+	populateResultCriteriaUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

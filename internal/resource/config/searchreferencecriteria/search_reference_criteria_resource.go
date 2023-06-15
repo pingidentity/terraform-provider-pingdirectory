@@ -364,8 +364,8 @@ func addOptionalThirdPartySearchReferenceCriteriaFields(ctx context.Context, add
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateSearchReferenceCriteriaNilSets(ctx context.Context, model *searchReferenceCriteriaResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateSearchReferenceCriteriaUnknownValues(ctx context.Context, model *searchReferenceCriteriaResourceModel) {
 	if model.AllIncludedReferenceControl.ElementType(ctx) == nil {
 		model.AllIncludedReferenceControl = types.SetNull(types.StringType)
 	}
@@ -406,7 +406,7 @@ func readSimpleSearchReferenceCriteriaResponse(ctx context.Context, r *client.Si
 	state.NoneIncludedReferenceControl = internaltypes.GetStringSet(r.NoneIncludedReferenceControl)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaNilSets(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(ctx, state)
 }
 
 // Read a AggregateSearchReferenceCriteriaResponse object into the model struct
@@ -419,7 +419,7 @@ func readAggregateSearchReferenceCriteriaResponse(ctx context.Context, r *client
 	state.NoneIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.NoneIncludedSearchReferenceCriteria)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaNilSets(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartySearchReferenceCriteriaResponse object into the model struct
@@ -430,7 +430,7 @@ func readThirdPartySearchReferenceCriteriaResponse(ctx context.Context, r *clien
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateSearchReferenceCriteriaNilSets(ctx, state)
+	populateSearchReferenceCriteriaUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

@@ -219,8 +219,8 @@ func addOptionalThirdPartyOauthTokenHandlerFields(ctx context.Context, addReques
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateOauthTokenHandlerNilSets(ctx context.Context, model *oauthTokenHandlerResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateOauthTokenHandlerUnknownValues(ctx context.Context, model *oauthTokenHandlerResourceModel) {
 	if model.ScriptArgument.ElementType(ctx) == nil {
 		model.ScriptArgument = types.SetNull(types.StringType)
 	}
@@ -237,7 +237,7 @@ func readGroovyScriptedOauthTokenHandlerResponse(ctx context.Context, r *client.
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOauthTokenHandlerNilSets(ctx, state)
+	populateOauthTokenHandlerUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyOauthTokenHandlerResponse object into the model struct
@@ -248,7 +248,7 @@ func readThirdPartyOauthTokenHandlerResponse(ctx context.Context, r *client.Thir
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateOauthTokenHandlerNilSets(ctx, state)
+	populateOauthTokenHandlerUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

@@ -395,8 +395,8 @@ func (r *serverInstanceResource) ModifyPlan(ctx context.Context, req resource.Mo
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateServerInstanceNilSets(ctx context.Context, model *serverInstanceResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateServerInstanceUnknownValues(ctx context.Context, model *serverInstanceResourceModel) {
 	if model.ReplicationDomainServerID.ElementType(ctx) == nil {
 		model.ReplicationDomainServerID = types.SetNull(types.Int64Type)
 	}
@@ -439,7 +439,7 @@ func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerI
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSets(ctx, state)
+	populateServerInstanceUnknownValues(ctx, state)
 }
 
 // Read a MetricsEngineServerInstanceResponse object into the model struct
@@ -470,7 +470,7 @@ func readMetricsEngineServerInstanceResponse(ctx context.Context, r *client.Metr
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSets(ctx, state)
+	populateServerInstanceUnknownValues(ctx, state)
 }
 
 // Read a AuthorizeServerInstanceResponse object into the model struct
@@ -501,7 +501,7 @@ func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.Authoriz
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSets(ctx, state)
+	populateServerInstanceUnknownValues(ctx, state)
 }
 
 // Read a DirectoryServerInstanceResponse object into the model struct
@@ -534,7 +534,7 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSets(ctx, state)
+	populateServerInstanceUnknownValues(ctx, state)
 }
 
 // Read a SyncServerInstanceResponse object into the model struct
@@ -565,7 +565,7 @@ func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerIns
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.MemberOfServerGroup = internaltypes.GetStringSet(r.MemberOfServerGroup)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateServerInstanceNilSets(ctx, state)
+	populateServerInstanceUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

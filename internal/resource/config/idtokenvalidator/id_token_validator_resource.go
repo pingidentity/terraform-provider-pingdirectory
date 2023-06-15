@@ -318,8 +318,8 @@ func addOptionalOpenidConnectIdTokenValidatorFields(ctx context.Context, addRequ
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateIdTokenValidatorNilSets(ctx context.Context, model *idTokenValidatorResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateIdTokenValidatorUnknownValues(ctx context.Context, model *idTokenValidatorResourceModel) {
 	if model.SigningCertificate.ElementType(ctx) == nil {
 		model.SigningCertificate = types.SetNull(types.StringType)
 	}
@@ -349,7 +349,7 @@ func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneI
 		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdTokenValidatorNilSets(ctx, state)
+	populateIdTokenValidatorUnknownValues(ctx, state)
 }
 
 // Read a OpenidConnectIdTokenValidatorResponse object into the model struct
@@ -374,7 +374,7 @@ func readOpenidConnectIdTokenValidatorResponse(ctx context.Context, r *client.Op
 		expectedValues.JwksCacheDuration, state.JwksCacheDuration, diagnostics)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdTokenValidatorNilSets(ctx, state)
+	populateIdTokenValidatorUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

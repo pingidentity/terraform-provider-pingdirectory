@@ -211,8 +211,8 @@ func addOptionalSizeLimitLogRotationPolicyFields(ctx context.Context, addRequest
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateLogRotationPolicyNilSets(ctx context.Context, model *logRotationPolicyResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateLogRotationPolicyUnknownValues(ctx context.Context, model *logRotationPolicyResourceModel) {
 	if model.TimeOfDay.ElementType(ctx) == nil {
 		model.TimeOfDay = types.SetNull(types.StringType)
 	}
@@ -227,7 +227,7 @@ func readTimeLimitLogRotationPolicyResponse(ctx context.Context, r *client.TimeL
 		expectedValues.RotationInterval, state.RotationInterval, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyNilSets(ctx, state)
+	populateLogRotationPolicyUnknownValues(ctx, state)
 }
 
 // Read a FixedTimeLogRotationPolicyResponse object into the model struct
@@ -237,7 +237,7 @@ func readFixedTimeLogRotationPolicyResponse(ctx context.Context, r *client.Fixed
 	state.TimeOfDay = internaltypes.GetStringSet(r.TimeOfDay)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyNilSets(ctx, state)
+	populateLogRotationPolicyUnknownValues(ctx, state)
 }
 
 // Read a NeverRotateLogRotationPolicyResponse object into the model struct
@@ -246,7 +246,7 @@ func readNeverRotateLogRotationPolicyResponse(ctx context.Context, r *client.Nev
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyNilSets(ctx, state)
+	populateLogRotationPolicyUnknownValues(ctx, state)
 }
 
 // Read a SizeLimitLogRotationPolicyResponse object into the model struct
@@ -258,7 +258,7 @@ func readSizeLimitLogRotationPolicyResponse(ctx context.Context, r *client.SizeL
 		expectedValues.FileSizeLimit, state.FileSizeLimit, diagnostics)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateLogRotationPolicyNilSets(ctx, state)
+	populateLogRotationPolicyUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

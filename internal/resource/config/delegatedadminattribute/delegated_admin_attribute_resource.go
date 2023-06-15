@@ -415,8 +415,8 @@ func addOptionalGenericDelegatedAdminAttributeFields(ctx context.Context, addReq
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateDelegatedAdminAttributeNilSets(ctx context.Context, model *delegatedAdminAttributeResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateDelegatedAdminAttributeUnknownValues(ctx context.Context, model *delegatedAdminAttributeResourceModel) {
 	if model.AllowedMIMEType.ElementType(ctx) == nil {
 		model.AllowedMIMEType = types.SetNull(types.StringType)
 	}
@@ -441,7 +441,7 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeNilSets(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(ctx, state)
 }
 
 // Read a PhotoDelegatedAdminAttributeResponse object into the model struct
@@ -463,7 +463,7 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeNilSets(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(ctx, state)
 }
 
 // Read a GenericDelegatedAdminAttributeResponse object into the model struct
@@ -484,7 +484,7 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 		client.StringPointerEnumdelegatedAdminAttributeAttributePresentationProp(r.AttributePresentation), internaltypes.IsEmptyString(expectedValues.AttributePresentation))
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateDelegatedAdminAttributeNilSets(ctx, state)
+	populateDelegatedAdminAttributeUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

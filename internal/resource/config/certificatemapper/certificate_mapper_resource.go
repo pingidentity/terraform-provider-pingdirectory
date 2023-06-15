@@ -342,8 +342,8 @@ func addOptionalThirdPartyCertificateMapperFields(ctx context.Context, addReques
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateCertificateMapperNilSets(ctx context.Context, model *certificateMapperResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateCertificateMapperUnknownValues(ctx context.Context, model *certificateMapperResourceModel) {
 	if model.ScriptArgument.ElementType(ctx) == nil {
 		model.ScriptArgument = types.SetNull(types.StringType)
 	}
@@ -365,7 +365,7 @@ func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSets(ctx, state)
+	populateCertificateMapperUnknownValues(ctx, state)
 }
 
 // Read a SubjectDnToUserAttributeCertificateMapperResponse object into the model struct
@@ -377,7 +377,7 @@ func readSubjectDnToUserAttributeCertificateMapperResponse(ctx context.Context, 
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSets(ctx, state)
+	populateCertificateMapperUnknownValues(ctx, state)
 }
 
 // Read a GroovyScriptedCertificateMapperResponse object into the model struct
@@ -389,7 +389,7 @@ func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSets(ctx, state)
+	populateCertificateMapperUnknownValues(ctx, state)
 }
 
 // Read a SubjectAttributeToUserAttributeCertificateMapperResponse object into the model struct
@@ -401,7 +401,7 @@ func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Co
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSets(ctx, state)
+	populateCertificateMapperUnknownValues(ctx, state)
 }
 
 // Read a FingerprintCertificateMapperResponse object into the model struct
@@ -414,7 +414,7 @@ func readFingerprintCertificateMapperResponse(ctx context.Context, r *client.Fin
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSets(ctx, state)
+	populateCertificateMapperUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyCertificateMapperResponse object into the model struct
@@ -426,7 +426,7 @@ func readThirdPartyCertificateMapperResponse(ctx context.Context, r *client.Thir
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateCertificateMapperNilSets(ctx, state)
+	populateCertificateMapperUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

@@ -1866,8 +1866,8 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateBackendNilSets(ctx context.Context, model *backendResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateBackendUnknownValues(ctx context.Context, model *backendResourceModel) {
 	if model.JeProperty.ElementType(ctx) == nil {
 		model.JeProperty = types.SetNull(types.StringType)
 	}
@@ -1888,8 +1888,8 @@ func populateBackendNilSets(ctx context.Context, model *backendResourceModel) {
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateBackendNilSetsDefault(ctx context.Context, model *defaultBackendResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBackendResourceModel) {
 	if model.ChangelogEntryIncludeFilter.ElementType(ctx) == nil {
 		model.ChangelogEntryIncludeFilter = types.SetNull(types.StringType)
 	}
@@ -1965,6 +1965,9 @@ func populateBackendNilSetsDefault(ctx context.Context, model *defaultBackendRes
 	if model.PrimeMethod.ElementType(ctx) == nil {
 		model.PrimeMethod = types.SetNull(types.StringType)
 	}
+	if model.TrustStorePin.IsUnknown() {
+		model.TrustStorePin = types.StringNull()
+	}
 }
 
 // Read a SchemaBackendResponse object into the model struct
@@ -1984,7 +1987,7 @@ func readSchemaBackendResponseDefault(ctx context.Context, r *client.SchemaBacke
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a BackupBackendResponse object into the model struct
@@ -2001,7 +2004,7 @@ func readBackupBackendResponseDefault(ctx context.Context, r *client.BackupBacke
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a EncryptionSettingsBackendResponse object into the model struct
@@ -2017,7 +2020,7 @@ func readEncryptionSettingsBackendResponseDefault(ctx context.Context, r *client
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a LdifBackendResponse object into the model struct
@@ -2036,7 +2039,7 @@ func readLdifBackendResponseDefault(ctx context.Context, r *client.LdifBackendRe
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a TrustStoreBackendResponse object into the model struct
@@ -2059,7 +2062,7 @@ func readTrustStoreBackendResponseDefault(ctx context.Context, r *client.TrustSt
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a CustomBackendResponse object into the model struct
@@ -2076,7 +2079,7 @@ func readCustomBackendResponseDefault(ctx context.Context, r *client.CustomBacke
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a ChangelogBackendResponse object into the model struct
@@ -2125,7 +2128,7 @@ func readChangelogBackendResponseDefault(ctx context.Context, r *client.Changelo
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a MonitorBackendResponse object into the model struct
@@ -2140,7 +2143,7 @@ func readMonitorBackendResponseDefault(ctx context.Context, r *client.MonitorBac
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a LocalDbBackendResponse object into the model struct
@@ -2228,7 +2231,7 @@ func readLocalDbBackendResponse(ctx context.Context, r *client.LocalDbBackendRes
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSets(ctx, state)
+	populateBackendUnknownValues(ctx, state)
 }
 
 // Read a LocalDbBackendResponse object into the model struct
@@ -2316,7 +2319,7 @@ func readLocalDbBackendResponseDefault(ctx context.Context, r *client.LocalDbBac
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a ConfigFileHandlerBackendResponse object into the model struct
@@ -2343,7 +2346,7 @@ func readConfigFileHandlerBackendResponseDefault(ctx context.Context, r *client.
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a TaskBackendResponse object into the model struct
@@ -2367,7 +2370,7 @@ func readTaskBackendResponseDefault(ctx context.Context, r *client.TaskBackendRe
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a AlertBackendResponse object into the model struct
@@ -2391,7 +2394,7 @@ func readAlertBackendResponseDefault(ctx context.Context, r *client.AlertBackend
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a AlarmBackendResponse object into the model struct
@@ -2413,7 +2416,7 @@ func readAlarmBackendResponseDefault(ctx context.Context, r *client.AlarmBackend
 	state.BackupFilePermissions = internaltypes.StringTypeOrNil(r.BackupFilePermissions, internaltypes.IsEmptyString(expectedValues.BackupFilePermissions))
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Read a MetricsBackendResponse object into the model struct
@@ -2433,7 +2436,7 @@ func readMetricsBackendResponseDefault(ctx context.Context, r *client.MetricsBac
 	state.ReturnUnavailableWhenDisabled = internaltypes.BoolTypeOrNil(r.ReturnUnavailableWhenDisabled)
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateBackendNilSetsDefault(ctx, state)
+	populateBackendUnknownValuesDefault(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

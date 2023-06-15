@@ -377,8 +377,8 @@ func addOptionalThirdPartyIdentityMapperFields(ctx context.Context, addRequest *
 	}
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateIdentityMapperNilSets(ctx context.Context, model *identityMapperResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateIdentityMapperUnknownValues(ctx context.Context, model *identityMapperResourceModel) {
 	if model.ScriptArgument.ElementType(ctx) == nil {
 		model.ScriptArgument = types.SetNull(types.StringType)
 	}
@@ -409,7 +409,7 @@ func readExactMatchIdentityMapperResponse(ctx context.Context, r *client.ExactMa
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperNilSets(ctx, state)
+	populateIdentityMapperUnknownValues(ctx, state)
 }
 
 // Read a GroovyScriptedIdentityMapperResponse object into the model struct
@@ -421,7 +421,7 @@ func readGroovyScriptedIdentityMapperResponse(ctx context.Context, r *client.Gro
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperNilSets(ctx, state)
+	populateIdentityMapperUnknownValues(ctx, state)
 }
 
 // Read a RegularExpressionIdentityMapperResponse object into the model struct
@@ -436,7 +436,7 @@ func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperNilSets(ctx, state)
+	populateIdentityMapperUnknownValues(ctx, state)
 }
 
 // Read a AggregateIdentityMapperResponse object into the model struct
@@ -448,7 +448,7 @@ func readAggregateIdentityMapperResponse(ctx context.Context, r *client.Aggregat
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperNilSets(ctx, state)
+	populateIdentityMapperUnknownValues(ctx, state)
 }
 
 // Read a ThirdPartyIdentityMapperResponse object into the model struct
@@ -460,7 +460,7 @@ func readThirdPartyIdentityMapperResponse(ctx context.Context, r *client.ThirdPa
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateIdentityMapperNilSets(ctx, state)
+	populateIdentityMapperUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan

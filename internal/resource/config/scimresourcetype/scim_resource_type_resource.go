@@ -373,8 +373,8 @@ func addOptionalLdapMappingScimResourceTypeFields(ctx context.Context, addReques
 	return nil
 }
 
-// Populate any sets that have a nil ElementType, to avoid a nil pointer when setting the state
-func populateScimResourceTypeNilSets(ctx context.Context, model *scimResourceTypeResourceModel) {
+// Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
+func populateScimResourceTypeUnknownValues(ctx context.Context, model *scimResourceTypeResourceModel) {
 	if model.RequiredSchemaExtension.ElementType(ctx) == nil {
 		model.RequiredSchemaExtension = types.SetNull(types.StringType)
 	}
@@ -400,7 +400,7 @@ func readLdapPassThroughScimResourceTypeResponse(ctx context.Context, r *client.
 	state.IncludeOperationalAttribute = internaltypes.GetStringSet(r.IncludeOperationalAttribute)
 	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, internaltypes.IsEmptyString(expectedValues.CreateDNPattern))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateScimResourceTypeNilSets(ctx, state)
+	populateScimResourceTypeUnknownValues(ctx, state)
 }
 
 // Read a LdapMappingScimResourceTypeResponse object into the model struct
@@ -423,7 +423,7 @@ func readLdapMappingScimResourceTypeResponse(ctx context.Context, r *client.Ldap
 	state.IncludeOperationalAttribute = internaltypes.GetStringSet(r.IncludeOperationalAttribute)
 	state.CreateDNPattern = internaltypes.StringTypeOrNil(r.CreateDNPattern, internaltypes.IsEmptyString(expectedValues.CreateDNPattern))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateScimResourceTypeNilSets(ctx, state)
+	populateScimResourceTypeUnknownValues(ctx, state)
 }
 
 // Create any update operations necessary to make the state match the plan
