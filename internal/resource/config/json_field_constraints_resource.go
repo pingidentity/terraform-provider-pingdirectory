@@ -495,7 +495,7 @@ func (r *defaultJsonFieldConstraintsResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state jsonFieldConstraintsResourceModel
-	readJsonFieldConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readJsonFieldConstraintsResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.JsonFieldConstraintsApi.UpdateJsonFieldConstraints(ProviderBasicAuthContext(ctx, r.providerConfig), plan.JsonField.ValueString(), plan.JsonAttributeConstraintsName.ValueString())

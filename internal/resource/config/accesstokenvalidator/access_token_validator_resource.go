@@ -947,16 +947,16 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state accessTokenValidatorResourceModel
 	if plan.Type.ValueString() == "ping-federate" {
-		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "jwt" {
-		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "mock" {
-		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

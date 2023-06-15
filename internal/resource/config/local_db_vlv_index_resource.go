@@ -307,7 +307,7 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state localDbVlvIndexResourceModel
-	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())

@@ -441,13 +441,13 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 	// Read the existing configuration
 	var state azureAuthenticationMethodResourceModel
 	if plan.Type.ValueString() == "default" {
-		readDefaultAzureAuthenticationMethodResponse(ctx, readResponse.DefaultAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
+		readDefaultAzureAuthenticationMethodResponse(ctx, readResponse.DefaultAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "client-secret" {
-		readClientSecretAzureAuthenticationMethodResponse(ctx, readResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
+		readClientSecretAzureAuthenticationMethodResponse(ctx, readResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "username-password" {
-		readUsernamePasswordAzureAuthenticationMethodResponse(ctx, readResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
+		readUsernamePasswordAzureAuthenticationMethodResponse(ctx, readResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

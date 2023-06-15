@@ -590,10 +590,10 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 	// Read the existing configuration
 	var state scimResourceTypeResourceModel
 	if plan.Type.ValueString() == "ldap-pass-through" {
-		readLdapPassThroughScimResourceTypeResponse(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
+		readLdapPassThroughScimResourceTypeResponse(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldap-mapping" {
-		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
+		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

@@ -361,7 +361,7 @@ func (r *defaultEntryCacheResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state entryCacheResourceModel
-	readFifoEntryCacheResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readFifoEntryCacheResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.EntryCacheApi.UpdateEntryCache(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

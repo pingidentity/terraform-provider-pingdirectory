@@ -318,7 +318,7 @@ func (r *defaultReplicationAssurancePolicyResource) Create(ctx context.Context, 
 
 	// Read the existing configuration
 	var state replicationAssurancePolicyResourceModel
-	readReplicationAssurancePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readReplicationAssurancePolicyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

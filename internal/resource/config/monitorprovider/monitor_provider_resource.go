@@ -599,40 +599,40 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 	// Read the existing configuration
 	var state defaultMonitorProviderResourceModel
 	if plan.Type.ValueString() == "general" {
-		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "memory-usage" {
-		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "stack-trace" {
-		readStackTraceMonitorProviderResponseDefault(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readStackTraceMonitorProviderResponseDefault(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "disk-space-usage" {
-		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "system-info" {
-		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomMonitorProviderResponseDefault(ctx, readResponse.CustomMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readCustomMonitorProviderResponseDefault(ctx, readResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "active-operations" {
-		readActiveOperationsMonitorProviderResponseDefault(ctx, readResponse.ActiveOperationsMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readActiveOperationsMonitorProviderResponseDefault(ctx, readResponse.ActiveOperationsMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ssl-context" {
-		readSslContextMonitorProviderResponseDefault(ctx, readResponse.SslContextMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readSslContextMonitorProviderResponseDefault(ctx, readResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "client-connection" {
-		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "version" {
-		readVersionMonitorProviderResponseDefault(ctx, readResponse.VersionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readVersionMonitorProviderResponseDefault(ctx, readResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "host-system" {
-		readHostSystemMonitorProviderResponseDefault(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readHostSystemMonitorProviderResponseDefault(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyMonitorProviderResponseDefault(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyMonitorProviderResponseDefault(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

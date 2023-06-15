@@ -863,7 +863,7 @@ func (r *defaultClientConnectionPolicyResource) Create(ctx context.Context, req 
 
 	// Read the existing configuration
 	var state clientConnectionPolicyResourceModel
-	readClientConnectionPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readClientConnectionPolicyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ClientConnectionPolicyApi.UpdateClientConnectionPolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.PolicyID.ValueString())

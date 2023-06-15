@@ -1467,16 +1467,16 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 	// Read the existing configuration
 	var state resultCriteriaResourceModel
 	if plan.Type.ValueString() == "simple" {
-		readSimpleResultCriteriaResponse(ctx, readResponse.SimpleResultCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readSimpleResultCriteriaResponse(ctx, readResponse.SimpleResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "aggregate" {
-		readAggregateResultCriteriaResponse(ctx, readResponse.AggregateResultCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readAggregateResultCriteriaResponse(ctx, readResponse.AggregateResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "replication-assurance" {
-		readReplicationAssuranceResultCriteriaResponse(ctx, readResponse.ReplicationAssuranceResultCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readReplicationAssuranceResultCriteriaResponse(ctx, readResponse.ReplicationAssuranceResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyResultCriteriaResponse(ctx, readResponse.ThirdPartyResultCriteriaResponse, &state, &state, &resp.Diagnostics)
+		readThirdPartyResultCriteriaResponse(ctx, readResponse.ThirdPartyResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

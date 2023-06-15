@@ -736,7 +736,7 @@ func (r *defaultRootDnUserResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state rootDnUserResourceModel
-	readRootDnUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readRootDnUserResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.RootDnUserApi.UpdateRootDnUser(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

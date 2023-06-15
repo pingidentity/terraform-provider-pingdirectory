@@ -282,7 +282,7 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state softDeletePolicyResourceModel
-	readSoftDeletePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readSoftDeletePolicyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

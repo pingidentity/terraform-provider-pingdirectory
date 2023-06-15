@@ -409,7 +409,7 @@ func (r *defaultRecurringTaskChainResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state recurringTaskChainResourceModel
-	readRecurringTaskChainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readRecurringTaskChainResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.RecurringTaskChainApi.UpdateRecurringTaskChain(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

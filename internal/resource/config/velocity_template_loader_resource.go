@@ -298,7 +298,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 
 	// Read the existing configuration
 	var state velocityTemplateLoaderResourceModel
-	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
+	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
