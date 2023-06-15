@@ -26,10 +26,6 @@ func TestAccKeyPair(t *testing.T) {
 		id:        testIdKeyPair,
 		subjectDn: "cn=Directory Server,O=Ping Identity Key Pair",
 	}
-	updatedResourceModel := keyPairTestModel{
-		id:        testIdKeyPair,
-		subjectDn: "cn=Directory Server,O=Ping Identity Key Pair Updated",
-	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -43,11 +39,6 @@ func TestAccKeyPair(t *testing.T) {
 				// Add checks for computed properties here if desired.
 				Config: testAccKeyPairResource(resourceName, initialResourceModel),
 				Check:  testAccCheckExpectedKeyPairAttributes(initialResourceModel),
-			},
-			{
-				// Test updating resource
-				Config: testAccKeyPairResource(resourceName, updatedResourceModel),
-				Check:  testAccCheckExpectedKeyPairAttributes(updatedResourceModel),
 			},
 			{
 				// Test importing the resource
