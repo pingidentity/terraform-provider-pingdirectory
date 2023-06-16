@@ -1,4 +1,6 @@
-# v0.7.0 (Unreleased)
+# v0.8.0 (Unreleased)
+
+# v0.7.0 June 16 2023
 
 ### FEATURES
 * Collapsed subresources into single parent resources, differentiated by a new `type` attribute. For example, the `pingdirectory_indicator_gauge` and `pingdirectory_numeric_gauge` resources are now combined into a single `pingdirectory_gauge` resource, with a `type` attribute that can be set to either `indicator` or `numeric`. See the documentation for more information. (#221)
