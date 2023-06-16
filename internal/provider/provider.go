@@ -403,6 +403,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultRecurringTaskChainResource,
 		config.NewReplicationAssurancePolicyResource,
 		config.NewDefaultReplicationAssurancePolicyResource,
+		config.NewReplicationDomainResource,
 		config.NewResultCodeMapResource,
 		config.NewDefaultResultCodeMapResource,
 		config.NewRootDnResource,
