@@ -55,6 +55,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/otpdeliverymechanism"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
@@ -476,6 +477,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		monitorprovider.NewDefaultMonitorProviderResource,
 		oauthtokenhandler.NewOauthTokenHandlerResource,
 		oauthtokenhandler.NewDefaultOauthTokenHandlerResource,
+		otpdeliverymechanism.NewDefaultOtpDeliveryMechanismResource,
+		otpdeliverymechanism.NewOtpDeliveryMechanismResource,
 		passthroughauthenticationhandler.NewPassThroughAuthenticationHandlerResource,
 		passthroughauthenticationhandler.NewDefaultPassThroughAuthenticationHandlerResource,
 		plugin.NewPluginResource,
