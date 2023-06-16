@@ -67,6 +67,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchreferencecriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstancelistener"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
@@ -501,6 +502,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		searchreferencecriteria.NewSearchReferenceCriteriaResource,
 		searchreferencecriteria.NewDefaultSearchReferenceCriteriaResource,
 		serverinstance.NewServerInstanceResource,
+		serverinstancelistener.NewServerInstanceListenerResource,
 		synchronizationprovider.NewSynchronizationProviderResource,
 		tokenclaimvalidation.NewTokenClaimValidationResource,
 		tokenclaimvalidation.NewDefaultTokenClaimValidationResource,
