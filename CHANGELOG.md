@@ -23,6 +23,7 @@
 * **New Resource:** `pingdirectory_server_instance_listener` (#231)
 * **New Resource:** `pingdirectory_replication_domain` (#232)
 * **New Resource:** `pingdirectory_cipher_secret_key` (#233)
+* **New Resource:** `pingdirectory_custom_logged_stats` (#240)
 
 ### BUG FIXES
 * Fixed an issue where certain default_ resources would fail on first apply (#226)
