@@ -1,4 +1,6 @@
-# v0.7.0 (Unreleased)
+# v0.8.0 (Unreleased)
+
+# v0.7.0 June 16 2023
 
 ### FEATURES
 * Collapsed subresources into single parent resources, differentiated by a new `type` attribute. For example, the `pingdirectory_indicator_gauge` and `pingdirectory_numeric_gauge` resources are now combined into a single `pingdirectory_gauge` resource, with a `type` attribute that can be set to either `indicator` or `numeric`. See the documentation for more information. (#221)
@@ -12,8 +14,18 @@
 * **New Resource:** `pingdirectory_uncached_entry_criteria` (#213)
 * **New Resource:** `pingdirectory_pass_through_authentication_handler` (#214)
 * **New Resource:** `pingdirectory_trusted_certificate` (#217)
+* **New Resource:** `pingdirectory_matching_rule` (#224)
+* **New Resource:** `pingdirectory_conjur_authentication_method` (#225)
+* **New Resource:** `pingdirectory_inter_server_authentication_method` (#226)
+* **New Resource:** `pingdirectory_key_pair` (#227)
+* **New Resource:** `pingdirectory_mac_secret_key` (#228)
+* **New Resource:** `pingdirectory_otp_delivery_mechanism` (#229)
+* **New Resource:** `pingdirectory_server_instance_listener` (#231)
+* **New Resource:** `pingdirectory_replication_domain` (#232)
+* **New Resource:** `pingdirectory_cipher_secret_key` (#233)
 
-
+### BUG FIXES
+* Fixed an issue where certain default_ resources would fail on first apply (#226)
 
 # v0.6.0 May 23 2023
 
