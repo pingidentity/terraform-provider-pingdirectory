@@ -57,6 +57,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/otpdeliverymechanism"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordstoragescheme"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -487,6 +488,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		otpdeliverymechanism.NewOtpDeliveryMechanismResource,
 		passthroughauthenticationhandler.NewPassThroughAuthenticationHandlerResource,
 		passthroughauthenticationhandler.NewDefaultPassThroughAuthenticationHandlerResource,
+		passwordstoragescheme.NewDefaultPasswordStorageSchemeResource,
+		passwordstoragescheme.NewPasswordStorageSchemeResource,
 		plugin.NewPluginResource,
 		plugin.NewDefaultPluginResource,
 		recurringtask.NewRecurringTaskResource,
