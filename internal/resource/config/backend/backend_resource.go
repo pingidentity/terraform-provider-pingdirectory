@@ -1603,11 +1603,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.AddLocalDbBackendRequest, plan backendResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UncachedId2entryCacheMode) {
-		uncachedId2EntryCacheMode, err := client.NewEnumbackendUncachedId2entryCacheModePropFromValue(plan.UncachedId2entryCacheMode.ValueString())
+		uncachedId2entryCacheMode, err := client.NewEnumbackendUncachedId2entryCacheModePropFromValue(plan.UncachedId2entryCacheMode.ValueString())
 		if err != nil {
 			return err
 		}
-		addRequest.UncachedId2entryCacheMode = uncachedId2EntryCacheMode
+		addRequest.UncachedId2entryCacheMode = uncachedId2entryCacheMode
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.UncachedAttributeCriteria) {
@@ -1702,43 +1702,43 @@ func addOptionalLocalDbBackendFields(ctx context.Context, addRequest *client.Add
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Id2entryCacheMode) {
-		id2EntryCacheMode, err := client.NewEnumbackendId2entryCacheModePropFromValue(plan.Id2entryCacheMode.ValueString())
+		id2entryCacheMode, err := client.NewEnumbackendId2entryCacheModePropFromValue(plan.Id2entryCacheMode.ValueString())
 		if err != nil {
 			return err
 		}
-		addRequest.Id2entryCacheMode = id2EntryCacheMode
+		addRequest.Id2entryCacheMode = id2entryCacheMode
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Dn2idCacheMode) {
-		dn2IdCacheMode, err := client.NewEnumbackendDn2idCacheModePropFromValue(plan.Dn2idCacheMode.ValueString())
+		dn2idCacheMode, err := client.NewEnumbackendDn2idCacheModePropFromValue(plan.Dn2idCacheMode.ValueString())
 		if err != nil {
 			return err
 		}
-		addRequest.Dn2idCacheMode = dn2IdCacheMode
+		addRequest.Dn2idCacheMode = dn2idCacheMode
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Id2childrenCacheMode) {
-		id2ChildrenCacheMode, err := client.NewEnumbackendId2childrenCacheModePropFromValue(plan.Id2childrenCacheMode.ValueString())
+		id2childrenCacheMode, err := client.NewEnumbackendId2childrenCacheModePropFromValue(plan.Id2childrenCacheMode.ValueString())
 		if err != nil {
 			return err
 		}
-		addRequest.Id2childrenCacheMode = id2ChildrenCacheMode
+		addRequest.Id2childrenCacheMode = id2childrenCacheMode
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Id2subtreeCacheMode) {
-		id2SubtreeCacheMode, err := client.NewEnumbackendId2subtreeCacheModePropFromValue(plan.Id2subtreeCacheMode.ValueString())
+		id2subtreeCacheMode, err := client.NewEnumbackendId2subtreeCacheModePropFromValue(plan.Id2subtreeCacheMode.ValueString())
 		if err != nil {
 			return err
 		}
-		addRequest.Id2subtreeCacheMode = id2SubtreeCacheMode
+		addRequest.Id2subtreeCacheMode = id2subtreeCacheMode
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Dn2uriCacheMode) {
-		dn2UriCacheMode, err := client.NewEnumbackendDn2uriCacheModePropFromValue(plan.Dn2uriCacheMode.ValueString())
+		dn2uriCacheMode, err := client.NewEnumbackendDn2uriCacheModePropFromValue(plan.Dn2uriCacheMode.ValueString())
 		if err != nil {
 			return err
 		}
-		addRequest.Dn2uriCacheMode = dn2UriCacheMode
+		addRequest.Dn2uriCacheMode = dn2uriCacheMode
 	}
 	if internaltypes.IsDefined(plan.PrimeMethod) {
 		var slice []string
