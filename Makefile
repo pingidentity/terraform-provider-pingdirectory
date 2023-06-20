@@ -58,7 +58,7 @@ testacc:
 
 testacccomplete: removetestcontainer starttestcontainer testacc
 
-devcheck: generate install golangcilint tfproviderlint tflint terrafmtlint importfmtlint
+devcheck: generate install golangcilint tfproviderlint tflint terrafmtlint importfmtlint test testacc
 
 golangcilint:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint run --timeout 10m ./...
