@@ -17,6 +17,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -106,7 +107,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Schema(ctx context.Con
 
 func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Prometheus Monitor Attribute Metric.",
+		Description: "Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
@@ -159,6 +160,20 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 	}
 	AddCommonSchema(&schemaDef, false)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan
+func (r *prometheusMonitorAttributeMetricResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPrometheusMonitorAttributeMetric(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_prometheus_monitor_attribute_metric")
+}
+
+func (r *defaultPrometheusMonitorAttributeMetricResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPrometheusMonitorAttributeMetric(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_prometheus_monitor_attribute_metric")
+}
+
+func modifyPlanPrometheusMonitorAttributeMetric(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+		providerConfig.ProductVersion, resourceName)
 }
 
 // Add optional fields to create request for prometheus-monitor-attribute-metric prometheus-monitor-attribute-metric
