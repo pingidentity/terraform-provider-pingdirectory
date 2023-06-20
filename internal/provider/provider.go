@@ -366,6 +366,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewConstructedAttributeResource,
 		config.NewDefaultConstructedAttributeResource,
 		config.NewCryptoManagerResource,
+		config.NewCustomLoggedStatsResource,
+		config.NewDefaultCustomLoggedStatsResource,
 		config.NewDebugTargetResource,
 		config.NewDefaultDebugTargetResource,
 		config.NewDefaultLocationResource,
