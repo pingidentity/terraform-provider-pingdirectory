@@ -75,6 +75,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedattributecriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedentrycriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/vaultauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/velocitycontextprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
@@ -525,6 +526,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		uncachedattributecriteria.NewDefaultUncachedAttributeCriteriaResource,
 		uncachedentrycriteria.NewUncachedEntryCriteriaResource,
 		uncachedentrycriteria.NewDefaultUncachedEntryCriteriaResource,
+		vaultauthenticationmethod.NewDefaultVaultAuthenticationMethodResource,
+		vaultauthenticationmethod.NewVaultAuthenticationMethodResource,
 		velocitycontextprovider.NewDefaultVelocityContextProviderResource,
 		velocitycontextprovider.NewVelocityContextProviderResource,
 		virtualattribute.NewVirtualAttributeResource,

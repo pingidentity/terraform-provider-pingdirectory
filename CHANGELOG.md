@@ -5,6 +5,8 @@
 * **New Resource:** `pingdirectory_prometheus_monitor_attribute_metric` (#241)
 * **New Resource:** `pingdirectory_velocity_context_provider` (#242)
 * **New Resource:** `pingdirectory_passphrase_provider` (#243)
+* **New Resource:** `pingdirectory_notification_manager` (#244)
+* **New Resource:** `pingdirectory_vault_authentication_method` (#245)
 
 ### DEPENDENCIES
 * `Bump github.com/hashicorp/terraform-plugin-framework from 1.3.0 to 1.3.1` (#236)
