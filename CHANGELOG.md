@@ -32,6 +32,7 @@
 * **New Resource:** `pingdirectory_key_pair` (#227)
 * **New Resource:** `pingdirectory_mac_secret_key` (#228)
 * **New Resource:** `pingdirectory_otp_delivery_mechanism` (#229)
+* **New Resource:** `pingdirectory_password_storage_scheme` (#230)
 * **New Resource:** `pingdirectory_server_instance_listener` (#231)
 * **New Resource:** `pingdirectory_replication_domain` (#232)
 * **New Resource:** `pingdirectory_cipher_secret_key` (#233)
