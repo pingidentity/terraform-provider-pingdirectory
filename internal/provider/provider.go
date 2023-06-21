@@ -377,6 +377,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultLocationResource,
 		config.NewDefaultDelegatedAdminAttributeCategoryResource,
 		config.NewDelegatedAdminAttributeCategoryResource,
+		config.NewDefaultDelegatedAdminCorrelatedRestResourceResource,
+		config.NewDelegatedAdminCorrelatedRestResourceResource,
 		config.NewDelegatedAdminResourceRightsResource,
 		config.NewDefaultDelegatedAdminResourceRightsResource,
 		config.NewDelegatedAdminRightsResource,
