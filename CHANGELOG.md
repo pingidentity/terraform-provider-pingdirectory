@@ -1,5 +1,17 @@
 # v0.8.0 (Unreleased)
 
+### FEATURES
+* **New Resource:** `pingdirectory_custom_logged_stats` (#240)
+* **New Resource:** `pingdirectory_prometheus_monitor_attribute_metric` (#241)
+* **New Resource:** `pingdirectory_velocity_context_provider` (#242)
+* **New Resource:** `pingdirectory_passphrase_provider` (#243)
+
+### DEPENDENCIES
+* `Bump github.com/hashicorp/terraform-plugin-framework from 1.3.0 to 1.3.1` (#236)
+* `Bump github.com/golangci/golangci-lint from 1.53.2 to 1.53.3` (#237)
+* `Bump github.com/hashicorp/terraform-plugin-testing from 1.2.0 to 1.3.0` (#238)
+* `Bump github.com/hashicorp/terraform-plugin-go from 0.15.0 to 0.16.0` (#239)
+
 # v0.7.0 June 16 2023
 
 ### FEATURES
@@ -23,7 +35,6 @@
 * **New Resource:** `pingdirectory_server_instance_listener` (#231)
 * **New Resource:** `pingdirectory_replication_domain` (#232)
 * **New Resource:** `pingdirectory_cipher_secret_key` (#233)
-* **New Resource:** `pingdirectory_custom_logged_stats` (#240)
 
 ### BUG FIXES
 * Fixed an issue where certain default_ resources would fail on first apply (#226)
