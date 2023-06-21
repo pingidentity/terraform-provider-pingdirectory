@@ -8,6 +8,7 @@
 * **New Resource:** `pingdirectory_notification_manager` (#244)
 * **New Resource:** `pingdirectory_vault_authentication_method` (#245)
 * **New Resource:** `pingdirectory_obscured_value` (#246)
+* **New Resource:** `pingdirectory_license` (#247)
 
 ### DEPENDENCIES
 * `Bump github.com/hashicorp/terraform-plugin-framework from 1.3.0 to 1.3.1` (#236)
