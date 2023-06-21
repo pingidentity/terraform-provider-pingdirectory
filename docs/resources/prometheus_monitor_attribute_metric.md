@@ -2,12 +2,12 @@
 page_title: "pingdirectory_prometheus_monitor_attribute_metric Resource - terraform-provider-pingdirectory"
 subcategory: "Prometheus Monitor Attribute Metric"
 description: |-
-  Manages a Prometheus Monitor Attribute Metric.
+  Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory product version 9.2.0.0+.
 ---
 
 # pingdirectory_prometheus_monitor_attribute_metric (Resource)
 
-Manages a Prometheus Monitor Attribute Metric.
+Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory product version 9.2.0.0+.
 
 ## Example Usage
 
