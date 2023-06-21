@@ -404,6 +404,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultLocalDbCompositeIndexResource,
 		config.NewLocationResource,
 		config.NewMacSecretKeyResource,
+		config.NewDefaultObscuredValueResource,
+		config.NewObscuredValueResource,
 		config.NewPasswordPolicyResource,
 		config.NewDefaultPasswordPolicyResource,
 		config.NewPluginRootResource,
