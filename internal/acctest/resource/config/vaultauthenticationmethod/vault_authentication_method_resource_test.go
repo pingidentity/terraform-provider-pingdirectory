@@ -74,7 +74,7 @@ resource "pingdirectory_vault_authentication_method" "%[1]s" {
   type               = "static-token"
   id                 = "%[2]s"
   vault_access_token = "%[3]s"
-  description = "%[4]s"
+  description        = "%[4]s"
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.vaultAccessToken,
