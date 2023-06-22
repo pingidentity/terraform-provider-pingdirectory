@@ -59,6 +59,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/otpdeliverymechanism"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passphraseprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordgenerator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordstoragescheme"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
@@ -506,6 +507,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		passphraseprovider.NewPassphraseProviderResource,
 		passthroughauthenticationhandler.NewPassThroughAuthenticationHandlerResource,
 		passthroughauthenticationhandler.NewDefaultPassThroughAuthenticationHandlerResource,
+		passwordgenerator.NewDefaultPasswordGeneratorResource,
+		passwordgenerator.NewPasswordGeneratorResource,
 		passwordstoragescheme.NewDefaultPasswordStorageSchemeResource,
 		passwordstoragescheme.NewPasswordStorageSchemeResource,
 		passwordvalidator.NewDefaultPasswordValidatorResource,
