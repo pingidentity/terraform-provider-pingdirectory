@@ -61,6 +61,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordgenerator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordstoragescheme"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
@@ -378,6 +379,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewDefaultLocationResource,
 		config.NewDefaultDelegatedAdminAttributeCategoryResource,
 		config.NewDelegatedAdminAttributeCategoryResource,
+		config.NewDefaultDelegatedAdminCorrelatedRestResourceResource,
+		config.NewDelegatedAdminCorrelatedRestResourceResource,
 		config.NewDelegatedAdminResourceRightsResource,
 		config.NewDefaultDelegatedAdminResourceRightsResource,
 		config.NewDelegatedAdminRightsResource,
@@ -508,6 +511,8 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		passwordgenerator.NewPasswordGeneratorResource,
 		passwordstoragescheme.NewDefaultPasswordStorageSchemeResource,
 		passwordstoragescheme.NewPasswordStorageSchemeResource,
+		passwordvalidator.NewDefaultPasswordValidatorResource,
+		passwordvalidator.NewPasswordValidatorResource,
 		plugin.NewPluginResource,
 		plugin.NewDefaultPluginResource,
 		recurringtask.NewRecurringTaskResource,

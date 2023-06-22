@@ -9,7 +9,9 @@
 * **New Resource:** `pingdirectory_vault_authentication_method` (#245)
 * **New Resource:** `pingdirectory_obscured_value` (#246)
 * **New Resource:** `pingdirectory_license` (#247)
+* **New Resource:** `pingdirectory_delegated_admin_correlated_rest_resource` (#248)
 * **New Resource:** `pingdirectory_sensitive_attribute` (#249)
+* **New Resource:** `pingdirectory_password_validator` (#250)
 * **New Resource:** `pingdirectory_password_generator` (#251)
 
 ### DEPENDENCIES
