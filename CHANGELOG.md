@@ -11,6 +11,7 @@
 * **New Resource:** `pingdirectory_license` (#247)
 * **New Resource:** `pingdirectory_delegated_admin_correlated_rest_resource` (#248)
 * **New Resource:** `pingdirectory_sensitive_attribute` (#249)
+* **New Resource:** `pingdirectory_password_validator` (#250)
 
 ### DEPENDENCIES
 * `Bump github.com/hashicorp/terraform-plugin-framework from 1.3.0 to 1.3.1` (#236)
