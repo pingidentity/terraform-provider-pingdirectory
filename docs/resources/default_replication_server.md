@@ -87,7 +87,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# This resource is singleton, so the value of "id" doesn't matter - it is just a placeholder
-terraform import pingdirectory_default_replication_server.myReplicationServer id
+# "synchronization-provider-name" should be the name of the parent synchronization-provider
+terraform import pingdirectory_default_replication_server.myReplicationServer synchronization-provider-name
 ```
 
