@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -310,6 +311,16 @@ func modifyPlanRestResourceType(ctx context.Context, req resource.ModifyPlanRequ
 	if internaltypes.IsDefined(model.PasswordDisplayOrderIndex) && model.Type.ValueString() != "user" {
 		resp.Diagnostics.AddError("Attribute 'password_display_order_index' not supported by pingdirectory_rest_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'password_display_order_index', the 'type' attribute must be one of ['user']")
+	}
+}
+
+// Add config validators
+func (r restResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.Conflicting(
+			path.MatchRoot("parent_resource_type"),
+			path.MatchRoot("parent_dn"),
+		),
 	}
 }
 
