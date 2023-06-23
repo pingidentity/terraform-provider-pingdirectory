@@ -421,6 +421,7 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		config.NewReplicationAssurancePolicyResource,
 		config.NewDefaultReplicationAssurancePolicyResource,
 		config.NewReplicationDomainResource,
+		config.NewReplicationServerResource,
 		config.NewResultCodeMapResource,
 		config.NewDefaultResultCodeMapResource,
 		config.NewRootDnResource,
