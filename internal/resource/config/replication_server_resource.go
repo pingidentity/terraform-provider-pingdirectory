@@ -394,8 +394,6 @@ func (r *replicationServerResource) Delete(ctx context.Context, req resource.Del
 }
 
 func (r *replicationServerResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Set a placeholder id value to appease terraform.
-	// The real attributes will be imported when terraform performs a read after the import.
-	// If no value is set here, Terraform will error out when importing.
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), "id")...)
+	// Retrieve parent name and save to synchronization_provider_name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("synchronization_provider_name"), req, resp)
 }
