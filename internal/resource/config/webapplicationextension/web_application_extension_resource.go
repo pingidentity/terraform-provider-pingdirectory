@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -372,6 +373,16 @@ func modifyPlanWebApplicationExtension(ctx context.Context, req resource.ModifyP
 	if internaltypes.IsDefined(model.LdapServer) && model.Type.ValueString() != "console" {
 		resp.Diagnostics.AddError("Attribute 'ldap_server' not supported by pingdirectory_web_application_extension resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'ldap_server', the 'type' attribute must be one of ['console']")
+	}
+}
+
+// Add config validators
+func (r webApplicationExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		resourcevalidator.ExactlyOneOf(
+			path.MatchRoot("war_file"),
+			path.MatchRoot("document_root_directory"),
+		),
 	}
 }
 

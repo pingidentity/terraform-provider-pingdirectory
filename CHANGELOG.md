@@ -15,6 +15,9 @@
 * **New Resource:** `pingdirectory_password_generator` (#251)
 * **New Resource:** `pingdirectory_replication_server` (#252)
 
+### ENHANCEMENTS
+* Added config validators for `pingdirectory_delegated_admin_rights`, `pingdirectory_rest_resource_type`, and `pingdirectory_web_application_extension` (#253)
+
 ### DEPENDENCIES
 * `Bump github.com/hashicorp/terraform-plugin-framework from 1.3.0 to 1.3.1` (#236)
 * `Bump github.com/golangci/golangci-lint from 1.53.2 to 1.53.3` (#237)
