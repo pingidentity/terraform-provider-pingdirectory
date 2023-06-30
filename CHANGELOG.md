@@ -1,4 +1,6 @@
-# v0.8.0 (Unreleased)
+# v0.9.0 (Unreleased)
+
+# v0.8.0 June 30 2023
 
 ### FEATURES
 * **New Resource:** `pingdirectory_custom_logged_stats` (#240)
