@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -155,7 +156,7 @@ func (r *defaultExternalServerResource) Schema(ctx context.Context, req resource
 
 func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a External Server.",
+		Description: "Manages a External Server. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of External Server resource. Options are ['smtp', 'nokia-ds', 'ping-identity-ds', 'active-directory', 'jdbc', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server', 'opendj', 'ldap', 'ping-one-http', 'http', 'oracle-unified-directory', 'conjur', 'amazon-aws', 'vault']",
@@ -181,7 +182,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				Optional:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -381,7 +382,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"authentication_method": schema.StringAttribute{
-				Description: "The mechanism to use to authenticate to the target server.",
+				Description: "The mechanism to use to authenticate to the target server. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -524,16 +525,33 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 
 // Validate that any restrictions are met in the plan
 func (r *externalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_external_server")
 }
 
 func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanExternalServer(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_external_server")
 }
 
-func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+		providerConfig.ProductVersion, resourceName)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	var model externalServerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
+		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
 	if internaltypes.IsDefined(model.SmtpConnectionProperties) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'smtp_connection_properties' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'smtp_connection_properties', the 'type' attribute must be one of ['smtp']")

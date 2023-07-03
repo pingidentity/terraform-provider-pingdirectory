@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -127,7 +128,7 @@ func (r *defaultPasswordStorageSchemeResource) Schema(ctx context.Context, req r
 
 func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Password Storage Scheme.",
+		Description: "Manages a Password Storage Scheme. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Password Storage Scheme resource. Options are ['salted-sha256', 'argon2d', 'crypt', 'argon2i', 'base64', 'salted-md5', 'aes', 'argon2id', 'vault', 'third-party', 'argon2', 'third-party-enhanced', 'pbkdf2', 'rc4', 'salted-sha384', 'triple-des', 'clear', 'aes-256', 'bcrypt', 'blowfish', 'sha1', 'amazon-secrets-manager', 'azure-key-vault', 'conjur', 'salted-sha1', 'salted-sha512', 'scrypt', 'md5']",
@@ -176,7 +177,7 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -309,16 +310,30 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 
 // Validate that any restrictions are met in the plan
 func (r *passwordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_storage_scheme")
 }
 
 func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_password_storage_scheme")
 }
 
-func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+		providerConfig.ProductVersion, resourceName)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	var model passwordStorageSchemeResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
 	if internaltypes.IsDefined(model.MemoryUsageKb) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
 		resp.Diagnostics.AddError("Attribute 'memory_usage_kb' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'memory_usage_kb', the 'type' attribute must be one of ['argon2', 'argon2id', 'argon2d', 'argon2i']")

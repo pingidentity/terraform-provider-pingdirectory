@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -237,7 +238,7 @@ func (r *defaultHttpServletExtensionResource) Schema(ctx context.Context, req re
 
 func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Http Servlet Extension.",
+		Description: "Manages a Http Servlet Extension. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of HTTP Servlet Extension resource. Options are ['delegated-admin', 'quickstart', 'availability-state', 'prometheus-monitoring', 'velocity', 'consent', 'ldap-mapped-scim', 'groovy-scripted', 'file-server', 'config', 'scim2', 'directory-rest-api', 'third-party']",
@@ -826,14 +827,16 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan
 func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_servlet_extension")
 }
 
 func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_http_servlet_extension")
 }
 
-func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+		providerConfig.ProductVersion, resourceName)
 	var model defaultHttpServletExtensionResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "file-server" {
