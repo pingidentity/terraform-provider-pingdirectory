@@ -128,7 +128,7 @@ func (r *defaultPasswordStorageSchemeResource) Schema(ctx context.Context, req r
 
 func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Password Storage Scheme. Supported in PingDirectory product version 9.2.0.0+.",
+		Description: "Manages a Password Storage Scheme.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Password Storage Scheme resource. Options are ['salted-sha256', 'argon2d', 'crypt', 'argon2i', 'base64', 'salted-md5', 'aes', 'argon2id', 'vault', 'third-party', 'argon2', 'third-party-enhanced', 'pbkdf2', 'rc4', 'salted-sha384', 'triple-des', 'clear', 'aes-256', 'bcrypt', 'blowfish', 'sha1', 'amazon-secrets-manager', 'azure-key-vault', 'conjur', 'salted-sha1', 'salted-sha512', 'scrypt', 'md5']",
@@ -318,8 +318,20 @@ func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, r
 }
 
 func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		providerConfig.ProductVersion, resourceName)
+	var model passwordStorageSchemeResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2d" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2d\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2i" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2i\"")
+	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -329,8 +341,6 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 		// Every remaining property is supported
 		return
 	}
-	var model passwordStorageSchemeResourceModel
-	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}

@@ -156,7 +156,7 @@ func (r *defaultExternalServerResource) Schema(ctx context.Context, req resource
 
 func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a External Server. Supported in PingDirectory product version 9.2.0.0+.",
+		Description: "Manages a External Server.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of External Server resource. Options are ['smtp', 'nokia-ds', 'ping-identity-ds', 'active-directory', 'jdbc', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server', 'opendj', 'ldap', 'ping-one-http', 'http', 'oracle-unified-directory', 'conjur', 'amazon-aws', 'vault']",
@@ -533,8 +533,12 @@ func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req reso
 }
 
 func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		providerConfig.ProductVersion, resourceName)
+	var model externalServerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "http-proxy" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"http_proxy\"")
+	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -544,8 +548,6 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 		// Every remaining property is supported
 		return
 	}
-	var model externalServerResourceModel
-	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}

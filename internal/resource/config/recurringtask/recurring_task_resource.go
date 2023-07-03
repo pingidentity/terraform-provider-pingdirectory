@@ -181,7 +181,7 @@ func (r *defaultRecurringTaskResource) Schema(ctx context.Context, req resource.
 
 func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Recurring Task. Supported in PingDirectory product version 9.2.0.0+.",
+		Description: "Manages a Recurring Task.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Recurring Task resource. Options are ['generate-server-profile', 'leave-lockdown-mode', 'backup', 'delay', 'statically-defined', 'collect-support-data', 'ldif-export', 'enter-lockdown-mode', 'audit-data-security', 'exec', 'file-retention', 'third-party']",
@@ -757,10 +757,12 @@ func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resou
 }
 
 func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		providerConfig.ProductVersion, resourceName)
 	var model recurringTaskResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "audit-data-security" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"audit_data_security\"")
+	}
 	if internaltypes.IsDefined(model.Reason) && model.Type.ValueString() != "leave-lockdown-mode" && model.Type.ValueString() != "enter-lockdown-mode" {
 		resp.Diagnostics.AddError("Attribute 'reason' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'reason', the 'type' attribute must be one of ['leave-lockdown-mode', 'enter-lockdown-mode']")

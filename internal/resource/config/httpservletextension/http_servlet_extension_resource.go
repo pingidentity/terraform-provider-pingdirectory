@@ -238,7 +238,7 @@ func (r *defaultHttpServletExtensionResource) Schema(ctx context.Context, req re
 
 func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Http Servlet Extension. Supported in PingDirectory product version 9.2.0.0+.",
+		Description: "Manages a Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of HTTP Servlet Extension resource. Options are ['delegated-admin', 'quickstart', 'availability-state', 'prometheus-monitoring', 'velocity', 'consent', 'ldap-mapped-scim', 'groovy-scripted', 'file-server', 'config', 'scim2', 'directory-rest-api', 'third-party']",
@@ -835,10 +835,12 @@ func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		providerConfig.ProductVersion, resourceName)
 	var model defaultHttpServletExtensionResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "prometheus-monitoring" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"prometheus_monitoring\"")
+	}
 	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "file-server" {
 		resp.Diagnostics.AddError("Attribute 'id_token_validator' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'id_token_validator', the 'type' attribute must be one of ['file-server']")
