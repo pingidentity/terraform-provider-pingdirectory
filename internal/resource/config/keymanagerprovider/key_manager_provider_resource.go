@@ -93,6 +93,7 @@ type keyManagerProviderResourceModel struct {
 	Pkcs11ProviderClass             types.String `tfsdk:"pkcs11_provider_class"`
 	Pkcs11ProviderConfigurationFile types.String `tfsdk:"pkcs11_provider_configuration_file"`
 	Pkcs11KeyStoreType              types.String `tfsdk:"pkcs11_key_store_type"`
+	Pkcs11MaxCacheDuration          types.String `tfsdk:"pkcs11_max_cache_duration"`
 	KeyStoreFile                    types.String `tfsdk:"key_store_file"`
 	KeyStoreType                    types.String `tfsdk:"key_store_type"`
 	KeyStorePin                     types.String `tfsdk:"key_store_pin"`
@@ -159,6 +160,14 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 			},
 			"pkcs11_key_store_type": schema.StringAttribute{
 				Description: "The key store type to use when obtaining an instance of a key store for interacting with a PKCS #11 token.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"pkcs11_max_cache_duration": schema.StringAttribute{
+				Description: "The maximum length of time that data retrieved from PKCS #11 tokens may be cached for reuse. Caching might be necessary if there is noticable latency when accessing the token, for example if the token uses a remote key store. A value of zero milliseconds indicates that no caching should be performed.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -286,6 +295,10 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 		resp.Diagnostics.AddError("Attribute 'private_key_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'private_key_pin_file', the 'type' attribute must be one of ['file-based']")
 	}
+	if internaltypes.IsDefined(model.Pkcs11MaxCacheDuration) && model.Type.ValueString() != "pkcs11" {
+		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'pkcs11_max_cache_duration', the 'type' attribute must be one of ['pkcs11']")
+	}
 }
 
 // Add optional fields to create request for file-based key-manager-provider
@@ -337,6 +350,10 @@ func addOptionalPkcs11KeyManagerProviderFields(ctx context.Context, addRequest *
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Pkcs11KeyStoreType) {
 		addRequest.Pkcs11KeyStoreType = plan.Pkcs11KeyStoreType.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Pkcs11MaxCacheDuration) {
+		addRequest.Pkcs11MaxCacheDuration = plan.Pkcs11MaxCacheDuration.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.KeyStorePin) {
@@ -419,6 +436,9 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
+	state.Pkcs11MaxCacheDuration = internaltypes.StringTypeOrNil(r.Pkcs11MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.Pkcs11MaxCacheDuration))
+	config.CheckMismatchedPDFormattedAttributes("pkcs11_max_cache_duration",
+		expectedValues.Pkcs11MaxCacheDuration, state.Pkcs11MaxCacheDuration, diagnostics)
 	// Obscured values aren't returned from the PD Configuration API - just use the expected value
 	state.KeyStorePin = expectedValues.KeyStorePin
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
@@ -449,6 +469,7 @@ func createKeyManagerProviderOperations(plan keyManagerProviderResourceModel, st
 	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11ProviderClass, state.Pkcs11ProviderClass, "pkcs11-provider-class")
 	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11ProviderConfigurationFile, state.Pkcs11ProviderConfigurationFile, "pkcs11-provider-configuration-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11KeyStoreType, state.Pkcs11KeyStoreType, "pkcs11-key-store-type")
+	operations.AddStringOperationIfNecessary(&ops, plan.Pkcs11MaxCacheDuration, state.Pkcs11MaxCacheDuration, "pkcs11-max-cache-duration")
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyStoreFile, state.KeyStoreFile, "key-store-file")
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyStoreType, state.KeyStoreType, "key-store-type")
 	operations.AddStringOperationIfNecessary(&ops, plan.KeyStorePin, state.KeyStorePin, "key-store-pin")
