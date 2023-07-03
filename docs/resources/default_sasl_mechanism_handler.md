@@ -36,7 +36,7 @@ Manages a Sasl Mechanism Handler.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party SASL Mechanism Handler. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party SASL Mechanism Handler.
 - `gssapi_role` (String) Specifies the role that should be declared for the server in the generated JAAS configuration file.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service. Supported in PingDirectory product version 9.2.0.0+.
 - `id_token_validator` (Set of String) An ID token validator that will ensure that each presented OpenID Connect ID token is authentic and trustworthy, and that will map the token to a local entry.
 - `identity_mapper` (String) The identity mapper that should be used to identify the entry associated with the username provided in the bind request.
 - `jaas_config_file` (String) Specifies the path to a JAAS (Java Authentication and Authorization Service) configuration file that provides the information that the JVM should use for Kerberos processing.

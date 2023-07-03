@@ -33,7 +33,7 @@ Manages a Cipher Stream Provider.
 - `encryption_metadata_file` (String) The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Cipher Stream Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Cipher Stream Provider.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.
 - `key_store_pin` (String, Sensitive) The clear-text user PIN needed to interact with the PKCS #11 token.
 - `key_store_pin_environment_variable` (String) The name of an environment variable whose value is the user PIN needed to interact with the PKCS #11 token. The environment variable must be defined and must contain a clear-text representation of the PIN.
 - `key_store_pin_file` (String) The path to a file containing the user PIN needed to interact with the PKCS #11 token. The file must exist and must contain exactly one line with a clear-text representation of the PIN.

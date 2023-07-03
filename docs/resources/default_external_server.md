@@ -21,7 +21,7 @@ Manages a External Server.
 ### Optional
 
 - `abandon_on_timeout` (Boolean) Indicates whether to send an abandon request for an operation for which a response timeout is encountered. A request which has timed out on one server may be retried on another server regardless of whether an abandon request is sent, but if the initial attempt is not abandoned then a long-running operation may unnecessarily continue to consume processing resources on the initial server.
-- `authentication_method` (String) The mechanism to use to authenticate to the target server.
+- `authentication_method` (String) The mechanism to use to authenticate to the target server. Supported in PingDirectory product version 9.2.0.0+.
 - `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.
 - `aws_region_name` (String) The name of the AWS region containing the resources that will be accessed.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided.
@@ -39,7 +39,7 @@ Manages a External Server.
 - `description` (String) A description for this External Server
 - `health_check_connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.
 - `hostname_verification_method` (String) The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.
 - `initial_connections` (Number) The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
 - `jdbc_connection_properties` (Set of String) Specifies the connection properties for the JDBC datasource.
 - `jdbc_driver_type` (String) Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.
