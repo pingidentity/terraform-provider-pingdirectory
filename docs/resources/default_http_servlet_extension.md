@@ -27,6 +27,7 @@ Manages a Http Servlet Extension.
 - `allowed_authentication_type` (Set of String) The types of authentication that may be used to authenticate to the file servlet.
 - `allowed_control` (Set of String) Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.
 - `always_include_monitor_entry_name_label` (Boolean) Indicates whether generated metrics should always include a "monitor_entry" label whose value is the name of the monitor entry from which the metric was obtained.
+- `always_use_permissive_modify` (Boolean) Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control. Supported in PingDirectory product version 9.3.0.0+.
 - `audience` (String) A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.
 - `available_status_code` (Number) Specifies the HTTP status code that the servlet should return if the server considers itself to be available.
 - `base_context_path` (String) Specifies the base context path that HTTP clients should use to access this servlet. The value must start with a forward slash and must represent a valid HTTP context path.

@@ -21,6 +21,7 @@ Manages a Monitor Provider.
 ### Optional
 
 - `alert_frequency` (String) Specifies the length of time between administrative alerts generated in response to lack of usable disk space. Administrative alerts will be generated whenever the amount of usable space drops below any threshold, and they will also be generated at regular intervals as long as the amount of usable space remains below the threshold value. A value of zero indicates that alerts should only be generated when the amount of usable space drops below a configured threshold.
+- `check_frequency` (String) The frequency with which this monitor provider should confirm the ability to access the server's encryption settings database.
 - `description` (String) A description for this Monitor Provider
 - `disk_devices` (Set of String) Specifies which disk devices to monitor for I/O activity. Should be the device name as displayed by iostat -d.
 - `enabled` (Boolean) Indicates whether the Monitor Provider is enabled for use.
@@ -33,8 +34,10 @@ Manages a Monitor Provider.
 - `network_devices` (Set of String) Specifies which network interfaces to monitor for I/O activity. Should be the device name as displayed by netstat -i.
 - `out_of_space_error_percent_threshold` (Number) Specifies the out of space error threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will shut itself down to avoid problems that may occur from complete exhaustion of usable space.
 - `out_of_space_error_size_threshold` (String) Specifies the out of space error threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will shut itself down to avoid problems that may occur from complete exhaustion of usable space.
+- `prolonged_outage_behavior` (String) The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.
+- `prolonged_outage_duration` (String) The minimum length of time that an outage should persist before it is considered a prolonged outage. If an outage lasts at least as long as this duration, then the server will take the action indicated by the prolonged-outage-behavior property.
 - `system_utilization_monitor_log_directory` (String) Specifies a relative or absolute path to the directory on the local filesystem containing the log files used by the system utilization monitor. The path must exist, and it must be a writable directory by the server process.
-- `type` (String) The type of Monitor Provider resource. Options are ['general', 'memory-usage', 'stack-trace', 'disk-space-usage', 'system-info', 'custom', 'active-operations', 'ssl-context', 'client-connection', 'version', 'host-system', 'third-party']
+- `type` (String) The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']
 
 ### Read-Only
 

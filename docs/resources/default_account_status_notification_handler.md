@@ -20,8 +20,12 @@ Manages a Account Status Notification Handler.
 
 ### Optional
 
+- `account_authenticated_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property. Supported in PingDirectory product version 9.3.0.0+.
+- `account_authentication_notification_result_criteria` (String) A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler. Supported in PingDirectory product version 9.3.0.0+.
 - `account_created_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that a new account is created in an add request that matches the criteria provided in the account-creation-notification-request-criteria property.
 - `account_creation_notification_request_criteria` (String) A request criteria object that identifies which add requests should result in account creation notifications for this handler.
+- `account_deleted_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property. Supported in PingDirectory product version 9.3.0.0+.
+- `account_deletion_notification_request_criteria` (String) A request criteria object that identifies which delete requests should result in account deletion notifications for this handler. Supported in PingDirectory product version 9.3.0.0+.
 - `account_disabled_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that a user's account is disabled by an administrator.
 - `account_enabled_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that a user's account is enabled by an administrator.
 - `account_expired_message_template` (String) The path to a file containing the template to use to generate the email message to send in the event that an authentication attempt fails because the account has an expiration time that is in the past.

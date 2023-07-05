@@ -33,7 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version        = "9.3.0.0"
 }
 
 resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
@@ -51,13 +51,16 @@ resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
 
 - `enabled` (Boolean) Indicates whether the Monitor Provider is enabled for use.
 - `id` (String) Name of this object.
-- `type` (String) The type of Monitor Provider resource. Options are ['general', 'memory-usage', 'stack-trace', 'disk-space-usage', 'system-info', 'custom', 'active-operations', 'ssl-context', 'client-connection', 'version', 'host-system', 'third-party']
+- `type` (String) The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']
 
 ### Optional
 
+- `check_frequency` (String) The frequency with which this monitor provider should confirm the ability to access the server's encryption settings database.
 - `description` (String) A description for this Monitor Provider
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Monitor Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Monitor Provider.
+- `prolonged_outage_behavior` (String) The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.
+- `prolonged_outage_duration` (String) The minimum length of time that an outage should persist before it is considered a prolonged outage. If an outage lasts at least as long as this duration, then the server will take the action indicated by the prolonged-outage-behavior property.
 
 ### Read-Only
 

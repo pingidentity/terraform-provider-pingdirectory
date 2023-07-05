@@ -23,7 +23,7 @@ Manages a Password Policy.
 - `account_status_notification_handler` (Set of String) Specifies the names of the account status notification handlers that are used with the associated password storage scheme.
 - `allow_expired_password_changes` (Boolean) Indicates whether a user whose password is expired is still allowed to change that password using the password modify extended operation.
 - `allow_multiple_password_values` (Boolean) Indicates whether user entries can have multiple distinct values for the password attribute.
-- `allow_pre_encoded_passwords` (Boolean) Indicates whether users can change their passwords by providing a pre-encoded value.
+- `allow_pre_encoded_passwords` (String) Indicates whether users can change their passwords by providing a pre-encoded value. Supported in PingDirectory product version 9.3.0.0+.
 - `allow_user_password_changes` (Boolean) Indicates whether users can change their own passwords.
 - `allowed_password_reset_token_use_condition` (Set of String) The set of conditions under which a user governed by this Password Policy will be permitted to generate a password reset token via the deliver password reset token extended operation, and to use that token in lieu of the current password via the password modify extended operation.
 - `bind_password_validation_failure_action` (String) Specifies the behavior that the server should exhibit if a bind password fails validation by one or more of the configured bind password validators.

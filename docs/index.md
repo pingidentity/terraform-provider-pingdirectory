@@ -60,7 +60,7 @@ provider "pingdirectory" {
   https_host = "https://localhost:1443"
   # Warning: The insecure_trust_all_tls attribute configures the provider to trust any certificate presented by the PingDirectory server.
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version        = "9.3.0.0"
 }
 
 # Create a sample location

@@ -42,3 +42,21 @@ jobs:
           TF_ACC: '1'
           CONFIG: ${{ secrets.Config }}
           PINGDIRECTORY_TAG: "9.2.0.0-latest"
+  ping_directory_nine_three:
+    name: Ping Directory 9.3.0.0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.2.*'
+          terraform_wrapper: false
+      - run: mkdir -p $HOME/.pingidentity/ && echo "$CONFIG" >> $HOME/.pingidentity/config && grep -E "[a-zA-Z]" $HOME/.pingidentity/config || exit 1 && make testacccomplete && make removetestcontainer
+        env:
+          TF_ACC: '1'
+          CONFIG: ${{ secrets.Config }}
+          PINGDIRECTORY_TAG: "9.3.0.0-latest"
