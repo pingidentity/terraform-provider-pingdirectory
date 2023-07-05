@@ -394,35 +394,8 @@ func (r *defaultCipherStreamProviderResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model cipherStreamProviderResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.IterationCount) {
-		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.EncryptionMetadataFile) {
-		resp.Diagnostics.AddError("Attribute 'encryption_metadata_file' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.SecretFieldName) && model.Type.ValueString() != "amazon-secrets-manager" {
 		resp.Diagnostics.AddError("Attribute 'secret_field_name' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'secret_field_name', the 'type' attribute must be one of ['amazon-secrets-manager']")
@@ -574,6 +547,33 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.KeyStorePinFile) && model.Type.ValueString() != "pkcs11" {
 		resp.Diagnostics.AddError("Attribute 'key_store_pin_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'key_store_pin_file', the 'type' attribute must be one of ['pkcs11']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.IterationCount) {
+		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.EncryptionMetadataFile) {
+		resp.Diagnostics.AddError("Attribute 'encryption_metadata_file' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

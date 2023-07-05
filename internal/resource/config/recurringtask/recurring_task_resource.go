@@ -759,10 +759,6 @@ func (r *defaultRecurringTaskResource) ModifyPlan(ctx context.Context, req resou
 func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model recurringTaskResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "audit-data-security" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"audit_data_security\"")
-	}
 	if internaltypes.IsDefined(model.Reason) && model.Type.ValueString() != "leave-lockdown-mode" && model.Type.ValueString() != "enter-lockdown-mode" {
 		resp.Diagnostics.AddError("Attribute 'reason' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'reason', the 'type' attribute must be one of ['leave-lockdown-mode', 'enter-lockdown-mode']")
@@ -1038,6 +1034,19 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 	if internaltypes.IsDefined(model.Comment) && model.Type.ValueString() != "collect-support-data" {
 		resp.Diagnostics.AddError("Attribute 'comment' not supported by pingdirectory_recurring_task resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'comment', the 'type' attribute must be one of ['collect-support-data']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "audit-data-security" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"audit_data_security\"")
 	}
 }
 

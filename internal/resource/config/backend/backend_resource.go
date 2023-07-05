@@ -1204,26 +1204,8 @@ func (r *defaultBackendResource) ModifyPlan(ctx context.Context, req resource.Mo
 }
 
 func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MaintainConfigArchive) {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.DbDirectoryPermissions) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
 		resp.Diagnostics.AddError("Attribute 'db_directory_permissions' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'db_directory_permissions', the 'type' attribute must be one of ['changelog', 'local-db']")
@@ -1655,6 +1637,24 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	if internaltypes.IsDefined(model.SetDegradedAlertForUntrustedIndex) && model.Type.ValueString() != "local-db" {
 		resp.Diagnostics.AddError("Attribute 'set_degraded_alert_for_untrusted_index' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'set_degraded_alert_for_untrusted_index', the 'type' attribute must be one of ['local-db']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaintainConfigArchive) {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

@@ -261,20 +261,8 @@ func (r *defaultOtpDeliveryMechanismResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanOtpDeliveryMechanism(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model otpDeliveryMechanismResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.TwilioAuthTokenPassphraseProvider) && model.Type.ValueString() != "twilio" {
 		resp.Diagnostics.AddError("Attribute 'twilio_auth_token_passphrase_provider' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'twilio_auth_token_passphrase_provider', the 'type' attribute must be one of ['twilio']")
@@ -342,6 +330,18 @@ func modifyPlanOtpDeliveryMechanism(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.PhoneNumberJSONObjectFilter) && model.Type.ValueString() != "twilio" {
 		resp.Diagnostics.AddError("Attribute 'phone_number_json_object_filter' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'phone_number_json_object_filter', the 'type' attribute must be one of ['twilio']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

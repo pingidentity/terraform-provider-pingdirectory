@@ -263,20 +263,8 @@ func (r *defaultPassphraseProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanPassphraseProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model passphraseProviderResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.EnvironmentVariable) && model.Type.ValueString() != "environment-variable" {
 		resp.Diagnostics.AddError("Attribute 'environment_variable' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'environment_variable', the 'type' attribute must be one of ['environment-variable']")
@@ -356,6 +344,18 @@ func modifyPlanPassphraseProvider(ctx context.Context, req resource.ModifyPlanRe
 	if internaltypes.IsDefined(model.MaxCacheDuration) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "vault" {
 		resp.Diagnostics.AddError("Attribute 'max_cache_duration' not supported by pingdirectory_passphrase_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'max_cache_duration', the 'type' attribute must be one of ['amazon-secrets-manager', 'azure-key-vault', 'file-based', 'conjur', 'vault']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

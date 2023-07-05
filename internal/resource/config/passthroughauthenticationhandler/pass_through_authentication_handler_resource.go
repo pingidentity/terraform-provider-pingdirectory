@@ -370,32 +370,6 @@ func (r *defaultPassThroughAuthenticationHandlerResource) ModifyPlan(ctx context
 func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model passThroughAuthenticationHandlerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "ping-one" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"ping_one\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "aggregate" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"aggregate\"")
-	}
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.RequestCriteria) {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.ConnectionCriteria) {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.AdditionalUserMappingSCIMFilter) && model.Type.ValueString() != "ping-one" {
 		resp.Diagnostics.AddError("Attribute 'additional_user_mapping_scim_filter' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'additional_user_mapping_scim_filter', the 'type' attribute must be one of ['ping-one']")
@@ -499,6 +473,32 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 	if internaltypes.IsDefined(model.BindDNPattern) && model.Type.ValueString() != "ldap" {
 		resp.Diagnostics.AddError("Attribute 'bind_dn_pattern' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'bind_dn_pattern', the 'type' attribute must be one of ['ldap']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "ping-one" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"ping_one\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "aggregate" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"aggregate\"")
+	}
+	if internaltypes.IsNonEmptyString(model.RequestCriteria) {
+		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.ConnectionCriteria) {
+		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

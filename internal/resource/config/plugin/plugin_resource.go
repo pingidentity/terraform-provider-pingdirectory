@@ -1501,22 +1501,6 @@ func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.Mod
 func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model defaultPluginResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "coalesce-modifications" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"coalesce_modifications\"")
-	}
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.AdditionalUserMappingSCIMFilter) && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" {
 		resp.Diagnostics.AddError("Attribute 'additional_user_mapping_scim_filter' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'additional_user_mapping_scim_filter', the 'resource_type' attribute must be one of ['ping-one-pass-through-authentication']")
@@ -2108,6 +2092,31 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 	if internaltypes.IsDefined(model.InvokeGCTimeUtc) && model.ResourceType.ValueString() != "periodic-gc" {
 		resp.Diagnostics.AddError("Attribute 'invoke_gc_time_utc' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'invoke_gc_time_utc', the 'resource_type' attribute must be one of ['periodic-gc']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "coalesce-modifications" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"coalesce_modifications\"")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

@@ -276,10 +276,6 @@ func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req res
 func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model defaultMonitorProviderResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "encryption-settings-database-accessibility" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"encryption_settings_database_accessibility\"")
-	}
 	if internaltypes.IsDefined(model.ProlongedOutageDuration) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
 		resp.Diagnostics.AddError("Attribute 'prolonged_outage_duration' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'prolonged_outage_duration', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
@@ -339,6 +335,19 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 	if internaltypes.IsDefined(model.NetworkDevices) && model.Type.ValueString() != "host-system" {
 		resp.Diagnostics.AddError("Attribute 'network_devices' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'network_devices', the 'type' attribute must be one of ['host-system']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "encryption-settings-database-accessibility" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"encryption_settings_database_accessibility\"")
 	}
 }
 

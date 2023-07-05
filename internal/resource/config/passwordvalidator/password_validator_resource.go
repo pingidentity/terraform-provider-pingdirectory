@@ -507,26 +507,6 @@ func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req r
 func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model passwordValidatorResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "utf-8" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"utf_8\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "disallowed-characters" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"disallowed_characters\"")
-	}
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.CharacterSet) && model.Type.ValueString() != "character-set" && model.Type.ValueString() != "repeated-characters" {
 		resp.Diagnostics.AddError("Attribute 'character_set' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'character_set', the 'type' attribute must be one of ['character-set', 'repeated-characters']")
@@ -694,6 +674,35 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 	if internaltypes.IsDefined(model.AllowUnknownCharacters) && model.Type.ValueString() != "utf-8" {
 		resp.Diagnostics.AddError("Attribute 'allow_unknown_characters' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'allow_unknown_characters', the 'type' attribute must be one of ['utf-8']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "utf-8" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"utf_8\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "disallowed-characters" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"disallowed_characters\"")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

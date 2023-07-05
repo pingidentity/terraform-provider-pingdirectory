@@ -607,10 +607,6 @@ func (r *defaultResultCriteriaResource) ModifyPlan(ctx context.Context, req reso
 func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model resultCriteriaResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "successful-bind" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
-			providerConfig.ProductVersion, resourceName+" with type \"successful_bind\"")
-	}
 	if internaltypes.IsDefined(model.SearchEntryReturnedCriteria) && model.Type.ValueString() != "simple" {
 		resp.Diagnostics.AddError("Attribute 'search_entry_returned_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'search_entry_returned_criteria', the 'type' attribute must be one of ['simple']")
@@ -806,6 +802,19 @@ func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanReques
 	if internaltypes.IsDefined(model.SearchReferenceReturnedCount) && model.Type.ValueString() != "simple" {
 		resp.Diagnostics.AddError("Attribute 'search_reference_returned_count' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'search_reference_returned_count', the 'type' attribute must be one of ['simple']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "successful-bind" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"successful_bind\"")
 	}
 }
 

@@ -242,20 +242,8 @@ func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model keyManagerProviderResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.PrivateKeyPinPassphraseProvider) && model.Type.ValueString() != "file-based" {
 		resp.Diagnostics.AddError("Attribute 'private_key_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'private_key_pin_passphrase_provider', the 'type' attribute must be one of ['file-based']")
@@ -311,6 +299,18 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 	if internaltypes.IsDefined(model.Pkcs11MaxCacheDuration) && model.Type.ValueString() != "pkcs11" {
 		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'pkcs11_max_cache_duration', the 'type' attribute must be one of ['pkcs11']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
+		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

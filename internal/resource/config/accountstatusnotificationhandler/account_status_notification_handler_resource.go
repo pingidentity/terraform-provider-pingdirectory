@@ -470,29 +470,8 @@ func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context
 }
 
 func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model accountStatusNotificationHandlerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.AccountAuthenticationNotificationResultCriteria) {
-		resp.Diagnostics.AddError("Attribute 'account_authentication_notification_result_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AccountDeletionNotificationRequestCriteria) {
-		resp.Diagnostics.AddError("Attribute 'account_deletion_notification_request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AccountAuthenticatedMessageTemplate) {
-		resp.Diagnostics.AddError("Attribute 'account_authenticated_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AccountDeletedMessageTemplate) {
-		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.SenderAddress) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'sender_address' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'sender_address', the 'type' attribute must be one of ['smtp']")
@@ -620,6 +599,27 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 	if internaltypes.IsDefined(model.SendMessageWithoutEndUserAddress) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'send_message_without_end_user_address' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'send_message_without_end_user_address', the 'type' attribute must be one of ['smtp']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.AccountAuthenticationNotificationResultCriteria) {
+		resp.Diagnostics.AddError("Attribute 'account_authentication_notification_result_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AccountDeletionNotificationRequestCriteria) {
+		resp.Diagnostics.AddError("Attribute 'account_deletion_notification_request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AccountAuthenticatedMessageTemplate) {
+		resp.Diagnostics.AddError("Attribute 'account_authenticated_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AccountDeletedMessageTemplate) {
+		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

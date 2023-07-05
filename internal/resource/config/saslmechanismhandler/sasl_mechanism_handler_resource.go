@@ -461,20 +461,8 @@ func (r *defaultSaslMechanismHandlerResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model defaultSaslMechanismHandlerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "oauth-bearer" {
 		resp.Diagnostics.AddError("Attribute 'id_token_validator' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'id_token_validator', the 'type' attribute must be one of ['oauth-bearer']")
@@ -618,6 +606,18 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.AnyRequiredScope) && model.Type.ValueString() != "oauth-bearer" {
 		resp.Diagnostics.AddError("Attribute 'any_required_scope' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'any_required_scope', the 'type' attribute must be one of ['oauth-bearer']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

@@ -535,25 +535,6 @@ func (r *defaultExternalServerResource) ModifyPlan(ctx context.Context, req reso
 func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model externalServerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "http-proxy" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"http_proxy\"")
-	}
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
-		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.SmtpConnectionProperties) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'smtp_connection_properties' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'smtp_connection_properties', the 'type' attribute must be one of ['smtp']")
@@ -757,6 +738,25 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	if internaltypes.IsDefined(model.TransportMechanism) && model.Type.ValueString() != "syslog" {
 		resp.Diagnostics.AddError("Attribute 'transport_mechanism' not supported by pingdirectory_external_server resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'transport_mechanism', the 'type' attribute must be one of ['syslog']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "http-proxy" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"http_proxy\"")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
+		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
