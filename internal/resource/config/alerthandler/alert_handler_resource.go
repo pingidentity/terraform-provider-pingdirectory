@@ -392,20 +392,8 @@ func (r *defaultAlertHandlerResource) ModifyPlan(ctx context.Context, req resour
 }
 
 func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model defaultAlertHandlerResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.SenderAddress) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'sender_address' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'sender_address', the 'type' attribute must be one of ['smtp']")
@@ -493,6 +481,18 @@ func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest,
 	if internaltypes.IsDefined(model.RecipientPhoneNumber) && model.Type.ValueString() != "twilio" {
 		resp.Diagnostics.AddError("Attribute 'recipient_phone_number' not supported by pingdirectory_alert_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'recipient_phone_number', the 'type' attribute must be one of ['twilio']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

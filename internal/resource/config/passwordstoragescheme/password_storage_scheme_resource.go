@@ -320,30 +320,6 @@ func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, r
 func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model passwordStorageSchemeResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2d" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"argon2d\"")
-	}
-	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2i" {
-		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-			providerConfig.ProductVersion, resourceName+" with type \"argon2i\"")
-	}
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MemoryUsageKb) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
 		resp.Diagnostics.AddError("Attribute 'memory_usage_kb' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'memory_usage_kb', the 'type' attribute must be one of ['argon2', 'argon2id', 'argon2d', 'argon2i']")
@@ -435,6 +411,30 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 	if internaltypes.IsDefined(model.BcryptCostFactor) && model.Type.ValueString() != "bcrypt" {
 		resp.Diagnostics.AddError("Attribute 'bcrypt_cost_factor' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'bcrypt_cost_factor', the 'type' attribute must be one of ['bcrypt']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2d" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2d\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2i" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2i\"")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

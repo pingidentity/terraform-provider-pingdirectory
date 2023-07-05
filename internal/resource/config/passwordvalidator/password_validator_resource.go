@@ -462,20 +462,8 @@ func (r *defaultPasswordValidatorResource) ModifyPlan(ctx context.Context, req r
 }
 
 func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
 	var model passwordValidatorResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.CharacterSet) && model.Type.ValueString() != "character-set" && model.Type.ValueString() != "repeated-characters" {
 		resp.Diagnostics.AddError("Attribute 'character_set' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'character_set', the 'type' attribute must be one of ['character-set', 'repeated-characters']")
@@ -619,6 +607,18 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 	if internaltypes.IsDefined(model.TestReversedPassword) && model.Type.ValueString() != "attribute-value" && model.Type.ValueString() != "dictionary" {
 		resp.Diagnostics.AddError("Attribute 'test_reversed_password' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'test_reversed_password', the 'type' attribute must be one of ['attribute-value', 'dictionary']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
