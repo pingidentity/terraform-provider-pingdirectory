@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -127,6 +128,7 @@ type cipherStreamProviderResourceModel struct {
 	AwsSecretAccessKey              types.String `tfsdk:"aws_secret_access_key"`
 	AwsRegionName                   types.String `tfsdk:"aws_region_name"`
 	KmsEncryptionKeyArn             types.String `tfsdk:"kms_encryption_key_arn"`
+	IterationCount                  types.Int64  `tfsdk:"iteration_count"`
 	Description                     types.String `tfsdk:"description"`
 	Enabled                         types.Bool   `tfsdk:"enabled"`
 }
@@ -323,7 +325,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 			},
 			"encryption_metadata_file": schema.StringAttribute{
-				Description: "The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.",
+				Description: "The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. Supported in PingDirectory product version 9.3.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -350,6 +352,14 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 			"kms_encryption_key_arn": schema.StringAttribute{
 				Description: "The Amazon resource name (ARN) for the KMS key that will be used to encrypt the contents of the passphrase file. This key must exist, and the AWS client must have access to encrypt and decrypt data using this key.",
 				Optional:    true,
+			},
+			"iteration_count": schema.Int64Attribute{
+				Description: "The PBKDF2 iteration count that will be used when deriving the encryption key used to protect the encryption settings database. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Cipher Stream Provider",
@@ -384,7 +394,7 @@ func (r *defaultCipherStreamProviderResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
 		return
@@ -395,6 +405,21 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	}
 	var model cipherStreamProviderResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.IterationCount) {
+		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.EncryptionMetadataFile) {
+		resp.Diagnostics.AddError("Attribute 'encryption_metadata_file' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -442,6 +467,10 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 		resp.Diagnostics.AddError("Attribute 'kms_encryption_key_arn' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'kms_encryption_key_arn', the 'type' attribute must be one of ['amazon-key-management-service']")
 	}
+	if internaltypes.IsDefined(model.IterationCount) && model.Type.ValueString() != "amazon-key-management-service" && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "pkcs11" && model.Type.ValueString() != "vault" {
+		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'iteration_count', the 'type' attribute must be one of ['amazon-key-management-service', 'amazon-secrets-manager', 'azure-key-vault', 'file-based', 'conjur', 'pkcs11', 'vault']")
+	}
 	if internaltypes.IsDefined(model.KeyVaultURI) && model.Type.ValueString() != "azure-key-vault" {
 		resp.Diagnostics.AddError("Attribute 'key_vault_uri' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'key_vault_uri', the 'type' attribute must be one of ['azure-key-vault']")
@@ -482,9 +511,9 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 		resp.Diagnostics.AddError("Attribute 'aws_external_server' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'aws_external_server', the 'type' attribute must be one of ['amazon-key-management-service', 'amazon-secrets-manager']")
 	}
-	if internaltypes.IsDefined(model.EncryptionMetadataFile) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "pkcs11" {
+	if internaltypes.IsDefined(model.EncryptionMetadataFile) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "pkcs11" {
 		resp.Diagnostics.AddError("Attribute 'encryption_metadata_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_metadata_file', the 'type' attribute must be one of ['amazon-secrets-manager', 'azure-key-vault', 'conjur', 'pkcs11']")
+			"When using attribute 'encryption_metadata_file', the 'type' attribute must be one of ['amazon-secrets-manager', 'azure-key-vault', 'file-based', 'conjur', 'pkcs11']")
 	}
 	if internaltypes.IsDefined(model.Pkcs11KeyStoreType) && model.Type.ValueString() != "pkcs11" {
 		resp.Diagnostics.AddError("Attribute 'pkcs11_key_store_type' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
@@ -570,6 +599,9 @@ func addOptionalAmazonKeyManagementServiceCipherStreamProviderFields(ctx context
 	if internaltypes.IsNonEmptyString(plan.AwsRegionName) {
 		addRequest.AwsRegionName = plan.AwsRegionName.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -590,6 +622,9 @@ func addOptionalAmazonSecretsManagerCipherStreamProviderFields(ctx context.Conte
 	if internaltypes.IsNonEmptyString(plan.EncryptionMetadataFile) {
 		addRequest.EncryptionMetadataFile = plan.EncryptionMetadataFile.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -606,6 +641,9 @@ func addOptionalAzureKeyVaultCipherStreamProviderFields(ctx context.Context, add
 	if internaltypes.IsNonEmptyString(plan.EncryptionMetadataFile) {
 		addRequest.EncryptionMetadataFile = plan.EncryptionMetadataFile.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -616,6 +654,13 @@ func addOptionalAzureKeyVaultCipherStreamProviderFields(ctx context.Context, add
 func addOptionalFileBasedCipherStreamProviderFields(ctx context.Context, addRequest *client.AddFileBasedCipherStreamProviderRequest, plan cipherStreamProviderResourceModel) {
 	if internaltypes.IsDefined(plan.WaitForPasswordFile) {
 		addRequest.WaitForPasswordFile = plan.WaitForPasswordFile.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.EncryptionMetadataFile) {
+		addRequest.EncryptionMetadataFile = plan.EncryptionMetadataFile.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -636,6 +681,9 @@ func addOptionalConjurCipherStreamProviderFields(ctx context.Context, addRequest
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.EncryptionMetadataFile) {
 		addRequest.EncryptionMetadataFile = plan.EncryptionMetadataFile.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -673,6 +721,9 @@ func addOptionalPkcs11CipherStreamProviderFields(ctx context.Context, addRequest
 	if internaltypes.IsNonEmptyString(plan.EncryptionMetadataFile) {
 		addRequest.EncryptionMetadataFile = plan.EncryptionMetadataFile.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
+	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
@@ -709,6 +760,9 @@ func addOptionalVaultCipherStreamProviderFields(ctx context.Context, addRequest 
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.TrustStoreType) {
 		addRequest.TrustStoreType = plan.TrustStoreType.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IterationCount) {
+		addRequest.IterationCount = plan.IterationCount.ValueInt64Pointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.Description) {
@@ -759,6 +813,7 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Cont
 	state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
 	state.AwsRegionName = internaltypes.StringTypeOrNil(r.AwsRegionName, internaltypes.IsEmptyString(expectedValues.AwsRegionName))
 	state.KmsEncryptionKeyArn = types.StringValue(r.KmsEncryptionKeyArn)
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -775,6 +830,7 @@ func readAmazonSecretsManagerCipherStreamProviderResponse(ctx context.Context, r
 	state.SecretVersionID = internaltypes.StringTypeOrNil(r.SecretVersionID, internaltypes.IsEmptyString(expectedValues.SecretVersionID))
 	state.SecretVersionStage = internaltypes.StringTypeOrNil(r.SecretVersionStage, internaltypes.IsEmptyString(expectedValues.SecretVersionStage))
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -790,6 +846,7 @@ func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *clien
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.SecretName = types.StringValue(r.SecretName)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -802,6 +859,8 @@ func readFileBasedCipherStreamProviderResponse(ctx context.Context, r *client.Fi
 	state.Id = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
 	state.WaitForPasswordFile = internaltypes.BoolTypeOrNil(r.WaitForPasswordFile)
+	state.EncryptionMetadataFile = internaltypes.StringTypeOrNil(r.EncryptionMetadataFile, internaltypes.IsEmptyString(expectedValues.EncryptionMetadataFile))
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -825,6 +884,7 @@ func readConjurCipherStreamProviderResponse(ctx context.Context, r *client.Conju
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -844,6 +904,7 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
 	state.SslCertNickname = types.StringValue(r.SslCertNickname)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -864,6 +925,7 @@ func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultC
 	// Obscured values aren't returned from the PD Configuration API - just use the expected value
 	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
+	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -922,6 +984,7 @@ func createCipherStreamProviderOperations(plan cipherStreamProviderResourceModel
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsSecretAccessKey, state.AwsSecretAccessKey, "aws-secret-access-key")
 	operations.AddStringOperationIfNecessary(&ops, plan.AwsRegionName, state.AwsRegionName, "aws-region-name")
 	operations.AddStringOperationIfNecessary(&ops, plan.KmsEncryptionKeyArn, state.KmsEncryptionKeyArn, "kms-encryption-key-arn")
+	operations.AddInt64OperationIfNecessary(&ops, plan.IterationCount, state.IterationCount, "iteration-count")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops

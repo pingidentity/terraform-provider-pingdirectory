@@ -426,7 +426,7 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				},
 			},
 			"ssl_protocol": schema.SetAttribute{
-				Description: "Specifies the names of the SSL protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.",
+				Description: "Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
@@ -435,7 +435,7 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 				},
 			},
 			"ssl_cipher_suite": schema.SetAttribute{
-				Description: "Specifies the names of the SSL cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.",
+				Description: "Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,

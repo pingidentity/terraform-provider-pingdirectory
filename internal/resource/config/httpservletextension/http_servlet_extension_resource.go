@@ -163,6 +163,7 @@ type defaultHttpServletExtensionResourceModel struct {
 	SchemasEndpointObjectclass         types.Set    `tfsdk:"schemas_endpoint_objectclass"`
 	DefaultOperationalAttribute        types.Set    `tfsdk:"default_operational_attribute"`
 	RejectExpansionAttribute           types.Set    `tfsdk:"reject_expansion_attribute"`
+	AlwaysUsePermissiveModify          types.Bool   `tfsdk:"always_use_permissive_modify"`
 	AllowedControl                     types.Set    `tfsdk:"allowed_control"`
 	ScriptArgument                     types.Set    `tfsdk:"script_argument"`
 	OAuthTokenHandler                  types.String `tfsdk:"oauth_token_handler"`
@@ -696,6 +697,14 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				setplanmodifier.UseStateForUnknown(),
 			},
 		}
+		schemaDef.Attributes["always_use_permissive_modify"] = schema.BoolAttribute{
+			Description: "Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control. Supported in PingDirectory product version 9.3.0.0+.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.UseStateForUnknown(),
+			},
+		}
 		schemaDef.Attributes["allowed_control"] = schema.SetAttribute{
 			Description: "Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.",
 			Optional:    true,
@@ -840,6 +849,18 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "prometheus-monitoring" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"prometheus_monitoring\"")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.AlwaysUsePermissiveModify) {
+		resp.Diagnostics.AddError("Attribute 'always_use_permissive_modify' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "file-server" {
 		resp.Diagnostics.AddError("Attribute 'id_token_validator' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
@@ -1036,6 +1057,10 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.IncludeInstanceNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
 		resp.Diagnostics.AddError("Attribute 'include_instance_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'include_instance_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
+	}
+	if internaltypes.IsDefined(model.AlwaysUsePermissiveModify) && model.Type.ValueString() != "directory-rest-api" {
+		resp.Diagnostics.AddError("Attribute 'always_use_permissive_modify' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'always_use_permissive_modify', the 'type' attribute must be one of ['directory-rest-api']")
 	}
 	if internaltypes.IsDefined(model.StaticCustomDirectory) && model.Type.ValueString() != "velocity" {
 		resp.Diagnostics.AddError("Attribute 'static_custom_directory' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
@@ -1935,6 +1960,7 @@ func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context
 	state.SchemasEndpointObjectclass = internaltypes.GetStringSet(r.SchemasEndpointObjectclass)
 	state.DefaultOperationalAttribute = internaltypes.GetStringSet(r.DefaultOperationalAttribute)
 	state.RejectExpansionAttribute = internaltypes.GetStringSet(r.RejectExpansionAttribute)
+	state.AlwaysUsePermissiveModify = internaltypes.BoolTypeOrNil(r.AlwaysUsePermissiveModify)
 	state.AllowedControl = internaltypes.GetStringSet(
 		client.StringSliceEnumhttpServletExtensionAllowedControlProp(r.AllowedControl))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2046,6 +2072,7 @@ func createHttpServletExtensionOperationsDefault(plan defaultHttpServletExtensio
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.SchemasEndpointObjectclass, state.SchemasEndpointObjectclass, "schemas-endpoint-objectclass")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultOperationalAttribute, state.DefaultOperationalAttribute, "default-operational-attribute")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.RejectExpansionAttribute, state.RejectExpansionAttribute, "reject-expansion-attribute")
+	operations.AddBoolOperationIfNecessary(&ops, plan.AlwaysUsePermissiveModify, state.AlwaysUsePermissiveModify, "always-use-permissive-modify")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedControl, state.AllowedControl, "allowed-control")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ScriptArgument, state.ScriptArgument, "script-argument")
 	operations.AddStringOperationIfNecessary(&ops, plan.OAuthTokenHandler, state.OAuthTokenHandler, "oauth-token-handler")

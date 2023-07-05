@@ -19,6 +19,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -83,15 +84,18 @@ func (r *defaultMonitorProviderResource) Configure(_ context.Context, req resour
 }
 
 type monitorProviderResourceModel struct {
-	Id                types.String `tfsdk:"id"`
-	LastUpdated       types.String `tfsdk:"last_updated"`
-	Notifications     types.Set    `tfsdk:"notifications"`
-	RequiredActions   types.Set    `tfsdk:"required_actions"`
-	Type              types.String `tfsdk:"type"`
-	ExtensionClass    types.String `tfsdk:"extension_class"`
-	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
-	Description       types.String `tfsdk:"description"`
-	Enabled           types.Bool   `tfsdk:"enabled"`
+	Id                      types.String `tfsdk:"id"`
+	LastUpdated             types.String `tfsdk:"last_updated"`
+	Notifications           types.Set    `tfsdk:"notifications"`
+	RequiredActions         types.Set    `tfsdk:"required_actions"`
+	Type                    types.String `tfsdk:"type"`
+	ExtensionClass          types.String `tfsdk:"extension_class"`
+	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
+	CheckFrequency          types.String `tfsdk:"check_frequency"`
+	ProlongedOutageDuration types.String `tfsdk:"prolonged_outage_duration"`
+	ProlongedOutageBehavior types.String `tfsdk:"prolonged_outage_behavior"`
+	Description             types.String `tfsdk:"description"`
+	Enabled                 types.Bool   `tfsdk:"enabled"`
 }
 
 type defaultMonitorProviderResourceModel struct {
@@ -103,15 +107,18 @@ type defaultMonitorProviderResourceModel struct {
 	ExtensionClass                       types.String `tfsdk:"extension_class"`
 	ExtensionArgument                    types.Set    `tfsdk:"extension_argument"`
 	LowSpaceWarningSizeThreshold         types.String `tfsdk:"low_space_warning_size_threshold"`
-	DiskDevices                          types.Set    `tfsdk:"disk_devices"`
-	NetworkDevices                       types.Set    `tfsdk:"network_devices"`
-	SystemUtilizationMonitorLogDirectory types.String `tfsdk:"system_utilization_monitor_log_directory"`
 	LowSpaceWarningPercentThreshold      types.Int64  `tfsdk:"low_space_warning_percent_threshold"`
 	LowSpaceErrorSizeThreshold           types.String `tfsdk:"low_space_error_size_threshold"`
 	LowSpaceErrorPercentThreshold        types.Int64  `tfsdk:"low_space_error_percent_threshold"`
 	OutOfSpaceErrorSizeThreshold         types.String `tfsdk:"out_of_space_error_size_threshold"`
 	OutOfSpaceErrorPercentThreshold      types.Int64  `tfsdk:"out_of_space_error_percent_threshold"`
 	AlertFrequency                       types.String `tfsdk:"alert_frequency"`
+	CheckFrequency                       types.String `tfsdk:"check_frequency"`
+	DiskDevices                          types.Set    `tfsdk:"disk_devices"`
+	NetworkDevices                       types.Set    `tfsdk:"network_devices"`
+	SystemUtilizationMonitorLogDirectory types.String `tfsdk:"system_utilization_monitor_log_directory"`
+	ProlongedOutageDuration              types.String `tfsdk:"prolonged_outage_duration"`
+	ProlongedOutageBehavior              types.String `tfsdk:"prolonged_outage_behavior"`
 	Description                          types.String `tfsdk:"description"`
 	Enabled                              types.Bool   `tfsdk:"enabled"`
 }
@@ -130,13 +137,13 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 		Description: "Manages a Monitor Provider.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Monitor Provider resource. Options are ['general', 'memory-usage', 'stack-trace', 'disk-space-usage', 'system-info', 'custom', 'active-operations', 'ssl-context', 'client-connection', 'version', 'host-system', 'third-party']",
+				Description: "The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"third-party"}...),
+					stringvalidator.OneOf([]string{"encryption-settings-database-accessibility", "third-party"}...),
 				},
 			},
 			"extension_class": schema.StringAttribute{
@@ -152,6 +159,30 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 					setplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"check_frequency": schema.StringAttribute{
+				Description: "The frequency with which this monitor provider should confirm the ability to access the server's encryption settings database.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"prolonged_outage_duration": schema.StringAttribute{
+				Description: "The minimum length of time that an outage should persist before it is considered a prolonged outage. If an outage lasts at least as long as this duration, then the server will take the action indicated by the prolonged-outage-behavior property.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"prolonged_outage_behavior": schema.StringAttribute{
+				Description: "The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Monitor Provider",
 				Optional:    true,
@@ -165,39 +196,13 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
 		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"general", "memory-usage", "stack-trace", "disk-space-usage", "system-info", "custom", "active-operations", "ssl-context", "client-connection", "version", "host-system", "third-party"}...),
+			stringvalidator.OneOf([]string{"memory-usage", "stack-trace", "encryption-settings-database-accessibility", "custom", "active-operations", "ssl-context", "version", "host-system", "general", "disk-space-usage", "system-info", "client-connection", "third-party"}...),
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		schemaDef.Attributes["low_space_warning_size_threshold"] = schema.StringAttribute{
 			Description: "Specifies the low space warning threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",
 			Optional:    true,
-		}
-		schemaDef.Attributes["disk_devices"] = schema.SetAttribute{
-			Description: "Specifies which disk devices to monitor for I/O activity. Should be the device name as displayed by iostat -d.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["network_devices"] = schema.SetAttribute{
-			Description: "Specifies which network interfaces to monitor for I/O activity. Should be the device name as displayed by netstat -i.",
-			Optional:    true,
-			Computed:    true,
-			ElementType: types.StringType,
-			PlanModifiers: []planmodifier.Set{
-				setplanmodifier.UseStateForUnknown(),
-			},
-		}
-		schemaDef.Attributes["system_utilization_monitor_log_directory"] = schema.StringAttribute{
-			Description: "Specifies a relative or absolute path to the directory on the local filesystem containing the log files used by the system utilization monitor. The path must exist, and it must be a writable directory by the server process.",
-			Optional:    true,
-			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
-			},
 		}
 		schemaDef.Attributes["low_space_warning_percent_threshold"] = schema.Int64Attribute{
 			Description: "Specifies the low space warning threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",
@@ -227,6 +232,32 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
+		schemaDef.Attributes["disk_devices"] = schema.SetAttribute{
+			Description: "Specifies which disk devices to monitor for I/O activity. Should be the device name as displayed by iostat -d.",
+			Optional:    true,
+			Computed:    true,
+			ElementType: types.StringType,
+			PlanModifiers: []planmodifier.Set{
+				setplanmodifier.UseStateForUnknown(),
+			},
+		}
+		schemaDef.Attributes["network_devices"] = schema.SetAttribute{
+			Description: "Specifies which network interfaces to monitor for I/O activity. Should be the device name as displayed by netstat -i.",
+			Optional:    true,
+			Computed:    true,
+			ElementType: types.StringType,
+			PlanModifiers: []planmodifier.Set{
+				setplanmodifier.UseStateForUnknown(),
+			},
+		}
+		schemaDef.Attributes["system_utilization_monitor_log_directory"] = schema.StringAttribute{
+			Description: "Specifies a relative or absolute path to the directory on the local filesystem containing the log files used by the system utilization monitor. The path must exist, and it must be a writable directory by the server process.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
+		}
 		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
 	}
 	config.AddCommonSchema(&schemaDef, true)
@@ -235,27 +266,39 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 
 // Validate that any restrictions are met in the plan
 func (r *monitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_monitor_provider")
 }
 
 func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanMonitorProvider(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_monitor_provider")
 }
 
-func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model defaultMonitorProviderResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "encryption-settings-database-accessibility" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"encryption_settings_database_accessibility\"")
+	}
+	if internaltypes.IsDefined(model.ProlongedOutageDuration) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
+		resp.Diagnostics.AddError("Attribute 'prolonged_outage_duration' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'prolonged_outage_duration', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
+	}
 	if internaltypes.IsDefined(model.LowSpaceWarningSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
 		resp.Diagnostics.AddError("Attribute 'low_space_warning_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'low_space_warning_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
+	}
+	if internaltypes.IsDefined(model.SystemUtilizationMonitorLogDirectory) && model.Type.ValueString() != "host-system" {
+		resp.Diagnostics.AddError("Attribute 'system_utilization_monitor_log_directory' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'system_utilization_monitor_log_directory', the 'type' attribute must be one of ['host-system']")
 	}
 	if internaltypes.IsDefined(model.LowSpaceWarningPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
 		resp.Diagnostics.AddError("Attribute 'low_space_warning_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'low_space_warning_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
 	}
-	if internaltypes.IsDefined(model.SystemUtilizationMonitorLogDirectory) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'system_utilization_monitor_log_directory' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'system_utilization_monitor_log_directory', the 'type' attribute must be one of ['host-system']")
+	if internaltypes.IsDefined(model.ProlongedOutageBehavior) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
+		resp.Diagnostics.AddError("Attribute 'prolonged_outage_behavior' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'prolonged_outage_behavior', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
 	}
 	if internaltypes.IsDefined(model.OutOfSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
 		resp.Diagnostics.AddError("Attribute 'out_of_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
@@ -273,17 +316,21 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
 	}
-	if internaltypes.IsDefined(model.LowSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_error_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
 	if internaltypes.IsDefined(model.DiskDevices) && model.Type.ValueString() != "host-system" {
 		resp.Diagnostics.AddError("Attribute 'disk_devices' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'disk_devices', the 'type' attribute must be one of ['host-system']")
 	}
+	if internaltypes.IsDefined(model.LowSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
+		resp.Diagnostics.AddError("Attribute 'low_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'low_space_error_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
+	}
 	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
 		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
+	}
+	if internaltypes.IsDefined(model.CheckFrequency) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
+		resp.Diagnostics.AddError("Attribute 'check_frequency' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'check_frequency', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
 	}
 	if internaltypes.IsDefined(model.LowSpaceErrorPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
 		resp.Diagnostics.AddError("Attribute 'low_space_error_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
@@ -295,8 +342,33 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 	}
 }
 
+// Add optional fields to create request for encryption-settings-database-accessibility monitor-provider
+func addOptionalEncryptionSettingsDatabaseAccessibilityMonitorProviderFields(ctx context.Context, addRequest *client.AddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequest, plan monitorProviderResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.CheckFrequency) {
+		addRequest.CheckFrequency = plan.CheckFrequency.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ProlongedOutageDuration) {
+		addRequest.ProlongedOutageDuration = plan.ProlongedOutageDuration.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ProlongedOutageBehavior) {
+		prolongedOutageBehavior, err := client.NewEnummonitorProviderProlongedOutageBehaviorPropFromValue(plan.ProlongedOutageBehavior.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.ProlongedOutageBehavior = prolongedOutageBehavior
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	return nil
+}
+
 // Add optional fields to create request for third-party monitor-provider
-func addOptionalThirdPartyMonitorProviderFields(ctx context.Context, addRequest *client.AddThirdPartyMonitorProviderRequest, plan monitorProviderResourceModel) {
+func addOptionalThirdPartyMonitorProviderFields(ctx context.Context, addRequest *client.AddThirdPartyMonitorProviderRequest, plan monitorProviderResourceModel) error {
 	if internaltypes.IsDefined(plan.ExtensionArgument) {
 		var slice []string
 		plan.ExtensionArgument.ElementsAs(ctx, &slice, false)
@@ -306,6 +378,7 @@ func addOptionalThirdPartyMonitorProviderFields(ctx context.Context, addRequest 
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
+	return nil
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
@@ -328,16 +401,6 @@ func populateMonitorProviderUnknownValuesDefault(ctx context.Context, model *def
 	}
 }
 
-// Read a GeneralMonitorProviderResponse object into the model struct
-func readGeneralMonitorProviderResponseDefault(ctx context.Context, r *client.GeneralMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("general")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderUnknownValuesDefault(ctx, state)
-}
-
 // Read a MemoryUsageMonitorProviderResponse object into the model struct
 func readMemoryUsageMonitorProviderResponseDefault(ctx context.Context, r *client.MemoryUsageMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("memory-usage")
@@ -351,6 +414,105 @@ func readMemoryUsageMonitorProviderResponseDefault(ctx context.Context, r *clien
 // Read a StackTraceMonitorProviderResponse object into the model struct
 func readStackTraceMonitorProviderResponseDefault(ctx context.Context, r *client.StackTraceMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("stack-trace")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse object into the model struct
+func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx context.Context, r *client.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, state *monitorProviderResourceModel, expectedValues *monitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("encryption-settings-database-accessibility")
+	state.Id = types.StringValue(r.Id)
+	state.CheckFrequency = types.StringValue(r.CheckFrequency)
+	config.CheckMismatchedPDFormattedAttributes("check_frequency",
+		expectedValues.CheckFrequency, state.CheckFrequency, diagnostics)
+	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, internaltypes.IsEmptyString(expectedValues.ProlongedOutageDuration))
+	config.CheckMismatchedPDFormattedAttributes("prolonged_outage_duration",
+		expectedValues.ProlongedOutageDuration, state.ProlongedOutageDuration, diagnostics)
+	state.ProlongedOutageBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), internaltypes.IsEmptyString(expectedValues.ProlongedOutageBehavior))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValues(ctx, state)
+}
+
+// Read a EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse object into the model struct
+func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx context.Context, r *client.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("encryption-settings-database-accessibility")
+	state.Id = types.StringValue(r.Id)
+	state.CheckFrequency = types.StringValue(r.CheckFrequency)
+	config.CheckMismatchedPDFormattedAttributes("check_frequency",
+		expectedValues.CheckFrequency, state.CheckFrequency, diagnostics)
+	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, internaltypes.IsEmptyString(expectedValues.ProlongedOutageDuration))
+	config.CheckMismatchedPDFormattedAttributes("prolonged_outage_duration",
+		expectedValues.ProlongedOutageDuration, state.ProlongedOutageDuration, diagnostics)
+	state.ProlongedOutageBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), internaltypes.IsEmptyString(expectedValues.ProlongedOutageBehavior))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a CustomMonitorProviderResponse object into the model struct
+func readCustomMonitorProviderResponseDefault(ctx context.Context, r *client.CustomMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("custom")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a ActiveOperationsMonitorProviderResponse object into the model struct
+func readActiveOperationsMonitorProviderResponseDefault(ctx context.Context, r *client.ActiveOperationsMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("active-operations")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a SslContextMonitorProviderResponse object into the model struct
+func readSslContextMonitorProviderResponseDefault(ctx context.Context, r *client.SslContextMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ssl-context")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a VersionMonitorProviderResponse object into the model struct
+func readVersionMonitorProviderResponseDefault(ctx context.Context, r *client.VersionMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("version")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a HostSystemMonitorProviderResponse object into the model struct
+func readHostSystemMonitorProviderResponseDefault(ctx context.Context, r *client.HostSystemMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("host-system")
+	state.Id = types.StringValue(r.Id)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.DiskDevices = internaltypes.GetStringSet(r.DiskDevices)
+	state.NetworkDevices = internaltypes.GetStringSet(r.NetworkDevices)
+	state.SystemUtilizationMonitorLogDirectory = types.StringValue(r.SystemUtilizationMonitorLogDirectory)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populateMonitorProviderUnknownValuesDefault(ctx, state)
+}
+
+// Read a GeneralMonitorProviderResponse object into the model struct
+func readGeneralMonitorProviderResponseDefault(ctx context.Context, r *client.GeneralMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("general")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -393,65 +555,12 @@ func readSystemInfoMonitorProviderResponseDefault(ctx context.Context, r *client
 	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
 
-// Read a CustomMonitorProviderResponse object into the model struct
-func readCustomMonitorProviderResponseDefault(ctx context.Context, r *client.CustomMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("custom")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderUnknownValuesDefault(ctx, state)
-}
-
-// Read a ActiveOperationsMonitorProviderResponse object into the model struct
-func readActiveOperationsMonitorProviderResponseDefault(ctx context.Context, r *client.ActiveOperationsMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("active-operations")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderUnknownValuesDefault(ctx, state)
-}
-
-// Read a SslContextMonitorProviderResponse object into the model struct
-func readSslContextMonitorProviderResponseDefault(ctx context.Context, r *client.SslContextMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("ssl-context")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderUnknownValuesDefault(ctx, state)
-}
-
 // Read a ClientConnectionMonitorProviderResponse object into the model struct
 func readClientConnectionMonitorProviderResponseDefault(ctx context.Context, r *client.ClientConnectionMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-connection")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderUnknownValuesDefault(ctx, state)
-}
-
-// Read a VersionMonitorProviderResponse object into the model struct
-func readVersionMonitorProviderResponseDefault(ctx context.Context, r *client.VersionMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("version")
-	state.Id = types.StringValue(r.Id)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
-	populateMonitorProviderUnknownValuesDefault(ctx, state)
-}
-
-// Read a HostSystemMonitorProviderResponse object into the model struct
-func readHostSystemMonitorProviderResponseDefault(ctx context.Context, r *client.HostSystemMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
-	state.Type = types.StringValue("host-system")
-	state.Id = types.StringValue(r.Id)
-	state.Enabled = types.BoolValue(r.Enabled)
-	state.DiskDevices = internaltypes.GetStringSet(r.DiskDevices)
-	state.NetworkDevices = internaltypes.GetStringSet(r.NetworkDevices)
-	state.SystemUtilizationMonitorLogDirectory = types.StringValue(r.SystemUtilizationMonitorLogDirectory)
-	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateMonitorProviderUnknownValuesDefault(ctx, state)
 }
@@ -485,6 +594,9 @@ func createMonitorProviderOperations(plan monitorProviderResourceModel, state mo
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
+	operations.AddStringOperationIfNecessary(&ops, plan.CheckFrequency, state.CheckFrequency, "check-frequency")
+	operations.AddStringOperationIfNecessary(&ops, plan.ProlongedOutageDuration, state.ProlongedOutageDuration, "prolonged-outage-duration")
+	operations.AddStringOperationIfNecessary(&ops, plan.ProlongedOutageBehavior, state.ProlongedOutageBehavior, "prolonged-outage-behavior")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops
@@ -496,18 +608,59 @@ func createMonitorProviderOperationsDefault(plan defaultMonitorProviderResourceM
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
 	operations.AddStringOperationIfNecessary(&ops, plan.LowSpaceWarningSizeThreshold, state.LowSpaceWarningSizeThreshold, "low-space-warning-size-threshold")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.DiskDevices, state.DiskDevices, "disk-devices")
-	operations.AddStringSetOperationsIfNecessary(&ops, plan.NetworkDevices, state.NetworkDevices, "network-devices")
-	operations.AddStringOperationIfNecessary(&ops, plan.SystemUtilizationMonitorLogDirectory, state.SystemUtilizationMonitorLogDirectory, "system-utilization-monitor-log-directory")
 	operations.AddInt64OperationIfNecessary(&ops, plan.LowSpaceWarningPercentThreshold, state.LowSpaceWarningPercentThreshold, "low-space-warning-percent-threshold")
 	operations.AddStringOperationIfNecessary(&ops, plan.LowSpaceErrorSizeThreshold, state.LowSpaceErrorSizeThreshold, "low-space-error-size-threshold")
 	operations.AddInt64OperationIfNecessary(&ops, plan.LowSpaceErrorPercentThreshold, state.LowSpaceErrorPercentThreshold, "low-space-error-percent-threshold")
 	operations.AddStringOperationIfNecessary(&ops, plan.OutOfSpaceErrorSizeThreshold, state.OutOfSpaceErrorSizeThreshold, "out-of-space-error-size-threshold")
 	operations.AddInt64OperationIfNecessary(&ops, plan.OutOfSpaceErrorPercentThreshold, state.OutOfSpaceErrorPercentThreshold, "out-of-space-error-percent-threshold")
 	operations.AddStringOperationIfNecessary(&ops, plan.AlertFrequency, state.AlertFrequency, "alert-frequency")
+	operations.AddStringOperationIfNecessary(&ops, plan.CheckFrequency, state.CheckFrequency, "check-frequency")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.DiskDevices, state.DiskDevices, "disk-devices")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.NetworkDevices, state.NetworkDevices, "network-devices")
+	operations.AddStringOperationIfNecessary(&ops, plan.SystemUtilizationMonitorLogDirectory, state.SystemUtilizationMonitorLogDirectory, "system-utilization-monitor-log-directory")
+	operations.AddStringOperationIfNecessary(&ops, plan.ProlongedOutageDuration, state.ProlongedOutageDuration, "prolonged-outage-duration")
+	operations.AddStringOperationIfNecessary(&ops, plan.ProlongedOutageBehavior, state.ProlongedOutageBehavior, "prolonged-outage-behavior")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	return ops
+}
+
+// Create a encryption-settings-database-accessibility monitor-provider
+func (r *monitorProviderResource) CreateEncryptionSettingsDatabaseAccessibilityMonitorProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitorProviderResourceModel) (*monitorProviderResourceModel, error) {
+	addRequest := client.NewAddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequest(plan.Id.ValueString(),
+		[]client.EnumencryptionSettingsDatabaseAccessibilityMonitorProviderSchemaUrn{client.ENUMENCRYPTIONSETTINGSDATABASEACCESSIBILITYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERENCRYPTION_SETTINGS_DATABASE_ACCESSIBILITY},
+		plan.Enabled.ValueBool())
+	err := addOptionalEncryptionSettingsDatabaseAccessibilityMonitorProviderFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Monitor Provider", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.MonitorProviderApi.AddMonitorProvider(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddMonitorProviderRequest(
+		client.AddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequestAsAddMonitorProviderRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.MonitorProviderApi.AddMonitorProviderExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Monitor Provider", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state monitorProviderResourceModel
+	readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx, addResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
 }
 
 // Create a third-party monitor-provider
@@ -516,7 +669,11 @@ func (r *monitorProviderResource) CreateThirdPartyMonitorProvider(ctx context.Co
 		[]client.EnumthirdPartyMonitorProviderSchemaUrn{client.ENUMTHIRDPARTYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
-	addOptionalThirdPartyMonitorProviderFields(ctx, addRequest, plan)
+	err := addOptionalThirdPartyMonitorProviderFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Monitor Provider", err.Error())
+		return nil, err
+	}
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
 	if err == nil {
@@ -524,7 +681,8 @@ func (r *monitorProviderResource) CreateThirdPartyMonitorProvider(ctx context.Co
 	}
 	apiAddRequest := r.apiClient.MonitorProviderApi.AddMonitorProvider(
 		config.ProviderBasicAuthContext(ctx, r.providerConfig))
-	apiAddRequest = apiAddRequest.AddThirdPartyMonitorProviderRequest(*addRequest)
+	apiAddRequest = apiAddRequest.AddMonitorProviderRequest(
+		client.AddThirdPartyMonitorProviderRequestAsAddMonitorProviderRequest(addRequest))
 
 	addResponse, httpResp, err := r.apiClient.MonitorProviderApi.AddMonitorProviderExecute(apiAddRequest)
 	if err != nil {
@@ -554,9 +712,19 @@ func (r *monitorProviderResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	state, err := r.CreateThirdPartyMonitorProvider(ctx, req, resp, plan)
-	if err != nil {
-		return
+	var state *monitorProviderResourceModel
+	var err error
+	if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		state, err = r.CreateEncryptionSettingsDatabaseAccessibilityMonitorProvider(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
+	if plan.Type.ValueString() == "third-party" {
+		state, err = r.CreateThirdPartyMonitorProvider(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
 	}
 
 	// Populate Computed attribute values
@@ -598,20 +766,14 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state defaultMonitorProviderResourceModel
-	if plan.Type.ValueString() == "general" {
-		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-	}
 	if plan.Type.ValueString() == "memory-usage" {
 		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "stack-trace" {
 		readStackTraceMonitorProviderResponseDefault(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disk-space-usage" {
-		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-	}
-	if plan.Type.ValueString() == "system-info" {
-		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+	if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
 		readCustomMonitorProviderResponseDefault(ctx, readResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
@@ -622,14 +784,23 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 	if plan.Type.ValueString() == "ssl-context" {
 		readSslContextMonitorProviderResponseDefault(ctx, readResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "client-connection" {
-		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-	}
 	if plan.Type.ValueString() == "version" {
 		readVersionMonitorProviderResponseDefault(ctx, readResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "host-system" {
 		readHostSystemMonitorProviderResponseDefault(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "general" {
+		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "disk-space-usage" {
+		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "system-info" {
+		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "client-connection" {
+		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
 		readThirdPartyMonitorProviderResponseDefault(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
@@ -656,20 +827,14 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "general" {
-			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
 		if plan.Type.ValueString() == "memory-usage" {
 			readMemoryUsageMonitorProviderResponseDefault(ctx, updateResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "stack-trace" {
 			readStackTraceMonitorProviderResponseDefault(ctx, updateResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disk-space-usage" {
-			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "system-info" {
-			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "custom" {
 			readCustomMonitorProviderResponseDefault(ctx, updateResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
@@ -680,14 +845,23 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		if plan.Type.ValueString() == "ssl-context" {
 			readSslContextMonitorProviderResponseDefault(ctx, updateResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-connection" {
-			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
 		if plan.Type.ValueString() == "version" {
 			readVersionMonitorProviderResponseDefault(ctx, updateResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "host-system" {
 			readHostSystemMonitorProviderResponseDefault(ctx, updateResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "general" {
+			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "disk-space-usage" {
+			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "system-info" {
+			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "client-connection" {
+			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
@@ -727,6 +901,9 @@ func (r *monitorProviderResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	// Read the response into the state
+	if readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
+		readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx, readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.ThirdPartyMonitorProviderResponse != nil {
 		readThirdPartyMonitorProviderResponse(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
@@ -762,20 +939,11 @@ func (r *defaultMonitorProviderResource) Read(ctx context.Context, req resource.
 	}
 
 	// Read the response into the state
-	if readResponse.GeneralMonitorProviderResponse != nil {
-		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &state, &resp.Diagnostics)
-	}
 	if readResponse.MemoryUsageMonitorProviderResponse != nil {
 		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.StackTraceMonitorProviderResponse != nil {
 		readStackTraceMonitorProviderResponseDefault(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.DiskSpaceUsageMonitorProviderResponse != nil {
-		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
-	}
-	if readResponse.SystemInfoMonitorProviderResponse != nil {
-		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.CustomMonitorProviderResponse != nil {
 		readCustomMonitorProviderResponseDefault(ctx, readResponse.CustomMonitorProviderResponse, &state, &state, &resp.Diagnostics)
@@ -786,14 +954,23 @@ func (r *defaultMonitorProviderResource) Read(ctx context.Context, req resource.
 	if readResponse.SslContextMonitorProviderResponse != nil {
 		readSslContextMonitorProviderResponseDefault(ctx, readResponse.SslContextMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if readResponse.ClientConnectionMonitorProviderResponse != nil {
-		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
-	}
 	if readResponse.VersionMonitorProviderResponse != nil {
 		readVersionMonitorProviderResponseDefault(ctx, readResponse.VersionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.HostSystemMonitorProviderResponse != nil {
 		readHostSystemMonitorProviderResponseDefault(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.GeneralMonitorProviderResponse != nil {
+		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.DiskSpaceUsageMonitorProviderResponse != nil {
+		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.SystemInfoMonitorProviderResponse != nil {
+		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.ClientConnectionMonitorProviderResponse != nil {
+		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Set refreshed state
@@ -840,6 +1017,9 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.Type.ValueString() == "third-party" {
 			readThirdPartyMonitorProviderResponse(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -891,20 +1071,14 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "general" {
-			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
 		if plan.Type.ValueString() == "memory-usage" {
 			readMemoryUsageMonitorProviderResponseDefault(ctx, updateResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "stack-trace" {
 			readStackTraceMonitorProviderResponseDefault(ctx, updateResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disk-space-usage" {
-			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
-		if plan.Type.ValueString() == "system-info" {
-			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "custom" {
 			readCustomMonitorProviderResponseDefault(ctx, updateResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
@@ -915,14 +1089,23 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		if plan.Type.ValueString() == "ssl-context" {
 			readSslContextMonitorProviderResponseDefault(ctx, updateResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-connection" {
-			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
-		}
 		if plan.Type.ValueString() == "version" {
 			readVersionMonitorProviderResponseDefault(ctx, updateResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "host-system" {
 			readHostSystemMonitorProviderResponseDefault(ctx, updateResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "general" {
+			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "disk-space-usage" {
+			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "system-info" {
+			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "client-connection" {
+			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)

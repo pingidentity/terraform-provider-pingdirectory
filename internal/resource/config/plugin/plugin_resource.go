@@ -115,6 +115,7 @@ type pluginResourceModel struct {
 	UpdatedEntryNewlyMatchesCriteriaBehavior             types.String `tfsdk:"updated_entry_newly_matches_criteria_behavior"`
 	UpdatedEntryNoLongerMatchesCriteriaBehavior          types.String `tfsdk:"updated_entry_no_longer_matches_criteria_behavior"`
 	ContextName                                          types.String `tfsdk:"context_name"`
+	AllowedRequestControl                                types.Set    `tfsdk:"allowed_request_control"`
 	AgentxAddress                                        types.String `tfsdk:"agentx_address"`
 	AgentxPort                                           types.Int64  `tfsdk:"agentx_port"`
 	NumWorkerThreads                                     types.Int64  `tfsdk:"num_worker_threads"`
@@ -255,6 +256,7 @@ type defaultPluginResourceModel struct {
 	ContextName                                          types.String `tfsdk:"context_name"`
 	DefaultUserPasswordStorageScheme                     types.Set    `tfsdk:"default_user_password_storage_scheme"`
 	DefaultAuthPasswordStorageScheme                     types.Set    `tfsdk:"default_auth_password_storage_scheme"`
+	AllowedRequestControl                                types.Set    `tfsdk:"allowed_request_control"`
 	AgentxAddress                                        types.String `tfsdk:"agentx_address"`
 	AgentxPort                                           types.Int64  `tfsdk:"agentx_port"`
 	NumWorkerThreads                                     types.Int64  `tfsdk:"num_worker_threads"`
@@ -388,13 +390,13 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 		Description: "Manages a Plugin.",
 		Attributes: map[string]schema.Attribute{
 			"resource_type": schema.StringAttribute{
-				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']",
+				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "sub-operation-timing", "third-party", "pass-through-authentication", "dn-mapper", "referral-on-update", "simple-to-external-bind", "snmp-subagent", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
+					stringvalidator.OneOf([]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "sub-operation-timing", "third-party", "pass-through-authentication", "dn-mapper", "referral-on-update", "simple-to-external-bind", "snmp-subagent", "coalesce-modifications", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
 				},
 			},
 			"pass_through_authentication_handler": schema.StringAttribute{
@@ -574,6 +576,15 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"allowed_request_control": schema.SetAttribute{
+				Description: "Specifies the OIDs of the controls that are allowed to be present in operations to coalesce. These controls are passed through when the request is validated, but they will not be included when the background thread applies the coalesced modify requests.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"agentx_address": schema.StringAttribute{
@@ -1306,7 +1317,7 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 	if isDefault {
 		typeAttr := schemaDef.Attributes["resource_type"].(schema.StringAttribute)
 		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
+			stringvalidator.OneOf([]string{"last-access-time", "stats-collector", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "periodic-gc", "ping-one-pass-through-authentication", "changelog-password-encryption", "processing-time-histogram", "search-shutdown", "periodic-stats-logger", "purge-expired-data", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "monitor-history", "referral-on-update", "simple-to-external-bind", "custom", "snmp-subagent", "coalesce-modifications", "password-policy-import", "profiler", "clean-up-inactive-pingfederate-persistent-sessions", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "clean-up-expired-pingfederate-persistent-sessions", "groovy-scripted", "last-mod", "pluggable-pass-through-authentication", "referential-integrity", "unique-attribute"}...),
 		}
 		schemaDef.Attributes["resource_type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
@@ -1480,14 +1491,20 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 
 // Validate that any restrictions are met in the plan
 func (r *pluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_plugin")
 }
 
 func (r *defaultPluginResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPlugin(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_plugin")
 }
 
-func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
+	var model defaultPluginResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.ResourceType) && model.ResourceType.ValueString() == "coalesce-modifications" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"coalesce_modifications\"")
+	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -1497,8 +1514,6 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 		// Every remaining property is supported
 		return
 	}
-	var model defaultPluginResourceModel
-	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -1558,9 +1573,9 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 		resp.Diagnostics.AddError("Attribute 'changelog_password_encryption_key_passphrase_provider' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'changelog_password_encryption_key_passphrase_provider', the 'resource_type' attribute must be one of ['changelog-password-encryption']")
 	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" {
+	if internaltypes.IsDefined(model.RequestCriteria) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "coalesce-modifications" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" {
 		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'resource_type' attribute must be one of ['pass-through-authentication', 'last-access-time', 'delay', 'groovy-scripted', 'ping-one-pass-through-authentication', 'simple-to-external-bind', 'pluggable-pass-through-authentication', 'sub-operation-timing', 'third-party']")
+			"When using attribute 'request_criteria', the 'resource_type' attribute must be one of ['pass-through-authentication', 'last-access-time', 'delay', 'groovy-scripted', 'ping-one-pass-through-authentication', 'simple-to-external-bind', 'coalesce-modifications', 'pluggable-pass-through-authentication', 'sub-operation-timing', 'third-party']")
 	}
 	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" {
 		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
@@ -1870,6 +1885,10 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 		resp.Diagnostics.AddError("Attribute 'suppress_if_idle' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'suppress_if_idle', the 'resource_type' attribute must be one of ['periodic-stats-logger']")
 	}
+	if internaltypes.IsDefined(model.AllowedRequestControl) && model.ResourceType.ValueString() != "coalesce-modifications" {
+		resp.Diagnostics.AddError("Attribute 'allowed_request_control' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
+			"When using attribute 'allowed_request_control', the 'resource_type' attribute must be one of ['coalesce-modifications']")
+	}
 	if internaltypes.IsDefined(model.MultiValuedAttributeBehavior) && model.ResourceType.ValueString() != "composed-attribute" {
 		resp.Diagnostics.AddError("Attribute 'multi_valued_attribute_behavior' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'multi_valued_attribute_behavior', the 'resource_type' attribute must be one of ['composed-attribute']")
@@ -1978,9 +1997,9 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 		resp.Diagnostics.AddError("Attribute 'ping_interval' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'ping_interval', the 'resource_type' attribute must be one of ['snmp-subagent']")
 	}
-	if internaltypes.IsDefined(model.Description) && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "modifiable-password-policy-state" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "search-shutdown" && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "monitor-history" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "snmp-subagent" && model.ResourceType.ValueString() != "password-policy-import" && model.ResourceType.ValueString() != "profiler" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" {
+	if internaltypes.IsDefined(model.Description) && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "modifiable-password-policy-state" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "search-shutdown" && model.ResourceType.ValueString() != "periodic-stats-logger" && model.ResourceType.ValueString() != "purge-expired-data" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "monitor-history" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "simple-to-external-bind" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "snmp-subagent" && model.ResourceType.ValueString() != "coalesce-modifications" && model.ResourceType.ValueString() != "password-policy-import" && model.ResourceType.ValueString() != "profiler" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" {
 		resp.Diagnostics.AddError("Attribute 'description' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'description', the 'resource_type' attribute must be one of ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'password-policy-import', 'profiler', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']")
+			"When using attribute 'description', the 'resource_type' attribute must be one of ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']")
 	}
 	if internaltypes.IsDefined(model.HostInfo) && model.ResourceType.ValueString() != "stats-collector" && model.ResourceType.ValueString() != "periodic-stats-logger" {
 		resp.Diagnostics.AddError("Attribute 'host_info' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
@@ -2054,9 +2073,9 @@ func modifyPlanPlugin(ctx context.Context, req resource.ModifyPlanRequest, resp 
 		resp.Diagnostics.AddError("Attribute 'retention_policy' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
 			"When using attribute 'retention_policy', the 'resource_type' attribute must be one of ['periodic-stats-logger', 'monitor-history']")
 	}
-	if internaltypes.IsDefined(model.InvokeForInternalOperations) && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "snmp-subagent" && model.ResourceType.ValueString() != "password-policy-import" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" {
+	if internaltypes.IsDefined(model.InvokeForInternalOperations) && model.ResourceType.ValueString() != "last-access-time" && model.ResourceType.ValueString() != "internal-search-rate" && model.ResourceType.ValueString() != "seven-bit-clean" && model.ResourceType.ValueString() != "periodic-gc" && model.ResourceType.ValueString() != "ping-one-pass-through-authentication" && model.ResourceType.ValueString() != "changelog-password-encryption" && model.ResourceType.ValueString() != "processing-time-histogram" && model.ResourceType.ValueString() != "change-subscription-notification" && model.ResourceType.ValueString() != "sub-operation-timing" && model.ResourceType.ValueString() != "third-party" && model.ResourceType.ValueString() != "encrypt-attribute-values" && model.ResourceType.ValueString() != "pass-through-authentication" && model.ResourceType.ValueString() != "dn-mapper" && model.ResourceType.ValueString() != "referral-on-update" && model.ResourceType.ValueString() != "custom" && model.ResourceType.ValueString() != "snmp-subagent" && model.ResourceType.ValueString() != "coalesce-modifications" && model.ResourceType.ValueString() != "password-policy-import" && model.ResourceType.ValueString() != "composed-attribute" && model.ResourceType.ValueString() != "ldap-result-code-tracker" && model.ResourceType.ValueString() != "attribute-mapper" && model.ResourceType.ValueString() != "delay" && model.ResourceType.ValueString() != "groovy-scripted" && model.ResourceType.ValueString() != "last-mod" && model.ResourceType.ValueString() != "pluggable-pass-through-authentication" && model.ResourceType.ValueString() != "referential-integrity" && model.ResourceType.ValueString() != "unique-attribute" {
 		resp.Diagnostics.AddError("Attribute 'invoke_for_internal_operations' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
-			"When using attribute 'invoke_for_internal_operations', the 'resource_type' attribute must be one of ['last-access-time', 'internal-search-rate', 'seven-bit-clean', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'referral-on-update', 'custom', 'snmp-subagent', 'password-policy-import', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']")
+			"When using attribute 'invoke_for_internal_operations', the 'resource_type' attribute must be one of ['last-access-time', 'internal-search-rate', 'seven-bit-clean', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'referral-on-update', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']")
 	}
 	if internaltypes.IsDefined(model.InitialConnections) && model.ResourceType.ValueString() != "pass-through-authentication" {
 		resp.Diagnostics.AddError("Attribute 'initial_connections' not supported by pingdirectory_plugin resources with 'resource_type' '"+model.ResourceType.ValueString()+"'",
@@ -2848,6 +2867,23 @@ func addOptionalSnmpSubagentPluginFields(ctx context.Context, addRequest *client
 	return nil
 }
 
+// Add optional fields to create request for coalesce-modifications plugin
+func addOptionalCoalesceModificationsPluginFields(ctx context.Context, addRequest *client.AddCoalesceModificationsPluginRequest, plan pluginResourceModel) error {
+	if internaltypes.IsDefined(plan.AllowedRequestControl) {
+		var slice []string
+		plan.AllowedRequestControl.ElementsAs(ctx, &slice, false)
+		addRequest.AllowedRequestControl = slice
+	}
+	if internaltypes.IsDefined(plan.InvokeForInternalOperations) {
+		addRequest.InvokeForInternalOperations = plan.InvokeForInternalOperations.ValueBoolPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	return nil
+}
+
 // Add optional fields to create request for clean-up-inactive-pingfederate-persistent-sessions plugin
 func addOptionalCleanUpInactivePingfederatePersistentSessionsPluginFields(ctx context.Context, addRequest *client.AddCleanUpInactivePingfederatePersistentSessionsPluginRequest, plan pluginResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -3282,6 +3318,9 @@ func populatePluginUnknownValues(ctx context.Context, model *pluginResourceModel
 	if model.DnMap.ElementType(ctx) == nil {
 		model.DnMap = types.SetNull(types.StringType)
 	}
+	if model.AllowedRequestControl.ElementType(ctx) == nil {
+		model.AllowedRequestControl = types.SetNull(types.StringType)
+	}
 	if model.InvokeGCTimeUtc.ElementType(ctx) == nil {
 		model.InvokeGCTimeUtc = types.SetNull(types.StringType)
 	}
@@ -3387,6 +3426,9 @@ func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPlugi
 	}
 	if model.DnMap.ElementType(ctx) == nil {
 		model.DnMap = types.SetNull(types.StringType)
+	}
+	if model.AllowedRequestControl.ElementType(ctx) == nil {
+		model.AllowedRequestControl = types.SetNull(types.StringType)
 	}
 	if model.InvokeGCTimeUtc.ElementType(ctx) == nil {
 		model.InvokeGCTimeUtc = types.SetNull(types.StringType)
@@ -4320,6 +4362,32 @@ func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSu
 	populatePluginUnknownValuesDefault(ctx, state)
 }
 
+// Read a CoalesceModificationsPluginResponse object into the model struct
+func readCoalesceModificationsPluginResponse(ctx context.Context, r *client.CoalesceModificationsPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("coalesce-modifications")
+	state.Id = types.StringValue(r.Id)
+	state.RequestCriteria = types.StringValue(r.RequestCriteria)
+	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValues(ctx, state)
+}
+
+// Read a CoalesceModificationsPluginResponse object into the model struct
+func readCoalesceModificationsPluginResponseDefault(ctx context.Context, r *client.CoalesceModificationsPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("coalesce-modifications")
+	state.Id = types.StringValue(r.Id)
+	state.RequestCriteria = types.StringValue(r.RequestCriteria)
+	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePluginUnknownValuesDefault(ctx, state)
+}
+
 // Read a PasswordPolicyImportPluginResponse object into the model struct
 func readPasswordPolicyImportPluginResponseDefault(ctx context.Context, r *client.PasswordPolicyImportPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("password-policy-import")
@@ -4799,6 +4867,7 @@ func createPluginOperations(plan pluginResourceModel, state pluginResourceModel)
 	operations.AddStringOperationIfNecessary(&ops, plan.UpdatedEntryNewlyMatchesCriteriaBehavior, state.UpdatedEntryNewlyMatchesCriteriaBehavior, "updated-entry-newly-matches-criteria-behavior")
 	operations.AddStringOperationIfNecessary(&ops, plan.UpdatedEntryNoLongerMatchesCriteriaBehavior, state.UpdatedEntryNoLongerMatchesCriteriaBehavior, "updated-entry-no-longer-matches-criteria-behavior")
 	operations.AddStringOperationIfNecessary(&ops, plan.ContextName, state.ContextName, "context-name")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedRequestControl, state.AllowedRequestControl, "allowed-request-control")
 	operations.AddStringOperationIfNecessary(&ops, plan.AgentxAddress, state.AgentxAddress, "agentx-address")
 	operations.AddInt64OperationIfNecessary(&ops, plan.AgentxPort, state.AgentxPort, "agentx-port")
 	operations.AddInt64OperationIfNecessary(&ops, plan.NumWorkerThreads, state.NumWorkerThreads, "num-worker-threads")
@@ -4937,6 +5006,7 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 	operations.AddStringOperationIfNecessary(&ops, plan.ContextName, state.ContextName, "context-name")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultUserPasswordStorageScheme, state.DefaultUserPasswordStorageScheme, "default-user-password-storage-scheme")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultAuthPasswordStorageScheme, state.DefaultAuthPasswordStorageScheme, "default-auth-password-storage-scheme")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.AllowedRequestControl, state.AllowedRequestControl, "allowed-request-control")
 	operations.AddStringOperationIfNecessary(&ops, plan.AgentxAddress, state.AgentxAddress, "agentx-address")
 	operations.AddInt64OperationIfNecessary(&ops, plan.AgentxPort, state.AgentxPort, "agentx-port")
 	operations.AddInt64OperationIfNecessary(&ops, plan.NumWorkerThreads, state.NumWorkerThreads, "num-worker-threads")
@@ -5703,6 +5773,45 @@ func (r *pluginResource) CreateSnmpSubagentPlugin(ctx context.Context, req resou
 	return &state, nil
 }
 
+// Create a coalesce-modifications plugin
+func (r *pluginResource) CreateCoalesceModificationsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
+	addRequest := client.NewAddCoalesceModificationsPluginRequest(plan.Id.ValueString(),
+		[]client.EnumcoalesceModificationsPluginSchemaUrn{client.ENUMCOALESCEMODIFICATIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOALESCE_MODIFICATIONS},
+		plan.RequestCriteria.ValueString(),
+		plan.Enabled.ValueBool())
+	err := addOptionalCoalesceModificationsPluginFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Plugin", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.PluginApi.AddPlugin(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddPluginRequest(
+		client.AddCoalesceModificationsPluginRequestAsAddPluginRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.PluginApi.AddPluginExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Plugin", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state pluginResourceModel
+	readCoalesceModificationsPluginResponse(ctx, addResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
 // Create a clean-up-inactive-pingfederate-persistent-sessions plugin
 func (r *pluginResource) CreateCleanUpInactivePingfederatePersistentSessionsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	addRequest := client.NewAddCleanUpInactivePingfederatePersistentSessionsPluginRequest(plan.Id.ValueString(),
@@ -6172,6 +6281,12 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 			return
 		}
 	}
+	if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		state, err = r.CreateCoalesceModificationsPlugin(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
 		state, err = r.CreateCleanUpInactivePingfederatePersistentSessionsPlugin(ctx, req, resp, plan)
 		if err != nil {
@@ -6338,6 +6453,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 	if plan.ResourceType.ValueString() == "snmp-subagent" {
 		readSnmpSubagentPluginResponseDefault(ctx, readResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 	}
+	if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		readCoalesceModificationsPluginResponseDefault(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
+	}
 	if plan.ResourceType.ValueString() == "password-policy-import" {
 		readPasswordPolicyImportPluginResponseDefault(ctx, readResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
 	}
@@ -6471,6 +6589,9 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		if plan.ResourceType.ValueString() == "snmp-subagent" {
 			readSnmpSubagentPluginResponseDefault(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+			readCoalesceModificationsPluginResponseDefault(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.ResourceType.ValueString() == "password-policy-import" {
 			readPasswordPolicyImportPluginResponseDefault(ctx, updateResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -6592,6 +6713,9 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 	if readResponse.SnmpSubagentPluginResponse != nil {
 		readSnmpSubagentPluginResponse(ctx, readResponse.SnmpSubagentPluginResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.CoalesceModificationsPluginResponse != nil {
+		readCoalesceModificationsPluginResponse(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 		readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx, readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
@@ -6781,6 +6905,9 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if plan.ResourceType.ValueString() == "snmp-subagent" {
 			readSnmpSubagentPluginResponse(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
+		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+			readCoalesceModificationsPluginResponse(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
@@ -6927,6 +7054,9 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		}
 		if plan.ResourceType.ValueString() == "snmp-subagent" {
 			readSnmpSubagentPluginResponseDefault(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+			readCoalesceModificationsPluginResponseDefault(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.ResourceType.ValueString() == "password-policy-import" {
 			readPasswordPolicyImportPluginResponseDefault(ctx, updateResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)

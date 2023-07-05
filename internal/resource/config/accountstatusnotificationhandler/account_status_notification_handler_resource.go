@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -84,46 +85,50 @@ func (r *defaultAccountStatusNotificationHandlerResource) Configure(_ context.Co
 }
 
 type accountStatusNotificationHandlerResourceModel struct {
-	Id                                             types.String `tfsdk:"id"`
-	LastUpdated                                    types.String `tfsdk:"last_updated"`
-	Notifications                                  types.Set    `tfsdk:"notifications"`
-	RequiredActions                                types.Set    `tfsdk:"required_actions"`
-	Type                                           types.String `tfsdk:"type"`
-	ExtensionClass                                 types.String `tfsdk:"extension_class"`
-	ExtensionArgument                              types.Set    `tfsdk:"extension_argument"`
-	AccountTemporarilyFailureLockedMessageTemplate types.String `tfsdk:"account_temporarily_failure_locked_message_template"`
-	AccountPermanentlyFailureLockedMessageTemplate types.String `tfsdk:"account_permanently_failure_locked_message_template"`
-	AccountIdleLockedMessageTemplate               types.String `tfsdk:"account_idle_locked_message_template"`
-	AccountResetLockedMessageTemplate              types.String `tfsdk:"account_reset_locked_message_template"`
-	AccountUnlockedMessageTemplate                 types.String `tfsdk:"account_unlocked_message_template"`
-	AccountDisabledMessageTemplate                 types.String `tfsdk:"account_disabled_message_template"`
-	AccountEnabledMessageTemplate                  types.String `tfsdk:"account_enabled_message_template"`
-	AccountNotYetActiveMessageTemplate             types.String `tfsdk:"account_not_yet_active_message_template"`
-	AccountExpiredMessageTemplate                  types.String `tfsdk:"account_expired_message_template"`
-	PasswordExpiredMessageTemplate                 types.String `tfsdk:"password_expired_message_template"`
-	PasswordExpiringMessageTemplate                types.String `tfsdk:"password_expiring_message_template"`
-	PasswordResetMessageTemplate                   types.String `tfsdk:"password_reset_message_template"`
-	PasswordChangedMessageTemplate                 types.String `tfsdk:"password_changed_message_template"`
-	AccountCreatedMessageTemplate                  types.String `tfsdk:"account_created_message_template"`
-	AccountUpdatedMessageTemplate                  types.String `tfsdk:"account_updated_message_template"`
-	BindPasswordFailedValidationMessageTemplate    types.String `tfsdk:"bind_password_failed_validation_message_template"`
-	MustChangePasswordMessageTemplate              types.String `tfsdk:"must_change_password_message_template"`
-	AccountStatusNotificationType                  types.Set    `tfsdk:"account_status_notification_type"`
-	ScriptClass                                    types.String `tfsdk:"script_class"`
-	ScriptArgument                                 types.Set    `tfsdk:"script_argument"`
-	EmailAddressAttributeType                      types.Set    `tfsdk:"email_address_attribute_type"`
-	EmailAddressJSONField                          types.String `tfsdk:"email_address_json_field"`
-	EmailAddressJSONObjectFilter                   types.String `tfsdk:"email_address_json_object_filter"`
-	RecipientAddress                               types.Set    `tfsdk:"recipient_address"`
-	SendMessageWithoutEndUserAddress               types.Bool   `tfsdk:"send_message_without_end_user_address"`
-	SenderAddress                                  types.String `tfsdk:"sender_address"`
-	MessageSubject                                 types.Set    `tfsdk:"message_subject"`
-	MessageTemplateFile                            types.Set    `tfsdk:"message_template_file"`
-	Description                                    types.String `tfsdk:"description"`
-	Enabled                                        types.Bool   `tfsdk:"enabled"`
-	Asynchronous                                   types.Bool   `tfsdk:"asynchronous"`
-	AccountCreationNotificationRequestCriteria     types.String `tfsdk:"account_creation_notification_request_criteria"`
-	AccountUpdateNotificationRequestCriteria       types.String `tfsdk:"account_update_notification_request_criteria"`
+	Id                                              types.String `tfsdk:"id"`
+	LastUpdated                                     types.String `tfsdk:"last_updated"`
+	Notifications                                   types.Set    `tfsdk:"notifications"`
+	RequiredActions                                 types.Set    `tfsdk:"required_actions"`
+	Type                                            types.String `tfsdk:"type"`
+	ExtensionClass                                  types.String `tfsdk:"extension_class"`
+	ExtensionArgument                               types.Set    `tfsdk:"extension_argument"`
+	AccountTemporarilyFailureLockedMessageTemplate  types.String `tfsdk:"account_temporarily_failure_locked_message_template"`
+	AccountPermanentlyFailureLockedMessageTemplate  types.String `tfsdk:"account_permanently_failure_locked_message_template"`
+	AccountIdleLockedMessageTemplate                types.String `tfsdk:"account_idle_locked_message_template"`
+	AccountResetLockedMessageTemplate               types.String `tfsdk:"account_reset_locked_message_template"`
+	AccountUnlockedMessageTemplate                  types.String `tfsdk:"account_unlocked_message_template"`
+	AccountDisabledMessageTemplate                  types.String `tfsdk:"account_disabled_message_template"`
+	AccountEnabledMessageTemplate                   types.String `tfsdk:"account_enabled_message_template"`
+	AccountNotYetActiveMessageTemplate              types.String `tfsdk:"account_not_yet_active_message_template"`
+	AccountExpiredMessageTemplate                   types.String `tfsdk:"account_expired_message_template"`
+	PasswordExpiredMessageTemplate                  types.String `tfsdk:"password_expired_message_template"`
+	PasswordExpiringMessageTemplate                 types.String `tfsdk:"password_expiring_message_template"`
+	PasswordResetMessageTemplate                    types.String `tfsdk:"password_reset_message_template"`
+	PasswordChangedMessageTemplate                  types.String `tfsdk:"password_changed_message_template"`
+	AccountAuthenticatedMessageTemplate             types.String `tfsdk:"account_authenticated_message_template"`
+	AccountCreatedMessageTemplate                   types.String `tfsdk:"account_created_message_template"`
+	AccountDeletedMessageTemplate                   types.String `tfsdk:"account_deleted_message_template"`
+	AccountUpdatedMessageTemplate                   types.String `tfsdk:"account_updated_message_template"`
+	BindPasswordFailedValidationMessageTemplate     types.String `tfsdk:"bind_password_failed_validation_message_template"`
+	MustChangePasswordMessageTemplate               types.String `tfsdk:"must_change_password_message_template"`
+	AccountStatusNotificationType                   types.Set    `tfsdk:"account_status_notification_type"`
+	ScriptClass                                     types.String `tfsdk:"script_class"`
+	ScriptArgument                                  types.Set    `tfsdk:"script_argument"`
+	EmailAddressAttributeType                       types.Set    `tfsdk:"email_address_attribute_type"`
+	EmailAddressJSONField                           types.String `tfsdk:"email_address_json_field"`
+	EmailAddressJSONObjectFilter                    types.String `tfsdk:"email_address_json_object_filter"`
+	RecipientAddress                                types.Set    `tfsdk:"recipient_address"`
+	SendMessageWithoutEndUserAddress                types.Bool   `tfsdk:"send_message_without_end_user_address"`
+	SenderAddress                                   types.String `tfsdk:"sender_address"`
+	MessageSubject                                  types.Set    `tfsdk:"message_subject"`
+	MessageTemplateFile                             types.Set    `tfsdk:"message_template_file"`
+	Description                                     types.String `tfsdk:"description"`
+	Enabled                                         types.Bool   `tfsdk:"enabled"`
+	Asynchronous                                    types.Bool   `tfsdk:"asynchronous"`
+	AccountAuthenticationNotificationResultCriteria types.String `tfsdk:"account_authentication_notification_result_criteria"`
+	AccountCreationNotificationRequestCriteria      types.String `tfsdk:"account_creation_notification_request_criteria"`
+	AccountDeletionNotificationRequestCriteria      types.String `tfsdk:"account_deletion_notification_request_criteria"`
+	AccountUpdateNotificationRequestCriteria        types.String `tfsdk:"account_update_notification_request_criteria"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -266,8 +271,24 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"account_authenticated_message_template": schema.StringAttribute{
+				Description: "The path to a file containing the template to use to generate the email message to send in the event that an account has successfully authenticated in a bind operation that matches the criteria provided in the account-authentication-notification-request-criteria property. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"account_created_message_template": schema.StringAttribute{
 				Description: "The path to a file containing the template to use to generate the email message to send in the event that a new account is created in an add request that matches the criteria provided in the account-creation-notification-request-criteria property.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"account_deleted_message_template": schema.StringAttribute{
+				Description: "The path to a file containing the template to use to generate the email message to send in the event that an existing accout has been removed in a delete request that matches the criteria provided in the account-deletion-notification-request-criteria property. Supported in PingDirectory product version 9.3.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -392,8 +413,24 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"account_authentication_notification_result_criteria": schema.StringAttribute{
+				Description: "A result criteria object that identifies which successful bind operations should result in account authentication notifications for this handler. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"account_creation_notification_request_criteria": schema.StringAttribute{
 				Description: "A request criteria object that identifies which add requests should result in account creation notifications for this handler.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"account_deletion_notification_request_criteria": schema.StringAttribute{
+				Description: "A request criteria object that identifies which delete requests should result in account deletion notifications for this handler. Supported in PingDirectory product version 9.3.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -433,8 +470,29 @@ func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context
 }
 
 func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	var model accountStatusNotificationHandlerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.AccountAuthenticationNotificationResultCriteria) {
+		resp.Diagnostics.AddError("Attribute 'account_authentication_notification_result_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AccountDeletionNotificationRequestCriteria) {
+		resp.Diagnostics.AddError("Attribute 'account_deletion_notification_request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AccountAuthenticatedMessageTemplate) {
+		resp.Diagnostics.AddError("Attribute 'account_authenticated_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.AccountDeletedMessageTemplate) {
+		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
 	if internaltypes.IsDefined(model.SenderAddress) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'sender_address' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'sender_address', the 'type' attribute must be one of ['smtp']")
@@ -462,6 +520,10 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 	if internaltypes.IsDefined(model.AccountStatusNotificationType) && model.Type.ValueString() != "admin-alert" && model.Type.ValueString() != "error-log" {
 		resp.Diagnostics.AddError("Attribute 'account_status_notification_type' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'account_status_notification_type', the 'type' attribute must be one of ['admin-alert', 'error-log']")
+	}
+	if internaltypes.IsDefined(model.AccountDeletedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
+		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'account_deleted_message_template', the 'type' attribute must be one of ['multi-part-email']")
 	}
 	if internaltypes.IsDefined(model.MessageTemplateFile) && model.Type.ValueString() != "smtp" {
 		resp.Diagnostics.AddError("Attribute 'message_template_file' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
@@ -531,6 +593,10 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 		resp.Diagnostics.AddError("Attribute 'password_changed_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'password_changed_message_template', the 'type' attribute must be one of ['multi-part-email']")
 	}
+	if internaltypes.IsDefined(model.AccountAuthenticatedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
+		resp.Diagnostics.AddError("Attribute 'account_authenticated_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'account_authenticated_message_template', the 'type' attribute must be one of ['multi-part-email']")
+	}
 	if internaltypes.IsDefined(model.AccountCreatedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
 		resp.Diagnostics.AddError("Attribute 'account_created_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'account_created_message_template', the 'type' attribute must be one of ['multi-part-email']")
@@ -588,8 +654,16 @@ func addOptionalSmtpAccountStatusNotificationHandlerFields(ctx context.Context, 
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticationNotificationResultCriteria) {
+		addRequest.AccountAuthenticationNotificationResultCriteria = plan.AccountAuthenticationNotificationResultCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
 		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletionNotificationRequestCriteria) {
+		addRequest.AccountDeletionNotificationRequestCriteria = plan.AccountDeletionNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
@@ -612,8 +686,16 @@ func addOptionalGroovyScriptedAccountStatusNotificationHandlerFields(ctx context
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticationNotificationResultCriteria) {
+		addRequest.AccountAuthenticationNotificationResultCriteria = plan.AccountAuthenticationNotificationResultCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
 		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletionNotificationRequestCriteria) {
+		addRequest.AccountDeletionNotificationRequestCriteria = plan.AccountDeletionNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
@@ -631,8 +713,16 @@ func addOptionalAdminAlertAccountStatusNotificationHandlerFields(ctx context.Con
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticationNotificationResultCriteria) {
+		addRequest.AccountAuthenticationNotificationResultCriteria = plan.AccountAuthenticationNotificationResultCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
 		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletionNotificationRequestCriteria) {
+		addRequest.AccountDeletionNotificationRequestCriteria = plan.AccountDeletionNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
@@ -650,8 +740,16 @@ func addOptionalErrorLogAccountStatusNotificationHandlerFields(ctx context.Conte
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticationNotificationResultCriteria) {
+		addRequest.AccountAuthenticationNotificationResultCriteria = plan.AccountAuthenticationNotificationResultCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
 		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletionNotificationRequestCriteria) {
+		addRequest.AccountDeletionNotificationRequestCriteria = plan.AccountDeletionNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
@@ -714,8 +812,16 @@ func addOptionalMultiPartEmailAccountStatusNotificationHandlerFields(ctx context
 		addRequest.PasswordChangedMessageTemplate = plan.PasswordChangedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticatedMessageTemplate) {
+		addRequest.AccountAuthenticatedMessageTemplate = plan.AccountAuthenticatedMessageTemplate.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreatedMessageTemplate) {
 		addRequest.AccountCreatedMessageTemplate = plan.AccountCreatedMessageTemplate.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletedMessageTemplate) {
+		addRequest.AccountDeletedMessageTemplate = plan.AccountDeletedMessageTemplate.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdatedMessageTemplate) {
@@ -737,8 +843,16 @@ func addOptionalMultiPartEmailAccountStatusNotificationHandlerFields(ctx context
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticationNotificationResultCriteria) {
+		addRequest.AccountAuthenticationNotificationResultCriteria = plan.AccountAuthenticationNotificationResultCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
 		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletionNotificationRequestCriteria) {
+		addRequest.AccountDeletionNotificationRequestCriteria = plan.AccountDeletionNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
@@ -761,8 +875,16 @@ func addOptionalThirdPartyAccountStatusNotificationHandlerFields(ctx context.Con
 		addRequest.Asynchronous = plan.Asynchronous.ValueBoolPointer()
 	}
 	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountAuthenticationNotificationResultCriteria) {
+		addRequest.AccountAuthenticationNotificationResultCriteria = plan.AccountAuthenticationNotificationResultCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountCreationNotificationRequestCriteria) {
 		addRequest.AccountCreationNotificationRequestCriteria = plan.AccountCreationNotificationRequestCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AccountDeletionNotificationRequestCriteria) {
+		addRequest.AccountDeletionNotificationRequestCriteria = plan.AccountDeletionNotificationRequestCriteria.ValueStringPointer()
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.AccountUpdateNotificationRequestCriteria) {
@@ -810,7 +932,9 @@ func readSmtpAccountStatusNotificationHandlerResponse(ctx context.Context, r *cl
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
+	state.AccountAuthenticationNotificationResultCriteria = internaltypes.StringTypeOrNil(r.AccountAuthenticationNotificationResultCriteria, internaltypes.IsEmptyString(expectedValues.AccountAuthenticationNotificationResultCriteria))
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
+	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
@@ -825,7 +949,9 @@ func readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
+	state.AccountAuthenticationNotificationResultCriteria = internaltypes.StringTypeOrNil(r.AccountAuthenticationNotificationResultCriteria, internaltypes.IsEmptyString(expectedValues.AccountAuthenticationNotificationResultCriteria))
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
+	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
@@ -840,7 +966,9 @@ func readAdminAlertAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
+	state.AccountAuthenticationNotificationResultCriteria = internaltypes.StringTypeOrNil(r.AccountAuthenticationNotificationResultCriteria, internaltypes.IsEmptyString(expectedValues.AccountAuthenticationNotificationResultCriteria))
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
+	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
@@ -855,7 +983,9 @@ func readErrorLogAccountStatusNotificationHandlerResponse(ctx context.Context, r
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
+	state.AccountAuthenticationNotificationResultCriteria = internaltypes.StringTypeOrNil(r.AccountAuthenticationNotificationResultCriteria, internaltypes.IsEmptyString(expectedValues.AccountAuthenticationNotificationResultCriteria))
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
+	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
@@ -878,14 +1008,18 @@ func readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx context.Cont
 	state.PasswordExpiringMessageTemplate = internaltypes.StringTypeOrNil(r.PasswordExpiringMessageTemplate, internaltypes.IsEmptyString(expectedValues.PasswordExpiringMessageTemplate))
 	state.PasswordResetMessageTemplate = internaltypes.StringTypeOrNil(r.PasswordResetMessageTemplate, internaltypes.IsEmptyString(expectedValues.PasswordResetMessageTemplate))
 	state.PasswordChangedMessageTemplate = internaltypes.StringTypeOrNil(r.PasswordChangedMessageTemplate, internaltypes.IsEmptyString(expectedValues.PasswordChangedMessageTemplate))
+	state.AccountAuthenticatedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountAuthenticatedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountAuthenticatedMessageTemplate))
 	state.AccountCreatedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountCreatedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountCreatedMessageTemplate))
+	state.AccountDeletedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountDeletedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountDeletedMessageTemplate))
 	state.AccountUpdatedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountUpdatedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountUpdatedMessageTemplate))
 	state.BindPasswordFailedValidationMessageTemplate = internaltypes.StringTypeOrNil(r.BindPasswordFailedValidationMessageTemplate, internaltypes.IsEmptyString(expectedValues.BindPasswordFailedValidationMessageTemplate))
 	state.MustChangePasswordMessageTemplate = internaltypes.StringTypeOrNil(r.MustChangePasswordMessageTemplate, internaltypes.IsEmptyString(expectedValues.MustChangePasswordMessageTemplate))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
+	state.AccountAuthenticationNotificationResultCriteria = internaltypes.StringTypeOrNil(r.AccountAuthenticationNotificationResultCriteria, internaltypes.IsEmptyString(expectedValues.AccountAuthenticationNotificationResultCriteria))
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
+	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
@@ -900,7 +1034,9 @@ func readThirdPartyAccountStatusNotificationHandlerResponse(ctx context.Context,
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
+	state.AccountAuthenticationNotificationResultCriteria = internaltypes.StringTypeOrNil(r.AccountAuthenticationNotificationResultCriteria, internaltypes.IsEmptyString(expectedValues.AccountAuthenticationNotificationResultCriteria))
 	state.AccountCreationNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountCreationNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountCreationNotificationRequestCriteria))
+	state.AccountDeletionNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountDeletionNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountDeletionNotificationRequestCriteria))
 	state.AccountUpdateNotificationRequestCriteria = internaltypes.StringTypeOrNil(r.AccountUpdateNotificationRequestCriteria, internaltypes.IsEmptyString(expectedValues.AccountUpdateNotificationRequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccountStatusNotificationHandlerUnknownValues(ctx, state)
@@ -924,7 +1060,9 @@ func createAccountStatusNotificationHandlerOperations(plan accountStatusNotifica
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordExpiringMessageTemplate, state.PasswordExpiringMessageTemplate, "password-expiring-message-template")
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordResetMessageTemplate, state.PasswordResetMessageTemplate, "password-reset-message-template")
 	operations.AddStringOperationIfNecessary(&ops, plan.PasswordChangedMessageTemplate, state.PasswordChangedMessageTemplate, "password-changed-message-template")
+	operations.AddStringOperationIfNecessary(&ops, plan.AccountAuthenticatedMessageTemplate, state.AccountAuthenticatedMessageTemplate, "account-authenticated-message-template")
 	operations.AddStringOperationIfNecessary(&ops, plan.AccountCreatedMessageTemplate, state.AccountCreatedMessageTemplate, "account-created-message-template")
+	operations.AddStringOperationIfNecessary(&ops, plan.AccountDeletedMessageTemplate, state.AccountDeletedMessageTemplate, "account-deleted-message-template")
 	operations.AddStringOperationIfNecessary(&ops, plan.AccountUpdatedMessageTemplate, state.AccountUpdatedMessageTemplate, "account-updated-message-template")
 	operations.AddStringOperationIfNecessary(&ops, plan.BindPasswordFailedValidationMessageTemplate, state.BindPasswordFailedValidationMessageTemplate, "bind-password-failed-validation-message-template")
 	operations.AddStringOperationIfNecessary(&ops, plan.MustChangePasswordMessageTemplate, state.MustChangePasswordMessageTemplate, "must-change-password-message-template")
@@ -942,7 +1080,9 @@ func createAccountStatusNotificationHandlerOperations(plan accountStatusNotifica
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Enabled, state.Enabled, "enabled")
 	operations.AddBoolOperationIfNecessary(&ops, plan.Asynchronous, state.Asynchronous, "asynchronous")
+	operations.AddStringOperationIfNecessary(&ops, plan.AccountAuthenticationNotificationResultCriteria, state.AccountAuthenticationNotificationResultCriteria, "account-authentication-notification-result-criteria")
 	operations.AddStringOperationIfNecessary(&ops, plan.AccountCreationNotificationRequestCriteria, state.AccountCreationNotificationRequestCriteria, "account-creation-notification-request-criteria")
+	operations.AddStringOperationIfNecessary(&ops, plan.AccountDeletionNotificationRequestCriteria, state.AccountDeletionNotificationRequestCriteria, "account-deletion-notification-request-criteria")
 	operations.AddStringOperationIfNecessary(&ops, plan.AccountUpdateNotificationRequestCriteria, state.AccountUpdateNotificationRequestCriteria, "account-update-notification-request-criteria")
 	return ops
 }

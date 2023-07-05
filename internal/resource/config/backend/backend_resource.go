@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -174,6 +175,9 @@ type defaultBackendResourceModel struct {
 	TaskRetentionTime                           types.String `tfsdk:"task_retention_time"`
 	NotificationSenderAddress                   types.String `tfsdk:"notification_sender_address"`
 	InsignificantConfigArchiveAttribute         types.Set    `tfsdk:"insignificant_config_archive_attribute"`
+	InsignificantConfigArchiveBaseDN            types.Set    `tfsdk:"insignificant_config_archive_base_dn"`
+	MaintainConfigArchive                       types.Bool   `tfsdk:"maintain_config_archive"`
+	MaxConfigArchiveCount                       types.Int64  `tfsdk:"max_config_archive_count"`
 	MirroredSubtreePeerPollingInterval          types.String `tfsdk:"mirrored_subtree_peer_polling_interval"`
 	MirroredSubtreeEntryUpdateTimeout           types.String `tfsdk:"mirrored_subtree_entry_update_timeout"`
 	MirroredSubtreeSearchTimeout                types.String `tfsdk:"mirrored_subtree_search_timeout"`
@@ -862,6 +866,31 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				setplanmodifier.UseStateForUnknown(),
 			},
 		}
+		schemaDef.Attributes["insignificant_config_archive_base_dn"] = schema.SetAttribute{
+			Description: "The base DN that is considered insignificant for the purpose of maintaining the configuration archive. Supported in PingDirectory product version 9.3.0.0+.",
+			Optional:    true,
+			Computed:    true,
+			ElementType: types.StringType,
+			PlanModifiers: []planmodifier.Set{
+				setplanmodifier.UseStateForUnknown(),
+			},
+		}
+		schemaDef.Attributes["maintain_config_archive"] = schema.BoolAttribute{
+			Description: "Indicates whether the server should maintain the config archive with new changes to the config backend. Supported in PingDirectory product version 9.3.0.0+.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.UseStateForUnknown(),
+			},
+		}
+		schemaDef.Attributes["max_config_archive_count"] = schema.Int64Attribute{
+			Description: "Indicates the maximum number of previous config files to keep as part of maintaining the config archive. Supported in PingDirectory product version 9.3.0.0+.",
+			Optional:    true,
+			Computed:    true,
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
+			},
+		}
 		schemaDef.Attributes["mirrored_subtree_peer_polling_interval"] = schema.StringAttribute{
 			Description: "Tells the server component that is responsible for mirroring configuration data across a topology of servers the maximum amount of time to wait before polling the peer servers in the topology to determine if there are any changes in the topology. Mirrored data includes meta-data about the servers in the topology as well as cluster-wide configuration data.",
 			Optional:    true,
@@ -1175,8 +1204,26 @@ func (r *defaultBackendResource) ModifyPlan(ctx context.Context, req resource.Mo
 }
 
 func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.MaintainConfigArchive) {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
 	if internaltypes.IsDefined(model.DbDirectoryPermissions) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
 		resp.Diagnostics.AddError("Attribute 'db_directory_permissions' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'db_directory_permissions', the 'type' attribute must be one of ['changelog', 'local-db']")
@@ -1441,6 +1488,10 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 		resp.Diagnostics.AddError("Attribute 'index_include_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'index_include_attribute', the 'type' attribute must be one of ['changelog']")
 	}
+	if internaltypes.IsDefined(model.MaintainConfigArchive) && model.Type.ValueString() != "config-file-handler" {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'maintain_config_archive', the 'type' attribute must be one of ['config-file-handler']")
+	}
 	if internaltypes.IsDefined(model.ReportExcludedChangelogAttributes) && model.Type.ValueString() != "changelog" {
 		resp.Diagnostics.AddError("Attribute 'report_excluded_changelog_attributes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'report_excluded_changelog_attributes', the 'type' attribute must be one of ['changelog']")
@@ -1536,6 +1587,14 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	if internaltypes.IsDefined(model.TrustStoreType) && model.Type.ValueString() != "trust-store" {
 		resp.Diagnostics.AddError("Attribute 'trust_store_type' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'trust_store_type', the 'type' attribute must be one of ['trust-store']")
+	}
+	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) && model.Type.ValueString() != "config-file-handler" {
+		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'insignificant_config_archive_base_dn', the 'type' attribute must be one of ['config-file-handler']")
+	}
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) && model.Type.ValueString() != "config-file-handler" {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'max_config_archive_count', the 'type' attribute must be one of ['config-file-handler']")
 	}
 	if internaltypes.IsDefined(model.RetentionPolicy) && model.Type.ValueString() != "metrics" {
 		resp.Diagnostics.AddError("Attribute 'retention_policy' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
@@ -1890,6 +1949,9 @@ func populateBackendUnknownValues(ctx context.Context, model *backendResourceMod
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateBackendUnknownValuesDefault(ctx context.Context, model *defaultBackendResourceModel) {
+	if model.InsignificantConfigArchiveBaseDN.ElementType(ctx) == nil {
+		model.InsignificantConfigArchiveBaseDN = types.SetNull(types.StringType)
+	}
 	if model.ChangelogEntryIncludeFilter.ElementType(ctx) == nil {
 		model.ChangelogEntryIncludeFilter = types.SetNull(types.StringType)
 	}
@@ -2330,6 +2392,9 @@ func readConfigFileHandlerBackendResponseDefault(ctx context.Context, r *client.
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.InsignificantConfigArchiveAttribute = internaltypes.GetStringSet(r.InsignificantConfigArchiveAttribute)
+	state.InsignificantConfigArchiveBaseDN = internaltypes.GetStringSet(r.InsignificantConfigArchiveBaseDN)
+	state.MaintainConfigArchive = internaltypes.BoolTypeOrNil(r.MaintainConfigArchive)
+	state.MaxConfigArchiveCount = internaltypes.Int64TypeOrNil(r.MaxConfigArchiveCount)
 	state.MirroredSubtreePeerPollingInterval = internaltypes.StringTypeOrNil(r.MirroredSubtreePeerPollingInterval, internaltypes.IsEmptyString(expectedValues.MirroredSubtreePeerPollingInterval))
 	config.CheckMismatchedPDFormattedAttributes("mirrored_subtree_peer_polling_interval",
 		expectedValues.MirroredSubtreePeerPollingInterval, state.MirroredSubtreePeerPollingInterval, diagnostics)
@@ -2524,6 +2589,9 @@ func createBackendOperationsDefault(plan defaultBackendResourceModel, state defa
 	operations.AddStringOperationIfNecessary(&ops, plan.TaskRetentionTime, state.TaskRetentionTime, "task-retention-time")
 	operations.AddStringOperationIfNecessary(&ops, plan.NotificationSenderAddress, state.NotificationSenderAddress, "notification-sender-address")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.InsignificantConfigArchiveAttribute, state.InsignificantConfigArchiveAttribute, "insignificant-config-archive-attribute")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.InsignificantConfigArchiveBaseDN, state.InsignificantConfigArchiveBaseDN, "insignificant-config-archive-base-dn")
+	operations.AddBoolOperationIfNecessary(&ops, plan.MaintainConfigArchive, state.MaintainConfigArchive, "maintain-config-archive")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MaxConfigArchiveCount, state.MaxConfigArchiveCount, "max-config-archive-count")
 	operations.AddStringOperationIfNecessary(&ops, plan.MirroredSubtreePeerPollingInterval, state.MirroredSubtreePeerPollingInterval, "mirrored-subtree-peer-polling-interval")
 	operations.AddStringOperationIfNecessary(&ops, plan.MirroredSubtreeEntryUpdateTimeout, state.MirroredSubtreeEntryUpdateTimeout, "mirrored-subtree-entry-update-timeout")
 	operations.AddStringOperationIfNecessary(&ops, plan.MirroredSubtreeSearchTimeout, state.MirroredSubtreeSearchTimeout, "mirrored-subtree-search-timeout")
