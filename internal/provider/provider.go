@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client9200 "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client9300 "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
@@ -316,14 +316,14 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	httpClient := &http.Client{Transport: tr}
 	// Always create a client for the most recent version, since it is
 	// the default used by resources that are compatible with multiple versions
-	clientConfig9200 := client9200.NewConfiguration()
-	clientConfig9200.Servers = client9200.ServerConfigurations{
+	clientConfig9200 := client9300.NewConfiguration()
+	clientConfig9200.Servers = client9300.ServerConfigurations{
 		{
 			URL: httpsHost + "/config",
 		},
 	}
 	clientConfig9200.HTTPClient = httpClient
-	resourceConfig.ApiClientV9200 = client9200.NewAPIClient(clientConfig9200)
+	resourceConfig.ApiClientV9300 = client9300.NewAPIClient(clientConfig9200)
 
 	resp.ResourceData = resourceConfig
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})

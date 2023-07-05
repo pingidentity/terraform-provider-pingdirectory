@@ -1,7 +1,7 @@
 package types
 
 import (
-	client9200 "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client9300 "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 )
 
 // Configuration used by the provider and resources
@@ -15,5 +15,5 @@ type ProviderConfiguration struct {
 // Configuration passed to resources
 type ResourceConfiguration struct {
 	ProviderConfig ProviderConfiguration
-	ApiClientV9200 *client9200.APIClient
+	ApiClientV9300 *client9300.APIClient
 }

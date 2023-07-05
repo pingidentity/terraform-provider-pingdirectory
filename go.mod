@@ -13,11 +13,9 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.3.0
 	github.com/katbyte/terrafmt v0.5.2
 	github.com/pavius/impi v0.0.3
-	github.com/pingidentity/pingdirectory-go-client/v9200 v9200.9.0
+	github.com/pingidentity/pingdirectory-go-client/v9300 v9300.0.0
 	github.com/terraform-linters/tflint v0.46.1
 )
-
-replace github.com/pingidentity/pingdirectory-go-client/v9200 v9200.9.0 => ../pingdirectory-go-client
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -72,7 +72,7 @@ func (r *passThroughAuthenticationHandlerResource) Configure(_ context.Context, 
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -82,7 +82,7 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Configure(_ context.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 type passThroughAuthenticationHandlerResourceModel struct {
@@ -494,11 +494,11 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 	if internaltypes.IsNonEmptyString(model.RequestCriteria) {
 		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsNonEmptyString(model.ConnectionCriteria) {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.ConnectionCriteria) {
+		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
