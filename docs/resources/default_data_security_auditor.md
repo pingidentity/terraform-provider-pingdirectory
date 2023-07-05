@@ -2,12 +2,12 @@
 page_title: "pingdirectory_default_data_security_auditor Resource - terraform-provider-pingdirectory"
 subcategory: "Data Security Auditor"
 description: |-
-  Manages a Data Security Auditor. Supported in PingDirectory product version 9.2.0.0+.
+  Manages a Data Security Auditor.
 ---
 
 # pingdirectory_default_data_security_auditor (Resource)
 
-Manages a Data Security Auditor. Supported in PingDirectory product version 9.2.0.0+.
+Manages a Data Security Auditor.
 
 
 

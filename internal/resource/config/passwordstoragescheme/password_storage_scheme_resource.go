@@ -20,6 +20,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -176,7 +177,7 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 				Optional:    true,
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -309,14 +310,14 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 
 // Validate that any restrictions are met in the plan
 func (r *passwordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_password_storage_scheme")
 }
 
 func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPasswordStorageScheme(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_password_storage_scheme")
 }
 
-func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model passwordStorageSchemeResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.MemoryUsageKb) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
@@ -410,6 +411,30 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 	if internaltypes.IsDefined(model.BcryptCostFactor) && model.Type.ValueString() != "bcrypt" {
 		resp.Diagnostics.AddError("Attribute 'bcrypt_cost_factor' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'bcrypt_cost_factor', the 'type' attribute must be one of ['bcrypt']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2d" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2d\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2i" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"argon2i\"")
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

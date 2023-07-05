@@ -66,7 +66,7 @@ resource "pingdirectory_password_validator" "myPasswordValidator" {
 - `dictionary_file` (String) Specifies the path to the file containing a list of words that cannot be used as passwords.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Validator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Validator.
-- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. Supported in PingDirectory product version 9.2.0.0+.
 - `ignore_leading_non_alphabetic_characters` (Boolean) Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the beginning of a proposed password.
 - `ignore_trailing_non_alphabetic_characters` (Boolean) Indicates whether to ignore any digits, symbols, or other non-alphabetic characters that may appear at the end of a proposed password.
 - `invoke_for_add` (Boolean) Indicates whether this password validator should be used to validate clear-text passwords provided in LDAP add requests.

@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -389,7 +390,7 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 			},
 		}
 		schemaDef.Attributes["http_proxy_external_server"] = schema.StringAttribute{
-			Description: "A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service.",
+			Description: "A reference to an HTTP proxy server that should be used for requests sent to the YubiKey validation service. Supported in PingDirectory product version 9.2.0.0+.",
 			Optional:    true,
 			Computed:    true,
 			PlanModifiers: []planmodifier.String{
@@ -605,6 +606,18 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.AnyRequiredScope) && model.Type.ValueString() != "oauth-bearer" {
 		resp.Diagnostics.AddError("Attribute 'any_required_scope' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'any_required_scope', the 'type' attribute must be one of ['oauth-bearer']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

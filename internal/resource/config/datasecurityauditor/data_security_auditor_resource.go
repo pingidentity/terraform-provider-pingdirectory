@@ -121,7 +121,7 @@ func (r *defaultDataSecurityAuditorResource) Schema(ctx context.Context, req res
 
 func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse, isDefault bool) {
 	schemaDef := schema.Schema{
-		Description: "Manages a Data Security Auditor. Supported in PingDirectory product version 9.2.0.0+.",
+		Description: "Manages a Data Security Auditor.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Data Security Auditor resource. Options are ['expired-password', 'idle-account', 'disabled-account', 'weakly-encoded-password', 'privilege', 'account-usability-issues', 'locked-account', 'filter', 'account-validity-window', 'multiple-password', 'deprecated-password-storage-scheme', 'nonexistent-password-policy', 'access-control', 'third-party']",
@@ -277,8 +277,6 @@ func (r *defaultDataSecurityAuditorResource) ModifyPlan(ctx context.Context, req
 }
 
 func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
-		providerConfig.ProductVersion, resourceName)
 	var model dataSecurityAuditorResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.PasswordEvaluationAge) && model.Type.ValueString() != "expired-password" {
@@ -332,6 +330,43 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 	if internaltypes.IsDefined(model.WeakCryptEncoding) && model.Type.ValueString() != "weakly-encoded-password" {
 		resp.Diagnostics.AddError("Attribute 'weak_crypt_encoding' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'weak_crypt_encoding', the 'type' attribute must be one of ['weakly-encoded-password']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "filter" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"filter\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "idle-account" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"idle_account\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "account-validity-window" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"account_validity_window\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "deprecated-password-storage-scheme" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"deprecated_password_storage_scheme\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "account-usability-issues" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"account_usability_issues\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "nonexistent-password-policy" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"nonexistent_password_policy\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "third-party" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"third_party\"")
 	}
 }
 

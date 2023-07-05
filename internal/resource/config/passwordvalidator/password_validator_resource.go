@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -205,7 +206,7 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 				},
 			},
 			"http_proxy_external_server": schema.StringAttribute{
-				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service.",
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. Supported in PingDirectory product version 9.2.0.0+.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -606,6 +607,18 @@ func modifyPlanPasswordValidator(ctx context.Context, req resource.ModifyPlanReq
 	if internaltypes.IsDefined(model.TestReversedPassword) && model.Type.ValueString() != "attribute-value" && model.Type.ValueString() != "dictionary" {
 		resp.Diagnostics.AddError("Attribute 'test_reversed_password' not supported by pingdirectory_password_validator resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'test_reversed_password', the 'type' attribute must be one of ['attribute-value', 'dictionary']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 

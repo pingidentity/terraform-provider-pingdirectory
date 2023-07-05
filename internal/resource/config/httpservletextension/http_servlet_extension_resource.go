@@ -21,6 +21,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -826,14 +827,14 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 
 // Validate that any restrictions are met in the plan
 func (r *httpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_http_servlet_extension")
 }
 
 func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanHttpServletExtension(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_http_servlet_extension")
 }
 
-func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model defaultHttpServletExtensionResourceModel
 	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "file-server" {
@@ -1111,6 +1112,19 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsDefined(model.OAuthTokenHandler) && model.Type.ValueString() != "ldap-mapped-scim" {
 		resp.Diagnostics.AddError("Attribute 'oauth_token_handler' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'oauth_token_handler', the 'type' attribute must be one of ['ldap-mapped-scim']")
+	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "prometheus-monitoring" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			providerConfig.ProductVersion, resourceName+" with type \"prometheus_monitoring\"")
 	}
 }
 
