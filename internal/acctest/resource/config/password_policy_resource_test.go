@@ -76,7 +76,7 @@ resource "pingdirectory_password_policy" "%[1]s" {
   id                              = "%[2]s"
   password_attribute              = "%[3]s"
   default_password_storage_scheme = %[4]s
-  allow_pre_encoded_passwords = "%[5]s"
+  allow_pre_encoded_passwords     = "%[5]s"
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.passwordAttribute,
