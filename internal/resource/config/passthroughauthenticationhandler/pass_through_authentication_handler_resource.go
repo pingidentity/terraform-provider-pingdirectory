@@ -17,10 +17,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -71,7 +72,7 @@ func (r *passThroughAuthenticationHandlerResource) Configure(_ context.Context, 
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -81,30 +82,45 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Configure(_ context.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 type passThroughAuthenticationHandlerResourceModel struct {
-	Id                                 types.String `tfsdk:"id"`
-	LastUpdated                        types.String `tfsdk:"last_updated"`
-	Notifications                      types.Set    `tfsdk:"notifications"`
-	RequiredActions                    types.Set    `tfsdk:"required_actions"`
-	Type                               types.String `tfsdk:"type"`
-	ExtensionClass                     types.String `tfsdk:"extension_class"`
-	ExtensionArgument                  types.Set    `tfsdk:"extension_argument"`
-	Server                             types.Set    `tfsdk:"server"`
-	ServerAccessMode                   types.String `tfsdk:"server_access_mode"`
-	DnMap                              types.Set    `tfsdk:"dn_map"`
-	BindDNPattern                      types.String `tfsdk:"bind_dn_pattern"`
-	SearchBaseDN                       types.String `tfsdk:"search_base_dn"`
-	SearchFilterPattern                types.String `tfsdk:"search_filter_pattern"`
-	InitialConnections                 types.Int64  `tfsdk:"initial_connections"`
-	MaxConnections                     types.Int64  `tfsdk:"max_connections"`
-	UseLocation                        types.Bool   `tfsdk:"use_location"`
-	MaximumAllowedLocalResponseTime    types.String `tfsdk:"maximum_allowed_local_response_time"`
-	MaximumAllowedNonlocalResponseTime types.String `tfsdk:"maximum_allowed_nonlocal_response_time"`
-	UsePasswordPolicyControl           types.Bool   `tfsdk:"use_password_policy_control"`
-	Description                        types.String `tfsdk:"description"`
+	Id                                          types.String `tfsdk:"id"`
+	LastUpdated                                 types.String `tfsdk:"last_updated"`
+	Notifications                               types.Set    `tfsdk:"notifications"`
+	RequiredActions                             types.Set    `tfsdk:"required_actions"`
+	Type                                        types.String `tfsdk:"type"`
+	ExtensionClass                              types.String `tfsdk:"extension_class"`
+	ExtensionArgument                           types.Set    `tfsdk:"extension_argument"`
+	SubordinatePassThroughAuthenticationHandler types.Set    `tfsdk:"subordinate_pass_through_authentication_handler"`
+	ContinueOnFailureType                       types.Set    `tfsdk:"continue_on_failure_type"`
+	Server                                      types.Set    `tfsdk:"server"`
+	ServerAccessMode                            types.String `tfsdk:"server_access_mode"`
+	DnMap                                       types.Set    `tfsdk:"dn_map"`
+	BindDNPattern                               types.String `tfsdk:"bind_dn_pattern"`
+	SearchBaseDN                                types.String `tfsdk:"search_base_dn"`
+	SearchFilterPattern                         types.String `tfsdk:"search_filter_pattern"`
+	InitialConnections                          types.Int64  `tfsdk:"initial_connections"`
+	MaxConnections                              types.Int64  `tfsdk:"max_connections"`
+	UseLocation                                 types.Bool   `tfsdk:"use_location"`
+	MaximumAllowedLocalResponseTime             types.String `tfsdk:"maximum_allowed_local_response_time"`
+	MaximumAllowedNonlocalResponseTime          types.String `tfsdk:"maximum_allowed_nonlocal_response_time"`
+	UsePasswordPolicyControl                    types.Bool   `tfsdk:"use_password_policy_control"`
+	ApiURL                                      types.String `tfsdk:"api_url"`
+	AuthURL                                     types.String `tfsdk:"auth_url"`
+	OAuthClientID                               types.String `tfsdk:"oauth_client_id"`
+	OAuthClientSecret                           types.String `tfsdk:"oauth_client_secret"`
+	OAuthClientSecretPassphraseProvider         types.String `tfsdk:"oauth_client_secret_passphrase_provider"`
+	EnvironmentID                               types.String `tfsdk:"environment_id"`
+	HttpProxyExternalServer                     types.String `tfsdk:"http_proxy_external_server"`
+	UserMappingLocalAttribute                   types.Set    `tfsdk:"user_mapping_local_attribute"`
+	UserMappingRemoteJSONField                  types.Set    `tfsdk:"user_mapping_remote_json_field"`
+	AdditionalUserMappingSCIMFilter             types.String `tfsdk:"additional_user_mapping_scim_filter"`
+	Description                                 types.String `tfsdk:"description"`
+	IncludedLocalEntryBaseDN                    types.Set    `tfsdk:"included_local_entry_base_dn"`
+	ConnectionCriteria                          types.String `tfsdk:"connection_criteria"`
+	RequestCriteria                             types.String `tfsdk:"request_criteria"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -121,13 +137,13 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 		Description: "Manages a Pass Through Authentication Handler.",
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
-				Description: "The type of Pass Through Authentication Handler resource. Options are ['ldap', 'third-party']",
+				Description: "The type of Pass Through Authentication Handler resource. Options are ['ping-one', 'ldap', 'aggregate', 'third-party']",
 				Required:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"ldap", "third-party"}...),
+					stringvalidator.OneOf([]string{"ping-one", "ldap", "aggregate", "third-party"}...),
 				},
 			},
 			"extension_class": schema.StringAttribute{
@@ -136,6 +152,24 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 			},
 			"extension_argument": schema.SetAttribute{
 				Description: "The set of arguments used to customize the behavior for the Third Party Pass Through Authentication Handler. Each configuration property should be given in the form 'name=value'.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"subordinate_pass_through_authentication_handler": schema.SetAttribute{
+				Description: "The set of subordinate pass-through authentication handlers that may be used to perform the authentication processing. Handlers will be invoked in order until one is found for which the bind operation matches the associated criteria and either succeeds or fails in a manner that should not be ignored.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"continue_on_failure_type": schema.SetAttribute{
+				Description: "The set of pass-through authentication failure types that should not result in an immediate failure, but should instead allow the aggregate handler to proceed with the next configured subordinate handler.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
@@ -233,8 +267,80 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"api_url": schema.StringAttribute{
+				Description: "Specifies the API endpoint for the PingOne web service.",
+				Optional:    true,
+			},
+			"auth_url": schema.StringAttribute{
+				Description: "Specifies the API endpoint for the PingOne authentication service.",
+				Optional:    true,
+			},
+			"oauth_client_id": schema.StringAttribute{
+				Description: "Specifies the OAuth Client ID used to authenticate connections to the PingOne API.",
+				Optional:    true,
+			},
+			"oauth_client_secret": schema.StringAttribute{
+				Description: "Specifies the OAuth Client Secret used to authenticate connections to the PingOne API.",
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"oauth_client_secret_passphrase_provider": schema.StringAttribute{
+				Description: "Specifies a passphrase provider that can be used to obtain the OAuth Client Secret used to authenticate connections to the PingOne API.",
+				Optional:    true,
+			},
+			"environment_id": schema.StringAttribute{
+				Description: "Specifies the PingOne Environment that will be associated with this PingOne Pass Through Authentication Handler.",
+				Optional:    true,
+			},
+			"http_proxy_external_server": schema.StringAttribute{
+				Description: "A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"user_mapping_local_attribute": schema.SetAttribute{
+				Description: "The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"user_mapping_remote_json_field": schema.SetAttribute{
+				Description: "The names of the fields in the PingOne service whose values must match the values of the corresponding attributes in the local user entry, as specified in the user-mapping-local-attribute property.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"additional_user_mapping_scim_filter": schema.StringAttribute{
+				Description: "An optional SCIM filter that will be ANDed with the filter created to identify the account in the PingOne service that corresponds to the local entry. Only the \"eq\", \"sw\", \"and\", and \"or\" filter types may be used.",
+				Optional:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Pass Through Authentication Handler",
+				Optional:    true,
+			},
+			"included_local_entry_base_dn": schema.SetAttribute{
+				Description: "The base DNs for the local users whose authentication attempts may be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					setplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"connection_criteria": schema.StringAttribute{
+				Description: "A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+			},
+			"request_criteria": schema.StringAttribute{
+				Description: "A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.",
 				Optional:    true,
 			},
 		},
@@ -242,7 +348,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
 		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"ldap", "third-party"}...),
+			stringvalidator.OneOf([]string{"ping-one", "ldap", "aggregate", "third-party"}...),
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
@@ -254,35 +360,47 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 
 // Validate that any restrictions are met in the plan
 func (r *passThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_pass_through_authentication_handler")
 }
 
 func (r *defaultPassThroughAuthenticationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+	modifyPlanPassThroughAuthenticationHandler(ctx, req, resp, r.apiClient, r.providerConfig, "pingdirectory_default_pass_through_authentication_handler")
 }
 
-func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
 	var model passThroughAuthenticationHandlerResourceModel
 	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.AdditionalUserMappingSCIMFilter) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'additional_user_mapping_scim_filter' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'additional_user_mapping_scim_filter', the 'type' attribute must be one of ['ping-one']")
+	}
 	if internaltypes.IsDefined(model.Server) && model.Type.ValueString() != "ldap" {
 		resp.Diagnostics.AddError("Attribute 'server' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'server', the 'type' attribute must be one of ['ldap']")
 	}
-	if internaltypes.IsDefined(model.InitialConnections) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'initial_connections' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'initial_connections', the 'type' attribute must be one of ['ldap']")
+	if internaltypes.IsDefined(model.ApiURL) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'api_url' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'api_url', the 'type' attribute must be one of ['ping-one']")
 	}
 	if internaltypes.IsDefined(model.UseLocation) && model.Type.ValueString() != "ldap" {
 		resp.Diagnostics.AddError("Attribute 'use_location' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'use_location', the 'type' attribute must be one of ['ldap']")
 	}
+	if internaltypes.IsDefined(model.AuthURL) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'auth_url' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'auth_url', the 'type' attribute must be one of ['ping-one']")
+	}
+	if internaltypes.IsDefined(model.OAuthClientID) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'oauth_client_id' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'oauth_client_id', the 'type' attribute must be one of ['ping-one']")
+	}
 	if internaltypes.IsDefined(model.ServerAccessMode) && model.Type.ValueString() != "ldap" {
 		resp.Diagnostics.AddError("Attribute 'server_access_mode' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'server_access_mode', the 'type' attribute must be one of ['ldap']")
 	}
-	if internaltypes.IsDefined(model.SearchFilterPattern) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'search_filter_pattern' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_filter_pattern', the 'type' attribute must be one of ['ldap']")
+	if internaltypes.IsDefined(model.ContinueOnFailureType) && model.Type.ValueString() != "aggregate" {
+		resp.Diagnostics.AddError("Attribute 'continue_on_failure_type' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'continue_on_failure_type', the 'type' attribute must be one of ['aggregate']")
 	}
 	if internaltypes.IsDefined(model.MaxConnections) && model.Type.ValueString() != "ldap" {
 		resp.Diagnostics.AddError("Attribute 'max_connections' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
@@ -292,21 +410,57 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 		resp.Diagnostics.AddError("Attribute 'search_base_dn' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'search_base_dn', the 'type' attribute must be one of ['ldap']")
 	}
-	if internaltypes.IsDefined(model.MaximumAllowedLocalResponseTime) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'maximum_allowed_local_response_time' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_allowed_local_response_time', the 'type' attribute must be one of ['ldap']")
-	}
 	if internaltypes.IsDefined(model.DnMap) && model.Type.ValueString() != "ldap" {
 		resp.Diagnostics.AddError("Attribute 'dn_map' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'dn_map', the 'type' attribute must be one of ['ldap']")
 	}
-	if internaltypes.IsDefined(model.MaximumAllowedNonlocalResponseTime) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'maximum_allowed_nonlocal_response_time' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_allowed_nonlocal_response_time', the 'type' attribute must be one of ['ldap']")
+	if internaltypes.IsDefined(model.OAuthClientSecretPassphraseProvider) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'oauth_client_secret_passphrase_provider' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'oauth_client_secret_passphrase_provider', the 'type' attribute must be one of ['ping-one']")
+	}
+	if internaltypes.IsDefined(model.UserMappingRemoteJSONField) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'user_mapping_remote_json_field' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'user_mapping_remote_json_field', the 'type' attribute must be one of ['ping-one']")
+	}
+	if internaltypes.IsDefined(model.UserMappingLocalAttribute) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'user_mapping_local_attribute' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'user_mapping_local_attribute', the 'type' attribute must be one of ['ping-one']")
+	}
+	if internaltypes.IsDefined(model.SubordinatePassThroughAuthenticationHandler) && model.Type.ValueString() != "aggregate" {
+		resp.Diagnostics.AddError("Attribute 'subordinate_pass_through_authentication_handler' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'subordinate_pass_through_authentication_handler', the 'type' attribute must be one of ['aggregate']")
+	}
+	if internaltypes.IsDefined(model.EnvironmentID) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'environment_id' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'environment_id', the 'type' attribute must be one of ['ping-one']")
 	}
 	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
 		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
+	}
+	if internaltypes.IsDefined(model.InitialConnections) && model.Type.ValueString() != "ldap" {
+		resp.Diagnostics.AddError("Attribute 'initial_connections' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'initial_connections', the 'type' attribute must be one of ['ldap']")
+	}
+	if internaltypes.IsDefined(model.SearchFilterPattern) && model.Type.ValueString() != "ldap" {
+		resp.Diagnostics.AddError("Attribute 'search_filter_pattern' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'search_filter_pattern', the 'type' attribute must be one of ['ldap']")
+	}
+	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['ping-one']")
+	}
+	if internaltypes.IsDefined(model.MaximumAllowedLocalResponseTime) && model.Type.ValueString() != "ldap" {
+		resp.Diagnostics.AddError("Attribute 'maximum_allowed_local_response_time' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'maximum_allowed_local_response_time', the 'type' attribute must be one of ['ldap']")
+	}
+	if internaltypes.IsDefined(model.OAuthClientSecret) && model.Type.ValueString() != "ping-one" {
+		resp.Diagnostics.AddError("Attribute 'oauth_client_secret' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'oauth_client_secret', the 'type' attribute must be one of ['ping-one']")
+	}
+	if internaltypes.IsDefined(model.MaximumAllowedNonlocalResponseTime) && model.Type.ValueString() != "ldap" {
+		resp.Diagnostics.AddError("Attribute 'maximum_allowed_nonlocal_response_time' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
+			"When using attribute 'maximum_allowed_nonlocal_response_time', the 'type' attribute must be one of ['ldap']")
 	}
 	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
 		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
@@ -320,6 +474,70 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 		resp.Diagnostics.AddError("Attribute 'bind_dn_pattern' not supported by pingdirectory_pass_through_authentication_handler resources with 'type' '"+model.Type.ValueString()+"'",
 			"When using attribute 'bind_dn_pattern', the 'type' attribute must be one of ['ldap']")
 	}
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "ping-one" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"ping_one\"")
+	}
+	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "aggregate" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
+			providerConfig.ProductVersion, resourceName+" with type \"aggregate\"")
+	}
+	if internaltypes.IsNonEmptyString(model.RequestCriteria) {
+		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) {
+		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsNonEmptyString(model.ConnectionCriteria) {
+		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
+// Add optional fields to create request for ping-one pass-through-authentication-handler
+func addOptionalPingOnePassThroughAuthenticationHandlerFields(ctx context.Context, addRequest *client.AddPingOnePassThroughAuthenticationHandlerRequest, plan passThroughAuthenticationHandlerResourceModel) error {
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.OAuthClientSecret) {
+		addRequest.OAuthClientSecret = plan.OAuthClientSecret.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.OAuthClientSecretPassphraseProvider) {
+		addRequest.OAuthClientSecretPassphraseProvider = plan.OAuthClientSecretPassphraseProvider.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.HttpProxyExternalServer) {
+		addRequest.HttpProxyExternalServer = plan.HttpProxyExternalServer.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AdditionalUserMappingSCIMFilter) {
+		addRequest.AdditionalUserMappingSCIMFilter = plan.AdditionalUserMappingSCIMFilter.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludedLocalEntryBaseDN) {
+		var slice []string
+		plan.IncludedLocalEntryBaseDN.ElementsAs(ctx, &slice, false)
+		addRequest.IncludedLocalEntryBaseDN = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
+	}
+	return nil
 }
 
 // Add optional fields to create request for ldap pass-through-authentication-handler
@@ -373,6 +591,54 @@ func addOptionalLdapPassThroughAuthenticationHandlerFields(ctx context.Context, 
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.IncludedLocalEntryBaseDN) {
+		var slice []string
+		plan.IncludedLocalEntryBaseDN.ElementsAs(ctx, &slice, false)
+		addRequest.IncludedLocalEntryBaseDN = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
+	}
+	return nil
+}
+
+// Add optional fields to create request for aggregate pass-through-authentication-handler
+func addOptionalAggregatePassThroughAuthenticationHandlerFields(ctx context.Context, addRequest *client.AddAggregatePassThroughAuthenticationHandlerRequest, plan passThroughAuthenticationHandlerResourceModel) error {
+	if internaltypes.IsDefined(plan.ContinueOnFailureType) {
+		var slice []string
+		plan.ContinueOnFailureType.ElementsAs(ctx, &slice, false)
+		enumSlice := make([]client.EnumpassThroughAuthenticationHandlerContinueOnFailureTypeProp, len(slice))
+		for i := 0; i < len(slice); i++ {
+			enumVal, err := client.NewEnumpassThroughAuthenticationHandlerContinueOnFailureTypePropFromValue(slice[i])
+			if err != nil {
+				return err
+			}
+			enumSlice[i] = *enumVal
+		}
+		addRequest.ContinueOnFailureType = enumSlice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.Description) {
+		addRequest.Description = plan.Description.ValueStringPointer()
+	}
+	if internaltypes.IsDefined(plan.IncludedLocalEntryBaseDN) {
+		var slice []string
+		plan.IncludedLocalEntryBaseDN.ElementsAs(ctx, &slice, false)
+		addRequest.IncludedLocalEntryBaseDN = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
+	}
 	return nil
 }
 
@@ -387,11 +653,33 @@ func addOptionalThirdPartyPassThroughAuthenticationHandlerFields(ctx context.Con
 	if internaltypes.IsNonEmptyString(plan.Description) {
 		addRequest.Description = plan.Description.ValueStringPointer()
 	}
+	if internaltypes.IsDefined(plan.IncludedLocalEntryBaseDN) {
+		var slice []string
+		plan.IncludedLocalEntryBaseDN.ElementsAs(ctx, &slice, false)
+		addRequest.IncludedLocalEntryBaseDN = slice
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.ConnectionCriteria) {
+		addRequest.ConnectionCriteria = plan.ConnectionCriteria.ValueStringPointer()
+	}
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.RequestCriteria) {
+		addRequest.RequestCriteria = plan.RequestCriteria.ValueStringPointer()
+	}
 	return nil
 }
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, model *passThroughAuthenticationHandlerResourceModel) {
+	if model.UserMappingRemoteJSONField.ElementType(ctx) == nil {
+		model.UserMappingRemoteJSONField = types.SetNull(types.StringType)
+	}
+	if model.SubordinatePassThroughAuthenticationHandler.ElementType(ctx) == nil {
+		model.SubordinatePassThroughAuthenticationHandler = types.SetNull(types.StringType)
+	}
+	if model.UserMappingLocalAttribute.ElementType(ctx) == nil {
+		model.UserMappingLocalAttribute = types.SetNull(types.StringType)
+	}
 	if model.DnMap.ElementType(ctx) == nil {
 		model.DnMap = types.SetNull(types.StringType)
 	}
@@ -401,6 +689,35 @@ func populatePassThroughAuthenticationHandlerUnknownValues(ctx context.Context, 
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
 	}
+	if model.ContinueOnFailureType.ElementType(ctx) == nil {
+		model.ContinueOnFailureType = types.SetNull(types.StringType)
+	}
+	if model.OAuthClientSecret.IsUnknown() {
+		model.OAuthClientSecret = types.StringNull()
+	}
+}
+
+// Read a PingOnePassThroughAuthenticationHandlerResponse object into the model struct
+func readPingOnePassThroughAuthenticationHandlerResponse(ctx context.Context, r *client.PingOnePassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerResourceModel, expectedValues *passThroughAuthenticationHandlerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ping-one")
+	state.Id = types.StringValue(r.Id)
+	state.ApiURL = types.StringValue(r.ApiURL)
+	state.AuthURL = types.StringValue(r.AuthURL)
+	state.OAuthClientID = types.StringValue(r.OAuthClientID)
+	// Obscured values aren't returned from the PD Configuration API - just use the expected value
+	state.OAuthClientSecret = expectedValues.OAuthClientSecret
+	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
+	state.EnvironmentID = types.StringValue(r.EnvironmentID)
+	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
+	state.UserMappingLocalAttribute = internaltypes.GetStringSet(r.UserMappingLocalAttribute)
+	state.UserMappingRemoteJSONField = internaltypes.GetStringSet(r.UserMappingRemoteJSONField)
+	state.AdditionalUserMappingSCIMFilter = internaltypes.StringTypeOrNil(r.AdditionalUserMappingSCIMFilter, internaltypes.IsEmptyString(expectedValues.AdditionalUserMappingSCIMFilter))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
 }
 
 // Read a LdapPassThroughAuthenticationHandlerResponse object into the model struct
@@ -424,6 +741,24 @@ func readLdapPassThroughAuthenticationHandlerResponse(ctx context.Context, r *cl
 		expectedValues.MaximumAllowedNonlocalResponseTime, state.MaximumAllowedNonlocalResponseTime, diagnostics)
 	state.UsePasswordPolicyControl = internaltypes.BoolTypeOrNil(r.UsePasswordPolicyControl)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
+	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+}
+
+// Read a AggregatePassThroughAuthenticationHandlerResponse object into the model struct
+func readAggregatePassThroughAuthenticationHandlerResponse(ctx context.Context, r *client.AggregatePassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerResourceModel, expectedValues *passThroughAuthenticationHandlerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("aggregate")
+	state.Id = types.StringValue(r.Id)
+	state.SubordinatePassThroughAuthenticationHandler = internaltypes.GetStringSet(r.SubordinatePassThroughAuthenticationHandler)
+	state.ContinueOnFailureType = internaltypes.GetStringSet(
+		client.StringSliceEnumpassThroughAuthenticationHandlerContinueOnFailureTypeProp(r.ContinueOnFailureType))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
 }
@@ -435,6 +770,9 @@ func readThirdPartyPassThroughAuthenticationHandlerResponse(ctx context.Context,
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
+	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
+	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
 }
@@ -444,6 +782,8 @@ func createPassThroughAuthenticationHandlerOperations(plan passThroughAuthentica
 	var ops []client.Operation
 	operations.AddStringOperationIfNecessary(&ops, plan.ExtensionClass, state.ExtensionClass, "extension-class")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.ExtensionArgument, state.ExtensionArgument, "extension-argument")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.SubordinatePassThroughAuthenticationHandler, state.SubordinatePassThroughAuthenticationHandler, "subordinate-pass-through-authentication-handler")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.ContinueOnFailureType, state.ContinueOnFailureType, "continue-on-failure-type")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.Server, state.Server, "server")
 	operations.AddStringOperationIfNecessary(&ops, plan.ServerAccessMode, state.ServerAccessMode, "server-access-mode")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DnMap, state.DnMap, "dn-map")
@@ -456,8 +796,68 @@ func createPassThroughAuthenticationHandlerOperations(plan passThroughAuthentica
 	operations.AddStringOperationIfNecessary(&ops, plan.MaximumAllowedLocalResponseTime, state.MaximumAllowedLocalResponseTime, "maximum-allowed-local-response-time")
 	operations.AddStringOperationIfNecessary(&ops, plan.MaximumAllowedNonlocalResponseTime, state.MaximumAllowedNonlocalResponseTime, "maximum-allowed-nonlocal-response-time")
 	operations.AddBoolOperationIfNecessary(&ops, plan.UsePasswordPolicyControl, state.UsePasswordPolicyControl, "use-password-policy-control")
+	operations.AddStringOperationIfNecessary(&ops, plan.ApiURL, state.ApiURL, "api-url")
+	operations.AddStringOperationIfNecessary(&ops, plan.AuthURL, state.AuthURL, "auth-url")
+	operations.AddStringOperationIfNecessary(&ops, plan.OAuthClientID, state.OAuthClientID, "oauth-client-id")
+	operations.AddStringOperationIfNecessary(&ops, plan.OAuthClientSecret, state.OAuthClientSecret, "oauth-client-secret")
+	operations.AddStringOperationIfNecessary(&ops, plan.OAuthClientSecretPassphraseProvider, state.OAuthClientSecretPassphraseProvider, "oauth-client-secret-passphrase-provider")
+	operations.AddStringOperationIfNecessary(&ops, plan.EnvironmentID, state.EnvironmentID, "environment-id")
+	operations.AddStringOperationIfNecessary(&ops, plan.HttpProxyExternalServer, state.HttpProxyExternalServer, "http-proxy-external-server")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.UserMappingLocalAttribute, state.UserMappingLocalAttribute, "user-mapping-local-attribute")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.UserMappingRemoteJSONField, state.UserMappingRemoteJSONField, "user-mapping-remote-json-field")
+	operations.AddStringOperationIfNecessary(&ops, plan.AdditionalUserMappingSCIMFilter, state.AdditionalUserMappingSCIMFilter, "additional-user-mapping-scim-filter")
 	operations.AddStringOperationIfNecessary(&ops, plan.Description, state.Description, "description")
+	operations.AddStringSetOperationsIfNecessary(&ops, plan.IncludedLocalEntryBaseDN, state.IncludedLocalEntryBaseDN, "included-local-entry-base-dn")
+	operations.AddStringOperationIfNecessary(&ops, plan.ConnectionCriteria, state.ConnectionCriteria, "connection-criteria")
+	operations.AddStringOperationIfNecessary(&ops, plan.RequestCriteria, state.RequestCriteria, "request-criteria")
 	return ops
+}
+
+// Create a ping-one pass-through-authentication-handler
+func (r *passThroughAuthenticationHandlerResource) CreatePingOnePassThroughAuthenticationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passThroughAuthenticationHandlerResourceModel) (*passThroughAuthenticationHandlerResourceModel, error) {
+	var UserMappingLocalAttributeSlice []string
+	plan.UserMappingLocalAttribute.ElementsAs(ctx, &UserMappingLocalAttributeSlice, false)
+	var UserMappingRemoteJSONFieldSlice []string
+	plan.UserMappingRemoteJSONField.ElementsAs(ctx, &UserMappingRemoteJSONFieldSlice, false)
+	addRequest := client.NewAddPingOnePassThroughAuthenticationHandlerRequest(plan.Id.ValueString(),
+		[]client.EnumpingOnePassThroughAuthenticationHandlerSchemaUrn{client.ENUMPINGONEPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERPING_ONE},
+		plan.ApiURL.ValueString(),
+		plan.AuthURL.ValueString(),
+		plan.OAuthClientID.ValueString(),
+		plan.EnvironmentID.ValueString(),
+		UserMappingLocalAttributeSlice,
+		UserMappingRemoteJSONFieldSlice)
+	err := addOptionalPingOnePassThroughAuthenticationHandlerFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Handler", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddPassThroughAuthenticationHandlerRequest(
+		client.AddPingOnePassThroughAuthenticationHandlerRequestAsAddPassThroughAuthenticationHandlerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Pass Through Authentication Handler", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state passThroughAuthenticationHandlerResourceModel
+	readPingOnePassThroughAuthenticationHandlerResponse(ctx, addResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
 }
 
 // Create a ldap pass-through-authentication-handler
@@ -497,6 +897,46 @@ func (r *passThroughAuthenticationHandlerResource) CreateLdapPassThroughAuthenti
 	// Read the response into the state
 	var state passThroughAuthenticationHandlerResourceModel
 	readLdapPassThroughAuthenticationHandlerResponse(ctx, addResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+	return &state, nil
+}
+
+// Create a aggregate pass-through-authentication-handler
+func (r *passThroughAuthenticationHandlerResource) CreateAggregatePassThroughAuthenticationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passThroughAuthenticationHandlerResourceModel) (*passThroughAuthenticationHandlerResourceModel, error) {
+	var SubordinatePassThroughAuthenticationHandlerSlice []string
+	plan.SubordinatePassThroughAuthenticationHandler.ElementsAs(ctx, &SubordinatePassThroughAuthenticationHandlerSlice, false)
+	addRequest := client.NewAddAggregatePassThroughAuthenticationHandlerRequest(plan.Id.ValueString(),
+		[]client.EnumaggregatePassThroughAuthenticationHandlerSchemaUrn{client.ENUMAGGREGATEPASSTHROUGHAUTHENTICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASS_THROUGH_AUTHENTICATION_HANDLERAGGREGATE},
+		SubordinatePassThroughAuthenticationHandlerSlice)
+	err := addOptionalAggregatePassThroughAuthenticationHandlerFields(ctx, addRequest, plan)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to add optional properties to add request for Pass Through Authentication Handler", err.Error())
+		return nil, err
+	}
+	// Log request JSON
+	requestJson, err := addRequest.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add request: "+string(requestJson))
+	}
+	apiAddRequest := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandler(
+		config.ProviderBasicAuthContext(ctx, r.providerConfig))
+	apiAddRequest = apiAddRequest.AddPassThroughAuthenticationHandlerRequest(
+		client.AddAggregatePassThroughAuthenticationHandlerRequestAsAddPassThroughAuthenticationHandlerRequest(addRequest))
+
+	addResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.AddPassThroughAuthenticationHandlerExecute(apiAddRequest)
+	if err != nil {
+		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while creating the Pass Through Authentication Handler", err, httpResp)
+		return nil, err
+	}
+
+	// Log response JSON
+	responseJson, err := addResponse.MarshalJSON()
+	if err == nil {
+		tflog.Debug(ctx, "Add response: "+string(responseJson))
+	}
+
+	// Read the response into the state
+	var state passThroughAuthenticationHandlerResourceModel
+	readAggregatePassThroughAuthenticationHandlerResponse(ctx, addResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	return &state, nil
 }
 
@@ -550,8 +990,20 @@ func (r *passThroughAuthenticationHandlerResource) Create(ctx context.Context, r
 
 	var state *passThroughAuthenticationHandlerResourceModel
 	var err error
+	if plan.Type.ValueString() == "ping-one" {
+		state, err = r.CreatePingOnePassThroughAuthenticationHandler(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
 	if plan.Type.ValueString() == "ldap" {
 		state, err = r.CreateLdapPassThroughAuthenticationHandler(ctx, req, resp, plan)
+		if err != nil {
+			return
+		}
+	}
+	if plan.Type.ValueString() == "aggregate" {
+		state, err = r.CreateAggregatePassThroughAuthenticationHandler(ctx, req, resp, plan)
 		if err != nil {
 			return
 		}
@@ -602,8 +1054,14 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 
 	// Read the existing configuration
 	var state passThroughAuthenticationHandlerResourceModel
+	if plan.Type.ValueString() == "ping-one" {
+		readPingOnePassThroughAuthenticationHandlerResponse(ctx, readResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+	}
 	if plan.Type.ValueString() == "ldap" {
 		readLdapPassThroughAuthenticationHandlerResponse(ctx, readResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+	}
+	if plan.Type.ValueString() == "aggregate" {
+		readAggregatePassThroughAuthenticationHandlerResponse(ctx, readResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
 		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
@@ -630,8 +1088,14 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "ping-one" {
+			readPingOnePassThroughAuthenticationHandlerResponse(ctx, updateResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.Type.ValueString() == "ldap" {
 			readLdapPassThroughAuthenticationHandlerResponse(ctx, updateResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "aggregate" {
+			readAggregatePassThroughAuthenticationHandlerResponse(ctx, updateResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
 			readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
@@ -679,8 +1143,14 @@ func readPassThroughAuthenticationHandler(ctx context.Context, req resource.Read
 	}
 
 	// Read the response into the state
+	if readResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
+		readPingOnePassThroughAuthenticationHandlerResponse(ctx, readResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
 	if readResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 		readLdapPassThroughAuthenticationHandlerResponse(ctx, readResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
+	}
+	if readResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
+		readAggregatePassThroughAuthenticationHandlerResponse(ctx, readResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
@@ -738,8 +1208,14 @@ func updatePassThroughAuthenticationHandler(ctx context.Context, req resource.Up
 		}
 
 		// Read the response
+		if plan.Type.ValueString() == "ping-one" {
+			readPingOnePassThroughAuthenticationHandlerResponse(ctx, updateResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
 		if plan.Type.ValueString() == "ldap" {
 			readLdapPassThroughAuthenticationHandlerResponse(ctx, updateResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		}
+		if plan.Type.ValueString() == "aggregate" {
+			readAggregatePassThroughAuthenticationHandlerResponse(ctx, updateResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		if plan.Type.ValueString() == "third-party" {
 			readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)

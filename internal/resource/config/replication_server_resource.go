@@ -15,9 +15,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -51,28 +52,29 @@ func (r *replicationServerResource) Configure(_ context.Context, req resource.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 type replicationServerResourceModel struct {
 	// Id field required for acceptance testing framework
-	Id                          types.String `tfsdk:"id"`
-	LastUpdated                 types.String `tfsdk:"last_updated"`
-	Notifications               types.Set    `tfsdk:"notifications"`
-	RequiredActions             types.Set    `tfsdk:"required_actions"`
-	SynchronizationProviderName types.String `tfsdk:"synchronization_provider_name"`
-	ReplicationServerID         types.Int64  `tfsdk:"replication_server_id"`
-	ReplicationDBDirectory      types.String `tfsdk:"replication_db_directory"`
-	JeProperty                  types.Set    `tfsdk:"je_property"`
-	ReplicationPurgeDelay       types.String `tfsdk:"replication_purge_delay"`
-	TargetDatabaseSize          types.String `tfsdk:"target_database_size"`
-	ReplicationPort             types.Int64  `tfsdk:"replication_port"`
-	ListenOnAllAddresses        types.Bool   `tfsdk:"listen_on_all_addresses"`
-	CompressionCriteria         types.String `tfsdk:"compression_criteria"`
-	HeartbeatInterval           types.String `tfsdk:"heartbeat_interval"`
-	RemoteMonitorUpdateInterval types.String `tfsdk:"remote_monitor_update_interval"`
-	RestrictedDomain            types.Set    `tfsdk:"restricted_domain"`
-	GatewayPriority             types.Int64  `tfsdk:"gateway_priority"`
+	Id                                  types.String `tfsdk:"id"`
+	LastUpdated                         types.String `tfsdk:"last_updated"`
+	Notifications                       types.Set    `tfsdk:"notifications"`
+	RequiredActions                     types.Set    `tfsdk:"required_actions"`
+	SynchronizationProviderName         types.String `tfsdk:"synchronization_provider_name"`
+	ReplicationServerID                 types.Int64  `tfsdk:"replication_server_id"`
+	ReplicationDBDirectory              types.String `tfsdk:"replication_db_directory"`
+	JeProperty                          types.Set    `tfsdk:"je_property"`
+	ReplicationPurgeDelay               types.String `tfsdk:"replication_purge_delay"`
+	TargetDatabaseSize                  types.String `tfsdk:"target_database_size"`
+	ReplicationPort                     types.Int64  `tfsdk:"replication_port"`
+	ListenOnAllAddresses                types.Bool   `tfsdk:"listen_on_all_addresses"`
+	CompressionCriteria                 types.String `tfsdk:"compression_criteria"`
+	HeartbeatInterval                   types.String `tfsdk:"heartbeat_interval"`
+	RemoteMonitorUpdateInterval         types.String `tfsdk:"remote_monitor_update_interval"`
+	RestrictedDomain                    types.Set    `tfsdk:"restricted_domain"`
+	GatewayPriority                     types.Int64  `tfsdk:"gateway_priority"`
+	MissingChangesAlertThresholdPercent types.Int64  `tfsdk:"missing_changes_alert_threshold_percent"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -186,10 +188,36 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
+			"missing_changes_alert_threshold_percent": schema.Int64Attribute{
+				Description: "Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 	AddCommonSchema(&schemaDef, false)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan
+func (r *replicationServerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model replicationServerResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.MissingChangesAlertThresholdPercent) {
+		resp.Diagnostics.AddError("Attribute 'missing_changes_alert_threshold_percent' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
 }
 
 // Read a ReplicationServerResponse object into the model struct
@@ -218,6 +246,7 @@ func readReplicationServerResponse(ctx context.Context, r *client.ReplicationSer
 		expectedValues.RemoteMonitorUpdateInterval, state.RemoteMonitorUpdateInterval, diagnostics)
 	state.RestrictedDomain = internaltypes.GetStringSet(r.RestrictedDomain)
 	state.GatewayPriority = types.Int64Value(r.GatewayPriority)
+	state.MissingChangesAlertThresholdPercent = internaltypes.Int64TypeOrNil(r.MissingChangesAlertThresholdPercent)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -236,6 +265,7 @@ func createReplicationServerOperations(plan replicationServerResourceModel, stat
 	operations.AddStringOperationIfNecessary(&ops, plan.RemoteMonitorUpdateInterval, state.RemoteMonitorUpdateInterval, "remote-monitor-update-interval")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.RestrictedDomain, state.RestrictedDomain, "restricted-domain")
 	operations.AddInt64OperationIfNecessary(&ops, plan.GatewayPriority, state.GatewayPriority, "gateway-priority")
+	operations.AddInt64OperationIfNecessary(&ops, plan.MissingChangesAlertThresholdPercent, state.MissingChangesAlertThresholdPercent, "missing-changes-alert-threshold-percent")
 	return ops
 }
 

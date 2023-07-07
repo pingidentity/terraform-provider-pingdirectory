@@ -33,7 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version        = "9.3.0.0"
 }
 
 resource "pingdirectory_connection_handler" "myConnectionHandler" {
@@ -89,9 +89,9 @@ resource "pingdirectory_connection_handler" "myConnectionHandler" {
 - `response_header` (Set of String) Specifies HTTP header fields and values added to response headers for all requests.
 - `send_rejection_notice` (Boolean) Indicates whether the LDAP Connection Handler should send a notice of disconnection extended response message to the client if a new connection is rejected for some reason.
 - `ssl_cert_nickname` (String) Specifies the nickname (also called the alias) of the certificate that the JMX Connection Handler should use when performing SSL communication.
-- `ssl_cipher_suite` (Set of String) Specifies the names of the SSL cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.
+- `ssl_cipher_suite` (Set of String) Specifies the names of the TLS cipher suites that are allowed for use in SSL or StartTLS communication. The set of supported cipher suites can be viewed via the ssl context monitor entry.
 - `ssl_client_auth_policy` (String) Specifies the policy that the LDAP Connection Handler should use regarding client SSL certificates.
-- `ssl_protocol` (Set of String) Specifies the names of the SSL protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.
+- `ssl_protocol` (Set of String) Specifies the names of the TLS protocols that are allowed for use in SSL or StartTLS communication. The set of supported ssl protocols can be viewed via the ssl context monitor entry.
 - `trust_manager_provider` (String) Specifies the name of the trust manager that should be used with the LDAP Connection Handler .
 - `use_correlation_id_header` (Boolean) If enabled, a correlation ID header will be added to outgoing HTTP responses.
 - `use_forwarded_headers` (Boolean) Indicates whether to use "Forwarded" and "X-Forwarded-*" request headers to override corresponding HTTP request information available during request processing.

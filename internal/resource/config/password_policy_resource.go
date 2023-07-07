@@ -15,9 +15,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -68,7 +69,7 @@ func (r *passwordPolicyResource) Configure(_ context.Context, req resource.Confi
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 func (r *defaultPasswordPolicyResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -78,7 +79,7 @@ func (r *defaultPasswordPolicyResource) Configure(_ context.Context, req resourc
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 type passwordPolicyResourceModel struct {
@@ -96,7 +97,7 @@ type passwordPolicyResourceModel struct {
 	DefaultPasswordStorageScheme                              types.Set    `tfsdk:"default_password_storage_scheme"`
 	DeprecatedPasswordStorageScheme                           types.Set    `tfsdk:"deprecated_password_storage_scheme"`
 	AllowMultiplePasswordValues                               types.Bool   `tfsdk:"allow_multiple_password_values"`
-	AllowPreEncodedPasswords                                  types.Bool   `tfsdk:"allow_pre_encoded_passwords"`
+	AllowPreEncodedPasswords                                  types.String `tfsdk:"allow_pre_encoded_passwords"`
 	PasswordValidator                                         types.Set    `tfsdk:"password_validator"`
 	BindPasswordValidator                                     types.Set    `tfsdk:"bind_password_validator"`
 	MinimumBindPasswordValidationFrequency                    types.String `tfsdk:"minimum_bind_password_validation_frequency"`
@@ -222,12 +223,12 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"allow_pre_encoded_passwords": schema.BoolAttribute{
-				Description: "Indicates whether users can change their passwords by providing a pre-encoded value.",
+			"allow_pre_encoded_passwords": schema.StringAttribute{
+				Description: "Indicates whether users can change their passwords by providing a pre-encoded value. Supported in PingDirectory product version 9.3.0.0+.",
 				Optional:    true,
 				Computed:    true,
-				PlanModifiers: []planmodifier.Bool{
-					boolplanmodifier.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"password_validator": schema.SetAttribute{
@@ -541,6 +542,32 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
+// Validate that any restrictions are met in the plan
+func (r *passwordPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func (r *defaultPasswordPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	modifyPlanPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+}
+
+func modifyPlanPasswordPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
+	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model passwordPolicyResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsNonEmptyString(model.AllowPreEncodedPasswords) {
+		resp.Diagnostics.AddError("Attribute 'allow_pre_encoded_passwords' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+}
+
 // Add optional fields to create request for password-policy password-policy
 func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.AddPasswordPolicyRequest, plan passwordPolicyResourceModel) error {
 	// Empty strings are treated as equivalent to null
@@ -577,8 +604,13 @@ func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.Add
 	if internaltypes.IsDefined(plan.AllowMultiplePasswordValues) {
 		addRequest.AllowMultiplePasswordValues = plan.AllowMultiplePasswordValues.ValueBoolPointer()
 	}
-	if internaltypes.IsDefined(plan.AllowPreEncodedPasswords) {
-		addRequest.AllowPreEncodedPasswords = plan.AllowPreEncodedPasswords.ValueBoolPointer()
+	// Empty strings are treated as equivalent to null
+	if internaltypes.IsNonEmptyString(plan.AllowPreEncodedPasswords) {
+		allowPreEncodedPasswords, err := client.NewEnumpasswordPolicyAllowPreEncodedPasswordsPropFromValue(plan.AllowPreEncodedPasswords.ValueString())
+		if err != nil {
+			return err
+		}
+		addRequest.AllowPreEncodedPasswords = allowPreEncodedPasswords
 	}
 	if internaltypes.IsDefined(plan.PasswordValidator) {
 		var slice []string
@@ -773,7 +805,8 @@ func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyRes
 	state.DefaultPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultPasswordStorageScheme)
 	state.DeprecatedPasswordStorageScheme = internaltypes.GetStringSet(r.DeprecatedPasswordStorageScheme)
 	state.AllowMultiplePasswordValues = internaltypes.BoolTypeOrNil(r.AllowMultiplePasswordValues)
-	state.AllowPreEncodedPasswords = internaltypes.BoolTypeOrNil(r.AllowPreEncodedPasswords)
+	state.AllowPreEncodedPasswords = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpasswordPolicyAllowPreEncodedPasswordsProp(r.AllowPreEncodedPasswords), internaltypes.IsEmptyString(expectedValues.AllowPreEncodedPasswords))
 	state.PasswordValidator = internaltypes.GetStringSet(r.PasswordValidator)
 	state.BindPasswordValidator = internaltypes.GetStringSet(r.BindPasswordValidator)
 	state.MinimumBindPasswordValidationFrequency = internaltypes.StringTypeOrNil(r.MinimumBindPasswordValidationFrequency, internaltypes.IsEmptyString(expectedValues.MinimumBindPasswordValidationFrequency))
@@ -858,7 +891,7 @@ func createPasswordPolicyOperations(plan passwordPolicyResourceModel, state pass
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DefaultPasswordStorageScheme, state.DefaultPasswordStorageScheme, "default-password-storage-scheme")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.DeprecatedPasswordStorageScheme, state.DeprecatedPasswordStorageScheme, "deprecated-password-storage-scheme")
 	operations.AddBoolOperationIfNecessary(&ops, plan.AllowMultiplePasswordValues, state.AllowMultiplePasswordValues, "allow-multiple-password-values")
-	operations.AddBoolOperationIfNecessary(&ops, plan.AllowPreEncodedPasswords, state.AllowPreEncodedPasswords, "allow-pre-encoded-passwords")
+	operations.AddStringOperationIfNecessary(&ops, plan.AllowPreEncodedPasswords, state.AllowPreEncodedPasswords, "allow-pre-encoded-passwords")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.PasswordValidator, state.PasswordValidator, "password-validator")
 	operations.AddStringSetOperationsIfNecessary(&ops, plan.BindPasswordValidator, state.BindPasswordValidator, "bind-password-validator")
 	operations.AddStringOperationIfNecessary(&ops, plan.MinimumBindPasswordValidationFrequency, state.MinimumBindPasswordValidationFrequency, "minimum-bind-password-validation-frequency")

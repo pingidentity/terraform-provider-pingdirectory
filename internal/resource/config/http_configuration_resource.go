@@ -12,9 +12,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -48,16 +49,17 @@ func (r *httpConfigurationResource) Configure(_ context.Context, req resource.Co
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 type httpConfigurationResourceModel struct {
 	// Id field required for acceptance testing framework
-	Id                             types.String `tfsdk:"id"`
-	LastUpdated                    types.String `tfsdk:"last_updated"`
-	Notifications                  types.Set    `tfsdk:"notifications"`
-	RequiredActions                types.Set    `tfsdk:"required_actions"`
-	IncludeStackTracesInErrorPages types.Bool   `tfsdk:"include_stack_traces_in_error_pages"`
+	Id                                    types.String `tfsdk:"id"`
+	LastUpdated                           types.String `tfsdk:"last_updated"`
+	Notifications                         types.Set    `tfsdk:"notifications"`
+	RequiredActions                       types.Set    `tfsdk:"required_actions"`
+	IncludeStackTracesInErrorPages        types.Bool   `tfsdk:"include_stack_traces_in_error_pages"`
+	IncludeServletInformationInErrorPages types.Bool   `tfsdk:"include_servlet_information_in_error_pages"`
 }
 
 // GetSchema defines the schema for the resource.
@@ -73,10 +75,36 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"include_servlet_information_in_error_pages": schema.BoolAttribute{
+				Description: "Indicates whether to expose servlet information in the error page response. Supported in PingDirectory product version 9.3.0.0+.",
+				Optional:    true,
+				Computed:    true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 	AddCommonSchema(&schemaDef, false)
 	resp.Schema = schemaDef
+}
+
+// Validate that any restrictions are met in the plan
+func (r *httpConfigurationResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	compare, err := version.Compare(r.providerConfig.ProductVersion, version.PingDirectory9300)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
+		return
+	}
+	if compare >= 0 {
+		// Every remaining property is supported
+		return
+	}
+	var model httpConfigurationResourceModel
+	req.Plan.Get(ctx, &model)
+	if internaltypes.IsDefined(model.IncludeServletInformationInErrorPages) {
+		resp.Diagnostics.AddError("Attribute 'include_servlet_information_in_error_pages' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	}
 }
 
 // Read a HttpConfigurationResponse object into the model struct
@@ -84,6 +112,7 @@ func readHttpConfigurationResponse(ctx context.Context, r *client.HttpConfigurat
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.IncludeStackTracesInErrorPages = internaltypes.BoolTypeOrNil(r.IncludeStackTracesInErrorPages)
+	state.IncludeServletInformationInErrorPages = internaltypes.BoolTypeOrNil(r.IncludeServletInformationInErrorPages)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
 
@@ -91,6 +120,7 @@ func readHttpConfigurationResponse(ctx context.Context, r *client.HttpConfigurat
 func createHttpConfigurationOperations(plan httpConfigurationResourceModel, state httpConfigurationResourceModel) []client.Operation {
 	var ops []client.Operation
 	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeStackTracesInErrorPages, state.IncludeStackTracesInErrorPages, "include-stack-traces-in-error-pages")
+	operations.AddBoolOperationIfNecessary(&ops, plan.IncludeServletInformationInErrorPages, state.IncludeServletInformationInErrorPages, "include-servlet-information-in-error-pages")
 	return ops
 }
 

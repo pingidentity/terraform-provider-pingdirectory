@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	client "github.com/pingidentity/pingdirectory-go-client/v9200/configurationapi"
+	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
@@ -52,7 +52,7 @@ func (r *globalConfigurationResource) Configure(_ context.Context, req resource.
 
 	providerCfg := req.ProviderData.(internaltypes.ResourceConfiguration)
 	r.providerConfig = providerCfg.ProviderConfig
-	r.apiClient = providerCfg.ApiClientV9200
+	r.apiClient = providerCfg.ApiClientV9300
 }
 
 type globalConfigurationResourceModel struct {
@@ -896,14 +896,14 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	}
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")

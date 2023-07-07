@@ -33,7 +33,7 @@ provider "pingdirectory" {
   # Example:
   # ca_certificate_pem_files = ["/example/path/to/cacert1.pem", "/example/path/to/cacert2.pem"]
   insecure_trust_all_tls = true
-  product_version        = "9.2.0.0"
+  product_version        = "9.3.0.0"
 }
 
 resource "pingdirectory_password_validator" "myPasswordValidator" {
@@ -52,18 +52,24 @@ resource "pingdirectory_password_validator" "myPasswordValidator" {
 
 - `enabled` (Boolean) Indicates whether the password validator is enabled for use.
 - `id` (String) Name of this object.
-- `type` (String) The type of Password Validator resource. Options are ['character-set', 'similarity-based', 'attribute-value', 'custom', 'repeated-characters', 'dictionary', 'haystack', 'groovy-scripted', 'pwned-passwords', 'length-based', 'regular-expression', 'unique-characters', 'third-party']
+- `type` (String) The type of Password Validator resource. Options are ['character-set', 'similarity-based', 'attribute-value', 'custom', 'repeated-characters', 'dictionary', 'haystack', 'utf-8', 'groovy-scripted', 'pwned-passwords', 'disallowed-characters', 'length-based', 'regular-expression', 'unique-characters', 'third-party']
 
 ### Optional
 
 - `accept_password_on_service_error` (Boolean) Indicates whether to accept the proposed password if an error occurs while attempting to interact with the Pwned Passwords service.
+- `allow_non_ascii_characters` (Boolean) Indicates whether passwords will be allowed to include characters from outside the ASCII character set.
 - `allow_unclassified_characters` (Boolean) Indicates whether this password validator allows passwords to contain characters outside of any of the user-defined character sets.
+- `allow_unknown_characters` (Boolean) Indicates whether passwords will be allowed to include characters that are not recognized by the JVM's Unicode support.
+- `allowed_character_type` (Set of String) Specifies the set of character types that are allowed to be present in passwords.
 - `alternative_password_character_mapping` (Set of String) Provides a set of character substitutions that can be applied to the proposed password when checking to see if it is in the provided dictionary. Each mapping should consist of a single character followed by a colon and a list of the alternative characters that may be used in place of that character.
 - `assumed_password_guesses_per_second` (String) The number of password guesses per second that a potential attacker may be expected to make.
 - `case_sensitive_validation` (Boolean) Indicates whether this password validator should treat password characters in a case-sensitive manner.
 - `character_set` (Set of String) Specifies a character set containing characters that a password may contain and a value indicating the minimum number of characters required from that set.
 - `description` (String) A description for this Password Validator
 - `dictionary_file` (String) Specifies the path to the file containing a list of words that cannot be used as passwords.
+- `disallowed_characters` (String) A set of characters that will not be allowed anywhere in a password.
+- `disallowed_leading_characters` (String) A set of characters that will not be allowed as the first character of the password.
+- `disallowed_trailing_characters` (String) A set of characters that will not be allowed as the last character of the password.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Validator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Validator.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Pwned Passwords service. Supported in PingDirectory product version 9.2.0.0+.

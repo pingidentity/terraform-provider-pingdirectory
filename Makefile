@@ -32,7 +32,7 @@ starttestcontainer:
 		-d -p 1389:1389 \
 		-e TAIL_LOG_FILES= \
 		--env-file "${HOME}/.pingidentity/config" \
-		pingidentity/pingdirectory:$${PINGDIRECTORY_TAG:-9.2.0.0-latest}
+		pingidentity/pingdirectory:$${PINGDIRECTORY_PROVIDER_PRODUCT_VERSION:-9.3.0.0}-latest
 # Wait for the instance to become ready
 	sleep 1
 	duration=0
@@ -53,7 +53,7 @@ testacc:
 	PINGDIRECTORY_PROVIDER_USERNAME=cn=administrator \
 	PINGDIRECTORY_PROVIDER_PASSWORD=2FederateM0re \
 	PINGDIRECTORY_PROVIDER_INSECURE_TRUST_ALL_TLS=true \
-	PINGDIRECTORY_PROVIDER_PRODUCT_VERSION=9.2.0.0 \
+	PINGDIRECTORY_PROVIDER_PRODUCT_VERSION=$${PINGDIRECTORY_PROVIDER_PRODUCT_VERSION:-9.3.0.0} \
 	TF_ACC=1 go test -timeout 20m -v ./... -p 4
 
 testacccomplete: removetestcontainer starttestcontainer testacc

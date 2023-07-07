@@ -82,7 +82,7 @@ func TestAccPasswordStorageScheme(t *testing.T) {
 func testAccPasswordStorageSchemeResource(resourceName string, resourceModel passwordStorageSchemeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_password_storage_scheme" "%[1]s" {
-  type                     = "argon2d"
+  type                     = "argon2"
   id                       = "%[2]s"
   iteration_count          = %[3]d
   parallelism_factor       = %[4]d
@@ -112,32 +112,32 @@ func testAccCheckExpectedPasswordStorageSchemeAttributes(config passwordStorageS
 		// Verify that attributes have expected values
 		resourceType := "Password Storage Scheme"
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "iteration-count",
-			config.iterationCount, response.Argon2dPasswordStorageSchemeResponse.IterationCount)
+			config.iterationCount, response.Argon2PasswordStorageSchemeResponse.IterationCount)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "parallelism-factor",
-			config.parallelismFactor, response.Argon2dPasswordStorageSchemeResponse.ParallelismFactor)
+			config.parallelismFactor, response.Argon2PasswordStorageSchemeResponse.ParallelismFactor)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "memory-usage-kb",
-			config.memoryUsageKb, response.Argon2dPasswordStorageSchemeResponse.MemoryUsageKb)
+			config.memoryUsageKb, response.Argon2PasswordStorageSchemeResponse.MemoryUsageKb)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "salt-length-bytes",
-			config.saltLengthBytes, response.Argon2dPasswordStorageSchemeResponse.SaltLengthBytes)
+			config.saltLengthBytes, response.Argon2PasswordStorageSchemeResponse.SaltLengthBytes)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, &config.id, "derived-key-length-bytes",
-			config.derivedKeyLengthBytes, response.Argon2dPasswordStorageSchemeResponse.DerivedKeyLengthBytes)
+			config.derivedKeyLengthBytes, response.Argon2PasswordStorageSchemeResponse.DerivedKeyLengthBytes)
 		if err != nil {
 			return err
 		}
 		err = acctest.TestAttributesMatchBool(resourceType, &config.id, "enabled",
-			config.enabled, response.Argon2dPasswordStorageSchemeResponse.Enabled)
+			config.enabled, response.Argon2PasswordStorageSchemeResponse.Enabled)
 		if err != nil {
 			return err
 		}

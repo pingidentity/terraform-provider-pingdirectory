@@ -20,22 +20,37 @@ Manages a Pass Through Authentication Handler.
 
 ### Optional
 
+- `additional_user_mapping_scim_filter` (String) An optional SCIM filter that will be ANDed with the filter created to identify the account in the PingOne service that corresponds to the local entry. Only the "eq", "sw", "and", and "or" filter types may be used.
+- `api_url` (String) Specifies the API endpoint for the PingOne web service.
+- `auth_url` (String) Specifies the API endpoint for the PingOne authentication service.
 - `bind_dn_pattern` (String) A pattern to use to construct the bind DN for the simple bind request to send to the remote server. This may consist of a combination of static text and attribute values and other directives enclosed in curly braces.  For example, the value "cn={cn},ou=People,dc=example,dc=com" indicates that the remote bind DN should be constructed from the text "cn=" followed by the value of the local entry's cn attribute followed by the text "ou=People,dc=example,dc=com". If an attribute contains the value to use as the bind DN for pass-through authentication, then the pattern may simply be the name of that attribute in curly braces (e.g., if the seeAlso attribute contains the bind DN for the target user, then a bind DN pattern of "{seeAlso}" would be appropriate).  Note that a bind DN pattern can be used to construct a bind DN that is not actually a valid LDAP distinguished name. For example, if authentication is being passed through to a Microsoft Active Directory server, then a bind DN pattern could be used to construct a user principal name (UPN) as an alternative to a distinguished name.
+- `connection_criteria` (String) A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.
+- `continue_on_failure_type` (Set of String) The set of pass-through authentication failure types that should not result in an immediate failure, but should instead allow the aggregate handler to proceed with the next configured subordinate handler.
 - `description` (String) A description for this Pass Through Authentication Handler
 - `dn_map` (Set of String) Specifies one or more DN mappings that may be used to transform bind DNs before attempting to bind to the external servers.
+- `environment_id` (String) Specifies the PingOne Environment that will be associated with this PingOne Pass Through Authentication Handler.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Pass Through Authentication Handler. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Pass Through Authentication Handler.
+- `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.
+- `included_local_entry_base_dn` (Set of String) The base DNs for the local users whose authentication attempts may be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.
 - `initial_connections` (Number) Specifies the initial number of connections to establish to each external server against which authentication may be attempted.
 - `max_connections` (Number) Specifies the maximum number of connections to maintain to each external server against which authentication may be attempted. This value must be greater than or equal to the value for the initial-connections property.
 - `maximum_allowed_local_response_time` (String) The maximum length of time to wait for a response from an external server in the same location as this Directory Server before considering it unavailable.
 - `maximum_allowed_nonlocal_response_time` (String) The maximum length of time to wait for a response from an external server in a different location from this Directory Server before considering it unavailable.
+- `oauth_client_id` (String) Specifies the OAuth Client ID used to authenticate connections to the PingOne API.
+- `oauth_client_secret` (String, Sensitive) Specifies the OAuth Client Secret used to authenticate connections to the PingOne API.
+- `oauth_client_secret_passphrase_provider` (String) Specifies a passphrase provider that can be used to obtain the OAuth Client Secret used to authenticate connections to the PingOne API.
+- `request_criteria` (String) A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.
 - `search_base_dn` (String) The base DN to use when searching for the user entry using a filter constructed from the pattern defined in the search-filter-pattern property. If no base DN is specified, the null DN will be used as the search base DN.
 - `search_filter_pattern` (String) A pattern to use to construct a filter to use when searching an external server for the entry of the user as whom to bind. For example, "(mail={uid:ldapFilterEscape}@example.com)" would construct a search filter to search for a user whose entry in the local server contains a uid attribute whose value appears before "@example.com" in the mail attribute in the external server. Note that the "ldapFilterEscape" modifier should almost always be used with attributes specified in the pattern.
 - `server` (Set of String) Specifies the LDAP external server(s) to which authentication attempts should be forwarded.
 - `server_access_mode` (String) Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.
-- `type` (String) The type of Pass Through Authentication Handler resource. Options are ['ldap', 'third-party']
+- `subordinate_pass_through_authentication_handler` (Set of String) The set of subordinate pass-through authentication handlers that may be used to perform the authentication processing. Handlers will be invoked in order until one is found for which the bind operation matches the associated criteria and either succeeds or fails in a manner that should not be ignored.
+- `type` (String) The type of Pass Through Authentication Handler resource. Options are ['ping-one', 'ldap', 'aggregate', 'third-party']
 - `use_location` (Boolean) Indicates whether to take server locations into account when prioritizing the servers to use for pass-through authentication attempts.
 - `use_password_policy_control` (Boolean) Indicates whether to include the password policy request control (as defined in draft-behera-ldap-password-policy-10) in bind requests sent to the external server.
+- `user_mapping_local_attribute` (Set of String) The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.
+- `user_mapping_remote_json_field` (Set of String) The names of the fields in the PingOne service whose values must match the values of the corresponding attributes in the local user entry, as specified in the user-mapping-local-attribute property.
 
 ### Read-Only
 
