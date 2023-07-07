@@ -19,6 +19,7 @@ type passwordPolicyTestModel struct {
 	id                           string
 	passwordAttribute            string
 	defaultPasswordStorageScheme []string
+	allowPreEncodedPasswords     string
 }
 
 func TestAccPasswordPolicy(t *testing.T) {
@@ -27,11 +28,13 @@ func TestAccPasswordPolicy(t *testing.T) {
 		id:                           testIdPasswordPolicy,
 		passwordAttribute:            "userPassword",
 		defaultPasswordStorageScheme: []string{"Blowfish"},
+		allowPreEncodedPasswords:     "false",
 	}
 	updatedResourceModel := passwordPolicyTestModel{
 		id:                           testIdPasswordPolicy,
 		passwordAttribute:            "userPassword",
 		defaultPasswordStorageScheme: []string{"Salted SHA-512"},
+		allowPreEncodedPasswords:     "true",
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -73,10 +76,12 @@ resource "pingdirectory_password_policy" "%[1]s" {
   id                              = "%[2]s"
   password_attribute              = "%[3]s"
   default_password_storage_scheme = %[4]s
+  allow_pre_encoded_passwords = "%[5]s"
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.passwordAttribute,
-		acctest.StringSliceToTerraformString(resourceModel.defaultPasswordStorageScheme))
+		acctest.StringSliceToTerraformString(resourceModel.defaultPasswordStorageScheme),
+		resourceModel.allowPreEncodedPasswords)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
@@ -97,6 +102,11 @@ func testAccCheckExpectedPasswordPolicyAttributes(config passwordPolicyTestModel
 		}
 		err = acctest.TestAttributesMatchStringSlice(resourceType, &config.id, "default-password-storage-scheme",
 			config.defaultPasswordStorageScheme, response.DefaultPasswordStorageScheme)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchString(resourceType, &config.id, "allow-pre-encoded-passwords",
+			config.allowPreEncodedPasswords, response.AllowPreEncodedPasswords.String())
 		if err != nil {
 			return err
 		}
