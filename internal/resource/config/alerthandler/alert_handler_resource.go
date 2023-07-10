@@ -1249,8 +1249,6 @@ func readTwilioAlertHandlerResponse(ctx context.Context, r *client.TwilioAlertHa
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TwilioAuthToken = expectedValues.TwilioAuthToken
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
 	state.SenderPhoneNumber = internaltypes.GetStringSet(r.SenderPhoneNumber)
 	state.RecipientPhoneNumber = internaltypes.GetStringSet(r.RecipientPhoneNumber)
@@ -1274,8 +1272,6 @@ func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.Twilio
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TwilioAuthToken = expectedValues.TwilioAuthToken
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
 	state.SenderPhoneNumber = internaltypes.GetStringSet(r.SenderPhoneNumber)
 	state.RecipientPhoneNumber = internaltypes.GetStringSet(r.RecipientPhoneNumber)
@@ -1432,6 +1428,20 @@ func readThirdPartyAlertHandlerResponseDefault(ctx context.Context, r *client.Th
 		client.StringSliceEnumalertHandlerDisabledAlertTypeProp(r.DisabledAlertType))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAlertHandlerUnknownValuesDefault(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *defaultAlertHandlerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultAlertHandlerResourceModel) {
+	if !expectedValues.TwilioAuthToken.IsUnknown() {
+		state.TwilioAuthToken = expectedValues.TwilioAuthToken
+	}
+}
+
+func (state *alertHandlerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *alertHandlerResourceModel) {
+	if !expectedValues.TwilioAuthToken.IsUnknown() {
+		state.TwilioAuthToken = expectedValues.TwilioAuthToken
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1927,6 +1937,7 @@ func (r *alertHandlerResource) Create(ctx context.Context, req resource.CreateRe
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -2055,6 +2066,7 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2229,6 +2241,7 @@ func (r *alertHandlerResource) Update(ctx context.Context, req resource.UpdateRe
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -2310,6 +2323,7 @@ func (r *defaultAlertHandlerResource) Update(ctx context.Context, req resource.U
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

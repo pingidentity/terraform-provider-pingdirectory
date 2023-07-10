@@ -159,13 +159,20 @@ func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model 
 func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodResourceModel, expectedValues *conjurAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ApiKey = expectedValues.ApiKey
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateConjurAuthenticationMethodUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *conjurAuthenticationMethodResourceModel) setStateValuesNotReturnedByAPI(expectedValues *conjurAuthenticationMethodResourceModel) {
+	if !expectedValues.ApiKey.IsUnknown() {
+		state.ApiKey = expectedValues.ApiKey
+	}
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -229,6 +236,7 @@ func (r *conjurAuthenticationMethodResource) Create(ctx context.Context, req res
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -293,6 +301,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -393,6 +402,7 @@ func updateConjurAuthenticationMethod(ctx context.Context, req resource.UpdateRe
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -199,10 +199,16 @@ func readKeyPairResponse(ctx context.Context, r *client.KeyPairResponse, state *
 		expectedValues.SelfSignedCertificateValidity, state.SelfSignedCertificateValidity, diagnostics)
 	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, internaltypes.IsEmptyString(expectedValues.SubjectDN))
 	state.CertificateChain = internaltypes.StringTypeOrNil(r.CertificateChain, internaltypes.IsEmptyString(expectedValues.CertificateChain))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.PrivateKey = expectedValues.PrivateKey
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateKeyPairUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *keyPairResourceModel) setStateValuesNotReturnedByAPI(expectedValues *keyPairResourceModel) {
+	if !expectedValues.PrivateKey.IsUnknown() {
+		state.PrivateKey = expectedValues.PrivateKey
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -269,6 +275,7 @@ func (r *keyPairResource) Create(ctx context.Context, req resource.CreateRequest
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -333,6 +340,7 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -433,6 +441,7 @@ func updateKeyPair(ctx context.Context, req resource.UpdateRequest, resp *resour
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

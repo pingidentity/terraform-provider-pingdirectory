@@ -136,10 +136,16 @@ func populateObscuredValueUnknownValues(ctx context.Context, model *obscuredValu
 func readObscuredValueResponse(ctx context.Context, r *client.ObscuredValueResponse, state *obscuredValueResourceModel, expectedValues *obscuredValueResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ObscuredValue = expectedValues.ObscuredValue
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateObscuredValueUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *obscuredValueResourceModel) setStateValuesNotReturnedByAPI(expectedValues *obscuredValueResourceModel) {
+	if !expectedValues.ObscuredValue.IsUnknown() {
+		state.ObscuredValue = expectedValues.ObscuredValue
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -200,6 +206,7 @@ func (r *obscuredValueResource) Create(ctx context.Context, req resource.CreateR
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -264,6 +271,7 @@ func (r *defaultObscuredValueResource) Create(ctx context.Context, req resource.
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -364,6 +372,7 @@ func updateObscuredValue(ctx context.Context, req resource.UpdateRequest, resp *
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

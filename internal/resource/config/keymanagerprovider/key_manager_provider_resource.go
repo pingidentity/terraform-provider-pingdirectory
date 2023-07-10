@@ -418,12 +418,8 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 	state.Id = types.StringValue(r.Id)
 	state.KeyStoreFile = types.StringValue(r.KeyStoreFile)
 	state.KeyStoreType = internaltypes.StringTypeOrNil(r.KeyStoreType, internaltypes.IsEmptyString(expectedValues.KeyStoreType))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.KeyStorePin = expectedValues.KeyStorePin
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
 	state.KeyStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.KeyStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.KeyStorePinPassphraseProvider))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.PrivateKeyPin = expectedValues.PrivateKeyPin
 	state.PrivateKeyPinFile = internaltypes.StringTypeOrNil(r.PrivateKeyPinFile, internaltypes.IsEmptyString(expectedValues.PrivateKeyPinFile))
 	state.PrivateKeyPinPassphraseProvider = internaltypes.StringTypeOrNil(r.PrivateKeyPinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.PrivateKeyPinPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -452,8 +448,6 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 	state.Pkcs11MaxCacheDuration = internaltypes.StringTypeOrNil(r.Pkcs11MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.Pkcs11MaxCacheDuration))
 	config.CheckMismatchedPDFormattedAttributes("pkcs11_max_cache_duration",
 		expectedValues.Pkcs11MaxCacheDuration, state.Pkcs11MaxCacheDuration, diagnostics)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.KeyStorePin = expectedValues.KeyStorePin
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
 	state.KeyStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.KeyStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.KeyStorePinPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -472,6 +466,17 @@ func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.Thi
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateKeyManagerProviderUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *keyManagerProviderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *keyManagerProviderResourceModel) {
+	if !expectedValues.KeyStorePin.IsUnknown() {
+		state.KeyStorePin = expectedValues.KeyStorePin
+	}
+	if !expectedValues.PrivateKeyPin.IsUnknown() {
+		state.PrivateKeyPin = expectedValues.PrivateKeyPin
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -634,6 +639,7 @@ func (r *keyManagerProviderResource) Create(ctx context.Context, req resource.Cr
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -720,6 +726,7 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -842,6 +849,7 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

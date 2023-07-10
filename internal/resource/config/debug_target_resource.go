@@ -221,7 +221,6 @@ func addOptionalDebugTargetFields(ctx context.Context, addRequest *client.AddDeb
 // Read a DebugTargetResponse object into the model struct
 func readDebugTargetResponse(ctx context.Context, r *client.DebugTargetResponse, state *debugTargetResourceModel, expectedValues *debugTargetResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.LogPublisherName = expectedValues.LogPublisherName
 	state.DebugScope = types.StringValue(r.DebugScope)
 	state.DebugLevel = types.StringValue(r.DebugLevel.String())
 	state.DebugCategory = internaltypes.GetStringSet(
@@ -232,6 +231,14 @@ func readDebugTargetResponse(ctx context.Context, r *client.DebugTargetResponse,
 	state.ThrowableStackFrames = internaltypes.Int64TypeOrNil(r.ThrowableStackFrames)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *debugTargetResourceModel) setStateValuesNotReturnedByAPI(expectedValues *debugTargetResourceModel) {
+	if !expectedValues.LogPublisherName.IsUnknown() {
+		state.LogPublisherName = expectedValues.LogPublisherName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -308,6 +315,7 @@ func (r *debugTargetResource) Create(ctx context.Context, req resource.CreateReq
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -372,6 +380,7 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -472,6 +481,7 @@ func updateDebugTarget(ctx context.Context, req resource.UpdateRequest, resp *re
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

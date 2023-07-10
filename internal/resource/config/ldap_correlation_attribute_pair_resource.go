@@ -142,11 +142,20 @@ func addOptionalLdapCorrelationAttributePairFields(ctx context.Context, addReque
 // Read a LdapCorrelationAttributePairResponse object into the model struct
 func readLdapCorrelationAttributePairResponse(ctx context.Context, r *client.LdapCorrelationAttributePairResponse, state *ldapCorrelationAttributePairResourceModel, expectedValues *ldapCorrelationAttributePairResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.CorrelatedLdapDataViewName = expectedValues.CorrelatedLdapDataViewName
-	state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
 	state.PrimaryCorrelationAttribute = types.StringValue(r.PrimaryCorrelationAttribute)
 	state.SecondaryCorrelationAttribute = types.StringValue(r.SecondaryCorrelationAttribute)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *ldapCorrelationAttributePairResourceModel) setStateValuesNotReturnedByAPI(expectedValues *ldapCorrelationAttributePairResourceModel) {
+	if !expectedValues.ScimResourceTypeName.IsUnknown() {
+		state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
+	}
+	if !expectedValues.CorrelatedLdapDataViewName.IsUnknown() {
+		state.CorrelatedLdapDataViewName = expectedValues.CorrelatedLdapDataViewName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -208,6 +217,7 @@ func (r *ldapCorrelationAttributePairResource) Create(ctx context.Context, req r
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -272,6 +282,7 @@ func (r *defaultLdapCorrelationAttributePairResource) Create(ctx context.Context
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -372,6 +383,7 @@ func updateLdapCorrelationAttributePair(ctx context.Context, req resource.Update
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

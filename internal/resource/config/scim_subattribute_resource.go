@@ -261,8 +261,6 @@ func addOptionalScimSubattributeFields(ctx context.Context, addRequest *client.A
 // Read a ScimSubattributeResponse object into the model struct
 func readScimSubattributeResponse(ctx context.Context, r *client.ScimSubattributeResponse, state *scimSubattributeResourceModel, expectedValues *scimSubattributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ScimAttributeName = expectedValues.ScimAttributeName
-	state.ScimSchemaName = expectedValues.ScimSchemaName
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Type = types.StringValue(r.Type.String())
 	state.Required = types.BoolValue(r.Required)
@@ -273,6 +271,17 @@ func readScimSubattributeResponse(ctx context.Context, r *client.ScimSubattribut
 	state.Returned = types.StringValue(r.Returned.String())
 	state.ReferenceType = internaltypes.GetStringSet(r.ReferenceType)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *scimSubattributeResourceModel) setStateValuesNotReturnedByAPI(expectedValues *scimSubattributeResourceModel) {
+	if !expectedValues.ScimSchemaName.IsUnknown() {
+		state.ScimSchemaName = expectedValues.ScimSchemaName
+	}
+	if !expectedValues.ScimAttributeName.IsUnknown() {
+		state.ScimAttributeName = expectedValues.ScimAttributeName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -343,6 +352,7 @@ func (r *scimSubattributeResource) Create(ctx context.Context, req resource.Crea
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -407,6 +417,7 @@ func (r *defaultScimSubattributeResource) Create(ctx context.Context, req resour
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -507,6 +518,7 @@ func updateScimSubattribute(ctx context.Context, req resource.UpdateRequest, res
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

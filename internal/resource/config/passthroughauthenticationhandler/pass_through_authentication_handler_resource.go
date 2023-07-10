@@ -695,8 +695,6 @@ func readPingOnePassThroughAuthenticationHandlerResponse(ctx context.Context, r 
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.OAuthClientSecret = expectedValues.OAuthClientSecret
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -766,6 +764,14 @@ func readThirdPartyPassThroughAuthenticationHandlerResponse(ctx context.Context,
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populatePassThroughAuthenticationHandlerUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *passThroughAuthenticationHandlerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *passThroughAuthenticationHandlerResourceModel) {
+	if !expectedValues.OAuthClientSecret.IsUnknown() {
+		state.OAuthClientSecret = expectedValues.OAuthClientSecret
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1009,6 +1015,7 @@ func (r *passThroughAuthenticationHandlerResource) Create(ctx context.Context, r
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1095,6 +1102,7 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1217,6 +1225,7 @@ func updatePassThroughAuthenticationHandler(ctx context.Context, req resource.Up
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -181,14 +181,10 @@ func populateInterServerAuthenticationInfoUnknownValues(ctx context.Context, mod
 func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *client.PasswordInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoResourceModel, expectedValues *interServerAuthenticationInfoResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password")
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceListenerName = expectedValues.ServerInstanceListenerName
-	state.ServerInstanceName = expectedValues.ServerInstanceName
 	state.AuthenticationType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnuminterServerAuthenticationInfoAuthenticationTypeProp(r.AuthenticationType), true)
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, true)
 	state.Username = internaltypes.StringTypeOrNil(r.Username, true)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -199,12 +195,24 @@ func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *c
 func readCertificateInterServerAuthenticationInfoResponse(ctx context.Context, r *client.CertificateInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoResourceModel, expectedValues *interServerAuthenticationInfoResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("certificate")
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceListenerName = expectedValues.ServerInstanceListenerName
-	state.ServerInstanceName = expectedValues.ServerInstanceName
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateInterServerAuthenticationInfoUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *interServerAuthenticationInfoResourceModel) setStateValuesNotReturnedByAPI(expectedValues *interServerAuthenticationInfoResourceModel) {
+	if !expectedValues.ServerInstanceListenerName.IsUnknown() {
+		state.ServerInstanceListenerName = expectedValues.ServerInstanceListenerName
+	}
+	if !expectedValues.ServerInstanceName.IsUnknown() {
+		state.ServerInstanceName = expectedValues.ServerInstanceName
+	}
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -284,6 +292,7 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -378,6 +387,7 @@ func (r *interServerAuthenticationInfoResource) Update(ctx context.Context, req 
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

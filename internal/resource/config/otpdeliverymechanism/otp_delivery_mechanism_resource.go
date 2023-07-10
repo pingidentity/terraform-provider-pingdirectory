@@ -449,8 +449,6 @@ func readTwilioOtpDeliveryMechanismResponse(ctx context.Context, r *client.Twili
 	state.Id = types.StringValue(r.Id)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TwilioAuthToken = expectedValues.TwilioAuthToken
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TwilioAuthTokenPassphraseProvider))
 	state.PhoneNumberAttributeType = types.StringValue(r.PhoneNumberAttributeType)
 	state.PhoneNumberJSONField = internaltypes.StringTypeOrNil(r.PhoneNumberJSONField, internaltypes.IsEmptyString(expectedValues.PhoneNumberJSONField))
@@ -491,6 +489,14 @@ func readThirdPartyOtpDeliveryMechanismResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateOtpDeliveryMechanismUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *otpDeliveryMechanismResourceModel) setStateValuesNotReturnedByAPI(expectedValues *otpDeliveryMechanismResourceModel) {
+	if !expectedValues.TwilioAuthToken.IsUnknown() {
+		state.TwilioAuthToken = expectedValues.TwilioAuthToken
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -660,6 +666,7 @@ func (r *otpDeliveryMechanismResource) Create(ctx context.Context, req resource.
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -740,6 +747,7 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -856,6 +864,7 @@ func updateOtpDeliveryMechanism(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

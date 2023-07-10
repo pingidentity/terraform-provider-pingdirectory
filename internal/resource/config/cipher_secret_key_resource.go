@@ -139,7 +139,6 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 // Read a CipherSecretKeyResponse object into the model struct
 func readCipherSecretKeyResponse(ctx context.Context, r *client.CipherSecretKeyResponse, state *cipherSecretKeyResourceModel, expectedValues *cipherSecretKeyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceName = expectedValues.ServerInstanceName
 	state.CipherTransformationName = internaltypes.StringTypeOrNil(r.CipherTransformationName, true)
 	state.InitializationVectorLengthBits = internaltypes.Int64TypeOrNil(r.InitializationVectorLengthBits)
 	state.KeyID = types.StringValue(r.KeyID)
@@ -147,6 +146,14 @@ func readCipherSecretKeyResponse(ctx context.Context, r *client.CipherSecretKeyR
 	state.SymmetricKey = internaltypes.GetStringSet(r.SymmetricKey)
 	state.KeyLengthBits = types.Int64Value(r.KeyLengthBits)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *cipherSecretKeyResourceModel) setStateValuesNotReturnedByAPI(expectedValues *cipherSecretKeyResourceModel) {
+	if !expectedValues.ServerInstanceName.IsUnknown() {
+		state.ServerInstanceName = expectedValues.ServerInstanceName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -217,6 +224,7 @@ func (r *cipherSecretKeyResource) Create(ctx context.Context, req resource.Creat
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -301,6 +309,7 @@ func (r *cipherSecretKeyResource) Update(ctx context.Context, req resource.Updat
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

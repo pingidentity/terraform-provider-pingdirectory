@@ -1898,8 +1898,6 @@ func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalS
 	state.SmtpSecurity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerSmtpSecurityProp(r.SmtpSecurity), internaltypes.IsEmptyString(expectedValues.SmtpSecurity))
 	state.UserName = internaltypes.StringTypeOrNil(r.UserName, internaltypes.IsEmptyString(expectedValues.UserName))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.SmtpTimeout = internaltypes.StringTypeOrNil(r.SmtpTimeout, internaltypes.IsEmptyString(expectedValues.SmtpTimeout))
 	config.CheckMismatchedPDFormattedAttributes("smtp_timeout",
@@ -1920,8 +1918,6 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -1962,8 +1958,6 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2002,8 +1996,6 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2045,8 +2037,6 @@ func readJdbcExternalServerResponse(ctx context.Context, r *client.JdbcExternalS
 	state.ServerHostName = internaltypes.StringTypeOrNil(r.ServerHostName, internaltypes.IsEmptyString(expectedValues.ServerHostName))
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.UserName = internaltypes.StringTypeOrNil(r.UserName, internaltypes.IsEmptyString(expectedValues.UserName))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ValidationQuery = internaltypes.StringTypeOrNil(r.ValidationQuery, internaltypes.IsEmptyString(expectedValues.ValidationQuery))
 	state.ValidationQueryTimeout = internaltypes.StringTypeOrNil(r.ValidationQueryTimeout, internaltypes.IsEmptyString(expectedValues.ValidationQueryTimeout))
@@ -2089,8 +2079,6 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2144,8 +2132,6 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2184,8 +2170,6 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2225,8 +2209,6 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2305,8 +2287,6 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.PassphraseProvider = internaltypes.StringTypeOrNil(r.PassphraseProvider, internaltypes.IsEmptyString(expectedValues.PassphraseProvider))
 	state.ConnectionSecurity = types.StringValue(r.ConnectionSecurity.String())
 	state.AuthenticationMethod = types.StringValue(r.AuthenticationMethod.String())
@@ -2346,8 +2326,6 @@ func readConjurExternalServerResponse(ctx context.Context, r *client.ConjurExter
 	state.ConjurAuthenticationMethod = types.StringValue(r.ConjurAuthenticationMethod)
 	state.ConjurAccountName = types.StringValue(r.ConjurAccountName)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -2362,8 +2340,6 @@ func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAw
 	state.AuthenticationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), internaltypes.IsEmptyString(expectedValues.AuthenticationMethod))
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
 	state.AwsRegionName = types.StringValue(r.AwsRegionName)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -2377,12 +2353,24 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateExternalServerUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *externalServerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *externalServerResourceModel) {
+	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
+		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
+	}
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
+	if !expectedValues.TrustStorePin.IsUnknown() {
+		state.TrustStorePin = expectedValues.TrustStorePin
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -3225,6 +3213,7 @@ func (r *externalServerResource) Create(ctx context.Context, req resource.Create
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -3389,6 +3378,7 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -3589,6 +3579,7 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

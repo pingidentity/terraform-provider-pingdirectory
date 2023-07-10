@@ -389,7 +389,6 @@ func populateVelocityContextProviderUnknownValues(ctx context.Context, model *ve
 func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *client.VelocityToolsVelocityContextProviderResponse, state *velocityContextProviderResourceModel, expectedValues *velocityContextProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("velocity-tools")
 	state.Id = types.StringValue(r.Id)
-	state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
 	state.RequestTool = internaltypes.GetStringSet(r.RequestTool)
 	state.SessionTool = internaltypes.GetStringSet(r.SessionTool)
 	state.ApplicationTool = internaltypes.GetStringSet(r.ApplicationTool)
@@ -407,7 +406,6 @@ func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *cl
 func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.CustomVelocityContextProviderResponse, state *velocityContextProviderResourceModel, expectedValues *velocityContextProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
-	state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
@@ -423,7 +421,6 @@ func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.Cu
 func readThirdPartyVelocityContextProviderResponse(ctx context.Context, r *client.ThirdPartyVelocityContextProviderResponse, state *velocityContextProviderResourceModel, expectedValues *velocityContextProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
-	state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
@@ -435,6 +432,14 @@ func readThirdPartyVelocityContextProviderResponse(ctx context.Context, r *clien
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVelocityContextProviderUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *velocityContextProviderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *velocityContextProviderResourceModel) {
+	if !expectedValues.HttpServletExtensionName.IsUnknown() {
+		state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -557,6 +562,7 @@ func (r *velocityContextProviderResource) Create(ctx context.Context, req resour
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -637,6 +643,7 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -753,6 +760,7 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

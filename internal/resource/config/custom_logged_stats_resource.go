@@ -278,7 +278,6 @@ func addOptionalCustomLoggedStatsFields(ctx context.Context, addRequest *client.
 // Read a CustomLoggedStatsResponse object into the model struct
 func readCustomLoggedStatsResponse(ctx context.Context, r *client.CustomLoggedStatsResponse, state *customLoggedStatsResourceModel, expectedValues *customLoggedStatsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.PluginName = expectedValues.PluginName
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.MonitorObjectclass = types.StringValue(r.MonitorObjectclass)
@@ -296,6 +295,14 @@ func readCustomLoggedStatsResponse(ctx context.Context, r *client.CustomLoggedSt
 	state.DecimalFormat = internaltypes.StringTypeOrNil(r.DecimalFormat, internaltypes.IsEmptyString(expectedValues.DecimalFormat))
 	state.NonZeroImpliesNotIdle = internaltypes.BoolTypeOrNil(r.NonZeroImpliesNotIdle)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *customLoggedStatsResourceModel) setStateValuesNotReturnedByAPI(expectedValues *customLoggedStatsResourceModel) {
+	if !expectedValues.PluginName.IsUnknown() {
+		state.PluginName = expectedValues.PluginName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -376,6 +383,7 @@ func (r *customLoggedStatsResource) Create(ctx context.Context, req resource.Cre
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -440,6 +448,7 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -540,6 +549,7 @@ func updateCustomLoggedStats(ctx context.Context, req resource.UpdateRequest, re
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

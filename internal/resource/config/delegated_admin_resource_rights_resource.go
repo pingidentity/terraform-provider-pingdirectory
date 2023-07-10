@@ -218,7 +218,6 @@ func addOptionalDelegatedAdminResourceRightsFields(ctx context.Context, addReque
 // Read a DelegatedAdminResourceRightsResponse object into the model struct
 func readDelegatedAdminResourceRightsResponse(ctx context.Context, r *client.DelegatedAdminResourceRightsResponse, state *delegatedAdminResourceRightsResourceModel, expectedValues *delegatedAdminResourceRightsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.DelegatedAdminRightsName = expectedValues.DelegatedAdminRightsName
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RestResourceType = types.StringValue(r.RestResourceType)
@@ -229,6 +228,14 @@ func readDelegatedAdminResourceRightsResponse(ctx context.Context, r *client.Del
 	state.ResourceSubtree = internaltypes.GetStringSet(r.ResourceSubtree)
 	state.ResourcesInGroup = internaltypes.GetStringSet(r.ResourcesInGroup)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *delegatedAdminResourceRightsResourceModel) setStateValuesNotReturnedByAPI(expectedValues *delegatedAdminResourceRightsResourceModel) {
+	if !expectedValues.DelegatedAdminRightsName.IsUnknown() {
+		state.DelegatedAdminRightsName = expectedValues.DelegatedAdminRightsName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -298,6 +305,7 @@ func (r *delegatedAdminResourceRightsResource) Create(ctx context.Context, req r
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -362,6 +370,7 @@ func (r *defaultDelegatedAdminResourceRightsResource) Create(ctx context.Context
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -462,6 +471,7 @@ func updateDelegatedAdminResourceRights(ctx context.Context, req resource.Update
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

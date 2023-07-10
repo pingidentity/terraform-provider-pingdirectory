@@ -3734,8 +3734,6 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.OAuthClientSecret = expectedValues.OAuthClientSecret
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -3766,8 +3764,6 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.OAuthClientSecret = expectedValues.OAuthClientSecret
 	state.OAuthClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OAuthClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OAuthClientSecretPassphraseProvider))
 	state.EnvironmentID = types.StringValue(r.EnvironmentID)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -3795,8 +3791,6 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 func readChangelogPasswordEncryptionPluginResponseDefault(ctx context.Context, r *client.ChangelogPasswordEncryptionPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("changelog-password-encryption")
 	state.Id = types.StringValue(r.Id)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ChangelogPasswordEncryptionKey = expectedValues.ChangelogPasswordEncryptionKey
 	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ChangelogPasswordEncryptionKeyPassphraseProvider))
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
@@ -4847,6 +4841,23 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populatePluginUnknownValuesDefault(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *defaultPluginResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultPluginResourceModel) {
+	if !expectedValues.OAuthClientSecret.IsUnknown() {
+		state.OAuthClientSecret = expectedValues.OAuthClientSecret
+	}
+	if !expectedValues.ChangelogPasswordEncryptionKey.IsUnknown() {
+		state.ChangelogPasswordEncryptionKey = expectedValues.ChangelogPasswordEncryptionKey
+	}
+}
+
+func (state *pluginResourceModel) setStateValuesNotReturnedByAPI(expectedValues *pluginResourceModel) {
+	if !expectedValues.OAuthClientSecret.IsUnknown() {
+		state.OAuthClientSecret = expectedValues.OAuthClientSecret
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -6354,6 +6365,7 @@ func (r *pluginResource) Create(ctx context.Context, req resource.CreateRequest,
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -6644,6 +6656,7 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -6950,6 +6963,7 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -7112,6 +7126,7 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

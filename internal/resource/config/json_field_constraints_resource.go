@@ -348,7 +348,6 @@ func addOptionalJsonFieldConstraintsFields(ctx context.Context, addRequest *clie
 // Read a JsonFieldConstraintsResponse object into the model struct
 func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldConstraintsResponse, state *jsonFieldConstraintsResourceModel, expectedValues *jsonFieldConstraintsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.JsonAttributeConstraintsName = expectedValues.JsonAttributeConstraintsName
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.JsonField = types.StringValue(r.JsonField)
 	state.ValueType = types.StringValue(r.ValueType.String())
@@ -372,6 +371,14 @@ func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldCo
 	state.MinimumValueCount = internaltypes.Int64TypeOrNil(r.MinimumValueCount)
 	state.MaximumValueCount = internaltypes.Int64TypeOrNil(r.MaximumValueCount)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *jsonFieldConstraintsResourceModel) setStateValuesNotReturnedByAPI(expectedValues *jsonFieldConstraintsResourceModel) {
+	if !expectedValues.JsonAttributeConstraintsName.IsUnknown() {
+		state.JsonAttributeConstraintsName = expectedValues.JsonAttributeConstraintsName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -459,6 +466,7 @@ func (r *jsonFieldConstraintsResource) Create(ctx context.Context, req resource.
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -523,6 +531,7 @@ func (r *defaultJsonFieldConstraintsResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -623,6 +632,7 @@ func updateJsonFieldConstraints(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

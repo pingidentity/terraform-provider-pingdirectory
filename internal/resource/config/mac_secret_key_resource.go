@@ -130,13 +130,20 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 // Read a MacSecretKeyResponse object into the model struct
 func readMacSecretKeyResponse(ctx context.Context, r *client.MacSecretKeyResponse, state *macSecretKeyResourceModel, expectedValues *macSecretKeyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceName = expectedValues.ServerInstanceName
 	state.MacAlgorithmName = internaltypes.StringTypeOrNil(r.MacAlgorithmName, true)
 	state.KeyID = types.StringValue(r.KeyID)
 	state.IsCompromised = internaltypes.BoolTypeOrNil(r.IsCompromised)
 	state.SymmetricKey = internaltypes.GetStringSet(r.SymmetricKey)
 	state.KeyLengthBits = types.Int64Value(r.KeyLengthBits)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *macSecretKeyResourceModel) setStateValuesNotReturnedByAPI(expectedValues *macSecretKeyResourceModel) {
+	if !expectedValues.ServerInstanceName.IsUnknown() {
+		state.ServerInstanceName = expectedValues.ServerInstanceName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -206,6 +213,7 @@ func (r *macSecretKeyResource) Create(ctx context.Context, req resource.CreateRe
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -290,6 +298,7 @@ func (r *macSecretKeyResource) Update(ctx context.Context, req resource.UpdateRe
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -157,13 +157,20 @@ func addOptionalDelegatedAdminCorrelatedRestResourceFields(ctx context.Context, 
 // Read a DelegatedAdminCorrelatedRestResourceResponse object into the model struct
 func readDelegatedAdminCorrelatedRestResourceResponse(ctx context.Context, r *client.DelegatedAdminCorrelatedRestResourceResponse, state *delegatedAdminCorrelatedRestResourceResourceModel, expectedValues *delegatedAdminCorrelatedRestResourceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
 	state.DisplayName = types.StringValue(r.DisplayName)
 	state.CorrelatedRESTResource = types.StringValue(r.CorrelatedRESTResource)
 	state.PrimaryRESTResourceCorrelationAttribute = types.StringValue(r.PrimaryRESTResourceCorrelationAttribute)
 	state.SecondaryRESTResourceCorrelationAttribute = types.StringValue(r.SecondaryRESTResourceCorrelationAttribute)
 	state.UseSecondaryValueForLinking = internaltypes.BoolTypeOrNil(r.UseSecondaryValueForLinking)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *delegatedAdminCorrelatedRestResourceResourceModel) setStateValuesNotReturnedByAPI(expectedValues *delegatedAdminCorrelatedRestResourceResourceModel) {
+	if !expectedValues.RestResourceTypeName.IsUnknown() {
+		state.RestResourceTypeName = expectedValues.RestResourceTypeName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -230,6 +237,7 @@ func (r *delegatedAdminCorrelatedRestResourceResource) Create(ctx context.Contex
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -294,6 +302,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -394,6 +403,7 @@ func updateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resourc
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

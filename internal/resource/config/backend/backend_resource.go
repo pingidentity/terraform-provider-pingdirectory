@@ -2113,8 +2113,6 @@ func readTrustStoreBackendResponseDefault(ctx context.Context, r *client.TrustSt
 	state.WritabilityMode = types.StringValue(r.WritabilityMode.String())
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2502,6 +2500,14 @@ func readMetricsBackendResponseDefault(ctx context.Context, r *client.MetricsBac
 	state.NotificationManager = internaltypes.StringTypeOrNil(r.NotificationManager, internaltypes.IsEmptyString(expectedValues.NotificationManager))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateBackendUnknownValuesDefault(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *defaultBackendResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultBackendResourceModel) {
+	if !expectedValues.TrustStorePin.IsUnknown() {
+		state.TrustStorePin = expectedValues.TrustStorePin
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -2892,6 +2898,7 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

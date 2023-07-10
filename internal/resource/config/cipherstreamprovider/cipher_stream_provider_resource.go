@@ -806,8 +806,6 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Cont
 	state.EncryptedPassphraseFile = types.StringValue(r.EncryptedPassphraseFile)
 	state.AwsExternalServer = internaltypes.StringTypeOrNil(r.AwsExternalServer, internaltypes.IsEmptyString(expectedValues.AwsExternalServer))
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
 	state.AwsRegionName = internaltypes.StringTypeOrNil(r.AwsRegionName, internaltypes.IsEmptyString(expectedValues.AwsRegionName))
 	state.KmsEncryptionKeyArn = types.StringValue(r.KmsEncryptionKeyArn)
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
@@ -894,8 +892,6 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 	state.Id = types.StringValue(r.Id)
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.KeyStorePin = expectedValues.KeyStorePin
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
 	state.KeyStorePinEnvironmentVariable = internaltypes.StringTypeOrNil(r.KeyStorePinEnvironmentVariable, internaltypes.IsEmptyString(expectedValues.KeyStorePinEnvironmentVariable))
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
@@ -919,8 +915,6 @@ func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultC
 	state.VaultSecretFieldName = types.StringValue(r.VaultSecretFieldName)
 	state.VaultEncryptionMetadataFile = types.StringValue(r.VaultEncryptionMetadataFile)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.IterationCount = internaltypes.Int64TypeOrNil(r.IterationCount)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -939,6 +933,20 @@ func readThirdPartyCipherStreamProviderResponse(ctx context.Context, r *client.T
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateCipherStreamProviderUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *cipherStreamProviderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *cipherStreamProviderResourceModel) {
+	if !expectedValues.KeyStorePin.IsUnknown() {
+		state.KeyStorePin = expectedValues.KeyStorePin
+	}
+	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
+		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
+	}
+	if !expectedValues.TrustStorePin.IsUnknown() {
+		state.TrustStorePin = expectedValues.TrustStorePin
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1377,6 +1385,7 @@ func (r *cipherStreamProviderResource) Create(ctx context.Context, req resource.
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1493,6 +1502,7 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1645,6 +1655,7 @@ func updateCipherStreamProvider(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

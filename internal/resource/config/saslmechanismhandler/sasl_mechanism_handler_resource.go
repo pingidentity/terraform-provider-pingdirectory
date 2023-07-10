@@ -801,8 +801,6 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx context.Cont
 	state.Type = types.StringValue("unboundid-yubikey-otp")
 	state.Id = types.StringValue(r.Id)
 	state.YubikeyClientID = internaltypes.StringTypeOrNil(r.YubikeyClientID, internaltypes.IsEmptyString(expectedValues.YubikeyClientID))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.YubikeyAPIKey = expectedValues.YubikeyAPIKey
 	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.YubikeyAPIKeyPassphraseProvider))
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -1010,6 +1008,14 @@ func readThirdPartySaslMechanismHandlerResponseDefault(ctx context.Context, r *c
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *defaultSaslMechanismHandlerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultSaslMechanismHandlerResourceModel) {
+	if !expectedValues.YubikeyAPIKey.IsUnknown() {
+		state.YubikeyAPIKey = expectedValues.YubikeyAPIKey
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1417,6 +1423,7 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
