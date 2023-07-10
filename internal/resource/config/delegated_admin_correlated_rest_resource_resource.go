@@ -266,7 +266,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 
 	// Read the existing configuration
 	var state delegatedAdminCorrelatedRestResourceResourceModel
-	readDelegatedAdminCorrelatedRestResourceResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readDelegatedAdminCorrelatedRestResourceResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResource(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.RestResourceTypeName.ValueString())

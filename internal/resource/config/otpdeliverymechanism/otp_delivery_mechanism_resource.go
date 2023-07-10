@@ -697,13 +697,13 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state otpDeliveryMechanismResourceModel
 	if plan.Type.ValueString() == "twilio" {
-		readTwilioOtpDeliveryMechanismResponse(ctx, readResponse.TwilioOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
+		readTwilioOtpDeliveryMechanismResponse(ctx, readResponse.TwilioOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "email" {
-		readEmailOtpDeliveryMechanismResponse(ctx, readResponse.EmailOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
+		readEmailOtpDeliveryMechanismResponse(ctx, readResponse.EmailOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyOtpDeliveryMechanismResponse(ctx, readResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyOtpDeliveryMechanismResponse(ctx, readResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

@@ -28,7 +28,6 @@ type prometheusMonitorAttributeMetricTestModel struct {
 
 func TestAccPrometheusMonitorAttributeMetric(t *testing.T) {
 	pdVersion := os.Getenv("PINGDIRECTORY_PROVIDER_PRODUCT_VERSION")
-	print(pdVersion)
 	compare, err := version.Compare(pdVersion, version.PingDirectory9200)
 	if err != nil {
 		t.Error(err)

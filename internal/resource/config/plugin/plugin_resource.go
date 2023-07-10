@@ -6391,118 +6391,118 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 	// Read the existing configuration
 	var state defaultPluginResourceModel
 	if plan.ResourceType.ValueString() == "last-access-time" {
-		readLastAccessTimePluginResponseDefault(ctx, readResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
+		readLastAccessTimePluginResponseDefault(ctx, readResponse.LastAccessTimePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "stats-collector" {
-		readStatsCollectorPluginResponseDefault(ctx, readResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
+		readStatsCollectorPluginResponseDefault(ctx, readResponse.StatsCollectorPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "internal-search-rate" {
-		readInternalSearchRatePluginResponseDefault(ctx, readResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
+		readInternalSearchRatePluginResponseDefault(ctx, readResponse.InternalSearchRatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
-		readModifiablePasswordPolicyStatePluginResponseDefault(ctx, readResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
+		readModifiablePasswordPolicyStatePluginResponseDefault(ctx, readResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "seven-bit-clean" {
-		readSevenBitCleanPluginResponseDefault(ctx, readResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
+		readSevenBitCleanPluginResponseDefault(ctx, readResponse.SevenBitCleanPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
-		readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
+		readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "periodic-gc" {
-		readPeriodicGcPluginResponseDefault(ctx, readResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPeriodicGcPluginResponseDefault(ctx, readResponse.PeriodicGcPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
-		readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "changelog-password-encryption" {
-		readChangelogPasswordEncryptionPluginResponseDefault(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
+		readChangelogPasswordEncryptionPluginResponseDefault(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "processing-time-histogram" {
-		readProcessingTimeHistogramPluginResponseDefault(ctx, readResponse.ProcessingTimeHistogramPluginResponse, &state, &plan, &resp.Diagnostics)
+		readProcessingTimeHistogramPluginResponseDefault(ctx, readResponse.ProcessingTimeHistogramPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "search-shutdown" {
-		readSearchShutdownPluginResponseDefault(ctx, readResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
+		readSearchShutdownPluginResponseDefault(ctx, readResponse.SearchShutdownPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "periodic-stats-logger" {
-		readPeriodicStatsLoggerPluginResponseDefault(ctx, readResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPeriodicStatsLoggerPluginResponseDefault(ctx, readResponse.PeriodicStatsLoggerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "purge-expired-data" {
-		readPurgeExpiredDataPluginResponseDefault(ctx, readResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPurgeExpiredDataPluginResponseDefault(ctx, readResponse.PurgeExpiredDataPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "change-subscription-notification" {
-		readChangeSubscriptionNotificationPluginResponseDefault(ctx, readResponse.ChangeSubscriptionNotificationPluginResponse, &state, &plan, &resp.Diagnostics)
+		readChangeSubscriptionNotificationPluginResponseDefault(ctx, readResponse.ChangeSubscriptionNotificationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "sub-operation-timing" {
-		readSubOperationTimingPluginResponseDefault(ctx, readResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
+		readSubOperationTimingPluginResponseDefault(ctx, readResponse.SubOperationTimingPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "third-party" {
-		readThirdPartyPluginResponseDefault(ctx, readResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyPluginResponseDefault(ctx, readResponse.ThirdPartyPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
-		readEncryptAttributeValuesPluginResponseDefault(ctx, readResponse.EncryptAttributeValuesPluginResponse, &state, &plan, &resp.Diagnostics)
+		readEncryptAttributeValuesPluginResponseDefault(ctx, readResponse.EncryptAttributeValuesPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "pass-through-authentication" {
-		readPassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "dn-mapper" {
-		readDnMapperPluginResponseDefault(ctx, readResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
+		readDnMapperPluginResponseDefault(ctx, readResponse.DnMapperPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "monitor-history" {
-		readMonitorHistoryPluginResponseDefault(ctx, readResponse.MonitorHistoryPluginResponse, &state, &plan, &resp.Diagnostics)
+		readMonitorHistoryPluginResponseDefault(ctx, readResponse.MonitorHistoryPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "referral-on-update" {
-		readReferralOnUpdatePluginResponseDefault(ctx, readResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
+		readReferralOnUpdatePluginResponseDefault(ctx, readResponse.ReferralOnUpdatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "simple-to-external-bind" {
-		readSimpleToExternalBindPluginResponseDefault(ctx, readResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
+		readSimpleToExternalBindPluginResponseDefault(ctx, readResponse.SimpleToExternalBindPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "custom" {
-		readCustomPluginResponseDefault(ctx, readResponse.CustomPluginResponse, &state, &plan, &resp.Diagnostics)
+		readCustomPluginResponseDefault(ctx, readResponse.CustomPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "snmp-subagent" {
-		readSnmpSubagentPluginResponseDefault(ctx, readResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
+		readSnmpSubagentPluginResponseDefault(ctx, readResponse.SnmpSubagentPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "coalesce-modifications" {
-		readCoalesceModificationsPluginResponseDefault(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
+		readCoalesceModificationsPluginResponseDefault(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "password-policy-import" {
-		readPasswordPolicyImportPluginResponseDefault(ctx, readResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPasswordPolicyImportPluginResponseDefault(ctx, readResponse.PasswordPolicyImportPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "profiler" {
-		readProfilerPluginResponseDefault(ctx, readResponse.ProfilerPluginResponse, &state, &plan, &resp.Diagnostics)
+		readProfilerPluginResponseDefault(ctx, readResponse.ProfilerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
-		readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
+		readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "composed-attribute" {
-		readComposedAttributePluginResponseDefault(ctx, readResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
+		readComposedAttributePluginResponseDefault(ctx, readResponse.ComposedAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
-		readLdapResultCodeTrackerPluginResponseDefault(ctx, readResponse.LdapResultCodeTrackerPluginResponse, &state, &plan, &resp.Diagnostics)
+		readLdapResultCodeTrackerPluginResponseDefault(ctx, readResponse.LdapResultCodeTrackerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "attribute-mapper" {
-		readAttributeMapperPluginResponseDefault(ctx, readResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
+		readAttributeMapperPluginResponseDefault(ctx, readResponse.AttributeMapperPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "delay" {
-		readDelayPluginResponseDefault(ctx, readResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
+		readDelayPluginResponseDefault(ctx, readResponse.DelayPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
-		readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
+		readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "groovy-scripted" {
-		readGroovyScriptedPluginResponseDefault(ctx, readResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
+		readGroovyScriptedPluginResponseDefault(ctx, readResponse.GroovyScriptedPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "last-mod" {
-		readLastModPluginResponseDefault(ctx, readResponse.LastModPluginResponse, &state, &plan, &resp.Diagnostics)
+		readLastModPluginResponseDefault(ctx, readResponse.LastModPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
-		readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
+		readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "referential-integrity" {
-		readReferentialIntegrityPluginResponseDefault(ctx, readResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
+		readReferentialIntegrityPluginResponseDefault(ctx, readResponse.ReferentialIntegrityPluginResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.ResourceType.ValueString() == "unique-attribute" {
-		readUniqueAttributePluginResponseDefault(ctx, readResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
+		readUniqueAttributePluginResponseDefault(ctx, readResponse.UniqueAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

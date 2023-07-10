@@ -619,10 +619,10 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 	// Read the existing configuration
 	var state defaultWebApplicationExtensionResourceModel
 	if plan.Type.ValueString() == "console" {
-		readConsoleWebApplicationExtensionResponseDefault(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
+		readConsoleWebApplicationExtensionResponseDefault(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericWebApplicationExtensionResponseDefault(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
+		readGenericWebApplicationExtensionResponseDefault(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

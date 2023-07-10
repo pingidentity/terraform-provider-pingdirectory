@@ -215,7 +215,7 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state trustedCertificateResourceModel
-	readTrustedCertificateResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

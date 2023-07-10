@@ -344,7 +344,7 @@ func (r *defaultDebugTargetResource) Create(ctx context.Context, req resource.Cr
 
 	// Read the existing configuration
 	var state debugTargetResourceModel
-	readDebugTargetResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readDebugTargetResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DebugTargetApi.UpdateDebugTarget(ProviderBasicAuthContext(ctx, r.providerConfig), plan.DebugScope.ValueString(), plan.LogPublisherName.ValueString())

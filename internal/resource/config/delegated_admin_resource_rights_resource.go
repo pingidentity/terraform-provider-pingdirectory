@@ -334,7 +334,7 @@ func (r *defaultDelegatedAdminResourceRightsResource) Create(ctx context.Context
 
 	// Read the existing configuration
 	var state delegatedAdminResourceRightsResourceModel
-	readDelegatedAdminResourceRightsResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readDelegatedAdminResourceRightsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DelegatedAdminResourceRightsApi.UpdateDelegatedAdminResourceRights(ProviderBasicAuthContext(ctx, r.providerConfig), plan.RestResourceType.ValueString(), plan.DelegatedAdminRightsName.ValueString())

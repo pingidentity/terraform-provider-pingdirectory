@@ -385,7 +385,7 @@ func (r *defaultLocalDbIndexResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state localDbIndexResourceModel
-	readLocalDbIndexResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readLocalDbIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbIndexApi.UpdateLocalDbIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Attribute.ValueString(), plan.BackendName.ValueString())

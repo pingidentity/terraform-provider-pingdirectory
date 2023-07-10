@@ -1964,37 +1964,37 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 	// Read the existing configuration
 	var state defaultAlertHandlerResourceModel
 	if plan.Type.ValueString() == "output" {
-		readOutputAlertHandlerResponseDefault(ctx, readResponse.OutputAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readOutputAlertHandlerResponseDefault(ctx, readResponse.OutputAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "smtp" {
-		readSmtpAlertHandlerResponseDefault(ctx, readResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readSmtpAlertHandlerResponseDefault(ctx, readResponse.SmtpAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "jmx" {
-		readJmxAlertHandlerResponseDefault(ctx, readResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readJmxAlertHandlerResponseDefault(ctx, readResponse.JmxAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedAlertHandlerResponseDefault(ctx, readResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGroovyScriptedAlertHandlerResponseDefault(ctx, readResponse.GroovyScriptedAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomAlertHandlerResponseDefault(ctx, readResponse.CustomAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readCustomAlertHandlerResponseDefault(ctx, readResponse.CustomAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "snmp" {
-		readSnmpAlertHandlerResponseDefault(ctx, readResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readSnmpAlertHandlerResponseDefault(ctx, readResponse.SnmpAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "twilio" {
-		readTwilioAlertHandlerResponseDefault(ctx, readResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readTwilioAlertHandlerResponseDefault(ctx, readResponse.TwilioAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "error-log" {
-		readErrorLogAlertHandlerResponseDefault(ctx, readResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readErrorLogAlertHandlerResponseDefault(ctx, readResponse.ErrorLogAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "snmp-sub-agent" {
-		readSnmpSubAgentAlertHandlerResponseDefault(ctx, readResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readSnmpSubAgentAlertHandlerResponseDefault(ctx, readResponse.SnmpSubAgentAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "exec" {
-		readExecAlertHandlerResponseDefault(ctx, readResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readExecAlertHandlerResponseDefault(ctx, readResponse.ExecAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyAlertHandlerResponseDefault(ctx, readResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyAlertHandlerResponseDefault(ctx, readResponse.ThirdPartyAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

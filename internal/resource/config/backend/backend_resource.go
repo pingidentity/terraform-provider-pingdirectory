@@ -2783,46 +2783,46 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 	// Read the existing configuration
 	var state defaultBackendResourceModel
 	if plan.Type.ValueString() == "schema" {
-		readSchemaBackendResponseDefault(ctx, readResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
+		readSchemaBackendResponseDefault(ctx, readResponse.SchemaBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "backup" {
-		readBackupBackendResponseDefault(ctx, readResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
+		readBackupBackendResponseDefault(ctx, readResponse.BackupBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "encryption-settings" {
-		readEncryptionSettingsBackendResponseDefault(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
+		readEncryptionSettingsBackendResponseDefault(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldif" {
-		readLdifBackendResponseDefault(ctx, readResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
+		readLdifBackendResponseDefault(ctx, readResponse.LdifBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "trust-store" {
-		readTrustStoreBackendResponseDefault(ctx, readResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
+		readTrustStoreBackendResponseDefault(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomBackendResponseDefault(ctx, readResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
+		readCustomBackendResponseDefault(ctx, readResponse.CustomBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "changelog" {
-		readChangelogBackendResponseDefault(ctx, readResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
+		readChangelogBackendResponseDefault(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "monitor" {
-		readMonitorBackendResponseDefault(ctx, readResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
+		readMonitorBackendResponseDefault(ctx, readResponse.MonitorBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "local-db" {
-		readLocalDbBackendResponseDefault(ctx, readResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
+		readLocalDbBackendResponseDefault(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "config-file-handler" {
-		readConfigFileHandlerBackendResponseDefault(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
+		readConfigFileHandlerBackendResponseDefault(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "task" {
-		readTaskBackendResponseDefault(ctx, readResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
+		readTaskBackendResponseDefault(ctx, readResponse.TaskBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "alert" {
-		readAlertBackendResponseDefault(ctx, readResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
+		readAlertBackendResponseDefault(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "alarm" {
-		readAlarmBackendResponseDefault(ctx, readResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
+		readAlarmBackendResponseDefault(ctx, readResponse.AlarmBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "metrics" {
-		readMetricsBackendResponseDefault(ctx, readResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
+		readMetricsBackendResponseDefault(ctx, readResponse.MetricsBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

@@ -307,7 +307,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state scimAttributeMappingResourceModel
-	readScimAttributeMappingResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readScimAttributeMappingResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())

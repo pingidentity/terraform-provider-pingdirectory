@@ -313,7 +313,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 
 	// Read the existing configuration
 	var state prometheusMonitorAttributeMetricResourceModel
-	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.PrometheusMonitorAttributeMetricApi.UpdatePrometheusMonitorAttributeMetric(ProviderBasicAuthContext(ctx, r.providerConfig), plan.MetricName.ValueString(), plan.HttpServletExtensionName.ValueString())

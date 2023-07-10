@@ -1403,16 +1403,16 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 	// Read the existing configuration
 	var state connectionHandlerResourceModel
 	if plan.Type.ValueString() == "jmx" {
-		readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldap" {
-		readLdapConnectionHandlerResponse(ctx, readResponse.LdapConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readLdapConnectionHandlerResponse(ctx, readResponse.LdapConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldif" {
-		readLdifConnectionHandlerResponse(ctx, readResponse.LdifConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readLdifConnectionHandlerResponse(ctx, readResponse.LdifConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "http" {
-		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

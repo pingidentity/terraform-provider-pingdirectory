@@ -1001,28 +1001,28 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	// Read the existing configuration
 	var state passphraseProviderResourceModel
 	if plan.Type.ValueString() == "environment-variable" {
-		readEnvironmentVariablePassphraseProviderResponse(ctx, readResponse.EnvironmentVariablePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readEnvironmentVariablePassphraseProviderResponse(ctx, readResponse.EnvironmentVariablePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "amazon-secrets-manager" {
-		readAmazonSecretsManagerPassphraseProviderResponse(ctx, readResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readAmazonSecretsManagerPassphraseProviderResponse(ctx, readResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "obscured-value" {
-		readObscuredValuePassphraseProviderResponse(ctx, readResponse.ObscuredValuePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readObscuredValuePassphraseProviderResponse(ctx, readResponse.ObscuredValuePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "azure-key-vault" {
-		readAzureKeyVaultPassphraseProviderResponse(ctx, readResponse.AzureKeyVaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readAzureKeyVaultPassphraseProviderResponse(ctx, readResponse.AzureKeyVaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-based" {
-		readFileBasedPassphraseProviderResponse(ctx, readResponse.FileBasedPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readFileBasedPassphraseProviderResponse(ctx, readResponse.FileBasedPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "conjur" {
-		readConjurPassphraseProviderResponse(ctx, readResponse.ConjurPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readConjurPassphraseProviderResponse(ctx, readResponse.ConjurPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "vault" {
-		readVaultPassphraseProviderResponse(ctx, readResponse.VaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readVaultPassphraseProviderResponse(ctx, readResponse.VaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

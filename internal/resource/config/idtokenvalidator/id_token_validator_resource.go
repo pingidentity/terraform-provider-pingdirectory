@@ -538,10 +538,10 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 	// Read the existing configuration
 	var state idTokenValidatorResourceModel
 	if plan.Type.ValueString() == "ping-one" {
-		readPingOneIdTokenValidatorResponse(ctx, readResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readPingOneIdTokenValidatorResponse(ctx, readResponse.PingOneIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "openid-connect" {
-		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

@@ -242,7 +242,7 @@ func (r *defaultScimSchemaResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state scimSchemaResourceModel
-	readScimSchemaResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readScimSchemaResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ScimSchemaApi.UpdateScimSchema(ProviderBasicAuthContext(ctx, r.providerConfig), plan.SchemaURN.ValueString())

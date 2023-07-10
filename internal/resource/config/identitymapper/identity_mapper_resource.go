@@ -738,19 +738,19 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 	// Read the existing configuration
 	var state identityMapperResourceModel
 	if plan.Type.ValueString() == "exact-match" {
-		readExactMatchIdentityMapperResponse(ctx, readResponse.ExactMatchIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		readExactMatchIdentityMapperResponse(ctx, readResponse.ExactMatchIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedIdentityMapperResponse(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		readGroovyScriptedIdentityMapperResponse(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "regular-expression" {
-		readRegularExpressionIdentityMapperResponse(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		readRegularExpressionIdentityMapperResponse(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "aggregate" {
-		readAggregateIdentityMapperResponse(ctx, readResponse.AggregateIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		readAggregateIdentityMapperResponse(ctx, readResponse.AggregateIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyIdentityMapperResponse(ctx, readResponse.ThirdPartyIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyIdentityMapperResponse(ctx, readResponse.ThirdPartyIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

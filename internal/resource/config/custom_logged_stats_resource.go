@@ -412,7 +412,7 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state customLoggedStatsResourceModel
-	readCustomLoggedStatsResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readCustomLoggedStatsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStats(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.PluginName.ValueString())

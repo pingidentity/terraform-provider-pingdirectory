@@ -178,7 +178,7 @@ func (r *macSecretKeyResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state macSecretKeyResourceModel
-	readMacSecretKeyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readMacSecretKeyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.MacSecretKeyApi.UpdateMacSecretKey(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())

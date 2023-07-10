@@ -529,10 +529,10 @@ func (r *defaultGaugeDataSourceResource) Create(ctx context.Context, req resourc
 	// Read the existing configuration
 	var state gaugeDataSourceResourceModel
 	if plan.Type.ValueString() == "indicator" {
-		readIndicatorGaugeDataSourceResponse(ctx, readResponse.IndicatorGaugeDataSourceResponse, &state, &plan, &resp.Diagnostics)
+		readIndicatorGaugeDataSourceResponse(ctx, readResponse.IndicatorGaugeDataSourceResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "numeric" {
-		readNumericGaugeDataSourceResponse(ctx, readResponse.NumericGaugeDataSourceResponse, &state, &plan, &resp.Diagnostics)
+		readNumericGaugeDataSourceResponse(ctx, readResponse.NumericGaugeDataSourceResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

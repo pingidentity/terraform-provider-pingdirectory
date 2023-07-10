@@ -236,7 +236,7 @@ func (r *defaultObscuredValueResource) Create(ctx context.Context, req resource.
 
 	// Read the existing configuration
 	var state obscuredValueResourceModel
-	readObscuredValueResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readObscuredValueResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ObscuredValueApi.UpdateObscuredValue(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

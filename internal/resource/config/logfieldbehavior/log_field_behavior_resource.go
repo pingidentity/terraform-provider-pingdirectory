@@ -723,10 +723,10 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 	// Read the existing configuration
 	var state logFieldBehaviorResourceModel
 	if plan.Type.ValueString() == "text-access" {
-		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
+		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "json-formatted-access" {
-		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
+		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

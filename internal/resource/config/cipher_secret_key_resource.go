@@ -189,7 +189,7 @@ func (r *cipherSecretKeyResource) Create(ctx context.Context, req resource.Creat
 
 	// Read the existing configuration
 	var state cipherSecretKeyResourceModel
-	readCipherSecretKeyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readCipherSecretKeyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKey(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())

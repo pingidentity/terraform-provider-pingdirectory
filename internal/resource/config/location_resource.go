@@ -218,7 +218,7 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 
 	// Read the existing configuration
 	var state locationResourceModel
-	readLocationResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readLocationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocationApi.UpdateLocation(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

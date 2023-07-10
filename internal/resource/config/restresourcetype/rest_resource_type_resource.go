@@ -834,13 +834,13 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 	// Read the existing configuration
 	var state restResourceTypeResourceModel
 	if plan.Type.ValueString() == "user" {
-		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "group" {
-		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
+		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

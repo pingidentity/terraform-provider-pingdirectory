@@ -217,7 +217,7 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state replicationDomainResourceModel
-	readReplicationDomainResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readReplicationDomainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.SynchronizationProviderName.ValueString())

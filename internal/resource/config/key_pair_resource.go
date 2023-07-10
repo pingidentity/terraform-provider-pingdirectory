@@ -305,7 +305,7 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 
 	// Read the existing configuration
 	var state keyPairResourceModel
-	readKeyPairResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readKeyPairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.KeyPairApi.UpdateKeyPair(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

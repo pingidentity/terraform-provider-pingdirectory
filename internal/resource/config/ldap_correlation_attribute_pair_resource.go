@@ -244,7 +244,7 @@ func (r *defaultLdapCorrelationAttributePairResource) Create(ctx context.Context
 
 	// Read the existing configuration
 	var state ldapCorrelationAttributePairResourceModel
-	readLdapCorrelationAttributePairResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readLdapCorrelationAttributePairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LdapCorrelationAttributePairApi.UpdateLdapCorrelationAttributePair(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString())

@@ -690,13 +690,13 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 	// Read the existing configuration
 	var state delegatedAdminAttributeResourceModel
 	if plan.Type.ValueString() == "certificate" {
-		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "photo" {
-		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

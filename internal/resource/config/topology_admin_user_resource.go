@@ -744,7 +744,7 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state topologyAdminUserResourceModel
-	readTopologyAdminUserResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readTopologyAdminUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

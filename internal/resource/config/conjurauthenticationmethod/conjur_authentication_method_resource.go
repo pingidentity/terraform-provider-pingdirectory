@@ -265,7 +265,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 
 	// Read the existing configuration
 	var state conjurAuthenticationMethodResourceModel
-	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

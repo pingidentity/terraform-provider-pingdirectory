@@ -321,7 +321,7 @@ func (r *defaultHttpServletCrossOriginPolicyResource) Create(ctx context.Context
 
 	// Read the existing configuration
 	var state httpServletCrossOriginPolicyResourceModel
-	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readHttpServletCrossOriginPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.HttpServletCrossOriginPolicyApi.UpdateHttpServletCrossOriginPolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

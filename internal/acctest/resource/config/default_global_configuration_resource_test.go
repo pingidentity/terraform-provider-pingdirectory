@@ -14,25 +14,28 @@ import (
 
 // Some global configuration attributes to test with
 type testModel struct {
-	encryptData        bool
-	sensitiveAttribute []string
-	resultCodeMap      string
-	sizeLimit          int64
+	encryptData         bool
+	sensitiveAttribute  []string
+	resultCodeMap       string
+	sizeLimit           int64
+	maximumShutdownTime string
 }
 
 func TestAccGlobalConfiguration(t *testing.T) {
 	resourceName := "global"
 	initialResourceModel := testModel{
-		encryptData:        false,
-		sensitiveAttribute: []string{"Delivered One-Time Password", "TOTP Shared Secret"},
-		resultCodeMap:      "Sun DS Compatible Behavior",
-		sizeLimit:          2000,
+		encryptData:         false,
+		sensitiveAttribute:  []string{"Delivered One-Time Password", "TOTP Shared Secret"},
+		resultCodeMap:       "Sun DS Compatible Behavior",
+		sizeLimit:           2000,
+		maximumShutdownTime: "4 m",
 	}
 	updatedResourceModel := testModel{
-		encryptData:        true,
-		sensitiveAttribute: []string{"TOTP Shared Secret"},
-		resultCodeMap:      "",
-		sizeLimit:          1000,
+		encryptData:         true,
+		sensitiveAttribute:  []string{"TOTP Shared Secret"},
+		resultCodeMap:       "",
+		sizeLimit:           1000,
+		maximumShutdownTime: "3 m",
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() { acctest.ConfigurationPreCheck(t) },
@@ -87,9 +90,10 @@ resource "pingdirectory_default_global_configuration" "%[1]s" {
   sensitive_attribute = %[3]s
   result_code_map     = "%[4]s"
   size_limit          = %[5]d
+  maximum_shutdown_time = "%[6]s"
 }`, resourceName, resourceModel.encryptData,
 		acctest.StringSliceToTerraformString(resourceModel.sensitiveAttribute),
-		resourceModel.resultCodeMap, resourceModel.sizeLimit)
+		resourceModel.resultCodeMap, resourceModel.sizeLimit, resourceModel.maximumShutdownTime)
 }
 
 // Test that the expected global configuration attributes are set on the PingDirectory server
@@ -116,6 +120,10 @@ func testAccCheckExpectedGlobalConfigurationAttributes(globalConfig testModel) r
 			return err
 		}
 		err = acctest.TestAttributesMatchInt(resourceType, nil, "size-limit", globalConfig.sizeLimit, *response.SizeLimit)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchStringPointer(resourceType, nil, "maximum-shutdown-time", globalConfig.maximumShutdownTime, response.MaximumShutdownTime)
 		if err != nil {
 			return err
 		}

@@ -240,10 +240,10 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 	// Read the existing configuration
 	var state serverInstanceListenerResourceModel
 	if plan.Type.ValueString() == "ldap" {
-		readLdapServerInstanceListenerResponse(ctx, readResponse.LdapServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
+		readLdapServerInstanceListenerResponse(ctx, readResponse.LdapServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "http" {
-		readHttpServerInstanceListenerResponse(ctx, readResponse.HttpServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
+		readHttpServerInstanceListenerResponse(ctx, readResponse.HttpServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

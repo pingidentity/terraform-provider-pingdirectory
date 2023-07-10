@@ -314,7 +314,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 
 	// Read the existing configuration
 	var state correlatedLdapDataViewResourceModel
-	readCorrelatedLdapDataViewResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readCorrelatedLdapDataViewResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataView(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())

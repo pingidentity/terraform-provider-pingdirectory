@@ -472,13 +472,13 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state tokenClaimValidationResourceModel
 	if plan.Type.ValueString() == "string-array" {
-		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
+		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "boolean" {
-		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
+		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "string" {
-		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
+		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

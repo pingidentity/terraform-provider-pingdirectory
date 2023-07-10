@@ -3265,55 +3265,55 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 	// Read the existing configuration
 	var state externalServerResourceModel
 	if plan.Type.ValueString() == "smtp" {
-		readSmtpExternalServerResponse(ctx, readResponse.SmtpExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readSmtpExternalServerResponse(ctx, readResponse.SmtpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "nokia-ds" {
-		readNokiaDsExternalServerResponse(ctx, readResponse.NokiaDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readNokiaDsExternalServerResponse(ctx, readResponse.NokiaDsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ping-identity-ds" {
-		readPingIdentityDsExternalServerResponse(ctx, readResponse.PingIdentityDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readPingIdentityDsExternalServerResponse(ctx, readResponse.PingIdentityDsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "active-directory" {
-		readActiveDirectoryExternalServerResponse(ctx, readResponse.ActiveDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readActiveDirectoryExternalServerResponse(ctx, readResponse.ActiveDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "jdbc" {
-		readJdbcExternalServerResponse(ctx, readResponse.JdbcExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readJdbcExternalServerResponse(ctx, readResponse.JdbcExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "syslog" {
-		readSyslogExternalServerResponse(ctx, readResponse.SyslogExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readSyslogExternalServerResponse(ctx, readResponse.SyslogExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ping-identity-proxy-server" {
-		readPingIdentityProxyServerExternalServerResponse(ctx, readResponse.PingIdentityProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readPingIdentityProxyServerExternalServerResponse(ctx, readResponse.PingIdentityProxyServerExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "http-proxy" {
-		readHttpProxyExternalServerResponse(ctx, readResponse.HttpProxyExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readHttpProxyExternalServerResponse(ctx, readResponse.HttpProxyExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "nokia-proxy-server" {
-		readNokiaProxyServerExternalServerResponse(ctx, readResponse.NokiaProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readNokiaProxyServerExternalServerResponse(ctx, readResponse.NokiaProxyServerExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "opendj" {
-		readOpendjExternalServerResponse(ctx, readResponse.OpendjExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readOpendjExternalServerResponse(ctx, readResponse.OpendjExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldap" {
-		readLdapExternalServerResponse(ctx, readResponse.LdapExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readLdapExternalServerResponse(ctx, readResponse.LdapExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ping-one-http" {
-		readPingOneHttpExternalServerResponse(ctx, readResponse.PingOneHttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readPingOneHttpExternalServerResponse(ctx, readResponse.PingOneHttpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "http" {
-		readHttpExternalServerResponse(ctx, readResponse.HttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readHttpExternalServerResponse(ctx, readResponse.HttpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "oracle-unified-directory" {
-		readOracleUnifiedDirectoryExternalServerResponse(ctx, readResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readOracleUnifiedDirectoryExternalServerResponse(ctx, readResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "conjur" {
-		readConjurExternalServerResponse(ctx, readResponse.ConjurExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readConjurExternalServerResponse(ctx, readResponse.ConjurExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "amazon-aws" {
-		readAmazonAwsExternalServerResponse(ctx, readResponse.AmazonAwsExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readAmazonAwsExternalServerResponse(ctx, readResponse.AmazonAwsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "vault" {
-		readVaultExternalServerResponse(ctx, readResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
+		readVaultExternalServerResponse(ctx, readResponse.VaultExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

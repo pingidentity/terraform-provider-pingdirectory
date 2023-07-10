@@ -911,7 +911,8 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 }
 
 // Read a GlobalConfigurationResponse object into the model struct
-func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel, expectedValues *globalConfigurationResourceModel, diagnostics *diag.Diagnostics) {
+func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse,
+	state, expectedValues *globalConfigurationResourceModel, checkPdFormattedAttributes bool, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)
@@ -945,8 +946,10 @@ func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfig
 	state.SizeLimit = internaltypes.Int64TypeOrNil(r.SizeLimit)
 	state.UnauthenticatedSizeLimit = internaltypes.Int64TypeOrNil(r.UnauthenticatedSizeLimit)
 	state.TimeLimit = internaltypes.StringTypeOrNil(r.TimeLimit, true)
-	CheckMismatchedPDFormattedAttributes("time_limit",
-		expectedValues.TimeLimit, state.TimeLimit, diagnostics)
+	if checkPdFormattedAttributes {
+		CheckMismatchedPDFormattedAttributes("time_limit",
+			expectedValues.TimeLimit, state.TimeLimit, diagnostics)
+	}
 	state.UnauthenticatedTimeLimit = internaltypes.StringTypeOrNil(r.UnauthenticatedTimeLimit, true)
 	CheckMismatchedPDFormattedAttributes("unauthenticated_time_limit",
 		expectedValues.UnauthenticatedTimeLimit, state.UnauthenticatedTimeLimit, diagnostics)
@@ -1168,7 +1171,7 @@ func (r *globalConfigurationResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state globalConfigurationResourceModel
-	readGlobalConfigurationResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readGlobalConfigurationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.GlobalConfigurationApi.UpdateGlobalConfiguration(ProviderBasicAuthContext(ctx, r.providerConfig))

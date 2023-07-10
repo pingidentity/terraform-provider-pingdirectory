@@ -265,7 +265,7 @@ func (r *defaultConsentDefinitionLocalizationResource) Create(ctx context.Contex
 
 	// Read the existing configuration
 	var state consentDefinitionLocalizationResourceModel
-	readConsentDefinitionLocalizationResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readConsentDefinitionLocalizationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ConsentDefinitionLocalizationApi.UpdateConsentDefinitionLocalization(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Locale.ValueString(), plan.ConsentDefinitionName.ValueString())

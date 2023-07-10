@@ -594,13 +594,13 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 	// Read the existing configuration
 	var state velocityContextProviderResourceModel
 	if plan.Type.ValueString() == "velocity-tools" {
-		readVelocityToolsVelocityContextProviderResponse(ctx, readResponse.VelocityToolsVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
+		readVelocityToolsVelocityContextProviderResponse(ctx, readResponse.VelocityToolsVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomVelocityContextProviderResponse(ctx, readResponse.CustomVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
+		readCustomVelocityContextProviderResponse(ctx, readResponse.CustomVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyVelocityContextProviderResponse(ctx, readResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyVelocityContextProviderResponse(ctx, readResponse.ThirdPartyVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

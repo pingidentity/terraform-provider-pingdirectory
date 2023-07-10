@@ -2755,40 +2755,40 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 	// Read the existing configuration
 	var state recurringTaskResourceModel
 	if plan.Type.ValueString() == "generate-server-profile" {
-		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "leave-lockdown-mode" {
-		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "backup" {
-		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "delay" {
-		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "statically-defined" {
-		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "collect-support-data" {
-		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "ldif-export" {
-		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "enter-lockdown-mode" {
-		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "audit-data-security" {
-		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "exec" {
-		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-retention" {
-		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

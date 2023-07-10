@@ -477,13 +477,13 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 	// Read the existing configuration
 	var state vaultAuthenticationMethodResourceModel
 	if plan.Type.ValueString() == "static-token" {
-		readStaticTokenVaultAuthenticationMethodResponse(ctx, readResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readStaticTokenVaultAuthenticationMethodResponse(ctx, readResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "app-role" {
-		readAppRoleVaultAuthenticationMethodResponse(ctx, readResponse.AppRoleVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readAppRoleVaultAuthenticationMethodResponse(ctx, readResponse.AppRoleVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "user-pass" {
-		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
