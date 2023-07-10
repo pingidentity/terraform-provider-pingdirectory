@@ -325,7 +325,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 				Optional:    true,
 			},
 			"encryption_metadata_file": schema.StringAttribute{
-				Description: "The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -559,9 +559,6 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	}
 	if internaltypes.IsDefined(model.IterationCount) {
 		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.EncryptionMetadataFile) {
-		resp.Diagnostics.AddError("Attribute 'encryption_metadata_file' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	compare, err = version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {

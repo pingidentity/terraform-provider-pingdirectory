@@ -21,7 +21,7 @@ Manages a External Server.
 ### Optional
 
 - `abandon_on_timeout` (Boolean) Indicates whether to send an abandon request for an operation for which a response timeout is encountered. A request which has timed out on one server may be retried on another server regardless of whether an abandon request is sent, but if the initial attempt is not abandoned then a long-running operation may unnecessarily continue to consume processing resources on the initial server.
-- `authentication_method` (String) The mechanism to use to authenticate to the target server. Supported in PingDirectory product version 9.2.0.0+.
+- `authentication_method` (String) The mechanism to use to authenticate to the target server.
 - `aws_access_key_id` (String) The access key ID that will be used if authentication should use an access key. If this is provided, then an aws-secret-access-key must also be provided.
 - `aws_region_name` (String) The name of the AWS region containing the resources that will be accessed.
 - `aws_secret_access_key` (String, Sensitive) The secret access key that will be used if authentication should use an access key. If this is provided, then an aws-access-key-id must also be provided.
