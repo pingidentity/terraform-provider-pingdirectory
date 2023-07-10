@@ -64,7 +64,7 @@ resource "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
 - `conjur_secret_relative_path` (String) The portion of the path that follows the account name in the URI needed to obtain the secret passphrase to use to generate the encryption key. Any special characters in the path must be URL-encoded.
 - `description` (String) A description for this Cipher Stream Provider
 - `encrypted_passphrase_file` (String) The path to a file that will hold the encrypted passphrase used by this cipher stream provider.
-- `encryption_metadata_file` (String) The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider. Supported in PingDirectory product version 9.3.0.0+.
+- `encryption_metadata_file` (String) The path to a file that will hold metadata about the encryption performed by this Amazon Secrets Manager Cipher Stream Provider.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Cipher Stream Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Cipher Stream Provider.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.

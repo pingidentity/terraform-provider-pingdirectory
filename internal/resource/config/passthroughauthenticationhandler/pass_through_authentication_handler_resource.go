@@ -327,7 +327,7 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				Optional:    true,
 			},
 			"included_local_entry_base_dn": schema.SetAttribute{
-				Description: "The base DNs for the local users whose authentication attempts may be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.",
 				Optional:    true,
 				Computed:    true,
 				ElementType: types.StringType,
@@ -336,11 +336,11 @@ func passThroughAuthenticationHandlerSchema(ctx context.Context, req resource.Sc
 				},
 			},
 			"connection_criteria": schema.StringAttribute{
-				Description: "A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "A reference to connection criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
 				Optional:    true,
 			},
 			"request_criteria": schema.StringAttribute{
-				Description: "A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "A reference to request criteria that will be used to indicate which bind requests should be passed through to the external authentication service.",
 				Optional:    true,
 			},
 		},
@@ -490,15 +490,6 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "aggregate" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"aggregate\"")
-	}
-	if internaltypes.IsNonEmptyString(model.RequestCriteria) {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsDefined(model.IncludedLocalEntryBaseDN) {
-		resp.Diagnostics.AddError("Attribute 'included_local_entry_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.ConnectionCriteria) {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
