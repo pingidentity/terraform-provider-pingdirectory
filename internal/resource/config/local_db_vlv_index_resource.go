@@ -183,7 +183,6 @@ func addOptionalLocalDbVlvIndexFields(ctx context.Context, addRequest *client.Ad
 // Read a LocalDbVlvIndexResponse object into the model struct
 func readLocalDbVlvIndexResponse(ctx context.Context, r *client.LocalDbVlvIndexResponse, state *localDbVlvIndexResourceModel, expectedValues *localDbVlvIndexResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.BackendName = expectedValues.BackendName
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.Scope = types.StringValue(r.Scope.String())
 	state.Filter = types.StringValue(r.Filter)
@@ -193,6 +192,14 @@ func readLocalDbVlvIndexResponse(ctx context.Context, r *client.LocalDbVlvIndexR
 	state.CacheMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlocalDbVlvIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *localDbVlvIndexResourceModel) setStateValuesNotReturnedByAPI(expectedValues *localDbVlvIndexResourceModel) {
+	if !expectedValues.BackendName.IsUnknown() {
+		state.BackendName = expectedValues.BackendName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -271,6 +278,7 @@ func (r *localDbVlvIndexResource) Create(ctx context.Context, req resource.Creat
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -307,7 +315,7 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state localDbVlvIndexResourceModel
-	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readLocalDbVlvIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbVlvIndexApi.UpdateLocalDbVlvIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
@@ -335,6 +343,7 @@ func (r *defaultLocalDbVlvIndexResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -435,6 +444,7 @@ func updateLocalDbVlvIndex(ctx context.Context, req resource.UpdateRequest, resp
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

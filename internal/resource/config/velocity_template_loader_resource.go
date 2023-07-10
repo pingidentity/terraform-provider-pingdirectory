@@ -190,7 +190,6 @@ func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *cl
 // Read a VelocityTemplateLoaderResponse object into the model struct
 func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *velocityTemplateLoaderResourceModel, expectedValues *velocityTemplateLoaderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.MimeTypeMatcher = types.StringValue(r.MimeTypeMatcher)
@@ -198,6 +197,14 @@ func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityT
 	state.TemplateSuffix = internaltypes.StringTypeOrNil(r.TemplateSuffix, internaltypes.IsEmptyString(expectedValues.TemplateSuffix))
 	state.TemplateDirectory = internaltypes.StringTypeOrNil(r.TemplateDirectory, internaltypes.IsEmptyString(expectedValues.TemplateDirectory))
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *velocityTemplateLoaderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *velocityTemplateLoaderResourceModel) {
+	if !expectedValues.HttpServletExtensionName.IsUnknown() {
+		state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -262,6 +269,7 @@ func (r *velocityTemplateLoaderResource) Create(ctx context.Context, req resourc
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -298,7 +306,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 
 	// Read the existing configuration
 	var state velocityTemplateLoaderResourceModel
-	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
@@ -326,6 +334,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -426,6 +435,7 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

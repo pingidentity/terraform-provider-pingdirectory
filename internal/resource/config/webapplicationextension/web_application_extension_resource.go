@@ -429,8 +429,6 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.Id = types.StringValue(r.Id)
 	state.SsoEnabled = internaltypes.BoolTypeOrNil(r.SsoEnabled)
 	state.OidcClientID = internaltypes.StringTypeOrNil(r.OidcClientID, internaltypes.IsEmptyString(expectedValues.OidcClientID))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.OidcClientSecret = expectedValues.OidcClientSecret
 	state.OidcClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OidcClientSecretPassphraseProvider))
 	state.OidcIssuerURL = internaltypes.StringTypeOrNil(r.OidcIssuerURL, internaltypes.IsEmptyString(expectedValues.OidcIssuerURL))
 	state.OidcTrustStoreFile = internaltypes.StringTypeOrNil(r.OidcTrustStoreFile, internaltypes.IsEmptyString(expectedValues.OidcTrustStoreFile))
@@ -483,6 +481,14 @@ func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateWebApplicationExtensionUnknownValuesDefault(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *defaultWebApplicationExtensionResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultWebApplicationExtensionResourceModel) {
+	if !expectedValues.OidcClientSecret.IsUnknown() {
+		state.OidcClientSecret = expectedValues.OidcClientSecret
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -619,10 +625,10 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 	// Read the existing configuration
 	var state defaultWebApplicationExtensionResourceModel
 	if plan.Type.ValueString() == "console" {
-		readConsoleWebApplicationExtensionResponseDefault(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
+		readConsoleWebApplicationExtensionResponseDefault(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericWebApplicationExtensionResponseDefault(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
+		readGenericWebApplicationExtensionResponseDefault(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -656,6 +662,7 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

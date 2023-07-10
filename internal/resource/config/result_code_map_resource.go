@@ -276,7 +276,7 @@ func (r *defaultResultCodeMapResource) Create(ctx context.Context, req resource.
 
 	// Read the existing configuration
 	var state resultCodeMapResourceModel
-	readResultCodeMapResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readResultCodeMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ResultCodeMapApi.UpdateResultCodeMap(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

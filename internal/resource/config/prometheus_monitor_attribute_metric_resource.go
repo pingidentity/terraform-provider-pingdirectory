@@ -196,7 +196,6 @@ func addOptionalPrometheusMonitorAttributeMetricFields(ctx context.Context, addR
 // Read a PrometheusMonitorAttributeMetricResponse object into the model struct
 func readPrometheusMonitorAttributeMetricResponse(ctx context.Context, r *client.PrometheusMonitorAttributeMetricResponse, state *prometheusMonitorAttributeMetricResourceModel, expectedValues *prometheusMonitorAttributeMetricResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
 	state.MetricName = types.StringValue(r.MetricName)
 	state.MonitorAttributeName = types.StringValue(r.MonitorAttributeName)
 	state.MonitorObjectClassName = types.StringValue(r.MonitorObjectClassName)
@@ -205,6 +204,14 @@ func readPrometheusMonitorAttributeMetricResponse(ctx context.Context, r *client
 	state.MetricDescription = internaltypes.StringTypeOrNil(r.MetricDescription, internaltypes.IsEmptyString(expectedValues.MetricDescription))
 	state.LabelNameValuePair = internaltypes.GetStringSet(r.LabelNameValuePair)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *prometheusMonitorAttributeMetricResourceModel) setStateValuesNotReturnedByAPI(expectedValues *prometheusMonitorAttributeMetricResourceModel) {
+	if !expectedValues.HttpServletExtensionName.IsUnknown() {
+		state.HttpServletExtensionName = expectedValues.HttpServletExtensionName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -277,6 +284,7 @@ func (r *prometheusMonitorAttributeMetricResource) Create(ctx context.Context, r
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -313,7 +321,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 
 	// Read the existing configuration
 	var state prometheusMonitorAttributeMetricResourceModel
-	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readPrometheusMonitorAttributeMetricResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.PrometheusMonitorAttributeMetricApi.UpdatePrometheusMonitorAttributeMetric(ProviderBasicAuthContext(ctx, r.providerConfig), plan.MetricName.ValueString(), plan.HttpServletExtensionName.ValueString())
@@ -341,6 +349,7 @@ func (r *defaultPrometheusMonitorAttributeMetricResource) Create(ctx context.Con
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -441,6 +450,7 @@ func updatePrometheusMonitorAttributeMetric(ctx context.Context, req resource.Up
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -503,8 +503,6 @@ func readAmazonSecretsManagerPassphraseProviderResponse(ctx context.Context, r *
 func readObscuredValuePassphraseProviderResponse(ctx context.Context, r *client.ObscuredValuePassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("obscured-value")
 	state.Id = types.StringValue(r.Id)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ObscuredValue = expectedValues.ObscuredValue
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -583,6 +581,14 @@ func readThirdPartyPassphraseProviderResponse(ctx context.Context, r *client.Thi
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populatePassphraseProviderUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *passphraseProviderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *passphraseProviderResourceModel) {
+	if !expectedValues.ObscuredValue.IsUnknown() {
+		state.ObscuredValue = expectedValues.ObscuredValue
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -964,6 +970,7 @@ func (r *passphraseProviderResource) Create(ctx context.Context, req resource.Cr
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -1001,28 +1008,28 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	// Read the existing configuration
 	var state passphraseProviderResourceModel
 	if plan.Type.ValueString() == "environment-variable" {
-		readEnvironmentVariablePassphraseProviderResponse(ctx, readResponse.EnvironmentVariablePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readEnvironmentVariablePassphraseProviderResponse(ctx, readResponse.EnvironmentVariablePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "amazon-secrets-manager" {
-		readAmazonSecretsManagerPassphraseProviderResponse(ctx, readResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readAmazonSecretsManagerPassphraseProviderResponse(ctx, readResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "obscured-value" {
-		readObscuredValuePassphraseProviderResponse(ctx, readResponse.ObscuredValuePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readObscuredValuePassphraseProviderResponse(ctx, readResponse.ObscuredValuePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "azure-key-vault" {
-		readAzureKeyVaultPassphraseProviderResponse(ctx, readResponse.AzureKeyVaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readAzureKeyVaultPassphraseProviderResponse(ctx, readResponse.AzureKeyVaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-based" {
-		readFileBasedPassphraseProviderResponse(ctx, readResponse.FileBasedPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readFileBasedPassphraseProviderResponse(ctx, readResponse.FileBasedPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "conjur" {
-		readConjurPassphraseProviderResponse(ctx, readResponse.ConjurPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readConjurPassphraseProviderResponse(ctx, readResponse.ConjurPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "vault" {
-		readVaultPassphraseProviderResponse(ctx, readResponse.VaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readVaultPassphraseProviderResponse(ctx, readResponse.VaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -1074,6 +1081,7 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1220,6 +1228,7 @@ func updatePassphraseProvider(ctx context.Context, req resource.UpdateRequest, r
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

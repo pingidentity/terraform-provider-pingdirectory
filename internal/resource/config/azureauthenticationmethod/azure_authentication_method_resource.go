@@ -244,8 +244,6 @@ func readClientSecretAzureAuthenticationMethodResponse(ctx context.Context, r *c
 	state.Id = types.StringValue(r.Id)
 	state.TenantID = types.StringValue(r.TenantID)
 	state.ClientID = types.StringValue(r.ClientID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ClientSecret = expectedValues.ClientSecret
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAzureAuthenticationMethodUnknownValues(ctx, state)
@@ -258,11 +256,20 @@ func readUsernamePasswordAzureAuthenticationMethodResponse(ctx context.Context, 
 	state.TenantID = types.StringValue(r.TenantID)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.Username = types.StringValue(r.Username)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAzureAuthenticationMethodUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *azureAuthenticationMethodResourceModel) setStateValuesNotReturnedByAPI(expectedValues *azureAuthenticationMethodResourceModel) {
+	if !expectedValues.ClientSecret.IsUnknown() {
+		state.ClientSecret = expectedValues.ClientSecret
+	}
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -417,6 +424,7 @@ func (r *azureAuthenticationMethodResource) Create(ctx context.Context, req reso
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -454,13 +462,13 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 	// Read the existing configuration
 	var state azureAuthenticationMethodResourceModel
 	if plan.Type.ValueString() == "default" {
-		readDefaultAzureAuthenticationMethodResponse(ctx, readResponse.DefaultAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readDefaultAzureAuthenticationMethodResponse(ctx, readResponse.DefaultAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "client-secret" {
-		readClientSecretAzureAuthenticationMethodResponse(ctx, readResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readClientSecretAzureAuthenticationMethodResponse(ctx, readResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "username-password" {
-		readUsernamePasswordAzureAuthenticationMethodResponse(ctx, readResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readUsernamePasswordAzureAuthenticationMethodResponse(ctx, readResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -497,6 +505,7 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -613,6 +622,7 @@ func updateAzureAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

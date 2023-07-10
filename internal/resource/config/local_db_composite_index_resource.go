@@ -203,7 +203,6 @@ func addOptionalLocalDbCompositeIndexFields(ctx context.Context, addRequest *cli
 // Read a LocalDbCompositeIndexResponse object into the model struct
 func readLocalDbCompositeIndexResponse(ctx context.Context, r *client.LocalDbCompositeIndexResponse, state *localDbCompositeIndexResourceModel, expectedValues *localDbCompositeIndexResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.BackendName = expectedValues.BackendName
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.IndexFilterPattern = types.StringValue(r.IndexFilterPattern)
 	state.IndexBaseDNPattern = internaltypes.StringTypeOrNil(r.IndexBaseDNPattern, internaltypes.IsEmptyString(expectedValues.IndexBaseDNPattern))
@@ -213,6 +212,14 @@ func readLocalDbCompositeIndexResponse(ctx context.Context, r *client.LocalDbCom
 	state.CacheMode = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlocalDbCompositeIndexCacheModeProp(r.CacheMode), internaltypes.IsEmptyString(expectedValues.CacheMode))
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *localDbCompositeIndexResourceModel) setStateValuesNotReturnedByAPI(expectedValues *localDbCompositeIndexResourceModel) {
+	if !expectedValues.BackendName.IsUnknown() {
+		state.BackendName = expectedValues.BackendName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -282,6 +289,7 @@ func (r *localDbCompositeIndexResource) Create(ctx context.Context, req resource
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -318,7 +326,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 
 	// Read the existing configuration
 	var state localDbCompositeIndexResourceModel
-	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.BackendName.ValueString())
@@ -346,6 +354,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -446,6 +455,7 @@ func updateLocalDbCompositeIndex(ctx context.Context, req resource.UpdateRequest
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

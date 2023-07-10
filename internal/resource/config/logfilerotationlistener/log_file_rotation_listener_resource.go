@@ -473,13 +473,13 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 	// Read the existing configuration
 	var state logFileRotationListenerResourceModel
 	if plan.Type.ValueString() == "summarize" {
-		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "copy" {
-		readCopyLogFileRotationListenerResponse(ctx, readResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		readCopyLogFileRotationListenerResponse(ctx, readResponse.CopyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

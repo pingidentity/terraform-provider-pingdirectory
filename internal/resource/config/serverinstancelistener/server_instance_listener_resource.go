@@ -175,7 +175,6 @@ func (r *serverInstanceListenerResource) ModifyPlan(ctx context.Context, req res
 func readLdapServerInstanceListenerResponse(ctx context.Context, r *client.LdapServerInstanceListenerResponse, state *serverInstanceListenerResourceModel, expectedValues *serverInstanceListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceName = expectedValues.ServerInstanceName
 	state.ServerLDAPPort = internaltypes.Int64TypeOrNil(r.ServerLDAPPort)
 	state.ConnectionSecurity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceListenerLdapConnectionSecurityProp(r.ConnectionSecurity), true)
@@ -189,7 +188,6 @@ func readLdapServerInstanceListenerResponse(ctx context.Context, r *client.LdapS
 func readHttpServerInstanceListenerResponse(ctx context.Context, r *client.HttpServerInstanceListenerResponse, state *serverInstanceListenerResourceModel, expectedValues *serverInstanceListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
-	state.ServerInstanceName = expectedValues.ServerInstanceName
 	state.ListenAddress = internaltypes.StringTypeOrNil(r.ListenAddress, true)
 	state.ServerHTTPPort = internaltypes.Int64TypeOrNil(r.ServerHTTPPort)
 	state.ConnectionSecurity = internaltypes.StringTypeOrNil(
@@ -197,6 +195,14 @@ func readHttpServerInstanceListenerResponse(ctx context.Context, r *client.HttpS
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnumserverInstanceListenerPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *serverInstanceListenerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *serverInstanceListenerResourceModel) {
+	if !expectedValues.ServerInstanceName.IsUnknown() {
+		state.ServerInstanceName = expectedValues.ServerInstanceName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -240,10 +246,10 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 	// Read the existing configuration
 	var state serverInstanceListenerResourceModel
 	if plan.Type.ValueString() == "ldap" {
-		readLdapServerInstanceListenerResponse(ctx, readResponse.LdapServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
+		readLdapServerInstanceListenerResponse(ctx, readResponse.LdapServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "http" {
-		readHttpServerInstanceListenerResponse(ctx, readResponse.HttpServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
+		readHttpServerInstanceListenerResponse(ctx, readResponse.HttpServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -277,6 +283,7 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -371,6 +378,7 @@ func (r *serverInstanceListenerResource) Update(ctx context.Context, req resourc
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

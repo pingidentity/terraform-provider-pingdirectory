@@ -256,8 +256,6 @@ func populateVaultAuthenticationMethodUnknownValues(ctx context.Context, model *
 func readStaticTokenVaultAuthenticationMethodResponse(ctx context.Context, r *client.StaticTokenVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodResourceModel, expectedValues *vaultAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static-token")
 	state.Id = types.StringValue(r.Id)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.VaultAccessToken = expectedValues.VaultAccessToken
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVaultAuthenticationMethodUnknownValues(ctx, state)
@@ -268,8 +266,6 @@ func readAppRoleVaultAuthenticationMethodResponse(ctx context.Context, r *client
 	state.Type = types.StringValue("app-role")
 	state.Id = types.StringValue(r.Id)
 	state.VaultRoleID = types.StringValue(r.VaultRoleID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.VaultSecretID = expectedValues.VaultSecretID
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, internaltypes.IsEmptyString(expectedValues.LoginMechanismName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -281,12 +277,24 @@ func readUserPassVaultAuthenticationMethodResponse(ctx context.Context, r *clien
 	state.Type = types.StringValue("user-pass")
 	state.Id = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.Password = expectedValues.Password
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, internaltypes.IsEmptyString(expectedValues.LoginMechanismName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVaultAuthenticationMethodUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *vaultAuthenticationMethodResourceModel) setStateValuesNotReturnedByAPI(expectedValues *vaultAuthenticationMethodResourceModel) {
+	if !expectedValues.VaultAccessToken.IsUnknown() {
+		state.VaultAccessToken = expectedValues.VaultAccessToken
+	}
+	if !expectedValues.VaultSecretID.IsUnknown() {
+		state.VaultSecretID = expectedValues.VaultSecretID
+	}
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -440,6 +448,7 @@ func (r *vaultAuthenticationMethodResource) Create(ctx context.Context, req reso
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -477,13 +486,13 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 	// Read the existing configuration
 	var state vaultAuthenticationMethodResourceModel
 	if plan.Type.ValueString() == "static-token" {
-		readStaticTokenVaultAuthenticationMethodResponse(ctx, readResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readStaticTokenVaultAuthenticationMethodResponse(ctx, readResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "app-role" {
-		readAppRoleVaultAuthenticationMethodResponse(ctx, readResponse.AppRoleVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readAppRoleVaultAuthenticationMethodResponse(ctx, readResponse.AppRoleVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "user-pass" {
-		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
+		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -520,6 +529,7 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -636,6 +646,7 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

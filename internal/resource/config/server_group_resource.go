@@ -226,7 +226,7 @@ func (r *defaultServerGroupResource) Create(ctx context.Context, req resource.Cr
 
 	// Read the existing configuration
 	var state serverGroupResourceModel
-	readServerGroupResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readServerGroupResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ServerGroupApi.UpdateServerGroup(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
