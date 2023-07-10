@@ -18,7 +18,6 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -224,7 +223,7 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"allow_pre_encoded_passwords": schema.StringAttribute{
-				Description: "Indicates whether users can change their passwords by providing a pre-encoded value. Supported in PingDirectory product version 9.3.0.0+.",
+				Description: "Indicates whether users can change their passwords by providing a pre-encoded value.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -540,32 +539,6 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 	}
 	AddCommonSchema(&schemaDef, true)
 	resp.Schema = schemaDef
-}
-
-// Validate that any restrictions are met in the plan
-func (r *passwordPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func (r *defaultPasswordPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
-}
-
-func modifyPlanPasswordPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
-	if err != nil {
-		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
-		return
-	}
-	if compare >= 0 {
-		// Every remaining property is supported
-		return
-	}
-	var model passwordPolicyResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.AllowPreEncodedPasswords) {
-		resp.Diagnostics.AddError("Attribute 'allow_pre_encoded_passwords' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 }
 
 // Add optional fields to create request for password-policy password-policy

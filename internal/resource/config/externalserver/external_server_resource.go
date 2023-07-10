@@ -382,7 +382,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 				},
 			},
 			"authentication_method": schema.StringAttribute{
-				Description: "The mechanism to use to authenticate to the target server. Supported in PingDirectory product version 9.2.0.0+.",
+				Description: "The mechanism to use to authenticate to the target server.",
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []planmodifier.String{
@@ -754,9 +754,6 @@ func modifyPlanExternalServer(ctx context.Context, req resource.ModifyPlanReques
 	}
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
-	if internaltypes.IsNonEmptyString(model.AuthenticationMethod) {
-		resp.Diagnostics.AddError("Attribute 'authentication_method' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 }
 
