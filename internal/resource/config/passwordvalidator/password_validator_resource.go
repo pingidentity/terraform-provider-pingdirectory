@@ -2067,49 +2067,49 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 	// Read the existing configuration
 	var state passwordValidatorResourceModel
 	if plan.Type.ValueString() == "character-set" {
-		readCharacterSetPasswordValidatorResponse(ctx, readResponse.CharacterSetPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readCharacterSetPasswordValidatorResponse(ctx, readResponse.CharacterSetPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "similarity-based" {
-		readSimilarityBasedPasswordValidatorResponse(ctx, readResponse.SimilarityBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readSimilarityBasedPasswordValidatorResponse(ctx, readResponse.SimilarityBasedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "attribute-value" {
-		readAttributeValuePasswordValidatorResponse(ctx, readResponse.AttributeValuePasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readAttributeValuePasswordValidatorResponse(ctx, readResponse.AttributeValuePasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomPasswordValidatorResponse(ctx, readResponse.CustomPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readCustomPasswordValidatorResponse(ctx, readResponse.CustomPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "repeated-characters" {
-		readRepeatedCharactersPasswordValidatorResponse(ctx, readResponse.RepeatedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readRepeatedCharactersPasswordValidatorResponse(ctx, readResponse.RepeatedCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "dictionary" {
-		readDictionaryPasswordValidatorResponse(ctx, readResponse.DictionaryPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readDictionaryPasswordValidatorResponse(ctx, readResponse.DictionaryPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "haystack" {
-		readHaystackPasswordValidatorResponse(ctx, readResponse.HaystackPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readHaystackPasswordValidatorResponse(ctx, readResponse.HaystackPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "utf-8" {
-		readUtf8PasswordValidatorResponse(ctx, readResponse.Utf8PasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readUtf8PasswordValidatorResponse(ctx, readResponse.Utf8PasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedPasswordValidatorResponse(ctx, readResponse.GroovyScriptedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readGroovyScriptedPasswordValidatorResponse(ctx, readResponse.GroovyScriptedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "pwned-passwords" {
-		readPwnedPasswordsPasswordValidatorResponse(ctx, readResponse.PwnedPasswordsPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readPwnedPasswordsPasswordValidatorResponse(ctx, readResponse.PwnedPasswordsPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "disallowed-characters" {
-		readDisallowedCharactersPasswordValidatorResponse(ctx, readResponse.DisallowedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readDisallowedCharactersPasswordValidatorResponse(ctx, readResponse.DisallowedCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "length-based" {
-		readLengthBasedPasswordValidatorResponse(ctx, readResponse.LengthBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readLengthBasedPasswordValidatorResponse(ctx, readResponse.LengthBasedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "regular-expression" {
-		readRegularExpressionPasswordValidatorResponse(ctx, readResponse.RegularExpressionPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readRegularExpressionPasswordValidatorResponse(ctx, readResponse.RegularExpressionPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "unique-characters" {
-		readUniqueCharactersPasswordValidatorResponse(ctx, readResponse.UniqueCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readUniqueCharactersPasswordValidatorResponse(ctx, readResponse.UniqueCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyPasswordValidatorResponse(ctx, readResponse.ThirdPartyPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyPasswordValidatorResponse(ctx, readResponse.ThirdPartyPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

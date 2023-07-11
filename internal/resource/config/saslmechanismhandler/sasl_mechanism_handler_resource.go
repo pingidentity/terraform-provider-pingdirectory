@@ -801,8 +801,6 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx context.Cont
 	state.Type = types.StringValue("unboundid-yubikey-otp")
 	state.Id = types.StringValue(r.Id)
 	state.YubikeyClientID = internaltypes.StringTypeOrNil(r.YubikeyClientID, internaltypes.IsEmptyString(expectedValues.YubikeyClientID))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.YubikeyAPIKey = expectedValues.YubikeyAPIKey
 	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.YubikeyAPIKeyPassphraseProvider))
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -1010,6 +1008,14 @@ func readThirdPartySaslMechanismHandlerResponseDefault(ctx context.Context, r *c
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateSaslMechanismHandlerUnknownValuesDefault(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *defaultSaslMechanismHandlerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *defaultSaslMechanismHandlerResourceModel) {
+	if !expectedValues.YubikeyAPIKey.IsUnknown() {
+		state.YubikeyAPIKey = expectedValues.YubikeyAPIKey
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -1308,46 +1314,46 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state defaultSaslMechanismHandlerResourceModel
 	if plan.Type.ValueString() == "unboundid-ms-chap-v2" {
-		readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidMsChapV2SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidMsChapV2SaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "unboundid-totp" {
-		readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidTotpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidTotpSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "unboundid-yubikey-otp" {
-		readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "external" {
-		readExternalSaslMechanismHandlerResponseDefault(ctx, readResponse.ExternalSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readExternalSaslMechanismHandlerResponseDefault(ctx, readResponse.ExternalSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "digest-md5" {
-		readDigestMd5SaslMechanismHandlerResponseDefault(ctx, readResponse.DigestMd5SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readDigestMd5SaslMechanismHandlerResponseDefault(ctx, readResponse.DigestMd5SaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "plain" {
-		readPlainSaslMechanismHandlerResponseDefault(ctx, readResponse.PlainSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readPlainSaslMechanismHandlerResponseDefault(ctx, readResponse.PlainSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "unboundid-delivered-otp" {
-		readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "unboundid-external-auth" {
-		readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidExternalAuthSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidExternalAuthSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "anonymous" {
-		readAnonymousSaslMechanismHandlerResponseDefault(ctx, readResponse.AnonymousSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readAnonymousSaslMechanismHandlerResponseDefault(ctx, readResponse.AnonymousSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "cram-md5" {
-		readCramMd5SaslMechanismHandlerResponseDefault(ctx, readResponse.CramMd5SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readCramMd5SaslMechanismHandlerResponseDefault(ctx, readResponse.CramMd5SaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "oauth-bearer" {
-		readOauthBearerSaslMechanismHandlerResponseDefault(ctx, readResponse.OauthBearerSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readOauthBearerSaslMechanismHandlerResponseDefault(ctx, readResponse.OauthBearerSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "unboundid-certificate-plus-password" {
-		readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "gssapi" {
-		readGssapiSaslMechanismHandlerResponseDefault(ctx, readResponse.GssapiSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGssapiSaslMechanismHandlerResponseDefault(ctx, readResponse.GssapiSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartySaslMechanismHandlerResponseDefault(ctx, readResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartySaslMechanismHandlerResponseDefault(ctx, readResponse.ThirdPartySaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -1417,6 +1423,7 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -1411,70 +1411,70 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 	// Read the existing configuration
 	var state defaultExtendedOperationHandlerResourceModel
 	if plan.Type.ValueString() == "cancel" {
-		readCancelExtendedOperationHandlerResponseDefault(ctx, readResponse.CancelExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readCancelExtendedOperationHandlerResponseDefault(ctx, readResponse.CancelExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "validate-totp-password" {
-		readValidateTotpPasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readValidateTotpPasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "replace-certificate" {
-		readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx, readResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx, readResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "get-connection-id" {
-		readGetConnectionIdExtendedOperationHandlerResponseDefault(ctx, readResponse.GetConnectionIdExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGetConnectionIdExtendedOperationHandlerResponseDefault(ctx, readResponse.GetConnectionIdExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "multi-update" {
-		readMultiUpdateExtendedOperationHandlerResponseDefault(ctx, readResponse.MultiUpdateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readMultiUpdateExtendedOperationHandlerResponseDefault(ctx, readResponse.MultiUpdateExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "notification-subscription" {
-		readNotificationSubscriptionExtendedOperationHandlerResponseDefault(ctx, readResponse.NotificationSubscriptionExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readNotificationSubscriptionExtendedOperationHandlerResponseDefault(ctx, readResponse.NotificationSubscriptionExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "password-modify" {
-		readPasswordModifyExtendedOperationHandlerResponseDefault(ctx, readResponse.PasswordModifyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readPasswordModifyExtendedOperationHandlerResponseDefault(ctx, readResponse.PasswordModifyExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "custom" {
-		readCustomExtendedOperationHandlerResponseDefault(ctx, readResponse.CustomExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readCustomExtendedOperationHandlerResponseDefault(ctx, readResponse.CustomExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "collect-support-data" {
-		readCollectSupportDataExtendedOperationHandlerResponseDefault(ctx, readResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readCollectSupportDataExtendedOperationHandlerResponseDefault(ctx, readResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "export-reversible-passwords" {
-		readExportReversiblePasswordsExtendedOperationHandlerResponseDefault(ctx, readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readExportReversiblePasswordsExtendedOperationHandlerResponseDefault(ctx, readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "batched-transactions" {
-		readBatchedTransactionsExtendedOperationHandlerResponseDefault(ctx, readResponse.BatchedTransactionsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readBatchedTransactionsExtendedOperationHandlerResponseDefault(ctx, readResponse.BatchedTransactionsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "get-changelog-batch" {
-		readGetChangelogBatchExtendedOperationHandlerResponseDefault(ctx, readResponse.GetChangelogBatchExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGetChangelogBatchExtendedOperationHandlerResponseDefault(ctx, readResponse.GetChangelogBatchExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "get-supported-otp-delivery-mechanisms" {
-		readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "single-use-tokens" {
-		readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generate-password" {
-		readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.GeneratePasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.GeneratePasswordExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "who-am-i" {
-		readWhoAmIExtendedOperationHandlerResponseDefault(ctx, readResponse.WhoAmIExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readWhoAmIExtendedOperationHandlerResponseDefault(ctx, readResponse.WhoAmIExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "start-tls" {
-		readStartTlsExtendedOperationHandlerResponseDefault(ctx, readResponse.StartTlsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readStartTlsExtendedOperationHandlerResponseDefault(ctx, readResponse.StartTlsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "deliver-password-reset-token" {
-		readDeliverPasswordResetTokenExtendedOperationHandlerResponseDefault(ctx, readResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readDeliverPasswordResetTokenExtendedOperationHandlerResponseDefault(ctx, readResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "password-policy-state" {
-		readPasswordPolicyStateExtendedOperationHandlerResponseDefault(ctx, readResponse.PasswordPolicyStateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readPasswordPolicyStateExtendedOperationHandlerResponseDefault(ctx, readResponse.PasswordPolicyStateExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "get-password-quality-requirements" {
-		readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "deliver-otp" {
-		readDeliverOtpExtendedOperationHandlerResponseDefault(ctx, readResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readDeliverOtpExtendedOperationHandlerResponseDefault(ctx, readResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyExtendedOperationHandlerResponseDefault(ctx, readResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyExtendedOperationHandlerResponseDefault(ctx, readResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

@@ -234,7 +234,7 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state dnMapResourceModel
-	readDnMapResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readDnMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.DnMapApi.UpdateDnMap(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

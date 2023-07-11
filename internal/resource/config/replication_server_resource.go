@@ -224,7 +224,6 @@ func (r *replicationServerResource) ModifyPlan(ctx context.Context, req resource
 func readReplicationServerResponse(ctx context.Context, r *client.ReplicationServerResponse, state *replicationServerResourceModel, expectedValues *replicationServerResourceModel, diagnostics *diag.Diagnostics) {
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
-	state.SynchronizationProviderName = expectedValues.SynchronizationProviderName
 	state.ReplicationServerID = types.Int64Value(r.ReplicationServerID)
 	state.ReplicationDBDirectory = types.StringValue(r.ReplicationDBDirectory)
 	state.JeProperty = internaltypes.GetStringSet(r.JeProperty)
@@ -248,6 +247,14 @@ func readReplicationServerResponse(ctx context.Context, r *client.ReplicationSer
 	state.GatewayPriority = types.Int64Value(r.GatewayPriority)
 	state.MissingChangesAlertThresholdPercent = internaltypes.Int64TypeOrNil(r.MissingChangesAlertThresholdPercent)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *replicationServerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *replicationServerResourceModel) {
+	if !expectedValues.SynchronizationProviderName.IsUnknown() {
+		state.SynchronizationProviderName = expectedValues.SynchronizationProviderName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -297,7 +304,7 @@ func (r *replicationServerResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state replicationServerResourceModel
-	readReplicationServerResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readReplicationServerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ReplicationServerApi.UpdateReplicationServer(ProviderBasicAuthContext(ctx, r.providerConfig), plan.SynchronizationProviderName.ValueString())
@@ -325,6 +332,7 @@ func (r *replicationServerResource) Create(ctx context.Context, req resource.Cre
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -409,6 +417,7 @@ func (r *replicationServerResource) Update(ctx context.Context, req resource.Upd
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

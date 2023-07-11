@@ -302,8 +302,6 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 	state.Id = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.TrustStorePin = expectedValues.TrustStorePin
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
 	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, internaltypes.IsEmptyString(expectedValues.TrustStorePinPassphraseProvider))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -331,6 +329,14 @@ func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.T
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateTrustManagerProviderUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *trustManagerProviderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *trustManagerProviderResourceModel) {
+	if !expectedValues.TrustStorePin.IsUnknown() {
+		state.TrustStorePin = expectedValues.TrustStorePin
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -526,6 +532,7 @@ func (r *trustManagerProviderResource) Create(ctx context.Context, req resource.
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -563,16 +570,16 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state trustManagerProviderResourceModel
 	if plan.Type.ValueString() == "blind" {
-		readBlindTrustManagerProviderResponse(ctx, readResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		readBlindTrustManagerProviderResponse(ctx, readResponse.BlindTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "file-based" {
-		readFileBasedTrustManagerProviderResponse(ctx, readResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		readFileBasedTrustManagerProviderResponse(ctx, readResponse.FileBasedTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "jvm-default" {
-		readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -612,6 +619,7 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -734,6 +742,7 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

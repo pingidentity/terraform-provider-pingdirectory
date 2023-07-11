@@ -196,7 +196,6 @@ func addOptionalScimAttributeMappingFields(ctx context.Context, addRequest *clie
 // Read a ScimAttributeMappingResponse object into the model struct
 func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttributeMappingResponse, state *scimAttributeMappingResourceModel, expectedValues *scimAttributeMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
 	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, internaltypes.IsEmptyString(expectedValues.CorrelatedLDAPDataView))
 	state.ScimResourceTypeAttribute = types.StringValue(r.ScimResourceTypeAttribute)
 	state.LdapAttribute = types.StringValue(r.LdapAttribute)
@@ -205,6 +204,14 @@ func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttribu
 	state.Searchable = internaltypes.BoolTypeOrNil(r.Searchable)
 	state.Authoritative = internaltypes.BoolTypeOrNil(r.Authoritative)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *scimAttributeMappingResourceModel) setStateValuesNotReturnedByAPI(expectedValues *scimAttributeMappingResourceModel) {
+	if !expectedValues.ScimResourceTypeName.IsUnknown() {
+		state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -271,6 +278,7 @@ func (r *scimAttributeMappingResource) Create(ctx context.Context, req resource.
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -307,7 +315,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state scimAttributeMappingResourceModel
-	readScimAttributeMappingResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readScimAttributeMappingResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
@@ -335,6 +343,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -435,6 +444,7 @@ func updateScimAttributeMapping(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -368,7 +368,7 @@ func (r *ldapSdkDebugLoggerResource) Create(ctx context.Context, req resource.Cr
 
 	// Read the existing configuration
 	var state ldapSdkDebugLoggerResourceModel
-	readLdapSdkDebugLoggerResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readLdapSdkDebugLoggerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.LdapSdkDebugLoggerApi.UpdateLdapSdkDebugLogger(ProviderBasicAuthContext(ctx, r.providerConfig))

@@ -259,7 +259,7 @@ func (r *defaultJsonAttributeConstraintsResource) Create(ctx context.Context, re
 
 	// Read the existing configuration
 	var state jsonAttributeConstraintsResourceModel
-	readJsonAttributeConstraintsResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readJsonAttributeConstraintsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.JsonAttributeConstraintsApi.UpdateJsonAttributeConstraints(ProviderBasicAuthContext(ctx, r.providerConfig), plan.AttributeType.ValueString())

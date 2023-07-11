@@ -426,7 +426,6 @@ func populateDelegatedAdminAttributeUnknownValues(ctx context.Context, model *de
 func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *client.CertificateDelegatedAdminAttributeResponse, state *delegatedAdminAttributeResourceModel, expectedValues *delegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("certificate")
 	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
 	state.AllowedMIMEType = internaltypes.GetStringSet(
 		client.StringSliceEnumdelegatedAdminAttributeCertificateAllowedMIMETypeProp(r.AllowedMIMEType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -448,7 +447,6 @@ func readCertificateDelegatedAdminAttributeResponse(ctx context.Context, r *clie
 func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.PhotoDelegatedAdminAttributeResponse, state *delegatedAdminAttributeResourceModel, expectedValues *delegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("photo")
 	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
 	state.AllowedMIMEType = internaltypes.GetStringSet(
 		client.StringSliceEnumdelegatedAdminAttributePhotoAllowedMIMETypeProp(r.AllowedMIMEType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -470,7 +468,6 @@ func readPhotoDelegatedAdminAttributeResponse(ctx context.Context, r *client.Pho
 func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.GenericDelegatedAdminAttributeResponse, state *delegatedAdminAttributeResourceModel, expectedValues *delegatedAdminAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
-	state.RestResourceTypeName = expectedValues.RestResourceTypeName
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.DisplayName = types.StringValue(r.DisplayName)
@@ -485,6 +482,14 @@ func readGenericDelegatedAdminAttributeResponse(ctx context.Context, r *client.G
 	state.DateTimeFormat = internaltypes.StringTypeOrNil(r.DateTimeFormat, internaltypes.IsEmptyString(expectedValues.DateTimeFormat))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateDelegatedAdminAttributeUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *delegatedAdminAttributeResourceModel) setStateValuesNotReturnedByAPI(expectedValues *delegatedAdminAttributeResourceModel) {
+	if !expectedValues.RestResourceTypeName.IsUnknown() {
+		state.RestResourceTypeName = expectedValues.RestResourceTypeName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -653,6 +658,7 @@ func (r *delegatedAdminAttributeResource) Create(ctx context.Context, req resour
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -690,13 +696,13 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 	// Read the existing configuration
 	var state delegatedAdminAttributeResourceModel
 	if plan.Type.ValueString() == "certificate" {
-		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "photo" {
-		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "generic" {
-		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
+		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -733,6 +739,7 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -849,6 +856,7 @@ func updateDelegatedAdminAttribute(ctx context.Context, req resource.UpdateReque
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

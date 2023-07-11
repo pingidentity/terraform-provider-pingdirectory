@@ -623,16 +623,16 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 	// Read the existing configuration
 	var state passwordGeneratorResourceModel
 	if plan.Type.ValueString() == "random" {
-		readRandomPasswordGeneratorResponse(ctx, readResponse.RandomPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
+		readRandomPasswordGeneratorResponse(ctx, readResponse.RandomPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "groovy-scripted" {
-		readGroovyScriptedPasswordGeneratorResponse(ctx, readResponse.GroovyScriptedPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
+		readGroovyScriptedPasswordGeneratorResponse(ctx, readResponse.GroovyScriptedPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "passphrase" {
-		readPassphrasePasswordGeneratorResponse(ctx, readResponse.PassphrasePasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
+		readPassphrasePasswordGeneratorResponse(ctx, readResponse.PassphrasePasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyPasswordGeneratorResponse(ctx, readResponse.ThirdPartyPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyPasswordGeneratorResponse(ctx, readResponse.ThirdPartyPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

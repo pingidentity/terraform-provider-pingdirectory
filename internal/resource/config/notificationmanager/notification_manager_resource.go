@@ -303,7 +303,7 @@ func (r *defaultNotificationManagerResource) Create(ctx context.Context, req res
 
 	// Read the existing configuration
 	var state notificationManagerResourceModel
-	readThirdPartyNotificationManagerResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readThirdPartyNotificationManagerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.NotificationManagerApi.UpdateNotificationManager(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

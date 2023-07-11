@@ -262,7 +262,7 @@ func (r *defaultChangeSubscriptionResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state changeSubscriptionResourceModel
-	readChangeSubscriptionResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readChangeSubscriptionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ChangeSubscriptionApi.UpdateChangeSubscription(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

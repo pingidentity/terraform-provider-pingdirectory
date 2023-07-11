@@ -254,7 +254,7 @@ func (r *workQueueResource) Create(ctx context.Context, req resource.CreateReque
 
 	// Read the existing configuration
 	var state workQueueResourceModel
-	readHighThroughputWorkQueueResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readHighThroughputWorkQueueResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.WorkQueueApi.UpdateWorkQueue(config.ProviderBasicAuthContext(ctx, r.providerConfig))

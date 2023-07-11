@@ -613,8 +613,6 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 	state.Type = types.StringValue("ping-federate")
 	state.Id = types.StringValue(r.Id)
 	state.ClientID = types.StringValue(r.ClientID)
-	// Obscured values aren't returned from the PD Configuration API - just use the expected value
-	state.ClientSecret = expectedValues.ClientSecret
 	state.ClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.ClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ClientSecretPassphraseProvider))
 	state.IncludeAudParameter = internaltypes.BoolTypeOrNil(r.IncludeAudParameter)
 	state.AccessTokenManagerID = internaltypes.StringTypeOrNil(r.AccessTokenManagerID, internaltypes.IsEmptyString(expectedValues.AccessTokenManagerID))
@@ -687,6 +685,14 @@ func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.T
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateAccessTokenValidatorUnknownValues(ctx, state)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *accessTokenValidatorResourceModel) setStateValuesNotReturnedByAPI(expectedValues *accessTokenValidatorResourceModel) {
+	if !expectedValues.ClientSecret.IsUnknown() {
+		state.ClientSecret = expectedValues.ClientSecret
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -913,6 +919,7 @@ func (r *accessTokenValidatorResource) Create(ctx context.Context, req resource.
 	// Populate Computed attribute values
 	state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, *state)
 	resp.Diagnostics.Append(diags...)
@@ -950,16 +957,16 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	// Read the existing configuration
 	var state accessTokenValidatorResourceModel
 	if plan.Type.ValueString() == "ping-federate" {
-		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "jwt" {
-		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "mock" {
-		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "third-party" {
-		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
+		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan
@@ -999,6 +1006,7 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -1121,6 +1129,7 @@ func updateAccessTokenValidator(ctx context.Context, req resource.UpdateRequest,
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

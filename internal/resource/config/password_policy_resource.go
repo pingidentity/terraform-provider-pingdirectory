@@ -1000,7 +1000,7 @@ func (r *defaultPasswordPolicyResource) Create(ctx context.Context, req resource
 
 	// Read the existing configuration
 	var state passwordPolicyResourceModel
-	readPasswordPolicyResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readPasswordPolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.PasswordPolicyApi.UpdatePasswordPolicy(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())

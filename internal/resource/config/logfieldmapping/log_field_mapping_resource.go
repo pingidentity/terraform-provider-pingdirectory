@@ -1132,10 +1132,10 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 	// Read the existing configuration
 	var state logFieldMappingResourceModel
 	if plan.Type.ValueString() == "access" {
-		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
+		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
 	if plan.Type.ValueString() == "error" {
-		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
+		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
 
 	// Determine what changes are needed to match the plan

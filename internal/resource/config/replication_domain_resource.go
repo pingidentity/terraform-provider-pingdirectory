@@ -155,7 +155,6 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 // Read a ReplicationDomainResponse object into the model struct
 func readReplicationDomainResponse(ctx context.Context, r *client.ReplicationDomainResponse, state *replicationDomainResourceModel, expectedValues *replicationDomainResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
-	state.SynchronizationProviderName = expectedValues.SynchronizationProviderName
 	state.ServerID = types.Int64Value(r.ServerID)
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.WindowSize = internaltypes.Int64TypeOrNil(r.WindowSize)
@@ -173,6 +172,14 @@ func readReplicationDomainResponse(ctx context.Context, r *client.ReplicationDom
 	CheckMismatchedPDFormattedAttributes("dependent_ops_replay_failure_wait_time",
 		expectedValues.DependentOpsReplayFailureWaitTime, state.DependentOpsReplayFailureWaitTime, diagnostics)
 	state.Notifications, state.RequiredActions = ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
+}
+
+// Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
+// This will include any parent endpoint names and any obscured (sensitive) attributes
+func (state *replicationDomainResourceModel) setStateValuesNotReturnedByAPI(expectedValues *replicationDomainResourceModel) {
+	if !expectedValues.SynchronizationProviderName.IsUnknown() {
+		state.SynchronizationProviderName = expectedValues.SynchronizationProviderName
+	}
 }
 
 // Create any update operations necessary to make the state match the plan
@@ -217,7 +224,7 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 
 	// Read the existing configuration
 	var state replicationDomainResourceModel
-	readReplicationDomainResponse(ctx, readResponse, &state, &plan, &resp.Diagnostics)
+	readReplicationDomainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
 	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.SynchronizationProviderName.ValueString())
@@ -245,6 +252,7 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 		state.LastUpdated = types.StringValue(string(time.Now().Format(time.RFC850)))
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -329,6 +337,7 @@ func (r *replicationDomainResource) Update(ctx context.Context, req resource.Upd
 		tflog.Warn(ctx, "No configuration API operations created for update")
 	}
 
+	state.setStateValuesNotReturnedByAPI(&plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
