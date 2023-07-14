@@ -1,4 +1,21 @@
-# v0.9.0 (Unreleased)
+# v0.10.0 (Unreleased)
+
+# v0.9.0 July 14, 2023
+
+### FEATURES
+* Support PingDirectory version `9.2.0.1` (#257)
+* Support PingDirectory version `9.3.0.0` (#258)
+
+### BUG FIXES
+* Fix some attributes that were incorrectly version-restricted (#259)
+* Fix formatted properties causing errors on create (#261)
+
+### DEPENDENCIES
+* Bump `github.com/terraform-linters/tflint` from `0.46.1` to `0.47.0` (#235)
+* Bump `github.com/hashicorp/terraform-plugin-framework` from `1.3.1` to `1.3.2` (#254)
+* Bump `github.com/hashicorp/terraform-plugin-go` from `0.16.0` to `0.18.0` (#256)
+* Bump `github.com/hashicorp/terraform-plugin-docs` from `0.15.0` to `0.16.0` (#260)
+* Update to Go `1.20` (#262)
 
 # v0.8.0 June 30 2023
 
