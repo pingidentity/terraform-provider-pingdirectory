@@ -8,7 +8,7 @@ The PingDirectory Terraform provider is still in development, and breaking chang
 
 ## Requirements
 * Terraform 1.1+
-* Go 1.18+
+* Go 1.20+
 
 # Documentation
 

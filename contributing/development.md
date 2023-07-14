@@ -2,7 +2,7 @@
 ## Prerequisites
 The following applications must be installed locally to run the provider:
 - [Terraform](https://www.terraform.io/downloads.html) 1.0+ (to run acceptance tests)
-- [Go](https://golang.org/doc/install) 1.18+ (to build the provider plugin)
+- [Go](https://golang.org/doc/install) 1.20+ (to build the provider plugin)
 
 To run the example in this repository, you will also need
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
@@ -57,7 +57,7 @@ Acceptance tests for the provider use a local PingDirectory instance running in 
 - `make testacc`: Runs the acceptance tests, with the assumption that a local PingDirectory instance is available
 - `make starttestcontainer`: Starts a PingDirectory Docker container and waits for it to become ready
 - `make removetestcontainer`: Stops and removes the PingDirectory Docker container used for testing
-- `make testacccomplete`: Starts the PingDirectory Docker container, waits for it to become ready, runs the acceptance tests, and then removes the Docker container. This option is good for running the tests from scratch and for use in automation, but you will have to wait for the container startup each time.
+- `make testacccomplete`: Starts the PingDirectory Docker container, waits for it to become ready, and runs the acceptance tests. This option is good for running the tests from scratch and for use in automation, but you will have to wait for the container startup each time.
   
 **Tip**: If you plan on running tests multiple times and do not mind reusing the same server, then it is recommended to use the first three options above to perform each step individually.
 
