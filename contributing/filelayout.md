@@ -30,7 +30,7 @@ Tests are under the **internal/acctest** folder. The ***acctest.go*** file conta
 - **scripts/**: This folder contains utility scripts.
 - **examples/**: This folder contains Terraform examples that can be used to try out the Provider.
 - **docs/**: This folder contains documentation.
-- **tempmlates/**: This folder contains templates for generating documentation.
+- **templates/**: This folder contains templates for generating documentation.
 - **docker-compose/**:  This folder contains a ***docker-compose.yaml*** file that can be used to quickly set up a PingDirectory server for testing. This method provides a quick way to perform local testing.
 - **.vscode/**: This folder contains the configuration for debugging with Visual Studio Code - see the *Debugging* section below.
 
