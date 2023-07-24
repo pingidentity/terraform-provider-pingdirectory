@@ -326,12 +326,15 @@ func (p *pingdirectoryProvider) Configure(ctx context.Context, req provider.Conf
 	resourceConfig.ApiClientV9300 = client9300.NewAPIClient(clientConfig9200)
 
 	resp.ResourceData = resourceConfig
+	resp.DataSourceData = resourceConfig
 	tflog.Info(ctx, "Configured PingDirectory client", map[string]interface{}{"success": true})
 }
 
 // DataSources defines the data sources implemented in the provider.
 func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
+	return []func() datasource.DataSource{
+		gauge.NewGaugeDataSource,
+	}
 }
 
 // Resources defines the resources implemented in the provider.
