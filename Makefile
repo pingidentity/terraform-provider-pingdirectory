@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: install generate fmt vet test starttestcontainer removetestcontainer testacc testacccomplete devcheck golangcilint terrafmt terrafmtcheck tflint providerlint importfmtlint
+.PHONY: install generate fmt vet test starttestcontainer removetestcontainer spincontainer testacc testacccomplete devcheck golangcilint terrafmt terrafmtcheck tflint providerlint importfmtlint
 
 default: install
 
@@ -46,7 +46,9 @@ starttestcontainer:
 		{ echo "PingDirectory container did not become ready in time. Logs:"; docker logs pingdirectory_terraform_provider_container; exit 1; }
 
 removetestcontainer:
-	docker rm -f pingdirectory_terraform_provider_container    
+	docker rm -f pingdirectory_terraform_provider_container
+
+spincontainer: removetestcontainer starttestcontainer
 
 testacc:
 	PINGDIRECTORY_PROVIDER_HTTPS_HOST=https://localhost:1443 \
