@@ -16,34 +16,63 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client9300 "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
-	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesscontrolhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accesstokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/accountstatusnotificationhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/alarmmanager"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/alerthandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/attributesyntax"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/azureauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/backend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/certificatemapper"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/changesubscription"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/changesubscriptionhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/ciphersecretkey"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/cipherstreamprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/clientconnectionpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/conjurauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectioncriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/connectionhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/consentdefinition"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/consentdefinitionlocalization"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/consentservice"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/constructedattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/correlatedldapdataview"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/cryptomanager"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/customloggedstats"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/datasecurityauditor"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/debugtarget"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminattributecategory"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadmincorrelatedrestresource"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminresourcerights"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/delegatedadminrights"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/dnmap"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/entrycache"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/extendedoperationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/externalserver"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/failurelockoutaction"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gauge"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/gaugedatasource"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/globalconfiguration"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/groupimplementation"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpconfiguration"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletcrossoriginpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/httpservletextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/identitymapper"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/idtokenvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/interserverauthenticationinfo"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/jsonattributeconstraints"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/jsonfieldconstraints"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/keymanagerprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/keypair"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/ldapcorrelationattributepair"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/ldapsdkdebuglogger"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/license"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/localdbcompositeindex"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/localdbindex"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/localdbvlvindex"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/location"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldbehavior"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldmapping"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logfieldsyntax"
@@ -51,35 +80,58 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logpublisher"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logretentionpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/logrotationpolicy"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/macsecretkey"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/matchingrule"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitoringendpoint"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/monitorprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/notificationmanager"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/oauthtokenhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/obscuredvalue"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/otpdeliverymechanism"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passphraseprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passthroughauthenticationhandler"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordgenerator"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordpolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordstoragescheme"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/passwordvalidator"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/plugin"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/pluginroot"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/prometheusmonitorattributemetric"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtask"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/recurringtaskchain"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/replicationassurancepolicy"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/replicationdomain"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/replicationserver"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/requestcriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/restresourcetype"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/resultcodemap"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/resultcriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/rootdn"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/rootdnuser"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/rootdsebackend"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/saslmechanismhandler"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimattributemapping"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimresourcetype"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimschema"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/scimsubattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/searchreferencecriteria"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/sensitiveattribute"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/servergroup"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstance"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/serverinstancelistener"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/softdeletepolicy"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/synchronizationprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/tokenclaimvalidation"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/topologyadminuser"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustedcertificate"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/trustmanagerprovider"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedattributecriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/uncachedentrycriteria"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/vaultauthenticationmethod"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/velocitycontextprovider"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/velocitytemplateloader"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/virtualattribute"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/webapplicationextension"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config/workqueue"
@@ -359,98 +411,98 @@ func (p *pingdirectoryProvider) Resources(_ context.Context) []func() resource.R
 		changesubscriptionhandler.NewDefaultChangeSubscriptionHandlerResource,
 		cipherstreamprovider.NewCipherStreamProviderResource,
 		cipherstreamprovider.NewDefaultCipherStreamProviderResource,
-		config.NewAlarmManagerResource,
-		config.NewChangeSubscriptionResource,
-		config.NewDefaultChangeSubscriptionResource,
-		config.NewCipherSecretKeyResource,
-		config.NewClientConnectionPolicyResource,
-		config.NewDefaultClientConnectionPolicyResource,
-		config.NewConsentDefinitionResource,
-		config.NewDefaultConsentDefinitionResource,
-		config.NewConsentDefinitionLocalizationResource,
-		config.NewDefaultConsentDefinitionLocalizationResource,
-		config.NewConsentServiceResource,
-		config.NewCorrelatedLdapDataViewResource,
-		config.NewDefaultCorrelatedLdapDataViewResource,
-		config.NewConstructedAttributeResource,
-		config.NewDefaultConstructedAttributeResource,
-		config.NewCryptoManagerResource,
-		config.NewCustomLoggedStatsResource,
-		config.NewDefaultCustomLoggedStatsResource,
-		config.NewDebugTargetResource,
-		config.NewDefaultDebugTargetResource,
-		config.NewDefaultLocationResource,
-		config.NewDefaultDelegatedAdminAttributeCategoryResource,
-		config.NewDelegatedAdminAttributeCategoryResource,
-		config.NewDefaultDelegatedAdminCorrelatedRestResourceResource,
-		config.NewDelegatedAdminCorrelatedRestResourceResource,
-		config.NewDelegatedAdminResourceRightsResource,
-		config.NewDefaultDelegatedAdminResourceRightsResource,
-		config.NewDelegatedAdminRightsResource,
-		config.NewDefaultDelegatedAdminRightsResource,
-		config.NewDefaultJsonFieldConstraintsResource,
-		config.NewJsonFieldConstraintsResource,
-		config.NewDnMapResource,
-		config.NewDefaultDnMapResource,
-		config.NewGlobalConfigurationResource,
-		config.NewHttpConfigurationResource,
-		config.NewHttpServletCrossOriginPolicyResource,
-		config.NewDefaultHttpServletCrossOriginPolicyResource,
-		config.NewJsonAttributeConstraintsResource,
-		config.NewDefaultJsonAttributeConstraintsResource,
-		config.NewDefaultKeyPairResource,
-		config.NewKeyPairResource,
-		config.NewDefaultLdapCorrelationAttributePairResource,
-		config.NewLdapCorrelationAttributePairResource,
-		config.NewLdapSdkDebugLoggerResource,
-		config.NewLicenseResource,
-		config.NewLocalDbIndexResource,
-		config.NewDefaultLocalDbIndexResource,
-		config.NewDefaultLocalDbVlvIndexResource,
-		config.NewLocalDbVlvIndexResource,
-		config.NewLocalDbCompositeIndexResource,
-		config.NewDefaultLocalDbCompositeIndexResource,
-		config.NewLocationResource,
-		config.NewMacSecretKeyResource,
-		config.NewDefaultObscuredValueResource,
-		config.NewObscuredValueResource,
-		config.NewPasswordPolicyResource,
-		config.NewDefaultPasswordPolicyResource,
-		config.NewPluginRootResource,
-		config.NewDefaultPrometheusMonitorAttributeMetricResource,
-		config.NewPrometheusMonitorAttributeMetricResource,
-		config.NewRecurringTaskChainResource,
-		config.NewDefaultRecurringTaskChainResource,
-		config.NewReplicationAssurancePolicyResource,
-		config.NewDefaultReplicationAssurancePolicyResource,
-		config.NewReplicationDomainResource,
-		config.NewReplicationServerResource,
-		config.NewResultCodeMapResource,
-		config.NewDefaultResultCodeMapResource,
-		config.NewRootDnResource,
-		config.NewRootDnUserResource,
-		config.NewRootDseBackendResource,
-		config.NewDefaultRootDnUserResource,
-		config.NewScimAttributeResource,
-		config.NewDefaultScimAttributeResource,
-		config.NewScimAttributeMappingResource,
-		config.NewDefaultScimAttributeMappingResource,
-		config.NewScimSchemaResource,
-		config.NewDefaultScimSchemaResource,
-		config.NewDefaultScimSubattributeResource,
-		config.NewScimSubattributeResource,
-		config.NewDefaultSensitiveAttributeResource,
-		config.NewSensitiveAttributeResource,
-		config.NewDefaultServerGroupResource,
-		config.NewServerGroupResource,
-		config.NewSoftDeletePolicyResource,
-		config.NewDefaultSoftDeletePolicyResource,
-		config.NewTopologyAdminUserResource,
-		config.NewDefaultTopologyAdminUserResource,
-		config.NewTrustedCertificateResource,
-		config.NewDefaultTrustedCertificateResource,
-		config.NewVelocityTemplateLoaderResource,
-		config.NewDefaultVelocityTemplateLoaderResource,
+		alarmmanager.NewAlarmManagerResource,
+		changesubscription.NewChangeSubscriptionResource,
+		changesubscription.NewDefaultChangeSubscriptionResource,
+		ciphersecretkey.NewCipherSecretKeyResource,
+		clientconnectionpolicy.NewClientConnectionPolicyResource,
+		clientconnectionpolicy.NewDefaultClientConnectionPolicyResource,
+		consentdefinition.NewConsentDefinitionResource,
+		consentdefinition.NewDefaultConsentDefinitionResource,
+		consentdefinitionlocalization.NewConsentDefinitionLocalizationResource,
+		consentdefinitionlocalization.NewDefaultConsentDefinitionLocalizationResource,
+		consentservice.NewConsentServiceResource,
+		correlatedldapdataview.NewCorrelatedLdapDataViewResource,
+		correlatedldapdataview.NewDefaultCorrelatedLdapDataViewResource,
+		constructedattribute.NewConstructedAttributeResource,
+		constructedattribute.NewDefaultConstructedAttributeResource,
+		cryptomanager.NewCryptoManagerResource,
+		customloggedstats.NewCustomLoggedStatsResource,
+		customloggedstats.NewDefaultCustomLoggedStatsResource,
+		debugtarget.NewDebugTargetResource,
+		debugtarget.NewDefaultDebugTargetResource,
+		location.NewDefaultLocationResource,
+		delegatedadminattributecategory.NewDefaultDelegatedAdminAttributeCategoryResource,
+		delegatedadminattributecategory.NewDelegatedAdminAttributeCategoryResource,
+		delegatedadmincorrelatedrestresource.NewDefaultDelegatedAdminCorrelatedRestResourceResource,
+		delegatedadmincorrelatedrestresource.NewDelegatedAdminCorrelatedRestResourceResource,
+		delegatedadminresourcerights.NewDelegatedAdminResourceRightsResource,
+		delegatedadminresourcerights.NewDefaultDelegatedAdminResourceRightsResource,
+		delegatedadminrights.NewDelegatedAdminRightsResource,
+		delegatedadminrights.NewDefaultDelegatedAdminRightsResource,
+		jsonfieldconstraints.NewDefaultJsonFieldConstraintsResource,
+		jsonfieldconstraints.NewJsonFieldConstraintsResource,
+		dnmap.NewDnMapResource,
+		dnmap.NewDefaultDnMapResource,
+		globalconfiguration.NewGlobalConfigurationResource,
+		httpconfiguration.NewHttpConfigurationResource,
+		httpservletcrossoriginpolicy.NewHttpServletCrossOriginPolicyResource,
+		httpservletcrossoriginpolicy.NewDefaultHttpServletCrossOriginPolicyResource,
+		jsonattributeconstraints.NewJsonAttributeConstraintsResource,
+		jsonattributeconstraints.NewDefaultJsonAttributeConstraintsResource,
+		keypair.NewDefaultKeyPairResource,
+		keypair.NewKeyPairResource,
+		ldapcorrelationattributepair.NewDefaultLdapCorrelationAttributePairResource,
+		ldapcorrelationattributepair.NewLdapCorrelationAttributePairResource,
+		ldapsdkdebuglogger.NewLdapSdkDebugLoggerResource,
+		license.NewLicenseResource,
+		localdbindex.NewLocalDbIndexResource,
+		localdbindex.NewDefaultLocalDbIndexResource,
+		localdbvlvindex.NewDefaultLocalDbVlvIndexResource,
+		localdbvlvindex.NewLocalDbVlvIndexResource,
+		localdbcompositeindex.NewLocalDbCompositeIndexResource,
+		localdbcompositeindex.NewDefaultLocalDbCompositeIndexResource,
+		location.NewLocationResource,
+		macsecretkey.NewMacSecretKeyResource,
+		obscuredvalue.NewDefaultObscuredValueResource,
+		obscuredvalue.NewObscuredValueResource,
+		passwordpolicy.NewPasswordPolicyResource,
+		passwordpolicy.NewDefaultPasswordPolicyResource,
+		pluginroot.NewPluginRootResource,
+		prometheusmonitorattributemetric.NewDefaultPrometheusMonitorAttributeMetricResource,
+		prometheusmonitorattributemetric.NewPrometheusMonitorAttributeMetricResource,
+		recurringtaskchain.NewRecurringTaskChainResource,
+		recurringtaskchain.NewDefaultRecurringTaskChainResource,
+		replicationassurancepolicy.NewReplicationAssurancePolicyResource,
+		replicationassurancepolicy.NewDefaultReplicationAssurancePolicyResource,
+		replicationdomain.NewReplicationDomainResource,
+		replicationserver.NewReplicationServerResource,
+		resultcodemap.NewResultCodeMapResource,
+		resultcodemap.NewDefaultResultCodeMapResource,
+		rootdn.NewRootDnResource,
+		rootdnuser.NewRootDnUserResource,
+		rootdsebackend.NewRootDseBackendResource,
+		rootdnuser.NewDefaultRootDnUserResource,
+		scimattribute.NewScimAttributeResource,
+		scimattribute.NewDefaultScimAttributeResource,
+		scimattributemapping.NewScimAttributeMappingResource,
+		scimattributemapping.NewDefaultScimAttributeMappingResource,
+		scimschema.NewScimSchemaResource,
+		scimschema.NewDefaultScimSchemaResource,
+		scimsubattribute.NewDefaultScimSubattributeResource,
+		scimsubattribute.NewScimSubattributeResource,
+		sensitiveattribute.NewDefaultSensitiveAttributeResource,
+		sensitiveattribute.NewSensitiveAttributeResource,
+		servergroup.NewDefaultServerGroupResource,
+		servergroup.NewServerGroupResource,
+		softdeletepolicy.NewSoftDeletePolicyResource,
+		softdeletepolicy.NewDefaultSoftDeletePolicyResource,
+		topologyadminuser.NewTopologyAdminUserResource,
+		topologyadminuser.NewDefaultTopologyAdminUserResource,
+		trustedcertificate.NewTrustedCertificateResource,
+		trustedcertificate.NewDefaultTrustedCertificateResource,
+		velocitytemplateloader.NewVelocityTemplateLoaderResource,
+		velocitytemplateloader.NewDefaultVelocityTemplateLoaderResource,
 		conjurauthenticationmethod.NewConjurAuthenticationMethodResource,
 		conjurauthenticationmethod.NewDefaultConjurAuthenticationMethodResource,
 		connectioncriteria.NewConnectionCriteriaResource,
