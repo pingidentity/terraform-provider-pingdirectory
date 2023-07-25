@@ -14,7 +14,7 @@ import (
 
 const testIdScimSubattribute = "MyId"
 const testScimAttributeName = "cn"
-const testScimSchemaNametest = "urn:com:example"
+const testScimSchemaNametest = "urn:com:example:scimsubattributetest"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type scimSubattributeTestModel struct {

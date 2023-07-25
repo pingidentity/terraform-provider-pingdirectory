@@ -31,6 +31,8 @@ func TestAccLocation(t *testing.T) {
 				Config: testAccLocationResource(resourceName, locationName, locationDescription),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedLocationAttributes(locationName, locationDescription),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_location.%s", resourceName), "id", locationName),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_location.%s", resourceName), "description", locationDescription),
 				),
 			},
 			{
@@ -73,7 +75,15 @@ func testAccLocationResource(resourceName, locationName, description string) str
 resource "pingdirectory_location" "%[1]s" {
   id          = "%[2]s"
   description = "%[3]s"
-}`, resourceName, locationName, description)
+}
+
+data "pingdirectory_location" "%[1]s" {
+	id = "%[2]s"
+	depends_on = [
+		pingdirectory_location.%[1]s
+	]
+}
+`, resourceName, locationName, description)
 }
 
 func testAccLocationResourceNoDescription(resourceName, locationName string) string {

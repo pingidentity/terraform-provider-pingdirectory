@@ -2,6 +2,7 @@ package accesscontrolhandler_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -36,7 +37,10 @@ func TestAccDseeCompatAccessControlHandler(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDseeCompatAccessControlHandlerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDseeCompatAccessControlHandlerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDseeCompatAccessControlHandlerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_control_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -59,7 +63,13 @@ func testAccDseeCompatAccessControlHandlerResource(resourceName string, resource
 	return fmt.Sprintf(`
 resource "pingdirectory_default_access_control_handler" "%[1]s" {
   enabled = %[2]t
-}`, resourceName, resourceModel.enabled)
+}
+
+data "pingdirectory_access_control_handler" "%[1]s" {
+	depends_on = [
+		pingdirectory_default_access_control_handler.%[1]s
+	]
+  }`, resourceName, resourceModel.enabled)
 }
 
 // Test that the expected attributes are set on the PingDirectory server

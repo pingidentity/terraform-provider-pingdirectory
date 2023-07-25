@@ -12,7 +12,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdJsonAttributeConstraints = "ubidEntitlementJsonAttributeConstraintsTest"
+const testIdJsonAttributeConstraints = "ubidEntitlement"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type jsonAttributeConstraintsTestModel struct {

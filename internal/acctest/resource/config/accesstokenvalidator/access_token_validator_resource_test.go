@@ -2,6 +2,7 @@ package accesstokenvalidator_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -53,7 +54,13 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPingFederateAccessTokenValidatorResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPingFederateAccessTokenValidatorAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPingFederateAccessTokenValidatorAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "type", "ping-federate"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "client_id", initialResourceModel.clientId),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "authorization_server", initialResourceModel.authorizationServer),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -83,6 +90,13 @@ resource "pingdirectory_access_token_validator" "%[1]s" {
   client_secret        = "%[4]s"
   authorization_server = "%[5]s"
   enabled              = %[6]t
+}
+
+data "pingdirectory_access_token_validator" "%[1]s" {
+	id                   = "%[2]s"
+	depends_on = [
+		pingdirectory_access_token_validator.%[1]s
+	]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.clientId,
