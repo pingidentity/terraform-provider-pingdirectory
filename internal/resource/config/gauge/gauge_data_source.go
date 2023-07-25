@@ -25,18 +25,18 @@ func NewGaugeDataSource() datasource.DataSource {
 	return &gaugeDataSource{}
 }
 
-// gaugeResource is the data source implementation.
+// gaugeDataSource is the datasource implementation.
 type gaugeDataSource struct {
 	providerConfig internaltypes.ProviderConfiguration
 	apiClient      *client.APIClient
 }
 
-// Metadata returns the resource type name.
+// Metadata returns the data source type name.
 func (r *gaugeDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_gauge"
 }
 
-// Configure adds the provider configured client to the resource.
+// Configure adds the provider configured client to the data source.
 func (r *gaugeDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -71,9 +71,9 @@ type gaugeDataSourceModel struct {
 	ServerDegradedSeverityLevel    types.String  `tfsdk:"server_degraded_severity_level"`
 }
 
-// GetSchema defines the schema for the data source.
+// GetSchema defines the schema for the datasource.
 func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	schemaDef := schema.Schema{
+	resp.Schema = schema.Schema{
 		Description: "Describes a Gauge.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -204,11 +204,10 @@ func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 			},
 		},
 	}
-	resp.Schema = schemaDef
 }
 
 // Read a IndicatorGaugeResponse object into the model struct
-func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeDataSourceModel, diagnostics *diag.Diagnostics) {
+func readIndicatorGaugeResponseDataSource(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("indicator")
 	state.Id = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
@@ -233,7 +232,7 @@ func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.Indicat
 }
 
 // Read a NumericGaugeResponse object into the model struct
-func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGaugeResponse, state *gaugeDataSourceModel, diagnostics *diag.Diagnostics) {
+func readNumericGaugeResponseDataSource(ctx context.Context, r *client.NumericGaugeResponse, state *gaugeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("numeric")
 	state.Id = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
@@ -277,17 +276,18 @@ func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGa
 		client.StringPointerEnumgaugeServerDegradedSeverityLevelProp(r.ServerDegradedSeverityLevel), false)
 }
 
+// Read resource information
 func (r *gaugeDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	// Get current state
-	var data gaugeDataSourceModel
-	diags := req.Config.Get(ctx, &data)
+	var state gaugeDataSourceModel
+	diags := req.Config.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), data.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
 		return
@@ -301,13 +301,13 @@ func (r *gaugeDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 	// Read the response into the state
 	if readResponse.IndicatorGaugeResponse != nil {
-		readIndicatorGaugeDataSourceResponse(ctx, readResponse.IndicatorGaugeResponse, &data, &resp.Diagnostics)
+		readIndicatorGaugeResponseDataSource(ctx, readResponse.IndicatorGaugeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.NumericGaugeResponse != nil {
-		readNumericGaugeDataSourceResponse(ctx, readResponse.NumericGaugeResponse, &data, &resp.Diagnostics)
+		readNumericGaugeResponseDataSource(ctx, readResponse.NumericGaugeResponse, &state, &resp.Diagnostics)
 	}
 
 	// Set refreshed state
-	diags = resp.State.Set(ctx, &data)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 }
