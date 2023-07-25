@@ -88,7 +88,7 @@ resource "pingdirectory_scim_resource_type" "%[3]s" {
 }
 
 resource "pingdirectory_scim_schema" "myScimSchema" {
-  schema_urn = "urn:com:example"
+  schema_urn = "urn:com:example:correlatedldapdataviewtest"
 }
 
 resource "pingdirectory_correlated_ldap_data_view" "%[1]s" {

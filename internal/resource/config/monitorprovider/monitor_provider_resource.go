@@ -920,9 +920,6 @@ func (r *monitorProviderResource) Read(ctx context.Context, req resource.ReadReq
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 func (r *defaultMonitorProviderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -985,9 +982,6 @@ func (r *defaultMonitorProviderResource) Read(ctx context.Context, req resource.
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

@@ -13,7 +13,7 @@ import (
 )
 
 const testIdScimAttribute = "MyId"
-const testScimSchemaName = "urn:com:example"
+const testScimSchemaName = "urn:com:example:scimattributetest"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type scimAttributeTestModel struct {

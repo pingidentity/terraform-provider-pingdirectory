@@ -2129,9 +2129,6 @@ func (r *alertHandlerResource) Read(ctx context.Context, req resource.ReadReques
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 func (r *defaultAlertHandlerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -2167,9 +2164,6 @@ func (r *defaultAlertHandlerResource) Read(ctx context.Context, req resource.Rea
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

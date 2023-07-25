@@ -85,7 +85,7 @@ resource "pingdirectory_scim_resource_type" "%[4]s" {
   endpoint    = "myendpoint"
 }
 resource "pingdirectory_scim_schema" "myScimSchema" {
-  schema_urn = "urn:com:example"
+  schema_urn = "urn:com:example:ldapcorrelationattributepairtest"
 }
 resource "pingdirectory_correlated_ldap_data_view" "%[3]s" {
   id                              = "%[3]s"

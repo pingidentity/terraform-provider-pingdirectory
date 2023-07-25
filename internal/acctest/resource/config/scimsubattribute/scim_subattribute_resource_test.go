@@ -80,7 +80,7 @@ resource "pingdirectory_scim_attribute" "%[3]s" {
 }
 
 resource "pingdirectory_scim_schema" "myScimSchema" {
-  schema_urn = "urn:com:example"
+  schema_urn = "urn:com:example:scimsubattributetest"
 }
 
 resource "pingdirectory_scim_subattribute" "%[1]s" {

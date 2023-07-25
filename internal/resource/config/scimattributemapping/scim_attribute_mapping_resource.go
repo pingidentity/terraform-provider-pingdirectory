@@ -389,9 +389,6 @@ func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, res
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

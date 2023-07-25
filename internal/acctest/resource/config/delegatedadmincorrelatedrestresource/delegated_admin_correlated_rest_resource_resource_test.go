@@ -83,7 +83,7 @@ resource "pingdirectory_rest_resource_type" "%[3]s" {
   type                        = "user"
   id                          = "%[3]s"
   enabled                     = true
-  resource_endpoint           = "userRestResource"
+  resource_endpoint           = "userRestResourceDelegatedAdminCorrelatedRestResourceTest"
   structural_ldap_objectclass = "inetOrgPerson"
   search_base_dn              = "cn=users,dc=test,dc=com"
 }

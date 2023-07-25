@@ -74,7 +74,7 @@ func TestAccScimAttributeMapping(t *testing.T) {
 func testAccScimAttributeMappingResource(resourceName string, resourceModel scimAttributeMappingTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_schema" "mySchema" {
-  schema_urn = "urn:com:example"
+  schema_urn = "urn:com:example:scimattributemappingtest"
 }
 
 resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {

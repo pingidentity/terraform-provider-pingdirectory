@@ -897,14 +897,14 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	}
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
@@ -1233,9 +1233,6 @@ func (r *globalConfigurationResource) Read(ctx context.Context, req resource.Rea
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

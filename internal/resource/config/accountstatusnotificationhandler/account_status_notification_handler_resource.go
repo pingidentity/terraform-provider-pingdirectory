@@ -1517,9 +1517,6 @@ func readAccountStatusNotificationHandler(ctx context.Context, req resource.Read
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

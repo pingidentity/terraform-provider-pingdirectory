@@ -13,7 +13,7 @@ import (
 )
 
 const testIdJsonFieldConstraints = "id"
-const testJsonAttributeConstraintsName = "ubidEntitlement"
+const testJsonAttributeConstraintsName = "ubidEntitlementJsonFieldConstraintsTest"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type jsonFieldConstraintsTestModel struct {

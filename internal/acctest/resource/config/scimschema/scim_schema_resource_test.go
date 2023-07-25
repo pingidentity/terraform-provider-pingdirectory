@@ -12,7 +12,7 @@ import (
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/provider"
 )
 
-const testIdScimSchema = "urn:com:example"
+const testIdScimSchema = "urn:com:example:scimschematest"
 
 // Attributes to test with. Add optional properties to test here if desired.
 type scimSchemaTestModel struct {

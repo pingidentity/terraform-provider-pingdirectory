@@ -217,9 +217,6 @@ func (r *httpConfigurationResource) Read(ctx context.Context, req resource.ReadR
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource
