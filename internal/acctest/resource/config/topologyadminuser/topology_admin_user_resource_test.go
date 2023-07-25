@@ -1,4 +1,4 @@
-package config_test
+package topologyadminuser_test
 
 import (
 	"fmt"

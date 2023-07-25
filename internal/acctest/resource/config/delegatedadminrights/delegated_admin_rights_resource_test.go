@@ -1,4 +1,4 @@
-package config_test
+package delegatedadminrights_test
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package config_test
+package cryptomanager_test
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package config_test
+package replicationassurancepolicy_test
 
 import (
 	"fmt"

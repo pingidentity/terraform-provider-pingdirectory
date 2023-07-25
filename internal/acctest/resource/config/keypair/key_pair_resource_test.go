@@ -1,4 +1,4 @@
-package config_test
+package keypair_test
 
 import (
 	"fmt"

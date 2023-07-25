@@ -1,4 +1,4 @@
-package config_test
+package resultcodemap_test
 
 import (
 	"fmt"

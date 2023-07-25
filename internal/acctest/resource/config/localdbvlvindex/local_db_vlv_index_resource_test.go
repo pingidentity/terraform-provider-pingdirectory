@@ -1,4 +1,4 @@
-package config_test
+package localdbvlvindex_test
 
 import (
 	"fmt"

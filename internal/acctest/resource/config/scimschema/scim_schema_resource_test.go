@@ -1,4 +1,4 @@
-package config_test
+package scimschema_test
 
 import (
 	"fmt"

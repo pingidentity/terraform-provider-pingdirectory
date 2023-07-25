@@ -1,4 +1,4 @@
-package config_test
+package dnmap_test
 
 import (
 	"fmt"

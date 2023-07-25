@@ -1,4 +1,4 @@
-package config_test
+package alarmmanager_test
 
 import (
 	"fmt"

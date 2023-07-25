@@ -1,4 +1,4 @@
-package config_test
+package recurringtaskchain_test
 
 import (
 	"fmt"

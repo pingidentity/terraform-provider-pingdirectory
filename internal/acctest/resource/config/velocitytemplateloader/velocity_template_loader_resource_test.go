@@ -1,4 +1,4 @@
-package config_test
+package velocitytemplateloader_test
 
 import (
 	"fmt"

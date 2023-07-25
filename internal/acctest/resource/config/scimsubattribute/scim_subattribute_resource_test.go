@@ -1,4 +1,4 @@
-package config_test
+package scimsubattribute_test
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package config_test
+package sensitiveattribute_test
 
 import (
 	"fmt"

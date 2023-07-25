@@ -1,4 +1,4 @@
-package config_test
+package delegatedadminattributecategory_test
 
 import (
 	"fmt"

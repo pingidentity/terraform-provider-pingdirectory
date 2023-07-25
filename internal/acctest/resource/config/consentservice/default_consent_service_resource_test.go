@@ -1,4 +1,4 @@
-package config_test
+package consentservice_test
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package config_test
+package jsonfieldconstraints_test
 
 import (
 	"fmt"

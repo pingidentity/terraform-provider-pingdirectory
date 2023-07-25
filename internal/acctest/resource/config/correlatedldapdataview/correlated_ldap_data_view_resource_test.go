@@ -1,4 +1,4 @@
-package config_test
+package correlatedldapdataview_test
 
 import (
 	"fmt"

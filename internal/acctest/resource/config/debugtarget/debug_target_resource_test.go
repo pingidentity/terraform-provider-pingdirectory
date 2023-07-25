@@ -1,4 +1,4 @@
-package config_test
+package debugtarget_test
 
 import (
 	"fmt"

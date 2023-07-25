@@ -1,4 +1,4 @@
-package config_test
+package obscuredvalue_test
 
 import (
 	"fmt"

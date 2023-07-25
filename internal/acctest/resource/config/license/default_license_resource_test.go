@@ -1,4 +1,4 @@
-package config_test
+package license_test
 
 import (
 	"fmt"

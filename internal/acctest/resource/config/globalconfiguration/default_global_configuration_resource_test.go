@@ -1,4 +1,4 @@
-package config_test
+package globalconfiguration_test
 
 import (
 	"fmt"

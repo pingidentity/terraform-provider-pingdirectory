@@ -1,4 +1,4 @@
-package config_test
+package softdeletepolicy_test
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package config_test
+package clientconnectionpolicy_test
 
 import (
 	"fmt"

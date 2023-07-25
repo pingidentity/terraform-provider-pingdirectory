@@ -1,4 +1,4 @@
-package config_test
+package scimattributemapping_test
 
 import (
 	"fmt"

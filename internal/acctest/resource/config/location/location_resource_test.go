@@ -1,4 +1,4 @@
-package config_test
+package location_test
 
 import (
 	"fmt"

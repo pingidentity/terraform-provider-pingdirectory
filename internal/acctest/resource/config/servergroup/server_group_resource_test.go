@@ -1,4 +1,4 @@
-package config_test
+package servergroup_test
 
 import (
 	"fmt"

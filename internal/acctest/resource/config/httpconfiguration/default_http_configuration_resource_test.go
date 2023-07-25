@@ -1,4 +1,4 @@
-package config_test
+package httpconfiguration_test
 
 import (
 	"fmt"

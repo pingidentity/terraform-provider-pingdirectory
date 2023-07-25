@@ -1,4 +1,4 @@
-package config_test
+package ldapsdkdebuglogger_test
 
 import (
 	"fmt"

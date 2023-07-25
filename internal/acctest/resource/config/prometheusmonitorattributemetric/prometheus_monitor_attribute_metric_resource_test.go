@@ -1,4 +1,4 @@
-package config_test
+package prometheusmonitorattributemetric_test
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package config_test
+package ldapcorrelationattributepair_test
 
 import (
 	"fmt"
