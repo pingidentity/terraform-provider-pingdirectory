@@ -45,6 +45,10 @@ func TestAccRootDn(t *testing.T) {
 
 					// check if the permissions reported by PingDirectory match the state file
 					testAccCheckExpectedRootDnPermissions(fmt.Sprintf("pingdirectory_default_root_dn.%s", resourceName), defaultPermissionsList),
+
+					// check data source
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionOne),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_root_dn.%s", resourceName), "default_root_privilege_name.*", defaultPermissionTwo),
 				),
 			},
 
@@ -90,6 +94,12 @@ func TestAccRootDn(t *testing.T) {
 func testAccRootDnResourceDefault(resourceName string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_root_dn" "%[1]s" {
+}
+
+data "pingdirectory_root_dn" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_root_dn.%[1]s
+  ]
 }`, resourceName)
 }
 

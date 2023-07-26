@@ -45,5 +45,11 @@ func TestAccLicense(t *testing.T) {
 func testAccLicenseResource(resourceName string) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_license" "%[1]s" {
+}
+
+data "pingdirectory_license" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_license.%[1]s
+  ]
 }`, resourceName)
 }

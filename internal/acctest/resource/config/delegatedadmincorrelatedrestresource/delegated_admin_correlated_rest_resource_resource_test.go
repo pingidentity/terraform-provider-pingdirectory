@@ -55,7 +55,13 @@ func TestAccDelegatedAdminCorrelatedRestResource(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDelegatedAdminCorrelatedRestResourceResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDelegatedAdminCorrelatedRestResourceAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDelegatedAdminCorrelatedRestResourceAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "display_name", initialResourceModel.displayName),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "correlated_rest_resource", initialResourceModel.correlatedRestResource),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "primary_rest_resource_correlation_attribute", initialResourceModel.primaryRestResourceCorrelationAttribute),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "secondary_rest_resource_correlation_attribute", initialResourceModel.secondaryRestResourceCorrelationAttribute),
+				),
 			},
 			{
 				// Test updating some fields
@@ -87,6 +93,7 @@ resource "pingdirectory_rest_resource_type" "%[3]s" {
   structural_ldap_objectclass = "inetOrgPerson"
   search_base_dn              = "cn=users,dc=test,dc=com"
 }
+
 resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
   id                                            = "%[2]s"
   rest_resource_type_name                       = pingdirectory_rest_resource_type.%[3]s.id
@@ -94,6 +101,14 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
   correlated_rest_resource                      = "%[5]s"
   primary_rest_resource_correlation_attribute   = "%[6]s"
   secondary_rest_resource_correlation_attribute = "%[7]s"
+}
+
+data "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
+	 id = "%[2]s"
+	 rest_resource_type_name = "%[3]s"
+  depends_on = [
+    pingdirectory_delegated_admin_correlated_rest_resource.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.restResourceTypeName,

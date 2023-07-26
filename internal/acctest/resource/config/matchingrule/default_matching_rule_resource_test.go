@@ -2,6 +2,7 @@ package matchingrule_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -41,7 +42,10 @@ func TestAccMatchingRule(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccMatchingRuleResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedMatchingRuleAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedMatchingRuleAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_matching_rule.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -69,6 +73,13 @@ resource "pingdirectory_default_matching_rule" "%[1]s" {
   type    = "ordering"
   id      = "%[2]s"
   enabled = %[3]t
+}
+
+data "pingdirectory_matching_rule" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_matching_rule.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled)

@@ -2,6 +2,7 @@ package plugin_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -58,7 +59,12 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccInternalSearchRatePluginResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedInternalSearchRatePluginAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedInternalSearchRatePluginAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_plugin.%s", resourceName), "base_dn.*", initialResourceModel.baseDn),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_plugin.%s", resourceName), "filter_prefix", initialResourceModel.filterPrefix),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_plugin.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -89,6 +95,13 @@ resource "pingdirectory_plugin" "%[1]s" {
   base_dn       = ["%[6]s"]
   filter_prefix = "%[7]s"
   enabled       = %[8]t
+}
+
+data "pingdirectory_plugin" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_plugin.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

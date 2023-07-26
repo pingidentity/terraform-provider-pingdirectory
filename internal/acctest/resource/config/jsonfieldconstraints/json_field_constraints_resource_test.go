@@ -41,7 +41,11 @@ func TestAccJsonFieldConstraints(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccJsonFieldConstraintsResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedJsonFieldConstraintsAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedJsonFieldConstraintsAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_json_field_constraints.%s", resourceName), "json_field", initialResourceModel.jsonField),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_json_field_constraints.%s", resourceName), "value_type", initialResourceModel.valueType),
+				),
 			},
 		},
 	})
@@ -53,6 +57,14 @@ resource "pingdirectory_json_field_constraints" "%[1]s" {
   json_attribute_constraints_name = "%[2]s"
   json_field                      = "%[3]s"
   value_type                      = "%[4]s"
+}
+
+data "pingdirectory_json_field_constraints" "%[1]s" {
+	 json_attribute_constraints_name = "%[2]s"
+	 json_field = "%[3]s"
+  depends_on = [
+    pingdirectory_json_field_constraints.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.jsonAttributeConstraintsName,
 		resourceModel.jsonField,

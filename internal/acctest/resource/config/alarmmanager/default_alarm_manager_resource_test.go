@@ -40,6 +40,8 @@ func TestAccAlarmManager(t *testing.T) {
 				Config: testAccAlarmManagerResource(resourceName, initialResourceModel),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedAlarmManagerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_alarm_manager.%s", resourceName), "default_gauge_alert_level", initialResourceModel.defaultGaugeAlertLevel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_alarm_manager.%s", resourceName), "generated_alert_types.*", initialResourceModel.generatedAlertTypes[0]),
 				),
 			},
 			{
@@ -70,6 +72,12 @@ func testAccAlarmManagerResource(resourceName string, resourceModel alarmManager
 resource "pingdirectory_default_alarm_manager" "%[1]s" {
   default_gauge_alert_level = "%[2]s"
   generated_alert_types     = %[3]s
+}
+
+data "pingdirectory_alarm_manager" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_alarm_manager.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.defaultGaugeAlertLevel,
 		acctest.StringSliceToTerraformString(resourceModel.generatedAlertTypes))

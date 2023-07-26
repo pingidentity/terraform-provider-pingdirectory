@@ -39,6 +39,7 @@ func TestAccHttpConfiguration(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// Check the default value
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_http_configuration.%s", resourceName), "include_stack_traces_in_error_pages", "true"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_http_configuration.%s", resourceName), "include_stack_traces_in_error_pages", "true"),
 				),
 			},
 			{
@@ -67,6 +68,12 @@ func testAccHttpConfigurationResource(resourceName string, resourceModel httpCon
 	return fmt.Sprintf(`
 resource "pingdirectory_default_http_configuration" "%[1]s" {
   include_stack_traces_in_error_pages = %[2]t
+}
+
+data "pingdirectory_http_configuration" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_http_configuration.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.include_stack_traces_in_error_pages)
 }

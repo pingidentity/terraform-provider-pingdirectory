@@ -45,7 +45,11 @@ func TestAccIndicatorGaugeDataSource(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccIndicatorGaugeDataSourceResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedIndicatorGaugeDataSourceAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedIndicatorGaugeDataSourceAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_gauge_data_source.%s", resourceName), "monitor_objectclass", initialResourceModel.monitorObjectclass),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_gauge_data_source.%s", resourceName), "monitor_attribute", initialResourceModel.monitorAttribute),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +78,13 @@ resource "pingdirectory_gauge_data_source" "%[1]s" {
   id                  = "%[2]s"
   monitor_objectclass = "%[3]s"
   monitor_attribute   = "%[4]s"
+}
+
+data "pingdirectory_gauge_data_source" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_gauge_data_source.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.monitorObjectclass,

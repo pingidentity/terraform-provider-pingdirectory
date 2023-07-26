@@ -47,7 +47,11 @@ func TestAccLocalDbIndex(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLocalDbIndexResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLocalDbIndexAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLocalDbIndexAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_index.%s", resourceName), "attribute", initialResourceModel.attribute),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_local_db_index.%s", resourceName), "index_type.*", initialResourceModel.indexType[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -75,6 +79,14 @@ resource "pingdirectory_local_db_index" "%[1]s" {
   backend_name = "%[2]s"
   attribute    = "%[3]s"
   index_type   = %[4]s
+}
+
+data "pingdirectory_local_db_index" "%[1]s" {
+	 backend_name = "%[2]s"
+	 attribute = "%[3]s"
+  depends_on = [
+    pingdirectory_local_db_index.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.backendName,
 		resourceModel.attribute,

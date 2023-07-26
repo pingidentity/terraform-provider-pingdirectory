@@ -2,6 +2,7 @@ package topologyadminuser_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -63,7 +64,12 @@ func TestAccTopologyAdminUser(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccTopologyAdminUserResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedTopologyAdminUserAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedTopologyAdminUserAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_topology_admin_user.%s", resourceName), "inherit_default_root_privileges", strconv.FormatBool(initialResourceModel.inheritDefaultRootPrivileges)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_topology_admin_user.%s", resourceName), "search_result_entry_limit", strconv.FormatInt(initialResourceModel.searchResultEntryLimit, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_topology_admin_user.%s", resourceName), "password_policy", initialResourceModel.passwordPolicy),
+				),
 			},
 			{
 				// Test updating some fields
@@ -95,6 +101,13 @@ resource "pingdirectory_topology_admin_user" "%[1]s" {
   password_policy                 = "%[8]s"
   require_secure_authentication   = %[9]t
   require_secure_connections      = %[10]t
+}
+
+data "pingdirectory_topology_admin_user" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_topology_admin_user.%[1]s
+  ]
 }`, resourceName, resourceModel.id,
 		resourceModel.inheritDefaultRootPrivileges,
 		resourceModel.searchResultEntryLimit,

@@ -53,7 +53,12 @@ func TestAccCustomLoggedStats(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccCustomLoggedStatsResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedCustomLoggedStatsAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedCustomLoggedStatsAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_custom_logged_stats.%s", resourceName), "monitor_objectclass", initialResourceModel.monitorObjectclass),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_custom_logged_stats.%s", resourceName), "attribute_to_log.*", initialResourceModel.attributeToLog[0]),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_custom_logged_stats.%s", resourceName), "statistic_type.*", initialResourceModel.statisticType[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -83,6 +88,14 @@ resource "pingdirectory_custom_logged_stats" "%[1]s" {
   monitor_objectclass = "%[4]s"
   attribute_to_log    = %[5]s
   statistic_type      = %[6]s
+}
+
+data "pingdirectory_custom_logged_stats" "%[1]s" {
+	 id = "%[2]s"
+	 plugin_name = "%[3]s"
+  depends_on = [
+    pingdirectory_custom_logged_stats.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.pluginName,

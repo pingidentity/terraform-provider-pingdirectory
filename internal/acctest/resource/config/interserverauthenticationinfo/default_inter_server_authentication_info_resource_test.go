@@ -58,7 +58,10 @@ func TestAccInterServerAuthenticationInfo(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccInterServerAuthenticationInfoResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedInterServerAuthenticationInfoAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedInterServerAuthenticationInfoAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_inter_server_authentication_info.%s", resourceName), "purpose.*", initialResourceModel.purpose[0]),
+				),
 			},
 			{
 				// Test importing the resource
@@ -84,6 +87,15 @@ resource "pingdirectory_default_inter_server_authentication_info" "%[1]s" {
   server_instance_listener_name = "%[3]s"
   server_instance_name          = "%[4]s"
   purpose                       = %[5]s
+}
+
+data "pingdirectory_inter_server_authentication_info" "%[1]s" {
+	 id = "%[2]s"
+	 server_instance_listener_name = "%[3]s"
+	 server_instance_name = "%[4]s"
+  depends_on = [
+    pingdirectory_default_inter_server_authentication_info.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.serverInstanceListenerName,

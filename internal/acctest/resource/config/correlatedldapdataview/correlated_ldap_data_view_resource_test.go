@@ -55,7 +55,13 @@ func TestAccCorrelatedLdapDataView(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccCorrelatedLdapDataViewResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedCorrelatedLdapDataViewAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedCorrelatedLdapDataViewAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "structural_ldap_objectclass", initialResourceModel.structuralLdapObjectclass),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "include_base_dn", initialResourceModel.includeBaseDn),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "primary_correlation_attribute", initialResourceModel.primaryCorrelationAttribute),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "secondary_correlation_attribute", initialResourceModel.secondaryCorrelationAttribute),
+				),
 			},
 			{
 				// Test updating some fields
@@ -98,6 +104,14 @@ resource "pingdirectory_correlated_ldap_data_view" "%[1]s" {
   include_base_dn                 = "%[5]s"
   primary_correlation_attribute   = "%[6]s"
   secondary_correlation_attribute = "%[7]s"
+}
+
+data "pingdirectory_correlated_ldap_data_view" "%[1]s" {
+	 id = "%[2]s"
+	 scim_resource_type_name = "%[3]s"
+  depends_on = [
+    pingdirectory_correlated_ldap_data_view.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.scimResourceTypeName,

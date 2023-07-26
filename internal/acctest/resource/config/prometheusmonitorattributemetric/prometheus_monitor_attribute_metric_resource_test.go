@@ -65,7 +65,13 @@ func TestAccPrometheusMonitorAttributeMetric(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPrometheusMonitorAttributeMetricResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPrometheusMonitorAttributeMetricAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPrometheusMonitorAttributeMetricAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "metric_name", initialResourceModel.metricName),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "monitor_attribute_name", initialResourceModel.monitorAttributeName),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "monitor_object_class_name", initialResourceModel.monitorObjectClassName),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "metric_type", initialResourceModel.metricType),
+				),
 			},
 			{
 				// Test updating some fields
@@ -95,6 +101,14 @@ resource "pingdirectory_prometheus_monitor_attribute_metric" "%[1]s" {
   monitor_attribute_name      = "%[4]s"
   monitor_object_class_name   = "%[5]s"
   metric_type                 = "%[6]s"
+}
+
+data "pingdirectory_prometheus_monitor_attribute_metric" "%[1]s" {
+	 http_servlet_extension_name = "%[2]s"
+	 metric_name = "%[3]s"
+  depends_on = [
+    pingdirectory_prometheus_monitor_attribute_metric.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.httpServletExtensionName,
 		resourceModel.metricName,

@@ -55,7 +55,14 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLocalDbVlvIndexResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLocalDbVlvIndexAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLocalDbVlvIndexAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "base_dn", initialResourceModel.baseDn),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "scope", initialResourceModel.scope),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "filter", initialResourceModel.filter),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "sort_order", initialResourceModel.sortOrder),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "name", initialResourceModel.name),
+				),
 			},
 			{
 				// Test updating some fields
@@ -79,8 +86,6 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 
 func testAccLocalDbVlvIndexResource(resourceName string, resourceModel localDbVlvIndexTestModel) string {
 	return fmt.Sprintf(`
-
-
 resource "pingdirectory_backend" "%[2]s" {
   type                  = "local-db"
   backend_id            = "%[2]s"
@@ -98,6 +103,14 @@ resource "pingdirectory_local_db_vlv_index" "%[1]s" {
   filter       = "%[5]s"
   sort_order   = "%[6]s"
   name         = "%[7]s"
+}
+
+data "pingdirectory_local_db_vlv_index" "%[1]s" {
+	 backend_name = "%[2]s"
+	 name = "%[7]s"
+  depends_on = [
+    pingdirectory_local_db_vlv_index.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.backendName,
 		resourceModel.baseDn,

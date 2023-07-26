@@ -50,7 +50,10 @@ func TestAccLocalDbCompositeIndex(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLocalDbCompositeIndexResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLocalDbCompositeIndexAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLocalDbCompositeIndexAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_composite_index.%s", resourceName), "index_filter_pattern", initialResourceModel.indexFilterPattern),
+				),
 			},
 			{
 				// Test updating some fields
@@ -79,6 +82,14 @@ resource "pingdirectory_local_db_composite_index" "%[1]s" {
   backend_name         = "%[3]s"
   description          = "%[4]s"
   index_filter_pattern = "%[5]s"
+}
+
+data "pingdirectory_local_db_composite_index" "%[1]s" {
+	 id = "%[2]s"
+	 backend_name = "%[3]s"
+  depends_on = [
+    pingdirectory_local_db_composite_index.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.backendName,

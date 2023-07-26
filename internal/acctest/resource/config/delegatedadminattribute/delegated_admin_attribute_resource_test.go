@@ -49,7 +49,11 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccGenericDelegatedAdminAttributeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute.%s", resourceName), "attribute_type", initialResourceModel.attributeType),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute.%s", resourceName), "display_name", initialResourceModel.displayName),
+				),
 			},
 			{
 				// Test updating some fields
@@ -85,12 +89,21 @@ resource "pingdirectory_rest_resource_type" "%[2]s" {
   search_filter_pattern          = "(cn=*%%%%*)"
   primary_display_attribute_type = "cn"
 }
+
 resource "pingdirectory_delegated_admin_attribute" "%[1]s" {
   type                    = "generic"
   rest_resource_type_name = pingdirectory_rest_resource_type.%[2]s.id
   attribute_type          = "%[3]s"
   display_name            = "%[4]s"
   display_order_index     = %[5]d
+}
+
+data "pingdirectory_delegated_admin_attribute" "%[1]s" {
+	 rest_resource_type_name = "%[2]s"
+	 attribute_type = "%[3]s"
+  depends_on = [
+    pingdirectory_delegated_admin_attribute.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.restResourceTypeName,
 		resourceModel.attributeType,

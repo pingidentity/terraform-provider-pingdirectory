@@ -2,6 +2,7 @@ package logfilerotationlistener_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -42,7 +43,10 @@ func TestAccSummarizeLogFileRotationListener(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSummarizeLogFileRotationListenerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSummarizeLogFileRotationListenerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSummarizeLogFileRotationListenerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_file_rotation_listener.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +74,13 @@ resource "pingdirectory_log_file_rotation_listener" "%[1]s" {
   type    = "summarize"
   id      = "%[2]s"
   enabled = %[3]t
+}
+
+data "pingdirectory_log_file_rotation_listener" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_file_rotation_listener.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled)

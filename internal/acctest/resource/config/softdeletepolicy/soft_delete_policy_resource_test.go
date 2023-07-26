@@ -42,7 +42,10 @@ func TestAccSoftDeletePolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSoftDeletePolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSoftDeletePolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSoftDeletePolicyAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_soft_delete_policy.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -69,6 +72,13 @@ func testAccSoftDeletePolicyResource(resourceName string, resourceModel softDele
 resource "pingdirectory_soft_delete_policy" "%[1]s" {
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_soft_delete_policy" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_soft_delete_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description)

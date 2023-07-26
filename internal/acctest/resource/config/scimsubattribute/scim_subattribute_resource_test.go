@@ -2,6 +2,7 @@ package scimsubattribute_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -50,7 +51,10 @@ func TestAccScimSubattribute(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccScimSubattributeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedScimSubattributeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedScimSubattributeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_subattribute.%s", resourceName), "case_exact", strconv.FormatBool(initialResourceModel.caseExact)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -88,6 +92,15 @@ resource "pingdirectory_scim_subattribute" "%[1]s" {
   scim_attribute_name = pingdirectory_scim_attribute.%[3]s.name
   scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
   case_exact          = %[5]t
+}
+
+data "pingdirectory_scim_subattribute" "%[1]s" {
+	 id = "%[2]s"
+	 scim_attribute_name = "%[3]s"
+	 scim_schema_name = "%[4]s"
+  depends_on = [
+    pingdirectory_scim_subattribute.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.scimAttributeName,

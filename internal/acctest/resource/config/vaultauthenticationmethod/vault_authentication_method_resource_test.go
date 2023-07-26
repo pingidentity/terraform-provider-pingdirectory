@@ -45,7 +45,10 @@ func TestAccVaultAuthenticationMethod(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccVaultAuthenticationMethodResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedVaultAuthenticationMethodAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedVaultAuthenticationMethodAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_vault_authentication_method.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -75,6 +78,13 @@ resource "pingdirectory_vault_authentication_method" "%[1]s" {
   id                 = "%[2]s"
   vault_access_token = "%[3]s"
   description        = "%[4]s"
+}
+
+data "pingdirectory_vault_authentication_method" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_vault_authentication_method.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.vaultAccessToken,

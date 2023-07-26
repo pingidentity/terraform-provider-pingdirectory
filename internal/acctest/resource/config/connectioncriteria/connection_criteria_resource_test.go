@@ -47,7 +47,11 @@ func TestAccSimpleConnectionCriteria(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSimpleConnectionCriteriaResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSimpleConnectionCriteriaAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSimpleConnectionCriteriaAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_connection_criteria.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_connection_criteria.%s", resourceName), "user_auth_type.*", initialResourceModel.user_auth_type[0]),
+				),
 			},
 			{
 				// Test updating some fields.
@@ -74,6 +78,13 @@ resource "pingdirectory_connection_criteria" "%[1]s" {
   id             = "%[2]s"
   description    = "%[3]s"
   user_auth_type = %[4]s
+}
+
+data "pingdirectory_connection_criteria" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_connection_criteria.%[1]s
+  ]
 }`, resourceName, resourceModel.id, resourceModel.description, acctest.StringSliceToTerraformString(resourceModel.user_auth_type))
 }
 

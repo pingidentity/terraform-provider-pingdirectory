@@ -2,6 +2,7 @@ package delegatedadminrights_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,10 @@ func TestAccDelegatedAdminRights(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDelegatedAdminRightsResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDelegatedAdminRightsAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDelegatedAdminRightsAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_rights.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -71,6 +75,13 @@ resource "pingdirectory_delegated_admin_rights" "%[1]s" {
   id            = "%[2]s"
   enabled       = %[3]t
   admin_user_dn = "%[4]s"
+}
+
+data "pingdirectory_delegated_admin_rights" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_delegated_admin_rights.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled,

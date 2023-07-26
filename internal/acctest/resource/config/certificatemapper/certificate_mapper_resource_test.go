@@ -2,6 +2,7 @@ package certificatemapper_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -42,7 +43,10 @@ func TestAccSubjectEqualsDnCertificateMapper(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSubjectEqualsDnCertificateMapperResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSubjectEqualsDnCertificateMapperAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSubjectEqualsDnCertificateMapperAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_certificate_mapper.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +74,13 @@ resource "pingdirectory_certificate_mapper" "%[1]s" {
   type    = "subject-equals-dn"
   id      = "%[2]s"
   enabled = %[3]t
+}
+
+data "pingdirectory_certificate_mapper" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_certificate_mapper.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled)

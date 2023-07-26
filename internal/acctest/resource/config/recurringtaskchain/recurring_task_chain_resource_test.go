@@ -57,7 +57,12 @@ func TestAccRecurringTaskChain(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccRecurringTaskChainResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedRecurringTaskChainAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedRecurringTaskChainAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_recurring_task_chain.%s", resourceName), "recurring_task.*", initialResourceModel.recurringTask[0]),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_recurring_task_chain.%s", resourceName), "scheduled_date_selection_type", initialResourceModel.scheduledDateSelectionType),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_recurring_task_chain.%s", resourceName), "scheduled_time_of_day.*", initialResourceModel.scheduledTimeOfDay[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -86,6 +91,13 @@ resource "pingdirectory_recurring_task_chain" "%[1]s" {
   recurring_task                = %[3]s
   scheduled_date_selection_type = "%[4]s"
   scheduled_time_of_day         = %[5]s
+}
+
+data "pingdirectory_recurring_task_chain" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_recurring_task_chain.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.recurringTask),

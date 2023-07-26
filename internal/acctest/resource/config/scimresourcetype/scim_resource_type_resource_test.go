@@ -2,6 +2,7 @@ package scimresourcetype_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -48,7 +49,11 @@ func TestAccLdapPassThroughScimResourceType(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLdapPassThroughScimResourceTypeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLdapPassThroughScimResourceTypeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLdapPassThroughScimResourceTypeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_resource_type.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_resource_type.%s", resourceName), "endpoint", initialResourceModel.endpoint),
+				),
 			},
 			{
 				// Test updating some fields
@@ -78,6 +83,13 @@ resource "pingdirectory_scim_resource_type" "%[1]s" {
   enabled     = %[3]t
   endpoint    = "%[4]s"
   description = "%[5]s"
+}
+
+data "pingdirectory_scim_resource_type" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_scim_resource_type.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled,

@@ -2,6 +2,7 @@ package keymanagerprovider_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -48,7 +49,11 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccFileBasedKeyManagerProviderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedFileBasedKeyManagerProviderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedFileBasedKeyManagerProviderAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_key_manager_provider.%s", resourceName), "key_store_file", initialResourceModel.keyStoreFile),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_key_manager_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -80,6 +85,13 @@ resource "pingdirectory_key_manager_provider" "%[1]s" {
   key_store_file = "%[3]s"
   enabled        = %[4]t
   description    = "%[5]s"
+}
+
+data "pingdirectory_key_manager_provider" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_key_manager_provider.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.keyStoreFile,

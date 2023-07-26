@@ -36,7 +36,10 @@ func TestAccLdapSdkDebugLogger(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLdapSdkDebugLoggerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLdapSdkDebugLoggerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLdapSdkDebugLoggerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_ldap_sdk_debug_logger.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating fields
@@ -63,6 +66,12 @@ func testAccLdapSdkDebugLoggerResource(resourceName string, resourceModel ldapSd
 	return fmt.Sprintf(`
 resource "pingdirectory_default_ldap_sdk_debug_logger" "%[1]s" {
   description = "%[2]s"
+}
+
+data "pingdirectory_ldap_sdk_debug_logger" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_ldap_sdk_debug_logger.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.description)
 }

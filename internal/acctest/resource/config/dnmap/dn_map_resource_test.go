@@ -45,7 +45,11 @@ func TestAccDnMap(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDnMapResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDnMapAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDnMapAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_dn_map.%s", resourceName), "from_dn_pattern", initialResourceModel.fromDnPattern),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_dn_map.%s", resourceName), "to_dn_pattern", initialResourceModel.toDnPattern),
+				),
 			},
 			{
 				// Test updating some fields
@@ -73,6 +77,13 @@ resource "pingdirectory_dn_map" "%[1]s" {
   id              = "%[2]s"
   from_dn_pattern = "%[3]s"
   to_dn_pattern   = "%[4]s"
+}
+
+data "pingdirectory_dn_map" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_dn_map.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.fromDnPattern,

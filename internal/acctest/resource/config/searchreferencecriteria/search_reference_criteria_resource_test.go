@@ -42,7 +42,10 @@ func TestAccSimpleSearchReferenceCriteria(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSimpleSearchReferenceCriteriaResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSimpleSearchReferenceCriteriaAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_search_reference_criteria.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +73,13 @@ resource "pingdirectory_search_reference_criteria" "%[1]s" {
   type        = "simple"
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_search_reference_criteria" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_search_reference_criteria.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description)

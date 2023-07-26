@@ -53,7 +53,11 @@ func TestAccLdapCorrelationAttributePair(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLdapCorrelationAttributePairResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLdapCorrelationAttributePairAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLdapCorrelationAttributePairAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_ldap_correlation_attribute_pair.%s", resourceName), "primary_correlation_attribute", initialResourceModel.primaryCorrelationAttribute),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_ldap_correlation_attribute_pair.%s", resourceName), "secondary_correlation_attribute", initialResourceModel.secondaryCorrelationAttribute),
+				),
 			},
 			{
 				// Test updating some fields
@@ -84,9 +88,11 @@ resource "pingdirectory_scim_resource_type" "%[4]s" {
   enabled     = false
   endpoint    = "myendpoint"
 }
+
 resource "pingdirectory_scim_schema" "myScimSchema" {
   schema_urn = "urn:com:example:ldapcorrelationattributepairtest"
 }
+
 resource "pingdirectory_correlated_ldap_data_view" "%[3]s" {
   id                              = "%[3]s"
   scim_resource_type_name         = pingdirectory_scim_resource_type.%[4]s.id
@@ -102,6 +108,15 @@ resource "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
   scim_resource_type_name         = pingdirectory_scim_resource_type.%[4]s.id
   primary_correlation_attribute   = "%[5]s"
   secondary_correlation_attribute = "%[6]s"
+}
+
+data "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
+	 id = "%[2]s"
+	 correlated_ldap_data_view_name = "%[3]s"
+	 scim_resource_type_name = "%[4]s"
+  depends_on = [
+    pingdirectory_ldap_correlation_attribute_pair.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.correlatedLdapDataViewName,

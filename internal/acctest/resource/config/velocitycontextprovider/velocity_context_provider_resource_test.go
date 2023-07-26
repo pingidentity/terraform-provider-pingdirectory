@@ -46,7 +46,11 @@ func TestAccVelocityContextProvider(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccVelocityContextProviderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedVelocityContextProviderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedVelocityContextProviderAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_velocity_context_provider.%s", resourceName), "included_view.*", initialResourceModel.includedView[0]),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_velocity_context_provider.%s", resourceName), "included_view.*", initialResourceModel.includedView[1]),
+				),
 			},
 			{
 				// Test basic resource.
@@ -76,6 +80,14 @@ resource "pingdirectory_velocity_context_provider" "%[1]s" {
   id                          = "%[2]s"
   http_servlet_extension_name = "%[3]s"
   included_view               = %[4]s
+}
+
+data "pingdirectory_velocity_context_provider" "%[1]s" {
+	 id = "%[2]s"
+	 http_servlet_extension_name = "%[3]s"
+  depends_on = [
+    pingdirectory_velocity_context_provider.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.httpServletExtensionName,

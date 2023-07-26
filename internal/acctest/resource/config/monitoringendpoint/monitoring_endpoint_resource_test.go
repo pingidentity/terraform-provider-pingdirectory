@@ -2,6 +2,7 @@ package monitoringendpoint_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,11 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccStatsdMonitoringEndpointResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedStatsdMonitoringEndpointAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedStatsdMonitoringEndpointAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_monitoring_endpoint.%s", resourceName), "hostname", initialResourceModel.hostname),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_monitoring_endpoint.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -73,6 +78,13 @@ resource "pingdirectory_monitoring_endpoint" "%[1]s" {
   id       = "%[2]s"
   hostname = "%[3]s"
   enabled  = %[4]t
+}
+
+data "pingdirectory_monitoring_endpoint" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_monitoring_endpoint.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.hostname,

@@ -2,6 +2,7 @@ package rootdsebackend_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -36,7 +37,10 @@ func TestAccRootDseBackend(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccRootDseBackendResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedRootDseBackendAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedRootDseBackendAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_root_dse_backend.%s", resourceName), "show_all_attributes", strconv.FormatBool(initialResourceModel.showAllAttributes)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -61,6 +65,12 @@ func testAccRootDseBackendResource(resourceName string, resourceModel rootDseBac
 	return fmt.Sprintf(`
 resource "pingdirectory_default_root_dse_backend" "%[1]s" {
   show_all_attributes = %[2]t
+}
+
+data "pingdirectory_root_dse_backend" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_root_dse_backend.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.showAllAttributes)
 }

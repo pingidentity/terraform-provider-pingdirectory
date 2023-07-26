@@ -46,7 +46,11 @@ func TestAccDebugTarget(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDebugTargetResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDebugTargetAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDebugTargetAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_debug_target.%s", resourceName), "debug_scope", initialResourceModel.debugScope),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_debug_target.%s", resourceName), "debug_level", initialResourceModel.debugLevel),
+				),
 			},
 			{
 				// Test updating some fields
@@ -72,6 +76,14 @@ resource "pingdirectory_debug_target" "%[1]s" {
   log_publisher_name = "%[2]s"
   debug_scope        = "%[3]s"
   debug_level        = "%[4]s"
+}
+
+data "pingdirectory_debug_target" "%[1]s" {
+	 log_publisher_name = "%[2]s"
+	 debug_scope = "%[3]s"
+  depends_on = [
+    pingdirectory_debug_target.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.logPublisherName,
 		resourceModel.debugScope,

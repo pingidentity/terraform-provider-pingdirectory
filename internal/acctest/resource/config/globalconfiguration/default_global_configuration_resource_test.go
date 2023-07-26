@@ -53,6 +53,10 @@ func TestAccGlobalConfiguration(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "default_password_policy", "Default Password Policy"),
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "ldap_join_size_limit", "10000"),
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_global_configuration.%s", resourceName), "replication_set_name", ""),
+					// Check those values are visible on the data source
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_global_configuration.%s", resourceName), "encrypt_backups_by_default", "true"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_global_configuration.%s", resourceName), "default_password_policy", "Default Password Policy"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_global_configuration.%s", resourceName), "ldap_join_size_limit", "10000"),
 				),
 			},
 			{
@@ -91,6 +95,12 @@ resource "pingdirectory_default_global_configuration" "%[1]s" {
   result_code_map       = "%[4]s"
   size_limit            = %[5]d
   maximum_shutdown_time = "%[6]s"
+}
+
+data "pingdirectory_global_configuration" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_global_configuration.%[1]s
+  ]
 }`, resourceName, resourceModel.encryptData,
 		acctest.StringSliceToTerraformString(resourceModel.sensitiveAttribute),
 		resourceModel.resultCodeMap, resourceModel.sizeLimit, resourceModel.maximumShutdownTime)

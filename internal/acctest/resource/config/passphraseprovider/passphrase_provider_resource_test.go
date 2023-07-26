@@ -2,6 +2,7 @@ package passphraseprovider_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,11 @@ func TestAccPassphraseProvider(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPassphraseProviderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPassphraseProviderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPassphraseProviderAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_passphrase_provider.%s", resourceName), "environment_variable", initialResourceModel.environmentVariable),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_passphrase_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +79,13 @@ resource "pingdirectory_passphrase_provider" "%[1]s" {
   id                   = "%[2]s"
   environment_variable = "%[3]s"
   enabled              = %[4]t
+}
+
+data "pingdirectory_passphrase_provider" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_passphrase_provider.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.environmentVariable,

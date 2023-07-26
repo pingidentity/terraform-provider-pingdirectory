@@ -42,7 +42,10 @@ func TestAccTextAccessLogFieldBehavior(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccTextAccessLogFieldBehaviorResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedTextAccessLogFieldBehaviorAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedTextAccessLogFieldBehaviorAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_field_behavior.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +73,13 @@ resource "pingdirectory_log_field_behavior" "%[1]s" {
   type        = "text-access"
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_log_field_behavior" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_field_behavior.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description)

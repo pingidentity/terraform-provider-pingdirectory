@@ -2,6 +2,7 @@ package clientconnectionpolicy_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,12 @@ func TestAccClientConnectionPolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccClientConnectionPolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedClientConnectionPolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedClientConnectionPolicyAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_client_connection_policy.%s", resourceName), "policy_id", initialResourceModel.policyId),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_client_connection_policy.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_client_connection_policy.%s", resourceName), "evaluation_order_index", strconv.FormatInt(initialResourceModel.evaluationOrderIndex, 10)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -73,6 +79,13 @@ resource "pingdirectory_client_connection_policy" "%[1]s" {
   policy_id              = "%[2]s"
   enabled                = %[3]t
   evaluation_order_index = %[4]d
+}
+
+data "pingdirectory_client_connection_policy" "%[1]s" {
+	 policy_id = "%[2]s"
+  depends_on = [
+    pingdirectory_client_connection_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.policyId,
 		resourceModel.enabled,

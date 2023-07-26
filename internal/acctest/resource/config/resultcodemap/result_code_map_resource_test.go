@@ -41,7 +41,10 @@ func TestAccResultCodeMap(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccResultCodeMapResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedResultCodeMapAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedResultCodeMapAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_result_code_map.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -68,6 +71,13 @@ func testAccResultCodeMapResource(resourceName string, resourceModel resultCodeM
 resource "pingdirectory_result_code_map" "%[1]s" {
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_result_code_map" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_result_code_map.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description)

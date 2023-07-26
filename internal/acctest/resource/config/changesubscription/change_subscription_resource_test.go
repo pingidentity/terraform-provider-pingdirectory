@@ -56,6 +56,13 @@ func testAccChangeSubscriptionResource(resourceName string, resourceModel change
 	return fmt.Sprintf(`
 resource "pingdirectory_change_subscription" "%[1]s" {
   id = "%[2]s"
+}
+
+data "pingdirectory_change_subscription" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_change_subscription.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id)
 }

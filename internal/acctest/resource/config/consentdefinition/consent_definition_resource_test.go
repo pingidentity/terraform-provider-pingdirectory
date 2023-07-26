@@ -42,7 +42,10 @@ func TestAccConsentDefinition(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccConsentDefinitionResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedConsentDefinitionAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedConsentDefinitionAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_definition.%s", resourceName), "display_name", initialResourceModel.displayName),
+				),
 			},
 			{
 				// Test updating some fields
@@ -67,6 +70,13 @@ func testAccConsentDefinitionResource(resourceName string, resourceModel consent
 resource "pingdirectory_consent_definition" "%[1]s" {
   unique_id    = "%[2]s"
   display_name = "%[3]s"
+}
+
+data "pingdirectory_consent_definition" "%[1]s" {
+	 unique_id = "%[2]s"
+  depends_on = [
+    pingdirectory_consent_definition.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.uniqueId,
 		resourceModel.displayName)

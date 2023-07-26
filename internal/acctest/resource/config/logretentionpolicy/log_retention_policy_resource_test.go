@@ -42,7 +42,10 @@ func TestAccTimeLimitLogRetentionPolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccTimeLimitLogRetentionPolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedTimeLimitLogRetentionPolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedTimeLimitLogRetentionPolicyAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_retention_policy.%s", resourceName), "retain_duration", initialResourceModel.retainDuration),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +73,13 @@ resource "pingdirectory_log_retention_policy" "%[1]s" {
   type            = "time-limit"
   id              = "%[2]s"
   retain_duration = "%[3]s"
+}
+
+data "pingdirectory_log_retention_policy" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_retention_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.retainDuration)

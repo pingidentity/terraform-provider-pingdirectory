@@ -42,7 +42,10 @@ func TestAccSensitiveAttribute(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSensitiveAttributeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSensitiveAttributeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSensitiveAttributeAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_sensitive_attribute.%s", resourceName), "attribute_type.*", initialResourceModel.attributeType[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -69,6 +72,13 @@ func testAccSensitiveAttributeResource(resourceName string, resourceModel sensit
 resource "pingdirectory_sensitive_attribute" "%[1]s" {
   id             = "%[2]s"
   attribute_type = %[3]s
+}
+
+data "pingdirectory_sensitive_attribute" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_sensitive_attribute.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.attributeType))

@@ -2,6 +2,7 @@ package replicationassurancepolicy_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -48,7 +49,11 @@ func TestAccReplicationAssurancePolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccReplicationAssurancePolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedReplicationAssurancePolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedReplicationAssurancePolicyAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_replication_assurance_policy.%s", resourceName), "evaluation_order_index", strconv.FormatInt(initialResourceModel.evaluationOrderIndex, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_replication_assurance_policy.%s", resourceName), "timeout", initialResourceModel.timeout),
+				),
 			},
 			{
 				// Test updating some fields
@@ -77,6 +82,13 @@ resource "pingdirectory_replication_assurance_policy" "%[1]s" {
   description            = "%[3]s"
   evaluation_order_index = %[4]d
   timeout                = "%[5]s"
+}
+
+data "pingdirectory_replication_assurance_policy" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_replication_assurance_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

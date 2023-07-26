@@ -36,7 +36,10 @@ func TestAccPluginRoot(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPluginRootResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPluginRootAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPluginRootAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_plugin_root.%s", resourceName), "plugin_order_pre_parse_search", initialResourceModel.pluginOrderPreParseSearch),
+				),
 			},
 			{
 				// Test updating some fields
@@ -62,6 +65,12 @@ func testAccPluginRootResource(resourceName string, resourceModel pluginRootTest
 	return fmt.Sprintf(`
 resource "pingdirectory_default_plugin_root" "%[1]s" {
   plugin_order_pre_parse_search = "%[2]s"
+}
+
+data "pingdirectory_plugin_root" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_plugin_root.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.pluginOrderPreParseSearch)
 }

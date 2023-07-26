@@ -48,7 +48,11 @@ func TestAccPasswordPolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPasswordPolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPasswordPolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPasswordPolicyAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_policy.%s", resourceName), "password_attribute", initialResourceModel.passwordAttribute),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_password_policy.%s", resourceName), "default_password_storage_scheme.*", initialResourceModel.defaultPasswordStorageScheme[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -77,6 +81,13 @@ resource "pingdirectory_password_policy" "%[1]s" {
   password_attribute              = "%[3]s"
   default_password_storage_scheme = %[4]s
   allow_pre_encoded_passwords     = "%[5]s"
+}
+
+data "pingdirectory_password_policy" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.passwordAttribute,

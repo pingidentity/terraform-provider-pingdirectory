@@ -2,6 +2,7 @@ package delegatedadminresourcerights_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -50,7 +51,11 @@ func TestAccDelegatedAdminResourceRights(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDelegatedAdminResourceRightsResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDelegatedAdminResourceRightsAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDelegatedAdminResourceRightsAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_resource_rights.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_resource_rights.%s", resourceName), "rest_resource_type", initialResourceModel.restResourceType),
+				),
 			},
 			{
 				// Test updating some fields
@@ -80,16 +85,26 @@ resource "pingdirectory_rest_resource_type" "%[4]s" {
   structural_ldap_objectclass = "inetOrgPerson"
   search_base_dn              = "cn=users,dc=test,dc=com"
 }
+
 resource "pingdirectory_delegated_admin_rights" "%[2]s" {
   id            = "%[2]s"
   enabled       = true
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
+
 resource "pingdirectory_delegated_admin_resource_rights" "%[1]s" {
   delegated_admin_rights_name = pingdirectory_delegated_admin_rights.%[2]s.id
   admin_permission            = %[5]s
   enabled                     = %[3]t
   rest_resource_type          = pingdirectory_rest_resource_type.%[4]s.id
+}
+
+data "pingdirectory_delegated_admin_resource_rights" "%[1]s" {
+	 delegated_admin_rights_name = "%[2]s"
+	 rest_resource_type = "%[4]s"
+  depends_on = [
+    pingdirectory_delegated_admin_resource_rights.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.delegatedAdminRightsName,
 		resourceModel.enabled,

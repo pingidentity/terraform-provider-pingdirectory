@@ -24,7 +24,7 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 	resourceName := "myresource"
 	initialResourceModel := httpServletCrossOriginPolicyTestModel{
 		id:                 testIdHttpServletCrossOriginPolicy,
-		corsAllowedHeaders: []string{"Accept, Access-Control-Request-Headers"},
+		corsAllowedHeaders: []string{"Accept", "Access-Control-Request-Headers"},
 	}
 	updatedResourceModel := httpServletCrossOriginPolicyTestModel{
 		id:                 testIdHttpServletCrossOriginPolicy,
@@ -42,7 +42,11 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccHttpServletCrossOriginPolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedHttpServletCrossOriginPolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedHttpServletCrossOriginPolicyAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_http_servlet_cross_origin_policy.%s", resourceName), "cors_allowed_headers.*", initialResourceModel.corsAllowedHeaders[0]),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_http_servlet_cross_origin_policy.%s", resourceName), "cors_allowed_headers.*", initialResourceModel.corsAllowedHeaders[1]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -67,6 +71,13 @@ func testAccHttpServletCrossOriginPolicyResource(resourceName string, resourceMo
 resource "pingdirectory_http_servlet_cross_origin_policy" "%[1]s" {
   id                   = "%[2]s"
   cors_allowed_headers = %[3]s
+}
+
+data "pingdirectory_http_servlet_cross_origin_policy" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_http_servlet_cross_origin_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.corsAllowedHeaders))

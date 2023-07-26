@@ -45,7 +45,10 @@ func TestAccGenericWebApplicationExtension(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccGenericWebApplicationExtensionResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedGenericWebApplicationExtensionAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedGenericWebApplicationExtensionAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_web_application_extension.%s", resourceName), "base_context_path", initialResourceModel.baseContextPath),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +77,13 @@ resource "pingdirectory_web_application_extension" "%[1]s" {
   id                      = "%[2]s"
   base_context_path       = "%[3]s"
   document_root_directory = "%[4]s"
+}
+
+data "pingdirectory_web_application_extension" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_web_application_extension.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.baseContextPath,

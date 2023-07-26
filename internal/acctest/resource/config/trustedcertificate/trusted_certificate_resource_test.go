@@ -98,6 +98,13 @@ func testAccTrustedCertificateResource(resourceName string, resourceModel truste
 resource "pingdirectory_trusted_certificate" "%[1]s" {
   id          = "%[2]s"
   certificate = file("%[3]s")
+}
+
+data "pingdirectory_trusted_certificate" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_trusted_certificate.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.certificate)

@@ -2,6 +2,7 @@ package passwordstoragescheme_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -57,7 +58,15 @@ func TestAccPasswordStorageScheme(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPasswordStorageSchemeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPasswordStorageSchemeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPasswordStorageSchemeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "iteration_count", strconv.FormatInt(initialResourceModel.iterationCount, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "parallelism_factor", strconv.FormatInt(initialResourceModel.parallelismFactor, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "memory_usage_kb", strconv.FormatInt(initialResourceModel.memoryUsageKb, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "salt_length_bytes", strconv.FormatInt(initialResourceModel.saltLengthBytes, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "derived_key_length_bytes", strconv.FormatInt(initialResourceModel.derivedKeyLengthBytes, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -90,6 +99,13 @@ resource "pingdirectory_password_storage_scheme" "%[1]s" {
   salt_length_bytes        = %[6]d
   derived_key_length_bytes = %[7]d
   enabled                  = %[8]t
+}
+
+data "pingdirectory_password_storage_scheme" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_storage_scheme.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.iterationCount,

@@ -2,6 +2,7 @@ package cryptomanager_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -43,7 +44,12 @@ func TestAccCryptoManager(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccCryptoManagerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedCryptoManagerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedCryptoManagerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_crypto_manager.%s", resourceName), "mac_key_length", strconv.FormatInt(initialResourceModel.mac_key_length, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_crypto_manager.%s", resourceName), "cipher_key_length", strconv.FormatInt(initialResourceModel.cipher_key_length, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_crypto_manager.%s", resourceName), "ssl_cert_nickname", initialResourceModel.ssl_cert_nickname),
+				),
 			},
 			{
 				// Test updating some fields
@@ -71,6 +77,12 @@ resource "pingdirectory_default_crypto_manager" "%[1]s" {
   mac_key_length    = %[2]d
   cipher_key_length = %[3]d
   ssl_cert_nickname = "%[4]s"
+}
+
+data "pingdirectory_crypto_manager" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_crypto_manager.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.mac_key_length,
 		resourceModel.cipher_key_length,

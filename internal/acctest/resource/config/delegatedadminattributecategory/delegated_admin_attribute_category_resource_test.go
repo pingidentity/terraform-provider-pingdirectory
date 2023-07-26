@@ -2,6 +2,7 @@ package delegatedadminattributecategory_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -42,7 +43,11 @@ func TestAccDelegatedAdminAttributeCategory(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDelegatedAdminAttributeCategoryResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDelegatedAdminAttributeCategoryAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDelegatedAdminAttributeCategoryAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute_category.%s", resourceName), "display_name", initialResourceModel.displayName),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute_category.%s", resourceName), "display_order_index", strconv.FormatInt(initialResourceModel.displayOrderIndex, 10)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -69,6 +74,13 @@ func testAccDelegatedAdminAttributeCategoryResource(resourceName string, resourc
 resource "pingdirectory_delegated_admin_attribute_category" "%[1]s" {
   display_name        = "%[2]s"
   display_order_index = %[3]d
+}
+
+data "pingdirectory_delegated_admin_attribute_category" "%[1]s" {
+	 display_name = "%[2]s"
+  depends_on = [
+    pingdirectory_delegated_admin_attribute_category.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.displayName,
 		resourceModel.displayOrderIndex)

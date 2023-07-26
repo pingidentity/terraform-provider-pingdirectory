@@ -2,6 +2,7 @@ package uncachedattributecriteria_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,10 @@ func TestAccDefaultUncachedAttributeCriteria(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDefaultUncachedAttributeCriteriaResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDefaultUncachedAttributeCriteriaAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDefaultUncachedAttributeCriteriaAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_uncached_attribute_criteria.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +78,13 @@ resource "pingdirectory_uncached_attribute_criteria" "%[1]s" {
   id          = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t
+}
+
+data "pingdirectory_uncached_attribute_criteria" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_uncached_attribute_criteria.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

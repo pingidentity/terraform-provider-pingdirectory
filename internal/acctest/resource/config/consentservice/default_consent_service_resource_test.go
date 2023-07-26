@@ -2,6 +2,7 @@ package consentservice_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -51,7 +52,15 @@ func TestAccConsentService(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccConsentServiceResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedConsentServiceAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedConsentServiceAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_service.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_service.%s", resourceName), "base_dn", initialResourceModel.base_dn),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_service.%s", resourceName), "bind_dn", initialResourceModel.bind_dn),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_service.%s", resourceName), "unprivileged_consent_scope", initialResourceModel.unprivileged_consent_scope),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_service.%s", resourceName), "privileged_consent_scope", initialResourceModel.privileged_consent_scope),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_service.%s", resourceName), "search_size_limit", strconv.FormatInt(initialResourceModel.search_size_limit, 10)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -80,6 +89,12 @@ resource "pingdirectory_default_consent_service" "%[1]s" {
   unprivileged_consent_scope = "%[5]s"
   privileged_consent_scope   = "%[6]s"
   search_size_limit          = %[7]d
+}
+
+data "pingdirectory_consent_service" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_consent_service.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.enabled,
 		resourceModel.base_dn,

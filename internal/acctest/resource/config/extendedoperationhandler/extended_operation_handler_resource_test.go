@@ -2,6 +2,7 @@ package extendedoperationhandler_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -42,7 +43,10 @@ func TestAccValidateTotpPasswordExtendedOperationHandler(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccValidateTotpPasswordExtendedOperationHandlerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedValidateTotpPasswordExtendedOperationHandlerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedValidateTotpPasswordExtendedOperationHandlerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_extended_operation_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +74,13 @@ resource "pingdirectory_extended_operation_handler" "%[1]s" {
   type    = "validate-totp-password"
   id      = "%[2]s"
   enabled = %[3]t
+}
+
+data "pingdirectory_extended_operation_handler" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_extended_operation_handler.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled)

@@ -58,6 +58,9 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 					// Check some computed attributes are set as expected (PingDirectory defaults)
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_server_instance.%s", resourceName), "preferred_security", "ssl"),
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_default_server_instance.%s", resourceName), "ldap_port", "1389"),
+					// Check those attributes on the data source
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_server_instance.%s", resourceName), "preferred_security", "ssl"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_server_instance.%s", resourceName), "ldap_port", "1389"),
 				),
 			},
 			{
@@ -88,6 +91,13 @@ resource "pingdirectory_default_server_instance" "%[1]s" {
   server_instance_name = "%[2]s"
   jmx_port             = %[3]d
   start_tls_enabled    = %[4]t
+}
+
+data "pingdirectory_server_instance" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_server_instance.%[1]s
+  ]
 }`, resourceName, instanceName, resourceModel.jmxPort, resourceModel.startTlsEnabled)
 }
 

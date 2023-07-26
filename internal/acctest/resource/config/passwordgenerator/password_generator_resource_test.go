@@ -2,6 +2,7 @@ package passwordgenerator_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -48,7 +49,12 @@ func TestAccPasswordGenerator(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPasswordGeneratorResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPasswordGeneratorAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPasswordGeneratorAttributes(initialResourceModel),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_password_generator.%s", resourceName), "password_character_set.*", initialResourceModel.passwordCharacterSet[0]),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_generator.%s", resourceName), "password_format", initialResourceModel.passwordFormat),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_generator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -78,6 +84,13 @@ resource "pingdirectory_password_generator" "%[1]s" {
   password_character_set = %[3]s
   password_format        = "%[4]s"
   enabled                = %[5]t
+}
+
+data "pingdirectory_password_generator" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_generator.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.passwordCharacterSet),

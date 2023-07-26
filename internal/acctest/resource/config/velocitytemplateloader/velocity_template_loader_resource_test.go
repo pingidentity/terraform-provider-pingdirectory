@@ -46,7 +46,10 @@ func TestAccVelocityTemplateLoader(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccVelocityTemplateLoaderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedVelocityTemplateLoaderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedVelocityTemplateLoaderAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_velocity_template_loader.%s", resourceName), "mime_type_matcher", initialResourceModel.mimeTypeMatcher),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +77,14 @@ resource "pingdirectory_velocity_template_loader" "%[1]s" {
   id                          = "%[2]s"
   http_servlet_extension_name = "%[3]s"
   mime_type_matcher           = "%[4]s"
+}
+
+data "pingdirectory_velocity_template_loader" "%[1]s" {
+	 id = "%[2]s"
+	 http_servlet_extension_name = "%[3]s"
+  depends_on = [
+    pingdirectory_velocity_template_loader.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.httpServletExtensionName,

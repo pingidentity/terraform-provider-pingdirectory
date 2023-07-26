@@ -46,7 +46,10 @@ func TestAccScimAttribute(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccScimAttributeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedScimAttributeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedScimAttributeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_attribute.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -78,6 +81,14 @@ resource "pingdirectory_scim_attribute" "%[1]s" {
   scim_schema_name = pingdirectory_scim_schema.myScimSchema.schema_urn
   name             = "%[3]s"
   description      = "%[4]s"
+}
+
+data "pingdirectory_scim_attribute" "%[1]s" {
+	 scim_schema_name = "%[2]s"
+	 name = "%[3]s"
+  depends_on = [
+    pingdirectory_scim_attribute.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.scimSchemaName,
 		resourceModel.name,

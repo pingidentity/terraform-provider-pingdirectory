@@ -45,7 +45,11 @@ func TestAccConstructedAttribute(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccConstructedAttributeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedConstructedAttributeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedConstructedAttributeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_constructed_attribute.%s", resourceName), "attribute_type", initialResourceModel.attributeType),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_constructed_attribute.%s", resourceName), "value_pattern.*", initialResourceModel.valuePattern[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -73,6 +77,13 @@ resource "pingdirectory_constructed_attribute" "%[1]s" {
   id             = "%[2]s"
   attribute_type = "%[3]s"
   value_pattern  = %[4]s
+}
+
+data "pingdirectory_constructed_attribute" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_constructed_attribute.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.attributeType,

@@ -2,6 +2,7 @@ package entrycache_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,11 @@ func TestAccFifoEntryCache(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccFifoEntryCacheResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedFifoEntryCacheAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedFifoEntryCacheAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_entry_cache.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_entry_cache.%s", resourceName), "cache_level", strconv.FormatInt(initialResourceModel.cacheLevel, 10)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -73,6 +78,13 @@ resource "pingdirectory_entry_cache" "%[1]s" {
   id          = "%[2]s"
   enabled     = %[3]t
   cache_level = %[4]d
+}
+
+data "pingdirectory_entry_cache" "%[1]s" {
+	 id = "%[2]s"
+  depends_on = [
+    pingdirectory_entry_cache.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled,
