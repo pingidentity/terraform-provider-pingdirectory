@@ -53,10 +53,19 @@ type httpServletExtensionDataSourceModel struct {
 	ExtensionArgument                  types.Set    `tfsdk:"extension_argument"`
 	ScriptClass                        types.String `tfsdk:"script_class"`
 	DocumentRootDirectory              types.String `tfsdk:"document_root_directory"`
+	MapAccessTokensToLocalUsers        types.String `tfsdk:"map_access_tokens_to_local_users"`
 	EnableDirectoryIndexing            types.Bool   `tfsdk:"enable_directory_indexing"`
 	IndexFile                          types.Set    `tfsdk:"index_file"`
+	MaxPageSize                        types.Int64  `tfsdk:"max_page_size"`
+	SchemasEndpointObjectclass         types.Set    `tfsdk:"schemas_endpoint_objectclass"`
+	DefaultOperationalAttribute        types.Set    `tfsdk:"default_operational_attribute"`
+	RejectExpansionAttribute           types.Set    `tfsdk:"reject_expansion_attribute"`
+	AlwaysUsePermissiveModify          types.Bool   `tfsdk:"always_use_permissive_modify"`
+	AllowedControl                     types.Set    `tfsdk:"allowed_control"`
 	ScriptArgument                     types.Set    `tfsdk:"script_argument"`
 	OAuthTokenHandler                  types.String `tfsdk:"oauth_token_handler"`
+	SwaggerEnabled                     types.Bool   `tfsdk:"swagger_enabled"`
+	BearerTokenAuthEnabled             types.Bool   `tfsdk:"bearer_token_auth_enabled"`
 	AllowedAuthenticationType          types.Set    `tfsdk:"allowed_authentication_type"`
 	BaseContextPath                    types.String `tfsdk:"base_context_path"`
 	IdTokenValidator                   types.Set    `tfsdk:"id_token_validator"`
@@ -68,6 +77,7 @@ type httpServletExtensionDataSourceModel struct {
 	IncludeLDAPBaseDN                  types.Set    `tfsdk:"include_ldap_base_dn"`
 	ExcludeLDAPBaseDN                  types.Set    `tfsdk:"exclude_ldap_base_dn"`
 	EntityTagLDAPAttribute             types.String `tfsdk:"entity_tag_ldap_attribute"`
+	StaticContextPath                  types.String `tfsdk:"static_context_path"`
 	TemporaryDirectory                 types.String `tfsdk:"temporary_directory"`
 	TemporaryDirectoryPermissions      types.String `tfsdk:"temporary_directory_permissions"`
 	MaxResults                         types.Int64  `tfsdk:"max_results"`
@@ -78,9 +88,18 @@ type httpServletExtensionDataSourceModel struct {
 	DebugLevel                         types.String `tfsdk:"debug_level"`
 	DebugType                          types.Set    `tfsdk:"debug_type"`
 	IncludeStackTrace                  types.Bool   `tfsdk:"include_stack_trace"`
+	StaticContentDirectory             types.String `tfsdk:"static_content_directory"`
+	StaticCustomDirectory              types.String `tfsdk:"static_custom_directory"`
+	TemplateDirectory                  types.Set    `tfsdk:"template_directory"`
+	ExposeRequestAttributes            types.Bool   `tfsdk:"expose_request_attributes"`
+	ExposeSessionAttributes            types.Bool   `tfsdk:"expose_session_attributes"`
+	ExposeServerContext                types.Bool   `tfsdk:"expose_server_context"`
+	AllowContextOverride               types.Bool   `tfsdk:"allow_context_override"`
 	MimeTypesFile                      types.String `tfsdk:"mime_types_file"`
 	DefaultMIMEType                    types.String `tfsdk:"default_mime_type"`
+	CharacterEncoding                  types.String `tfsdk:"character_encoding"`
 	IncludeInstanceNameLabel           types.Bool   `tfsdk:"include_instance_name_label"`
+	StaticResponseHeader               types.Set    `tfsdk:"static_response_header"`
 	RequireAuthentication              types.Bool   `tfsdk:"require_authentication"`
 	IncludeProductNameLabel            types.Bool   `tfsdk:"include_product_name_label"`
 	IncludeLocationNameLabel           types.Bool   `tfsdk:"include_location_name_label"`
@@ -98,6 +117,8 @@ type httpServletExtensionDataSourceModel struct {
 	BasicAuthEnabled                   types.Bool   `tfsdk:"basic_auth_enabled"`
 	IdentityMapper                     types.String `tfsdk:"identity_mapper"`
 	AccessTokenValidator               types.Set    `tfsdk:"access_token_validator"`
+	AccessTokenScope                   types.String `tfsdk:"access_token_scope"`
+	Audience                           types.String `tfsdk:"audience"`
 	Description                        types.String `tfsdk:"description"`
 	CrossOriginPolicy                  types.String `tfsdk:"cross_origin_policy"`
 	ResponseHeader                     types.Set    `tfsdk:"response_header"`
@@ -144,6 +165,12 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
+			"map_access_tokens_to_local_users": schema.StringAttribute{
+				Description: "Indicates whether the SCIM2 servlet should attempt to map the presented access token to a local user.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"enable_directory_indexing": schema.BoolAttribute{
 				Description: "Indicates whether to generate a default HTML page with a listing of available files if the requested path refers to a directory rather than a file, and that directory does not contain an index file.",
 				Required:    false,
@@ -152,6 +179,46 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 			},
 			"index_file": schema.SetAttribute{
 				Description: "Specifies the name of a file whose contents may be returned to the client if the requested path refers to a directory rather than a file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"max_page_size": schema.Int64Attribute{
+				Description: "The maximum number of entries to be returned in one page of search results.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"schemas_endpoint_objectclass": schema.SetAttribute{
+				Description: "The list of object classes which will be returned by the schemas endpoint.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"default_operational_attribute": schema.SetAttribute{
+				Description: "A set of operational attributes that will be returned with entries by default.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"reject_expansion_attribute": schema.SetAttribute{
+				Description: "A set of attributes which the client is not allowed to provide for the expand query parameters. This should be used for attributes that could either have a large number of values or that reference entries that are very large like groups.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"always_use_permissive_modify": schema.BoolAttribute{
+				Description: "Indicates whether to always use permissive modify behavior for PATCH requests, even if the request did not include the permissive modify request control. Supported in PingDirectory product version 9.3.0.0+.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"allowed_control": schema.SetAttribute{
+				Description: "Specifies the names of any request controls that should be allowed by the Directory REST API. Any request that contains a critical control not in this list will be rejected. Any non-critical request control which is not supported by the Directory REST API will be removed from the request.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -166,6 +233,18 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 			},
 			"oauth_token_handler": schema.StringAttribute{
 				Description: "Specifies the OAuth Token Handler implementation that should be used to validate OAuth 2.0 bearer tokens when they are included in a SCIM request.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"swagger_enabled": schema.BoolAttribute{
+				Description: "Indicates whether the SCIM2 HTTP Servlet Extension will generate a Swagger specification document.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"bearer_token_auth_enabled": schema.BoolAttribute{
+				Description: "Enables HTTP bearer token authentication.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -243,6 +322,12 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
+			"static_context_path": schema.StringAttribute{
+				Description: "The path below the base context path by which static, non-template content such as images, CSS, and Javascript files are accessible.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"temporary_directory": schema.StringAttribute{
 				Description: "Specifies the location of the directory that is used to create temporary files containing SCIM request data.",
 				Required:    false,
@@ -304,6 +389,49 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
+			"static_content_directory": schema.StringAttribute{
+				Description: "Specifies the base directory in which static, non-template content such as images, CSS, and Javascript files are stored on the filesystem.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"static_custom_directory": schema.StringAttribute{
+				Description: "Specifies the base directory in which custom static, non-template content such as images, CSS, and Javascript files are stored on the filesystem. Files in this directory will override those with the same name in the directory specified by the static-content-directory property.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"template_directory": schema.SetAttribute{
+				Description: "Specifies an ordered list of directories in which to search for the template files.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"expose_request_attributes": schema.BoolAttribute{
+				Description: "Specifies whether the HTTP request will be exposed to templates.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"expose_session_attributes": schema.BoolAttribute{
+				Description: "Specifies whether the HTTP session will be exposed to templates.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"expose_server_context": schema.BoolAttribute{
+				Description: "Specifies whether a server context will be exposed under context key 'ubid_server' for all template contexts.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"allow_context_override": schema.BoolAttribute{
+				Description: "Indicates whether context providers may override existing context objects with new values.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"mime_types_file": schema.StringAttribute{
 				Description: "Specifies the path to a file that contains MIME type mappings that will be used to determine the appropriate value to return for the Content-Type header based on the extension of the requested static content file.",
 				Required:    false,
@@ -316,11 +444,24 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Optional:    false,
 				Computed:    true,
 			},
+			"character_encoding": schema.StringAttribute{
+				Description: "Specifies the value that will be used for all responses' Content-Type headers' charset parameter that indicates the character encoding of the document.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"include_instance_name_label": schema.BoolAttribute{
 				Description: "Indicates whether generated metrics should include an \"instance\" label whose value is the instance name for this Directory Server instance.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
+			},
+			"static_response_header": schema.SetAttribute{
+				Description: "Specifies HTTP header fields and values added to response headers for static content requests such as images and scripts.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"require_authentication": schema.BoolAttribute{
 				Description: "Require authentication when accessing Velocity templates.",
@@ -426,6 +567,18 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 				Computed:    true,
 				ElementType: types.StringType,
 			},
+			"access_token_scope": schema.StringAttribute{
+				Description: "The name of a scope that must be present in an access token accepted by the Delegated Admin HTTP Servlet Extension.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"audience": schema.StringAttribute{
+				Description: "A string or URI that identifies the Delegated Admin HTTP Servlet Extension in the context of OAuth2 authorization.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Extension",
 				Required:    false,
@@ -453,6 +606,21 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+}
+
+// Read a DelegatedAdminHttpServletExtensionResponse object into the model struct
+func readDelegatedAdminHttpServletExtensionResponseDataSource(ctx context.Context, r *client.DelegatedAdminHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin")
+	state.Id = types.StringValue(r.Id)
+	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
+	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
+	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, false)
+	state.Audience = internaltypes.StringTypeOrNil(r.Audience, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
+	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
 }
 
 // Read a QuickstartHttpServletExtensionResponse object into the model struct
@@ -495,6 +663,45 @@ func readPrometheusMonitoringHttpServletExtensionResponseDataSource(ctx context.
 	state.IncludeMonitorObjectClassNameLabel = internaltypes.BoolTypeOrNil(r.IncludeMonitorObjectClassNameLabel)
 	state.IncludeMonitorAttributeNameLabel = internaltypes.BoolTypeOrNil(r.IncludeMonitorAttributeNameLabel)
 	state.LabelNameValuePair = internaltypes.GetStringSet(r.LabelNameValuePair)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
+	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
+}
+
+// Read a VelocityHttpServletExtensionResponse object into the model struct
+func readVelocityHttpServletExtensionResponseDataSource(ctx context.Context, r *client.VelocityHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("velocity")
+	state.Id = types.StringValue(r.Id)
+	state.BaseContextPath = types.StringValue(r.BaseContextPath)
+	state.StaticContextPath = internaltypes.StringTypeOrNil(r.StaticContextPath, false)
+	state.StaticContentDirectory = internaltypes.StringTypeOrNil(r.StaticContentDirectory, false)
+	state.StaticCustomDirectory = internaltypes.StringTypeOrNil(r.StaticCustomDirectory, false)
+	state.TemplateDirectory = internaltypes.GetStringSet(r.TemplateDirectory)
+	state.ExposeRequestAttributes = internaltypes.BoolTypeOrNil(r.ExposeRequestAttributes)
+	state.ExposeSessionAttributes = internaltypes.BoolTypeOrNil(r.ExposeSessionAttributes)
+	state.ExposeServerContext = internaltypes.BoolTypeOrNil(r.ExposeServerContext)
+	state.AllowContextOverride = internaltypes.BoolTypeOrNil(r.AllowContextOverride)
+	state.MimeTypesFile = internaltypes.StringTypeOrNil(r.MimeTypesFile, false)
+	state.DefaultMIMEType = internaltypes.StringTypeOrNil(r.DefaultMIMEType, false)
+	state.CharacterEncoding = internaltypes.StringTypeOrNil(r.CharacterEncoding, false)
+	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
+	state.StaticResponseHeader = internaltypes.GetStringSet(r.StaticResponseHeader)
+	state.RequireAuthentication = internaltypes.BoolTypeOrNil(r.RequireAuthentication)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
+}
+
+// Read a ConsentHttpServletExtensionResponse object into the model struct
+func readConsentHttpServletExtensionResponseDataSource(ctx context.Context, r *client.ConsentHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent")
+	state.Id = types.StringValue(r.Id)
+	state.BearerTokenAuthEnabled = internaltypes.BoolTypeOrNil(r.BearerTokenAuthEnabled)
+	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
+	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
 	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
@@ -568,6 +775,59 @@ func readFileServerHttpServletExtensionResponseDataSource(ctx context.Context, r
 	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
 }
 
+// Read a ConfigHttpServletExtensionResponse object into the model struct
+func readConfigHttpServletExtensionResponseDataSource(ctx context.Context, r *client.ConfigHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("config")
+	state.Id = types.StringValue(r.Id)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
+	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
+}
+
+// Read a Scim2HttpServletExtensionResponse object into the model struct
+func readScim2HttpServletExtensionResponseDataSource(ctx context.Context, r *client.Scim2HttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("scim2")
+	state.Id = types.StringValue(r.Id)
+	state.BaseContextPath = types.StringValue(r.BaseContextPath)
+	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
+	state.MapAccessTokensToLocalUsers = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumhttpServletExtensionMapAccessTokensToLocalUsersProp(r.MapAccessTokensToLocalUsers), false)
+	state.DebugEnabled = internaltypes.BoolTypeOrNil(r.DebugEnabled)
+	state.DebugLevel = types.StringValue(r.DebugLevel.String())
+	state.DebugType = internaltypes.GetStringSet(
+		client.StringSliceEnumhttpServletExtensionDebugTypeProp(r.DebugType))
+	state.IncludeStackTrace = types.BoolValue(r.IncludeStackTrace)
+	state.SwaggerEnabled = internaltypes.BoolTypeOrNil(r.SwaggerEnabled)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
+	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
+}
+
+// Read a DirectoryRestApiHttpServletExtensionResponse object into the model struct
+func readDirectoryRestApiHttpServletExtensionResponseDataSource(ctx context.Context, r *client.DirectoryRestApiHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("directory-rest-api")
+	state.Id = types.StringValue(r.Id)
+	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
+	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
+	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
+	state.AccessTokenScope = internaltypes.StringTypeOrNil(r.AccessTokenScope, false)
+	state.Audience = internaltypes.StringTypeOrNil(r.Audience, false)
+	state.MaxPageSize = internaltypes.Int64TypeOrNil(r.MaxPageSize)
+	state.SchemasEndpointObjectclass = internaltypes.GetStringSet(r.SchemasEndpointObjectclass)
+	state.DefaultOperationalAttribute = internaltypes.GetStringSet(r.DefaultOperationalAttribute)
+	state.RejectExpansionAttribute = internaltypes.GetStringSet(r.RejectExpansionAttribute)
+	state.AlwaysUsePermissiveModify = internaltypes.BoolTypeOrNil(r.AlwaysUsePermissiveModify)
+	state.AllowedControl = internaltypes.GetStringSet(
+		client.StringSliceEnumhttpServletExtensionAllowedControlProp(r.AllowedControl))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
+	state.ResponseHeader = internaltypes.GetStringSet(r.ResponseHeader)
+	state.CorrelationIDResponseHeader = internaltypes.StringTypeOrNil(r.CorrelationIDResponseHeader, false)
+}
+
 // Read a ThirdPartyHttpServletExtensionResponse object into the model struct
 func readThirdPartyHttpServletExtensionResponseDataSource(ctx context.Context, r *client.ThirdPartyHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
@@ -604,6 +864,9 @@ func (r *httpServletExtensionDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	// Read the response into the state
+	if readResponse.DelegatedAdminHttpServletExtensionResponse != nil {
+		readDelegatedAdminHttpServletExtensionResponseDataSource(ctx, readResponse.DelegatedAdminHttpServletExtensionResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.QuickstartHttpServletExtensionResponse != nil {
 		readQuickstartHttpServletExtensionResponseDataSource(ctx, readResponse.QuickstartHttpServletExtensionResponse, &state, &resp.Diagnostics)
 	}
@@ -613,6 +876,12 @@ func (r *httpServletExtensionDataSource) Read(ctx context.Context, req datasourc
 	if readResponse.PrometheusMonitoringHttpServletExtensionResponse != nil {
 		readPrometheusMonitoringHttpServletExtensionResponseDataSource(ctx, readResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.VelocityHttpServletExtensionResponse != nil {
+		readVelocityHttpServletExtensionResponseDataSource(ctx, readResponse.VelocityHttpServletExtensionResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ConsentHttpServletExtensionResponse != nil {
+		readConsentHttpServletExtensionResponseDataSource(ctx, readResponse.ConsentHttpServletExtensionResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.LdapMappedScimHttpServletExtensionResponse != nil {
 		readLdapMappedScimHttpServletExtensionResponseDataSource(ctx, readResponse.LdapMappedScimHttpServletExtensionResponse, &state, &resp.Diagnostics)
 	}
@@ -621,6 +890,15 @@ func (r *httpServletExtensionDataSource) Read(ctx context.Context, req datasourc
 	}
 	if readResponse.FileServerHttpServletExtensionResponse != nil {
 		readFileServerHttpServletExtensionResponseDataSource(ctx, readResponse.FileServerHttpServletExtensionResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ConfigHttpServletExtensionResponse != nil {
+		readConfigHttpServletExtensionResponseDataSource(ctx, readResponse.ConfigHttpServletExtensionResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.Scim2HttpServletExtensionResponse != nil {
+		readScim2HttpServletExtensionResponseDataSource(ctx, readResponse.Scim2HttpServletExtensionResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.DirectoryRestApiHttpServletExtensionResponse != nil {
+		readDirectoryRestApiHttpServletExtensionResponseDataSource(ctx, readResponse.DirectoryRestApiHttpServletExtensionResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.ThirdPartyHttpServletExtensionResponse != nil {
 		readThirdPartyHttpServletExtensionResponseDataSource(ctx, readResponse.ThirdPartyHttpServletExtensionResponse, &state, &resp.Diagnostics)

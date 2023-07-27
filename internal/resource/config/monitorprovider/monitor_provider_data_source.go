@@ -47,15 +47,25 @@ func (r *monitorProviderDataSource) Configure(_ context.Context, req datasource.
 }
 
 type monitorProviderDataSourceModel struct {
-	Id                      types.String `tfsdk:"id"`
-	Type                    types.String `tfsdk:"type"`
-	ExtensionClass          types.String `tfsdk:"extension_class"`
-	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
-	CheckFrequency          types.String `tfsdk:"check_frequency"`
-	ProlongedOutageDuration types.String `tfsdk:"prolonged_outage_duration"`
-	ProlongedOutageBehavior types.String `tfsdk:"prolonged_outage_behavior"`
-	Description             types.String `tfsdk:"description"`
-	Enabled                 types.Bool   `tfsdk:"enabled"`
+	Id                                   types.String `tfsdk:"id"`
+	Type                                 types.String `tfsdk:"type"`
+	ExtensionClass                       types.String `tfsdk:"extension_class"`
+	ExtensionArgument                    types.Set    `tfsdk:"extension_argument"`
+	LowSpaceWarningSizeThreshold         types.String `tfsdk:"low_space_warning_size_threshold"`
+	LowSpaceWarningPercentThreshold      types.Int64  `tfsdk:"low_space_warning_percent_threshold"`
+	LowSpaceErrorSizeThreshold           types.String `tfsdk:"low_space_error_size_threshold"`
+	LowSpaceErrorPercentThreshold        types.Int64  `tfsdk:"low_space_error_percent_threshold"`
+	OutOfSpaceErrorSizeThreshold         types.String `tfsdk:"out_of_space_error_size_threshold"`
+	OutOfSpaceErrorPercentThreshold      types.Int64  `tfsdk:"out_of_space_error_percent_threshold"`
+	AlertFrequency                       types.String `tfsdk:"alert_frequency"`
+	CheckFrequency                       types.String `tfsdk:"check_frequency"`
+	DiskDevices                          types.Set    `tfsdk:"disk_devices"`
+	NetworkDevices                       types.Set    `tfsdk:"network_devices"`
+	SystemUtilizationMonitorLogDirectory types.String `tfsdk:"system_utilization_monitor_log_directory"`
+	ProlongedOutageDuration              types.String `tfsdk:"prolonged_outage_duration"`
+	ProlongedOutageBehavior              types.String `tfsdk:"prolonged_outage_behavior"`
+	Description                          types.String `tfsdk:"description"`
+	Enabled                              types.Bool   `tfsdk:"enabled"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -86,8 +96,70 @@ func (r *monitorProviderDataSource) Schema(ctx context.Context, req datasource.S
 				Computed:    true,
 				ElementType: types.StringType,
 			},
+			"low_space_warning_size_threshold": schema.StringAttribute{
+				Description: "Specifies the low space warning threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"low_space_warning_percent_threshold": schema.Int64Attribute{
+				Description: "Specifies the low space warning threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"low_space_error_size_threshold": schema.StringAttribute{
+				Description: "Specifies the low space error threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will start rejecting operations requested by non-root users.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"low_space_error_percent_threshold": schema.Int64Attribute{
+				Description: "Specifies the low space error threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will start rejecting operations requested by non-root users.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"out_of_space_error_size_threshold": schema.StringAttribute{
+				Description: "Specifies the out of space error threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will shut itself down to avoid problems that may occur from complete exhaustion of usable space.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"out_of_space_error_percent_threshold": schema.Int64Attribute{
+				Description: "Specifies the out of space error threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will shut itself down to avoid problems that may occur from complete exhaustion of usable space.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"alert_frequency": schema.StringAttribute{
+				Description: "Specifies the length of time between administrative alerts generated in response to lack of usable disk space. Administrative alerts will be generated whenever the amount of usable space drops below any threshold, and they will also be generated at regular intervals as long as the amount of usable space remains below the threshold value. A value of zero indicates that alerts should only be generated when the amount of usable space drops below a configured threshold.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"check_frequency": schema.StringAttribute{
 				Description: "The frequency with which this monitor provider should confirm the ability to access the server's encryption settings database.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"disk_devices": schema.SetAttribute{
+				Description: "Specifies which disk devices to monitor for I/O activity. Should be the device name as displayed by iostat -d.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"network_devices": schema.SetAttribute{
+				Description: "Specifies which network interfaces to monitor for I/O activity. Should be the device name as displayed by netstat -i.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"system_utilization_monitor_log_directory": schema.StringAttribute{
+				Description: "Specifies a relative or absolute path to the directory on the local filesystem containing the log files used by the system utilization monitor. The path must exist, and it must be a writable directory by the server process.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -120,6 +192,22 @@ func (r *monitorProviderDataSource) Schema(ctx context.Context, req datasource.S
 	}
 }
 
+// Read a MemoryUsageMonitorProviderResponse object into the model struct
+func readMemoryUsageMonitorProviderResponseDataSource(ctx context.Context, r *client.MemoryUsageMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("memory-usage")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a StackTraceMonitorProviderResponse object into the model struct
+func readStackTraceMonitorProviderResponseDataSource(ctx context.Context, r *client.StackTraceMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("stack-trace")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse object into the model struct
 func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDataSource(ctx context.Context, r *client.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("encryption-settings-database-accessibility")
@@ -128,6 +216,88 @@ func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDataSourc
 	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, false)
 	state.ProlongedOutageBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnummonitorProviderProlongedOutageBehaviorProp(r.ProlongedOutageBehavior), false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a CustomMonitorProviderResponse object into the model struct
+func readCustomMonitorProviderResponseDataSource(ctx context.Context, r *client.CustomMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("custom")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a ActiveOperationsMonitorProviderResponse object into the model struct
+func readActiveOperationsMonitorProviderResponseDataSource(ctx context.Context, r *client.ActiveOperationsMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("active-operations")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a SslContextMonitorProviderResponse object into the model struct
+func readSslContextMonitorProviderResponseDataSource(ctx context.Context, r *client.SslContextMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ssl-context")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a VersionMonitorProviderResponse object into the model struct
+func readVersionMonitorProviderResponseDataSource(ctx context.Context, r *client.VersionMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("version")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a HostSystemMonitorProviderResponse object into the model struct
+func readHostSystemMonitorProviderResponseDataSource(ctx context.Context, r *client.HostSystemMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("host-system")
+	state.Id = types.StringValue(r.Id)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.DiskDevices = internaltypes.GetStringSet(r.DiskDevices)
+	state.NetworkDevices = internaltypes.GetStringSet(r.NetworkDevices)
+	state.SystemUtilizationMonitorLogDirectory = types.StringValue(r.SystemUtilizationMonitorLogDirectory)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+}
+
+// Read a GeneralMonitorProviderResponse object into the model struct
+func readGeneralMonitorProviderResponseDataSource(ctx context.Context, r *client.GeneralMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("general")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a DiskSpaceUsageMonitorProviderResponse object into the model struct
+func readDiskSpaceUsageMonitorProviderResponseDataSource(ctx context.Context, r *client.DiskSpaceUsageMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("disk-space-usage")
+	state.Id = types.StringValue(r.Id)
+	state.LowSpaceWarningSizeThreshold = internaltypes.StringTypeOrNil(r.LowSpaceWarningSizeThreshold, false)
+	state.LowSpaceWarningPercentThreshold = internaltypes.Int64TypeOrNil(r.LowSpaceWarningPercentThreshold)
+	state.LowSpaceErrorSizeThreshold = internaltypes.StringTypeOrNil(r.LowSpaceErrorSizeThreshold, false)
+	state.LowSpaceErrorPercentThreshold = internaltypes.Int64TypeOrNil(r.LowSpaceErrorPercentThreshold)
+	state.OutOfSpaceErrorSizeThreshold = internaltypes.StringTypeOrNil(r.OutOfSpaceErrorSizeThreshold, false)
+	state.OutOfSpaceErrorPercentThreshold = internaltypes.Int64TypeOrNil(r.OutOfSpaceErrorPercentThreshold)
+	state.AlertFrequency = types.StringValue(r.AlertFrequency)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a SystemInfoMonitorProviderResponse object into the model struct
+func readSystemInfoMonitorProviderResponseDataSource(ctx context.Context, r *client.SystemInfoMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("system-info")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a ClientConnectionMonitorProviderResponse object into the model struct
+func readClientConnectionMonitorProviderResponseDataSource(ctx context.Context, r *client.ClientConnectionMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("client-connection")
+	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -166,8 +336,41 @@ func (r *monitorProviderDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	// Read the response into the state
+	if readResponse.MemoryUsageMonitorProviderResponse != nil {
+		readMemoryUsageMonitorProviderResponseDataSource(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.StackTraceMonitorProviderResponse != nil {
+		readStackTraceMonitorProviderResponseDataSource(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 		readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDataSource(ctx, readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.CustomMonitorProviderResponse != nil {
+		readCustomMonitorProviderResponseDataSource(ctx, readResponse.CustomMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ActiveOperationsMonitorProviderResponse != nil {
+		readActiveOperationsMonitorProviderResponseDataSource(ctx, readResponse.ActiveOperationsMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.SslContextMonitorProviderResponse != nil {
+		readSslContextMonitorProviderResponseDataSource(ctx, readResponse.SslContextMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.VersionMonitorProviderResponse != nil {
+		readVersionMonitorProviderResponseDataSource(ctx, readResponse.VersionMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.HostSystemMonitorProviderResponse != nil {
+		readHostSystemMonitorProviderResponseDataSource(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GeneralMonitorProviderResponse != nil {
+		readGeneralMonitorProviderResponseDataSource(ctx, readResponse.GeneralMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.DiskSpaceUsageMonitorProviderResponse != nil {
+		readDiskSpaceUsageMonitorProviderResponseDataSource(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.SystemInfoMonitorProviderResponse != nil {
+		readSystemInfoMonitorProviderResponseDataSource(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ClientConnectionMonitorProviderResponse != nil {
+		readClientConnectionMonitorProviderResponseDataSource(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.ThirdPartyMonitorProviderResponse != nil {
 		readThirdPartyMonitorProviderResponseDataSource(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &resp.Diagnostics)

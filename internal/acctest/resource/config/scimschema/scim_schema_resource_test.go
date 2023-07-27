@@ -71,6 +71,7 @@ func testAccScimSchemaResource(resourceName string, resourceModel scimSchemaTest
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_schema" "%[1]s" {
   schema_urn = "%[2]s"
+  description = "%[3]s"
 }
 
 data "pingdirectory_scim_schema" "%[1]s" {
@@ -79,7 +80,8 @@ data "pingdirectory_scim_schema" "%[1]s" {
     pingdirectory_scim_schema.%[1]s
   ]
 }`, resourceName,
-		resourceModel.schemaUrn)
+		resourceModel.schemaUrn,
+		resourceModel.description)
 }
 
 // Test that the expected attributes are set on the PingDirectory server
@@ -95,6 +97,11 @@ func testAccCheckExpectedScimSchemaAttributes(config scimSchemaTestModel) resour
 		resourceType := "Scim Schema"
 		err = acctest.TestAttributesMatchString(resourceType, &config.schemaUrn, "schema-urn",
 			config.schemaUrn, response.SchemaURN)
+		if err != nil {
+			return err
+		}
+		err = acctest.TestAttributesMatchStringPointer(resourceType, &config.description, "description",
+			config.description, response.Description)
 		if err != nil {
 			return err
 		}

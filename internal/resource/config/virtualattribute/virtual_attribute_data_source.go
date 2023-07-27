@@ -57,8 +57,11 @@ type virtualAttributeDataSourceModel struct {
 	JoinSourceAttribute                          types.String `tfsdk:"join_source_attribute"`
 	JoinTargetAttribute                          types.String `tfsdk:"join_target_attribute"`
 	JoinMatchAll                                 types.Bool   `tfsdk:"join_match_all"`
+	SequenceNumberAttribute                      types.String `tfsdk:"sequence_number_attribute"`
 	Value                                        types.Set    `tfsdk:"value"`
 	ReferencedByAttribute                        types.Set    `tfsdk:"referenced_by_attribute"`
+	ReturnUtcTime                                types.Bool   `tfsdk:"return_utc_time"`
+	IncludeMilliseconds                          types.Bool   `tfsdk:"include_milliseconds"`
 	ReferenceSearchBaseDN                        types.Set    `tfsdk:"reference_search_base_dn"`
 	JoinDNAttribute                              types.String `tfsdk:"join_dn_attribute"`
 	JoinBaseDNType                               types.String `tfsdk:"join_base_dn_type"`
@@ -73,6 +76,8 @@ type virtualAttributeDataSourceModel struct {
 	IncludedGroupFilter                          types.String `tfsdk:"included_group_filter"`
 	RewriteSearchFilters                         types.String `tfsdk:"rewrite_search_filters"`
 	SourceAttribute                              types.String `tfsdk:"source_attribute"`
+	ExcludeOperationalAttributes                 types.Bool   `tfsdk:"exclude_operational_attributes"`
+	ExcludedAttribute                            types.Set    `tfsdk:"excluded_attribute"`
 	SourceEntryDNAttribute                       types.String `tfsdk:"source_entry_dn_attribute"`
 	SourceEntryDNMap                             types.String `tfsdk:"source_entry_dn_map"`
 	BypassAccessControlForSearches               types.Bool   `tfsdk:"bypass_access_control_for_searches"`
@@ -154,6 +159,12 @@ func (r *virtualAttributeDataSource) Schema(ctx context.Context, req datasource.
 				Optional:    false,
 				Computed:    true,
 			},
+			"sequence_number_attribute": schema.StringAttribute{
+				Description: "Specifies the name or OID of the attribute which contains the sequence number from which unique identifiers are generated. The attribute should have Integer syntax or a String syntax permitting integer values. If this property is modified then the filter property should be updated accordingly so that only entries containing the sequence number attribute are eligible to have a value generated for this virtual attribute.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"value": schema.SetAttribute{
 				Description: "Specifies the values to be included in the virtual attribute.",
 				Required:    false,
@@ -167,6 +178,18 @@ func (r *virtualAttributeDataSource) Schema(ctx context.Context, req datasource.
 				Optional:    false,
 				Computed:    true,
 				ElementType: types.StringType,
+			},
+			"return_utc_time": schema.BoolAttribute{
+				Description: "Indicates whether to return current time in UTC.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"include_milliseconds": schema.BoolAttribute{
+				Description: "Indicates whether the current time includes millisecond precision.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
 			},
 			"reference_search_base_dn": schema.SetAttribute{
 				Description: "The base DN that will be used when searching for references to the target entry. If no reference search base DN is specified, the default behavior will be to search below all public naming contexts configured in the server.",
@@ -254,6 +277,19 @@ func (r *virtualAttributeDataSource) Schema(ctx context.Context, req datasource.
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
+			},
+			"exclude_operational_attributes": schema.BoolAttribute{
+				Description: "Indicates whether all operational attributes should be excluded from the generated checksum.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"excluded_attribute": schema.SetAttribute{
+				Description: "Specifies the attributes that should be excluded from the checksum calculation.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"source_entry_dn_attribute": schema.StringAttribute{
 				Description: "Specifies the attribute containing the DN of another entry from which to obtain the source attribute providing the values for this virtual attribute.",
@@ -371,6 +407,48 @@ func readMirrorVirtualAttributeResponseDataSource(ctx context.Context, r *client
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 }
 
+// Read a EntryChecksumVirtualAttributeResponse object into the model struct
+func readEntryChecksumVirtualAttributeResponseDataSource(ctx context.Context, r *client.EntryChecksumVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("entry-checksum")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.ExcludeOperationalAttributes = internaltypes.BoolTypeOrNil(r.ExcludeOperationalAttributes)
+	state.ExcludedAttribute = internaltypes.GetStringSet(r.ExcludedAttribute)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
+// Read a MemberOfServerGroupVirtualAttributeResponse object into the model struct
+func readMemberOfServerGroupVirtualAttributeResponseDataSource(ctx context.Context, r *client.MemberOfServerGroupVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("member-of-server-group")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
 // Read a ConstructedVirtualAttributeResponse object into the model struct
 func readConstructedVirtualAttributeResponseDataSource(ctx context.Context, r *client.ConstructedVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("constructed")
@@ -403,6 +481,46 @@ func readIsMemberOfVirtualAttributeResponseDataSource(ctx context.Context, r *cl
 	state.IncludedGroupFilter = internaltypes.StringTypeOrNil(r.IncludedGroupFilter, false)
 	state.RewriteSearchFilters = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeRewriteSearchFiltersProp(r.RewriteSearchFilters), false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
+// Read a CustomVirtualAttributeResponse object into the model struct
+func readCustomVirtualAttributeResponseDataSource(ctx context.Context, r *client.CustomVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("custom")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
+// Read a NumSubordinatesVirtualAttributeResponse object into the model struct
+func readNumSubordinatesVirtualAttributeResponseDataSource(ctx context.Context, r *client.NumSubordinatesVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("num-subordinates")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -487,9 +605,69 @@ func readUserDefinedVirtualAttributeResponseDataSource(ctx context.Context, r *c
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 }
 
+// Read a CurrentTimeVirtualAttributeResponse object into the model struct
+func readCurrentTimeVirtualAttributeResponseDataSource(ctx context.Context, r *client.CurrentTimeVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("current-time")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.ReturnUtcTime = internaltypes.BoolTypeOrNil(r.ReturnUtcTime)
+	state.IncludeMilliseconds = internaltypes.BoolTypeOrNil(r.IncludeMilliseconds)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
+// Read a ShortUniqueIdVirtualAttributeResponse object into the model struct
+func readShortUniqueIdVirtualAttributeResponseDataSource(ctx context.Context, r *client.ShortUniqueIdVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("short-unique-id")
+	state.Id = types.StringValue(r.Id)
+	state.SequenceNumberAttribute = types.StringValue(r.SequenceNumberAttribute)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
 // Read a EntryDnVirtualAttributeResponse object into the model struct
 func readEntryDnVirtualAttributeResponseDataSource(ctx context.Context, r *client.EntryDnVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("entry-dn")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
+// Read a HasSubordinatesVirtualAttributeResponse object into the model struct
+func readHasSubordinatesVirtualAttributeResponseDataSource(ctx context.Context, r *client.HasSubordinatesVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("has-subordinates")
 	state.Id = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
@@ -559,6 +737,34 @@ func readGroovyScriptedVirtualAttributeResponseDataSource(ctx context.Context, r
 	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 }
 
+// Read a InstanceNameVirtualAttributeResponse object into the model struct
+func readInstanceNameVirtualAttributeResponseDataSource(ctx context.Context, r *client.InstanceNameVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("instance-name")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
+}
+
+// Read a ReplicationStateDetailVirtualAttributeResponse object into the model struct
+func readReplicationStateDetailVirtualAttributeResponseDataSource(ctx context.Context, r *client.ReplicationStateDetailVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-state-detail")
+	state.Id = types.StringValue(r.Id)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+}
+
 // Read a MemberVirtualAttributeResponse object into the model struct
 func readMemberVirtualAttributeResponseDataSource(ctx context.Context, r *client.MemberVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("member")
@@ -592,6 +798,26 @@ func readPasswordPolicyStateJsonVirtualAttributeResponseDataSource(ctx context.C
 	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+}
+
+// Read a SubschemaSubentryVirtualAttributeResponse object into the model struct
+func readSubschemaSubentryVirtualAttributeResponseDataSource(ctx context.Context, r *client.SubschemaSubentryVirtualAttributeResponse, state *virtualAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("subschema-subentry")
+	state.Id = types.StringValue(r.Id)
+	state.ConflictBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), false)
+	state.AttributeType = types.StringValue(r.AttributeType)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
+	state.GroupDN = internaltypes.GetStringSet(r.GroupDN)
+	state.Filter = internaltypes.GetStringSet(r.Filter)
+	state.ClientConnectionPolicy = internaltypes.GetStringSet(r.ClientConnectionPolicy)
+	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
+	state.MultipleVirtualAttributeEvaluationOrderIndex = internaltypes.Int64TypeOrNil(r.MultipleVirtualAttributeEvaluationOrderIndex)
+	state.MultipleVirtualAttributeMergeBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumvirtualAttributeMultipleVirtualAttributeMergeBehaviorProp(r.MultipleVirtualAttributeMergeBehavior), false)
+	state.AllowIndexConflicts = internaltypes.BoolTypeOrNil(r.AllowIndexConflicts)
 }
 
 // Read a DnJoinVirtualAttributeResponse object into the model struct
@@ -671,11 +897,23 @@ func (r *virtualAttributeDataSource) Read(ctx context.Context, req datasource.Re
 	if readResponse.MirrorVirtualAttributeResponse != nil {
 		readMirrorVirtualAttributeResponseDataSource(ctx, readResponse.MirrorVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.EntryChecksumVirtualAttributeResponse != nil {
+		readEntryChecksumVirtualAttributeResponseDataSource(ctx, readResponse.EntryChecksumVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.MemberOfServerGroupVirtualAttributeResponse != nil {
+		readMemberOfServerGroupVirtualAttributeResponseDataSource(ctx, readResponse.MemberOfServerGroupVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.ConstructedVirtualAttributeResponse != nil {
 		readConstructedVirtualAttributeResponseDataSource(ctx, readResponse.ConstructedVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.IsMemberOfVirtualAttributeResponse != nil {
 		readIsMemberOfVirtualAttributeResponseDataSource(ctx, readResponse.IsMemberOfVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.CustomVirtualAttributeResponse != nil {
+		readCustomVirtualAttributeResponseDataSource(ctx, readResponse.CustomVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.NumSubordinatesVirtualAttributeResponse != nil {
+		readNumSubordinatesVirtualAttributeResponseDataSource(ctx, readResponse.NumSubordinatesVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.ReverseDnJoinVirtualAttributeResponse != nil {
 		readReverseDnJoinVirtualAttributeResponseDataSource(ctx, readResponse.ReverseDnJoinVirtualAttributeResponse, &state, &resp.Diagnostics)
@@ -686,8 +924,17 @@ func (r *virtualAttributeDataSource) Read(ctx context.Context, req datasource.Re
 	if readResponse.UserDefinedVirtualAttributeResponse != nil {
 		readUserDefinedVirtualAttributeResponseDataSource(ctx, readResponse.UserDefinedVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.CurrentTimeVirtualAttributeResponse != nil {
+		readCurrentTimeVirtualAttributeResponseDataSource(ctx, readResponse.CurrentTimeVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ShortUniqueIdVirtualAttributeResponse != nil {
+		readShortUniqueIdVirtualAttributeResponseDataSource(ctx, readResponse.ShortUniqueIdVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.EntryDnVirtualAttributeResponse != nil {
 		readEntryDnVirtualAttributeResponseDataSource(ctx, readResponse.EntryDnVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.HasSubordinatesVirtualAttributeResponse != nil {
+		readHasSubordinatesVirtualAttributeResponseDataSource(ctx, readResponse.HasSubordinatesVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.EqualityJoinVirtualAttributeResponse != nil {
 		readEqualityJoinVirtualAttributeResponseDataSource(ctx, readResponse.EqualityJoinVirtualAttributeResponse, &state, &resp.Diagnostics)
@@ -695,11 +942,20 @@ func (r *virtualAttributeDataSource) Read(ctx context.Context, req datasource.Re
 	if readResponse.GroovyScriptedVirtualAttributeResponse != nil {
 		readGroovyScriptedVirtualAttributeResponseDataSource(ctx, readResponse.GroovyScriptedVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.InstanceNameVirtualAttributeResponse != nil {
+		readInstanceNameVirtualAttributeResponseDataSource(ctx, readResponse.InstanceNameVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ReplicationStateDetailVirtualAttributeResponse != nil {
+		readReplicationStateDetailVirtualAttributeResponseDataSource(ctx, readResponse.ReplicationStateDetailVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.MemberVirtualAttributeResponse != nil {
 		readMemberVirtualAttributeResponseDataSource(ctx, readResponse.MemberVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.PasswordPolicyStateJsonVirtualAttributeResponse != nil {
 		readPasswordPolicyStateJsonVirtualAttributeResponseDataSource(ctx, readResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.SubschemaSubentryVirtualAttributeResponse != nil {
+		readSubschemaSubentryVirtualAttributeResponseDataSource(ctx, readResponse.SubschemaSubentryVirtualAttributeResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.DnJoinVirtualAttributeResponse != nil {
 		readDnJoinVirtualAttributeResponseDataSource(ctx, readResponse.DnJoinVirtualAttributeResponse, &state, &resp.Diagnostics)

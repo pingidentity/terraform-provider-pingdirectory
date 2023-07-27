@@ -51,8 +51,12 @@ type extendedOperationHandlerDataSourceModel struct {
 	Type                                  types.String `tfsdk:"type"`
 	ExtensionClass                        types.String `tfsdk:"extension_class"`
 	ExtensionArgument                     types.Set    `tfsdk:"extension_argument"`
+	DefaultPasswordPolicy                 types.String `tfsdk:"default_password_policy"`
 	DefaultTokenDeliveryMechanism         types.Set    `tfsdk:"default_token_delivery_mechanism"`
 	PasswordResetTokenValidityDuration    types.String `tfsdk:"password_reset_token_validity_duration"`
+	DefaultPasswordGenerator              types.String `tfsdk:"default_password_generator"`
+	MaximumPasswordsPerRequest            types.Int64  `tfsdk:"maximum_passwords_per_request"`
+	MaximumValidationAttemptsPerPassword  types.Int64  `tfsdk:"maximum_validation_attempts_per_password"`
 	PasswordGenerator                     types.String `tfsdk:"password_generator"`
 	DefaultOTPDeliveryMechanism           types.Set    `tfsdk:"default_otp_delivery_mechanism"`
 	DefaultSingleUseTokenValidityDuration types.String `tfsdk:"default_single_use_token_validity_duration"`
@@ -97,6 +101,12 @@ func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req dat
 				Computed:    true,
 				ElementType: types.StringType,
 			},
+			"default_password_policy": schema.StringAttribute{
+				Description: "The default password policy that should be used when generating and validating passwords if the request does not specify an alternate policy. If this is not provided, then this Generate Password Extended Operation Handler will use the default password policy defined in the global configuration.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"default_token_delivery_mechanism": schema.SetAttribute{
 				Description: "The set of delivery mechanisms that may be used to deliver password reset tokens to users for requests that do not specify one or more preferred delivery mechanisms.",
 				Required:    false,
@@ -106,6 +116,24 @@ func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req dat
 			},
 			"password_reset_token_validity_duration": schema.StringAttribute{
 				Description: "The maximum length of time that a password reset token should be considered valid.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"default_password_generator": schema.StringAttribute{
+				Description: "The default password generator that will be used if the selected password policy is not configured with a password generator.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_passwords_per_request": schema.Int64Attribute{
+				Description: "The maximum number of passwords that may be generated and returned to the client for a single request.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"maximum_validation_attempts_per_password": schema.Int64Attribute{
+				Description: "The maximum number of attempts that the server may use to generate a password that passes validation.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -200,6 +228,14 @@ func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req dat
 	}
 }
 
+// Read a CancelExtendedOperationHandlerResponse object into the model struct
+func readCancelExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.CancelExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("cancel")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a ValidateTotpPasswordExtendedOperationHandlerResponse object into the model struct
 func readValidateTotpPasswordExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.ValidateTotpPasswordExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("validate-totp-password")
@@ -225,6 +261,47 @@ func readReplaceCertificateExtendedOperationHandlerResponseDataSource(ctx contex
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
+// Read a GetConnectionIdExtendedOperationHandlerResponse object into the model struct
+func readGetConnectionIdExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetConnectionIdExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("get-connection-id")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a MultiUpdateExtendedOperationHandlerResponse object into the model struct
+func readMultiUpdateExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.MultiUpdateExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("multi-update")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a NotificationSubscriptionExtendedOperationHandlerResponse object into the model struct
+func readNotificationSubscriptionExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.NotificationSubscriptionExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("notification-subscription")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a PasswordModifyExtendedOperationHandlerResponse object into the model struct
+func readPasswordModifyExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.PasswordModifyExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("password-modify")
+	state.Id = types.StringValue(r.Id)
+	state.IdentityMapper = types.StringValue(r.IdentityMapper)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a CustomExtendedOperationHandlerResponse object into the model struct
+func readCustomExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.CustomExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("custom")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a CollectSupportDataExtendedOperationHandlerResponse object into the model struct
 func readCollectSupportDataExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.CollectSupportDataExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("collect-support-data")
@@ -241,6 +318,30 @@ func readExportReversiblePasswordsExtendedOperationHandlerResponseDataSource(ctx
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
+// Read a BatchedTransactionsExtendedOperationHandlerResponse object into the model struct
+func readBatchedTransactionsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.BatchedTransactionsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("batched-transactions")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a GetChangelogBatchExtendedOperationHandlerResponse object into the model struct
+func readGetChangelogBatchExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetChangelogBatchExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("get-changelog-batch")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse object into the model struct
+func readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("get-supported-otp-delivery-mechanisms")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a SingleUseTokensExtendedOperationHandlerResponse object into the model struct
 func readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.SingleUseTokensExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("single-use-tokens")
@@ -252,6 +353,34 @@ func readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx context.C
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
+// Read a GeneratePasswordExtendedOperationHandlerResponse object into the model struct
+func readGeneratePasswordExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GeneratePasswordExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("generate-password")
+	state.Id = types.StringValue(r.Id)
+	state.DefaultPasswordPolicy = internaltypes.StringTypeOrNil(r.DefaultPasswordPolicy, false)
+	state.DefaultPasswordGenerator = types.StringValue(r.DefaultPasswordGenerator)
+	state.MaximumPasswordsPerRequest = internaltypes.Int64TypeOrNil(r.MaximumPasswordsPerRequest)
+	state.MaximumValidationAttemptsPerPassword = internaltypes.Int64TypeOrNil(r.MaximumValidationAttemptsPerPassword)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a WhoAmIExtendedOperationHandlerResponse object into the model struct
+func readWhoAmIExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.WhoAmIExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("who-am-i")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a StartTlsExtendedOperationHandlerResponse object into the model struct
+func readStartTlsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.StartTlsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("start-tls")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a DeliverPasswordResetTokenExtendedOperationHandlerResponse object into the model struct
 func readDeliverPasswordResetTokenExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.DeliverPasswordResetTokenExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("deliver-password-reset-token")
@@ -259,6 +388,22 @@ func readDeliverPasswordResetTokenExtendedOperationHandlerResponseDataSource(ctx
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultTokenDeliveryMechanism = internaltypes.GetStringSet(r.DefaultTokenDeliveryMechanism)
 	state.PasswordResetTokenValidityDuration = types.StringValue(r.PasswordResetTokenValidityDuration)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a PasswordPolicyStateExtendedOperationHandlerResponse object into the model struct
+func readPasswordPolicyStateExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.PasswordPolicyStateExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("password-policy-state")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a GetPasswordQualityRequirementsExtendedOperationHandlerResponse object into the model struct
+func readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("get-password-quality-requirements")
+	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -308,11 +453,29 @@ func (r *extendedOperationHandlerDataSource) Read(ctx context.Context, req datas
 	}
 
 	// Read the response into the state
+	if readResponse.CancelExtendedOperationHandlerResponse != nil {
+		readCancelExtendedOperationHandlerResponseDataSource(ctx, readResponse.CancelExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.ValidateTotpPasswordExtendedOperationHandlerResponse != nil {
 		readValidateTotpPasswordExtendedOperationHandlerResponseDataSource(ctx, readResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.ReplaceCertificateExtendedOperationHandlerResponse != nil {
 		readReplaceCertificateExtendedOperationHandlerResponseDataSource(ctx, readResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GetConnectionIdExtendedOperationHandlerResponse != nil {
+		readGetConnectionIdExtendedOperationHandlerResponseDataSource(ctx, readResponse.GetConnectionIdExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.MultiUpdateExtendedOperationHandlerResponse != nil {
+		readMultiUpdateExtendedOperationHandlerResponseDataSource(ctx, readResponse.MultiUpdateExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.NotificationSubscriptionExtendedOperationHandlerResponse != nil {
+		readNotificationSubscriptionExtendedOperationHandlerResponseDataSource(ctx, readResponse.NotificationSubscriptionExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.PasswordModifyExtendedOperationHandlerResponse != nil {
+		readPasswordModifyExtendedOperationHandlerResponseDataSource(ctx, readResponse.PasswordModifyExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.CustomExtendedOperationHandlerResponse != nil {
+		readCustomExtendedOperationHandlerResponseDataSource(ctx, readResponse.CustomExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.CollectSupportDataExtendedOperationHandlerResponse != nil {
 		readCollectSupportDataExtendedOperationHandlerResponseDataSource(ctx, readResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
@@ -320,11 +483,35 @@ func (r *extendedOperationHandlerDataSource) Read(ctx context.Context, req datas
 	if readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 		readExportReversiblePasswordsExtendedOperationHandlerResponseDataSource(ctx, readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.BatchedTransactionsExtendedOperationHandlerResponse != nil {
+		readBatchedTransactionsExtendedOperationHandlerResponseDataSource(ctx, readResponse.BatchedTransactionsExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GetChangelogBatchExtendedOperationHandlerResponse != nil {
+		readGetChangelogBatchExtendedOperationHandlerResponseDataSource(ctx, readResponse.GetChangelogBatchExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
+		readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDataSource(ctx, readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 		readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.GeneratePasswordExtendedOperationHandlerResponse != nil {
+		readGeneratePasswordExtendedOperationHandlerResponseDataSource(ctx, readResponse.GeneratePasswordExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.WhoAmIExtendedOperationHandlerResponse != nil {
+		readWhoAmIExtendedOperationHandlerResponseDataSource(ctx, readResponse.WhoAmIExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.StartTlsExtendedOperationHandlerResponse != nil {
+		readStartTlsExtendedOperationHandlerResponseDataSource(ctx, readResponse.StartTlsExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse != nil {
 		readDeliverPasswordResetTokenExtendedOperationHandlerResponseDataSource(ctx, readResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.PasswordPolicyStateExtendedOperationHandlerResponse != nil {
+		readPasswordPolicyStateExtendedOperationHandlerResponseDataSource(ctx, readResponse.PasswordPolicyStateExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse != nil {
+		readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDataSource(ctx, readResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.DeliverOtpExtendedOperationHandlerResponse != nil {
 		readDeliverOtpExtendedOperationHandlerResponseDataSource(ctx, readResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &resp.Diagnostics)

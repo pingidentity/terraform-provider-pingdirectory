@@ -54,11 +54,14 @@ type pluginDataSourceModel struct {
 	MultipleAttributeBehavior                            types.String `tfsdk:"multiple_attribute_behavior"`
 	ScriptClass                                          types.String `tfsdk:"script_class"`
 	PreventConflictsWithSoftDeletedEntries               types.Bool   `tfsdk:"prevent_conflicts_with_soft_deleted_entries"`
+	ProfileSampleInterval                                types.String `tfsdk:"profile_sample_interval"`
+	ExcludeAttribute                                     types.Set    `tfsdk:"exclude_attribute"`
 	UpdateInterval                                       types.String `tfsdk:"update_interval"`
 	ScriptArgument                                       types.Set    `tfsdk:"script_argument"`
 	Delay                                                types.String `tfsdk:"delay"`
 	SourceAttribute                                      types.String `tfsdk:"source_attribute"`
 	TargetAttribute                                      types.String `tfsdk:"target_attribute"`
+	ProfileDirectory                                     types.String `tfsdk:"profile_directory"`
 	ValuePattern                                         types.Set    `tfsdk:"value_pattern"`
 	MultipleValuePatternBehavior                         types.String `tfsdk:"multiple_value_pattern_behavior"`
 	MultiValuedAttributeBehavior                         types.String `tfsdk:"multi_valued_attribute_behavior"`
@@ -72,7 +75,11 @@ type pluginDataSourceModel struct {
 	ExcludeFilter                                        types.Set    `tfsdk:"exclude_filter"`
 	UpdatedEntryNewlyMatchesCriteriaBehavior             types.String `tfsdk:"updated_entry_newly_matches_criteria_behavior"`
 	UpdatedEntryNoLongerMatchesCriteriaBehavior          types.String `tfsdk:"updated_entry_no_longer_matches_criteria_behavior"`
+	EnableProfilingOnStartup                             types.Bool   `tfsdk:"enable_profiling_on_startup"`
+	ProfileAction                                        types.String `tfsdk:"profile_action"`
 	ContextName                                          types.String `tfsdk:"context_name"`
+	DefaultUserPasswordStorageScheme                     types.Set    `tfsdk:"default_user_password_storage_scheme"`
+	DefaultAuthPasswordStorageScheme                     types.Set    `tfsdk:"default_auth_password_storage_scheme"`
 	AllowedRequestControl                                types.Set    `tfsdk:"allowed_request_control"`
 	AgentxAddress                                        types.String `tfsdk:"agentx_address"`
 	AgentxPort                                           types.Int64  `tfsdk:"agentx_port"`
@@ -86,10 +93,13 @@ type pluginDataSourceModel struct {
 	TargetDN                                             types.String `tfsdk:"target_dn"`
 	EnableAttributeMapping                               types.Bool   `tfsdk:"enable_attribute_mapping"`
 	MapAttribute                                         types.Set    `tfsdk:"map_attribute"`
+	RetainFilesSparselyByAge                             types.Bool   `tfsdk:"retain_files_sparsely_by_age"`
+	Sanitize                                             types.Bool   `tfsdk:"sanitize"`
 	EnableControlMapping                                 types.Bool   `tfsdk:"enable_control_mapping"`
 	AlwaysMapResponses                                   types.Bool   `tfsdk:"always_map_responses"`
 	Server                                               types.Set    `tfsdk:"server"`
 	ExtensionArgument                                    types.Set    `tfsdk:"extension_argument"`
+	EncryptionSettingsDefinitionID                       types.String `tfsdk:"encryption_settings_definition_id"`
 	DatetimeAttribute                                    types.String `tfsdk:"datetime_attribute"`
 	DatetimeJSONField                                    types.String `tfsdk:"datetime_json_field"`
 	ServerAccessMode                                     types.String `tfsdk:"server_access_mode"`
@@ -106,6 +116,7 @@ type pluginDataSourceModel struct {
 	ExpirationOffset                                     types.String `tfsdk:"expiration_offset"`
 	PurgeBehavior                                        types.String `tfsdk:"purge_behavior"`
 	LogInterval                                          types.String `tfsdk:"log_interval"`
+	ChangelogPasswordEncryptionKey                       types.String `tfsdk:"changelog_password_encryption_key"`
 	SuppressIfIdle                                       types.Bool   `tfsdk:"suppress_if_idle"`
 	HeaderPrefixPerColumn                                types.Bool   `tfsdk:"header_prefix_per_column"`
 	EmptyInsteadOfZero                                   types.Bool   `tfsdk:"empty_instead_of_zero"`
@@ -115,6 +126,7 @@ type pluginDataSourceModel struct {
 	HistogramFormat                                      types.String `tfsdk:"histogram_format"`
 	HistogramOpType                                      types.Set    `tfsdk:"histogram_op_type"`
 	Scope                                                types.String `tfsdk:"scope"`
+	HistogramCategoryBoundary                            types.Set    `tfsdk:"histogram_category_boundary"`
 	IncludeAttribute                                     types.Set    `tfsdk:"include_attribute"`
 	GaugeInfo                                            types.String `tfsdk:"gauge_info"`
 	LogFileFormat                                        types.String `tfsdk:"log_file_format"`
@@ -127,6 +139,9 @@ type pluginDataSourceModel struct {
 	LoggingErrorBehavior                                 types.String `tfsdk:"logging_error_behavior"`
 	OutputFile                                           types.String `tfsdk:"output_file"`
 	PreviousFileExtension                                types.String `tfsdk:"previous_file_extension"`
+	IncludeQueueTime                                     types.Bool   `tfsdk:"include_queue_time"`
+	SeparateMonitorEntryPerTrackedApplication            types.Bool   `tfsdk:"separate_monitor_entry_per_tracked_application"`
+	ChangelogPasswordEncryptionKeyPassphraseProvider     types.String `tfsdk:"changelog_password_encryption_key_passphrase_provider"`
 	ApiURL                                               types.String `tfsdk:"api_url"`
 	AuthURL                                              types.String `tfsdk:"auth_url"`
 	OAuthClientID                                        types.String `tfsdk:"oauth_client_id"`
@@ -162,15 +177,23 @@ type pluginDataSourceModel struct {
 	UpperBound                                           types.Int64  `tfsdk:"upper_bound"`
 	FilterPrefix                                         types.String `tfsdk:"filter_prefix"`
 	FilterSuffix                                         types.String `tfsdk:"filter_suffix"`
+	SampleInterval                                       types.String `tfsdk:"sample_interval"`
 	CollectionInterval                                   types.String `tfsdk:"collection_interval"`
+	LdapInfo                                             types.String `tfsdk:"ldap_info"`
+	ServerInfo                                           types.String `tfsdk:"server_info"`
 	PerApplicationLDAPStats                              types.String `tfsdk:"per_application_ldap_stats"`
 	LdapChangelogInfo                                    types.String `tfsdk:"ldap_changelog_info"`
 	StatusSummaryInfo                                    types.String `tfsdk:"status_summary_info"`
+	GenerateCollectorFiles                               types.Bool   `tfsdk:"generate_collector_files"`
 	LocalDBBackendInfo                                   types.String `tfsdk:"local_db_backend_info"`
 	ReplicationInfo                                      types.String `tfsdk:"replication_info"`
 	EntryCacheInfo                                       types.String `tfsdk:"entry_cache_info"`
 	HostInfo                                             types.Set    `tfsdk:"host_info"`
 	IncludedLDAPApplication                              types.Set    `tfsdk:"included_ldap_application"`
+	MaxUpdateFrequency                                   types.String `tfsdk:"max_update_frequency"`
+	OperationType                                        types.Set    `tfsdk:"operation_type"`
+	InvokeForFailedBinds                                 types.Bool   `tfsdk:"invoke_for_failed_binds"`
+	MaxSearchResultEntriesToUpdate                       types.Int64  `tfsdk:"max_search_result_entries_to_update"`
 	RequestCriteria                                      types.String `tfsdk:"request_criteria"`
 	InvokeForInternalOperations                          types.Bool   `tfsdk:"invoke_for_internal_operations"`
 	Description                                          types.String `tfsdk:"description"`
@@ -223,6 +246,19 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"profile_sample_interval": schema.StringAttribute{
+				Description: "Specifies the sample interval in milliseconds to be used when capturing profiling information in the server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"exclude_attribute": schema.SetAttribute{
+				Description: "Specifies the name or OID of an attribute type which may be updated in a modify or modify DN operation without causing the modifiersName and modifyTimestamp values to be updated for that entry.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
 			"update_interval": schema.StringAttribute{
 				Description: "Specifies the interval in seconds when referential integrity updates are made.",
 				Required:    false,
@@ -250,6 +286,12 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"target_attribute": schema.StringAttribute{
 				Description: "Specifies the target attribute type to which the source attribute type should be mapped. Note that the target attribute type must be defined in the server schema and must not be equal to the source attribute type.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"profile_directory": schema.StringAttribute{
+				Description: "Specifies the path to the directory where profile information is to be written. This path may be either an absolute path or a path that is relative to the root of the Directory Server instance.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -337,11 +379,37 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"enable_profiling_on_startup": schema.BoolAttribute{
+				Description: "Indicates whether the profiler plug-in is to start collecting data automatically when the Directory Server is started.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"profile_action": schema.StringAttribute{
+				Description: "Specifies the action that should be taken by the profiler.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"context_name": schema.StringAttribute{
 				Description: "The SNMP context name for this sub-agent. The context name must not be longer than 30 ASCII characters. Each server in a topology must have a unique SNMP context name.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
+			},
+			"default_user_password_storage_scheme": schema.SetAttribute{
+				Description: "Specifies the names of the password storage schemes to be used for encoding passwords contained in attributes with the user password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy is to be used to govern them.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"default_auth_password_storage_scheme": schema.SetAttribute{
+				Description: "Specifies the names of password storage schemes that to be used for encoding passwords contained in attributes with the auth password syntax for entries that do not include the ds-pwp-password-policy-dn attribute specifying which password policy should be used to govern them.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"allowed_request_control": schema.SetAttribute{
 				Description: "Specifies the OIDs of the controls that are allowed to be present in operations to coalesce. These controls are passed through when the request is validated, but they will not be included when the background thread applies the coalesced modify requests.",
@@ -424,6 +492,18 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:    true,
 				ElementType: types.StringType,
 			},
+			"retain_files_sparsely_by_age": schema.BoolAttribute{
+				Description: "Retain some older files to give greater perspective on how monitoring information has changed over time.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"sanitize": schema.BoolAttribute{
+				Description: "Server monitoring data can include a small amount of personally identifiable information in the form of LDAP DNs and search filters. Setting this property to true will redact this information from the monitor files. This should only be used when necessary, as it reduces the information available in the archive and can increase the time to find the source of support issues.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"enable_control_mapping": schema.BoolAttribute{
 				Description: "Indicates whether DN mapping should be applied to DNs that may be present in specific controls. DN mapping will only be applied for control types which are specifically supported by the DN mapper plugin.",
 				Required:    false,
@@ -449,6 +529,12 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 				ElementType: types.StringType,
+			},
+			"encryption_settings_definition_id": schema.StringAttribute{
+				Description: "Specifies the ID of the encryption settings definition that should be used to encrypt the data. If this is not provided, the server's preferred encryption settings definition will be used. The \"encryption-settings list\" command can be used to obtain a list of the encryption settings definitions available in the server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
 			},
 			"datetime_attribute": schema.StringAttribute{
 				Description: "The LDAP attribute that determines when data should be deleted. This could store the expiration time, or it could store the creation time and the expiration-offset property specifies the duration before data is deleted.",
@@ -547,6 +633,13 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"changelog_password_encryption_key": schema.StringAttribute{
+				Description: "A passphrase that may be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				Sensitive:   true,
+			},
 			"suppress_if_idle": schema.BoolAttribute{
 				Description: "If the server is idle during the specified interval, then do not log any output if this property is set to true. The server is idle if during the interval, no new connections were established, no operations were processed, and no operations are pending.",
 				Required:    false,
@@ -603,6 +696,13 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
+			},
+			"histogram_category_boundary": schema.SetAttribute{
+				Description: "Specifies the boundary values that will be used to separate the processing times into categories. Values should be specified as durations, and all values must be greater than zero.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
 			},
 			"include_attribute": schema.SetAttribute{
 				Description: "The name of an attribute that should be included in the results. This may include any token which is allowed as a requested attribute in search requests, including the name of an attribute, an asterisk (to indicate all user attributes), a plus sign (to indicate all operational attributes), an object class name preceded with an at symbol (to indicate all attributes associated with that object class), an attribute name preceded by a caret (to indicate that attribute should be excluded), or an object class name preceded by a caret and an at symbol (to indicate that all attributes associated with that object class should be excluded).",
@@ -676,6 +776,24 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"previous_file_extension": schema.StringAttribute{
 				Description: "An extension that should be appended to the name of an existing output file rather than deleting it. If a file already exists with the full previous file name, then it will be deleted before the current file is renamed to become the previous file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"include_queue_time": schema.BoolAttribute{
+				Description: "Indicates whether operation processing times should include the time spent waiting on the work queue. This will only be available if the work queue is configured to monitor the queue time.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"separate_monitor_entry_per_tracked_application": schema.BoolAttribute{
+				Description: "When enabled, separate monitor entries will be included for each application defined in the Global Configuration's tracked-application property.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"changelog_password_encryption_key_passphrase_provider": schema.StringAttribute{
+				Description: "A passphrase provider that may be used to obtain the passphrase that will be used to generate the key for encrypting passwords stored in the changelog. The same passphrase also needs to be set (either through the \"changelog-password-decryption-key\" property or the \"changelog-password-decryption-key-passphrase-provider\" property) in the Global Sync Configuration in the Data Sync Server.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -901,8 +1019,26 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Optional:    false,
 				Computed:    true,
 			},
+			"sample_interval": schema.StringAttribute{
+				Description: "The duration between statistics collections. Setting this value too small can have an impact on performance. This value should be a multiple of collection-interval.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"collection_interval": schema.StringAttribute{
 				Description: "Some of the calculated statistics, such as the average and maximum queue sizes, can use multiple samples within a log interval. This value controls how often samples are gathered, and setting this value too small can have an adverse impact on performance.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"ldap_info": schema.StringAttribute{
+				Description: "Specifies the level of detail to include about the LDAP connection handlers.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"server_info": schema.StringAttribute{
+				Description: "Specifies whether statistics related to resource utilization such as JVM memory and CPU/Network/Disk utilization.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -921,6 +1057,12 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"status_summary_info": schema.StringAttribute{
 				Description: "Specifies the level of detail to include about the status summary monitor entry.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"generate_collector_files": schema.BoolAttribute{
+				Description: "Indicates whether this plugin should store metric samples on disk for use by the Data Metrics Server. If the Stats Collector Plugin is only being used to collect metrics for one or more StatsD Monitoring Endpoints, then this can be set to false to prevent unnecessary I/O.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -957,6 +1099,31 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Computed:    true,
 				ElementType: types.StringType,
 			},
+			"max_update_frequency": schema.StringAttribute{
+				Description: "Specifies the maximum frequency with which last access time values should be written for an entry. This may help limit the rate of internal write operations processed in the server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"operation_type": schema.SetAttribute{
+				Description: "Specifies the types of operations that should result in access time updates.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				ElementType: types.StringType,
+			},
+			"invoke_for_failed_binds": schema.BoolAttribute{
+				Description: "Indicates whether to update the last access time for an entry targeted by a bind operation if the bind is unsuccessful.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"max_search_result_entries_to_update": schema.Int64Attribute{
+				Description: "Specifies the maximum number of entries that should be updated in a search operation. Only search result entries actually returned to the client may have their last access time updated, but because a single search operation may return a very large number of entries, the plugin will only update entries if no more than a specified number of entries are updated.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"request_criteria": schema.StringAttribute{
 				Description: "Specifies a set of request criteria that may be used to indicate whether to apply access time updates for the associated operation.",
 				Required:    false,
@@ -983,6 +1150,51 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 		},
 	}
+}
+
+// Read a LastAccessTimePluginResponse object into the model struct
+func readLastAccessTimePluginResponseDataSource(ctx context.Context, r *client.LastAccessTimePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("last-access-time")
+	state.Id = types.StringValue(r.Id)
+	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, false)
+	state.OperationType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginOperationTypeProp(r.OperationType))
+	state.InvokeForFailedBinds = internaltypes.BoolTypeOrNil(r.InvokeForFailedBinds)
+	state.MaxSearchResultEntriesToUpdate = internaltypes.Int64TypeOrNil(r.MaxSearchResultEntriesToUpdate)
+	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a StatsCollectorPluginResponse object into the model struct
+func readStatsCollectorPluginResponseDataSource(ctx context.Context, r *client.StatsCollectorPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("stats-collector")
+	state.Id = types.StringValue(r.Id)
+	state.SampleInterval = types.StringValue(r.SampleInterval)
+	state.CollectionInterval = types.StringValue(r.CollectionInterval)
+	state.LdapInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginLdapInfoProp(r.LdapInfo), false)
+	state.ServerInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginServerInfoProp(r.ServerInfo), false)
+	state.PerApplicationLDAPStats = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginStatsCollectorPerApplicationLDAPStatsProp(r.PerApplicationLDAPStats), false)
+	state.LdapChangelogInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginLdapChangelogInfoProp(r.LdapChangelogInfo), false)
+	state.StatusSummaryInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginStatusSummaryInfoProp(r.StatusSummaryInfo), false)
+	state.GenerateCollectorFiles = internaltypes.BoolTypeOrNil(r.GenerateCollectorFiles)
+	state.LocalDBBackendInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginLocalDBBackendInfoProp(r.LocalDBBackendInfo), false)
+	state.ReplicationInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginReplicationInfoProp(r.ReplicationInfo), false)
+	state.EntryCacheInfo = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginEntryCacheInfoProp(r.EntryCacheInfo), false)
+	state.HostInfo = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginHostInfoProp(r.HostInfo))
+	state.IncludedLDAPApplication = internaltypes.GetStringSet(r.IncludedLDAPApplication)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
 }
 
 // Read a InternalSearchRatePluginResponse object into the model struct
@@ -1082,6 +1294,32 @@ func readPingOnePassThroughAuthenticationPluginResponseDataSource(ctx context.Co
 	state.UserMappingLocalAttribute = internaltypes.GetStringSet(r.UserMappingLocalAttribute)
 	state.UserMappingRemoteJSONField = internaltypes.GetStringSet(r.UserMappingRemoteJSONField)
 	state.AdditionalUserMappingSCIMFilter = internaltypes.StringTypeOrNil(r.AdditionalUserMappingSCIMFilter, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
+// Read a ChangelogPasswordEncryptionPluginResponse object into the model struct
+func readChangelogPasswordEncryptionPluginResponseDataSource(ctx context.Context, r *client.ChangelogPasswordEncryptionPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("changelog-password-encryption")
+	state.Id = types.StringValue(r.Id)
+	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, false)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
+// Read a ProcessingTimeHistogramPluginResponse object into the model struct
+func readProcessingTimeHistogramPluginResponseDataSource(ctx context.Context, r *client.ProcessingTimeHistogramPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("processing-time-histogram")
+	state.Id = types.StringValue(r.Id)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.HistogramCategoryBoundary = internaltypes.GetStringSet(r.HistogramCategoryBoundary)
+	state.IncludeQueueTime = internaltypes.BoolTypeOrNil(r.IncludeQueueTime)
+	state.SeparateMonitorEntryPerTrackedApplication = internaltypes.BoolTypeOrNil(r.SeparateMonitorEntryPerTrackedApplication)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -1187,6 +1425,17 @@ func readPurgeExpiredDataPluginResponseDataSource(ctx context.Context, r *client
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
+// Read a ChangeSubscriptionNotificationPluginResponse object into the model struct
+func readChangeSubscriptionNotificationPluginResponseDataSource(ctx context.Context, r *client.ChangeSubscriptionNotificationPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("change-subscription-notification")
+	state.Id = types.StringValue(r.Id)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
 // Read a SubOperationTimingPluginResponse object into the model struct
 func readSubOperationTimingPluginResponseDataSource(ctx context.Context, r *client.SubOperationTimingPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("sub-operation-timing")
@@ -1211,6 +1460,20 @@ func readThirdPartyPluginResponseDataSource(ctx context.Context, r *client.Third
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
+// Read a EncryptAttributeValuesPluginResponse object into the model struct
+func readEncryptAttributeValuesPluginResponseDataSource(ctx context.Context, r *client.EncryptAttributeValuesPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("encrypt-attribute-values")
+	state.Id = types.StringValue(r.Id)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.AttributeType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginAttributeTypeProp(r.AttributeType))
+	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
@@ -1257,6 +1520,22 @@ func readDnMapperPluginResponseDataSource(ctx context.Context, r *client.DnMappe
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
+// Read a MonitorHistoryPluginResponse object into the model struct
+func readMonitorHistoryPluginResponseDataSource(ctx context.Context, r *client.MonitorHistoryPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("monitor-history")
+	state.Id = types.StringValue(r.Id)
+	state.LogInterval = types.StringValue(r.LogInterval)
+	state.LogFile = types.StringValue(r.LogFile)
+	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
+	state.LoggingErrorBehavior = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginLoggingErrorBehaviorProp(r.LoggingErrorBehavior), false)
+	state.RetentionPolicy = internaltypes.GetStringSet(r.RetentionPolicy)
+	state.RetainFilesSparselyByAge = internaltypes.BoolTypeOrNil(r.RetainFilesSparselyByAge)
+	state.Sanitize = internaltypes.BoolTypeOrNil(r.Sanitize)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
 // Read a ReferralOnUpdatePluginResponse object into the model struct
 func readReferralOnUpdatePluginResponseDataSource(ctx context.Context, r *client.ReferralOnUpdatePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referral-on-update")
@@ -1278,6 +1557,17 @@ func readSimpleToExternalBindPluginResponseDataSource(ctx context.Context, r *cl
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a CustomPluginResponse object into the model struct
+func readCustomPluginResponseDataSource(ctx context.Context, r *client.CustomPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("custom")
+	state.Id = types.StringValue(r.Id)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
 // Read a SnmpSubagentPluginResponse object into the model struct
@@ -1303,6 +1593,30 @@ func readCoalesceModificationsPluginResponseDataSource(ctx context.Context, r *c
 	state.RequestCriteria = types.StringValue(r.RequestCriteria)
 	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a PasswordPolicyImportPluginResponse object into the model struct
+func readPasswordPolicyImportPluginResponseDataSource(ctx context.Context, r *client.PasswordPolicyImportPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("password-policy-import")
+	state.Id = types.StringValue(r.Id)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+	state.DefaultUserPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultUserPasswordStorageScheme)
+	state.DefaultAuthPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultAuthPasswordStorageScheme)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+}
+
+// Read a ProfilerPluginResponse object into the model struct
+func readProfilerPluginResponseDataSource(ctx context.Context, r *client.ProfilerPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("profiler")
+	state.Id = types.StringValue(r.Id)
+	state.ProfileSampleInterval = types.StringValue(r.ProfileSampleInterval)
+	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
+	state.EnableProfilingOnStartup = types.BoolValue(r.EnableProfilingOnStartup)
+	state.ProfileAction = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumpluginProfileActionProp(r.ProfileAction), false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -1354,6 +1668,17 @@ func readComposedAttributePluginResponseDataSource(ctx context.Context, r *clien
 		client.StringPointerEnumpluginUpdatedEntryNewlyMatchesCriteriaBehaviorProp(r.UpdatedEntryNewlyMatchesCriteriaBehavior), false)
 	state.UpdatedEntryNoLongerMatchesCriteriaBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpluginUpdatedEntryNoLongerMatchesCriteriaBehaviorProp(r.UpdatedEntryNoLongerMatchesCriteriaBehavior), false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
+// Read a LdapResultCodeTrackerPluginResponse object into the model struct
+func readLdapResultCodeTrackerPluginResponseDataSource(ctx context.Context, r *client.LdapResultCodeTrackerPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("ldap-result-code-tracker")
+	state.Id = types.StringValue(r.Id)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -1416,6 +1741,19 @@ func readGroovyScriptedPluginResponseDataSource(ctx context.Context, r *client.G
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
+}
+
+// Read a LastModPluginResponse object into the model struct
+func readLastModPluginResponseDataSource(ctx context.Context, r *client.LastModPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("last-mod")
+	state.Id = types.StringValue(r.Id)
+	state.PluginType = internaltypes.GetStringSet(
+		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
+	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
+	state.ExcludeAttribute = internaltypes.GetStringSet(r.ExcludeAttribute)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.Enabled = types.BoolValue(r.Enabled)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 }
 
@@ -1500,6 +1838,12 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	// Read the response into the state
+	if readResponse.LastAccessTimePluginResponse != nil {
+		readLastAccessTimePluginResponseDataSource(ctx, readResponse.LastAccessTimePluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.StatsCollectorPluginResponse != nil {
+		readStatsCollectorPluginResponseDataSource(ctx, readResponse.StatsCollectorPluginResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.InternalSearchRatePluginResponse != nil {
 		readInternalSearchRatePluginResponseDataSource(ctx, readResponse.InternalSearchRatePluginResponse, &state, &resp.Diagnostics)
 	}
@@ -1518,6 +1862,12 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	if readResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 		readPingOnePassThroughAuthenticationPluginResponseDataSource(ctx, readResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.ChangelogPasswordEncryptionPluginResponse != nil {
+		readChangelogPasswordEncryptionPluginResponseDataSource(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ProcessingTimeHistogramPluginResponse != nil {
+		readProcessingTimeHistogramPluginResponseDataSource(ctx, readResponse.ProcessingTimeHistogramPluginResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.SearchShutdownPluginResponse != nil {
 		readSearchShutdownPluginResponseDataSource(ctx, readResponse.SearchShutdownPluginResponse, &state, &resp.Diagnostics)
 	}
@@ -1527,11 +1877,17 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	if readResponse.PurgeExpiredDataPluginResponse != nil {
 		readPurgeExpiredDataPluginResponseDataSource(ctx, readResponse.PurgeExpiredDataPluginResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.ChangeSubscriptionNotificationPluginResponse != nil {
+		readChangeSubscriptionNotificationPluginResponseDataSource(ctx, readResponse.ChangeSubscriptionNotificationPluginResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.SubOperationTimingPluginResponse != nil {
 		readSubOperationTimingPluginResponseDataSource(ctx, readResponse.SubOperationTimingPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.ThirdPartyPluginResponse != nil {
 		readThirdPartyPluginResponseDataSource(ctx, readResponse.ThirdPartyPluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.EncryptAttributeValuesPluginResponse != nil {
+		readEncryptAttributeValuesPluginResponseDataSource(ctx, readResponse.EncryptAttributeValuesPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.PassThroughAuthenticationPluginResponse != nil {
 		readPassThroughAuthenticationPluginResponseDataSource(ctx, readResponse.PassThroughAuthenticationPluginResponse, &state, &resp.Diagnostics)
@@ -1539,11 +1895,17 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	if readResponse.DnMapperPluginResponse != nil {
 		readDnMapperPluginResponseDataSource(ctx, readResponse.DnMapperPluginResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.MonitorHistoryPluginResponse != nil {
+		readMonitorHistoryPluginResponseDataSource(ctx, readResponse.MonitorHistoryPluginResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.ReferralOnUpdatePluginResponse != nil {
 		readReferralOnUpdatePluginResponseDataSource(ctx, readResponse.ReferralOnUpdatePluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.SimpleToExternalBindPluginResponse != nil {
 		readSimpleToExternalBindPluginResponseDataSource(ctx, readResponse.SimpleToExternalBindPluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.CustomPluginResponse != nil {
+		readCustomPluginResponseDataSource(ctx, readResponse.CustomPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.SnmpSubagentPluginResponse != nil {
 		readSnmpSubagentPluginResponseDataSource(ctx, readResponse.SnmpSubagentPluginResponse, &state, &resp.Diagnostics)
@@ -1551,11 +1913,20 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	if readResponse.CoalesceModificationsPluginResponse != nil {
 		readCoalesceModificationsPluginResponseDataSource(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &resp.Diagnostics)
 	}
+	if readResponse.PasswordPolicyImportPluginResponse != nil {
+		readPasswordPolicyImportPluginResponseDataSource(ctx, readResponse.PasswordPolicyImportPluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.ProfilerPluginResponse != nil {
+		readProfilerPluginResponseDataSource(ctx, readResponse.ProfilerPluginResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 		readCleanUpInactivePingfederatePersistentSessionsPluginResponseDataSource(ctx, readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.ComposedAttributePluginResponse != nil {
 		readComposedAttributePluginResponseDataSource(ctx, readResponse.ComposedAttributePluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.LdapResultCodeTrackerPluginResponse != nil {
+		readLdapResultCodeTrackerPluginResponseDataSource(ctx, readResponse.LdapResultCodeTrackerPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.AttributeMapperPluginResponse != nil {
 		readAttributeMapperPluginResponseDataSource(ctx, readResponse.AttributeMapperPluginResponse, &state, &resp.Diagnostics)
@@ -1568,6 +1939,9 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	if readResponse.GroovyScriptedPluginResponse != nil {
 		readGroovyScriptedPluginResponseDataSource(ctx, readResponse.GroovyScriptedPluginResponse, &state, &resp.Diagnostics)
+	}
+	if readResponse.LastModPluginResponse != nil {
+		readLastModPluginResponseDataSource(ctx, readResponse.LastModPluginResponse, &state, &resp.Diagnostics)
 	}
 	if readResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 		readPluggablePassThroughAuthenticationPluginResponseDataSource(ctx, readResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &resp.Diagnostics)

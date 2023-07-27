@@ -47,15 +47,31 @@ func (r *webApplicationExtensionDataSource) Configure(_ context.Context, req dat
 }
 
 type webApplicationExtensionDataSourceModel struct {
-	Id                       types.String `tfsdk:"id"`
-	Type                     types.String `tfsdk:"type"`
-	Description              types.String `tfsdk:"description"`
-	BaseContextPath          types.String `tfsdk:"base_context_path"`
-	WarFile                  types.String `tfsdk:"war_file"`
-	DocumentRootDirectory    types.String `tfsdk:"document_root_directory"`
-	DeploymentDescriptorFile types.String `tfsdk:"deployment_descriptor_file"`
-	TemporaryDirectory       types.String `tfsdk:"temporary_directory"`
-	InitParameter            types.Set    `tfsdk:"init_parameter"`
+	Id                                  types.String `tfsdk:"id"`
+	Type                                types.String `tfsdk:"type"`
+	SsoEnabled                          types.Bool   `tfsdk:"sso_enabled"`
+	OidcClientID                        types.String `tfsdk:"oidc_client_id"`
+	OidcClientSecret                    types.String `tfsdk:"oidc_client_secret"`
+	OidcClientSecretPassphraseProvider  types.String `tfsdk:"oidc_client_secret_passphrase_provider"`
+	OidcIssuerURL                       types.String `tfsdk:"oidc_issuer_url"`
+	OidcTrustStoreFile                  types.String `tfsdk:"oidc_trust_store_file"`
+	OidcTrustStoreType                  types.String `tfsdk:"oidc_trust_store_type"`
+	OidcTrustStorePinPassphraseProvider types.String `tfsdk:"oidc_trust_store_pin_passphrase_provider"`
+	OidcStrictHostnameVerification      types.Bool   `tfsdk:"oidc_strict_hostname_verification"`
+	OidcTrustAll                        types.Bool   `tfsdk:"oidc_trust_all"`
+	LdapServer                          types.String `tfsdk:"ldap_server"`
+	TrustStoreFile                      types.String `tfsdk:"trust_store_file"`
+	TrustStoreType                      types.String `tfsdk:"trust_store_type"`
+	TrustStorePinPassphraseProvider     types.String `tfsdk:"trust_store_pin_passphrase_provider"`
+	LogFile                             types.String `tfsdk:"log_file"`
+	Complexity                          types.String `tfsdk:"complexity"`
+	Description                         types.String `tfsdk:"description"`
+	BaseContextPath                     types.String `tfsdk:"base_context_path"`
+	WarFile                             types.String `tfsdk:"war_file"`
+	DocumentRootDirectory               types.String `tfsdk:"document_root_directory"`
+	DeploymentDescriptorFile            types.String `tfsdk:"deployment_descriptor_file"`
+	TemporaryDirectory                  types.String `tfsdk:"temporary_directory"`
+	InitParameter                       types.Set    `tfsdk:"init_parameter"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -69,6 +85,103 @@ func (r *webApplicationExtensionDataSource) Schema(ctx context.Context, req data
 			},
 			"type": schema.StringAttribute{
 				Description: "The type of Web Application Extension resource. Options are ['console', 'generic']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"sso_enabled": schema.BoolAttribute{
+				Description: "Indicates that SSO login into the Administrative Console is enabled.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_client_id": schema.StringAttribute{
+				Description: "The client ID to use when authenticating to the OpenID Connect provider.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_client_secret": schema.StringAttribute{
+				Description: "The client secret to use when authenticating to the OpenID Connect provider.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+				Sensitive:   true,
+			},
+			"oidc_client_secret_passphrase_provider": schema.StringAttribute{
+				Description: "A passphrase provider that may be used to obtain the client secret to use when authenticating to the OpenID Connect provider.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_issuer_url": schema.StringAttribute{
+				Description: "The issuer URL of the OpenID Connect provider.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_trust_store_file": schema.StringAttribute{
+				Description: "Specifies the path to the truststore file used by this application to evaluate OIDC provider certificates. If this field is left blank, the default JVM trust store will be used.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_trust_store_type": schema.StringAttribute{
+				Description: "Specifies the format for the data in the OIDC trust store file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_trust_store_pin_passphrase_provider": schema.StringAttribute{
+				Description: "The passphrase provider that may be used to obtain the PIN for the trust store used with OIDC providers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_strict_hostname_verification": schema.BoolAttribute{
+				Description: "Controls whether or not hostname verification is performed, which checks if the hostname of the OIDC provider matches the name(s) stored inside the certificate it provides. This property should only be set to false for testing purposes.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"oidc_trust_all": schema.BoolAttribute{
+				Description: "Controls whether or not this application will always trust any certificate that is presented to it, regardless of its contents. This property should only be set to true for testing purposes.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"ldap_server": schema.StringAttribute{
+				Description: "The LDAP URL used to connect to the managed server.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"trust_store_file": schema.StringAttribute{
+				Description: "Specifies the path to the truststore file, which is used by this application to establish trust of managed servers.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"trust_store_type": schema.StringAttribute{
+				Description: "Specifies the format for the data in the trust store file.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"trust_store_pin_passphrase_provider": schema.StringAttribute{
+				Description: "The passphrase provider that may be used to obtain the PIN for the trust store used with managed LDAP servers. This is only required if a trust store file is required, and if that trust store requires a PIN to access its contents.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"log_file": schema.StringAttribute{
+				Description: "The path to the log file for the web application.",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
+			"complexity": schema.StringAttribute{
+				Description: "Specifies the maximum complexity level for managed configuration elements.",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
@@ -120,6 +233,35 @@ func (r *webApplicationExtensionDataSource) Schema(ctx context.Context, req data
 	}
 }
 
+// Read a ConsoleWebApplicationExtensionResponse object into the model struct
+func readConsoleWebApplicationExtensionResponseDataSource(ctx context.Context, r *client.ConsoleWebApplicationExtensionResponse, state *webApplicationExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("console")
+	state.Id = types.StringValue(r.Id)
+	state.SsoEnabled = internaltypes.BoolTypeOrNil(r.SsoEnabled)
+	state.OidcClientID = internaltypes.StringTypeOrNil(r.OidcClientID, false)
+	state.OidcClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcClientSecretPassphraseProvider, false)
+	state.OidcIssuerURL = internaltypes.StringTypeOrNil(r.OidcIssuerURL, false)
+	state.OidcTrustStoreFile = internaltypes.StringTypeOrNil(r.OidcTrustStoreFile, false)
+	state.OidcTrustStoreType = internaltypes.StringTypeOrNil(r.OidcTrustStoreType, false)
+	state.OidcTrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcTrustStorePinPassphraseProvider, false)
+	state.OidcStrictHostnameVerification = internaltypes.BoolTypeOrNil(r.OidcStrictHostnameVerification)
+	state.OidcTrustAll = internaltypes.BoolTypeOrNil(r.OidcTrustAll)
+	state.LdapServer = internaltypes.StringTypeOrNil(r.LdapServer, false)
+	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, false)
+	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, false)
+	state.TrustStorePinPassphraseProvider = internaltypes.StringTypeOrNil(r.TrustStorePinPassphraseProvider, false)
+	state.LogFile = internaltypes.StringTypeOrNil(r.LogFile, false)
+	state.Complexity = internaltypes.StringTypeOrNil(
+		client.StringPointerEnumwebApplicationExtensionComplexityProp(r.Complexity), false)
+	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
+	state.BaseContextPath = types.StringValue(r.BaseContextPath)
+	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, false)
+	state.DocumentRootDirectory = internaltypes.StringTypeOrNil(r.DocumentRootDirectory, false)
+	state.DeploymentDescriptorFile = internaltypes.StringTypeOrNil(r.DeploymentDescriptorFile, false)
+	state.TemporaryDirectory = internaltypes.StringTypeOrNil(r.TemporaryDirectory, false)
+	state.InitParameter = internaltypes.GetStringSet(r.InitParameter)
+}
+
 // Read a GenericWebApplicationExtensionResponse object into the model struct
 func readGenericWebApplicationExtensionResponseDataSource(ctx context.Context, r *client.GenericWebApplicationExtensionResponse, state *webApplicationExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
@@ -157,6 +299,9 @@ func (r *webApplicationExtensionDataSource) Read(ctx context.Context, req dataso
 	}
 
 	// Read the response into the state
+	if readResponse.ConsoleWebApplicationExtensionResponse != nil {
+		readConsoleWebApplicationExtensionResponseDataSource(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &resp.Diagnostics)
+	}
 	if readResponse.GenericWebApplicationExtensionResponse != nil {
 		readGenericWebApplicationExtensionResponseDataSource(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &resp.Diagnostics)
 	}
