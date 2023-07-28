@@ -11,6 +11,7 @@ import (
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/version"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -115,6 +116,14 @@ func (r *prometheusMonitorAttributeMetricDataSource) Schema(ctx context.Context,
 				ElementType: types.StringType,
 			},
 		},
+	}
+}
+
+// Validate that any version restrictions are met
+func (r *prometheusMonitorAttributeMetricDataSource) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+	if r.providerConfig.ProductVersion != "" {
+		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
+			r.providerConfig.ProductVersion, "pingdirectory_prometheus_monitor_attribute_metric")
 	}
 }
 
