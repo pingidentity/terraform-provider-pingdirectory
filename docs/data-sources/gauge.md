@@ -36,8 +36,8 @@ provider "pingdirectory" {
   product_version        = "9.3.0.0"
 }
 
-data "pingdirectory_gauge" "myGaugeDataSource" {
-  id = "CPU Usage (Percent)"
+data "pingdirectory_gauge" "myGauge" {
+  id = "MyGauge"
 }
 ```
 
