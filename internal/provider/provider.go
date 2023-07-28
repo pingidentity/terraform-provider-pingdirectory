@@ -422,6 +422,7 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 		externalserver.NewExternalServerDataSource,
 		failurelockoutaction.NewFailureLockoutActionDataSource,
 		gauge.NewGaugeDataSource,
+		gauge.NewGaugesDataSource,
 		gaugedatasource.NewGaugeDataSourceDataSource,
 		globalconfiguration.NewGlobalConfigurationDataSource,
 		groupimplementation.NewGroupImplementationDataSource,
