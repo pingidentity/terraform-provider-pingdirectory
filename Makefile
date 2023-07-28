@@ -77,7 +77,7 @@ tfproviderlint:
 									-XS002=false ./...
 
 tflint:
-	go run github.com/terraform-linters/tflint --recursive
+	go run github.com/terraform-linters/tflint --recursive --disable-rule "terraform_unused_declarations"
 
 terrafmtlint:
 	find ./internal/acctest -type f -name '*_test.go' \

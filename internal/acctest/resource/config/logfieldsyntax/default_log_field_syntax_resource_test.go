@@ -77,7 +77,7 @@ resource "pingdirectory_default_log_field_syntax" "%[1]s" {
 }
 
 data "pingdirectory_log_field_syntax" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_default_log_field_syntax.%[1]s
   ]

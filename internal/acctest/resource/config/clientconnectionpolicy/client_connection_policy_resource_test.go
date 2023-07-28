@@ -82,7 +82,7 @@ resource "pingdirectory_client_connection_policy" "%[1]s" {
 }
 
 data "pingdirectory_client_connection_policy" "%[1]s" {
-	 policy_id = "%[2]s"
+  policy_id = "%[2]s"
   depends_on = [
     pingdirectory_client_connection_policy.%[1]s
   ]

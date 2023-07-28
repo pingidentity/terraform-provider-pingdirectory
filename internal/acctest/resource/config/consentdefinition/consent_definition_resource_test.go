@@ -73,7 +73,7 @@ resource "pingdirectory_consent_definition" "%[1]s" {
 }
 
 data "pingdirectory_consent_definition" "%[1]s" {
-	 unique_id = "%[2]s"
+  unique_id = "%[2]s"
   depends_on = [
     pingdirectory_consent_definition.%[1]s
   ]

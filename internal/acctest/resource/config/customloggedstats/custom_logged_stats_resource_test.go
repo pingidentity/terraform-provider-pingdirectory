@@ -91,8 +91,8 @@ resource "pingdirectory_custom_logged_stats" "%[1]s" {
 }
 
 data "pingdirectory_custom_logged_stats" "%[1]s" {
-	 id = "%[2]s"
-	 plugin_name = "%[3]s"
+  id          = "%[2]s"
+  plugin_name = "%[3]s"
   depends_on = [
     pingdirectory_custom_logged_stats.%[1]s
   ]

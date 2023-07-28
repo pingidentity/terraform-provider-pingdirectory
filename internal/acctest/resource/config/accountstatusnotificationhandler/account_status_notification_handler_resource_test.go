@@ -98,7 +98,7 @@ resource "pingdirectory_account_status_notification_handler" "%[1]s" {
 }
 
 data "pingdirectory_account_status_notification_handler" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_account_status_notification_handler.%[1]s
   ]

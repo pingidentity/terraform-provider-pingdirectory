@@ -85,7 +85,7 @@ resource "pingdirectory_virtual_attribute" "%[1]s" {
 }
 
 data "pingdirectory_virtual_attribute" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_virtual_attribute.%[1]s
   ]

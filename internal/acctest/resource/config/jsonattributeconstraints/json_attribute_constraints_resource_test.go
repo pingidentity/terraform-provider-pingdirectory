@@ -79,7 +79,7 @@ resource "pingdirectory_json_attribute_constraints" "%[1]s" {
 }
 
 data "pingdirectory_json_attribute_constraints" "%[1]s" {
-	 attribute_type = "%[2]s"
+  attribute_type = "%[2]s"
   depends_on = [
     pingdirectory_json_attribute_constraints.%[1]s
   ]

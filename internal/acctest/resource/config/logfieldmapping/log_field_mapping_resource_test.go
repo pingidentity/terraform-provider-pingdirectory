@@ -79,7 +79,7 @@ resource "pingdirectory_log_field_mapping" "%[1]s" {
 }
 
 data "pingdirectory_log_field_mapping" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_log_field_mapping.%[1]s
   ]

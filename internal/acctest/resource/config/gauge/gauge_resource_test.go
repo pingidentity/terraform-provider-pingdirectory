@@ -80,7 +80,7 @@ resource "pingdirectory_gauge" "%[1]s" {
 }
 
 data "pingdirectory_gauge" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_gauge.%[1]s
   ]

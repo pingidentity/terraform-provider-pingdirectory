@@ -59,7 +59,7 @@ resource "pingdirectory_change_subscription" "%[1]s" {
 }
 
 data "pingdirectory_change_subscription" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_change_subscription.%[1]s
   ]

@@ -77,7 +77,7 @@ resource "pingdirectory_delegated_admin_attribute_category" "%[1]s" {
 }
 
 data "pingdirectory_delegated_admin_attribute_category" "%[1]s" {
-	 display_name = "%[2]s"
+  display_name = "%[2]s"
   depends_on = [
     pingdirectory_delegated_admin_attribute_category.%[1]s
   ]

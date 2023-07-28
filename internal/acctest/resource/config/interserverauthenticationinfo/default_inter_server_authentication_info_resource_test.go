@@ -90,9 +90,9 @@ resource "pingdirectory_default_inter_server_authentication_info" "%[1]s" {
 }
 
 data "pingdirectory_inter_server_authentication_info" "%[1]s" {
-	 id = "%[2]s"
-	 server_instance_listener_name = "%[3]s"
-	 server_instance_name = "%[4]s"
+  id                            = "%[2]s"
+  server_instance_listener_name = "%[3]s"
+  server_instance_name          = "%[4]s"
   depends_on = [
     pingdirectory_default_inter_server_authentication_info.%[1]s
   ]

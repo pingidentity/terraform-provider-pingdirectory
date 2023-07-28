@@ -66,10 +66,10 @@ resource "pingdirectory_default_access_control_handler" "%[1]s" {
 }
 
 data "pingdirectory_access_control_handler" "%[1]s" {
-	depends_on = [
-		pingdirectory_default_access_control_handler.%[1]s
-	]
-  }`, resourceName, resourceModel.enabled)
+  depends_on = [
+    pingdirectory_default_access_control_handler.%[1]s
+  ]
+}`, resourceName, resourceModel.enabled)
 }
 
 // Test that the expected attributes are set on the PingDirectory server

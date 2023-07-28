@@ -77,7 +77,7 @@ resource "pingdirectory_log_file_rotation_listener" "%[1]s" {
 }
 
 data "pingdirectory_log_file_rotation_listener" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_log_file_rotation_listener.%[1]s
   ]

@@ -88,7 +88,7 @@ resource "pingdirectory_key_manager_provider" "%[1]s" {
 }
 
 data "pingdirectory_key_manager_provider" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_key_manager_provider.%[1]s
   ]

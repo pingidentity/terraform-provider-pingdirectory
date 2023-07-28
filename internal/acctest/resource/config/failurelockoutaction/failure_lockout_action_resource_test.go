@@ -76,7 +76,7 @@ resource "pingdirectory_failure_lockout_action" "%[1]s" {
 }
 
 data "pingdirectory_failure_lockout_action" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_failure_lockout_action.%[1]s
   ]

@@ -106,8 +106,8 @@ resource "pingdirectory_local_db_vlv_index" "%[1]s" {
 }
 
 data "pingdirectory_local_db_vlv_index" "%[1]s" {
-	 backend_name = "%[2]s"
-	 name = "%[7]s"
+  backend_name = "%[2]s"
+  name         = "%[7]s"
   depends_on = [
     pingdirectory_local_db_vlv_index.%[1]s
   ]

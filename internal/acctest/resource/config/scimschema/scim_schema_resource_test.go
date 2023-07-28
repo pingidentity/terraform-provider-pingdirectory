@@ -70,12 +70,12 @@ func TestAccScimSchema(t *testing.T) {
 func testAccScimSchemaResource(resourceName string, resourceModel scimSchemaTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_schema" "%[1]s" {
-  schema_urn = "%[2]s"
+  schema_urn  = "%[2]s"
   description = "%[3]s"
 }
 
 data "pingdirectory_scim_schema" "%[1]s" {
-	 schema_urn = "%[2]s"
+  schema_urn = "%[2]s"
   depends_on = [
     pingdirectory_scim_schema.%[1]s
   ]

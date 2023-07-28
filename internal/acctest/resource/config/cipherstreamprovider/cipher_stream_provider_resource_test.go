@@ -79,7 +79,7 @@ resource "pingdirectory_cipher_stream_provider" "%[1]s" {
 }
 
 data "pingdirectory_cipher_stream_provider" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_cipher_stream_provider.%[1]s
   ]

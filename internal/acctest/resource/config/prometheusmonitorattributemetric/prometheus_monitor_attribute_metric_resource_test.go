@@ -104,8 +104,8 @@ resource "pingdirectory_prometheus_monitor_attribute_metric" "%[1]s" {
 }
 
 data "pingdirectory_prometheus_monitor_attribute_metric" "%[1]s" {
-	 http_servlet_extension_name = "%[2]s"
-	 metric_name = "%[3]s"
+  http_servlet_extension_name = "%[2]s"
+  metric_name                 = "%[3]s"
   depends_on = [
     pingdirectory_prometheus_monitor_attribute_metric.%[1]s
   ]

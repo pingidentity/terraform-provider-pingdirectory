@@ -80,7 +80,7 @@ resource "pingdirectory_oauth_token_handler" "%[1]s" {
 }
 
 data "pingdirectory_oauth_token_handler" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_oauth_token_handler.%[1]s
   ]

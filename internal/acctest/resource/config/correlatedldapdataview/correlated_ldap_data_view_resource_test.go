@@ -107,8 +107,8 @@ resource "pingdirectory_correlated_ldap_data_view" "%[1]s" {
 }
 
 data "pingdirectory_correlated_ldap_data_view" "%[1]s" {
-	 id = "%[2]s"
-	 scim_resource_type_name = "%[3]s"
+  id                      = "%[2]s"
+  scim_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_correlated_ldap_data_view.%[1]s
   ]

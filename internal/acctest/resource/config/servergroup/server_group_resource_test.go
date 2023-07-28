@@ -59,7 +59,7 @@ resource "pingdirectory_server_group" "%[1]s" {
 }
 
 data "pingdirectory_server_group" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_server_group.%[1]s
   ]

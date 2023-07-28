@@ -79,8 +79,8 @@ resource "pingdirectory_debug_target" "%[1]s" {
 }
 
 data "pingdirectory_debug_target" "%[1]s" {
-	 log_publisher_name = "%[2]s"
-	 debug_scope = "%[3]s"
+  log_publisher_name = "%[2]s"
+  debug_scope        = "%[3]s"
   depends_on = [
     pingdirectory_debug_target.%[1]s
   ]

@@ -111,9 +111,9 @@ resource "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
 }
 
 data "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
-	 id = "%[2]s"
-	 correlated_ldap_data_view_name = "%[3]s"
-	 scim_resource_type_name = "%[4]s"
+  id                             = "%[2]s"
+  correlated_ldap_data_view_name = "%[3]s"
+  scim_resource_type_name        = "%[4]s"
   depends_on = [
     pingdirectory_ldap_correlation_attribute_pair.%[1]s
   ]

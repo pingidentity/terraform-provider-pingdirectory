@@ -75,8 +75,8 @@ resource "pingdirectory_default_server_instance_listener" "%[1]s" {
 }
 
 data "pingdirectory_server_instance_listener" "%[1]s" {
-	 id = "%[2]s"
-	 server_instance_name = "%[3]s"
+  id                   = "%[2]s"
+  server_instance_name = "%[3]s"
   depends_on = [
     pingdirectory_default_server_instance_listener.%[1]s
   ]

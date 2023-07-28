@@ -81,7 +81,7 @@ resource "pingdirectory_uncached_entry_criteria" "%[1]s" {
 }
 
 data "pingdirectory_uncached_entry_criteria" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_uncached_entry_criteria.%[1]s
   ]

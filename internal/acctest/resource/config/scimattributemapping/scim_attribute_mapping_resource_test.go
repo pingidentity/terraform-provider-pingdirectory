@@ -97,8 +97,8 @@ resource "pingdirectory_scim_attribute_mapping" "%[1]s" {
 }
 
 data "pingdirectory_scim_attribute_mapping" "%[1]s" {
-	 id = "%[2]s"
-	 scim_resource_type_name = "%[3]s"
+  id                      = "%[2]s"
+  scim_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_scim_attribute_mapping.%[1]s
   ]

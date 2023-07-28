@@ -79,7 +79,7 @@ resource "pingdirectory_identity_mapper" "%[1]s" {
 }
 
 data "pingdirectory_identity_mapper" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_identity_mapper.%[1]s
   ]

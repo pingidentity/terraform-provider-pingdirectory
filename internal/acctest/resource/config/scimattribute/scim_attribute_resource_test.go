@@ -84,8 +84,8 @@ resource "pingdirectory_scim_attribute" "%[1]s" {
 }
 
 data "pingdirectory_scim_attribute" "%[1]s" {
-	 scim_schema_name = "%[2]s"
-	 name = "%[3]s"
+  scim_schema_name = "%[2]s"
+  name             = "%[3]s"
   depends_on = [
     pingdirectory_scim_attribute.%[1]s
   ]

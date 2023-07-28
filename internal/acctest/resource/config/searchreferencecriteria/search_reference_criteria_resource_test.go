@@ -76,7 +76,7 @@ resource "pingdirectory_search_reference_criteria" "%[1]s" {
 }
 
 data "pingdirectory_search_reference_criteria" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_search_reference_criteria.%[1]s
   ]

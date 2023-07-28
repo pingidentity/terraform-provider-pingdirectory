@@ -94,7 +94,7 @@ resource "pingdirectory_recurring_task_chain" "%[1]s" {
 }
 
 data "pingdirectory_recurring_task_chain" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_recurring_task_chain.%[1]s
   ]

@@ -81,7 +81,7 @@ resource "pingdirectory_vault_authentication_method" "%[1]s" {
 }
 
 data "pingdirectory_vault_authentication_method" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_vault_authentication_method.%[1]s
   ]

@@ -80,7 +80,7 @@ resource "pingdirectory_obscured_value" "%[1]s" {
 }
 
 data "pingdirectory_obscured_value" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_obscured_value.%[1]s
   ]

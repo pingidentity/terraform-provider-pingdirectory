@@ -88,7 +88,7 @@ resource "pingdirectory_pass_through_authentication_handler" "%[1]s" {
 }
 
 data "pingdirectory_pass_through_authentication_handler" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_pass_through_authentication_handler.%[1]s
   ]

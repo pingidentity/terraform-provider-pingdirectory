@@ -99,8 +99,8 @@ resource "pingdirectory_delegated_admin_attribute" "%[1]s" {
 }
 
 data "pingdirectory_delegated_admin_attribute" "%[1]s" {
-	 rest_resource_type_name = "%[2]s"
-	 attribute_type = "%[3]s"
+  rest_resource_type_name = "%[2]s"
+  attribute_type          = "%[3]s"
   depends_on = [
     pingdirectory_delegated_admin_attribute.%[1]s
   ]

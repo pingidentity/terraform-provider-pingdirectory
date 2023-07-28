@@ -104,7 +104,7 @@ resource "pingdirectory_root_dn_user" "%[1]s" {
 }
 
 data "pingdirectory_root_dn_user" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_root_dn_user.%[1]s
   ]

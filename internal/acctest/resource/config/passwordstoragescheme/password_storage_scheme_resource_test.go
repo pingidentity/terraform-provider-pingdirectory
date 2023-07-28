@@ -102,7 +102,7 @@ resource "pingdirectory_password_storage_scheme" "%[1]s" {
 }
 
 data "pingdirectory_password_storage_scheme" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_password_storage_scheme.%[1]s
   ]

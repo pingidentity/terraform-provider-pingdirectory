@@ -87,7 +87,7 @@ resource "pingdirectory_alert_handler" "%[1]s" {
 }
 
 data "pingdirectory_alert_handler" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_alert_handler.%[1]s
   ]

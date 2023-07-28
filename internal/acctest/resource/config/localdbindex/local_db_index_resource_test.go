@@ -82,8 +82,8 @@ resource "pingdirectory_local_db_index" "%[1]s" {
 }
 
 data "pingdirectory_local_db_index" "%[1]s" {
-	 backend_name = "%[2]s"
-	 attribute = "%[3]s"
+  backend_name = "%[2]s"
+  attribute    = "%[3]s"
   depends_on = [
     pingdirectory_local_db_index.%[1]s
   ]

@@ -104,8 +104,8 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
 }
 
 data "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
-	 id = "%[2]s"
-	 rest_resource_type_name = "%[3]s"
+  id                      = "%[2]s"
+  rest_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_delegated_admin_correlated_rest_resource.%[1]s
   ]

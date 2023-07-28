@@ -79,7 +79,7 @@ resource "pingdirectory_default_attribute_syntax" "%[1]s" {
 }
 
 data "pingdirectory_attribute_syntax" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_default_attribute_syntax.%[1]s
   ]

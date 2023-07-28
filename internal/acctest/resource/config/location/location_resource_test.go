@@ -78,10 +78,10 @@ resource "pingdirectory_location" "%[1]s" {
 }
 
 data "pingdirectory_location" "%[1]s" {
-	id = "%[2]s"
-	depends_on = [
-		pingdirectory_location.%[1]s
-	]
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_location.%[1]s
+  ]
 }
 `, resourceName, locationName, description)
 }

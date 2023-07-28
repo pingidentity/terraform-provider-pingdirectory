@@ -101,7 +101,7 @@ resource "pingdirectory_trusted_certificate" "%[1]s" {
 }
 
 data "pingdirectory_trusted_certificate" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_trusted_certificate.%[1]s
   ]

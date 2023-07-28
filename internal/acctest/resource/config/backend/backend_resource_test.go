@@ -93,7 +93,7 @@ resource "pingdirectory_backend" "%[1]s" {
 }
 
 data "pingdirectory_backend" "%[1]s" {
-	backend_id = "%[2]s"
+  backend_id = "%[2]s"
   depends_on = [
     pingdirectory_backend.%[1]s
   ]

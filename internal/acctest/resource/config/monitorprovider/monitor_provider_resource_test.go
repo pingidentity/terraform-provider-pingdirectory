@@ -81,7 +81,7 @@ resource "pingdirectory_default_monitor_provider" "%[1]s" {
 }
 
 data "pingdirectory_monitor_provider" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_default_monitor_provider.%[1]s
   ]

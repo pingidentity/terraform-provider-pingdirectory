@@ -80,7 +80,7 @@ resource "pingdirectory_constructed_attribute" "%[1]s" {
 }
 
 data "pingdirectory_constructed_attribute" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_constructed_attribute.%[1]s
   ]

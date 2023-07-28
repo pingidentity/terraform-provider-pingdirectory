@@ -86,7 +86,7 @@ resource "pingdirectory_scim_resource_type" "%[1]s" {
 }
 
 data "pingdirectory_scim_resource_type" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_scim_resource_type.%[1]s
   ]

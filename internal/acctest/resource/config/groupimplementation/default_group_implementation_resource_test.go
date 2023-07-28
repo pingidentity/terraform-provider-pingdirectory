@@ -76,7 +76,7 @@ resource "pingdirectory_default_group_implementation" "%[1]s" {
 }
 
 data "pingdirectory_group_implementation" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_default_group_implementation.%[1]s
   ]

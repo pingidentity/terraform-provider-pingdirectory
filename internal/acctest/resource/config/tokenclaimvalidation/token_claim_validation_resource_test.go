@@ -94,8 +94,8 @@ resource "pingdirectory_token_claim_validation" "%[1]s" {
 }
 
 data "pingdirectory_token_claim_validation" "%[1]s" {
-	 id = "%[2]s"
-	 id_token_validator_name = "%[3]s"
+  id                      = "%[2]s"
+  id_token_validator_name = "%[3]s"
   depends_on = [
     pingdirectory_token_claim_validation.%[1]s
   ]

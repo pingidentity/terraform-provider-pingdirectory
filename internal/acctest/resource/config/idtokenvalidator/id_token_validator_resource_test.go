@@ -92,7 +92,7 @@ resource "pingdirectory_id_token_validator" "%[1]s" {
 }
 
 data "pingdirectory_id_token_validator" "%[1]s" {
-	 id = "%[2]s"
+  id = "%[2]s"
   depends_on = [
     pingdirectory_id_token_validator.%[1]s
   ]
