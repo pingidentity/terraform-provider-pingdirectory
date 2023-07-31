@@ -3,6 +3,7 @@ package gauge
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -46,8 +47,8 @@ func (r *gaugesDataSource) Configure(_ context.Context, req datasource.Configure
 }
 
 type gaugesDataSourceModel struct {
-	Filter types.String `tfsdk:"filter"`
-	Ids    types.Set    `tfsdk:"ids"`
+	Filter  types.String `tfsdk:"filter"`
+	Objects types.Set    `tfsdk:"objects"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -59,12 +60,12 @@ func (r *gaugesDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "SCIM filter used when searching the configuration.",
 				Optional:    true,
 			},
-			"ids": schema.SetAttribute{
-				Description: "IDs of any Gauge objects found in the configuration.",
+			"objects": schema.SetAttribute{
+				Description: "Gauge objects found in the configuration",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
-				ElementType: types.StringType,
+				ElementType: internaltypes.ObjectsObjectType(),
 			},
 		},
 	}
@@ -97,18 +98,27 @@ func (r *gaugesDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		tflog.Debug(ctx, "Read response: "+string(responseJson))
 	}
 
-	ids := []string{}
-
 	// Read the response into the state
+	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
+		attributes := map[string]attr.Value{}
 		if response.IndicatorGaugeResponse != nil {
-			ids = append(ids, response.IndicatorGaugeResponse.Id)
+			attributes["id"] = types.StringValue(response.IndicatorGaugeResponse.Id)
+			attributes["type"] = types.StringValue("indicator")
 		} else if response.NumericGaugeResponse != nil {
-			ids = append(ids, response.NumericGaugeResponse.Id)
+			attributes["id"] = types.StringValue(response.NumericGaugeResponse.Id)
+			attributes["type"] = types.StringValue("numeric")
 		}
+		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
+		resp.Diagnostics.Append(diags...)
+		objects = append(objects, obj)
+	}
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	state.Ids = internaltypes.GetStringSet(ids)
+	state.Objects, diags = types.SetValue(internaltypes.ObjectsObjectType(), objects)
+	resp.Diagnostics.Append(diags...)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
