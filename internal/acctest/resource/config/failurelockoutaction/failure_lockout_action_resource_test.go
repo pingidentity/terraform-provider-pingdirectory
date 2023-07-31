@@ -42,7 +42,10 @@ func TestAccDelayBindResponseFailureLockoutAction(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDelayBindResponseFailureLockoutActionResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedDelayBindResponseFailureLockoutActionAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedDelayBindResponseFailureLockoutActionAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_failure_lockout_action.%s", resourceName), "delay", initialResourceModel.delay),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +73,13 @@ resource "pingdirectory_failure_lockout_action" "%[1]s" {
   type  = "delay-bind-response"
   id    = "%[2]s"
   delay = "%[3]s"
+}
+
+data "pingdirectory_failure_lockout_action" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_failure_lockout_action.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.delay)

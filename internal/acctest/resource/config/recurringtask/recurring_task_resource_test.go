@@ -45,7 +45,10 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccGenerateServerProfileRecurringTaskResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedGenerateServerProfileRecurringTaskAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedGenerateServerProfileRecurringTaskAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_recurring_task.%s", resourceName), "profile_directory", initialResourceModel.profileDirectory),
+				),
 			},
 			{
 				// Test updating some fields
@@ -72,6 +75,13 @@ resource "pingdirectory_recurring_task" "%[1]s" {
   id                            = "%[2]s"
   profile_directory             = "%[3]s"
   retain_previous_profile_count = "%[4]d"
+}
+
+data "pingdirectory_recurring_task" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_recurring_task.%[1]s
+  ]
 }`, resourceName, resourceModel.id,
 		resourceModel.profileDirectory, resourceModel.retainPreviousProfileCount)
 }

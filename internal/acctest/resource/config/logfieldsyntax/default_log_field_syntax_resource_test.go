@@ -42,7 +42,10 @@ func TestAccGenericLogFieldSyntax(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccGenericLogFieldSyntaxResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedGenericLogFieldSyntaxAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedGenericLogFieldSyntaxAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_field_syntax.%s", resourceName), "default_behavior", initialResourceModel.default_behavior),
+				),
 			},
 
 			{
@@ -71,6 +74,13 @@ resource "pingdirectory_default_log_field_syntax" "%[1]s" {
   type             = "generic"
   id               = "%[2]s"
   default_behavior = "%[3]s"
+}
+
+data "pingdirectory_log_field_syntax" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_log_field_syntax.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.default_behavior)

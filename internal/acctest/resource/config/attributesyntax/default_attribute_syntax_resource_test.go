@@ -2,6 +2,7 @@ package attributesyntax_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -42,7 +43,11 @@ func TestAccNameAndOptionalUidAttributeSyntax(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccNameAndOptionalUidAttributeSyntaxResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedNameAndOptionalUidAttributeSyntaxAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedNameAndOptionalUidAttributeSyntaxAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_attribute_syntax.%s", resourceName), "enable_compaction", strconv.FormatBool(initialResourceModel.enable_compaction)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_attribute_syntax.%s", resourceName), "require_binary_transfer", strconv.FormatBool(initialResourceModel.require_binary_transfer)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -71,6 +76,13 @@ resource "pingdirectory_default_attribute_syntax" "%[1]s" {
   id                      = "%[2]s"
   enable_compaction       = %[3]t
   require_binary_transfer = %[4]t
+}
+
+data "pingdirectory_attribute_syntax" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_attribute_syntax.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enable_compaction,

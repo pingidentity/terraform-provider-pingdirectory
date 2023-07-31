@@ -2,6 +2,7 @@ package backend_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -54,7 +55,12 @@ func TestAccLocalDbBackend(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccLocalDbBackendResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLocalDbBackendAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLocalDbBackendAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_backend.%s", resourceName), "backend_id", initialResourceModel.backendId),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_backend.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_backend.%s", resourceName), "base_dn.*", initialResourceModel.baseDn[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -84,6 +90,13 @@ resource "pingdirectory_backend" "%[1]s" {
   db_directory          = "%[5]s"
   import_temp_directory = "%[6]s"
   enabled               = %[7]t
+}
+
+data "pingdirectory_backend" "%[1]s" {
+  backend_id = "%[2]s"
+  depends_on = [
+    pingdirectory_backend.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.backendId,
 		acctest.StringSliceToTerraformString(resourceModel.baseDn),

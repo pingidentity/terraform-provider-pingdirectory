@@ -36,6 +36,7 @@ func TestAccExpiredPasswordDataSecurityAuditor(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccExpiredPasswordDataSecurityAuditorResource(resourceName, initialResourceModel),
+				Check:  resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_data_security_auditor.%s", resourceName), "type", "expired-password"),
 			},
 			{
 				// Test importing the resource
@@ -57,6 +58,13 @@ func testAccExpiredPasswordDataSecurityAuditorResource(resourceName string, reso
 resource "pingdirectory_data_security_auditor" "%[1]s" {
   type = "expired-password"
   id   = "%[2]s"
+}
+
+data "pingdirectory_data_security_auditor" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_data_security_auditor.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id)
 }

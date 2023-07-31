@@ -2,6 +2,7 @@ package saslmechanismhandler_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,11 @@ func TestAccUnboundidMsChapV2SaslMechanismHandler(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccUnboundidMsChapV2SaslMechanismHandlerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedUnboundidMsChapV2SaslMechanismHandlerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedUnboundidMsChapV2SaslMechanismHandlerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_sasl_mechanism_handler.%s", resourceName), "identity_mapper", initialResourceModel.identityMapper),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_sasl_mechanism_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +79,13 @@ resource "pingdirectory_sasl_mechanism_handler" "%[1]s" {
   id              = "%[2]s"
   identity_mapper = "%[3]s"
   enabled         = %[4]t
+}
+
+data "pingdirectory_sasl_mechanism_handler" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_sasl_mechanism_handler.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.identityMapper,

@@ -29,6 +29,8 @@ func TestAccFileBasedTrustManagerProvider(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_trust_manager_provider.%s", resourceName), "include_jvm_default_issuers", "false"),
 					testAccCheckExpectedFileBasedTrustManagerProviderAttributes(false, "config/keystore", "JKS"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_trust_manager_provider.%s", resourceName), "enabled", "false"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_trust_manager_provider.%s", resourceName), "trust_store_file", "config/keystore"),
 				),
 			},
 			{
@@ -136,6 +138,13 @@ resource "pingdirectory_trust_manager_provider" "%[1]s" {
   enabled          = %[3]t
   trust_store_file = "%[4]s"
   trust_store_type = "%[5]s"
+}
+
+data "pingdirectory_trust_manager_provider" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_trust_manager_provider.%[1]s
+  ]
 }`, resourceName, providerName, enabled, trustStoreFile, trustStoreType)
 }
 

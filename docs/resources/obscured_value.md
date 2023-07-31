@@ -38,7 +38,7 @@ provider "pingdirectory" {
 
 resource "pingdirectory_obscured_value" "myObscuredValue" {
   id             = "MyObscuredValue"
-  obscured_value = TODO(string)
+  obscured_value = "obscured"
 }
 ```
 

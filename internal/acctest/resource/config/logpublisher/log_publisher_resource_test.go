@@ -2,6 +2,7 @@ package logpublisher_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -57,7 +58,12 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccFileBasedAccessLogPublisherResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedFileBasedAccessLogPublisherAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedFileBasedAccessLogPublisherAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_publisher.%s", resourceName), "log_file", initialResourceModel.logFile),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_log_publisher.%s", resourceName), "retention_policy.*", initialResourceModel.retentionPolicy[0]),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_publisher.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -88,6 +94,13 @@ resource "pingdirectory_log_publisher" "%[1]s" {
   retention_policy     = %[6]s
   asynchronous         = %[7]t
   enabled              = %[8]t
+}
+
+data "pingdirectory_log_publisher" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_publisher.%[1]s
+  ]
 }`, resourceName, resourceModel.id,
 		resourceModel.logFile,
 		resourceModel.logFilePermissions,

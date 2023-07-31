@@ -2,6 +2,7 @@ package restresourcetype_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -51,7 +52,13 @@ func TestAccUserRestResourceType(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccUserRestResourceTypeResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedUserRestResourceTypeAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedUserRestResourceTypeAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "resource_endpoint", initialResourceModel.resourceEndpoint),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "structural_ldap_objectclass", initialResourceModel.structuralLdapObjectclass),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "search_base_dn", initialResourceModel.searchBaseDn),
+				),
 			},
 			{
 				// Test updating some fields
@@ -80,6 +87,13 @@ resource "pingdirectory_rest_resource_type" "%[1]s" {
   resource_endpoint           = "%[4]s"
   structural_ldap_objectclass = "%[5]s"
   search_base_dn              = "%[6]s"
+}
+
+data "pingdirectory_rest_resource_type" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_rest_resource_type.%[1]s
+  ]
 }`, resourceName, resourceModel.id,
 		resourceModel.enabled,
 		resourceModel.resourceEndpoint,

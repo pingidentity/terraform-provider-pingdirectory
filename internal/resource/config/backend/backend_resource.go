@@ -1647,11 +1647,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 		// Every remaining property is supported
 		return
 	}
-	if internaltypes.IsDefined(model.MaintainConfigArchive) {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
 		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaintainConfigArchive) {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
@@ -2937,9 +2937,6 @@ func (r *backendResource) Read(ctx context.Context, req resource.ReadRequest, re
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 func (r *defaultBackendResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -3008,9 +3005,6 @@ func (r *defaultBackendResource) Read(ctx context.Context, req resource.ReadRequ
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

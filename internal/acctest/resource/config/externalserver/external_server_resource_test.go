@@ -46,7 +46,10 @@ func TestAccSmtpExternalServer(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSmtpExternalServerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSmtpExternalServerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSmtpExternalServerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_external_server.%s", resourceName), "server_host_name", initialResourceModel.serverHostName),
+				),
 			},
 			{
 				// Test updating some fields
@@ -73,6 +76,13 @@ resource "pingdirectory_external_server" "%[1]s" {
   id               = "%[2]s"
   server_host_name = "%[3]s"
   server_port      = %[4]d
+}
+
+data "pingdirectory_external_server" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_external_server.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.serverHostName,

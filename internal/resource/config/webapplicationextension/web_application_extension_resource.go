@@ -701,9 +701,6 @@ func (r *webApplicationExtensionResource) Read(ctx context.Context, req resource
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 func (r *defaultWebApplicationExtensionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -736,9 +733,6 @@ func (r *defaultWebApplicationExtensionResource) Read(ctx context.Context, req r
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

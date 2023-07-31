@@ -2,6 +2,7 @@ package accountstatusnotificationhandler_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -57,7 +58,13 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSmtpAccountStatusNotificationHandlerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSmtpAccountStatusNotificationHandlerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSmtpAccountStatusNotificationHandlerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "sender_address", initialResourceModel.senderAddress),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "message_subject.*", initialResourceModel.messageSubject[0]),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "message_template_file.*", initialResourceModel.messageTemplateFile[0]),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -88,6 +95,13 @@ resource "pingdirectory_account_status_notification_handler" "%[1]s" {
   message_subject                       = %[6]s
   message_template_file                 = %[7]s
   enabled                               = %[8]t
+}
+
+data "pingdirectory_account_status_notification_handler" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_account_status_notification_handler.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.sendMessageWithoutEndUserAddress,

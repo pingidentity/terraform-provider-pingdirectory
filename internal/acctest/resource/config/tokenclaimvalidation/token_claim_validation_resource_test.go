@@ -49,7 +49,10 @@ func TestAccStringArrayTokenClaimValidation(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccStringArrayTokenClaimValidationResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedStringArrayTokenClaimValidationAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedStringArrayTokenClaimValidationAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_token_claim_validation.%s", resourceName), "claim_name", initialResourceModel.claimName),
+				),
 			},
 			{
 				// Test updating some fields
@@ -88,6 +91,14 @@ resource "pingdirectory_token_claim_validation" "%[1]s" {
   id_token_validator_name = pingdirectory_id_token_validator.%[3]s.id
   any_required_value      = %[4]s
   claim_name              = "%[5]s"
+}
+
+data "pingdirectory_token_claim_validation" "%[1]s" {
+  id                      = "%[2]s"
+  id_token_validator_name = "%[3]s"
+  depends_on = [
+    pingdirectory_token_claim_validation.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.idTokenValidatorName,

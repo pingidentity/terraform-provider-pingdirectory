@@ -2,6 +2,7 @@ package monitorprovider_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,10 @@ func TestAccGeneralPartyMonitorProvider(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccGeneralMonitorProviderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedGeneralMonitorProviderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedGeneralMonitorProviderAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_monitor_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +78,13 @@ resource "pingdirectory_default_monitor_provider" "%[1]s" {
   id          = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t
+}
+
+data "pingdirectory_monitor_provider" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_monitor_provider.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,

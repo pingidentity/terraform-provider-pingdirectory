@@ -6770,9 +6770,6 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 func (r *defaultPluginResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -6838,9 +6835,6 @@ func (r *defaultPluginResource) Read(ctx context.Context, req resource.ReadReque
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update a resource

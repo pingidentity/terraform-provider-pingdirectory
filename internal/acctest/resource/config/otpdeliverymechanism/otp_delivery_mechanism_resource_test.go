@@ -2,6 +2,7 @@ package otpdeliverymechanism_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,11 @@ func TestAccOtpDeliveryMechanism(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccOtpDeliveryMechanismResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedOtpDeliveryMechanismAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedOtpDeliveryMechanismAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_otp_delivery_mechanism.%s", resourceName), "sender_address", initialResourceModel.senderAddress),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_otp_delivery_mechanism.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -74,6 +79,13 @@ resource "pingdirectory_otp_delivery_mechanism" "%[1]s" {
   id             = "%[2]s"
   sender_address = "%[3]s"
   enabled        = %[4]t
+}
+
+data "pingdirectory_otp_delivery_mechanism" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_otp_delivery_mechanism.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.senderAddress,

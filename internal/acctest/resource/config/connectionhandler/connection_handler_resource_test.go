@@ -2,6 +2,7 @@ package connectionhandler_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -52,6 +53,8 @@ func TestAccHttpConnectionHandler(t *testing.T) {
 					testAccCheckExpectedHttpConnectionHandlerAttributes(initialResourceModel),
 					// Check some computed attributes are set as expected (PingDirectory defaults)
 					resource.TestCheckResourceAttr(fmt.Sprintf("pingdirectory_connection_handler.%s", resourceName), "use_ssl", "false"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_connection_handler.%s", resourceName), "listen_port", strconv.FormatInt(initialResourceModel.listenPort, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_connection_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 				),
 			},
 			{
@@ -82,6 +85,13 @@ resource "pingdirectory_connection_handler" "%[1]s" {
   listen_port            = %[3]d
   enabled                = %[4]t
   http_servlet_extension = %[5]s
+}
+
+data "pingdirectory_connection_handler" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_connection_handler.%[1]s
+  ]
 }`, resourceName, resourceModel.id, resourceModel.listenPort, resourceModel.enabled,
 		acctest.StringSliceToTerraformString(resourceModel.httpServletExtension))
 }

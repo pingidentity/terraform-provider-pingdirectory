@@ -2,6 +2,7 @@ package idtokenvalidator_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -51,7 +52,13 @@ func TestAccPingOneIdTokenValidator(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPingOneIdTokenValidatorResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPingOneIdTokenValidatorAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPingOneIdTokenValidatorAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "issuer_url", initialResourceModel.issuerUrl),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "identity_mapper", initialResourceModel.identityMapper),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "evaluation_order_index", strconv.FormatInt(initialResourceModel.evaluationOrderIndex, 10)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -82,6 +89,13 @@ resource "pingdirectory_id_token_validator" "%[1]s" {
   enabled                = %[4]t
   identity_mapper        = "%[5]s"
   evaluation_order_index = %[6]d
+}
+
+data "pingdirectory_id_token_validator" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_id_token_validator.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.issuerUrl,

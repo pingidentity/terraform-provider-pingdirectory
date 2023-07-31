@@ -43,7 +43,10 @@ func TestAccRootDseRequestCriteria(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccRootDseRequestCriteriaResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedRootDseRequestCriteriaAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedRootDseRequestCriteriaAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_request_criteria.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -69,6 +72,13 @@ resource "pingdirectory_request_criteria" "%[1]s" {
   type        = "root-dse"
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_request_criteria" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_request_criteria.%[1]s
+  ]
 }`, resourceName, resourceModel.id, resourceModel.description)
 }
 

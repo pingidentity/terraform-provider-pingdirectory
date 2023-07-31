@@ -42,7 +42,10 @@ func TestAccSimpleResultCriteria(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccSimpleResultCriteriaResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedSimpleResultCriteriaAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedSimpleResultCriteriaAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_result_criteria.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +73,13 @@ resource "pingdirectory_result_criteria" "%[1]s" {
   type        = "simple"
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_result_criteria" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_result_criteria.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description)

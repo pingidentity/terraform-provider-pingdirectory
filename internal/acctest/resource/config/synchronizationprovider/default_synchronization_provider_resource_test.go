@@ -2,6 +2,7 @@ package synchronizationprovider_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -41,7 +42,10 @@ func TestAccCustomSynchronizationProvider(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccCustomSynchronizationProviderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedCustomSynchronizationProviderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedCustomSynchronizationProviderAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_synchronization_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -69,6 +73,13 @@ resource "pingdirectory_default_synchronization_provider" "%[1]s" {
   type    = "custom"
   id      = "%[2]s"
   enabled = %[3]t
+}
+
+data "pingdirectory_synchronization_provider" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_synchronization_provider.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled)

@@ -42,7 +42,10 @@ func TestAccTimeLimitLogRotationPolicy(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccTimeLimitLogRotationPolicyResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedTimeLimitLogRotationPolicyAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedTimeLimitLogRotationPolicyAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_rotation_policy.%s", resourceName), "rotation_interval", initialResourceModel.rotationInterval),
+				),
 			},
 			{
 				// Test updating some fields
@@ -70,6 +73,13 @@ resource "pingdirectory_log_rotation_policy" "%[1]s" {
   type              = "time-limit"
   id                = "%[2]s"
   rotation_interval = "%[3]s"
+}
+
+data "pingdirectory_log_rotation_policy" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_rotation_policy.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.rotationInterval)

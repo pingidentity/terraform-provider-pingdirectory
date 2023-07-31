@@ -2,6 +2,7 @@ package cipherstreamprovider_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -42,7 +43,11 @@ func TestAccWaitForPassphraseCipherStreamProvider(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccWaitForPassphraseCipherStreamProviderResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedWaitForPassphraseCipherStreamProviderAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedWaitForPassphraseCipherStreamProviderAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_cipher_stream_provider.%s", resourceName), "type", "wait-for-passphrase"),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_cipher_stream_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -71,6 +76,13 @@ resource "pingdirectory_cipher_stream_provider" "%[1]s" {
   type    = "wait-for-passphrase"
   id      = "%[2]s"
   enabled = %[3]t
+}
+
+data "pingdirectory_cipher_stream_provider" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_cipher_stream_provider.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.enabled)

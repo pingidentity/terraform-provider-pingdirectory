@@ -2,6 +2,7 @@ package identitymapper_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -45,7 +46,10 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccExactMatchIdentityMapperResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedExactMatchIdentityMapperAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedExactMatchIdentityMapperAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_identity_mapper.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -72,6 +76,13 @@ resource "pingdirectory_identity_mapper" "%[1]s" {
   id              = "%[2]s"
   match_attribute = %[3]s
   enabled         = %[4]t
+}
+
+data "pingdirectory_identity_mapper" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_identity_mapper.%[1]s
+  ]
 }`, resourceName, resourceModel.id,
 		acctest.StringSliceToTerraformString(resourceModel.matchAttribute),
 		resourceModel.enabled)

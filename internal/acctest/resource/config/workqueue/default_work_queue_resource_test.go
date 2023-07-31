@@ -2,6 +2,7 @@ package workqueue_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -40,7 +41,10 @@ func TestAccHighThroughputWorkQueue(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccHighThroughputWorkQueueResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedHighThroughputWorkQueueAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedHighThroughputWorkQueueAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_work_queue.%s", resourceName), "num_worker_threads", strconv.FormatInt(initialResourceModel.num_worker_threads, 10)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -66,6 +70,12 @@ func testAccHighThroughputWorkQueueResource(resourceName string, resourceModel h
 resource "pingdirectory_default_work_queue" "%[1]s" {
   num_worker_threads      = %[2]d
   max_work_queue_capacity = %[3]d
+}
+
+data "pingdirectory_work_queue" "%[1]s" {
+  depends_on = [
+    pingdirectory_default_work_queue.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.num_worker_threads,
 		resourceModel.max_work_queue_capacity)

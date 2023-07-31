@@ -2,6 +2,7 @@ package passwordvalidator_test
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -48,7 +49,12 @@ func TestAccPasswordValidator(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccPasswordValidatorResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedPasswordValidatorAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedPasswordValidatorAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_validator.%s", resourceName), "min_password_length", strconv.FormatInt(initialResourceModel.minPasswordLength, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_validator.%s", resourceName), "max_password_length", strconv.FormatInt(initialResourceModel.maxPasswordLength, 10)),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_validator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+				),
 			},
 			{
 				// Test updating some fields
@@ -78,6 +84,13 @@ resource "pingdirectory_password_validator" "%[1]s" {
   min_password_length = %[3]d
   max_password_length = %[4]d
   enabled             = %[5]t
+}
+
+data "pingdirectory_password_validator" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_validator.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.minPasswordLength,

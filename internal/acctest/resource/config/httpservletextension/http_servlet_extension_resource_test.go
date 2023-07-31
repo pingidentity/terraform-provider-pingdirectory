@@ -42,7 +42,10 @@ func TestAccQuickstartHttpServletExtension(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccQuickstartHttpServletExtensionResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedQuickstartHttpServletExtensionAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedQuickstartHttpServletExtensionAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_http_servlet_extension.%s", resourceName), "description", initialResourceModel.description),
+				),
 			},
 			{
 				// Test updating some fields
@@ -68,6 +71,13 @@ resource "pingdirectory_http_servlet_extension" "%[1]s" {
   type        = "quickstart"
   id          = "%[2]s"
   description = "%[3]s"
+}
+
+data "pingdirectory_http_servlet_extension" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_http_servlet_extension.%[1]s
+  ]
 }`, resourceName, resourceModel.id, resourceModel.description)
 }
 

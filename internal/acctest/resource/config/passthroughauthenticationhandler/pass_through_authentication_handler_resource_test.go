@@ -45,7 +45,11 @@ func TestAccLdapPassThroughAuthenticationHandler(t *testing.T) {
 			{
 				// Test basic resource.
 				Config: testAccLdapPassThroughAuthenticationHandlerResource(resourceName, initialResourceModel),
-				Check:  testAccCheckExpectedLdapPassThroughAuthenticationHandlerAttributes(initialResourceModel),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckExpectedLdapPassThroughAuthenticationHandlerAttributes(initialResourceModel),
+					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_pass_through_authentication_handler.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_pass_through_authentication_handler.%s", resourceName), "server.*", initialResourceModel.server[0]),
+				),
 			},
 			{
 				// Test updating some fields
@@ -81,6 +85,13 @@ resource "pingdirectory_pass_through_authentication_handler" "%[1]s" {
   id          = "%[2]s"
   description = "%[3]s"
   server      = [pingdirectory_external_server.%[4]s.id]
+}
+
+data "pingdirectory_pass_through_authentication_handler" "%[1]s" {
+  id = "%[2]s"
+  depends_on = [
+    pingdirectory_pass_through_authentication_handler.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.description,
