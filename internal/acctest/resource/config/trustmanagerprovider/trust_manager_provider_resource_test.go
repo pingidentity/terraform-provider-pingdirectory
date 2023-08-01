@@ -146,15 +146,12 @@ data "pingdirectory_trust_manager_provider" "%[1]s" {
   depends_on = [
     pingdirectory_trust_manager_provider.%[1]s
   ]
-<<<<<<< HEAD
 }
 
 data "pingdirectory_trust_manager_providers" "list" {
   depends_on = [
     pingdirectory_trust_manager_provider.%[1]s
   ]
-=======
->>>>>>> main
 }`, resourceName, providerName, enabled, trustStoreFile, trustStoreType)
 }
 
