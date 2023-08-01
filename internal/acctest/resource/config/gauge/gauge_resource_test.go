@@ -48,6 +48,7 @@ func TestAccGauge(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGaugeAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_gauge.%s", resourceName), "gauge_data_source", initialResourceModel.gaugeDataSource),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_gauges.list", "objects.0.id"),
 				),
 			},
 			{
@@ -81,6 +82,12 @@ resource "pingdirectory_gauge" "%[1]s" {
 
 data "pingdirectory_gauge" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_gauge.%[1]s
+  ]
+}
+
+data "pingdirectory_gauges" "list" {
   depends_on = [
     pingdirectory_gauge.%[1]s
   ]

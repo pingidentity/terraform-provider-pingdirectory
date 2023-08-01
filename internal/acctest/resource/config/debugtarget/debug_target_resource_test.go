@@ -50,6 +50,7 @@ func TestAccDebugTarget(t *testing.T) {
 					testAccCheckExpectedDebugTargetAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_debug_target.%s", resourceName), "debug_scope", initialResourceModel.debugScope),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_debug_target.%s", resourceName), "debug_level", initialResourceModel.debugLevel),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_debug_targets.list", "ids.0"),
 				),
 			},
 			{
@@ -81,6 +82,13 @@ resource "pingdirectory_debug_target" "%[1]s" {
 data "pingdirectory_debug_target" "%[1]s" {
   log_publisher_name = "%[2]s"
   debug_scope        = "%[3]s"
+  depends_on = [
+    pingdirectory_debug_target.%[1]s
+  ]
+}
+
+data "pingdirectory_debug_targets" "list" {
+  log_publisher_name = "%[2]s"
   depends_on = [
     pingdirectory_debug_target.%[1]s
   ]

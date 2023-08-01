@@ -53,6 +53,7 @@ func TestAccReplicationAssurancePolicy(t *testing.T) {
 					testAccCheckExpectedReplicationAssurancePolicyAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_replication_assurance_policy.%s", resourceName), "evaluation_order_index", strconv.FormatInt(initialResourceModel.evaluationOrderIndex, 10)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_replication_assurance_policy.%s", resourceName), "timeout", initialResourceModel.timeout),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_replication_assurance_policies.list", "ids.0"),
 				),
 			},
 			{
@@ -86,6 +87,12 @@ resource "pingdirectory_replication_assurance_policy" "%[1]s" {
 
 data "pingdirectory_replication_assurance_policy" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_replication_assurance_policy.%[1]s
+  ]
+}
+
+data "pingdirectory_replication_assurance_policies" "list" {
   depends_on = [
     pingdirectory_replication_assurance_policy.%[1]s
   ]

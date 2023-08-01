@@ -54,6 +54,7 @@ func TestAccPasswordValidator(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_validator.%s", resourceName), "min_password_length", strconv.FormatInt(initialResourceModel.minPasswordLength, 10)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_validator.%s", resourceName), "max_password_length", strconv.FormatInt(initialResourceModel.maxPasswordLength, 10)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_validator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_password_validators.list", "objects.0.id"),
 				),
 			},
 			{
@@ -88,6 +89,12 @@ resource "pingdirectory_password_validator" "%[1]s" {
 
 data "pingdirectory_password_validator" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_validator.%[1]s
+  ]
+}
+
+data "pingdirectory_password_validators" "list" {
   depends_on = [
     pingdirectory_password_validator.%[1]s
   ]

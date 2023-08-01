@@ -49,6 +49,7 @@ func TestAccScimAttribute(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedScimAttributeAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_attribute.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_scim_attributes.list", "ids.0"),
 				),
 			},
 			{
@@ -86,6 +87,13 @@ resource "pingdirectory_scim_attribute" "%[1]s" {
 data "pingdirectory_scim_attribute" "%[1]s" {
   scim_schema_name = "%[2]s"
   name             = "%[3]s"
+  depends_on = [
+    pingdirectory_scim_attribute.%[1]s
+  ]
+}
+
+data "pingdirectory_scim_attributes" "list" {
+  scim_schema_name = "%[2]s"
   depends_on = [
     pingdirectory_scim_attribute.%[1]s
   ]

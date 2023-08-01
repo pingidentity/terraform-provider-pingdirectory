@@ -54,6 +54,7 @@ func TestAccMirrorVirtualAttribute(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_virtual_attribute.%s", resourceName), "source_attribute", initialResourceModel.sourceAttribute),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_virtual_attribute.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_virtual_attribute.%s", resourceName), "attribute_type", initialResourceModel.attributeType),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_virtual_attributes.list", "objects.0.id"),
 				),
 			},
 			{
@@ -86,6 +87,12 @@ resource "pingdirectory_virtual_attribute" "%[1]s" {
 
 data "pingdirectory_virtual_attribute" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_virtual_attribute.%[1]s
+  ]
+}
+
+data "pingdirectory_virtual_attributes" "list" {
   depends_on = [
     pingdirectory_virtual_attribute.%[1]s
   ]

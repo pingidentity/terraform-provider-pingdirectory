@@ -49,6 +49,7 @@ func TestAccDefaultUncachedEntryCriteria(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedDefaultUncachedEntryCriteriaAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_uncached_entry_criteria.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_uncached_entry_criteria_list.list", "objects.0.id"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_uncached_entry_criteria" "%[1]s" {
 
 data "pingdirectory_uncached_entry_criteria" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_uncached_entry_criteria.%[1]s
+  ]
+}
+
+data "pingdirectory_uncached_entry_criteria_list" "list" {
   depends_on = [
     pingdirectory_uncached_entry_criteria.%[1]s
   ]

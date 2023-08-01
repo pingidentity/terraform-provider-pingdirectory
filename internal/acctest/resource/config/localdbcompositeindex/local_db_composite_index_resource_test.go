@@ -53,6 +53,7 @@ func TestAccLocalDbCompositeIndex(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedLocalDbCompositeIndexAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_composite_index.%s", resourceName), "index_filter_pattern", initialResourceModel.indexFilterPattern),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_local_db_composite_indexes.list", "ids.0"),
 				),
 			},
 			{
@@ -86,6 +87,13 @@ resource "pingdirectory_local_db_composite_index" "%[1]s" {
 
 data "pingdirectory_local_db_composite_index" "%[1]s" {
   id           = "%[2]s"
+  backend_name = "%[3]s"
+  depends_on = [
+    pingdirectory_local_db_composite_index.%[1]s
+  ]
+}
+
+data "pingdirectory_local_db_composite_indexes" "list" {
   backend_name = "%[3]s"
   depends_on = [
     pingdirectory_local_db_composite_index.%[1]s

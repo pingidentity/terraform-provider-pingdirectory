@@ -46,6 +46,7 @@ func TestAccValidateTotpPasswordExtendedOperationHandler(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedValidateTotpPasswordExtendedOperationHandlerAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_extended_operation_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_extended_operation_handlers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -78,6 +79,12 @@ resource "pingdirectory_extended_operation_handler" "%[1]s" {
 
 data "pingdirectory_extended_operation_handler" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_extended_operation_handler.%[1]s
+  ]
+}
+
+data "pingdirectory_extended_operation_handlers" "list" {
   depends_on = [
     pingdirectory_extended_operation_handler.%[1]s
   ]

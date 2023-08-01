@@ -53,6 +53,7 @@ func TestAccLdapPassThroughScimResourceType(t *testing.T) {
 					testAccCheckExpectedLdapPassThroughScimResourceTypeAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_resource_type.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_scim_resource_type.%s", resourceName), "endpoint", initialResourceModel.endpoint),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_scim_resource_types.list", "objects.0.id"),
 				),
 			},
 			{
@@ -87,6 +88,12 @@ resource "pingdirectory_scim_resource_type" "%[1]s" {
 
 data "pingdirectory_scim_resource_type" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_scim_resource_type.%[1]s
+  ]
+}
+
+data "pingdirectory_scim_resource_types" "list" {
   depends_on = [
     pingdirectory_scim_resource_type.%[1]s
   ]

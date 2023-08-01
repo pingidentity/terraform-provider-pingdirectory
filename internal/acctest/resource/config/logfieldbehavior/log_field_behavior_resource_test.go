@@ -45,6 +45,7 @@ func TestAccTextAccessLogFieldBehavior(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedTextAccessLogFieldBehaviorAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_field_behavior.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_log_field_behaviors.list", "objects.0.id"),
 				),
 			},
 			{
@@ -77,6 +78,12 @@ resource "pingdirectory_log_field_behavior" "%[1]s" {
 
 data "pingdirectory_log_field_behavior" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_field_behavior.%[1]s
+  ]
+}
+
+data "pingdirectory_log_field_behaviors" "list" {
   depends_on = [
     pingdirectory_log_field_behavior.%[1]s
   ]

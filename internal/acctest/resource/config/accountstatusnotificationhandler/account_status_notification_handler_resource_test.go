@@ -64,6 +64,7 @@ func TestAccSmtpAccountStatusNotificationHandler(t *testing.T) {
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "message_subject.*", initialResourceModel.messageSubject[0]),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "message_template_file.*", initialResourceModel.messageTemplateFile[0]),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_account_status_notification_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_account_status_notification_handlers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -99,6 +100,12 @@ resource "pingdirectory_account_status_notification_handler" "%[1]s" {
 
 data "pingdirectory_account_status_notification_handler" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_account_status_notification_handler.%[1]s
+  ]
+}
+
+data "pingdirectory_account_status_notification_handlers" "list" {
   depends_on = [
     pingdirectory_account_status_notification_handler.%[1]s
   ]

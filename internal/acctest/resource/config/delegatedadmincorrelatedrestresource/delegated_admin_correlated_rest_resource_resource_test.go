@@ -61,6 +61,7 @@ func TestAccDelegatedAdminCorrelatedRestResource(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "correlated_rest_resource", initialResourceModel.correlatedRestResource),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "primary_rest_resource_correlation_attribute", initialResourceModel.primaryRestResourceCorrelationAttribute),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_correlated_rest_resource.%s", resourceName), "secondary_rest_resource_correlation_attribute", initialResourceModel.secondaryRestResourceCorrelationAttribute),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_delegated_admin_correlated_rest_resources.list", "ids.0"),
 				),
 			},
 			{
@@ -105,6 +106,13 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
 
 data "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
   id                      = "%[2]s"
+  rest_resource_type_name = "%[3]s"
+  depends_on = [
+    pingdirectory_delegated_admin_correlated_rest_resource.%[1]s
+  ]
+}
+
+data "pingdirectory_delegated_admin_correlated_rest_resources" "list" {
   rest_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_delegated_admin_correlated_rest_resource.%[1]s

@@ -46,6 +46,7 @@ func TestAccSummarizeLogFileRotationListener(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedSummarizeLogFileRotationListenerAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_file_rotation_listener.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_log_file_rotation_listeners.list", "objects.0.id"),
 				),
 			},
 			{
@@ -78,6 +79,12 @@ resource "pingdirectory_log_file_rotation_listener" "%[1]s" {
 
 data "pingdirectory_log_file_rotation_listener" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_file_rotation_listener.%[1]s
+  ]
+}
+
+data "pingdirectory_log_file_rotation_listeners" "list" {
   depends_on = [
     pingdirectory_log_file_rotation_listener.%[1]s
   ]

@@ -45,6 +45,7 @@ func TestAccTimeLimitLogRetentionPolicy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedTimeLimitLogRetentionPolicyAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_retention_policy.%s", resourceName), "retain_duration", initialResourceModel.retainDuration),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_log_retention_policies.list", "objects.0.id"),
 				),
 			},
 			{
@@ -77,6 +78,12 @@ resource "pingdirectory_log_retention_policy" "%[1]s" {
 
 data "pingdirectory_log_retention_policy" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_retention_policy.%[1]s
+  ]
+}
+
+data "pingdirectory_log_retention_policies" "list" {
   depends_on = [
     pingdirectory_log_retention_policy.%[1]s
   ]

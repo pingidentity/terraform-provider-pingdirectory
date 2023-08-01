@@ -71,6 +71,7 @@ func TestAccPrometheusMonitorAttributeMetric(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "monitor_attribute_name", initialResourceModel.monitorAttributeName),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "monitor_object_class_name", initialResourceModel.monitorObjectClassName),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_prometheus_monitor_attribute_metric.%s", resourceName), "metric_type", initialResourceModel.metricType),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_prometheus_monitor_attribute_metrics.list", "ids.0"),
 				),
 			},
 			{
@@ -106,6 +107,13 @@ resource "pingdirectory_prometheus_monitor_attribute_metric" "%[1]s" {
 data "pingdirectory_prometheus_monitor_attribute_metric" "%[1]s" {
   http_servlet_extension_name = "%[2]s"
   metric_name                 = "%[3]s"
+  depends_on = [
+    pingdirectory_prometheus_monitor_attribute_metric.%[1]s
+  ]
+}
+
+data "pingdirectory_prometheus_monitor_attribute_metrics" "list" {
+  http_servlet_extension_name = "%[2]s"
   depends_on = [
     pingdirectory_prometheus_monitor_attribute_metric.%[1]s
   ]

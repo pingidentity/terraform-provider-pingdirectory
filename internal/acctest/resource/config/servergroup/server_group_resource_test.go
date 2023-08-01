@@ -36,6 +36,7 @@ func TestAccServerGroup(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccServerGroupResource(resourceName, initialResourceModel),
+				Check:  resource.TestCheckResourceAttrSet("data.pingdirectory_server_groups.list", "ids.0"),
 			},
 			{
 				// Test importing the resource
@@ -60,6 +61,12 @@ resource "pingdirectory_server_group" "%[1]s" {
 
 data "pingdirectory_server_group" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_server_group.%[1]s
+  ]
+}
+
+data "pingdirectory_server_groups" "list" {
   depends_on = [
     pingdirectory_server_group.%[1]s
   ]

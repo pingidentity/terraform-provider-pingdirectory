@@ -77,6 +77,7 @@ O153rbh1O3sXFjeKFSvpi6BM4OBaTDwtlZL+ZtDjvLX5xY278udB140n+XYdJaW7
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccTrustedCertificateResource(resourceName, initialResourceModel),
+				Check:  resource.TestCheckResourceAttrSet("data.pingdirectory_trusted_certificates.list", "ids.0"),
 			},
 			{
 				// Test importing the resource
@@ -102,6 +103,12 @@ resource "pingdirectory_trusted_certificate" "%[1]s" {
 
 data "pingdirectory_trusted_certificate" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_trusted_certificate.%[1]s
+  ]
+}
+
+data "pingdirectory_trusted_certificates" "list" {
   depends_on = [
     pingdirectory_trusted_certificate.%[1]s
   ]

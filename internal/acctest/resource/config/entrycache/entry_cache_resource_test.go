@@ -50,6 +50,7 @@ func TestAccFifoEntryCache(t *testing.T) {
 					testAccCheckExpectedFifoEntryCacheAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_entry_cache.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_entry_cache.%s", resourceName), "cache_level", strconv.FormatInt(initialResourceModel.cacheLevel, 10)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_entry_caches.list", "ids.0"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_entry_cache" "%[1]s" {
 
 data "pingdirectory_entry_cache" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_entry_cache.%[1]s
+  ]
+}
+
+data "pingdirectory_entry_caches" "list" {
   depends_on = [
     pingdirectory_entry_cache.%[1]s
   ]

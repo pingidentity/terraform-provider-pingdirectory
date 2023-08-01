@@ -54,6 +54,7 @@ func TestAccSmtpAlertHandler(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_alert_handler.%s", resourceName), "sender_address", initialResourceModel.senderAddress),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_alert_handler.%s", resourceName), "recipient_address.*", initialResourceModel.recipientAddress[0]),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_alert_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_alert_handlers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -88,6 +89,12 @@ resource "pingdirectory_alert_handler" "%[1]s" {
 
 data "pingdirectory_alert_handler" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_alert_handler.%[1]s
+  ]
+}
+
+data "pingdirectory_alert_handlers" "list" {
   depends_on = [
     pingdirectory_alert_handler.%[1]s
   ]

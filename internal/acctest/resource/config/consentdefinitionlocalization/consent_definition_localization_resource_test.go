@@ -58,6 +58,7 @@ func TestAccConsentDefinitionLocalization(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_definition_localization.%s", resourceName), "version", initialResourceModel.version),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_definition_localization.%s", resourceName), "data_text", initialResourceModel.dataText),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_definition_localization.%s", resourceName), "purpose_text", initialResourceModel.purposeText),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_consent_definition_localizations.list", "ids.0"),
 				),
 			},
 			{
@@ -95,6 +96,13 @@ resource "pingdirectory_consent_definition_localization" "%[1]s" {
 data "pingdirectory_consent_definition_localization" "%[1]s" {
   consent_definition_name = "%[2]s"
   locale                  = "%[3]s"
+  depends_on = [
+    pingdirectory_consent_definition_localization.%[1]s
+  ]
+}
+
+data "pingdirectory_consent_definition_localizations" "list" {
+  consent_definition_name = "%[2]s"
   depends_on = [
     pingdirectory_consent_definition_localization.%[1]s
   ]

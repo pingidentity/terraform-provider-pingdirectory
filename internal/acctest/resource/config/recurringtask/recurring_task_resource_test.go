@@ -48,6 +48,7 @@ func TestAccGenerateServerProfileRecurringTask(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGenerateServerProfileRecurringTaskAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_recurring_task.%s", resourceName), "profile_directory", initialResourceModel.profileDirectory),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_recurring_tasks.list", "objects.0.id"),
 				),
 			},
 			{
@@ -79,6 +80,12 @@ resource "pingdirectory_recurring_task" "%[1]s" {
 
 data "pingdirectory_recurring_task" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_recurring_task.%[1]s
+  ]
+}
+
+data "pingdirectory_recurring_tasks" "list" {
   depends_on = [
     pingdirectory_recurring_task.%[1]s
   ]

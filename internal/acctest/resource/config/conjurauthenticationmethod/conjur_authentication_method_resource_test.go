@@ -48,6 +48,7 @@ func TestAccConjurAuthenticationMethod(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedConjurAuthenticationMethodAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_conjur_authentication_method.%s", resourceName), "username", initialResourceModel.username),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_conjur_authentication_methods.list", "ids.0"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_conjur_authentication_method" "%[1]s" {
 
 data "pingdirectory_conjur_authentication_method" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_conjur_authentication_method.%[1]s
+  ]
+}
+
+data "pingdirectory_conjur_authentication_methods" "list" {
   depends_on = [
     pingdirectory_conjur_authentication_method.%[1]s
   ]

@@ -49,6 +49,7 @@ func TestAccExactMatchIdentityMapper(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedExactMatchIdentityMapperAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_identity_mapper.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_identity_mappers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -80,6 +81,12 @@ resource "pingdirectory_identity_mapper" "%[1]s" {
 
 data "pingdirectory_identity_mapper" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_identity_mapper.%[1]s
+  ]
+}
+
+data "pingdirectory_identity_mappers" "list" {
   depends_on = [
     pingdirectory_identity_mapper.%[1]s
   ]

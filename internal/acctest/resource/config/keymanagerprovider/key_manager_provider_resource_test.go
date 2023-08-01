@@ -53,6 +53,7 @@ func TestAccFileBasedKeyManagerProvider(t *testing.T) {
 					testAccCheckExpectedFileBasedKeyManagerProviderAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_key_manager_provider.%s", resourceName), "key_store_file", initialResourceModel.keyStoreFile),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_key_manager_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_key_manager_providers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -89,6 +90,12 @@ resource "pingdirectory_key_manager_provider" "%[1]s" {
 
 data "pingdirectory_key_manager_provider" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_key_manager_provider.%[1]s
+  ]
+}
+
+data "pingdirectory_key_manager_providers" "list" {
   depends_on = [
     pingdirectory_key_manager_provider.%[1]s
   ]

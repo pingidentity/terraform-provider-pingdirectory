@@ -58,6 +58,7 @@ func TestAccUserRestResourceType(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "resource_endpoint", initialResourceModel.resourceEndpoint),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "structural_ldap_objectclass", initialResourceModel.structuralLdapObjectclass),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_rest_resource_type.%s", resourceName), "search_base_dn", initialResourceModel.searchBaseDn),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_rest_resource_types.list", "objects.0.id"),
 				),
 			},
 			{
@@ -91,6 +92,12 @@ resource "pingdirectory_rest_resource_type" "%[1]s" {
 
 data "pingdirectory_rest_resource_type" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_rest_resource_type.%[1]s
+  ]
+}
+
+data "pingdirectory_rest_resource_types" "list" {
   depends_on = [
     pingdirectory_rest_resource_type.%[1]s
   ]

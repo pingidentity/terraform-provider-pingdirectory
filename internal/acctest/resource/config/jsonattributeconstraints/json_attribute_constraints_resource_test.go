@@ -48,6 +48,7 @@ func TestAccJsonAttributeConstraints(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedJsonAttributeConstraintsAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_json_attribute_constraints.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_json_attribute_constraints_list.list", "ids.0"),
 				),
 			},
 			{
@@ -80,6 +81,12 @@ resource "pingdirectory_json_attribute_constraints" "%[1]s" {
 
 data "pingdirectory_json_attribute_constraints" "%[1]s" {
   attribute_type = "%[2]s"
+  depends_on = [
+    pingdirectory_json_attribute_constraints.%[1]s
+  ]
+}
+
+data "pingdirectory_json_attribute_constraints_list" "list" {
   depends_on = [
     pingdirectory_json_attribute_constraints.%[1]s
   ]

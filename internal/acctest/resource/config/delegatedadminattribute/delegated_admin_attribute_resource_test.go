@@ -53,6 +53,7 @@ func TestAccGenericDelegatedAdminAttribute(t *testing.T) {
 					testAccCheckExpectedGenericDelegatedAdminAttributeAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute.%s", resourceName), "attribute_type", initialResourceModel.attributeType),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute.%s", resourceName), "display_name", initialResourceModel.displayName),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_delegated_admin_attributes.list", "objects.0.id"),
 				),
 			},
 			{
@@ -101,6 +102,13 @@ resource "pingdirectory_delegated_admin_attribute" "%[1]s" {
 data "pingdirectory_delegated_admin_attribute" "%[1]s" {
   rest_resource_type_name = "%[2]s"
   attribute_type          = "%[3]s"
+  depends_on = [
+    pingdirectory_delegated_admin_attribute.%[1]s
+  ]
+}
+
+data "pingdirectory_delegated_admin_attributes" "list" {
+  rest_resource_type_name = "%[2]s"
   depends_on = [
     pingdirectory_delegated_admin_attribute.%[1]s
   ]

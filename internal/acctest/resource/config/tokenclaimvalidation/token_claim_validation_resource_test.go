@@ -52,6 +52,7 @@ func TestAccStringArrayTokenClaimValidation(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedStringArrayTokenClaimValidationAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_token_claim_validation.%s", resourceName), "claim_name", initialResourceModel.claimName),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_token_claim_validations.list", "objects.0.id"),
 				),
 			},
 			{
@@ -95,6 +96,13 @@ resource "pingdirectory_token_claim_validation" "%[1]s" {
 
 data "pingdirectory_token_claim_validation" "%[1]s" {
   id                      = "%[2]s"
+  id_token_validator_name = "%[3]s"
+  depends_on = [
+    pingdirectory_token_claim_validation.%[1]s
+  ]
+}
+
+data "pingdirectory_token_claim_validations" "list" {
   id_token_validator_name = "%[3]s"
   depends_on = [
     pingdirectory_token_claim_validation.%[1]s

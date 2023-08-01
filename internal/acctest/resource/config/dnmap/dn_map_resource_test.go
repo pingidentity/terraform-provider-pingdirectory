@@ -49,6 +49,7 @@ func TestAccDnMap(t *testing.T) {
 					testAccCheckExpectedDnMapAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_dn_map.%s", resourceName), "from_dn_pattern", initialResourceModel.fromDnPattern),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_dn_map.%s", resourceName), "to_dn_pattern", initialResourceModel.toDnPattern),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_dn_maps.list", "ids.0"),
 				),
 			},
 			{
@@ -81,6 +82,12 @@ resource "pingdirectory_dn_map" "%[1]s" {
 
 data "pingdirectory_dn_map" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_dn_map.%[1]s
+  ]
+}
+
+data "pingdirectory_dn_maps" "list" {
   depends_on = [
     pingdirectory_dn_map.%[1]s
   ]

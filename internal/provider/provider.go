@@ -547,7 +547,6 @@ func (p *pingdirectoryProvider) DataSources(_ context.Context) []func() datasour
 		replicationdomain.NewReplicationDomainDataSource,
 		replicationdomain.NewReplicationDomainsDataSource,
 		replicationserver.NewReplicationServerDataSource,
-		replicationserver.NewReplicationServerDataSource,
 		requestcriteria.NewRequestCriteriaDataSource,
 		requestcriteria.NewRequestCriteriaListDataSource,
 		restresourcetype.NewRestResourceTypeDataSource,

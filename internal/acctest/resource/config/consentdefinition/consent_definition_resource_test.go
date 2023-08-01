@@ -45,6 +45,7 @@ func TestAccConsentDefinition(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedConsentDefinitionAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_consent_definition.%s", resourceName), "display_name", initialResourceModel.displayName),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_consent_definitions.list", "ids.0"),
 				),
 			},
 			{
@@ -74,6 +75,12 @@ resource "pingdirectory_consent_definition" "%[1]s" {
 
 data "pingdirectory_consent_definition" "%[1]s" {
   unique_id = "%[2]s"
+  depends_on = [
+    pingdirectory_consent_definition.%[1]s
+  ]
+}
+
+data "pingdirectory_consent_definitions" "list" {
   depends_on = [
     pingdirectory_consent_definition.%[1]s
   ]

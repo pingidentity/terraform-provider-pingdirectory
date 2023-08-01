@@ -47,6 +47,7 @@ func TestAccDelegatedAdminAttributeCategory(t *testing.T) {
 					testAccCheckExpectedDelegatedAdminAttributeCategoryAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute_category.%s", resourceName), "display_name", initialResourceModel.displayName),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_attribute_category.%s", resourceName), "display_order_index", strconv.FormatInt(initialResourceModel.displayOrderIndex, 10)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_delegated_admin_attribute_categories.list", "ids.0"),
 				),
 			},
 			{
@@ -78,6 +79,12 @@ resource "pingdirectory_delegated_admin_attribute_category" "%[1]s" {
 
 data "pingdirectory_delegated_admin_attribute_category" "%[1]s" {
   display_name = "%[2]s"
+  depends_on = [
+    pingdirectory_delegated_admin_attribute_category.%[1]s
+  ]
+}
+
+data "pingdirectory_delegated_admin_attribute_categories" "list" {
   depends_on = [
     pingdirectory_delegated_admin_attribute_category.%[1]s
   ]

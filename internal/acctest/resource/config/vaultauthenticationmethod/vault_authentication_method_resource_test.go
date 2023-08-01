@@ -48,6 +48,7 @@ func TestAccVaultAuthenticationMethod(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedVaultAuthenticationMethodAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_vault_authentication_method.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_vault_authentication_methods.list", "objects.0.id"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_vault_authentication_method" "%[1]s" {
 
 data "pingdirectory_vault_authentication_method" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_vault_authentication_method.%[1]s
+  ]
+}
+
+data "pingdirectory_vault_authentication_methods" "list" {
   depends_on = [
     pingdirectory_vault_authentication_method.%[1]s
   ]

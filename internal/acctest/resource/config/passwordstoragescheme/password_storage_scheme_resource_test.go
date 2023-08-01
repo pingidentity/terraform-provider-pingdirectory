@@ -66,6 +66,7 @@ func TestAccPasswordStorageScheme(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "salt_length_bytes", strconv.FormatInt(initialResourceModel.saltLengthBytes, 10)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "derived_key_length_bytes", strconv.FormatInt(initialResourceModel.derivedKeyLengthBytes, 10)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_storage_scheme.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_password_storage_schemes.list", "objects.0.id"),
 				),
 			},
 			{
@@ -103,6 +104,12 @@ resource "pingdirectory_password_storage_scheme" "%[1]s" {
 
 data "pingdirectory_password_storage_scheme" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_storage_scheme.%[1]s
+  ]
+}
+
+data "pingdirectory_password_storage_schemes" "list" {
   depends_on = [
     pingdirectory_password_storage_scheme.%[1]s
   ]

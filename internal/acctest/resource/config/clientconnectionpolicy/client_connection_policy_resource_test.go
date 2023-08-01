@@ -51,6 +51,7 @@ func TestAccClientConnectionPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_client_connection_policy.%s", resourceName), "policy_id", initialResourceModel.policyId),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_client_connection_policy.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_client_connection_policy.%s", resourceName), "evaluation_order_index", strconv.FormatInt(initialResourceModel.evaluationOrderIndex, 10)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_client_connection_policies.list", "ids.0"),
 				),
 			},
 			{
@@ -83,6 +84,12 @@ resource "pingdirectory_client_connection_policy" "%[1]s" {
 
 data "pingdirectory_client_connection_policy" "%[1]s" {
   policy_id = "%[2]s"
+  depends_on = [
+    pingdirectory_client_connection_policy.%[1]s
+  ]
+}
+
+data "pingdirectory_client_connection_policies" "list" {
   depends_on = [
     pingdirectory_client_connection_policy.%[1]s
   ]

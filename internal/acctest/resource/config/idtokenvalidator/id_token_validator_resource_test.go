@@ -58,6 +58,7 @@ func TestAccPingOneIdTokenValidator(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "identity_mapper", initialResourceModel.identityMapper),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_id_token_validator.%s", resourceName), "evaluation_order_index", strconv.FormatInt(initialResourceModel.evaluationOrderIndex, 10)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_id_token_validators.list", "objects.0.id"),
 				),
 			},
 			{
@@ -93,6 +94,12 @@ resource "pingdirectory_id_token_validator" "%[1]s" {
 
 data "pingdirectory_id_token_validator" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_id_token_validator.%[1]s
+  ]
+}
+
+data "pingdirectory_id_token_validators" "list" {
   depends_on = [
     pingdirectory_id_token_validator.%[1]s
   ]

@@ -47,6 +47,7 @@ func TestAccNameAndOptionalUidAttributeSyntax(t *testing.T) {
 					testAccCheckExpectedNameAndOptionalUidAttributeSyntaxAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_attribute_syntax.%s", resourceName), "enable_compaction", strconv.FormatBool(initialResourceModel.enable_compaction)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_attribute_syntax.%s", resourceName), "require_binary_transfer", strconv.FormatBool(initialResourceModel.require_binary_transfer)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_attribute_syntaxes.list", "objects.0.id"),
 				),
 			},
 			{
@@ -80,6 +81,12 @@ resource "pingdirectory_default_attribute_syntax" "%[1]s" {
 
 data "pingdirectory_attribute_syntax" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_attribute_syntax.%[1]s
+  ]
+}
+
+data "pingdirectory_attribute_syntaxes" "list" {
   depends_on = [
     pingdirectory_default_attribute_syntax.%[1]s
   ]

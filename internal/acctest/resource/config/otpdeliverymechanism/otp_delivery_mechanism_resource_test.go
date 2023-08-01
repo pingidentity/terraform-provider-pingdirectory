@@ -50,6 +50,7 @@ func TestAccOtpDeliveryMechanism(t *testing.T) {
 					testAccCheckExpectedOtpDeliveryMechanismAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_otp_delivery_mechanism.%s", resourceName), "sender_address", initialResourceModel.senderAddress),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_otp_delivery_mechanism.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_otp_delivery_mechanisms.list", "objects.0.id"),
 				),
 			},
 			{
@@ -83,6 +84,12 @@ resource "pingdirectory_otp_delivery_mechanism" "%[1]s" {
 
 data "pingdirectory_otp_delivery_mechanism" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_otp_delivery_mechanism.%[1]s
+  ]
+}
+
+data "pingdirectory_otp_delivery_mechanisms" "list" {
   depends_on = [
     pingdirectory_otp_delivery_mechanism.%[1]s
   ]

@@ -50,6 +50,7 @@ func TestAccUnboundidMsChapV2SaslMechanismHandler(t *testing.T) {
 					testAccCheckExpectedUnboundidMsChapV2SaslMechanismHandlerAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_sasl_mechanism_handler.%s", resourceName), "identity_mapper", initialResourceModel.identityMapper),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_sasl_mechanism_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_sasl_mechanism_handlers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -83,6 +84,12 @@ resource "pingdirectory_sasl_mechanism_handler" "%[1]s" {
 
 data "pingdirectory_sasl_mechanism_handler" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_sasl_mechanism_handler.%[1]s
+  ]
+}
+
+data "pingdirectory_sasl_mechanism_handlers" "list" {
   depends_on = [
     pingdirectory_sasl_mechanism_handler.%[1]s
   ]
