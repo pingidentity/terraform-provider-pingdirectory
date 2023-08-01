@@ -169,6 +169,10 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 			attributes["id"] = types.StringValue(response.FileBasedDebugLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("file-based-debug")
 		}
+		if response.ConsoleJsonSyncFailedOpsLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.ConsoleJsonSyncFailedOpsLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("console-json-sync-failed-ops")
+		}
 		if response.FileBasedErrorLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.FileBasedErrorLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("file-based-error")
@@ -189,9 +193,21 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 			attributes["id"] = types.StringValue(response.JsonAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("json-access")
 		}
+		if response.ConsoleJsonSyncLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.ConsoleJsonSyncLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("console-json-sync")
+		}
+		if response.FileBasedPolicyDecisionLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedPolicyDecisionLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("file-based-policy-decision")
+		}
 		if response.DebugAccessLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.DebugAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("debug-access")
+		}
+		if response.SyncFailedOpsLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.SyncFailedOpsLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("sync-failed-ops")
 		}
 		if response.SyslogJsonHttpOperationLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.SyslogJsonHttpOperationLogPublisherResponse.Id)
@@ -209,6 +225,10 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 			attributes["id"] = types.StringValue(response.JsonErrorLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("json-error")
 		}
+		if response.SyslogJsonSyncLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.SyslogJsonSyncLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("syslog-json-sync")
+		}
 		if response.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.GroovyScriptedFileBasedAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("groovy-scripted-file-based-access")
@@ -220,6 +240,10 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 		if response.SyslogJsonAccessLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.SyslogJsonAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("syslog-json-access")
+		}
+		if response.SyslogJsonSyncFailedOpsLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.SyslogJsonSyncFailedOpsLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("syslog-json-sync-failed-ops")
 		}
 		if response.GroovyScriptedAccessLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.GroovyScriptedAccessLogPublisherResponse.Id)
@@ -241,9 +265,17 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 			attributes["id"] = types.StringValue(response.ConsoleJsonAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("console-json-access")
 		}
+		if response.FileBasedJsonSyncLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedJsonSyncLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("file-based-json-sync")
+		}
 		if response.FileBasedAccessLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.FileBasedAccessLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("file-based-access")
+		}
+		if response.FileBasedSyncLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedSyncLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("file-based-sync")
 		}
 		if response.GroovyScriptedErrorLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.GroovyScriptedErrorLogPublisherResponse.Id)
@@ -256,6 +288,10 @@ func (r *logPublishersDataSource) Read(ctx context.Context, req datasource.ReadR
 		if response.SyslogJsonErrorLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.SyslogJsonErrorLogPublisherResponse.Id)
 			attributes["type"] = types.StringValue("syslog-json-error")
+		}
+		if response.FileBasedJsonSyncFailedOpsLogPublisherResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedJsonSyncFailedOpsLogPublisherResponse.Id)
+			attributes["type"] = types.StringValue("file-based-json-sync-failed-ops")
 		}
 		if response.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			attributes["id"] = types.StringValue(response.GroovyScriptedHttpOperationLogPublisherResponse.Id)

@@ -109,13 +109,13 @@ func (r *serverInstancesDataSource) Read(ctx context.Context, req datasource.Rea
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.ProxyServerInstanceResponse != nil {
-			attributes["id"] = types.StringValue(response.ProxyServerInstanceResponse.Id)
-			attributes["type"] = types.StringValue("proxy")
-		}
 		if response.MetricsEngineServerInstanceResponse != nil {
 			attributes["id"] = types.StringValue(response.MetricsEngineServerInstanceResponse.Id)
 			attributes["type"] = types.StringValue("metrics-engine")
+		}
+		if response.ProxyServerInstanceResponse != nil {
+			attributes["id"] = types.StringValue(response.ProxyServerInstanceResponse.Id)
+			attributes["type"] = types.StringValue("proxy")
 		}
 		if response.AuthorizeServerInstanceResponse != nil {
 			attributes["id"] = types.StringValue(response.AuthorizeServerInstanceResponse.Id)

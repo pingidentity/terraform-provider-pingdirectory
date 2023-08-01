@@ -109,10 +109,6 @@ func (r *vaultAuthenticationMethodsDataSource) Read(ctx context.Context, req dat
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.StaticTokenVaultAuthenticationMethodResponse != nil {
-			attributes["id"] = types.StringValue(response.StaticTokenVaultAuthenticationMethodResponse.Id)
-			attributes["type"] = types.StringValue("static-token")
-		}
 		if response.AppRoleVaultAuthenticationMethodResponse != nil {
 			attributes["id"] = types.StringValue(response.AppRoleVaultAuthenticationMethodResponse.Id)
 			attributes["type"] = types.StringValue("app-role")
@@ -120,6 +116,10 @@ func (r *vaultAuthenticationMethodsDataSource) Read(ctx context.Context, req dat
 		if response.UserPassVaultAuthenticationMethodResponse != nil {
 			attributes["id"] = types.StringValue(response.UserPassVaultAuthenticationMethodResponse.Id)
 			attributes["type"] = types.StringValue("user-pass")
+		}
+		if response.StaticTokenVaultAuthenticationMethodResponse != nil {
+			attributes["id"] = types.StringValue(response.StaticTokenVaultAuthenticationMethodResponse.Id)
+			attributes["type"] = types.StringValue("static-token")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

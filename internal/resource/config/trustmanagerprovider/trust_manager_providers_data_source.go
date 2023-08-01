@@ -113,13 +113,13 @@ func (r *trustManagerProvidersDataSource) Read(ctx context.Context, req datasour
 			attributes["id"] = types.StringValue(response.BlindTrustManagerProviderResponse.Id)
 			attributes["type"] = types.StringValue("blind")
 		}
-		if response.FileBasedTrustManagerProviderResponse != nil {
-			attributes["id"] = types.StringValue(response.FileBasedTrustManagerProviderResponse.Id)
-			attributes["type"] = types.StringValue("file-based")
-		}
 		if response.JvmDefaultTrustManagerProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.JvmDefaultTrustManagerProviderResponse.Id)
 			attributes["type"] = types.StringValue("jvm-default")
+		}
+		if response.FileBasedTrustManagerProviderResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedTrustManagerProviderResponse.Id)
+			attributes["type"] = types.StringValue("file-based")
 		}
 		if response.ThirdPartyTrustManagerProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyTrustManagerProviderResponse.Id)

@@ -117,25 +117,9 @@ func (r *virtualAttributesDataSource) Read(ctx context.Context, req datasource.R
 			attributes["id"] = types.StringValue(response.EntryChecksumVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("entry-checksum")
 		}
-		if response.MemberOfServerGroupVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.MemberOfServerGroupVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("member-of-server-group")
-		}
-		if response.ConstructedVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.ConstructedVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("constructed")
-		}
 		if response.IsMemberOfVirtualAttributeResponse != nil {
 			attributes["id"] = types.StringValue(response.IsMemberOfVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("is-member-of")
-		}
-		if response.CustomVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.CustomVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("custom")
-		}
-		if response.NumSubordinatesVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.NumSubordinatesVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("num-subordinates")
 		}
 		if response.ReverseDnJoinVirtualAttributeResponse != nil {
 			attributes["id"] = types.StringValue(response.ReverseDnJoinVirtualAttributeResponse.Id)
@@ -149,37 +133,17 @@ func (r *virtualAttributesDataSource) Read(ctx context.Context, req datasource.R
 			attributes["id"] = types.StringValue(response.UserDefinedVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("user-defined")
 		}
-		if response.CurrentTimeVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.CurrentTimeVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("current-time")
-		}
 		if response.ShortUniqueIdVirtualAttributeResponse != nil {
 			attributes["id"] = types.StringValue(response.ShortUniqueIdVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("short-unique-id")
 		}
-		if response.EntryDnVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.EntryDnVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("entry-dn")
-		}
-		if response.HasSubordinatesVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.HasSubordinatesVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("has-subordinates")
-		}
-		if response.EqualityJoinVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.EqualityJoinVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("equality-join")
-		}
-		if response.GroovyScriptedVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.GroovyScriptedVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("groovy-scripted")
+		if response.ExpandTimestampVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.ExpandTimestampVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("expand-timestamp")
 		}
 		if response.InstanceNameVirtualAttributeResponse != nil {
 			attributes["id"] = types.StringValue(response.InstanceNameVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("instance-name")
-		}
-		if response.ReplicationStateDetailVirtualAttributeResponse != nil {
-			attributes["id"] = types.StringValue(response.ReplicationStateDetailVirtualAttributeResponse.Id)
-			attributes["type"] = types.StringValue("replication-state-detail")
 		}
 		if response.MemberVirtualAttributeResponse != nil {
 			attributes["id"] = types.StringValue(response.MemberVirtualAttributeResponse.Id)
@@ -197,9 +161,65 @@ func (r *virtualAttributesDataSource) Read(ctx context.Context, req datasource.R
 			attributes["id"] = types.StringValue(response.DnJoinVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("dn-join")
 		}
+		if response.LargeAttributeVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.LargeAttributeVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("large-attribute")
+		}
 		if response.ThirdPartyVirtualAttributeResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyVirtualAttributeResponse.Id)
 			attributes["type"] = types.StringValue("third-party")
+		}
+		if response.MemberOfServerGroupVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.MemberOfServerGroupVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("member-of-server-group")
+		}
+		if response.ConstructedVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.ConstructedVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("constructed")
+		}
+		if response.CustomVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.CustomVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("custom")
+		}
+		if response.FileBasedVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.FileBasedVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("file-based")
+		}
+		if response.NumSubordinatesVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.NumSubordinatesVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("num-subordinates")
+		}
+		if response.CurrentTimeVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.CurrentTimeVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("current-time")
+		}
+		if response.EntryUuidVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.EntryUuidVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("entry-uuid")
+		}
+		if response.EntryDnVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.EntryDnVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("entry-dn")
+		}
+		if response.HasSubordinatesVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.HasSubordinatesVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("has-subordinates")
+		}
+		if response.ConfigModelVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.ConfigModelVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("config-model")
+		}
+		if response.EqualityJoinVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.EqualityJoinVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("equality-join")
+		}
+		if response.GroovyScriptedVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.GroovyScriptedVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("groovy-scripted")
+		}
+		if response.ReplicationStateDetailVirtualAttributeResponse != nil {
+			attributes["id"] = types.StringValue(response.ReplicationStateDetailVirtualAttributeResponse.Id)
+			attributes["type"] = types.StringValue("replication-state-detail")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

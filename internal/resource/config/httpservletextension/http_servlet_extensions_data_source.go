@@ -109,6 +109,10 @@ func (r *httpServletExtensionsDataSource) Read(ctx context.Context, req datasour
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
+		if response.StandardHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.StandardHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("standard")
+		}
 		if response.DelegatedAdminHttpServletExtensionResponse != nil {
 			attributes["id"] = types.StringValue(response.DelegatedAdminHttpServletExtensionResponse.Id)
 			attributes["type"] = types.StringValue("delegated-admin")
@@ -141,9 +145,25 @@ func (r *httpServletExtensionsDataSource) Read(ctx context.Context, req datasour
 			attributes["id"] = types.StringValue(response.GroovyScriptedHttpServletExtensionResponse.Id)
 			attributes["type"] = types.StringValue("groovy-scripted")
 		}
+		if response.OpenBankingHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.OpenBankingHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("open-banking")
+		}
+		if response.PdpEndpointHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.PdpEndpointHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("pdp-endpoint")
+		}
 		if response.FileServerHttpServletExtensionResponse != nil {
 			attributes["id"] = types.StringValue(response.FileServerHttpServletExtensionResponse.Id)
 			attributes["type"] = types.StringValue("file-server")
+		}
+		if response.JsonPdpApiHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.JsonPdpApiHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("json-pdp-api")
+		}
+		if response.MetricsHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.MetricsHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("metrics")
 		}
 		if response.ConfigHttpServletExtensionResponse != nil {
 			attributes["id"] = types.StringValue(response.ConfigHttpServletExtensionResponse.Id)
@@ -157,9 +177,17 @@ func (r *httpServletExtensionsDataSource) Read(ctx context.Context, req datasour
 			attributes["id"] = types.StringValue(response.DirectoryRestApiHttpServletExtensionResponse.Id)
 			attributes["type"] = types.StringValue("directory-rest-api")
 		}
+		if response.GatewayHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.GatewayHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("gateway")
+		}
 		if response.ThirdPartyHttpServletExtensionResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyHttpServletExtensionResponse.Id)
 			attributes["type"] = types.StringValue("third-party")
+		}
+		if response.SidebandApiHttpServletExtensionResponse != nil {
+			attributes["id"] = types.StringValue(response.SidebandApiHttpServletExtensionResponse.Id)
+			attributes["type"] = types.StringValue("sideband-api")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

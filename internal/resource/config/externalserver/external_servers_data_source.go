@@ -109,9 +109,13 @@ func (r *externalServersDataSource) Read(ctx context.Context, req datasource.Rea
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.SmtpExternalServerResponse != nil {
-			attributes["id"] = types.StringValue(response.SmtpExternalServerResponse.Id)
-			attributes["type"] = types.StringValue("smtp")
+		if response.ConsentServiceExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.ConsentServiceExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("consent-service")
+		}
+		if response.ScimExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.ScimExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("scim")
 		}
 		if response.NokiaDsExternalServerResponse != nil {
 			attributes["id"] = types.StringValue(response.NokiaDsExternalServerResponse.Id)
@@ -121,9 +125,9 @@ func (r *externalServersDataSource) Read(ctx context.Context, req datasource.Rea
 			attributes["id"] = types.StringValue(response.PingIdentityDsExternalServerResponse.Id)
 			attributes["type"] = types.StringValue("ping-identity-ds")
 		}
-		if response.ActiveDirectoryExternalServerResponse != nil {
-			attributes["id"] = types.StringValue(response.ActiveDirectoryExternalServerResponse.Id)
-			attributes["type"] = types.StringValue("active-directory")
+		if response.MetricsEngineExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.MetricsEngineExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("metrics-engine")
 		}
 		if response.JdbcExternalServerResponse != nil {
 			attributes["id"] = types.StringValue(response.JdbcExternalServerResponse.Id)
@@ -137,13 +141,13 @@ func (r *externalServersDataSource) Read(ctx context.Context, req datasource.Rea
 			attributes["id"] = types.StringValue(response.PingIdentityProxyServerExternalServerResponse.Id)
 			attributes["type"] = types.StringValue("ping-identity-proxy-server")
 		}
-		if response.HttpProxyExternalServerResponse != nil {
-			attributes["id"] = types.StringValue(response.HttpProxyExternalServerResponse.Id)
-			attributes["type"] = types.StringValue("http-proxy")
-		}
 		if response.NokiaProxyServerExternalServerResponse != nil {
 			attributes["id"] = types.StringValue(response.NokiaProxyServerExternalServerResponse.Id)
 			attributes["type"] = types.StringValue("nokia-proxy-server")
+		}
+		if response.SunDsExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.SunDsExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("sun-ds")
 		}
 		if response.OpendjExternalServerResponse != nil {
 			attributes["id"] = types.StringValue(response.OpendjExternalServerResponse.Id)
@@ -157,9 +161,53 @@ func (r *externalServersDataSource) Read(ctx context.Context, req datasource.Rea
 			attributes["id"] = types.StringValue(response.PingOneHttpExternalServerResponse.Id)
 			attributes["type"] = types.StringValue("ping-one-http")
 		}
+		if response.ApiExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.ApiExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("api")
+		}
+		if response.RedHatDsExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.RedHatDsExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("red-hat-ds")
+		}
+		if response.SyncServerExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.SyncServerExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("sync-server")
+		}
+		if response.VaultExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.VaultExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("vault")
+		}
+		if response.PolicyExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.PolicyExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("policy")
+		}
+		if response.SmtpExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.SmtpExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("smtp")
+		}
+		if response.ActiveDirectoryExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.ActiveDirectoryExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("active-directory")
+		}
+		if response.BrokerExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.BrokerExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("broker")
+		}
+		if response.HttpProxyExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.HttpProxyExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("http-proxy")
+		}
+		if response.KafkaClusterExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.KafkaClusterExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("kafka-cluster")
+		}
 		if response.HttpExternalServerResponse != nil {
 			attributes["id"] = types.StringValue(response.HttpExternalServerResponse.Id)
 			attributes["type"] = types.StringValue("http")
+		}
+		if response.MockExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.MockExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("mock")
 		}
 		if response.OracleUnifiedDirectoryExternalServerResponse != nil {
 			attributes["id"] = types.StringValue(response.OracleUnifiedDirectoryExternalServerResponse.Id)
@@ -173,9 +221,9 @@ func (r *externalServersDataSource) Read(ctx context.Context, req datasource.Rea
 			attributes["id"] = types.StringValue(response.AmazonAwsExternalServerResponse.Id)
 			attributes["type"] = types.StringValue("amazon-aws")
 		}
-		if response.VaultExternalServerResponse != nil {
-			attributes["id"] = types.StringValue(response.VaultExternalServerResponse.Id)
-			attributes["type"] = types.StringValue("vault")
+		if response.Scim2ExternalServerResponse != nil {
+			attributes["id"] = types.StringValue(response.Scim2ExternalServerResponse.Id)
+			attributes["type"] = types.StringValue("scim2")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

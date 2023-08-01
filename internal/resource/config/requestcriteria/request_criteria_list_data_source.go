@@ -109,13 +109,13 @@ func (r *requestCriteriaListDataSource) Read(ctx context.Context, req datasource
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.RootDseRequestCriteriaResponse != nil {
-			attributes["id"] = types.StringValue(response.RootDseRequestCriteriaResponse.Id)
-			attributes["type"] = types.StringValue("root-dse")
-		}
 		if response.SimpleRequestCriteriaResponse != nil {
 			attributes["id"] = types.StringValue(response.SimpleRequestCriteriaResponse.Id)
 			attributes["type"] = types.StringValue("simple")
+		}
+		if response.RootDseRequestCriteriaResponse != nil {
+			attributes["id"] = types.StringValue(response.RootDseRequestCriteriaResponse.Id)
+			attributes["type"] = types.StringValue("root-dse")
 		}
 		if response.AggregateRequestCriteriaResponse != nil {
 			attributes["id"] = types.StringValue(response.AggregateRequestCriteriaResponse.Id)

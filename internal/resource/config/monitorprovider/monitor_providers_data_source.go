@@ -125,6 +125,10 @@ func (r *monitorProvidersDataSource) Read(ctx context.Context, req datasource.Re
 			attributes["id"] = types.StringValue(response.CustomMonitorProviderResponse.Id)
 			attributes["type"] = types.StringValue("custom")
 		}
+		if response.EntryCacheMonitorProviderResponse != nil {
+			attributes["id"] = types.StringValue(response.EntryCacheMonitorProviderResponse.Id)
+			attributes["type"] = types.StringValue("entry-cache")
+		}
 		if response.ActiveOperationsMonitorProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.ActiveOperationsMonitorProviderResponse.Id)
 			attributes["type"] = types.StringValue("active-operations")

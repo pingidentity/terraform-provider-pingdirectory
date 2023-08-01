@@ -141,9 +141,17 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			attributes["id"] = types.StringValue(response.PingOnePassThroughAuthenticationPluginResponse.Id)
 			attributes["type"] = types.StringValue("ping-one-pass-through-authentication")
 		}
+		if response.SecretKeyDeleteAlertPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.SecretKeyDeleteAlertPluginResponse.Id)
+			attributes["type"] = types.StringValue("secret-key-delete-alert")
+		}
 		if response.ChangelogPasswordEncryptionPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.ChangelogPasswordEncryptionPluginResponse.Id)
 			attributes["type"] = types.StringValue("changelog-password-encryption")
+		}
+		if response.GloballyUniqueAttributePluginResponse != nil {
+			attributes["id"] = types.StringValue(response.GloballyUniqueAttributePluginResponse.Id)
+			attributes["type"] = types.StringValue("globally-unique-attribute")
 		}
 		if response.ProcessingTimeHistogramPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.ProcessingTimeHistogramPluginResponse.Id)
@@ -165,6 +173,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			attributes["id"] = types.StringValue(response.ChangeSubscriptionNotificationPluginResponse.Id)
 			attributes["type"] = types.StringValue("change-subscription-notification")
 		}
+		if response.LdapAttributeDescriptionListPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.LdapAttributeDescriptionListPluginResponse.Id)
+			attributes["type"] = types.StringValue("ldap-attribute-description-list")
+		}
 		if response.SubOperationTimingPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.SubOperationTimingPluginResponse.Id)
 			attributes["type"] = types.StringValue("sub-operation-timing")
@@ -180,6 +192,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		if response.PassThroughAuthenticationPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.PassThroughAuthenticationPluginResponse.Id)
 			attributes["type"] = types.StringValue("pass-through-authentication")
+		}
+		if response.GlobalReferentialIntegrityPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.GlobalReferentialIntegrityPluginResponse.Id)
+			attributes["type"] = types.StringValue("global-referential-integrity")
 		}
 		if response.DnMapperPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.DnMapperPluginResponse.Id)
@@ -217,6 +233,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			attributes["id"] = types.StringValue(response.ProfilerPluginResponse.Id)
 			attributes["type"] = types.StringValue("profiler")
 		}
+		if response.EntryUuidPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.EntryUuidPluginResponse.Id)
+			attributes["type"] = types.StringValue("entry-uuid")
+		}
 		if response.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.CleanUpInactivePingfederatePersistentSessionsPluginResponse.Id)
 			attributes["type"] = types.StringValue("clean-up-inactive-pingfederate-persistent-sessions")
@@ -236,6 +256,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		if response.DelayPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.DelayPluginResponse.Id)
 			attributes["type"] = types.StringValue("delay")
+		}
+		if response.PreUpdateConfigPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.PreUpdateConfigPluginResponse.Id)
+			attributes["type"] = types.StringValue("pre-update-config")
 		}
 		if response.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			attributes["id"] = types.StringValue(response.CleanUpExpiredPingfederatePersistentSessionsPluginResponse.Id)
@@ -260,6 +284,10 @@ func (r *pluginsDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		if response.UniqueAttributePluginResponse != nil {
 			attributes["id"] = types.StringValue(response.UniqueAttributePluginResponse.Id)
 			attributes["type"] = types.StringValue("unique-attribute")
+		}
+		if response.SnmpMasterAgentPluginResponse != nil {
+			attributes["id"] = types.StringValue(response.SnmpMasterAgentPluginResponse.Id)
+			attributes["type"] = types.StringValue("snmp-master-agent")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

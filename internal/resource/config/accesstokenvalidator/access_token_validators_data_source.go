@@ -109,6 +109,14 @@ func (r *accessTokenValidatorsDataSource) Read(ctx context.Context, req datasour
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
+		if response.ExternalApiGatewayAccessTokenValidatorResponse != nil {
+			attributes["id"] = types.StringValue(response.ExternalApiGatewayAccessTokenValidatorResponse.Id)
+			attributes["type"] = types.StringValue("external-api-gateway")
+		}
+		if response.MockAccessTokenValidatorResponse != nil {
+			attributes["id"] = types.StringValue(response.MockAccessTokenValidatorResponse.Id)
+			attributes["type"] = types.StringValue("mock")
+		}
 		if response.PingFederateAccessTokenValidatorResponse != nil {
 			attributes["id"] = types.StringValue(response.PingFederateAccessTokenValidatorResponse.Id)
 			attributes["type"] = types.StringValue("ping-federate")
@@ -116,10 +124,6 @@ func (r *accessTokenValidatorsDataSource) Read(ctx context.Context, req datasour
 		if response.JwtAccessTokenValidatorResponse != nil {
 			attributes["id"] = types.StringValue(response.JwtAccessTokenValidatorResponse.Id)
 			attributes["type"] = types.StringValue("jwt")
-		}
-		if response.MockAccessTokenValidatorResponse != nil {
-			attributes["id"] = types.StringValue(response.MockAccessTokenValidatorResponse.Id)
-			attributes["type"] = types.StringValue("mock")
 		}
 		if response.ThirdPartyAccessTokenValidatorResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyAccessTokenValidatorResponse.Id)

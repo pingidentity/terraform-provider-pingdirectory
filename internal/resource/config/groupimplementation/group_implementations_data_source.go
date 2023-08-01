@@ -109,10 +109,6 @@ func (r *groupImplementationsDataSource) Read(ctx context.Context, req datasourc
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.StaticGroupImplementationResponse != nil {
-			attributes["id"] = types.StringValue(response.StaticGroupImplementationResponse.Id)
-			attributes["type"] = types.StringValue("static")
-		}
 		if response.VirtualStaticGroupImplementationResponse != nil {
 			attributes["id"] = types.StringValue(response.VirtualStaticGroupImplementationResponse.Id)
 			attributes["type"] = types.StringValue("virtual-static")
@@ -120,6 +116,10 @@ func (r *groupImplementationsDataSource) Read(ctx context.Context, req datasourc
 		if response.DynamicGroupImplementationResponse != nil {
 			attributes["id"] = types.StringValue(response.DynamicGroupImplementationResponse.Id)
 			attributes["type"] = types.StringValue("dynamic")
+		}
+		if response.StaticGroupImplementationResponse != nil {
+			attributes["id"] = types.StringValue(response.StaticGroupImplementationResponse.Id)
+			attributes["type"] = types.StringValue("static")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

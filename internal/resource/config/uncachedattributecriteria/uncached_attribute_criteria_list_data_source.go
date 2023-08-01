@@ -113,13 +113,13 @@ func (r *uncachedAttributeCriteriaListDataSource) Read(ctx context.Context, req 
 			attributes["id"] = types.StringValue(response.DefaultUncachedAttributeCriteriaResponse.Id)
 			attributes["type"] = types.StringValue("default")
 		}
-		if response.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
-			attributes["id"] = types.StringValue(response.GroovyScriptedUncachedAttributeCriteriaResponse.Id)
-			attributes["type"] = types.StringValue("groovy-scripted")
-		}
 		if response.SimpleUncachedAttributeCriteriaResponse != nil {
 			attributes["id"] = types.StringValue(response.SimpleUncachedAttributeCriteriaResponse.Id)
 			attributes["type"] = types.StringValue("simple")
+		}
+		if response.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
+			attributes["id"] = types.StringValue(response.GroovyScriptedUncachedAttributeCriteriaResponse.Id)
+			attributes["type"] = types.StringValue("groovy-scripted")
 		}
 		if response.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyUncachedAttributeCriteriaResponse.Id)

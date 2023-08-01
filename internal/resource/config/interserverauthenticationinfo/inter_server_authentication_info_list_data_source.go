@@ -119,13 +119,13 @@ func (r *interServerAuthenticationInfoListDataSource) Read(ctx context.Context, 
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.PasswordInterServerAuthenticationInfoResponse != nil {
-			attributes["id"] = types.StringValue(response.PasswordInterServerAuthenticationInfoResponse.Id)
-			attributes["type"] = types.StringValue("password")
-		}
 		if response.CertificateInterServerAuthenticationInfoResponse != nil {
 			attributes["id"] = types.StringValue(response.CertificateInterServerAuthenticationInfoResponse.Id)
 			attributes["type"] = types.StringValue("certificate")
+		}
+		if response.PasswordInterServerAuthenticationInfoResponse != nil {
+			attributes["id"] = types.StringValue(response.PasswordInterServerAuthenticationInfoResponse.Id)
+			attributes["type"] = types.StringValue("password")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

@@ -109,6 +109,10 @@ func (r *connectionHandlersDataSource) Read(ctx context.Context, req datasource.
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
+		if response.HttpConnectionHandlerResponse != nil {
+			attributes["id"] = types.StringValue(response.HttpConnectionHandlerResponse.Id)
+			attributes["type"] = types.StringValue("http")
+		}
 		if response.JmxConnectionHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.JmxConnectionHandlerResponse.Id)
 			attributes["type"] = types.StringValue("jmx")
@@ -120,10 +124,6 @@ func (r *connectionHandlersDataSource) Read(ctx context.Context, req datasource.
 		if response.LdifConnectionHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.LdifConnectionHandlerResponse.Id)
 			attributes["type"] = types.StringValue("ldif")
-		}
-		if response.HttpConnectionHandlerResponse != nil {
-			attributes["id"] = types.StringValue(response.HttpConnectionHandlerResponse.Id)
-			attributes["type"] = types.StringValue("http")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

@@ -109,13 +109,13 @@ func (r *changeSubscriptionHandlersDataSource) Read(ctx context.Context, req dat
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
-			attributes["id"] = types.StringValue(response.GroovyScriptedChangeSubscriptionHandlerResponse.Id)
-			attributes["type"] = types.StringValue("groovy-scripted")
-		}
 		if response.LoggingChangeSubscriptionHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.LoggingChangeSubscriptionHandlerResponse.Id)
 			attributes["type"] = types.StringValue("logging")
+		}
+		if response.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
+			attributes["id"] = types.StringValue(response.GroovyScriptedChangeSubscriptionHandlerResponse.Id)
+			attributes["type"] = types.StringValue("groovy-scripted")
 		}
 		if response.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyChangeSubscriptionHandlerResponse.Id)

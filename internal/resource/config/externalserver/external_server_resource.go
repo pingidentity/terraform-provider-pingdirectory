@@ -832,7 +832,7 @@ func addOptionalNokiaDsExternalServerFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerNokiaDsConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -937,7 +937,7 @@ func addOptionalPingIdentityDsExternalServerFields(ctx context.Context, addReque
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerPingIdentityDsConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1031,7 +1031,7 @@ func addOptionalActiveDirectoryExternalServerFields(ctx context.Context, addRequ
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerActiveDirectoryConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1225,7 +1225,7 @@ func addOptionalPingIdentityProxyServerExternalServerFields(ctx context.Context,
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerPingIdentityProxyServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1347,7 +1347,7 @@ func addOptionalNokiaProxyServerExternalServerFields(ctx context.Context, addReq
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerNokiaProxyServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1441,7 +1441,7 @@ func addOptionalOpendjExternalServerFields(ctx context.Context, addRequest *clie
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerOpendjConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1543,7 +1543,7 @@ func addOptionalLdapExternalServerFields(ctx context.Context, addRequest *client
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerLdapConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1626,7 +1626,7 @@ func addOptionalLdapExternalServerFields(ctx context.Context, addRequest *client
 func addOptionalPingOneHttpExternalServerFields(ctx context.Context, addRequest *client.AddPingOneHttpExternalServerRequest, plan externalServerResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.HostnameVerificationMethod) {
-		hostnameVerificationMethod, err := client.NewEnumexternalServerHostnameVerificationMethodPropFromValue(plan.HostnameVerificationMethod.ValueString())
+		hostnameVerificationMethod, err := client.NewEnumexternalServerPingOneHttpHostnameVerificationMethodPropFromValue(plan.HostnameVerificationMethod.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1655,7 +1655,7 @@ func addOptionalPingOneHttpExternalServerFields(ctx context.Context, addRequest 
 func addOptionalHttpExternalServerFields(ctx context.Context, addRequest *client.AddHttpExternalServerRequest, plan externalServerResourceModel) error {
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.HostnameVerificationMethod) {
-		hostnameVerificationMethod, err := client.NewEnumexternalServerHostnameVerificationMethodPropFromValue(plan.HostnameVerificationMethod.ValueString())
+		hostnameVerificationMethod, err := client.NewEnumexternalServerHttpHostnameVerificationMethodPropFromValue(plan.HostnameVerificationMethod.ValueString())
 		if err != nil {
 			return err
 		}
@@ -1711,7 +1711,7 @@ func addOptionalOracleUnifiedDirectoryExternalServerFields(ctx context.Context, 
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.ConnectionSecurity) {
-		connectionSecurity, err := client.NewEnumexternalServerConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
+		connectionSecurity, err := client.NewEnumexternalServerOracleUnifiedDirectoryConnectionSecurityPropFromValue(plan.ConnectionSecurity.ValueString())
 		if err != nil {
 			return err
 		}
@@ -2245,7 +2245,7 @@ func readPingOneHttpExternalServerResponse(ctx context.Context, r *client.PingOn
 	state.Type = types.StringValue("ping-one-http")
 	state.Id = types.StringValue(r.Id)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
+		client.StringPointerEnumexternalServerPingOneHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
 	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, internaltypes.IsEmptyString(expectedValues.ConnectTimeout))
 	config.CheckMismatchedPDFormattedAttributes("connect_timeout",
@@ -2264,7 +2264,7 @@ func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalS
 	state.Id = types.StringValue(r.Id)
 	state.BaseURL = types.StringValue(r.BaseURL)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
+		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, internaltypes.IsEmptyString(expectedValues.KeyManagerProvider))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))

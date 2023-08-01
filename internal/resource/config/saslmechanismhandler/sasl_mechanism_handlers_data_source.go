@@ -117,6 +117,14 @@ func (r *saslMechanismHandlersDataSource) Read(ctx context.Context, req datasour
 			attributes["id"] = types.StringValue(response.UnboundidTotpSaslMechanismHandlerResponse.Id)
 			attributes["type"] = types.StringValue("unboundid-totp")
 		}
+		if response.UnboundidInterServerSaslMechanismHandlerResponse != nil {
+			attributes["id"] = types.StringValue(response.UnboundidInterServerSaslMechanismHandlerResponse.Id)
+			attributes["type"] = types.StringValue("unboundid-inter-server")
+		}
+		if response.PingIdentityInterServerSaslMechanismHandlerResponse != nil {
+			attributes["id"] = types.StringValue(response.PingIdentityInterServerSaslMechanismHandlerResponse.Id)
+			attributes["type"] = types.StringValue("ping-identity-inter-server")
+		}
 		if response.UnboundidYubikeyOtpSaslMechanismHandlerResponse != nil {
 			attributes["id"] = types.StringValue(response.UnboundidYubikeyOtpSaslMechanismHandlerResponse.Id)
 			attributes["type"] = types.StringValue("unboundid-yubikey-otp")

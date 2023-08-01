@@ -47,9 +47,9 @@ func (r *entryCachesDataSource) Configure(_ context.Context, req datasource.Conf
 }
 
 type entryCachesDataSourceModel struct {
-	Id     types.String `tfsdk:"id"`
-	Filter types.String `tfsdk:"filter"`
-	Ids    types.Set    `tfsdk:"ids"`
+	Id      types.String `tfsdk:"id"`
+	Filter  types.String `tfsdk:"filter"`
+	Objects types.Set    `tfsdk:"objects"`
 }
 
 // GetSchema defines the schema for the datasource.
@@ -67,12 +67,12 @@ func (r *entryCachesDataSource) Schema(ctx context.Context, req datasource.Schem
 				Description: "SCIM filter used when searching the configuration.",
 				Optional:    true,
 			},
-			"ids": schema.SetAttribute{
-				Description: "Entry Cache IDs found in the configuration",
+			"objects": schema.SetAttribute{
+				Description: "Entry Cache objects found in the configuration",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
-				ElementType: types.StringType,
+				ElementType: internaltypes.ObjectsObjectType(),
 			},
 		},
 	}
@@ -106,12 +106,30 @@ func (r *entryCachesDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	// Read the response into the state
-	ids := []attr.Value{}
+	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
-		ids = append(ids, types.StringValue(response.Id))
+		attributes := map[string]attr.Value{}
+		if response.FileSystemEntryCacheResponse != nil {
+			attributes["id"] = types.StringValue(response.FileSystemEntryCacheResponse.Id)
+			attributes["type"] = types.StringValue("file-system")
+		}
+		if response.SoftReferenceEntryCacheResponse != nil {
+			attributes["id"] = types.StringValue(response.SoftReferenceEntryCacheResponse.Id)
+			attributes["type"] = types.StringValue("soft-reference")
+		}
+		if response.FifoEntryCacheResponse != nil {
+			attributes["id"] = types.StringValue(response.FifoEntryCacheResponse.Id)
+			attributes["type"] = types.StringValue("fifo")
+		}
+		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
+		resp.Diagnostics.Append(diags...)
+		objects = append(objects, obj)
+	}
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	state.Ids, diags = types.SetValue(types.StringType, ids)
+	state.Objects, diags = types.SetValue(internaltypes.ObjectsObjectType(), objects)
 	resp.Diagnostics.Append(diags...)
 	state.Id = types.StringValue("id")
 

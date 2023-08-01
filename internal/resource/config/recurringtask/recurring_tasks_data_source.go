@@ -121,10 +121,6 @@ func (r *recurringTasksDataSource) Read(ctx context.Context, req datasource.Read
 			attributes["id"] = types.StringValue(response.BackupRecurringTaskResponse.Id)
 			attributes["type"] = types.StringValue("backup")
 		}
-		if response.DelayRecurringTaskResponse != nil {
-			attributes["id"] = types.StringValue(response.DelayRecurringTaskResponse.Id)
-			attributes["type"] = types.StringValue("delay")
-		}
 		if response.StaticallyDefinedRecurringTaskResponse != nil {
 			attributes["id"] = types.StringValue(response.StaticallyDefinedRecurringTaskResponse.Id)
 			attributes["type"] = types.StringValue("statically-defined")
@@ -133,6 +129,14 @@ func (r *recurringTasksDataSource) Read(ctx context.Context, req datasource.Read
 			attributes["id"] = types.StringValue(response.CollectSupportDataRecurringTaskResponse.Id)
 			attributes["type"] = types.StringValue("collect-support-data")
 		}
+		if response.AuditDataSecurityRecurringTaskResponse != nil {
+			attributes["id"] = types.StringValue(response.AuditDataSecurityRecurringTaskResponse.Id)
+			attributes["type"] = types.StringValue("audit-data-security")
+		}
+		if response.DelayRecurringTaskResponse != nil {
+			attributes["id"] = types.StringValue(response.DelayRecurringTaskResponse.Id)
+			attributes["type"] = types.StringValue("delay")
+		}
 		if response.LdifExportRecurringTaskResponse != nil {
 			attributes["id"] = types.StringValue(response.LdifExportRecurringTaskResponse.Id)
 			attributes["type"] = types.StringValue("ldif-export")
@@ -140,10 +144,6 @@ func (r *recurringTasksDataSource) Read(ctx context.Context, req datasource.Read
 		if response.EnterLockdownModeRecurringTaskResponse != nil {
 			attributes["id"] = types.StringValue(response.EnterLockdownModeRecurringTaskResponse.Id)
 			attributes["type"] = types.StringValue("enter-lockdown-mode")
-		}
-		if response.AuditDataSecurityRecurringTaskResponse != nil {
-			attributes["id"] = types.StringValue(response.AuditDataSecurityRecurringTaskResponse.Id)
-			attributes["type"] = types.StringValue("audit-data-security")
 		}
 		if response.ExecRecurringTaskResponse != nil {
 			attributes["id"] = types.StringValue(response.ExecRecurringTaskResponse.Id)

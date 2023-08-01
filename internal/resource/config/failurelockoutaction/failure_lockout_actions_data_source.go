@@ -109,13 +109,13 @@ func (r *failureLockoutActionsDataSource) Read(ctx context.Context, req datasour
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.DelayBindResponseFailureLockoutActionResponse != nil {
-			attributes["id"] = types.StringValue(response.DelayBindResponseFailureLockoutActionResponse.Id)
-			attributes["type"] = types.StringValue("delay-bind-response")
-		}
 		if response.NoOperationFailureLockoutActionResponse != nil {
 			attributes["id"] = types.StringValue(response.NoOperationFailureLockoutActionResponse.Id)
 			attributes["type"] = types.StringValue("no-operation")
+		}
+		if response.DelayBindResponseFailureLockoutActionResponse != nil {
+			attributes["id"] = types.StringValue(response.DelayBindResponseFailureLockoutActionResponse.Id)
+			attributes["type"] = types.StringValue("delay-bind-response")
 		}
 		if response.LockAccountFailureLockoutActionResponse != nil {
 			attributes["id"] = types.StringValue(response.LockAccountFailureLockoutActionResponse.Id)

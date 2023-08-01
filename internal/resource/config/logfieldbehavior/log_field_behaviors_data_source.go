@@ -109,13 +109,13 @@ func (r *logFieldBehaviorsDataSource) Read(ctx context.Context, req datasource.R
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.TextAccessLogFieldBehaviorResponse != nil {
-			attributes["id"] = types.StringValue(response.TextAccessLogFieldBehaviorResponse.Id)
-			attributes["type"] = types.StringValue("text-access")
-		}
 		if response.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			attributes["id"] = types.StringValue(response.JsonFormattedAccessLogFieldBehaviorResponse.Id)
 			attributes["type"] = types.StringValue("json-formatted-access")
+		}
+		if response.TextAccessLogFieldBehaviorResponse != nil {
+			attributes["id"] = types.StringValue(response.TextAccessLogFieldBehaviorResponse.Id)
+			attributes["type"] = types.StringValue("text-access")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

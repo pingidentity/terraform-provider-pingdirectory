@@ -109,17 +109,13 @@ func (r *matchingRulesDataSource) Read(ctx context.Context, req datasource.ReadR
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.OrderingMatchingRuleResponse != nil {
-			attributes["id"] = types.StringValue(response.OrderingMatchingRuleResponse.Id)
-			attributes["type"] = types.StringValue("ordering")
-		}
-		if response.ApproximateMatchingRuleResponse != nil {
-			attributes["id"] = types.StringValue(response.ApproximateMatchingRuleResponse.Id)
-			attributes["type"] = types.StringValue("approximate")
-		}
 		if response.EqualityMatchingRuleResponse != nil {
 			attributes["id"] = types.StringValue(response.EqualityMatchingRuleResponse.Id)
 			attributes["type"] = types.StringValue("equality")
+		}
+		if response.OrderingMatchingRuleResponse != nil {
+			attributes["id"] = types.StringValue(response.OrderingMatchingRuleResponse.Id)
+			attributes["type"] = types.StringValue("ordering")
 		}
 		if response.SubstringMatchingRuleResponse != nil {
 			attributes["id"] = types.StringValue(response.SubstringMatchingRuleResponse.Id)
@@ -128,6 +124,10 @@ func (r *matchingRulesDataSource) Read(ctx context.Context, req datasource.ReadR
 		if response.GenericMatchingRuleResponse != nil {
 			attributes["id"] = types.StringValue(response.GenericMatchingRuleResponse.Id)
 			attributes["type"] = types.StringValue("generic")
+		}
+		if response.ApproximateMatchingRuleResponse != nil {
+			attributes["id"] = types.StringValue(response.ApproximateMatchingRuleResponse.Id)
+			attributes["type"] = types.StringValue("approximate")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

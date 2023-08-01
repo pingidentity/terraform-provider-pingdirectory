@@ -109,13 +109,13 @@ func (r *logFieldMappingsDataSource) Read(ctx context.Context, req datasource.Re
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.AccessLogFieldMappingResponse != nil {
-			attributes["id"] = types.StringValue(response.AccessLogFieldMappingResponse.Id)
-			attributes["type"] = types.StringValue("access")
-		}
 		if response.ErrorLogFieldMappingResponse != nil {
 			attributes["id"] = types.StringValue(response.ErrorLogFieldMappingResponse.Id)
 			attributes["type"] = types.StringValue("error")
+		}
+		if response.AccessLogFieldMappingResponse != nil {
+			attributes["id"] = types.StringValue(response.AccessLogFieldMappingResponse.Id)
+			attributes["type"] = types.StringValue("access")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

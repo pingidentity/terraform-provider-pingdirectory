@@ -109,13 +109,13 @@ func (r *idTokenValidatorsDataSource) Read(ctx context.Context, req datasource.R
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.PingOneIdTokenValidatorResponse != nil {
-			attributes["id"] = types.StringValue(response.PingOneIdTokenValidatorResponse.Id)
-			attributes["type"] = types.StringValue("ping-one")
-		}
 		if response.OpenidConnectIdTokenValidatorResponse != nil {
 			attributes["id"] = types.StringValue(response.OpenidConnectIdTokenValidatorResponse.Id)
 			attributes["type"] = types.StringValue("openid-connect")
+		}
+		if response.PingOneIdTokenValidatorResponse != nil {
+			attributes["id"] = types.StringValue(response.PingOneIdTokenValidatorResponse.Id)
+			attributes["type"] = types.StringValue("ping-one")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

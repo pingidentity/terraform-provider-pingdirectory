@@ -117,6 +117,10 @@ func (r *backendsDataSource) Read(ctx context.Context, req datasource.ReadReques
 			attributes["id"] = types.StringValue(response.BackupBackendResponse.Id)
 			attributes["type"] = types.StringValue("backup")
 		}
+		if response.MemoryBackendResponse != nil {
+			attributes["id"] = types.StringValue(response.MemoryBackendResponse.Id)
+			attributes["type"] = types.StringValue("memory")
+		}
 		if response.EncryptionSettingsBackendResponse != nil {
 			attributes["id"] = types.StringValue(response.EncryptionSettingsBackendResponse.Id)
 			attributes["type"] = types.StringValue("encryption-settings")
@@ -145,6 +149,10 @@ func (r *backendsDataSource) Read(ctx context.Context, req datasource.ReadReques
 			attributes["id"] = types.StringValue(response.LocalDbBackendResponse.Id)
 			attributes["type"] = types.StringValue("local-db")
 		}
+		if response.MirroredLdifBackendResponse != nil {
+			attributes["id"] = types.StringValue(response.MirroredLdifBackendResponse.Id)
+			attributes["type"] = types.StringValue("mirrored-ldif")
+		}
 		if response.ConfigFileHandlerBackendResponse != nil {
 			attributes["id"] = types.StringValue(response.ConfigFileHandlerBackendResponse.Id)
 			attributes["type"] = types.StringValue("config-file-handler")
@@ -164,6 +172,14 @@ func (r *backendsDataSource) Read(ctx context.Context, req datasource.ReadReques
 		if response.MetricsBackendResponse != nil {
 			attributes["id"] = types.StringValue(response.MetricsBackendResponse.Id)
 			attributes["type"] = types.StringValue("metrics")
+		}
+		if response.LargeAttributeBackendResponse != nil {
+			attributes["id"] = types.StringValue(response.LargeAttributeBackendResponse.Id)
+			attributes["type"] = types.StringValue("large-attribute")
+		}
+		if response.CannedResponseBackendResponse != nil {
+			attributes["id"] = types.StringValue(response.CannedResponseBackendResponse.Id)
+			attributes["type"] = types.StringValue("canned-response")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

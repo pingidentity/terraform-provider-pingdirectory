@@ -113,6 +113,10 @@ func (r *cipherStreamProvidersDataSource) Read(ctx context.Context, req datasour
 			attributes["id"] = types.StringValue(response.AmazonKeyManagementServiceCipherStreamProviderResponse.Id)
 			attributes["type"] = types.StringValue("amazon-key-management-service")
 		}
+		if response.DefaultCipherStreamProviderResponse != nil {
+			attributes["id"] = types.StringValue(response.DefaultCipherStreamProviderResponse.Id)
+			attributes["type"] = types.StringValue("default")
+		}
 		if response.AmazonSecretsManagerCipherStreamProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.AmazonSecretsManagerCipherStreamProviderResponse.Id)
 			attributes["type"] = types.StringValue("amazon-secrets-manager")

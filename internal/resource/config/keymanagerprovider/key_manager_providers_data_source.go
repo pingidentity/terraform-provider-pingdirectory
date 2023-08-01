@@ -109,6 +109,10 @@ func (r *keyManagerProvidersDataSource) Read(ctx context.Context, req datasource
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
+		if response.Pkcs11KeyManagerProviderResponse != nil {
+			attributes["id"] = types.StringValue(response.Pkcs11KeyManagerProviderResponse.Id)
+			attributes["type"] = types.StringValue("pkcs11")
+		}
 		if response.FileBasedKeyManagerProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.FileBasedKeyManagerProviderResponse.Id)
 			attributes["type"] = types.StringValue("file-based")
@@ -116,10 +120,6 @@ func (r *keyManagerProvidersDataSource) Read(ctx context.Context, req datasource
 		if response.CustomKeyManagerProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.CustomKeyManagerProviderResponse.Id)
 			attributes["type"] = types.StringValue("custom")
-		}
-		if response.Pkcs11KeyManagerProviderResponse != nil {
-			attributes["id"] = types.StringValue(response.Pkcs11KeyManagerProviderResponse.Id)
-			attributes["type"] = types.StringValue("pkcs11")
 		}
 		if response.ThirdPartyKeyManagerProviderResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyKeyManagerProviderResponse.Id)

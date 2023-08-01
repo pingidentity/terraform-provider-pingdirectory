@@ -113,13 +113,13 @@ func (r *passwordGeneratorsDataSource) Read(ctx context.Context, req datasource.
 			attributes["id"] = types.StringValue(response.RandomPasswordGeneratorResponse.Id)
 			attributes["type"] = types.StringValue("random")
 		}
-		if response.GroovyScriptedPasswordGeneratorResponse != nil {
-			attributes["id"] = types.StringValue(response.GroovyScriptedPasswordGeneratorResponse.Id)
-			attributes["type"] = types.StringValue("groovy-scripted")
-		}
 		if response.PassphrasePasswordGeneratorResponse != nil {
 			attributes["id"] = types.StringValue(response.PassphrasePasswordGeneratorResponse.Id)
 			attributes["type"] = types.StringValue("passphrase")
+		}
+		if response.GroovyScriptedPasswordGeneratorResponse != nil {
+			attributes["id"] = types.StringValue(response.GroovyScriptedPasswordGeneratorResponse.Id)
+			attributes["type"] = types.StringValue("groovy-scripted")
 		}
 		if response.ThirdPartyPasswordGeneratorResponse != nil {
 			attributes["id"] = types.StringValue(response.ThirdPartyPasswordGeneratorResponse.Id)

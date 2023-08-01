@@ -1800,7 +1800,7 @@ func readUniqueAttributePluginResponseDataSource(ctx context.Context, r *client.
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), false)
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), false)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}

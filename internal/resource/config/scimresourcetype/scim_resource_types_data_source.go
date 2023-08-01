@@ -113,9 +113,17 @@ func (r *scimResourceTypesDataSource) Read(ctx context.Context, req datasource.R
 			attributes["id"] = types.StringValue(response.LdapPassThroughScimResourceTypeResponse.Id)
 			attributes["type"] = types.StringValue("ldap-pass-through")
 		}
+		if response.MappingScimResourceTypeResponse != nil {
+			attributes["id"] = types.StringValue(response.MappingScimResourceTypeResponse.Id)
+			attributes["type"] = types.StringValue("mapping")
+		}
 		if response.LdapMappingScimResourceTypeResponse != nil {
 			attributes["id"] = types.StringValue(response.LdapMappingScimResourceTypeResponse.Id)
 			attributes["type"] = types.StringValue("ldap-mapping")
+		}
+		if response.PassThroughScimResourceTypeResponse != nil {
+			attributes["id"] = types.StringValue(response.PassThroughScimResourceTypeResponse.Id)
+			attributes["type"] = types.StringValue("pass-through")
 		}
 		obj, diags := types.ObjectValue(internaltypes.ObjectsAttrTypes(), attributes)
 		resp.Diagnostics.Append(diags...)

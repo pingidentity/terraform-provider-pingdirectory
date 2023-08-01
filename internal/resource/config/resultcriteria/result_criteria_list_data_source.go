@@ -109,13 +109,13 @@ func (r *resultCriteriaListDataSource) Read(ctx context.Context, req datasource.
 	objects := []attr.Value{}
 	for _, response := range readResponse.Resources {
 		attributes := map[string]attr.Value{}
-		if response.SuccessfulBindResultCriteriaResponse != nil {
-			attributes["id"] = types.StringValue(response.SuccessfulBindResultCriteriaResponse.Id)
-			attributes["type"] = types.StringValue("successful-bind")
-		}
 		if response.SimpleResultCriteriaResponse != nil {
 			attributes["id"] = types.StringValue(response.SimpleResultCriteriaResponse.Id)
 			attributes["type"] = types.StringValue("simple")
+		}
+		if response.SuccessfulBindResultCriteriaResponse != nil {
+			attributes["id"] = types.StringValue(response.SuccessfulBindResultCriteriaResponse.Id)
+			attributes["type"] = types.StringValue("successful-bind")
 		}
 		if response.AggregateResultCriteriaResponse != nil {
 			attributes["id"] = types.StringValue(response.AggregateResultCriteriaResponse.Id)
