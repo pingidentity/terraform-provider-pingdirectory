@@ -31,7 +31,7 @@ resource "pingdirectory_gauge" "myGauge" {
 
 data "pingdirectory_gauges" "myGauge" {
   filter = "id eq \"CPU Usage (Percent)\""
-  depends_on = [ 
+  depends_on = [
     pingdirectory_gauge.myGauge
-   ]
+  ]
 }

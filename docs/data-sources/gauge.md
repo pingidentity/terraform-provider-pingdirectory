@@ -36,8 +36,18 @@ provider "pingdirectory" {
   product_version        = "9.3.0.0"
 }
 
-data "pingdirectory_gauge" "myGauge" {
-  id = "MyGauge"
+resource "pingdirectory_gauge" "myGauge" {
+  id                = "MyGauge"
+  type              = "indicator"
+  gauge_data_source = "Replication Connection Status"
+  enabled           = true
+}
+
+data "pingdirectory_gauges" "myGauge" {
+  filter = "id eq \"CPU Usage (Percent)\""
+  depends_on = [
+    pingdirectory_gauge.myGauge
+  ]
 }
 ```
 

@@ -101,9 +101,9 @@ data "pingdirectory_access_token_validator" "%[1]s" {
 }
 
 data "pingdirectory_access_token_validators" "list" {
-	depends_on = [
-	  pingdirectory_access_token_validator.%[1]s
-	]
+  depends_on = [
+    pingdirectory_access_token_validator.%[1]s
+  ]
 }`, resourceName,
 		resourceModel.id,
 		resourceModel.clientId,

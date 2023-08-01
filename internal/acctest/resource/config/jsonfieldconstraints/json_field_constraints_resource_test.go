@@ -69,7 +69,7 @@ data "pingdirectory_json_field_constraints" "%[1]s" {
 }
 
 data "pingdirectory_json_field_constraints_list" "list" {
-	json_attribute_constraints_name = "%[2]s"
+  json_attribute_constraints_name = "%[2]s"
   depends_on = [
     pingdirectory_json_field_constraints.%[1]s
   ]
