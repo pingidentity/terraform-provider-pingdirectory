@@ -32,7 +32,7 @@ func GetRequiredActionsObjectType() types.ObjectType {
 }
 
 // Get schema elements common to all resources
-func AddCommonSchema(s *schema.Schema, idRequired bool) {
+func AddCommonSchema(s *schema.Schema, addNameAttribute bool) {
 	s.Attributes["last_updated"] = schema.StringAttribute{
 		Description: "Timestamp of the last Terraform update of this resource.",
 		Computed:    true,
@@ -53,20 +53,21 @@ func AddCommonSchema(s *schema.Schema, idRequired bool) {
 		Required:    false,
 		Optional:    false,
 	}
-	// If ID is required (for instantiable config objects) then set it as Required and
-	// require replace when changing. Otherwise, mark it as Computed.
-	if idRequired {
-		s.Attributes["id"] = schema.StringAttribute{
-			Description: "Name of this object.",
+	s.Attributes["id"] = schema.StringAttribute{
+		Description: "The ID of this resource.",
+		Computed:    true,
+		Required:    false,
+		Optional:    false,
+	}
+	// If name is required (for instantiable config objects) then set it as Required and
+	// require replace when changing.
+	if addNameAttribute {
+		s.Attributes["name"] = schema.StringAttribute{
+			Description: "Name of this config object.",
 			Required:    true,
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.RequiresReplace(),
 			},
-		}
-	} else {
-		s.Attributes["id"] = schema.StringAttribute{
-			Description: "Placeholder name of this object required by Terraform.",
-			Computed:    true,
 		}
 	}
 }
