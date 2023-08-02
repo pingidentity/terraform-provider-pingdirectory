@@ -107,9 +107,9 @@ func locationSchema(ctx context.Context, req resource.SchemaRequest, resp *resou
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 

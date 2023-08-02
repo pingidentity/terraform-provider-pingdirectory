@@ -54,27 +54,19 @@ type locationDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *locationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Location.",
 		Attributes: map[string]schema.Attribute{
-			"name": schema.StringAttribute{
-				Description: "Name of the Location.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Location",
 				Required:    false,
 				Optional:    false,
 				Computed:    true,
 			},
-			"id": schema.StringAttribute{
-				Description: "The ID of this data source.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a LocationResponse object into the model struct

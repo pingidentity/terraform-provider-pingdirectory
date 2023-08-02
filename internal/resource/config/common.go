@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	datasourceschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
@@ -32,7 +33,7 @@ func GetRequiredActionsObjectType() types.ObjectType {
 }
 
 // Get schema elements common to all resources
-func AddCommonSchema(s *schema.Schema, addNameAttribute bool) {
+func AddCommonResourceSchema(s *schema.Schema, addNameAttribute bool) {
 	s.Attributes["last_updated"] = schema.StringAttribute{
 		Description: "Timestamp of the last Terraform update of this resource.",
 		Computed:    true,
@@ -72,7 +73,29 @@ func AddCommonSchema(s *schema.Schema, addNameAttribute bool) {
 	}
 }
 
-func SetAllAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []string) {
+// Get schema elements common to all resources
+func AddCommonDataSourceSchema(s *datasourceschema.Schema, addNameAttribute bool) {
+	s.Attributes["id"] = datasourceschema.StringAttribute{
+		Description: "The ID of this resource.",
+		Computed:    true,
+		Required:    false,
+		Optional:    false,
+	}
+	// If name is required (for instantiable config objects) then set it as Required and
+	// require replace when changing.
+	if addNameAttribute {
+		s.Attributes["name"] = datasourceschema.StringAttribute{
+			Description: "Name of this config object.",
+			Required:    true,
+		}
+	}
+}
+
+func SetAllAttributesToOptionalAndComputed(s *schema.Schema) {
+	SetAttributesToOptionalAndComputed(s, []string{})
+}
+
+func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []string) {
 	for key, attribute := range s.Attributes {
 		// If more attribute types are used by this provider, this method will need to be updated
 		if !internaltypes.StringSliceContains(exemptAttributes, key) {
