@@ -62,6 +62,7 @@ func TestAccLocalDbVlvIndex(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "filter", initialResourceModel.filter),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "sort_order", initialResourceModel.sortOrder),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_vlv_index.%s", resourceName), "name", initialResourceModel.name),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_local_db_vlv_indexes.list", "ids.0"),
 				),
 			},
 			{
@@ -108,6 +109,13 @@ resource "pingdirectory_local_db_vlv_index" "%[1]s" {
 data "pingdirectory_local_db_vlv_index" "%[1]s" {
   backend_name = "%[2]s"
   name         = "%[7]s"
+  depends_on = [
+    pingdirectory_local_db_vlv_index.%[1]s
+  ]
+}
+
+data "pingdirectory_local_db_vlv_indexes" "list" {
+  backend_name = "%[2]s"
   depends_on = [
     pingdirectory_local_db_vlv_index.%[1]s
   ]

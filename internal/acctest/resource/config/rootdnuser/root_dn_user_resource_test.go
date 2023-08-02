@@ -69,6 +69,7 @@ func TestAccRootDnUser(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_root_dn_user.%s", resourceName), "inherit_default_root_privileges", strconv.FormatBool(initialResourceModel.inheritDefaultRootPrivileges)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_root_dn_user.%s", resourceName), "search_result_entry_limit", strconv.FormatInt(initialResourceModel.searchResultEntryLimit, 10)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_root_dn_user.%s", resourceName), "password_policy", initialResourceModel.passwordPolicy),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_root_dn_users.list", "ids.0"),
 				),
 			},
 			{
@@ -105,6 +106,12 @@ resource "pingdirectory_root_dn_user" "%[1]s" {
 
 data "pingdirectory_root_dn_user" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_root_dn_user.%[1]s
+  ]
+}
+
+data "pingdirectory_root_dn_users" "list" {
   depends_on = [
     pingdirectory_root_dn_user.%[1]s
   ]

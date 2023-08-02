@@ -45,6 +45,7 @@ func TestAccDelayBindResponseFailureLockoutAction(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedDelayBindResponseFailureLockoutActionAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_failure_lockout_action.%s", resourceName), "delay", initialResourceModel.delay),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_failure_lockout_actions.list", "objects.0.id"),
 				),
 			},
 			{
@@ -77,6 +78,12 @@ resource "pingdirectory_failure_lockout_action" "%[1]s" {
 
 data "pingdirectory_failure_lockout_action" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_failure_lockout_action.%[1]s
+  ]
+}
+
+data "pingdirectory_failure_lockout_actions" "list" {
   depends_on = [
     pingdirectory_failure_lockout_action.%[1]s
   ]

@@ -49,6 +49,7 @@ func TestAccGeneralPartyMonitorProvider(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGeneralMonitorProviderAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_monitor_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_monitor_providers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_default_monitor_provider" "%[1]s" {
 
 data "pingdirectory_monitor_provider" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_monitor_provider.%[1]s
+  ]
+}
+
+data "pingdirectory_monitor_providers" "list" {
   depends_on = [
     pingdirectory_default_monitor_provider.%[1]s
   ]

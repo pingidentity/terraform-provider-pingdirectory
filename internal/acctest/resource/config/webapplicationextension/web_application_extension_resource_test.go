@@ -48,6 +48,7 @@ func TestAccGenericWebApplicationExtension(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGenericWebApplicationExtensionAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_web_application_extension.%s", resourceName), "base_context_path", initialResourceModel.baseContextPath),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_web_application_extensions.list", "objects.0.id"),
 				),
 			},
 			{
@@ -81,6 +82,12 @@ resource "pingdirectory_web_application_extension" "%[1]s" {
 
 data "pingdirectory_web_application_extension" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_web_application_extension.%[1]s
+  ]
+}
+
+data "pingdirectory_web_application_extensions" "list" {
   depends_on = [
     pingdirectory_web_application_extension.%[1]s
   ]

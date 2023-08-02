@@ -50,6 +50,7 @@ func TestAccVelocityContextProvider(t *testing.T) {
 					testAccCheckExpectedVelocityContextProviderAttributes(initialResourceModel),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_velocity_context_provider.%s", resourceName), "included_view.*", initialResourceModel.includedView[0]),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_velocity_context_provider.%s", resourceName), "included_view.*", initialResourceModel.includedView[1]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_velocity_context_providers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -84,6 +85,13 @@ resource "pingdirectory_velocity_context_provider" "%[1]s" {
 
 data "pingdirectory_velocity_context_provider" "%[1]s" {
   id                          = "%[2]s"
+  http_servlet_extension_name = "%[3]s"
+  depends_on = [
+    pingdirectory_velocity_context_provider.%[1]s
+  ]
+}
+
+data "pingdirectory_velocity_context_providers" "list" {
   http_servlet_extension_name = "%[3]s"
   depends_on = [
     pingdirectory_velocity_context_provider.%[1]s

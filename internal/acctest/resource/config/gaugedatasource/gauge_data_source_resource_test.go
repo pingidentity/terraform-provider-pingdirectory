@@ -49,6 +49,7 @@ func TestAccIndicatorGaugeDataSource(t *testing.T) {
 					testAccCheckExpectedIndicatorGaugeDataSourceAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_gauge_data_source.%s", resourceName), "monitor_objectclass", initialResourceModel.monitorObjectclass),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_gauge_data_source.%s", resourceName), "monitor_attribute", initialResourceModel.monitorAttribute),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_gauge_data_sources.list", "objects.0.id"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_gauge_data_source" "%[1]s" {
 
 data "pingdirectory_gauge_data_source" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_gauge_data_source.%[1]s
+  ]
+}
+
+data "pingdirectory_gauge_data_sources" "list" {
   depends_on = [
     pingdirectory_gauge_data_source.%[1]s
   ]

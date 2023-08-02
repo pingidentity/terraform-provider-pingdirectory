@@ -45,6 +45,7 @@ func TestAccMatchingRule(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedMatchingRuleAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_matching_rule.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_matching_rules.list", "objects.0.id"),
 				),
 			},
 			{
@@ -77,6 +78,12 @@ resource "pingdirectory_default_matching_rule" "%[1]s" {
 
 data "pingdirectory_matching_rule" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_matching_rule.%[1]s
+  ]
+}
+
+data "pingdirectory_matching_rules" "list" {
   depends_on = [
     pingdirectory_default_matching_rule.%[1]s
   ]

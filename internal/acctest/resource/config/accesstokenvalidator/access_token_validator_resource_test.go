@@ -60,6 +60,7 @@ func TestAccPingFederateAccessTokenValidator(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "client_id", initialResourceModel.clientId),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "authorization_server", initialResourceModel.authorizationServer),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_access_token_validator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_access_token_validators.list", "objects.0.id"),
 				),
 			},
 			{
@@ -94,6 +95,12 @@ resource "pingdirectory_access_token_validator" "%[1]s" {
 
 data "pingdirectory_access_token_validator" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_access_token_validator.%[1]s
+  ]
+}
+
+data "pingdirectory_access_token_validators" "list" {
   depends_on = [
     pingdirectory_access_token_validator.%[1]s
   ]

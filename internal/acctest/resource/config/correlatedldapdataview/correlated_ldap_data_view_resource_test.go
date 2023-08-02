@@ -61,6 +61,7 @@ func TestAccCorrelatedLdapDataView(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "include_base_dn", initialResourceModel.includeBaseDn),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "primary_correlation_attribute", initialResourceModel.primaryCorrelationAttribute),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_correlated_ldap_data_view.%s", resourceName), "secondary_correlation_attribute", initialResourceModel.secondaryCorrelationAttribute),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_correlated_ldap_data_views.list", "ids.0"),
 				),
 			},
 			{
@@ -108,6 +109,13 @@ resource "pingdirectory_correlated_ldap_data_view" "%[1]s" {
 
 data "pingdirectory_correlated_ldap_data_view" "%[1]s" {
   id                      = "%[2]s"
+  scim_resource_type_name = "%[3]s"
+  depends_on = [
+    pingdirectory_correlated_ldap_data_view.%[1]s
+  ]
+}
+
+data "pingdirectory_correlated_ldap_data_views" "list" {
   scim_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_correlated_ldap_data_view.%[1]s

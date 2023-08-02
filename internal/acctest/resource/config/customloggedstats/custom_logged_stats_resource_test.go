@@ -58,6 +58,7 @@ func TestAccCustomLoggedStats(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_custom_logged_stats.%s", resourceName), "monitor_objectclass", initialResourceModel.monitorObjectclass),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_custom_logged_stats.%s", resourceName), "attribute_to_log.*", initialResourceModel.attributeToLog[0]),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_custom_logged_stats.%s", resourceName), "statistic_type.*", initialResourceModel.statisticType[0]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_custom_logged_stats_list.list", "ids.0"),
 				),
 			},
 			{
@@ -92,6 +93,13 @@ resource "pingdirectory_custom_logged_stats" "%[1]s" {
 
 data "pingdirectory_custom_logged_stats" "%[1]s" {
   id          = "%[2]s"
+  plugin_name = "%[3]s"
+  depends_on = [
+    pingdirectory_custom_logged_stats.%[1]s
+  ]
+}
+
+data "pingdirectory_custom_logged_stats_list" "list" {
   plugin_name = "%[3]s"
   depends_on = [
     pingdirectory_custom_logged_stats.%[1]s

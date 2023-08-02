@@ -61,3 +61,19 @@ func SetsEqual(a, b []string) bool {
 	}
 	return true
 }
+
+func ObjectsAttrTypes() map[string]attr.Type {
+	return map[string]attr.Type{
+		"id":   types.StringType,
+		"type": types.StringType,
+	}
+}
+
+func ObjectsObjectType() types.ObjectType {
+	return types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"id":   types.StringType,
+			"type": types.StringType,
+		},
+	}
+}

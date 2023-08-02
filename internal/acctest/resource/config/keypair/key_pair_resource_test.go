@@ -41,6 +41,7 @@ func TestAccKeyPair(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedKeyPairAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_key_pair.%s", resourceName), "subject_dn", initialResourceModel.subjectDn),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_key_pairs.list", "ids.0"),
 				),
 			},
 			{
@@ -68,6 +69,12 @@ resource "pingdirectory_key_pair" "%[1]s" {
 
 data "pingdirectory_key_pair" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_key_pair.%[1]s
+  ]
+}
+
+data "pingdirectory_key_pairs" "list" {
   depends_on = [
     pingdirectory_key_pair.%[1]s
   ]

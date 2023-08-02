@@ -61,6 +61,7 @@ func TestAccDirectoryServerInstance(t *testing.T) {
 					// Check those attributes on the data source
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_server_instance.%s", resourceName), "preferred_security", "ssl"),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_server_instance.%s", resourceName), "ldap_port", "1389"),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_server_instances.list", "objects.0.id"),
 				),
 			},
 			{
@@ -95,6 +96,12 @@ resource "pingdirectory_default_server_instance" "%[1]s" {
 
 data "pingdirectory_server_instance" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_server_instance.%[1]s
+  ]
+}
+
+data "pingdirectory_server_instances" "list" {
   depends_on = [
     pingdirectory_default_server_instance.%[1]s
   ]

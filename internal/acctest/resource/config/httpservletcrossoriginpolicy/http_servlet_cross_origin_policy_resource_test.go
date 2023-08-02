@@ -46,6 +46,7 @@ func TestAccHttpServletCrossOriginPolicy(t *testing.T) {
 					testAccCheckExpectedHttpServletCrossOriginPolicyAttributes(initialResourceModel),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_http_servlet_cross_origin_policy.%s", resourceName), "cors_allowed_headers.*", initialResourceModel.corsAllowedHeaders[0]),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_http_servlet_cross_origin_policy.%s", resourceName), "cors_allowed_headers.*", initialResourceModel.corsAllowedHeaders[1]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_http_servlet_cross_origin_policies.list", "ids.0"),
 				),
 			},
 			{
@@ -75,6 +76,12 @@ resource "pingdirectory_http_servlet_cross_origin_policy" "%[1]s" {
 
 data "pingdirectory_http_servlet_cross_origin_policy" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_http_servlet_cross_origin_policy.%[1]s
+  ]
+}
+
+data "pingdirectory_http_servlet_cross_origin_policies" "list" {
   depends_on = [
     pingdirectory_http_servlet_cross_origin_policy.%[1]s
   ]

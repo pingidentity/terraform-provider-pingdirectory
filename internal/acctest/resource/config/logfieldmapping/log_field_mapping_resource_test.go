@@ -47,6 +47,7 @@ func TestAccAccessLogFieldMapping(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedAccessLogFieldMappingAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_field_mapping.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_log_field_mappings.list", "objects.0.id"),
 				),
 			},
 			{
@@ -80,6 +81,12 @@ resource "pingdirectory_log_field_mapping" "%[1]s" {
 
 data "pingdirectory_log_field_mapping" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_field_mapping.%[1]s
+  ]
+}
+
+data "pingdirectory_log_field_mappings" "list" {
   depends_on = [
     pingdirectory_log_field_mapping.%[1]s
   ]

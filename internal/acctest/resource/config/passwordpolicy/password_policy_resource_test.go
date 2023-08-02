@@ -52,6 +52,7 @@ func TestAccPasswordPolicy(t *testing.T) {
 					testAccCheckExpectedPasswordPolicyAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_policy.%s", resourceName), "password_attribute", initialResourceModel.passwordAttribute),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_password_policy.%s", resourceName), "default_password_storage_scheme.*", initialResourceModel.defaultPasswordStorageScheme[0]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_password_policies.list", "ids.0"),
 				),
 			},
 			{
@@ -85,6 +86,12 @@ resource "pingdirectory_password_policy" "%[1]s" {
 
 data "pingdirectory_password_policy" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_policy.%[1]s
+  ]
+}
+
+data "pingdirectory_password_policies" "list" {
   depends_on = [
     pingdirectory_password_policy.%[1]s
   ]

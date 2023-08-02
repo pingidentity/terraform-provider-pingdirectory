@@ -36,6 +36,7 @@ func TestAccDefaultAzureAuthenticationMethod(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccDefaultAzureAuthenticationMethodResource(resourceName, initialResourceModel),
+				Check:  resource.TestCheckResourceAttrSet("data.pingdirectory_azure_authentication_methods.list", "objects.0.id"),
 			},
 			{
 				// Test importing the resource
@@ -61,6 +62,12 @@ resource "pingdirectory_azure_authentication_method" "%[1]s" {
 
 data "pingdirectory_azure_authentication_method" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_azure_authentication_method.%[1]s
+  ]
+}
+
+data "pingdirectory_azure_authentication_methods" "list" {
   depends_on = [
     pingdirectory_azure_authentication_method.%[1]s
   ]

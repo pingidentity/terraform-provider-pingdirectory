@@ -49,6 +49,7 @@ func TestAccConstructedAttribute(t *testing.T) {
 					testAccCheckExpectedConstructedAttributeAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_constructed_attribute.%s", resourceName), "attribute_type", initialResourceModel.attributeType),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_constructed_attribute.%s", resourceName), "value_pattern.*", initialResourceModel.valuePattern[0]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_constructed_attributes.list", "ids.0"),
 				),
 			},
 			{
@@ -81,6 +82,12 @@ resource "pingdirectory_constructed_attribute" "%[1]s" {
 
 data "pingdirectory_constructed_attribute" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_constructed_attribute.%[1]s
+  ]
+}
+
+data "pingdirectory_constructed_attributes" "list" {
   depends_on = [
     pingdirectory_constructed_attribute.%[1]s
   ]

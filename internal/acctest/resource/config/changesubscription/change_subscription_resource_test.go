@@ -36,6 +36,7 @@ func TestAccChangeSubscription(t *testing.T) {
 				// Test basic resource.
 				// Add checks for computed properties here if desired.
 				Config: testAccChangeSubscriptionResource(resourceName, initialResourceModel),
+				Check:  resource.TestCheckResourceAttrSet("data.pingdirectory_change_subscriptions.list", "ids.0"),
 			},
 			{
 				// Test importing the resource
@@ -60,6 +61,12 @@ resource "pingdirectory_change_subscription" "%[1]s" {
 
 data "pingdirectory_change_subscription" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_change_subscription.%[1]s
+  ]
+}
+
+data "pingdirectory_change_subscriptions" "list" {
   depends_on = [
     pingdirectory_change_subscription.%[1]s
   ]

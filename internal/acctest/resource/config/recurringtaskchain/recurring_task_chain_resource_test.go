@@ -62,6 +62,7 @@ func TestAccRecurringTaskChain(t *testing.T) {
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_recurring_task_chain.%s", resourceName), "recurring_task.*", initialResourceModel.recurringTask[0]),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_recurring_task_chain.%s", resourceName), "scheduled_date_selection_type", initialResourceModel.scheduledDateSelectionType),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_recurring_task_chain.%s", resourceName), "scheduled_time_of_day.*", initialResourceModel.scheduledTimeOfDay[0]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_recurring_task_chains.list", "ids.0"),
 				),
 			},
 			{
@@ -95,6 +96,12 @@ resource "pingdirectory_recurring_task_chain" "%[1]s" {
 
 data "pingdirectory_recurring_task_chain" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_recurring_task_chain.%[1]s
+  ]
+}
+
+data "pingdirectory_recurring_task_chains" "list" {
   depends_on = [
     pingdirectory_recurring_task_chain.%[1]s
   ]

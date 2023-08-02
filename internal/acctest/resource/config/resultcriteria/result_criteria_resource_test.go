@@ -45,6 +45,7 @@ func TestAccSimpleResultCriteria(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedSimpleResultCriteriaAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_result_criteria.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_result_criteria_list.list", "objects.0.id"),
 				),
 			},
 			{
@@ -77,6 +78,12 @@ resource "pingdirectory_result_criteria" "%[1]s" {
 
 data "pingdirectory_result_criteria" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_result_criteria.%[1]s
+  ]
+}
+
+data "pingdirectory_result_criteria_list" "list" {
   depends_on = [
     pingdirectory_result_criteria.%[1]s
   ]

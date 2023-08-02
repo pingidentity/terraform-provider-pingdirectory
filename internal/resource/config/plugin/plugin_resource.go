@@ -3240,7 +3240,7 @@ func addOptionalUniqueAttributePluginFields(ctx context.Context, addRequest *cli
 	}
 	// Empty strings are treated as equivalent to null
 	if internaltypes.IsNonEmptyString(plan.MultipleAttributeBehavior) {
-		multipleAttributeBehavior, err := client.NewEnumpluginMultipleAttributeBehaviorPropFromValue(plan.MultipleAttributeBehavior.ValueString())
+		multipleAttributeBehavior, err := client.NewEnumpluginUniqueAttributeMultipleAttributeBehaviorPropFromValue(plan.MultipleAttributeBehavior.ValueString())
 		if err != nil {
 			return err
 		}
@@ -4803,7 +4803,7 @@ func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttr
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}
@@ -4827,7 +4827,7 @@ func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.Uni
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
 	state.MultipleAttributeBehavior = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumpluginMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
+		client.StringPointerEnumpluginUniqueAttributeMultipleAttributeBehaviorProp(r.MultipleAttributeBehavior), internaltypes.IsEmptyString(expectedValues.MultipleAttributeBehavior))
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.PreventConflictsWithSoftDeletedEntries = internaltypes.BoolTypeOrNil(r.PreventConflictsWithSoftDeletedEntries)
 	filterValues := []string{}

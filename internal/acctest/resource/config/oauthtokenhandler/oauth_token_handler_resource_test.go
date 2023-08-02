@@ -48,6 +48,7 @@ func TestAccGroovyScriptedOauthTokenHandler(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGroovyScriptedOauthTokenHandlerAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_oauth_token_handler.%s", resourceName), "script_class", initialResourceModel.scriptClass),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_oauth_token_handlers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -81,6 +82,12 @@ resource "pingdirectory_oauth_token_handler" "%[1]s" {
 
 data "pingdirectory_oauth_token_handler" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_oauth_token_handler.%[1]s
+  ]
+}
+
+data "pingdirectory_oauth_token_handlers" "list" {
   depends_on = [
     pingdirectory_oauth_token_handler.%[1]s
   ]

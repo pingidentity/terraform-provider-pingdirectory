@@ -55,6 +55,7 @@ func TestAccDelegatedAdminResourceRights(t *testing.T) {
 					testAccCheckExpectedDelegatedAdminResourceRightsAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_resource_rights.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_delegated_admin_resource_rights.%s", resourceName), "rest_resource_type", initialResourceModel.restResourceType),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_delegated_admin_resource_rights_list.list", "ids.0"),
 				),
 			},
 			{
@@ -102,6 +103,13 @@ resource "pingdirectory_delegated_admin_resource_rights" "%[1]s" {
 data "pingdirectory_delegated_admin_resource_rights" "%[1]s" {
   delegated_admin_rights_name = "%[2]s"
   rest_resource_type          = "%[4]s"
+  depends_on = [
+    pingdirectory_delegated_admin_resource_rights.%[1]s
+  ]
+}
+
+data "pingdirectory_delegated_admin_resource_rights_list" "list" {
+  delegated_admin_rights_name = "%[2]s"
   depends_on = [
     pingdirectory_delegated_admin_resource_rights.%[1]s
   ]

@@ -63,6 +63,7 @@ func TestAccFileBasedAccessLogPublisher(t *testing.T) {
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_publisher.%s", resourceName), "log_file", initialResourceModel.logFile),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_log_publisher.%s", resourceName), "retention_policy.*", initialResourceModel.retentionPolicy[0]),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_publisher.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_log_publishers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -98,6 +99,12 @@ resource "pingdirectory_log_publisher" "%[1]s" {
 
 data "pingdirectory_log_publisher" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_log_publisher.%[1]s
+  ]
+}
+
+data "pingdirectory_log_publishers" "list" {
   depends_on = [
     pingdirectory_log_publisher.%[1]s
   ]

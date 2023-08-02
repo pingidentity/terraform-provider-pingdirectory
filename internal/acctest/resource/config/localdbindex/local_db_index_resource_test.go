@@ -51,6 +51,7 @@ func TestAccLocalDbIndex(t *testing.T) {
 					testAccCheckExpectedLocalDbIndexAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_local_db_index.%s", resourceName), "attribute", initialResourceModel.attribute),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_local_db_index.%s", resourceName), "index_type.*", initialResourceModel.indexType[0]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_local_db_indexes.list", "ids.0"),
 				),
 			},
 			{
@@ -84,6 +85,13 @@ resource "pingdirectory_local_db_index" "%[1]s" {
 data "pingdirectory_local_db_index" "%[1]s" {
   backend_name = "%[2]s"
   attribute    = "%[3]s"
+  depends_on = [
+    pingdirectory_local_db_index.%[1]s
+  ]
+}
+
+data "pingdirectory_local_db_indexes" "list" {
+  backend_name = "%[2]s"
   depends_on = [
     pingdirectory_local_db_index.%[1]s
   ]

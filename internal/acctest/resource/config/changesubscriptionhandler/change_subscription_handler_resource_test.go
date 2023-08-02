@@ -47,6 +47,7 @@ func TestAccLoggingChangeSubscriptionHandler(t *testing.T) {
 					testAccCheckExpectedLoggingChangeSubscriptionHandlerAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_change_subscription_handler.%s", resourceName), "id", initialResourceModel.id),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_change_subscription_handler.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_change_subscription_handlers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -79,6 +80,12 @@ resource "pingdirectory_change_subscription_handler" "%[1]s" {
 
 data "pingdirectory_change_subscription_handler" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_change_subscription_handler.%[1]s
+  ]
+}
+
+data "pingdirectory_change_subscription_handlers" "list" {
   depends_on = [
     pingdirectory_change_subscription_handler.%[1]s
   ]

@@ -45,6 +45,7 @@ func TestAccGenericLogFieldSyntax(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedGenericLogFieldSyntaxAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_log_field_syntax.%s", resourceName), "default_behavior", initialResourceModel.default_behavior),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_log_field_syntaxes.list", "objects.0.id"),
 				),
 			},
 
@@ -78,6 +79,12 @@ resource "pingdirectory_default_log_field_syntax" "%[1]s" {
 
 data "pingdirectory_log_field_syntax" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_log_field_syntax.%[1]s
+  ]
+}
+
+data "pingdirectory_log_field_syntaxes" "list" {
   depends_on = [
     pingdirectory_default_log_field_syntax.%[1]s
   ]

@@ -54,6 +54,7 @@ func TestAccPasswordGenerator(t *testing.T) {
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_password_generator.%s", resourceName), "password_character_set.*", initialResourceModel.passwordCharacterSet[0]),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_generator.%s", resourceName), "password_format", initialResourceModel.passwordFormat),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_password_generator.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_password_generators.list", "objects.0.id"),
 				),
 			},
 			{
@@ -88,6 +89,12 @@ resource "pingdirectory_password_generator" "%[1]s" {
 
 data "pingdirectory_password_generator" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_password_generator.%[1]s
+  ]
+}
+
+data "pingdirectory_password_generators" "list" {
   depends_on = [
     pingdirectory_password_generator.%[1]s
   ]

@@ -45,6 +45,7 @@ func TestAccStaticGroupImplementation(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedStaticGroupImplementationAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_group_implementation.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_group_implementations.list", "objects.0.id"),
 				),
 			},
 			{
@@ -77,6 +78,12 @@ resource "pingdirectory_default_group_implementation" "%[1]s" {
 
 data "pingdirectory_group_implementation" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_default_group_implementation.%[1]s
+  ]
+}
+
+data "pingdirectory_group_implementations" "list" {
   depends_on = [
     pingdirectory_default_group_implementation.%[1]s
   ]

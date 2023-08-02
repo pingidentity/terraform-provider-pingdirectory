@@ -50,6 +50,7 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 					testAccCheckExpectedStatsdMonitoringEndpointAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_monitoring_endpoint.%s", resourceName), "hostname", initialResourceModel.hostname),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_monitoring_endpoint.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_monitoring_endpoints.list", "ids.0"),
 				),
 			},
 			{
@@ -82,6 +83,12 @@ resource "pingdirectory_monitoring_endpoint" "%[1]s" {
 
 data "pingdirectory_monitoring_endpoint" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_monitoring_endpoint.%[1]s
+  ]
+}
+
+data "pingdirectory_monitoring_endpoints" "list" {
   depends_on = [
     pingdirectory_monitoring_endpoint.%[1]s
   ]

@@ -48,6 +48,7 @@ func TestAccObscuredValue(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedObscuredValueAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_obscured_value.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_obscured_values.list", "ids.0"),
 				),
 			},
 			{
@@ -81,6 +82,12 @@ resource "pingdirectory_obscured_value" "%[1]s" {
 
 data "pingdirectory_obscured_value" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_obscured_value.%[1]s
+  ]
+}
+
+data "pingdirectory_obscured_values" "list" {
   depends_on = [
     pingdirectory_obscured_value.%[1]s
   ]

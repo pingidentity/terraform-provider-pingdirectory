@@ -698,7 +698,7 @@ func readPingOneHttpExternalServerResponseDataSource(ctx context.Context, r *cli
 	state.Type = types.StringValue("ping-one-http")
 	state.Id = types.StringValue(r.Id)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerHostnameVerificationMethodProp(r.HostnameVerificationMethod), false)
+		client.StringPointerEnumexternalServerPingOneHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
 	state.ConnectTimeout = internaltypes.StringTypeOrNil(r.ConnectTimeout, false)
 	state.ResponseTimeout = internaltypes.StringTypeOrNil(r.ResponseTimeout, false)
@@ -711,7 +711,7 @@ func readHttpExternalServerResponseDataSource(ctx context.Context, r *client.Htt
 	state.Id = types.StringValue(r.Id)
 	state.BaseURL = types.StringValue(r.BaseURL)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
-		client.StringPointerEnumexternalServerHostnameVerificationMethodProp(r.HostnameVerificationMethod), false)
+		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), false)
 	state.KeyManagerProvider = internaltypes.StringTypeOrNil(r.KeyManagerProvider, false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, false)

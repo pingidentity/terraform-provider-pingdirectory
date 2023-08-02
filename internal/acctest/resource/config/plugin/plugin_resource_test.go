@@ -64,6 +64,7 @@ func TestAccInternalSearchRatePlugin(t *testing.T) {
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_plugin.%s", resourceName), "base_dn.*", initialResourceModel.baseDn),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_plugin.%s", resourceName), "filter_prefix", initialResourceModel.filterPrefix),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_plugin.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_plugins.list", "objects.0.id"),
 				),
 			},
 			{
@@ -99,6 +100,12 @@ resource "pingdirectory_plugin" "%[1]s" {
 
 data "pingdirectory_plugin" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_plugin.%[1]s
+  ]
+}
+
+data "pingdirectory_plugins" "list" {
   depends_on = [
     pingdirectory_plugin.%[1]s
   ]

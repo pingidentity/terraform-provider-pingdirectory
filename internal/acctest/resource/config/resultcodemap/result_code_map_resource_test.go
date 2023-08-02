@@ -44,6 +44,7 @@ func TestAccResultCodeMap(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedResultCodeMapAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_result_code_map.%s", resourceName), "description", initialResourceModel.description),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_result_code_maps.list", "ids.0"),
 				),
 			},
 			{
@@ -75,6 +76,12 @@ resource "pingdirectory_result_code_map" "%[1]s" {
 
 data "pingdirectory_result_code_map" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_result_code_map.%[1]s
+  ]
+}
+
+data "pingdirectory_result_code_maps" "list" {
   depends_on = [
     pingdirectory_result_code_map.%[1]s
   ]

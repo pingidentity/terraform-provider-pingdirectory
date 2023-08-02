@@ -45,6 +45,7 @@ func TestAccSensitiveAttribute(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckExpectedSensitiveAttributeAttributes(initialResourceModel),
 					resource.TestCheckTypeSetElemAttr(fmt.Sprintf("data.pingdirectory_sensitive_attribute.%s", resourceName), "attribute_type.*", initialResourceModel.attributeType[0]),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_sensitive_attributes.list", "ids.0"),
 				),
 			},
 			{
@@ -76,6 +77,12 @@ resource "pingdirectory_sensitive_attribute" "%[1]s" {
 
 data "pingdirectory_sensitive_attribute" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_sensitive_attribute.%[1]s
+  ]
+}
+
+data "pingdirectory_sensitive_attributes" "list" {
   depends_on = [
     pingdirectory_sensitive_attribute.%[1]s
   ]

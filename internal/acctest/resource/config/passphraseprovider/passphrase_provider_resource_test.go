@@ -50,6 +50,7 @@ func TestAccPassphraseProvider(t *testing.T) {
 					testAccCheckExpectedPassphraseProviderAttributes(initialResourceModel),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_passphrase_provider.%s", resourceName), "environment_variable", initialResourceModel.environmentVariable),
 					resource.TestCheckResourceAttr(fmt.Sprintf("data.pingdirectory_passphrase_provider.%s", resourceName), "enabled", strconv.FormatBool(initialResourceModel.enabled)),
+					resource.TestCheckResourceAttrSet("data.pingdirectory_passphrase_providers.list", "objects.0.id"),
 				),
 			},
 			{
@@ -83,6 +84,12 @@ resource "pingdirectory_passphrase_provider" "%[1]s" {
 
 data "pingdirectory_passphrase_provider" "%[1]s" {
   id = "%[2]s"
+  depends_on = [
+    pingdirectory_passphrase_provider.%[1]s
+  ]
+}
+
+data "pingdirectory_passphrase_providers" "list" {
   depends_on = [
     pingdirectory_passphrase_provider.%[1]s
   ]
