@@ -80,7 +80,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "monitoringEndpointId" should be the id of the Monitoring Endpoint to be imported
+# "monitoringEndpointId" should be the name of the Monitoring Endpoint to be imported
 terraform import pingdirectory_monitoring_endpoint.myMonitoringEndpoint monitoringEndpointId
 ```
 

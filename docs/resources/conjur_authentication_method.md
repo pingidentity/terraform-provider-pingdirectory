@@ -78,7 +78,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "conjurAuthenticationMethodId" should be the id of the Conjur Authentication Method to be imported
+# "conjurAuthenticationMethodId" should be the name of the Conjur Authentication Method to be imported
 terraform import pingdirectory_conjur_authentication_method.myConjurAuthenticationMethod conjurAuthenticationMethodId
 ```
 

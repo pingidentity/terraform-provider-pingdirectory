@@ -84,7 +84,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "logFileRotationListenerId" should be the id of the Log File Rotation Listener to be imported
+# "logFileRotationListenerId" should be the name of the Log File Rotation Listener to be imported
 terraform import pingdirectory_log_file_rotation_listener.myLogFileRotationListener logFileRotationListenerId
 ```
 

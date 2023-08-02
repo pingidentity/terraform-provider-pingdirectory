@@ -123,7 +123,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "passwordValidatorId" should be the id of the Password Validator to be imported
+# "passwordValidatorId" should be the name of the Password Validator to be imported
 terraform import pingdirectory_password_validator.myPasswordValidator passwordValidatorId
 ```
 

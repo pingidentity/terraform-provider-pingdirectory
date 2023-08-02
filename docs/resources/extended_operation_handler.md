@@ -93,7 +93,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "extendedOperationHandlerId" should be the id of the Extended Operation Handler to be imported
+# "extendedOperationHandlerId" should be the name of the Extended Operation Handler to be imported
 terraform import pingdirectory_extended_operation_handler.myExtendedOperationHandler extendedOperationHandlerId
 ```
 

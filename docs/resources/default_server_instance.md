@@ -99,7 +99,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "serverInstanceId" should be the id of the Server Instance to be imported
+# "serverInstanceId" should be the name of the Server Instance to be imported
 terraform import pingdirectory_default_server_instance.myServerInstance serverInstanceId
 ```
 

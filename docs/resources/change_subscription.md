@@ -77,7 +77,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "changeSubscriptionId" should be the id of the Change Subscription to be imported
+# "changeSubscriptionId" should be the name of the Change Subscription to be imported
 terraform import pingdirectory_change_subscription.myChangeSubscription changeSubscriptionId
 ```
 

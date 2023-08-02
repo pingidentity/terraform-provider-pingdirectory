@@ -201,7 +201,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "pluginId" should be the id of the Plugin to be imported
+# "pluginId" should be the name of the Plugin to be imported
 terraform import pingdirectory_plugin.myPlugin pluginId
 ```
 

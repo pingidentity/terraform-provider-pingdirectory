@@ -77,7 +77,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "constructedAttributeId" should be the id of the Constructed Attribute to be imported
+# "constructedAttributeId" should be the name of the Constructed Attribute to be imported
 terraform import pingdirectory_constructed_attribute.myConstructedAttribute constructedAttributeId
 ```
 

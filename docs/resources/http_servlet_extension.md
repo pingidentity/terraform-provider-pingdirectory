@@ -127,7 +127,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "httpServletExtensionId" should be the id of the Http Servlet Extension to be imported
+# "httpServletExtensionId" should be the name of the Http Servlet Extension to be imported
 terraform import pingdirectory_http_servlet_extension.myHttpServletExtension httpServletExtensionId
 ```
 

@@ -101,7 +101,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "alertHandlerId" should be the id of the Alert Handler to be imported
+# "alertHandlerId" should be the name of the Alert Handler to be imported
 terraform import pingdirectory_alert_handler.myAlertHandler alertHandlerId
 ```
 

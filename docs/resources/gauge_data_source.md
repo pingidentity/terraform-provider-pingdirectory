@@ -89,7 +89,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "gaugeDataSourceId" should be the id of the Gauge Data Source to be imported
+# "gaugeDataSourceId" should be the name of the Gauge Data Source to be imported
 terraform import pingdirectory_gauge_data_source.myGaugeDataSource gaugeDataSourceId
 ```
 

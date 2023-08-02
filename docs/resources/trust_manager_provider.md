@@ -84,7 +84,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "trustManagerProviderId" should be the id of the Trust Manager Provider to be imported
+# "trustManagerProviderId" should be the name of the Trust Manager Provider to be imported
 terraform import pingdirectory_trust_manager_provider.myTrustManagerProvider trustManagerProviderId
 ```
 

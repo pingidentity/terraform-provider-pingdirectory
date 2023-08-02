@@ -116,7 +116,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "cipherStreamProviderId" should be the id of the Cipher Stream Provider to be imported
+# "cipherStreamProviderId" should be the name of the Cipher Stream Provider to be imported
 terraform import pingdirectory_cipher_stream_provider.myCipherStreamProvider cipherStreamProviderId
 ```
 

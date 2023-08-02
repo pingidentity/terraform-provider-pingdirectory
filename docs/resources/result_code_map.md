@@ -80,7 +80,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "resultCodeMapId" should be the id of the Result Code Map to be imported
+# "resultCodeMapId" should be the name of the Result Code Map to be imported
 terraform import pingdirectory_result_code_map.myResultCodeMap resultCodeMapId
 ```
 

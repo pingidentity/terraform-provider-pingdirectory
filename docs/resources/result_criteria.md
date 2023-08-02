@@ -124,7 +124,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "resultCriteriaId" should be the id of the Result Criteria to be imported
+# "resultCriteriaId" should be the name of the Result Criteria to be imported
 terraform import pingdirectory_result_criteria.myResultCriteria resultCriteriaId
 ```
 

@@ -112,7 +112,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "passThroughAuthenticationHandlerId" should be the id of the Pass Through Authentication Handler to be imported
+# "passThroughAuthenticationHandlerId" should be the name of the Pass Through Authentication Handler to be imported
 terraform import pingdirectory_pass_through_authentication_handler.myPassThroughAuthenticationHandler passThroughAuthenticationHandlerId
 ```
 

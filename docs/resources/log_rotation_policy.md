@@ -80,7 +80,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "logRotationPolicyId" should be the id of the Log Rotation Policy to be imported
+# "logRotationPolicyId" should be the name of the Log Rotation Policy to be imported
 terraform import pingdirectory_log_rotation_policy.myLogRotationPolicy logRotationPolicyId
 ```
 

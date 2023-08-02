@@ -89,7 +89,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "identityMapperId" should be the id of the Identity Mapper to be imported
+# "identityMapperId" should be the name of the Identity Mapper to be imported
 terraform import pingdirectory_identity_mapper.myIdentityMapper identityMapperId
 ```
 

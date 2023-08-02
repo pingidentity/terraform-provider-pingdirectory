@@ -115,7 +115,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "virtualAttributeId" should be the id of the Virtual Attribute to be imported
+# "virtualAttributeId" should be the name of the Virtual Attribute to be imported
 terraform import pingdirectory_virtual_attribute.myVirtualAttribute virtualAttributeId
 ```
 

@@ -78,7 +78,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "delegatedAdminRightsId" should be the id of the Delegated Admin Rights to be imported
+# "delegatedAdminRightsId" should be the name of the Delegated Admin Rights to be imported
 terraform import pingdirectory_delegated_admin_rights.myDelegatedAdminRights delegatedAdminRightsId
 ```
 

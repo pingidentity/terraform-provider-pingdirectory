@@ -78,7 +78,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "softDeletePolicyId" should be the id of the Soft Delete Policy to be imported
+# "softDeletePolicyId" should be the name of the Soft Delete Policy to be imported
 terraform import pingdirectory_soft_delete_policy.mySoftDeletePolicy softDeletePolicyId
 ```
 

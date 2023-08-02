@@ -131,7 +131,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "logFieldMappingId" should be the id of the Log Field Mapping to be imported
+# "logFieldMappingId" should be the name of the Log Field Mapping to be imported
 terraform import pingdirectory_log_field_mapping.myLogFieldMapping logFieldMappingId
 ```
 
