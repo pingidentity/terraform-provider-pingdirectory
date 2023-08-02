@@ -54,6 +54,6 @@ data "pingdirectory_delegated_admin_correlated_rest_resources" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Delegated Admin Correlated Rest Resource IDs found in the configuration
 

@@ -58,6 +58,7 @@ func (r *cipherSecretKeyResource) Configure(_ context.Context, req resource.Conf
 
 type cipherSecretKeyResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
@@ -133,13 +134,14 @@ func (r *cipherSecretKeyResource) Schema(ctx context.Context, req resource.Schem
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
 // Read a CipherSecretKeyResponse object into the model struct
 func readCipherSecretKeyResponse(ctx context.Context, r *client.CipherSecretKeyResponse, state *cipherSecretKeyResourceModel, expectedValues *cipherSecretKeyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CipherTransformationName = internaltypes.StringTypeOrNil(r.CipherTransformationName, true)
 	state.InitializationVectorLengthBits = internaltypes.Int64TypeOrNil(r.InitializationVectorLengthBits)
 	state.KeyID = types.StringValue(r.KeyID)
@@ -183,7 +185,7 @@ func (r *cipherSecretKeyResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.GetCipherSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Secret Key", err, httpResp)
 		return
@@ -200,7 +202,7 @@ func (r *cipherSecretKeyResource) Create(ctx context.Context, req resource.Creat
 	readCipherSecretKeyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createCipherSecretKeyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -244,7 +246,7 @@ func (r *cipherSecretKeyResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.GetCipherSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Secret Key", err, httpResp)
 		return
@@ -278,7 +280,7 @@ func (r *cipherSecretKeyResource) Update(ctx context.Context, req resource.Updat
 	var state cipherSecretKeyResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.CipherSecretKeyApi.UpdateCipherSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCipherSecretKeyOperations(plan, state)
@@ -330,5 +332,5 @@ func (r *cipherSecretKeyResource) ImportState(ctx context.Context, req resource.
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("server_instance_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

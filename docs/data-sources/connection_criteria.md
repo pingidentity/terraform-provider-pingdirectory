@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_connection_criteria" "myConnectionCriteria" {
-  id = "MyConnectionCriteria"
+  name = "MyConnectionCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_connection_criteria" "myConnectionCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -68,6 +68,7 @@ data "pingdirectory_connection_criteria" "myConnectionCriteria" {
 - `excluded_user_sasl_mechanism` (Set of String) Specifies the name of a SASL mechanism that should be used by clients excluded from this Simple Connection Criteria. This will only be taken into account for client connections that have authenticated to the server using a SASL mechanism and will be ignored for unauthenticated client connections and for client connections that authenticated using some other method (e.g., those performing simple or internal authentication).
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Connection Criteria. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Connection Criteria.
+- `id` (String) The ID of this resource.
 - `included_client_address` (Set of String) Specifies an address mask that may be used to specify a set of clients that should be included in this Simple Connection Criteria.
 - `included_connection_handler` (Set of String) Specifies a connection handler for clients that should be included in this Simple Connection Criteria.
 - `included_protocol` (Set of String) Specifies the name of a communication protocol that should be used by clients included in this Simple Connection Criteria.

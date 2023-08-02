@@ -84,6 +84,7 @@ func (r *defaultVelocityTemplateLoaderResource) Configure(_ context.Context, req
 
 type velocityTemplateLoaderResourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Name                     types.String `tfsdk:"name"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
@@ -160,9 +161,9 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "http_servlet_extension_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"http_servlet_extension_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -191,6 +192,7 @@ func addOptionalVelocityTemplateLoaderFields(ctx context.Context, addRequest *cl
 // Read a VelocityTemplateLoaderResponse object into the model struct
 func readVelocityTemplateLoaderResponse(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *velocityTemplateLoaderResourceModel, expectedValues *velocityTemplateLoaderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.MimeTypeMatcher = types.StringValue(r.MimeTypeMatcher)
@@ -222,7 +224,7 @@ func createVelocityTemplateLoaderOperations(plan velocityTemplateLoaderResourceM
 
 // Create a velocity-template-loader velocity-template-loader
 func (r *velocityTemplateLoaderResource) CreateVelocityTemplateLoader(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityTemplateLoaderResourceModel) (*velocityTemplateLoaderResourceModel, error) {
-	addRequest := client.NewAddVelocityTemplateLoaderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddVelocityTemplateLoaderRequest(plan.Name.ValueString(),
 		plan.MimeTypeMatcher.ValueString())
 	addOptionalVelocityTemplateLoaderFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -293,7 +295,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 	}
 
 	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
 		return
@@ -310,7 +312,7 @@ func (r *defaultVelocityTemplateLoaderResource) Create(ctx context.Context, req 
 	readVelocityTemplateLoaderResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
+	updateRequest := r.apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 	ops := createVelocityTemplateLoaderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -362,7 +364,7 @@ func readVelocityTemplateLoader(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	readResponse, httpResp, err := apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
 		return
@@ -404,7 +406,7 @@ func updateVelocityTemplateLoader(ctx context.Context, req resource.UpdateReques
 	var state velocityTemplateLoaderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.VelocityTemplateLoaderApi.UpdateVelocityTemplateLoader(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createVelocityTemplateLoaderOperations(plan, state)
@@ -458,7 +460,7 @@ func (r *velocityTemplateLoaderResource) Delete(ctx context.Context, req resourc
 	}
 
 	httpResp, err := r.apiClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoaderExecute(r.apiClient.VelocityTemplateLoaderApi.DeleteVelocityTemplateLoader(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Template Loader", err, httpResp)
 		return
@@ -481,5 +483,5 @@ func importVelocityTemplateLoader(ctx context.Context, req resource.ImportStateR
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("http_servlet_extension_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

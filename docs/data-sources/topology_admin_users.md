@@ -49,6 +49,6 @@ data "pingdirectory_topology_admin_users" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Topology Admin User IDs found in the configuration
 

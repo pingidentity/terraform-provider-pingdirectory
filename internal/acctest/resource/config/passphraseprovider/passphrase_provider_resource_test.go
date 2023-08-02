@@ -77,13 +77,13 @@ func testAccPassphraseProviderResource(resourceName string, resourceModel passph
 	return fmt.Sprintf(`
 resource "pingdirectory_passphrase_provider" "%[1]s" {
   type                 = "environment-variable"
-  id                   = "%[2]s"
+  name                 = "%[2]s"
   environment_variable = "%[3]s"
   enabled              = %[4]t
 }
 
 data "pingdirectory_passphrase_provider" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_passphrase_provider.%[1]s
   ]

@@ -74,13 +74,13 @@ func testAccExactMatchIdentityMapperResource(resourceName string, resourceModel 
 	return fmt.Sprintf(`
 resource "pingdirectory_identity_mapper" "%[1]s" {
   type            = "exact-match"
-  id              = "%[2]s"
+  name            = "%[2]s"
   match_attribute = %[3]s
   enabled         = %[4]t
 }
 
 data "pingdirectory_identity_mapper" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_identity_mapper.%[1]s
   ]

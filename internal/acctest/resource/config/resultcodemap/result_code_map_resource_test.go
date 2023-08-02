@@ -70,12 +70,12 @@ func TestAccResultCodeMap(t *testing.T) {
 func testAccResultCodeMapResource(resourceName string, resourceModel resultCodeMapTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_result_code_map" "%[1]s" {
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
 }
 
 data "pingdirectory_result_code_map" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_result_code_map.%[1]s
   ]

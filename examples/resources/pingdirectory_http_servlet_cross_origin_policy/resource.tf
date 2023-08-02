@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginPolicy" {
-  id                   = "MyHttpServletCrossOriginPolicy"
+  name                 = "MyHttpServletCrossOriginPolicy"
   cors_allowed_headers = ["Accept, Access-Control-Request-Headers"]
 }

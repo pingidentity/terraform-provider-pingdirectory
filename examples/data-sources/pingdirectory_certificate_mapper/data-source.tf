@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_certificate_mapper" "myCertificateMapper" {
-  id = "MyCertificateMapper"
+  name = "MyCertificateMapper"
 }

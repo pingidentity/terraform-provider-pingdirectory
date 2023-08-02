@@ -49,6 +49,6 @@ data "pingdirectory_change_subscriptions" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Change Subscription IDs found in the configuration
 

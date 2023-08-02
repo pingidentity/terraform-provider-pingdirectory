@@ -81,14 +81,14 @@ func testAccSmtpAlertHandlerResource(resourceName string, resourceModel smtpAler
 	return fmt.Sprintf(`
 resource "pingdirectory_alert_handler" "%[1]s" {
   type              = "smtp"
-  id                = "%[2]s"
+  name              = "%[2]s"
   sender_address    = "%[3]s"
   recipient_address = %[4]s
   enabled           = %[5]t
 }
 
 data "pingdirectory_alert_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_alert_handler.%[1]s
   ]

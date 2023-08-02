@@ -47,7 +47,6 @@ func (r *accessControlHandlerDataSource) Configure(_ context.Context, req dataso
 }
 
 type accessControlHandlerDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                    types.String `tfsdk:"id"`
 	GlobalACI             types.Set    `tfsdk:"global_aci"`
 	AllowedBindControl    types.Set    `tfsdk:"allowed_bind_control"`
@@ -57,15 +56,9 @@ type accessControlHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *accessControlHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Access Control Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"global_aci": schema.SetAttribute{
 				Description: "Defines global access control rules.",
 				Required:    false,
@@ -95,6 +88,8 @@ func (r *accessControlHandlerDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a DseeCompatAccessControlHandlerResponse object into the model struct

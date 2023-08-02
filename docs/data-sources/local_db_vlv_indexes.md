@@ -54,6 +54,6 @@ data "pingdirectory_local_db_vlv_indexes" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Local Db Vlv Index IDs found in the configuration
 

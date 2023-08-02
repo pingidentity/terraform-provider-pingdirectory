@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_replication_assurance_policy" "myReplicationAssurancePolicy" {
-  id = "MyReplicationAssurancePolicy"
+  name = "MyReplicationAssurancePolicy"
 }

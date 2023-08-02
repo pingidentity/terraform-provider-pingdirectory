@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
-  id                      = "MyScimAttributeMapping"
+  name                    = "MyScimAttributeMapping"
   scim_resource_type_name = "MyScimResourceType"
 }
 ```
@@ -47,13 +47,14 @@ data "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `scim_resource_type_name` (String) Name of the parent SCIM Resource Type
 
 ### Read-Only
 
 - `authoritative` (Boolean) Specifies that the mapping is authoritative over other mappings for the same SCIM Resource Type attribute (for read operations).
 - `correlated_ldap_data_view` (String) The Correlated LDAP Data View that persists the mapped SCIM Resource Type attribute(s).
+- `id` (String) The ID of this resource.
 - `ldap_attribute` (String) The LDAP attribute to be mapped, or the path to a specific field of an LDAP attribute with the JSON object attribute syntax.
 - `readable` (Boolean) Specifies whether the mapping is used to map from LDAP attribute to SCIM Resource Type attribute in a read operation.
 - `scim_resource_type_attribute` (String) The attribute path of SCIM Resource Type attributes to be mapped.

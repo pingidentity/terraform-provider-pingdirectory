@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_location" "myLocation" {
-  id = "MyLocation"
+  name = "MyLocation"
 }

@@ -47,7 +47,6 @@ func (r *httpConfigurationDataSource) Configure(_ context.Context, req datasourc
 }
 
 type httpConfigurationDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                    types.String `tfsdk:"id"`
 	IncludeStackTracesInErrorPages        types.Bool   `tfsdk:"include_stack_traces_in_error_pages"`
 	IncludeServletInformationInErrorPages types.Bool   `tfsdk:"include_servlet_information_in_error_pages"`
@@ -55,15 +54,9 @@ type httpConfigurationDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *httpConfigurationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Http Configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"include_stack_traces_in_error_pages": schema.BoolAttribute{
 				Description: "Indicates whether exceptions thrown by servlet or web application extensions will be included in the resulting error page response. Stack traces can be helpful in diagnosing application errors, but in production they may reveal information that might be useful to a malicious attacker.",
 				Required:    false,
@@ -78,6 +71,8 @@ func (r *httpConfigurationDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a HttpConfigurationResponse object into the model struct

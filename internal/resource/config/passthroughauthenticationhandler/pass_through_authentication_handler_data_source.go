@@ -48,6 +48,7 @@ func (r *passThroughAuthenticationHandlerDataSource) Configure(_ context.Context
 
 type passThroughAuthenticationHandlerDataSourceModel struct {
 	Id                                          types.String `tfsdk:"id"`
+	Name                                        types.String `tfsdk:"name"`
 	Type                                        types.String `tfsdk:"type"`
 	ExtensionClass                              types.String `tfsdk:"extension_class"`
 	ExtensionArgument                           types.Set    `tfsdk:"extension_argument"`
@@ -83,13 +84,9 @@ type passThroughAuthenticationHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *passThroughAuthenticationHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Pass Through Authentication Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Pass Through Authentication Handler resource. Options are ['ping-one', 'ldap', 'aggregate', 'third-party']",
 				Required:    false,
@@ -287,12 +284,15 @@ func (r *passThroughAuthenticationHandlerDataSource) Schema(ctx context.Context,
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a PingOnePassThroughAuthenticationHandlerResponse object into the model struct
 func readPingOnePassThroughAuthenticationHandlerResponseDataSource(ctx context.Context, r *client.PingOnePassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
@@ -312,6 +312,7 @@ func readPingOnePassThroughAuthenticationHandlerResponseDataSource(ctx context.C
 func readLdapPassThroughAuthenticationHandlerResponseDataSource(ctx context.Context, r *client.LdapPassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = internaltypes.GetStringSet(r.Server)
 	state.ServerAccessMode = types.StringValue(r.ServerAccessMode.String())
 	state.DnMap = internaltypes.GetStringSet(r.DnMap)
@@ -334,6 +335,7 @@ func readLdapPassThroughAuthenticationHandlerResponseDataSource(ctx context.Cont
 func readAggregatePassThroughAuthenticationHandlerResponseDataSource(ctx context.Context, r *client.AggregatePassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SubordinatePassThroughAuthenticationHandler = internaltypes.GetStringSet(r.SubordinatePassThroughAuthenticationHandler)
 	state.ContinueOnFailureType = internaltypes.GetStringSet(
 		client.StringSliceEnumpassThroughAuthenticationHandlerContinueOnFailureTypeProp(r.ContinueOnFailureType))
@@ -347,6 +349,7 @@ func readAggregatePassThroughAuthenticationHandlerResponseDataSource(ctx context
 func readThirdPartyPassThroughAuthenticationHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartyPassThroughAuthenticationHandlerResponse, state *passThroughAuthenticationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -366,7 +369,7 @@ func (r *passThroughAuthenticationHandlerDataSource) Read(ctx context.Context, r
 	}
 
 	readResponse, httpResp, err := r.apiClient.PassThroughAuthenticationHandlerApi.GetPassThroughAuthenticationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Pass Through Authentication Handler", err, httpResp)
 		return

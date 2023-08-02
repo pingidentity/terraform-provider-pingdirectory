@@ -48,6 +48,7 @@ func (r *trustManagerProviderDataSource) Configure(_ context.Context, req dataso
 
 type trustManagerProviderDataSourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	Type                            types.String `tfsdk:"type"`
 	ExtensionClass                  types.String `tfsdk:"extension_class"`
 	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
@@ -62,13 +63,9 @@ type trustManagerProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *trustManagerProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Trust Manager Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Trust Manager Provider resource. Options are ['blind', 'file-based', 'jvm-default', 'third-party']",
 				Required:    false,
@@ -133,12 +130,15 @@ func (r *trustManagerProviderDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a BlindTrustManagerProviderResponse object into the model struct
 func readBlindTrustManagerProviderResponseDataSource(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *trustManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("blind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 }
@@ -147,6 +147,7 @@ func readBlindTrustManagerProviderResponseDataSource(ctx context.Context, r *cli
 func readFileBasedTrustManagerProviderResponseDataSource(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse, state *trustManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, false)
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, false)
@@ -159,6 +160,7 @@ func readFileBasedTrustManagerProviderResponseDataSource(ctx context.Context, r 
 func readJvmDefaultTrustManagerProviderResponseDataSource(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *trustManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jvm-default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
@@ -166,6 +168,7 @@ func readJvmDefaultTrustManagerProviderResponseDataSource(ctx context.Context, r
 func readThirdPartyTrustManagerProviderResponseDataSource(ctx context.Context, r *client.ThirdPartyTrustManagerProviderResponse, state *trustManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -183,7 +186,7 @@ func (r *trustManagerProviderDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return

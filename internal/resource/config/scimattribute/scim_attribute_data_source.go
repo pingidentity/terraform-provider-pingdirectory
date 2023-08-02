@@ -63,15 +63,9 @@ type scimAttributeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *scimAttributeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Scim Attribute.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"scim_schema_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Schema",
 				Required:    true,
@@ -138,6 +132,8 @@ func (r *scimAttributeDataSource) Schema(ctx context.Context, req datasource.Sch
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ScimAttributeResponse object into the model struct

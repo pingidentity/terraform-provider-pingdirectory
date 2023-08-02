@@ -48,6 +48,7 @@ func (r *webApplicationExtensionDataSource) Configure(_ context.Context, req dat
 
 type webApplicationExtensionDataSourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Name                                types.String `tfsdk:"name"`
 	Type                                types.String `tfsdk:"type"`
 	SsoEnabled                          types.Bool   `tfsdk:"sso_enabled"`
 	OidcClientID                        types.String `tfsdk:"oidc_client_id"`
@@ -76,13 +77,9 @@ type webApplicationExtensionDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *webApplicationExtensionDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Web Application Extension.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Web Application Extension resource. Options are ['console', 'generic']",
 				Required:    false,
@@ -231,12 +228,15 @@ func (r *webApplicationExtensionDataSource) Schema(ctx context.Context, req data
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ConsoleWebApplicationExtensionResponse object into the model struct
 func readConsoleWebApplicationExtensionResponseDataSource(ctx context.Context, r *client.ConsoleWebApplicationExtensionResponse, state *webApplicationExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SsoEnabled = internaltypes.BoolTypeOrNil(r.SsoEnabled)
 	state.OidcClientID = internaltypes.StringTypeOrNil(r.OidcClientID, false)
 	state.OidcClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcClientSecretPassphraseProvider, false)
@@ -266,6 +266,7 @@ func readConsoleWebApplicationExtensionResponseDataSource(ctx context.Context, r
 func readGenericWebApplicationExtensionResponseDataSource(ctx context.Context, r *client.GenericWebApplicationExtensionResponse, state *webApplicationExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, false)
@@ -286,7 +287,7 @@ func (r *webApplicationExtensionDataSource) Read(ctx context.Context, req dataso
 	}
 
 	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
 		return

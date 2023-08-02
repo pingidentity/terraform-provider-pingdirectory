@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_id_token_validator" "myIdTokenValidator" {
-  id = "MyIdTokenValidator"
+  name = "MyIdTokenValidator"
 }

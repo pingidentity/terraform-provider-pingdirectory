@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_key_pair" "myKeyPair" {
-  id = "MyKeyPair"
+  name = "MyKeyPair"
 }

@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_password_generator" "myPasswordGenerator" {
-  id                     = "MyPasswordGenerator"
+  name                   = "MyPasswordGenerator"
   type                   = "random"
   password_character_set = ["set:abcdefghijklmnopqrstuvwxyz"]
   password_format        = "set:15"

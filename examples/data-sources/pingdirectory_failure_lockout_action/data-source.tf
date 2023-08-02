@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
-  id = "MyFailureLockoutAction"
+  name = "MyFailureLockoutAction"
 }

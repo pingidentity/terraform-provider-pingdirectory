@@ -84,7 +84,7 @@ func TestAccCustomLoggedStats(t *testing.T) {
 func testAccCustomLoggedStatsResource(resourceName string, resourceModel customLoggedStatsTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_custom_logged_stats" "%[1]s" {
-  id                  = "%[2]s"
+  name                = "%[2]s"
   plugin_name         = "%[3]s"
   monitor_objectclass = "%[4]s"
   attribute_to_log    = %[5]s
@@ -92,7 +92,7 @@ resource "pingdirectory_custom_logged_stats" "%[1]s" {
 }
 
 data "pingdirectory_custom_logged_stats" "%[1]s" {
-  id          = "%[2]s"
+  name        = "%[2]s"
   plugin_name = "%[3]s"
   depends_on = [
     pingdirectory_custom_logged_stats.%[1]s

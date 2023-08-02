@@ -55,7 +55,7 @@ data "pingdirectory_scim_attribute" "myScimAttribute" {
 - `canonical_value` (Set of String) Specifies the suggested canonical type values for the attribute.
 - `case_exact` (Boolean) Specifies whether the attribute values are case sensitive.
 - `description` (String) A description for this SCIM Attribute
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `multi_valued` (Boolean) Specifies whether this attribute may have multiple values.
 - `mutability` (String) Specifies the circumstances under which the values of the attribute can be written.
 - `reference_type` (Set of String) Specifies the SCIM resource types that may be referenced. This property is only applicable for attributes that are of type 'reference'. Valid values are: A SCIM resource type (e.g., 'User' or 'Group'), 'external' - indicating the resource is an external resource (e.g., such as a photo), or 'uri' - indicating that the reference is to a service endpoint or an identifier (such as a schema urn).

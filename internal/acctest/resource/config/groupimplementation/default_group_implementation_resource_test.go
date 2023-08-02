@@ -72,12 +72,12 @@ func testAccStaticGroupImplementationResource(resourceName string, resourceModel
 	return fmt.Sprintf(`
 resource "pingdirectory_default_group_implementation" "%[1]s" {
   type    = "static"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }
 
 data "pingdirectory_group_implementation" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_default_group_implementation.%[1]s
   ]

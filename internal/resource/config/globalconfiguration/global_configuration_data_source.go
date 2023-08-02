@@ -47,7 +47,6 @@ func (r *globalConfigurationDataSource) Configure(_ context.Context, req datasou
 }
 
 type globalConfigurationDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                                             types.String `tfsdk:"id"`
 	InstanceName                                                   types.String `tfsdk:"instance_name"`
 	Location                                                       types.String `tfsdk:"location"`
@@ -142,15 +141,9 @@ type globalConfigurationDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Global Configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"instance_name": schema.StringAttribute{
 				Description: "Specifies a name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
 				Required:    false,
@@ -695,6 +688,8 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a GlobalConfigurationResponse object into the model struct

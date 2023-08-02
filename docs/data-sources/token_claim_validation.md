@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
-  id                      = "MyTokenClaimValidation"
+  name                    = "MyTokenClaimValidation"
   id_token_validator_name = "MyIdTokenValidator"
 }
 ```
@@ -47,8 +47,8 @@ data "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
 
 ### Required
 
-- `id` (String) Name of this object.
 - `id_token_validator_name` (String) Name of the parent ID Token Validator
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -56,6 +56,7 @@ data "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
 - `any_required_value` (Set of String) The set of values that the claim may have to be considered valid.
 - `claim_name` (String) The name of the claim to be validated.
 - `description` (String) A description for this Token Claim Validation
+- `id` (String) The ID of this resource.
 - `required_value` (String) Specifies the boolean claim's required value.
 - `type` (String) The type of Token Claim Validation resource. Options are ['string-array', 'boolean', 'string']
 

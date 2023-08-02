@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_field_behavior" "myLogFieldBehavior" {
-  id          = "MyLogFieldBehavior"
+  name        = "MyLogFieldBehavior"
   type        = "text-access"
   description = "My text access log field behavior"
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_log_field_behavior" "myLogFieldBehavior" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Log Field Behavior resource. Options are ['text-access', 'json-formatted-access']
 
 ### Optional
@@ -70,6 +70,7 @@ resource "pingdirectory_log_field_behavior" "myLogFieldBehavior" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

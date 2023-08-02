@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
-  id = "MyOauthTokenHandler"
+  name = "MyOauthTokenHandler"
 }
 ```
 
@@ -46,13 +46,14 @@ data "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this OAuth Token Handler
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party OAuth Token Handler. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party OAuth Token Handler.
+- `id` (String) The ID of this resource.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted OAuth Token Handler. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted OAuth Token Handler.
 - `type` (String) The type of OAuth Token Handler resource. Options are ['groovy-scripted', 'third-party']

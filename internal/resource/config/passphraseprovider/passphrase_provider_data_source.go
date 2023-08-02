@@ -48,6 +48,7 @@ func (r *passphraseProviderDataSource) Configure(_ context.Context, req datasour
 
 type passphraseProviderDataSourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	Type                      types.String `tfsdk:"type"`
 	ExtensionClass            types.String `tfsdk:"extension_class"`
 	ExtensionArgument         types.Set    `tfsdk:"extension_argument"`
@@ -75,13 +76,9 @@ type passphraseProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *passphraseProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Passphrase Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Passphrase Provider resource. Options are ['environment-variable', 'amazon-secrets-manager', 'obscured-value', 'azure-key-vault', 'file-based', 'conjur', 'vault', 'third-party']",
 				Required:    false,
@@ -224,12 +221,15 @@ func (r *passphraseProviderDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a EnvironmentVariablePassphraseProviderResponse object into the model struct
 func readEnvironmentVariablePassphraseProviderResponseDataSource(ctx context.Context, r *client.EnvironmentVariablePassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("environment-variable")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnvironmentVariable = types.StringValue(r.EnvironmentVariable)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -239,6 +239,7 @@ func readEnvironmentVariablePassphraseProviderResponseDataSource(ctx context.Con
 func readAmazonSecretsManagerPassphraseProviderResponseDataSource(ctx context.Context, r *client.AmazonSecretsManagerPassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-secrets-manager")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
 	state.SecretID = types.StringValue(r.SecretID)
 	state.SecretFieldName = types.StringValue(r.SecretFieldName)
@@ -253,6 +254,7 @@ func readAmazonSecretsManagerPassphraseProviderResponseDataSource(ctx context.Co
 func readObscuredValuePassphraseProviderResponseDataSource(ctx context.Context, r *client.ObscuredValuePassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("obscured-value")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -261,6 +263,7 @@ func readObscuredValuePassphraseProviderResponseDataSource(ctx context.Context, 
 func readAzureKeyVaultPassphraseProviderResponseDataSource(ctx context.Context, r *client.AzureKeyVaultPassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("azure-key-vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
@@ -274,6 +277,7 @@ func readAzureKeyVaultPassphraseProviderResponseDataSource(ctx context.Context, 
 func readFileBasedPassphraseProviderResponseDataSource(ctx context.Context, r *client.FileBasedPassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
 	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -284,6 +288,7 @@ func readFileBasedPassphraseProviderResponseDataSource(ctx context.Context, r *c
 func readConjurPassphraseProviderResponseDataSource(ctx context.Context, r *client.ConjurPassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
 	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, false)
@@ -295,6 +300,7 @@ func readConjurPassphraseProviderResponseDataSource(ctx context.Context, r *clie
 func readVaultPassphraseProviderResponseDataSource(ctx context.Context, r *client.VaultPassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultExternalServer = types.StringValue(r.VaultExternalServer)
 	state.VaultSecretPath = types.StringValue(r.VaultSecretPath)
 	state.VaultSecretFieldName = types.StringValue(r.VaultSecretFieldName)
@@ -307,6 +313,7 @@ func readVaultPassphraseProviderResponseDataSource(ctx context.Context, r *clien
 func readThirdPartyPassphraseProviderResponseDataSource(ctx context.Context, r *client.ThirdPartyPassphraseProviderResponse, state *passphraseProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -324,7 +331,7 @@ func (r *passphraseProviderDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.PassphraseProviderApi.GetPassphraseProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
 		return

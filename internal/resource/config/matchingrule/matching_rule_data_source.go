@@ -48,19 +48,16 @@ func (r *matchingRuleDataSource) Configure(_ context.Context, req datasource.Con
 
 type matchingRuleDataSourceModel struct {
 	Id      types.String `tfsdk:"id"`
+	Name    types.String `tfsdk:"name"`
 	Type    types.String `tfsdk:"type"`
 	Enabled types.Bool   `tfsdk:"enabled"`
 }
 
 // GetSchema defines the schema for the datasource.
 func (r *matchingRuleDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Matching Rule.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Matching Rule resource. Options are ['ordering', 'approximate', 'equality', 'substring', 'generic']",
 				Required:    false,
@@ -75,12 +72,15 @@ func (r *matchingRuleDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a OrderingMatchingRuleResponse object into the model struct
 func readOrderingMatchingRuleResponseDataSource(ctx context.Context, r *client.OrderingMatchingRuleResponse, state *matchingRuleDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ordering")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
@@ -88,6 +88,7 @@ func readOrderingMatchingRuleResponseDataSource(ctx context.Context, r *client.O
 func readApproximateMatchingRuleResponseDataSource(ctx context.Context, r *client.ApproximateMatchingRuleResponse, state *matchingRuleDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("approximate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
@@ -95,6 +96,7 @@ func readApproximateMatchingRuleResponseDataSource(ctx context.Context, r *clien
 func readEqualityMatchingRuleResponseDataSource(ctx context.Context, r *client.EqualityMatchingRuleResponse, state *matchingRuleDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("equality")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
@@ -102,6 +104,7 @@ func readEqualityMatchingRuleResponseDataSource(ctx context.Context, r *client.E
 func readSubstringMatchingRuleResponseDataSource(ctx context.Context, r *client.SubstringMatchingRuleResponse, state *matchingRuleDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("substring")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
@@ -109,6 +112,7 @@ func readSubstringMatchingRuleResponseDataSource(ctx context.Context, r *client.
 func readGenericMatchingRuleResponseDataSource(ctx context.Context, r *client.GenericMatchingRuleResponse, state *matchingRuleDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
 
@@ -123,7 +127,7 @@ func (r *matchingRuleDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.MatchingRuleApi.GetMatchingRule(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Matching Rule", err, httpResp)
 		return

@@ -81,14 +81,14 @@ func testAccPasswordGeneratorResource(resourceName string, resourceModel passwor
 	return fmt.Sprintf(`
 resource "pingdirectory_password_generator" "%[1]s" {
   type                   = "random"
-  id                     = "%[2]s"
+  name                   = "%[2]s"
   password_character_set = %[3]s
   password_format        = "%[4]s"
   enabled                = %[5]t
 }
 
 data "pingdirectory_password_generator" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_password_generator.%[1]s
   ]

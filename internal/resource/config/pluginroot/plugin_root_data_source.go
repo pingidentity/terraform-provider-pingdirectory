@@ -47,7 +47,6 @@ func (r *pluginRootDataSource) Configure(_ context.Context, req datasource.Confi
 }
 
 type pluginRootDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                     types.String `tfsdk:"id"`
 	PluginOrderStartup                     types.String `tfsdk:"plugin_order_startup"`
 	PluginOrderShutdown                    types.String `tfsdk:"plugin_order_shutdown"`
@@ -103,15 +102,9 @@ type pluginRootDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *pluginRootDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Plugin Root.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"plugin_order_startup": schema.StringAttribute{
 				Description: "Specifies the order in which startup plug-ins are to be loaded and invoked.",
 				Required:    false,
@@ -414,6 +407,8 @@ func (r *pluginRootDataSource) Schema(ctx context.Context, req datasource.Schema
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a PluginRootResponse object into the model struct

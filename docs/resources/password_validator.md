@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_password_validator" "myPasswordValidator" {
-  id                  = "MyPasswordValidator"
+  name                = "MyPasswordValidator"
   type                = "length-based"
   min_password_length = 8
   max_password_length = 100
@@ -51,7 +51,7 @@ resource "pingdirectory_password_validator" "myPasswordValidator" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the password validator is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Password Validator resource. Options are ['character-set', 'similarity-based', 'attribute-value', 'custom', 'repeated-characters', 'dictionary', 'haystack', 'utf-8', 'groovy-scripted', 'pwned-passwords', 'disallowed-characters', 'length-based', 'regular-expression', 'unique-characters', 'third-party']
 
 ### Optional
@@ -104,6 +104,7 @@ resource "pingdirectory_password_validator" "myPasswordValidator" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

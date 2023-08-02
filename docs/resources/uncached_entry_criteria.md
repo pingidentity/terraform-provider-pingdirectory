@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
-  id      = "MyUncachedEntryCriteria"
+  name    = "MyUncachedEntryCriteria"
   type    = "default"
   enabled = false
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether this Uncached Entry Criteria is enabled for use in the server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Uncached Entry Criteria resource. Options are ['default', 'last-access-time', 'filter-based', 'groovy-scripted', 'third-party']
 
 ### Optional
@@ -65,6 +65,7 @@ resource "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_field_syntax" "myLogFieldSyntax" {
-  id = "MyLogFieldSyntax"
+  name = "MyLogFieldSyntax"
 }

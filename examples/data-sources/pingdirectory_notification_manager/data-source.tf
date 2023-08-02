@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_notification_manager" "myNotificationManager" {
-  id = "MyNotificationManager"
+  name = "MyNotificationManager"
 }

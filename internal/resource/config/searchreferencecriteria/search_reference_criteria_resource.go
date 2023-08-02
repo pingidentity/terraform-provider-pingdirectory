@@ -84,6 +84,7 @@ func (r *defaultSearchReferenceCriteriaResource) Configure(_ context.Context, re
 
 type searchReferenceCriteriaResourceModel struct {
 	Id                                    types.String `tfsdk:"id"`
+	Name                                  types.String `tfsdk:"name"`
 	LastUpdated                           types.String `tfsdk:"last_updated"`
 	Notifications                         types.Set    `tfsdk:"notifications"`
 	RequiredActions                       types.Set    `tfsdk:"required_actions"`
@@ -227,9 +228,9 @@ func searchReferenceCriteriaSchema(ctx context.Context, req resource.SchemaReque
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -399,6 +400,7 @@ func populateSearchReferenceCriteriaUnknownValues(ctx context.Context, model *se
 func readSimpleSearchReferenceCriteriaResponse(ctx context.Context, r *client.SimpleSearchReferenceCriteriaResponse, state *searchReferenceCriteriaResourceModel, expectedValues *searchReferenceCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.AllIncludedReferenceControl = internaltypes.GetStringSet(r.AllIncludedReferenceControl)
 	state.AnyIncludedReferenceControl = internaltypes.GetStringSet(r.AnyIncludedReferenceControl)
@@ -413,6 +415,7 @@ func readSimpleSearchReferenceCriteriaResponse(ctx context.Context, r *client.Si
 func readAggregateSearchReferenceCriteriaResponse(ctx context.Context, r *client.AggregateSearchReferenceCriteriaResponse, state *searchReferenceCriteriaResourceModel, expectedValues *searchReferenceCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.AllIncludedSearchReferenceCriteria)
 	state.AnyIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.AnyIncludedSearchReferenceCriteria)
 	state.NotAllIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.NotAllIncludedSearchReferenceCriteria)
@@ -426,6 +429,7 @@ func readAggregateSearchReferenceCriteriaResponse(ctx context.Context, r *client
 func readThirdPartySearchReferenceCriteriaResponse(ctx context.Context, r *client.ThirdPartySearchReferenceCriteriaResponse, state *searchReferenceCriteriaResourceModel, expectedValues *searchReferenceCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -453,7 +457,7 @@ func createSearchReferenceCriteriaOperations(plan searchReferenceCriteriaResourc
 
 // Create a simple search-reference-criteria
 func (r *searchReferenceCriteriaResource) CreateSimpleSearchReferenceCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchReferenceCriteriaResourceModel) (*searchReferenceCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleSearchReferenceCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleSearchReferenceCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleSearchReferenceCriteriaSchemaUrn{client.ENUMSIMPLESEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIASIMPLE})
 	addOptionalSimpleSearchReferenceCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -486,7 +490,7 @@ func (r *searchReferenceCriteriaResource) CreateSimpleSearchReferenceCriteria(ct
 
 // Create a aggregate search-reference-criteria
 func (r *searchReferenceCriteriaResource) CreateAggregateSearchReferenceCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchReferenceCriteriaResourceModel) (*searchReferenceCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateSearchReferenceCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAggregateSearchReferenceCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumaggregateSearchReferenceCriteriaSchemaUrn{client.ENUMAGGREGATESEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIAAGGREGATE})
 	addOptionalAggregateSearchReferenceCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -519,7 +523,7 @@ func (r *searchReferenceCriteriaResource) CreateAggregateSearchReferenceCriteria
 
 // Create a third-party search-reference-criteria
 func (r *searchReferenceCriteriaResource) CreateThirdPartySearchReferenceCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchReferenceCriteriaResourceModel) (*searchReferenceCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartySearchReferenceCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartySearchReferenceCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartySearchReferenceCriteriaSchemaUrn{client.ENUMTHIRDPARTYSEARCHREFERENCECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_REFERENCE_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	addOptionalThirdPartySearchReferenceCriteriaFields(ctx, addRequest, plan)
@@ -607,7 +611,7 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 	}
 
 	readResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Reference Criteria", err, httpResp)
 		return
@@ -632,7 +636,7 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSearchReferenceCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -691,7 +695,7 @@ func readSearchReferenceCriteria(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	readResponse, httpResp, err := apiClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Reference Criteria", err, httpResp)
 		return
@@ -741,7 +745,7 @@ func updateSearchReferenceCriteria(ctx context.Context, req resource.UpdateReque
 	var state searchReferenceCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.SearchReferenceCriteriaApi.UpdateSearchReferenceCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSearchReferenceCriteriaOperations(plan, state)
@@ -802,7 +806,7 @@ func (r *searchReferenceCriteriaResource) Delete(ctx context.Context, req resour
 	}
 
 	httpResp, err := r.apiClient.SearchReferenceCriteriaApi.DeleteSearchReferenceCriteriaExecute(r.apiClient.SearchReferenceCriteriaApi.DeleteSearchReferenceCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Search Reference Criteria", err, httpResp)
 		return
@@ -818,6 +822,6 @@ func (r *defaultSearchReferenceCriteriaResource) ImportState(ctx context.Context
 }
 
 func importSearchReferenceCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

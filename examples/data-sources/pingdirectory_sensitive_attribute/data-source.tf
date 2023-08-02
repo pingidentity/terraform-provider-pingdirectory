@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
-  id = "MySensitiveAttribute"
+  name = "MySensitiveAttribute"
 }

@@ -87,6 +87,7 @@ func (r *defaultLogPublisherResource) Configure(_ context.Context, req resource.
 
 type logPublisherResourceModel struct {
 	Id                                                  types.String `tfsdk:"id"`
+	Name                                                types.String `tfsdk:"name"`
 	LastUpdated                                         types.String `tfsdk:"last_updated"`
 	Notifications                                       types.Set    `tfsdk:"notifications"`
 	RequiredActions                                     types.Set    `tfsdk:"required_actions"`
@@ -1106,9 +1107,9 @@ func logPublisherSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -5732,6 +5733,7 @@ func populateLogPublisherUnknownValues(ctx context.Context, model *logPublisherR
 func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.SyslogJsonAuditLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -5773,6 +5775,7 @@ func readSyslogJsonAuditLogPublisherResponse(ctx context.Context, r *client.Sysl
 func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.SyslogBasedErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -5794,6 +5797,7 @@ func readSyslogBasedErrorLogPublisherResponse(ctx context.Context, r *client.Sys
 func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.ThirdPartyFileBasedAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-file-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -5845,6 +5849,7 @@ func readThirdPartyFileBasedAccessLogPublisherResponse(ctx context.Context, r *c
 func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *client.OperationTimingAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("operation-timing-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -5895,6 +5900,7 @@ func readOperationTimingAccessLogPublisherResponse(ctx context.Context, r *clien
 func readThirdPartyHttpOperationLogPublisherResponse(ctx context.Context, r *client.ThirdPartyHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -5909,6 +5915,7 @@ func readThirdPartyHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 func readAdminAlertAccessLogPublisherResponse(ctx context.Context, r *client.AdminAlertAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("admin-alert-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
 	state.LogClientCertificates = internaltypes.BoolTypeOrNil(r.LogClientCertificates)
@@ -5963,6 +5970,7 @@ func readAdminAlertAccessLogPublisherResponse(ctx context.Context, r *client.Adm
 func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileBasedTraceLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-trace")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6013,6 +6021,7 @@ func readFileBasedTraceLogPublisherResponse(ctx context.Context, r *client.FileB
 func readJdbcBasedErrorLogPublisherResponse(ctx context.Context, r *client.JdbcBasedErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jdbc-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = types.StringValue(r.Server)
 	state.LogFieldMapping = types.StringValue(r.LogFieldMapping)
 	state.LogTableName = types.StringValue(r.LogTableName)
@@ -6032,6 +6041,7 @@ func readJdbcBasedErrorLogPublisherResponse(ctx context.Context, r *client.JdbcB
 func readJdbcBasedAccessLogPublisherResponse(ctx context.Context, r *client.JdbcBasedAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jdbc-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = types.StringValue(r.Server)
 	state.LogFieldMapping = types.StringValue(r.LogFieldMapping)
 	state.LogTableName = types.StringValue(r.LogTableName)
@@ -6065,6 +6075,7 @@ func readJdbcBasedAccessLogPublisherResponse(ctx context.Context, r *client.Jdbc
 func readCommonLogFileHttpOperationLogPublisherResponse(ctx context.Context, r *client.CommonLogFileHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("common-log-file-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6097,6 +6108,7 @@ func readCommonLogFileHttpOperationLogPublisherResponse(ctx context.Context, r *
 func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.ConsoleJsonErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
@@ -6120,6 +6132,7 @@ func readConsoleJsonErrorLogPublisherResponse(ctx context.Context, r *client.Con
 func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.SyslogTextErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-text-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
@@ -6149,6 +6162,7 @@ func readSyslogTextErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.SyslogBasedAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -6206,6 +6220,7 @@ func readSyslogBasedAccessLogPublisherResponse(ctx context.Context, r *client.Sy
 func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.FileBasedJsonAuditLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-json-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6261,6 +6276,7 @@ func readFileBasedJsonAuditLogPublisherResponse(ctx context.Context, r *client.F
 func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileBasedDebugLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-debug")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6302,6 +6318,7 @@ func readFileBasedDebugLogPublisherResponse(ctx context.Context, r *client.FileB
 func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileBasedErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6344,6 +6361,7 @@ func readFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.FileB
 func readThirdPartyErrorLogPublisherResponse(ctx context.Context, r *client.ThirdPartyErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -6361,6 +6379,7 @@ func readThirdPartyErrorLogPublisherResponse(ctx context.Context, r *client.Thir
 func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.SyslogTextAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-text-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -6422,6 +6441,7 @@ func readSyslogTextAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *client.DetailedHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("detailed-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6476,6 +6496,7 @@ func readDetailedHttpOperationLogPublisherResponse(ctx context.Context, r *clien
 func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6548,6 +6569,7 @@ func readJsonAccessLogPublisherResponse(ctx context.Context, r *client.JsonAcces
 func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("debug-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SuppressReplicationOperations = internaltypes.BoolTypeOrNil(r.SuppressReplicationOperations)
 	state.LogSecurityNegotiation = internaltypes.BoolTypeOrNil(r.LogSecurityNegotiation)
 	state.LogAssuranceCompleted = internaltypes.BoolTypeOrNil(r.LogAssuranceCompleted)
@@ -6601,6 +6623,7 @@ func readDebugAccessLogPublisherResponse(ctx context.Context, r *client.DebugAcc
 func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *client.SyslogJsonHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -6641,6 +6664,7 @@ func readSyslogJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cli
 func readThirdPartyAccessLogPublisherResponse(ctx context.Context, r *client.ThirdPartyAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -6672,6 +6696,7 @@ func readThirdPartyAccessLogPublisherResponse(ctx context.Context, r *client.Thi
 func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileBasedAuditLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SuppressInternalOperations = internaltypes.BoolTypeOrNil(r.SuppressInternalOperations)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -6728,6 +6753,7 @@ func readFileBasedAuditLogPublisherResponse(ctx context.Context, r *client.FileB
 func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6769,6 +6795,7 @@ func readJsonErrorLogPublisherResponse(ctx context.Context, r *client.JsonErrorL
 func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.GroovyScriptedFileBasedAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-file-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -6820,6 +6847,7 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx context.Context, 
 func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.GroovyScriptedFileBasedErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-file-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -6857,6 +6885,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx context.Context, r
 func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.SyslogJsonAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -6914,6 +6943,7 @@ func readSyslogJsonAccessLogPublisherResponse(ctx context.Context, r *client.Sys
 func readGroovyScriptedAccessLogPublisherResponse(ctx context.Context, r *client.GroovyScriptedAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -6945,6 +6975,7 @@ func readGroovyScriptedAccessLogPublisherResponse(ctx context.Context, r *client
 func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *client.ThirdPartyFileBasedErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-file-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -6982,6 +7013,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponse(ctx context.Context, r *cl
 func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.ConsoleJsonAuditLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
@@ -7019,6 +7051,7 @@ func readConsoleJsonAuditLogPublisherResponse(ctx context.Context, r *client.Con
 func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *client.ConsoleJsonHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
@@ -7055,6 +7088,7 @@ func readConsoleJsonHttpOperationLogPublisherResponse(ctx context.Context, r *cl
 func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.ConsoleJsonAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
@@ -7108,6 +7142,7 @@ func readConsoleJsonAccessLogPublisherResponse(ctx context.Context, r *client.Co
 func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.FileBasedAccessLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -7181,6 +7216,7 @@ func readFileBasedAccessLogPublisherResponse(ctx context.Context, r *client.File
 func readGroovyScriptedErrorLogPublisherResponse(ctx context.Context, r *client.GroovyScriptedErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -7198,6 +7234,7 @@ func readGroovyScriptedErrorLogPublisherResponse(ctx context.Context, r *client.
 func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *client.FileBasedJsonHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-json-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -7252,6 +7289,7 @@ func readFileBasedJsonHttpOperationLogPublisherResponse(ctx context.Context, r *
 func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.SyslogJsonErrorLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
@@ -7279,6 +7317,7 @@ func readSyslogJsonErrorLogPublisherResponse(ctx context.Context, r *client.Sysl
 func readGroovyScriptedHttpOperationLogPublisherResponse(ctx context.Context, r *client.GroovyScriptedHttpOperationLogPublisherResponse, state *logPublisherResourceModel, expectedValues *logPublisherResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -7412,7 +7451,7 @@ func createLogPublisherOperations(plan logPublisherResourceModel, state logPubli
 func (r *logPublisherResource) CreateSyslogJsonAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonAuditLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogJsonAuditLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogJsonAuditLogPublisherSchemaUrn{client.ENUMSYSLOGJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_AUDIT},
 		SyslogExternalServerSlice,
 		plan.Enabled.ValueBool())
@@ -7451,7 +7490,7 @@ func (r *logPublisherResource) CreateSyslogJsonAuditLogPublisher(ctx context.Con
 
 // Create a syslog-based-error log-publisher
 func (r *logPublisherResource) CreateSyslogBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddSyslogBasedErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogBasedErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogBasedErrorLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ERROR},
 		plan.Enabled.ValueBool())
 	err := addOptionalSyslogBasedErrorLogPublisherFields(ctx, addRequest, plan)
@@ -7489,7 +7528,7 @@ func (r *logPublisherResource) CreateSyslogBasedErrorLogPublisher(ctx context.Co
 
 // Create a third-party-file-based-access log-publisher
 func (r *logPublisherResource) CreateThirdPartyFileBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyFileBasedAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyFileBasedAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyFileBasedAccessLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ACCESS},
 		plan.LogFile.ValueString(),
 		plan.ExtensionClass.ValueString(),
@@ -7529,7 +7568,7 @@ func (r *logPublisherResource) CreateThirdPartyFileBasedAccessLogPublisher(ctx c
 
 // Create a operation-timing-access log-publisher
 func (r *logPublisherResource) CreateOperationTimingAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddOperationTimingAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddOperationTimingAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumoperationTimingAccessLogPublisherSchemaUrn{client.ENUMOPERATIONTIMINGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHEROPERATION_TIMING_ACCESS},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7568,7 +7607,7 @@ func (r *logPublisherResource) CreateOperationTimingAccessLogPublisher(ctx conte
 
 // Create a third-party-http-operation log-publisher
 func (r *logPublisherResource) CreateThirdPartyHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyHttpOperationLogPublisherSchemaUrn{client.ENUMTHIRDPARTYHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_HTTP_OPERATION},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7607,7 +7646,7 @@ func (r *logPublisherResource) CreateThirdPartyHttpOperationLogPublisher(ctx con
 
 // Create a admin-alert-access log-publisher
 func (r *logPublisherResource) CreateAdminAlertAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddAdminAlertAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAdminAlertAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumadminAlertAccessLogPublisherSchemaUrn{client.ENUMADMINALERTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERADMIN_ALERT_ACCESS},
 		plan.Enabled.ValueBool())
 	err := addOptionalAdminAlertAccessLogPublisherFields(ctx, addRequest, plan)
@@ -7645,7 +7684,7 @@ func (r *logPublisherResource) CreateAdminAlertAccessLogPublisher(ctx context.Co
 
 // Create a file-based-trace log-publisher
 func (r *logPublisherResource) CreateFileBasedTraceLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedTraceLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedTraceLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedTraceLogPublisherSchemaUrn{client.ENUMFILEBASEDTRACELOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_TRACE},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7684,7 +7723,7 @@ func (r *logPublisherResource) CreateFileBasedTraceLogPublisher(ctx context.Cont
 
 // Create a jdbc-based-error log-publisher
 func (r *logPublisherResource) CreateJdbcBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJdbcBasedErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJdbcBasedErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumjdbcBasedErrorLogPublisherSchemaUrn{client.ENUMJDBCBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ERROR},
 		plan.Server.ValueString(),
 		plan.LogFieldMapping.ValueString(),
@@ -7724,7 +7763,7 @@ func (r *logPublisherResource) CreateJdbcBasedErrorLogPublisher(ctx context.Cont
 
 // Create a jdbc-based-access log-publisher
 func (r *logPublisherResource) CreateJdbcBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJdbcBasedAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJdbcBasedAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumjdbcBasedAccessLogPublisherSchemaUrn{client.ENUMJDBCBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJDBC_BASED_ACCESS},
 		plan.Server.ValueString(),
 		plan.LogFieldMapping.ValueString(),
@@ -7764,7 +7803,7 @@ func (r *logPublisherResource) CreateJdbcBasedAccessLogPublisher(ctx context.Con
 
 // Create a common-log-file-http-operation log-publisher
 func (r *logPublisherResource) CreateCommonLogFileHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddCommonLogFileHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCommonLogFileHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumcommonLogFileHttpOperationLogPublisherSchemaUrn{client.ENUMCOMMONLOGFILEHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCOMMON_LOG_FILE_HTTP_OPERATION},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7805,7 +7844,7 @@ func (r *logPublisherResource) CreateCommonLogFileHttpOperationLogPublisher(ctx 
 func (r *logPublisherResource) CreateSyslogTextErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogTextErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogTextErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogTextErrorLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ERROR},
 		SyslogExternalServerSlice,
 		plan.Enabled.ValueBool())
@@ -7844,7 +7883,7 @@ func (r *logPublisherResource) CreateSyslogTextErrorLogPublisher(ctx context.Con
 
 // Create a syslog-based-access log-publisher
 func (r *logPublisherResource) CreateSyslogBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddSyslogBasedAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogBasedAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogBasedAccessLogPublisherSchemaUrn{client.ENUMSYSLOGBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_BASED_ACCESS},
 		plan.Enabled.ValueBool())
 	err := addOptionalSyslogBasedAccessLogPublisherFields(ctx, addRequest, plan)
@@ -7882,7 +7921,7 @@ func (r *logPublisherResource) CreateSyslogBasedAccessLogPublisher(ctx context.C
 
 // Create a file-based-json-audit log-publisher
 func (r *logPublisherResource) CreateFileBasedJsonAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedJsonAuditLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedJsonAuditLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedJsonAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_JSON_AUDIT},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7921,7 +7960,7 @@ func (r *logPublisherResource) CreateFileBasedJsonAuditLogPublisher(ctx context.
 
 // Create a file-based-debug log-publisher
 func (r *logPublisherResource) CreateFileBasedDebugLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedDebugLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedDebugLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedDebugLogPublisherSchemaUrn{client.ENUMFILEBASEDDEBUGLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_DEBUG},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7960,7 +7999,7 @@ func (r *logPublisherResource) CreateFileBasedDebugLogPublisher(ctx context.Cont
 
 // Create a file-based-error log-publisher
 func (r *logPublisherResource) CreateFileBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedErrorLogPublisherSchemaUrn{client.ENUMFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_ERROR},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -7999,7 +8038,7 @@ func (r *logPublisherResource) CreateFileBasedErrorLogPublisher(ctx context.Cont
 
 // Create a third-party-error log-publisher
 func (r *logPublisherResource) CreateThirdPartyErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_ERROR},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8040,7 +8079,7 @@ func (r *logPublisherResource) CreateThirdPartyErrorLogPublisher(ctx context.Con
 func (r *logPublisherResource) CreateSyslogTextAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogTextAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogTextAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogTextAccessLogPublisherSchemaUrn{client.ENUMSYSLOGTEXTACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_TEXT_ACCESS},
 		SyslogExternalServerSlice,
 		plan.Enabled.ValueBool())
@@ -8079,7 +8118,7 @@ func (r *logPublisherResource) CreateSyslogTextAccessLogPublisher(ctx context.Co
 
 // Create a detailed-http-operation log-publisher
 func (r *logPublisherResource) CreateDetailedHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddDetailedHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDetailedHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumdetailedHttpOperationLogPublisherSchemaUrn{client.ENUMDETAILEDHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDETAILED_HTTP_OPERATION},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8118,7 +8157,7 @@ func (r *logPublisherResource) CreateDetailedHttpOperationLogPublisher(ctx conte
 
 // Create a json-access log-publisher
 func (r *logPublisherResource) CreateJsonAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJsonAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJsonAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumjsonAccessLogPublisherSchemaUrn{client.ENUMJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ACCESS},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8157,7 +8196,7 @@ func (r *logPublisherResource) CreateJsonAccessLogPublisher(ctx context.Context,
 
 // Create a debug-access log-publisher
 func (r *logPublisherResource) CreateDebugAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddDebugAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDebugAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumdebugAccessLogPublisherSchemaUrn{client.ENUMDEBUGACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERDEBUG_ACCESS},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8198,7 +8237,7 @@ func (r *logPublisherResource) CreateDebugAccessLogPublisher(ctx context.Context
 func (r *logPublisherResource) CreateSyslogJsonHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogJsonHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogJsonHttpOperationLogPublisherSchemaUrn{client.ENUMSYSLOGJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_HTTP_OPERATION},
 		SyslogExternalServerSlice,
 		plan.Enabled.ValueBool())
@@ -8237,7 +8276,7 @@ func (r *logPublisherResource) CreateSyslogJsonHttpOperationLogPublisher(ctx con
 
 // Create a third-party-access log-publisher
 func (r *logPublisherResource) CreateThirdPartyAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyAccessLogPublisherSchemaUrn{client.ENUMTHIRDPARTYACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_ACCESS},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8276,7 +8315,7 @@ func (r *logPublisherResource) CreateThirdPartyAccessLogPublisher(ctx context.Co
 
 // Create a file-based-audit log-publisher
 func (r *logPublisherResource) CreateFileBasedAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedAuditLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedAuditLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedAuditLogPublisherSchemaUrn{client.ENUMFILEBASEDAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_AUDIT},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8315,7 +8354,7 @@ func (r *logPublisherResource) CreateFileBasedAuditLogPublisher(ctx context.Cont
 
 // Create a json-error log-publisher
 func (r *logPublisherResource) CreateJsonErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddJsonErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJsonErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumjsonErrorLogPublisherSchemaUrn{client.ENUMJSONERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERJSON_ERROR},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8354,7 +8393,7 @@ func (r *logPublisherResource) CreateJsonErrorLogPublisher(ctx context.Context, 
 
 // Create a groovy-scripted-file-based-access log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedFileBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedFileBasedAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedFileBasedAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedFileBasedAccessLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ACCESS},
 		plan.ScriptClass.ValueString(),
 		plan.LogFile.ValueString(),
@@ -8394,7 +8433,7 @@ func (r *logPublisherResource) CreateGroovyScriptedFileBasedAccessLogPublisher(c
 
 // Create a groovy-scripted-file-based-error log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedFileBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedFileBasedErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedFileBasedErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedFileBasedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_FILE_BASED_ERROR},
 		plan.ScriptClass.ValueString(),
 		plan.LogFile.ValueString(),
@@ -8436,7 +8475,7 @@ func (r *logPublisherResource) CreateGroovyScriptedFileBasedErrorLogPublisher(ct
 func (r *logPublisherResource) CreateSyslogJsonAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogJsonAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogJsonAccessLogPublisherSchemaUrn{client.ENUMSYSLOGJSONACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_ACCESS},
 		SyslogExternalServerSlice,
 		plan.Enabled.ValueBool())
@@ -8475,7 +8514,7 @@ func (r *logPublisherResource) CreateSyslogJsonAccessLogPublisher(ctx context.Co
 
 // Create a groovy-scripted-access log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedAccessLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_ACCESS},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8514,7 +8553,7 @@ func (r *logPublisherResource) CreateGroovyScriptedAccessLogPublisher(ctx contex
 
 // Create a third-party-file-based-error log-publisher
 func (r *logPublisherResource) CreateThirdPartyFileBasedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddThirdPartyFileBasedErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyFileBasedErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyFileBasedErrorLogPublisherSchemaUrn{client.ENUMTHIRDPARTYFILEBASEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERTHIRD_PARTY_FILE_BASED_ERROR},
 		plan.LogFile.ValueString(),
 		plan.ExtensionClass.ValueString(),
@@ -8554,7 +8593,7 @@ func (r *logPublisherResource) CreateThirdPartyFileBasedErrorLogPublisher(ctx co
 
 // Create a console-json-audit log-publisher
 func (r *logPublisherResource) CreateConsoleJsonAuditLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddConsoleJsonAuditLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConsoleJsonAuditLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumconsoleJsonAuditLogPublisherSchemaUrn{client.ENUMCONSOLEJSONAUDITLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCONSOLE_JSON_AUDIT},
 		plan.Enabled.ValueBool())
 	err := addOptionalConsoleJsonAuditLogPublisherFields(ctx, addRequest, plan)
@@ -8592,7 +8631,7 @@ func (r *logPublisherResource) CreateConsoleJsonAuditLogPublisher(ctx context.Co
 
 // Create a console-json-http-operation log-publisher
 func (r *logPublisherResource) CreateConsoleJsonHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddConsoleJsonHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConsoleJsonHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumconsoleJsonHttpOperationLogPublisherSchemaUrn{client.ENUMCONSOLEJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERCONSOLE_JSON_HTTP_OPERATION},
 		plan.Enabled.ValueBool())
 	err := addOptionalConsoleJsonHttpOperationLogPublisherFields(ctx, addRequest, plan)
@@ -8630,7 +8669,7 @@ func (r *logPublisherResource) CreateConsoleJsonHttpOperationLogPublisher(ctx co
 
 // Create a file-based-access log-publisher
 func (r *logPublisherResource) CreateFileBasedAccessLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedAccessLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedAccessLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedAccessLogPublisherSchemaUrn{client.ENUMFILEBASEDACCESSLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_ACCESS},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8669,7 +8708,7 @@ func (r *logPublisherResource) CreateFileBasedAccessLogPublisher(ctx context.Con
 
 // Create a groovy-scripted-error log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedErrorLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_ERROR},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8708,7 +8747,7 @@ func (r *logPublisherResource) CreateGroovyScriptedErrorLogPublisher(ctx context
 
 // Create a file-based-json-http-operation log-publisher
 func (r *logPublisherResource) CreateFileBasedJsonHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddFileBasedJsonHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedJsonHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedJsonHttpOperationLogPublisherSchemaUrn{client.ENUMFILEBASEDJSONHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERFILE_BASED_JSON_HTTP_OPERATION},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -8749,7 +8788,7 @@ func (r *logPublisherResource) CreateFileBasedJsonHttpOperationLogPublisher(ctx 
 func (r *logPublisherResource) CreateSyslogJsonErrorLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
 	var SyslogExternalServerSlice []string
 	plan.SyslogExternalServer.ElementsAs(ctx, &SyslogExternalServerSlice, false)
-	addRequest := client.NewAddSyslogJsonErrorLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogJsonErrorLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogJsonErrorLogPublisherSchemaUrn{client.ENUMSYSLOGJSONERRORLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERSYSLOG_JSON_ERROR},
 		SyslogExternalServerSlice,
 		plan.Enabled.ValueBool())
@@ -8788,7 +8827,7 @@ func (r *logPublisherResource) CreateSyslogJsonErrorLogPublisher(ctx context.Con
 
 // Create a groovy-scripted-http-operation log-publisher
 func (r *logPublisherResource) CreateGroovyScriptedHttpOperationLogPublisher(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logPublisherResourceModel) (*logPublisherResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedHttpOperationLogPublisherRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedHttpOperationLogPublisherRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedHttpOperationLogPublisherSchemaUrn{client.ENUMGROOVYSCRIPTEDHTTPOPERATIONLOGPUBLISHERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_PUBLISHERGROOVY_SCRIPTED_HTTP_OPERATION},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -9079,7 +9118,7 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
 		return
@@ -9209,7 +9248,7 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LogPublisherApi.UpdateLogPublisher(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogPublisherOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -9373,7 +9412,7 @@ func readLogPublisher(ctx context.Context, req resource.ReadRequest, resp *resou
 	}
 
 	readResponse, httpResp, err := apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
 		return
@@ -9528,7 +9567,7 @@ func updateLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *r
 	var state logPublisherResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LogPublisherApi.UpdateLogPublisher(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLogPublisherOperations(plan, state)
@@ -9694,7 +9733,7 @@ func (r *logPublisherResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	httpResp, err := r.apiClient.LogPublisherApi.DeleteLogPublisherExecute(r.apiClient.LogPublisherApi.DeleteLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Publisher", err, httpResp)
 		return
@@ -9710,6 +9749,6 @@ func (r *defaultLogPublisherResource) ImportState(ctx context.Context, req resou
 }
 
 func importLogPublisher(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_password_validator" "myPasswordValidator" {
-  id                  = "MyPasswordValidator"
+  name                = "MyPasswordValidator"
   type                = "length-based"
   min_password_length = 8
   max_password_length = 100

@@ -48,6 +48,7 @@ func (r *passwordPolicyDataSource) Configure(_ context.Context, req datasource.C
 
 type passwordPolicyDataSourceModel struct {
 	Id                                                        types.String `tfsdk:"id"`
+	Name                                                      types.String `tfsdk:"name"`
 	Description                                               types.String `tfsdk:"description"`
 	RequireSecureAuthentication                               types.Bool   `tfsdk:"require_secure_authentication"`
 	RequireSecurePasswordChanges                              types.Bool   `tfsdk:"require_secure_password_changes"`
@@ -102,13 +103,9 @@ type passwordPolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *passwordPolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Password Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Policy",
 				Required:    false,
@@ -419,11 +416,14 @@ func (r *passwordPolicyDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a PasswordPolicyResponse object into the model struct
 func readPasswordPolicyResponseDataSource(ctx context.Context, r *client.PasswordPolicyResponse, state *passwordPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.RequireSecureAuthentication = internaltypes.BoolTypeOrNil(r.RequireSecureAuthentication)
 	state.RequireSecurePasswordChanges = internaltypes.BoolTypeOrNil(r.RequireSecurePasswordChanges)
@@ -494,7 +494,7 @@ func (r *passwordPolicyDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordPolicyApi.GetPasswordPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Policy", err, httpResp)
 		return

@@ -86,6 +86,7 @@ func (r *defaultAccessTokenValidatorResource) Configure(_ context.Context, req r
 
 type accessTokenValidatorResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -313,9 +314,9 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -612,6 +613,7 @@ func populateAccessTokenValidatorUnknownValues(ctx context.Context, model *acces
 func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client.PingFederateAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-federate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.ClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.ClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ClientSecretPassphraseProvider))
 	state.IncludeAudParameter = internaltypes.BoolTypeOrNil(r.IncludeAudParameter)
@@ -633,6 +635,7 @@ func readPingFederateAccessTokenValidatorResponse(ctx context.Context, r *client
 func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jwt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumaccessTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
@@ -661,6 +664,7 @@ func readJwtAccessTokenValidatorResponse(ctx context.Context, r *client.JwtAcces
 func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("mock")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, internaltypes.IsEmptyString(expectedValues.ClientIDClaimName))
 	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, internaltypes.IsEmptyString(expectedValues.ScopeClaimName))
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
@@ -676,6 +680,7 @@ func readMockAccessTokenValidatorResponse(ctx context.Context, r *client.MockAcc
 func readThirdPartyAccessTokenValidatorResponse(ctx context.Context, r *client.ThirdPartyAccessTokenValidatorResponse, state *accessTokenValidatorResourceModel, expectedValues *accessTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
@@ -726,7 +731,7 @@ func createAccessTokenValidatorOperations(plan accessTokenValidatorResourceModel
 
 // Create a ping-federate access-token-validator
 func (r *accessTokenValidatorResource) CreatePingFederateAccessTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accessTokenValidatorResourceModel) (*accessTokenValidatorResourceModel, error) {
-	addRequest := client.NewAddPingFederateAccessTokenValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPingFederateAccessTokenValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumpingFederateAccessTokenValidatorSchemaUrn{client.ENUMPINGFEDERATEACCESSTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCESS_TOKEN_VALIDATORPING_FEDERATE},
 		plan.ClientID.ValueString(),
 		plan.Enabled.ValueBool())
@@ -765,7 +770,7 @@ func (r *accessTokenValidatorResource) CreatePingFederateAccessTokenValidator(ct
 
 // Create a jwt access-token-validator
 func (r *accessTokenValidatorResource) CreateJwtAccessTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accessTokenValidatorResourceModel) (*accessTokenValidatorResourceModel, error) {
-	addRequest := client.NewAddJwtAccessTokenValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJwtAccessTokenValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumjwtAccessTokenValidatorSchemaUrn{client.ENUMJWTACCESSTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCESS_TOKEN_VALIDATORJWT},
 		plan.Enabled.ValueBool())
 	err := addOptionalJwtAccessTokenValidatorFields(ctx, addRequest, plan)
@@ -803,7 +808,7 @@ func (r *accessTokenValidatorResource) CreateJwtAccessTokenValidator(ctx context
 
 // Create a mock access-token-validator
 func (r *accessTokenValidatorResource) CreateMockAccessTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accessTokenValidatorResourceModel) (*accessTokenValidatorResourceModel, error) {
-	addRequest := client.NewAddMockAccessTokenValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddMockAccessTokenValidatorRequest(plan.Name.ValueString(),
 		[]client.EnummockAccessTokenValidatorSchemaUrn{client.ENUMMOCKACCESSTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCESS_TOKEN_VALIDATORMOCK},
 		plan.Enabled.ValueBool())
 	err := addOptionalMockAccessTokenValidatorFields(ctx, addRequest, plan)
@@ -841,7 +846,7 @@ func (r *accessTokenValidatorResource) CreateMockAccessTokenValidator(ctx contex
 
 // Create a third-party access-token-validator
 func (r *accessTokenValidatorResource) CreateThirdPartyAccessTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accessTokenValidatorResourceModel) (*accessTokenValidatorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyAccessTokenValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyAccessTokenValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyAccessTokenValidatorSchemaUrn{client.ENUMTHIRDPARTYACCESSTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCESS_TOKEN_VALIDATORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -942,7 +947,7 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
 		return
@@ -970,7 +975,7 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAccessTokenValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1033,7 +1038,7 @@ func readAccessTokenValidator(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
 		return
@@ -1086,7 +1091,7 @@ func updateAccessTokenValidator(ctx context.Context, req resource.UpdateRequest,
 	var state accessTokenValidatorResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.AccessTokenValidatorApi.UpdateAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAccessTokenValidatorOperations(plan, state)
@@ -1151,7 +1156,7 @@ func (r *accessTokenValidatorResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.AccessTokenValidatorApi.DeleteAccessTokenValidatorExecute(r.apiClient.AccessTokenValidatorApi.DeleteAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Access Token Validator", err, httpResp)
 		return
@@ -1167,6 +1172,6 @@ func (r *defaultAccessTokenValidatorResource) ImportState(ctx context.Context, r
 }
 
 func importAccessTokenValidator(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

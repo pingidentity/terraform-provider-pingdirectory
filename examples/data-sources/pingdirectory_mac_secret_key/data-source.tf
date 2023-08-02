@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_mac_secret_key" "myMacSecretKey" {
-  id                   = "MyMacSecretKey"
+  name                 = "MyMacSecretKey"
   server_instance_name = "MyServerInstance"
 }

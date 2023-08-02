@@ -48,6 +48,7 @@ func (r *httpServletExtensionDataSource) Configure(_ context.Context, req dataso
 
 type httpServletExtensionDataSourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
+	Name                               types.String `tfsdk:"name"`
 	Type                               types.String `tfsdk:"type"`
 	ExtensionClass                     types.String `tfsdk:"extension_class"`
 	ExtensionArgument                  types.Set    `tfsdk:"extension_argument"`
@@ -127,13 +128,9 @@ type httpServletExtensionDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Http Servlet Extension.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of HTTP Servlet Extension resource. Options are ['delegated-admin', 'quickstart', 'availability-state', 'prometheus-monitoring', 'velocity', 'consent', 'ldap-mapped-scim', 'groovy-scripted', 'file-server', 'config', 'scim2', 'directory-rest-api', 'third-party']",
 				Required:    false,
@@ -606,12 +603,15 @@ func (r *httpServletExtensionDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DelegatedAdminHttpServletExtensionResponse object into the model struct
 func readDelegatedAdminHttpServletExtensionResponseDataSource(ctx context.Context, r *client.DelegatedAdminHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delegated-admin")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
@@ -627,6 +627,7 @@ func readDelegatedAdminHttpServletExtensionResponseDataSource(ctx context.Contex
 func readQuickstartHttpServletExtensionResponseDataSource(ctx context.Context, r *client.QuickstartHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("quickstart")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = internaltypes.StringTypeOrNil(r.Server, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
@@ -638,6 +639,7 @@ func readQuickstartHttpServletExtensionResponseDataSource(ctx context.Context, r
 func readAvailabilityStateHttpServletExtensionResponseDataSource(ctx context.Context, r *client.AvailabilityStateHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("availability-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.AvailableStatusCode = types.Int64Value(r.AvailableStatusCode)
 	state.DegradedStatusCode = types.Int64Value(r.DegradedStatusCode)
@@ -655,6 +657,7 @@ func readAvailabilityStateHttpServletExtensionResponseDataSource(ctx context.Con
 func readPrometheusMonitoringHttpServletExtensionResponseDataSource(ctx context.Context, r *client.PrometheusMonitoringHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("prometheus-monitoring")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.IncludeInstanceNameLabel = internaltypes.BoolTypeOrNil(r.IncludeInstanceNameLabel)
 	state.IncludeProductNameLabel = internaltypes.BoolTypeOrNil(r.IncludeProductNameLabel)
@@ -673,6 +676,7 @@ func readPrometheusMonitoringHttpServletExtensionResponseDataSource(ctx context.
 func readVelocityHttpServletExtensionResponseDataSource(ctx context.Context, r *client.VelocityHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("velocity")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.StaticContextPath = internaltypes.StringTypeOrNil(r.StaticContextPath, false)
 	state.StaticContentDirectory = internaltypes.StringTypeOrNil(r.StaticContentDirectory, false)
@@ -698,6 +702,7 @@ func readVelocityHttpServletExtensionResponseDataSource(ctx context.Context, r *
 func readConsentHttpServletExtensionResponseDataSource(ctx context.Context, r *client.ConsentHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("consent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BearerTokenAuthEnabled = internaltypes.BoolTypeOrNil(r.BearerTokenAuthEnabled)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
@@ -712,6 +717,7 @@ func readConsentHttpServletExtensionResponseDataSource(ctx context.Context, r *c
 func readLdapMappedScimHttpServletExtensionResponseDataSource(ctx context.Context, r *client.LdapMappedScimHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapped-scim")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, false)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
@@ -743,6 +749,7 @@ func readLdapMappedScimHttpServletExtensionResponseDataSource(ctx context.Contex
 func readGroovyScriptedHttpServletExtensionResponseDataSource(ctx context.Context, r *client.GroovyScriptedHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -755,6 +762,7 @@ func readGroovyScriptedHttpServletExtensionResponseDataSource(ctx context.Contex
 func readFileServerHttpServletExtensionResponseDataSource(ctx context.Context, r *client.FileServerHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.DocumentRootDirectory = types.StringValue(r.DocumentRootDirectory)
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
@@ -779,6 +787,7 @@ func readFileServerHttpServletExtensionResponseDataSource(ctx context.Context, r
 func readConfigHttpServletExtensionResponseDataSource(ctx context.Context, r *client.ConfigHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("config")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, false)
@@ -790,6 +799,7 @@ func readConfigHttpServletExtensionResponseDataSource(ctx context.Context, r *cl
 func readScim2HttpServletExtensionResponseDataSource(ctx context.Context, r *client.Scim2HttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("scim2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
 	state.MapAccessTokensToLocalUsers = internaltypes.StringTypeOrNil(
@@ -810,6 +820,7 @@ func readScim2HttpServletExtensionResponseDataSource(ctx context.Context, r *cli
 func readDirectoryRestApiHttpServletExtensionResponseDataSource(ctx context.Context, r *client.DirectoryRestApiHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory-rest-api")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
@@ -832,6 +843,7 @@ func readDirectoryRestApiHttpServletExtensionResponseDataSource(ctx context.Cont
 func readThirdPartyHttpServletExtensionResponseDataSource(ctx context.Context, r *client.ThirdPartyHttpServletExtensionResponse, state *httpServletExtensionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -851,7 +863,7 @@ func (r *httpServletExtensionDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
 		return

@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_retention_policy" "myLogRetentionPolicy" {
-  id = "MyLogRetentionPolicy"
+  name = "MyLogRetentionPolicy"
 }

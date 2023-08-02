@@ -86,6 +86,7 @@ func (r *defaultRestResourceTypeResource) Configure(_ context.Context, req resou
 
 type restResourceTypeResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
@@ -286,9 +287,9 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -545,6 +546,7 @@ func addOptionalGroupRestResourceTypeFields(ctx context.Context, addRequest *cli
 func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestResourceTypeResponse, state *restResourceTypeResourceModel, expectedValues *restResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordAttributeCategory = internaltypes.StringTypeOrNil(r.PasswordAttributeCategory, internaltypes.IsEmptyString(expectedValues.PasswordAttributeCategory))
 	state.PasswordDisplayOrderIndex = internaltypes.Int64TypeOrNil(r.PasswordDisplayOrderIndex)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -574,6 +576,7 @@ func readUserRestResourceTypeResponse(ctx context.Context, r *client.UserRestRes
 func readGenericRestResourceTypeResponse(ctx context.Context, r *client.GenericRestResourceTypeResponse, state *restResourceTypeResourceModel, expectedValues *restResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ResourceEndpoint = types.StringValue(r.ResourceEndpoint)
@@ -601,6 +604,7 @@ func readGenericRestResourceTypeResponse(ctx context.Context, r *client.GenericR
 func readGroupRestResourceTypeResponse(ctx context.Context, r *client.GroupRestResourceTypeResponse, state *restResourceTypeResourceModel, expectedValues *restResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("group")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, internaltypes.IsEmptyString(expectedValues.MembersColumnName))
 	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, internaltypes.IsEmptyString(expectedValues.NonmembersColumnName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -654,7 +658,7 @@ func createRestResourceTypeOperations(plan restResourceTypeResourceModel, state 
 
 // Create a user rest-resource-type
 func (r *restResourceTypeResource) CreateUserRestResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan restResourceTypeResourceModel) (*restResourceTypeResourceModel, error) {
-	addRequest := client.NewAddUserRestResourceTypeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUserRestResourceTypeRequest(plan.Name.ValueString(),
 		[]client.EnumuserRestResourceTypeSchemaUrn{client.ENUMUSERRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEUSER},
 		plan.Enabled.ValueBool(),
 		plan.ResourceEndpoint.ValueString(),
@@ -691,7 +695,7 @@ func (r *restResourceTypeResource) CreateUserRestResourceType(ctx context.Contex
 
 // Create a generic rest-resource-type
 func (r *restResourceTypeResource) CreateGenericRestResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan restResourceTypeResourceModel) (*restResourceTypeResourceModel, error) {
-	addRequest := client.NewAddGenericRestResourceTypeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGenericRestResourceTypeRequest(plan.Name.ValueString(),
 		[]client.EnumgenericRestResourceTypeSchemaUrn{client.ENUMGENERICRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEGENERIC},
 		plan.Enabled.ValueBool(),
 		plan.ResourceEndpoint.ValueString(),
@@ -728,7 +732,7 @@ func (r *restResourceTypeResource) CreateGenericRestResourceType(ctx context.Con
 
 // Create a group rest-resource-type
 func (r *restResourceTypeResource) CreateGroupRestResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan restResourceTypeResourceModel) (*restResourceTypeResourceModel, error) {
-	addRequest := client.NewAddGroupRestResourceTypeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroupRestResourceTypeRequest(plan.Name.ValueString(),
 		[]client.EnumgroupRestResourceTypeSchemaUrn{client.ENUMGROUPRESTRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REST_RESOURCE_TYPEGROUP},
 		plan.Enabled.ValueBool(),
 		plan.ResourceEndpoint.ValueString(),
@@ -819,7 +823,7 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
 		return
@@ -844,7 +848,7 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.RestResourceTypeApi.UpdateRestResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRestResourceTypeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -903,7 +907,7 @@ func readRestResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	readResponse, httpResp, err := apiClient.RestResourceTypeApi.GetRestResourceType(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
 		return
@@ -953,7 +957,7 @@ func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, res
 	var state restResourceTypeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.RestResourceTypeApi.UpdateRestResourceType(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createRestResourceTypeOperations(plan, state)
@@ -1014,7 +1018,7 @@ func (r *restResourceTypeResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.RestResourceTypeApi.DeleteRestResourceTypeExecute(r.apiClient.RestResourceTypeApi.DeleteRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Rest Resource Type", err, httpResp)
 		return
@@ -1030,6 +1034,6 @@ func (r *defaultRestResourceTypeResource) ImportState(ctx context.Context, req r
 }
 
 func importRestResourceType(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

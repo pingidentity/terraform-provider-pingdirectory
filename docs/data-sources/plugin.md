@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_plugin" "myPlugin" {
-  id = "MyPlugin"
+  name = "MyPlugin"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_plugin" "myPlugin" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -105,6 +105,7 @@ data "pingdirectory_plugin" "myPlugin" {
 - `histogram_op_type` (Set of String) Specifies the operation type(s) to use when outputting the response time histogram data. The order of the operations here determines the order of the columns in the output. Use the per-application-ldap-stats setting to further control this.
 - `host_info` (Set of String) Specifies the level of detail to include about the host system resource utilization including CPU, memory, disk and network activity.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service. Supported in PingDirectory product version 9.2.0.0+.
+- `id` (String) The ID of this resource.
 - `ignored_password_policy_state_error_condition` (Set of String) A set of password policy state error conditions that should not be enforced when authentication succeeds when attempted in the PingOne service. This option can only be used if try-local-bind is true.
 - `include_attribute` (Set of String) The name of an attribute that should be included in the results. This may include any token which is allowed as a requested attribute in search requests, including the name of an attribute, an asterisk (to indicate all user attributes), a plus sign (to indicate all operational attributes), an object class name preceded with an at symbol (to indicate all attributes associated with that object class), an attribute name preceded by a caret (to indicate that attribute should be excluded), or an object class name preceded by a caret and an at symbol (to indicate that all attributes associated with that object class should be excluded).
 - `include_base_dn` (Set of String) The set of base DNs below which composed values may be generated.

@@ -49,6 +49,6 @@ data "pingdirectory_json_attribute_constraints_list" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Json Attribute Constraints IDs found in the configuration
 

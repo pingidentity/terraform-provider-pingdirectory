@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_virtual_attribute" "myVirtualAttribute" {
-  id = "MyVirtualAttribute"
+  name = "MyVirtualAttribute"
 }

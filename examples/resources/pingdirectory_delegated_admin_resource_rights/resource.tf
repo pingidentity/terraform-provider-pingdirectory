@@ -24,7 +24,7 @@ provider "pingdirectory" {
 
 # Use "pingdirectory_default_delegated_admin_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
-  id            = "MyDelegatedAdminRights"
+  name          = "MyDelegatedAdminRights"
   enabled       = true
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
@@ -32,7 +32,7 @@ resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 # Use "pingdirectory_default_rest_resource_type" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_rest_resource_type" "myUserRestResourceType" {
   type                        = "user"
-  id                          = "MyUserRestResourceType"
+  name                        = "MyUserRestResourceType"
   enabled                     = true
   resource_endpoint           = "userRestResource"
   structural_ldap_objectclass = "inetOrgPerson"

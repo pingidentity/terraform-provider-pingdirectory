@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_search_entry_criteria" "mySearchEntryCriteria" {
-  id = "MySearchEntryCriteria"
+  name = "MySearchEntryCriteria"
 }

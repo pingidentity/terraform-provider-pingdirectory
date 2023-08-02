@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_scim_subattribute" "myScimSubattribute" {
-  id                  = "MyScimSubattribute"
+  name                = "MyScimSubattribute"
   scim_attribute_name = "MyScimAttribute"
   scim_schema_name    = "MyScimSchema"
 }

@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_web_application_extension" "myWebApplicationExtension" {
-  id                      = "MyWebApplicationExtension"
+  name                    = "MyWebApplicationExtension"
   type                    = "generic"
   base_context_path       = "/myexamplepath"
   document_root_directory = "/my/directory/path"

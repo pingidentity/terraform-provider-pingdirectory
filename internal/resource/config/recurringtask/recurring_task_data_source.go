@@ -48,6 +48,7 @@ func (r *recurringTaskDataSource) Configure(_ context.Context, req datasource.Co
 
 type recurringTaskDataSourceModel struct {
 	Id                                      types.String `tfsdk:"id"`
+	Name                                    types.String `tfsdk:"name"`
 	Type                                    types.String `tfsdk:"type"`
 	ExtensionClass                          types.String `tfsdk:"extension_class"`
 	ExtensionArgument                       types.Set    `tfsdk:"extension_argument"`
@@ -130,13 +131,9 @@ type recurringTaskDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *recurringTaskDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Recurring Task.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Recurring Task resource. Options are ['generate-server-profile', 'leave-lockdown-mode', 'backup', 'delay', 'statically-defined', 'collect-support-data', 'ldif-export', 'enter-lockdown-mode', 'audit-data-security', 'exec', 'file-retention', 'third-party']",
 				Required:    false,
@@ -622,12 +619,15 @@ func (r *recurringTaskDataSource) Schema(ctx context.Context, req datasource.Sch
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a GenerateServerProfileRecurringTaskResponse object into the model struct
 func readGenerateServerProfileRecurringTaskResponseDataSource(ctx context.Context, r *client.GenerateServerProfileRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generate-server-profile")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.IncludePath = internaltypes.GetStringSet(r.IncludePath)
 	state.RetainPreviousProfileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousProfileCount)
@@ -646,6 +646,7 @@ func readGenerateServerProfileRecurringTaskResponseDataSource(ctx context.Contex
 func readLeaveLockdownModeRecurringTaskResponseDataSource(ctx context.Context, r *client.LeaveLockdownModeRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("leave-lockdown-mode")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Reason = internaltypes.StringTypeOrNil(r.Reason, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
@@ -661,6 +662,7 @@ func readLeaveLockdownModeRecurringTaskResponseDataSource(ctx context.Context, r
 func readBackupRecurringTaskResponseDataSource(ctx context.Context, r *client.BackupRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("backup")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BackupDirectory = types.StringValue(r.BackupDirectory)
 	state.IncludedBackendID = internaltypes.GetStringSet(r.IncludedBackendID)
 	state.ExcludedBackendID = internaltypes.GetStringSet(r.ExcludedBackendID)
@@ -685,6 +687,7 @@ func readBackupRecurringTaskResponseDataSource(ctx context.Context, r *client.Ba
 func readDelayRecurringTaskResponseDataSource(ctx context.Context, r *client.DelayRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delay")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SleepDuration = internaltypes.StringTypeOrNil(r.SleepDuration, false)
 	state.DurationToWaitForWorkQueueIdle = internaltypes.StringTypeOrNil(r.DurationToWaitForWorkQueueIdle, false)
 	state.LdapURLForSearchExpectedToReturnEntries = internaltypes.GetStringSet(r.LdapURLForSearchExpectedToReturnEntries)
@@ -707,6 +710,7 @@ func readDelayRecurringTaskResponseDataSource(ctx context.Context, r *client.Del
 func readStaticallyDefinedRecurringTaskResponseDataSource(ctx context.Context, r *client.StaticallyDefinedRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("statically-defined")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TaskJavaClass = types.StringValue(r.TaskJavaClass)
 	state.TaskObjectClass = internaltypes.GetStringSet(r.TaskObjectClass)
 	state.TaskAttributeValue = internaltypes.GetStringSet(r.TaskAttributeValue)
@@ -724,6 +728,7 @@ func readStaticallyDefinedRecurringTaskResponseDataSource(ctx context.Context, r
 func readCollectSupportDataRecurringTaskResponseDataSource(ctx context.Context, r *client.CollectSupportDataRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("collect-support-data")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OutputDirectory = types.StringValue(r.OutputDirectory)
 	state.EncryptionPassphraseFile = internaltypes.StringTypeOrNil(r.EncryptionPassphraseFile, false)
 	state.IncludeExpensiveData = internaltypes.BoolTypeOrNil(r.IncludeExpensiveData)
@@ -756,6 +761,7 @@ func readCollectSupportDataRecurringTaskResponseDataSource(ctx context.Context, 
 func readLdifExportRecurringTaskResponseDataSource(ctx context.Context, r *client.LdifExportRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif-export")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LdifDirectory = types.StringValue(r.LdifDirectory)
 	state.BackendID = internaltypes.GetStringSet(r.BackendID)
 	state.ExcludeBackendID = internaltypes.GetStringSet(r.ExcludeBackendID)
@@ -780,6 +786,7 @@ func readLdifExportRecurringTaskResponseDataSource(ctx context.Context, r *clien
 func readEnterLockdownModeRecurringTaskResponseDataSource(ctx context.Context, r *client.EnterLockdownModeRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("enter-lockdown-mode")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Reason = internaltypes.StringTypeOrNil(r.Reason, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
@@ -795,6 +802,7 @@ func readEnterLockdownModeRecurringTaskResponseDataSource(ctx context.Context, r
 func readAuditDataSecurityRecurringTaskResponseDataSource(ctx context.Context, r *client.AuditDataSecurityRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("audit-data-security")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseOutputDirectory = types.StringValue(r.BaseOutputDirectory)
 	state.DataSecurityAuditor = internaltypes.GetStringSet(r.DataSecurityAuditor)
 	state.Backend = internaltypes.GetStringSet(r.Backend)
@@ -815,6 +823,7 @@ func readAuditDataSecurityRecurringTaskResponseDataSource(ctx context.Context, r
 func readExecRecurringTaskResponseDataSource(ctx context.Context, r *client.ExecRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exec")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CommandPath = types.StringValue(r.CommandPath)
 	state.CommandArguments = internaltypes.StringTypeOrNil(r.CommandArguments, false)
 	state.CommandOutputFileBaseName = internaltypes.StringTypeOrNil(r.CommandOutputFileBaseName, false)
@@ -838,6 +847,7 @@ func readExecRecurringTaskResponseDataSource(ctx context.Context, r *client.Exec
 func readFileRetentionRecurringTaskResponseDataSource(ctx context.Context, r *client.FileRetentionRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-retention")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TargetDirectory = types.StringValue(r.TargetDirectory)
 	state.FilenamePattern = types.StringValue(r.FilenamePattern)
 	state.TimestampFormat = types.StringValue(r.TimestampFormat.String())
@@ -858,6 +868,7 @@ func readFileRetentionRecurringTaskResponseDataSource(ctx context.Context, r *cl
 func readThirdPartyRecurringTaskResponseDataSource(ctx context.Context, r *client.ThirdPartyRecurringTaskResponse, state *recurringTaskDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -881,7 +892,7 @@ func (r *recurringTaskDataSource) Read(ctx context.Context, req datasource.ReadR
 	}
 
 	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
 		return

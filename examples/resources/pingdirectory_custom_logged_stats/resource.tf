@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
-  id                  = "MyCustomLoggedStats"
+  name                = "MyCustomLoggedStats"
   plugin_name         = "JSON Stats Logger"
   monitor_objectclass = "ds-memory-usage-monitor-entry"
   attribute_to_log    = ["total-bytes-used-by-memory-consumers"]

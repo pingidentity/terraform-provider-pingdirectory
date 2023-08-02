@@ -79,7 +79,7 @@ func testAccStringArrayTokenClaimValidationResource(resourceName string, resourc
 	return fmt.Sprintf(`
 resource "pingdirectory_id_token_validator" "%[3]s" {
   type                   = "ping-one"
-  id                     = "%[3]s"
+  name                   = "%[3]s"
   issuer_url             = "example.com"
   enabled                = false
   identity_mapper        = "Exact Match"
@@ -88,14 +88,14 @@ resource "pingdirectory_id_token_validator" "%[3]s" {
 
 resource "pingdirectory_token_claim_validation" "%[1]s" {
   type                    = "string-array"
-  id                      = "%[2]s"
+  name                    = "%[2]s"
   id_token_validator_name = pingdirectory_id_token_validator.%[3]s.id
   any_required_value      = %[4]s
   claim_name              = "%[5]s"
 }
 
 data "pingdirectory_token_claim_validation" "%[1]s" {
-  id                      = "%[2]s"
+  name                    = "%[2]s"
   id_token_validator_name = "%[3]s"
   depends_on = [
     pingdirectory_token_claim_validation.%[1]s

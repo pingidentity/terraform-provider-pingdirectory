@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_account_status_notification_handler" "myAccountStatusNotificationHandler" {
-  id                                    = "MyAccountStatusNotificationHandler"
+  name                                  = "MyAccountStatusNotificationHandler"
   type                                  = "smtp"
   send_message_without_end_user_address = false
   recipient_address                     = ["test@example.com", "users@example.com"]

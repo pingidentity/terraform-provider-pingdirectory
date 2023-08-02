@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginPolicy" {
-  id = "MyHttpServletCrossOriginPolicy"
+  name = "MyHttpServletCrossOriginPolicy"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginP
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,4 +57,5 @@ data "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginP
 - `cors_exposed_headers` (Set of String) A list of HTTP headers other than the simple response headers that browsers are allowed to access.
 - `cors_preflight_max_age` (String) The maximum amount of time that a preflight request can be cached by a client.
 - `description` (String) A description for this HTTP Servlet Cross Origin Policy
+- `id` (String) The ID of this resource.
 

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_web_application_extension" "myWebApplicationExtension" {
-  id                      = "MyWebApplicationExtension"
+  name                    = "MyWebApplicationExtension"
   type                    = "generic"
   base_context_path       = "/myexamplepath"
   document_root_directory = "/my/directory/path"
@@ -50,7 +50,7 @@ resource "pingdirectory_web_application_extension" "myWebApplicationExtension" {
 ### Required
 
 - `base_context_path` (String) Specifies the base context path that should be used by HTTP clients to reference content. The value must start with a forward slash and at least one additional character and must represent a valid HTTP context path.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Web Application Extension resource. Options are ['console', 'generic']
 
 ### Optional
@@ -64,6 +64,7 @@ resource "pingdirectory_web_application_extension" "myWebApplicationExtension" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

@@ -56,6 +56,6 @@ data "pingdirectory_ldap_correlation_attribute_pairs" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Ldap Correlation Attribute Pair IDs found in the configuration
 

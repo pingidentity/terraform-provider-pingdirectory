@@ -48,6 +48,7 @@ func (r *searchReferenceCriteriaDataSource) Configure(_ context.Context, req dat
 
 type searchReferenceCriteriaDataSourceModel struct {
 	Id                                    types.String `tfsdk:"id"`
+	Name                                  types.String `tfsdk:"name"`
 	Type                                  types.String `tfsdk:"type"`
 	ExtensionClass                        types.String `tfsdk:"extension_class"`
 	ExtensionArgument                     types.Set    `tfsdk:"extension_argument"`
@@ -65,13 +66,9 @@ type searchReferenceCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *searchReferenceCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Search Reference Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Search Reference Criteria resource. Options are ['simple', 'aggregate', 'third-party']",
 				Required:    false,
@@ -161,12 +158,15 @@ func (r *searchReferenceCriteriaDataSource) Schema(ctx context.Context, req data
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SimpleSearchReferenceCriteriaResponse object into the model struct
 func readSimpleSearchReferenceCriteriaResponseDataSource(ctx context.Context, r *client.SimpleSearchReferenceCriteriaResponse, state *searchReferenceCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.AllIncludedReferenceControl = internaltypes.GetStringSet(r.AllIncludedReferenceControl)
 	state.AnyIncludedReferenceControl = internaltypes.GetStringSet(r.AnyIncludedReferenceControl)
@@ -179,6 +179,7 @@ func readSimpleSearchReferenceCriteriaResponseDataSource(ctx context.Context, r 
 func readAggregateSearchReferenceCriteriaResponseDataSource(ctx context.Context, r *client.AggregateSearchReferenceCriteriaResponse, state *searchReferenceCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.AllIncludedSearchReferenceCriteria)
 	state.AnyIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.AnyIncludedSearchReferenceCriteria)
 	state.NotAllIncludedSearchReferenceCriteria = internaltypes.GetStringSet(r.NotAllIncludedSearchReferenceCriteria)
@@ -190,6 +191,7 @@ func readAggregateSearchReferenceCriteriaResponseDataSource(ctx context.Context,
 func readThirdPartySearchReferenceCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartySearchReferenceCriteriaResponse, state *searchReferenceCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -206,7 +208,7 @@ func (r *searchReferenceCriteriaDataSource) Read(ctx context.Context, req dataso
 	}
 
 	readResponse, httpResp, err := r.apiClient.SearchReferenceCriteriaApi.GetSearchReferenceCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Reference Criteria", err, httpResp)
 		return

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_access_token_validator" "myAccessTokenValidator" {
-  id                   = "MyAccessTokenValidator"
+  name                 = "MyAccessTokenValidator"
   type                 = "ping-federate"
   client_id            = "my-client-id"
   enabled              = false
@@ -52,7 +52,7 @@ resource "pingdirectory_access_token_validator" "myAccessTokenValidator" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether this Access Token Validator is enabled for use in Directory Server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Access Token Validator resource. Options are ['ping-federate', 'jwt', 'mock', 'third-party']
 
 ### Optional
@@ -82,6 +82,7 @@ resource "pingdirectory_access_token_validator" "myAccessTokenValidator" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

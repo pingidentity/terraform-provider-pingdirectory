@@ -75,13 +75,13 @@ func TestAccDnMap(t *testing.T) {
 func testAccDnMapResource(resourceName string, resourceModel dnMapTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_dn_map" "%[1]s" {
-  id              = "%[2]s"
+  name            = "%[2]s"
   from_dn_pattern = "%[3]s"
   to_dn_pattern   = "%[4]s"
 }
 
 data "pingdirectory_dn_map" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_dn_map.%[1]s
   ]

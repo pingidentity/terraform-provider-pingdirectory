@@ -48,6 +48,7 @@ func (r *logRotationPolicyDataSource) Configure(_ context.Context, req datasourc
 
 type logRotationPolicyDataSourceModel struct {
 	Id               types.String `tfsdk:"id"`
+	Name             types.String `tfsdk:"name"`
 	Type             types.String `tfsdk:"type"`
 	FileSizeLimit    types.String `tfsdk:"file_size_limit"`
 	TimeOfDay        types.Set    `tfsdk:"time_of_day"`
@@ -57,13 +58,9 @@ type logRotationPolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logRotationPolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log Rotation Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log Rotation Policy resource. Options are ['time-limit', 'fixed-time', 'never-rotate', 'size-limit']",
 				Required:    false,
@@ -97,12 +94,15 @@ func (r *logRotationPolicyDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a TimeLimitLogRotationPolicyResponse object into the model struct
 func readTimeLimitLogRotationPolicyResponseDataSource(ctx context.Context, r *client.TimeLimitLogRotationPolicyResponse, state *logRotationPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("time-limit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RotationInterval = types.StringValue(r.RotationInterval)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -111,6 +111,7 @@ func readTimeLimitLogRotationPolicyResponseDataSource(ctx context.Context, r *cl
 func readFixedTimeLogRotationPolicyResponseDataSource(ctx context.Context, r *client.FixedTimeLogRotationPolicyResponse, state *logRotationPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("fixed-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TimeOfDay = internaltypes.GetStringSet(r.TimeOfDay)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -119,6 +120,7 @@ func readFixedTimeLogRotationPolicyResponseDataSource(ctx context.Context, r *cl
 func readNeverRotateLogRotationPolicyResponseDataSource(ctx context.Context, r *client.NeverRotateLogRotationPolicyResponse, state *logRotationPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("never-rotate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
 
@@ -126,6 +128,7 @@ func readNeverRotateLogRotationPolicyResponseDataSource(ctx context.Context, r *
 func readSizeLimitLogRotationPolicyResponseDataSource(ctx context.Context, r *client.SizeLimitLogRotationPolicyResponse, state *logRotationPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("size-limit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.FileSizeLimit = types.StringValue(r.FileSizeLimit)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -141,7 +144,7 @@ func (r *logRotationPolicyDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.GetLogRotationPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Rotation Policy", err, httpResp)
 		return

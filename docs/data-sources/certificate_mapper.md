@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_certificate_mapper" "myCertificateMapper" {
-  id = "MyCertificateMapper"
+  name = "MyCertificateMapper"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_certificate_mapper" "myCertificateMapper" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -56,6 +56,7 @@ data "pingdirectory_certificate_mapper" "myCertificateMapper" {
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Certificate Mapper.
 - `fingerprint_algorithm` (String) Specifies the name of the digest algorithm to compute the fingerprint of client certificates.
 - `fingerprint_attribute` (String) Specifies the attribute in which to look for the fingerprint.
+- `id` (String) The ID of this resource.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Certificate Mapper. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Certificate Mapper.
 - `subject_attribute` (String) Specifies the name or OID of the attribute whose value should exactly match the certificate subject DN.

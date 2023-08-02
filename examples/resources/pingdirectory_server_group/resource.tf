@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_server_group" "myServerGroup" {
-  id = "MyServerGroup"
+  name = "MyServerGroup"
 }

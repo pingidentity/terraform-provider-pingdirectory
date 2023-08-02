@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_request_criteria" "myRequestCriteria" {
-  id = "MyRequestCriteria"
+  name = "MyRequestCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_request_criteria" "myRequestCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -67,6 +67,7 @@ data "pingdirectory_request_criteria" "myRequestCriteria" {
 - `excluded_target_sasl_mechanism` (Set of String) Specifies the name of a SASL mechanism for bind requests excluded from this Simple Request Criteria. This will only be taken into account for SASL bind operations and will be ignored for other types of operations and for bind operations that do not use SASL authentication.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Request Criteria. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Request Criteria.
+- `id` (String) The ID of this resource.
 - `included_application_name` (Set of String) Specifies an application name for requests included in this Simple Request Criteria.
 - `included_extended_operation_oid` (Set of String) Specifies the request OID for extended requests included in this Simple Request Criteria. This will only be taken into account for extended requests and will be ignored for all other types of requests.
 - `included_search_scope` (Set of String) Specifies the search scope values included in this Simple Request Criteria. This will only be taken into account for search requests and will be ignored for all other types of requests.

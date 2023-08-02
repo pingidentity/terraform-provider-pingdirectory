@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_location" "drangleic" {
-  id          = "Drangleic"
+  name        = "Drangleic"
   description = "Seek the king"
 }

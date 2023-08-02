@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_trusted_certificate" "myTrustedCertificate" {
-  id          = "MyTrustedCertificate"
+  name        = "MyTrustedCertificate"
   certificate = file("${path.module}/cert.pem")
 }

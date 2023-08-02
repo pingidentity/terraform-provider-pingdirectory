@@ -61,15 +61,9 @@ type debugTargetDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *debugTargetDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Debug Target.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"log_publisher_name": schema.StringAttribute{
 				Description: "Name of the parent Log Publisher",
 				Required:    true,
@@ -123,6 +117,8 @@ func (r *debugTargetDataSource) Schema(ctx context.Context, req datasource.Schem
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a DebugTargetResponse object into the model struct

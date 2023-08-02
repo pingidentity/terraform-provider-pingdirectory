@@ -84,6 +84,7 @@ func (r *defaultRootDnUserResource) Configure(_ context.Context, req resource.Co
 
 type rootDnUserResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
@@ -402,9 +403,9 @@ func rootDnUserSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -577,6 +578,7 @@ func populateRootDnUserUnknownValues(ctx context.Context, model *rootDnUserResou
 // Read a RootDnUserResponse object into the model struct
 func readRootDnUserResponse(ctx context.Context, r *client.RootDnUserResponse, state *rootDnUserResourceModel, expectedValues *rootDnUserResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.FirstName = internaltypes.GetStringSet(r.FirstName)
@@ -664,7 +666,7 @@ func createRootDnUserOperations(plan rootDnUserResourceModel, state rootDnUserRe
 
 // Create a root-dn-user root-dn-user
 func (r *rootDnUserResource) CreateRootDnUser(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan rootDnUserResourceModel) (*rootDnUserResourceModel, error) {
-	addRequest := client.NewAddRootDnUserRequest(plan.Id.ValueString())
+	addRequest := client.NewAddRootDnUserRequest(plan.Name.ValueString())
 	err := addOptionalRootDnUserFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Root Dn User", err.Error())
@@ -738,7 +740,7 @@ func (r *defaultRootDnUserResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	readResponse, httpResp, err := r.apiClient.RootDnUserApi.GetRootDnUser(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn User", err, httpResp)
 		return
@@ -755,7 +757,7 @@ func (r *defaultRootDnUserResource) Create(ctx context.Context, req resource.Cre
 	readRootDnUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RootDnUserApi.UpdateRootDnUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.RootDnUserApi.UpdateRootDnUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRootDnUserOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -807,7 +809,7 @@ func readRootDnUser(ctx context.Context, req resource.ReadRequest, resp *resourc
 	}
 
 	readResponse, httpResp, err := apiClient.RootDnUserApi.GetRootDnUser(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Root Dn User", err, httpResp)
 		return
@@ -849,7 +851,7 @@ func updateRootDnUser(ctx context.Context, req resource.UpdateRequest, resp *res
 	var state rootDnUserResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.RootDnUserApi.UpdateRootDnUser(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createRootDnUserOperations(plan, state)
@@ -903,7 +905,7 @@ func (r *rootDnUserResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	httpResp, err := r.apiClient.RootDnUserApi.DeleteRootDnUserExecute(r.apiClient.RootDnUserApi.DeleteRootDnUser(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Root Dn User", err, httpResp)
 		return
@@ -919,6 +921,6 @@ func (r *defaultRootDnUserResource) ImportState(ctx context.Context, req resourc
 }
 
 func importRootDnUser(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

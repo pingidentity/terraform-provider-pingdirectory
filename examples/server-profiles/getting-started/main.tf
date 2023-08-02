@@ -30,41 +30,41 @@ variable "root_user_dn" {
 
 resource "pingdirectory_default_connection_handler" "defaultHttpsConnectionHandler" {
   type                      = "http"
-  id                        = "HTTPS Connection Handler"
+  name                      = "HTTPS Connection Handler"
   web_application_extension = []
 }
 
 resource "pingdirectory_default_gauge" "defaultCpuUsageGauge" {
   type    = "numeric"
-  id      = "CPU Usage (Percent)"
+  name    = "CPU Usage (Percent)"
   enabled = true
 }
 
 resource "pingdirectory_default_gauge" "defaultLicenseExpirationGauge" {
   type    = "numeric"
-  id      = "License Expiration (Days)"
+  name    = "License Expiration (Days)"
   enabled = false
 }
 
 resource "pingdirectory_default_gauge" "defaultAvailableFileDescriptorsGauge" {
   type    = "numeric"
-  id      = "Available File Descriptors"
+  name    = "Available File Descriptors"
   enabled = false
 }
 
 resource "pingdirectory_default_log_publisher" "defaultDataRecoveryLog" {
   type    = "file-based-audit"
-  id      = "Data Recovery Log"
+  name    = "Data Recovery Log"
   enabled = false
 }
 
 resource "pingdirectory_default_log_publisher" "defaultFileBasedAuditLogger" {
   type    = "file-based-audit"
-  id      = "File-Based Audit Logger"
+  name    = "File-Based Audit Logger"
   enabled = true
 }
 
 resource "pingdirectory_default_root_dn_user" "defaultRootDnUser" {
-  id                = "Directory Manager"
+  name              = "Directory Manager"
   alternate_bind_dn = [var.root_user_dn]
 }

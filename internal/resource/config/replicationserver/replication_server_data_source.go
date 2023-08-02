@@ -47,7 +47,6 @@ func (r *replicationServerDataSource) Configure(_ context.Context, req datasourc
 }
 
 type replicationServerDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                  types.String `tfsdk:"id"`
 	SynchronizationProviderName         types.String `tfsdk:"synchronization_provider_name"`
 	ReplicationServerID                 types.Int64  `tfsdk:"replication_server_id"`
@@ -67,15 +66,9 @@ type replicationServerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *replicationServerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Replication Server.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"synchronization_provider_name": schema.StringAttribute{
 				Description: "Name of the parent Synchronization Provider",
 				Required:    true,
@@ -160,6 +153,8 @@ func (r *replicationServerDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ReplicationServerResponse object into the model struct

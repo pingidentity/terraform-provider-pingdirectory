@@ -86,6 +86,7 @@ func (r *defaultDataSecurityAuditorResource) Configure(_ context.Context, req re
 
 type dataSecurityAuditorResourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Name                                types.String `tfsdk:"name"`
 	LastUpdated                         types.String `tfsdk:"last_updated"`
 	Notifications                       types.Set    `tfsdk:"notifications"`
 	RequiredActions                     types.Set    `tfsdk:"required_actions"`
@@ -261,9 +262,9 @@ func dataSecurityAuditorSchema(ctx context.Context, req resource.SchemaRequest, 
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -865,6 +866,7 @@ func populateDataSecurityAuditorUnknownValues(ctx context.Context, model *dataSe
 func readExpiredPasswordDataSecurityAuditorResponse(ctx context.Context, r *client.ExpiredPasswordDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("expired-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.PasswordEvaluationAge = internaltypes.StringTypeOrNil(r.PasswordEvaluationAge, internaltypes.IsEmptyString(expectedValues.PasswordEvaluationAge))
@@ -882,6 +884,7 @@ func readExpiredPasswordDataSecurityAuditorResponse(ctx context.Context, r *clie
 func readIdleAccountDataSecurityAuditorResponse(ctx context.Context, r *client.IdleAccountDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("idle-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IdleAccountWarningInterval = types.StringValue(r.IdleAccountWarningInterval)
 	config.CheckMismatchedPDFormattedAttributes("idle_account_warning_interval",
@@ -908,6 +911,7 @@ func readIdleAccountDataSecurityAuditorResponse(ctx context.Context, r *client.I
 func readDisabledAccountDataSecurityAuditorResponse(ctx context.Context, r *client.DisabledAccountDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("disabled-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -922,6 +926,7 @@ func readDisabledAccountDataSecurityAuditorResponse(ctx context.Context, r *clie
 func readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx context.Context, r *client.WeaklyEncodedPasswordDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("weakly-encoded-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.WeakPasswordStorageScheme = internaltypes.GetStringSet(r.WeakPasswordStorageScheme)
 	state.WeakCryptEncoding = internaltypes.GetStringSet(
@@ -939,6 +944,7 @@ func readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx context.Context, r
 func readPrivilegeDataSecurityAuditorResponse(ctx context.Context, r *client.PrivilegeDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("privilege")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludePrivilege = internaltypes.GetStringSet(
 		client.StringSliceEnumdataSecurityAuditorIncludePrivilegeProp(r.IncludePrivilege))
@@ -955,6 +961,7 @@ func readPrivilegeDataSecurityAuditorResponse(ctx context.Context, r *client.Pri
 func readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx context.Context, r *client.AccountUsabilityIssuesDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("account-usability-issues")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -969,6 +976,7 @@ func readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx context.Context, 
 func readLockedAccountDataSecurityAuditorResponse(ctx context.Context, r *client.LockedAccountDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("locked-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.MaximumIdleTime = internaltypes.StringTypeOrNil(r.MaximumIdleTime, internaltypes.IsEmptyString(expectedValues.MaximumIdleTime))
@@ -986,6 +994,7 @@ func readLockedAccountDataSecurityAuditorResponse(ctx context.Context, r *client
 func readFilterDataSecurityAuditorResponse(ctx context.Context, r *client.FilterDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("filter")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1001,6 +1010,7 @@ func readFilterDataSecurityAuditorResponse(ctx context.Context, r *client.Filter
 func readAccountValidityWindowDataSecurityAuditorResponse(ctx context.Context, r *client.AccountValidityWindowDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("account-validity-window")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AccountExpirationWarningInterval = internaltypes.StringTypeOrNil(r.AccountExpirationWarningInterval, internaltypes.IsEmptyString(expectedValues.AccountExpirationWarningInterval))
@@ -1018,6 +1028,7 @@ func readAccountValidityWindowDataSecurityAuditorResponse(ctx context.Context, r
 func readMultiplePasswordDataSecurityAuditorResponse(ctx context.Context, r *client.MultiplePasswordDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("multiple-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -1032,6 +1043,7 @@ func readMultiplePasswordDataSecurityAuditorResponse(ctx context.Context, r *cli
 func readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx context.Context, r *client.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("deprecated-password-storage-scheme")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -1046,6 +1058,7 @@ func readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx context.
 func readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx context.Context, r *client.NonexistentPasswordPolicyDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("nonexistent-password-policy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1060,6 +1073,7 @@ func readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx context.Contex
 func readAccessControlDataSecurityAuditorResponse(ctx context.Context, r *client.AccessControlDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("access-control")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1074,6 +1088,7 @@ func readAccessControlDataSecurityAuditorResponse(ctx context.Context, r *client
 func readThirdPartyDataSecurityAuditorResponse(ctx context.Context, r *client.ThirdPartyDataSecurityAuditorResponse, state *dataSecurityAuditorResourceModel, expectedValues *dataSecurityAuditorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1112,7 +1127,7 @@ func createDataSecurityAuditorOperations(plan dataSecurityAuditorResourceModel, 
 
 // Create a expired-password data-security-auditor
 func (r *dataSecurityAuditorResource) CreateExpiredPasswordDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddExpiredPasswordDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddExpiredPasswordDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumexpiredPasswordDataSecurityAuditorSchemaUrn{client.ENUMEXPIREDPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITOREXPIRED_PASSWORD})
 	err := addOptionalExpiredPasswordDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1149,7 +1164,7 @@ func (r *dataSecurityAuditorResource) CreateExpiredPasswordDataSecurityAuditor(c
 
 // Create a idle-account data-security-auditor
 func (r *dataSecurityAuditorResource) CreateIdleAccountDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddIdleAccountDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddIdleAccountDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumidleAccountDataSecurityAuditorSchemaUrn{client.ENUMIDLEACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORIDLE_ACCOUNT},
 		plan.IdleAccountWarningInterval.ValueString())
 	err := addOptionalIdleAccountDataSecurityAuditorFields(ctx, addRequest, plan)
@@ -1187,7 +1202,7 @@ func (r *dataSecurityAuditorResource) CreateIdleAccountDataSecurityAuditor(ctx c
 
 // Create a disabled-account data-security-auditor
 func (r *dataSecurityAuditorResource) CreateDisabledAccountDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddDisabledAccountDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDisabledAccountDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumdisabledAccountDataSecurityAuditorSchemaUrn{client.ENUMDISABLEDACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORDISABLED_ACCOUNT})
 	err := addOptionalDisabledAccountDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1224,7 +1239,7 @@ func (r *dataSecurityAuditorResource) CreateDisabledAccountDataSecurityAuditor(c
 
 // Create a weakly-encoded-password data-security-auditor
 func (r *dataSecurityAuditorResource) CreateWeaklyEncodedPasswordDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddWeaklyEncodedPasswordDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddWeaklyEncodedPasswordDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumweaklyEncodedPasswordDataSecurityAuditorSchemaUrn{client.ENUMWEAKLYENCODEDPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORWEAKLY_ENCODED_PASSWORD})
 	err := addOptionalWeaklyEncodedPasswordDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1261,7 +1276,7 @@ func (r *dataSecurityAuditorResource) CreateWeaklyEncodedPasswordDataSecurityAud
 
 // Create a privilege data-security-auditor
 func (r *dataSecurityAuditorResource) CreatePrivilegeDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddPrivilegeDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPrivilegeDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumprivilegeDataSecurityAuditorSchemaUrn{client.ENUMPRIVILEGEDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORPRIVILEGE})
 	err := addOptionalPrivilegeDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1298,7 +1313,7 @@ func (r *dataSecurityAuditorResource) CreatePrivilegeDataSecurityAuditor(ctx con
 
 // Create a account-usability-issues data-security-auditor
 func (r *dataSecurityAuditorResource) CreateAccountUsabilityIssuesDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddAccountUsabilityIssuesDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAccountUsabilityIssuesDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumaccountUsabilityIssuesDataSecurityAuditorSchemaUrn{client.ENUMACCOUNTUSABILITYISSUESDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCOUNT_USABILITY_ISSUES})
 	err := addOptionalAccountUsabilityIssuesDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1335,7 +1350,7 @@ func (r *dataSecurityAuditorResource) CreateAccountUsabilityIssuesDataSecurityAu
 
 // Create a locked-account data-security-auditor
 func (r *dataSecurityAuditorResource) CreateLockedAccountDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddLockedAccountDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLockedAccountDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumlockedAccountDataSecurityAuditorSchemaUrn{client.ENUMLOCKEDACCOUNTDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORLOCKED_ACCOUNT})
 	err := addOptionalLockedAccountDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1374,7 +1389,7 @@ func (r *dataSecurityAuditorResource) CreateLockedAccountDataSecurityAuditor(ctx
 func (r *dataSecurityAuditorResource) CreateFilterDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
 	var FilterSlice []string
 	plan.Filter.ElementsAs(ctx, &FilterSlice, false)
-	addRequest := client.NewAddFilterDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFilterDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumfilterDataSecurityAuditorSchemaUrn{client.ENUMFILTERDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORFILTER},
 		plan.ReportFile.ValueString(),
 		FilterSlice)
@@ -1413,7 +1428,7 @@ func (r *dataSecurityAuditorResource) CreateFilterDataSecurityAuditor(ctx contex
 
 // Create a account-validity-window data-security-auditor
 func (r *dataSecurityAuditorResource) CreateAccountValidityWindowDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddAccountValidityWindowDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAccountValidityWindowDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumaccountValidityWindowDataSecurityAuditorSchemaUrn{client.ENUMACCOUNTVALIDITYWINDOWDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCOUNT_VALIDITY_WINDOW})
 	err := addOptionalAccountValidityWindowDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1450,7 +1465,7 @@ func (r *dataSecurityAuditorResource) CreateAccountValidityWindowDataSecurityAud
 
 // Create a multiple-password data-security-auditor
 func (r *dataSecurityAuditorResource) CreateMultiplePasswordDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddMultiplePasswordDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddMultiplePasswordDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnummultiplePasswordDataSecurityAuditorSchemaUrn{client.ENUMMULTIPLEPASSWORDDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORMULTIPLE_PASSWORD})
 	err := addOptionalMultiplePasswordDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1487,7 +1502,7 @@ func (r *dataSecurityAuditorResource) CreateMultiplePasswordDataSecurityAuditor(
 
 // Create a deprecated-password-storage-scheme data-security-auditor
 func (r *dataSecurityAuditorResource) CreateDeprecatedPasswordStorageSchemeDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddDeprecatedPasswordStorageSchemeDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDeprecatedPasswordStorageSchemeDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumdeprecatedPasswordStorageSchemeDataSecurityAuditorSchemaUrn{client.ENUMDEPRECATEDPASSWORDSTORAGESCHEMEDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORDEPRECATED_PASSWORD_STORAGE_SCHEME})
 	err := addOptionalDeprecatedPasswordStorageSchemeDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1524,7 +1539,7 @@ func (r *dataSecurityAuditorResource) CreateDeprecatedPasswordStorageSchemeDataS
 
 // Create a nonexistent-password-policy data-security-auditor
 func (r *dataSecurityAuditorResource) CreateNonexistentPasswordPolicyDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddNonexistentPasswordPolicyDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddNonexistentPasswordPolicyDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumnonexistentPasswordPolicyDataSecurityAuditorSchemaUrn{client.ENUMNONEXISTENTPASSWORDPOLICYDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORNONEXISTENT_PASSWORD_POLICY})
 	err := addOptionalNonexistentPasswordPolicyDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1561,7 +1576,7 @@ func (r *dataSecurityAuditorResource) CreateNonexistentPasswordPolicyDataSecurit
 
 // Create a access-control data-security-auditor
 func (r *dataSecurityAuditorResource) CreateAccessControlDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddAccessControlDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAccessControlDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumaccessControlDataSecurityAuditorSchemaUrn{client.ENUMACCESSCONTROLDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORACCESS_CONTROL})
 	err := addOptionalAccessControlDataSecurityAuditorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1598,7 +1613,7 @@ func (r *dataSecurityAuditorResource) CreateAccessControlDataSecurityAuditor(ctx
 
 // Create a third-party data-security-auditor
 func (r *dataSecurityAuditorResource) CreateThirdPartyDataSecurityAuditor(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dataSecurityAuditorResourceModel) (*dataSecurityAuditorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyDataSecurityAuditorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyDataSecurityAuditorRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyDataSecurityAuditorSchemaUrn{client.ENUMTHIRDPARTYDATASECURITYAUDITORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0DATA_SECURITY_AUDITORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.ReportFile.ValueString())
@@ -1757,7 +1772,7 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 	}
 
 	readResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.GetDataSecurityAuditor(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
 		return
@@ -1815,7 +1830,7 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditor(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditor(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createDataSecurityAuditorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1907,7 +1922,7 @@ func readDataSecurityAuditor(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	readResponse, httpResp, err := apiClient.DataSecurityAuditorApi.GetDataSecurityAuditor(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
 		return
@@ -1990,7 +2005,7 @@ func updateDataSecurityAuditor(ctx context.Context, req resource.UpdateRequest, 
 	var state dataSecurityAuditorResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.DataSecurityAuditorApi.UpdateDataSecurityAuditor(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDataSecurityAuditorOperations(plan, state)
@@ -2084,7 +2099,7 @@ func (r *dataSecurityAuditorResource) Delete(ctx context.Context, req resource.D
 	}
 
 	httpResp, err := r.apiClient.DataSecurityAuditorApi.DeleteDataSecurityAuditorExecute(r.apiClient.DataSecurityAuditorApi.DeleteDataSecurityAuditor(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Data Security Auditor", err, httpResp)
 		return
@@ -2100,6 +2115,6 @@ func (r *defaultDataSecurityAuditorResource) ImportState(ctx context.Context, re
 }
 
 func importDataSecurityAuditor(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

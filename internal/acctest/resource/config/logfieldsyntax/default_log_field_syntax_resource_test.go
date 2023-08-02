@@ -73,12 +73,12 @@ func testAccGenericLogFieldSyntaxResource(resourceName string, resourceModel gen
 	return fmt.Sprintf(`
 resource "pingdirectory_default_log_field_syntax" "%[1]s" {
   type             = "generic"
-  id               = "%[2]s"
+  name             = "%[2]s"
   default_behavior = "%[3]s"
 }
 
 data "pingdirectory_log_field_syntax" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_default_log_field_syntax.%[1]s
   ]

@@ -54,7 +54,6 @@ func (r *accessControlHandlerResource) Configure(_ context.Context, req resource
 }
 
 type accessControlHandlerResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                    types.String `tfsdk:"id"`
 	LastUpdated           types.String `tfsdk:"last_updated"`
 	Notifications         types.Set    `tfsdk:"notifications"`
@@ -107,7 +106,7 @@ func (r *accessControlHandlerResource) Schema(ctx context.Context, req resource.
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

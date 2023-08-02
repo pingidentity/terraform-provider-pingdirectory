@@ -48,6 +48,7 @@ func (r *logFileRotationListenerDataSource) Configure(_ context.Context, req dat
 
 type logFileRotationListenerDataSourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	Type              types.String `tfsdk:"type"`
 	ExtensionClass    types.String `tfsdk:"extension_class"`
 	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
@@ -60,13 +61,9 @@ type logFileRotationListenerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logFileRotationListenerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log File Rotation Listener.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']",
 				Required:    false,
@@ -118,12 +115,15 @@ func (r *logFileRotationListenerDataSource) Schema(ctx context.Context, req data
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SummarizeLogFileRotationListenerResponse object into the model struct
 func readSummarizeLogFileRotationListenerResponseDataSource(ctx context.Context, r *client.SummarizeLogFileRotationListenerResponse, state *logFileRotationListenerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("summarize")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OutputDirectory = internaltypes.StringTypeOrNil(r.OutputDirectory, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -133,6 +133,7 @@ func readSummarizeLogFileRotationListenerResponseDataSource(ctx context.Context,
 func readCopyLogFileRotationListenerResponseDataSource(ctx context.Context, r *client.CopyLogFileRotationListenerResponse, state *logFileRotationListenerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("copy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CopyToDirectory = types.StringValue(r.CopyToDirectory)
 	state.CompressOnCopy = internaltypes.BoolTypeOrNil(r.CompressOnCopy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -143,6 +144,7 @@ func readCopyLogFileRotationListenerResponseDataSource(ctx context.Context, r *c
 func readThirdPartyLogFileRotationListenerResponseDataSource(ctx context.Context, r *client.ThirdPartyLogFileRotationListenerResponse, state *logFileRotationListenerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -160,7 +162,7 @@ func (r *logFileRotationListenerDataSource) Read(ctx context.Context, req dataso
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
 		return

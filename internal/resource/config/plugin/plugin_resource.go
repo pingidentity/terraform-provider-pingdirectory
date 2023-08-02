@@ -87,6 +87,7 @@ func (r *defaultPluginResource) Configure(_ context.Context, req resource.Config
 
 type pluginResourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
+	Name                                                 types.String `tfsdk:"name"`
 	LastUpdated                                          types.String `tfsdk:"last_updated"`
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
@@ -221,6 +222,7 @@ type pluginResourceModel struct {
 
 type defaultPluginResourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
+	Name                                                 types.String `tfsdk:"name"`
 	LastUpdated                                          types.String `tfsdk:"last_updated"`
 	Notifications                                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                                      types.Set    `tfsdk:"required_actions"`
@@ -1483,9 +1485,9 @@ func pluginSchema(ctx context.Context, req resource.SchemaRequest, resp *resourc
 				int64planmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -3496,6 +3498,7 @@ func populatePluginUnknownValuesDefault(ctx context.Context, model *defaultPlugi
 func readLastAccessTimePluginResponseDefault(ctx context.Context, r *client.LastAccessTimePluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("last-access-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, internaltypes.IsEmptyString(expectedValues.MaxUpdateFrequency))
 	config.CheckMismatchedPDFormattedAttributes("max_update_frequency",
 		expectedValues.MaxUpdateFrequency, state.MaxUpdateFrequency, diagnostics)
@@ -3515,6 +3518,7 @@ func readLastAccessTimePluginResponseDefault(ctx context.Context, r *client.Last
 func readStatsCollectorPluginResponseDefault(ctx context.Context, r *client.StatsCollectorPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("stats-collector")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SampleInterval = types.StringValue(r.SampleInterval)
 	config.CheckMismatchedPDFormattedAttributes("sample_interval",
 		expectedValues.SampleInterval, state.SampleInterval, diagnostics)
@@ -3551,6 +3555,7 @@ func readStatsCollectorPluginResponseDefault(ctx context.Context, r *client.Stat
 func readInternalSearchRatePluginResponse(ctx context.Context, r *client.InternalSearchRatePluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("internal-search-rate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.NumThreads = types.Int64Value(r.NumThreads)
@@ -3571,6 +3576,7 @@ func readInternalSearchRatePluginResponse(ctx context.Context, r *client.Interna
 func readInternalSearchRatePluginResponseDefault(ctx context.Context, r *client.InternalSearchRatePluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("internal-search-rate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.NumThreads = types.Int64Value(r.NumThreads)
@@ -3591,6 +3597,7 @@ func readInternalSearchRatePluginResponseDefault(ctx context.Context, r *client.
 func readModifiablePasswordPolicyStatePluginResponse(ctx context.Context, r *client.ModifiablePasswordPolicyStatePluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("modifiable-password-policy-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -3603,6 +3610,7 @@ func readModifiablePasswordPolicyStatePluginResponse(ctx context.Context, r *cli
 func readModifiablePasswordPolicyStatePluginResponseDefault(ctx context.Context, r *client.ModifiablePasswordPolicyStatePluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("modifiable-password-policy-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -3615,6 +3623,7 @@ func readModifiablePasswordPolicyStatePluginResponseDefault(ctx context.Context,
 func readSevenBitCleanPluginResponse(ctx context.Context, r *client.SevenBitCleanPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("seven-bit-clean")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
@@ -3630,6 +3639,7 @@ func readSevenBitCleanPluginResponse(ctx context.Context, r *client.SevenBitClea
 func readSevenBitCleanPluginResponseDefault(ctx context.Context, r *client.SevenBitCleanPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("seven-bit-clean")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
@@ -3645,6 +3655,7 @@ func readSevenBitCleanPluginResponseDefault(ctx context.Context, r *client.Seven
 func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx context.Context, r *client.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-expired-pingfederate-persistent-access-grants")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	config.CheckMismatchedPDFormattedAttributes("polling_interval",
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
@@ -3666,6 +3677,7 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx cont
 func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx context.Context, r *client.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-expired-pingfederate-persistent-access-grants")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	config.CheckMismatchedPDFormattedAttributes("polling_interval",
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
@@ -3687,6 +3699,7 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(c
 func readPeriodicGcPluginResponse(ctx context.Context, r *client.PeriodicGcPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("periodic-gc")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
@@ -3709,6 +3722,7 @@ func readPeriodicGcPluginResponse(ctx context.Context, r *client.PeriodicGcPlugi
 func readPeriodicGcPluginResponseDefault(ctx context.Context, r *client.PeriodicGcPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("periodic-gc")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
@@ -3731,6 +3745,7 @@ func readPeriodicGcPluginResponseDefault(ctx context.Context, r *client.Periodic
 func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *client.PingOnePassThroughAuthenticationPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("ping-one-pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
@@ -3761,6 +3776,7 @@ func readPingOnePassThroughAuthenticationPluginResponse(ctx context.Context, r *
 func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *client.PingOnePassThroughAuthenticationPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("ping-one-pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
@@ -3791,6 +3807,7 @@ func readPingOnePassThroughAuthenticationPluginResponseDefault(ctx context.Conte
 func readChangelogPasswordEncryptionPluginResponseDefault(ctx context.Context, r *client.ChangelogPasswordEncryptionPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("changelog-password-encryption")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, internaltypes.IsEmptyString(expectedValues.ChangelogPasswordEncryptionKeyPassphraseProvider))
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
@@ -3805,6 +3822,7 @@ func readChangelogPasswordEncryptionPluginResponseDefault(ctx context.Context, r
 func readProcessingTimeHistogramPluginResponseDefault(ctx context.Context, r *client.ProcessingTimeHistogramPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("processing-time-histogram")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.HistogramCategoryBoundary = internaltypes.GetStringSet(r.HistogramCategoryBoundary)
@@ -3821,6 +3839,7 @@ func readProcessingTimeHistogramPluginResponseDefault(ctx context.Context, r *cl
 func readSearchShutdownPluginResponse(ctx context.Context, r *client.SearchShutdownPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("search-shutdown")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	baseDNValues := []string{}
 	baseDNType := internaltypes.StringTypeOrNil(r.BaseDN, false)
 	if !baseDNType.IsNull() {
@@ -3843,6 +3862,7 @@ func readSearchShutdownPluginResponse(ctx context.Context, r *client.SearchShutd
 func readSearchShutdownPluginResponseDefault(ctx context.Context, r *client.SearchShutdownPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("search-shutdown")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	baseDNValues := []string{}
 	baseDNType := internaltypes.StringTypeOrNil(r.BaseDN, false)
 	if !baseDNType.IsNull() {
@@ -3865,6 +3885,7 @@ func readSearchShutdownPluginResponseDefault(ctx context.Context, r *client.Sear
 func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.PeriodicStatsLoggerPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("periodic-stats-logger")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogInterval = types.StringValue(r.LogInterval)
 	config.CheckMismatchedPDFormattedAttributes("log_interval",
 		expectedValues.LogInterval, state.LogInterval, diagnostics)
@@ -3919,6 +3940,7 @@ func readPeriodicStatsLoggerPluginResponse(ctx context.Context, r *client.Period
 func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client.PeriodicStatsLoggerPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("periodic-stats-logger")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogInterval = types.StringValue(r.LogInterval)
 	config.CheckMismatchedPDFormattedAttributes("log_interval",
 		expectedValues.LogInterval, state.LogInterval, diagnostics)
@@ -3973,6 +3995,7 @@ func readPeriodicStatsLoggerPluginResponseDefault(ctx context.Context, r *client
 func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpiredDataPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("purge-expired-data")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DatetimeAttribute = types.StringValue(r.DatetimeAttribute)
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
@@ -4011,6 +4034,7 @@ func readPurgeExpiredDataPluginResponse(ctx context.Context, r *client.PurgeExpi
 func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.PurgeExpiredDataPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("purge-expired-data")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DatetimeAttribute = types.StringValue(r.DatetimeAttribute)
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, internaltypes.IsEmptyString(expectedValues.DatetimeJSONField))
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
@@ -4049,6 +4073,7 @@ func readPurgeExpiredDataPluginResponseDefault(ctx context.Context, r *client.Pu
 func readChangeSubscriptionNotificationPluginResponseDefault(ctx context.Context, r *client.ChangeSubscriptionNotificationPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("change-subscription-notification")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -4062,6 +4087,7 @@ func readChangeSubscriptionNotificationPluginResponseDefault(ctx context.Context
 func readSubOperationTimingPluginResponse(ctx context.Context, r *client.SubOperationTimingPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("sub-operation-timing")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4077,6 +4103,7 @@ func readSubOperationTimingPluginResponse(ctx context.Context, r *client.SubOper
 func readSubOperationTimingPluginResponseDefault(ctx context.Context, r *client.SubOperationTimingPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("sub-operation-timing")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4092,6 +4119,7 @@ func readSubOperationTimingPluginResponseDefault(ctx context.Context, r *client.
 func readThirdPartyPluginResponse(ctx context.Context, r *client.ThirdPartyPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4108,6 +4136,7 @@ func readThirdPartyPluginResponse(ctx context.Context, r *client.ThirdPartyPlugi
 func readThirdPartyPluginResponseDefault(ctx context.Context, r *client.ThirdPartyPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -4124,6 +4153,7 @@ func readThirdPartyPluginResponseDefault(ctx context.Context, r *client.ThirdPar
 func readEncryptAttributeValuesPluginResponseDefault(ctx context.Context, r *client.EncryptAttributeValuesPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("encrypt-attribute-values")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(
@@ -4140,6 +4170,7 @@ func readEncryptAttributeValuesPluginResponseDefault(ctx context.Context, r *cli
 func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.PassThroughAuthenticationPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Server = internaltypes.GetStringSet(r.Server)
@@ -4168,6 +4199,7 @@ func readPassThroughAuthenticationPluginResponse(ctx context.Context, r *client.
 func readPassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *client.PassThroughAuthenticationPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Server = internaltypes.GetStringSet(r.Server)
@@ -4196,6 +4228,7 @@ func readPassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *
 func readDnMapperPluginResponse(ctx context.Context, r *client.DnMapperPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("dn-mapper")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.SourceDN = types.StringValue(r.SourceDN)
@@ -4215,6 +4248,7 @@ func readDnMapperPluginResponse(ctx context.Context, r *client.DnMapperPluginRes
 func readDnMapperPluginResponseDefault(ctx context.Context, r *client.DnMapperPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("dn-mapper")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.SourceDN = types.StringValue(r.SourceDN)
@@ -4234,6 +4268,7 @@ func readDnMapperPluginResponseDefault(ctx context.Context, r *client.DnMapperPl
 func readMonitorHistoryPluginResponseDefault(ctx context.Context, r *client.MonitorHistoryPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("monitor-history")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogInterval = types.StringValue(r.LogInterval)
 	config.CheckMismatchedPDFormattedAttributes("log_interval",
 		expectedValues.LogInterval, state.LogInterval, diagnostics)
@@ -4254,6 +4289,7 @@ func readMonitorHistoryPluginResponseDefault(ctx context.Context, r *client.Moni
 func readReferralOnUpdatePluginResponse(ctx context.Context, r *client.ReferralOnUpdatePluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referral-on-update")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.ReferralBaseURL = internaltypes.GetStringSet(r.ReferralBaseURL)
@@ -4269,6 +4305,7 @@ func readReferralOnUpdatePluginResponse(ctx context.Context, r *client.ReferralO
 func readReferralOnUpdatePluginResponseDefault(ctx context.Context, r *client.ReferralOnUpdatePluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referral-on-update")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.ReferralBaseURL = internaltypes.GetStringSet(r.ReferralBaseURL)
@@ -4284,6 +4321,7 @@ func readReferralOnUpdatePluginResponseDefault(ctx context.Context, r *client.Re
 func readSimpleToExternalBindPluginResponse(ctx context.Context, r *client.SimpleToExternalBindPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("simple-to-external-bind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -4296,6 +4334,7 @@ func readSimpleToExternalBindPluginResponse(ctx context.Context, r *client.Simpl
 func readSimpleToExternalBindPluginResponseDefault(ctx context.Context, r *client.SimpleToExternalBindPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("simple-to-external-bind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -4308,6 +4347,7 @@ func readSimpleToExternalBindPluginResponseDefault(ctx context.Context, r *clien
 func readCustomPluginResponseDefault(ctx context.Context, r *client.CustomPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
@@ -4321,6 +4361,7 @@ func readCustomPluginResponseDefault(ctx context.Context, r *client.CustomPlugin
 func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
@@ -4345,6 +4386,7 @@ func readSnmpSubagentPluginResponse(ctx context.Context, r *client.SnmpSubagentP
 func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSubagentPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, internaltypes.IsEmptyString(expectedValues.ContextName))
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
@@ -4369,6 +4411,7 @@ func readSnmpSubagentPluginResponseDefault(ctx context.Context, r *client.SnmpSu
 func readCoalesceModificationsPluginResponse(ctx context.Context, r *client.CoalesceModificationsPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("coalesce-modifications")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = types.StringValue(r.RequestCriteria)
 	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -4382,6 +4425,7 @@ func readCoalesceModificationsPluginResponse(ctx context.Context, r *client.Coal
 func readCoalesceModificationsPluginResponseDefault(ctx context.Context, r *client.CoalesceModificationsPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("coalesce-modifications")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = types.StringValue(r.RequestCriteria)
 	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -4395,6 +4439,7 @@ func readCoalesceModificationsPluginResponseDefault(ctx context.Context, r *clie
 func readPasswordPolicyImportPluginResponseDefault(ctx context.Context, r *client.PasswordPolicyImportPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("password-policy-import")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.DefaultUserPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultUserPasswordStorageScheme)
 	state.DefaultAuthPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultAuthPasswordStorageScheme)
@@ -4408,6 +4453,7 @@ func readPasswordPolicyImportPluginResponseDefault(ctx context.Context, r *clien
 func readProfilerPluginResponseDefault(ctx context.Context, r *client.ProfilerPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("profiler")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ProfileSampleInterval = types.StringValue(r.ProfileSampleInterval)
 	config.CheckMismatchedPDFormattedAttributes("profile_sample_interval",
 		expectedValues.ProfileSampleInterval, state.ProfileSampleInterval, diagnostics)
@@ -4425,6 +4471,7 @@ func readProfilerPluginResponseDefault(ctx context.Context, r *client.ProfilerPl
 func readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx context.Context, r *client.CleanUpInactivePingfederatePersistentSessionsPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-inactive-pingfederate-persistent-sessions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
@@ -4449,6 +4496,7 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx context
 func readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx context.Context, r *client.CleanUpInactivePingfederatePersistentSessionsPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-inactive-pingfederate-persistent-sessions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	config.CheckMismatchedPDFormattedAttributes("expiration_offset",
 		expectedValues.ExpirationOffset, state.ExpirationOffset, diagnostics)
@@ -4473,6 +4521,7 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx 
 func readComposedAttributePluginResponse(ctx context.Context, r *client.ComposedAttributePluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("composed-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	attributeTypeValues := []string{r.AttributeType}
@@ -4509,6 +4558,7 @@ func readComposedAttributePluginResponse(ctx context.Context, r *client.Composed
 func readComposedAttributePluginResponseDefault(ctx context.Context, r *client.ComposedAttributePluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("composed-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	attributeTypeValues := []string{r.AttributeType}
@@ -4545,6 +4595,7 @@ func readComposedAttributePluginResponseDefault(ctx context.Context, r *client.C
 func readLdapResultCodeTrackerPluginResponseDefault(ctx context.Context, r *client.LdapResultCodeTrackerPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("ldap-result-code-tracker")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -4558,6 +4609,7 @@ func readLdapResultCodeTrackerPluginResponseDefault(ctx context.Context, r *clie
 func readAttributeMapperPluginResponse(ctx context.Context, r *client.AttributeMapperPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("attribute-mapper")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
@@ -4575,6 +4627,7 @@ func readAttributeMapperPluginResponse(ctx context.Context, r *client.AttributeM
 func readAttributeMapperPluginResponseDefault(ctx context.Context, r *client.AttributeMapperPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("attribute-mapper")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
@@ -4592,6 +4645,7 @@ func readAttributeMapperPluginResponseDefault(ctx context.Context, r *client.Att
 func readDelayPluginResponse(ctx context.Context, r *client.DelayPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("delay")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Delay = types.StringValue(r.Delay)
@@ -4610,6 +4664,7 @@ func readDelayPluginResponse(ctx context.Context, r *client.DelayPluginResponse,
 func readDelayPluginResponseDefault(ctx context.Context, r *client.DelayPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("delay")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Delay = types.StringValue(r.Delay)
@@ -4628,6 +4683,7 @@ func readDelayPluginResponseDefault(ctx context.Context, r *client.DelayPluginRe
 func readCleanUpExpiredPingfederatePersistentSessionsPluginResponse(ctx context.Context, r *client.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-expired-pingfederate-persistent-sessions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	config.CheckMismatchedPDFormattedAttributes("polling_interval",
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
@@ -4649,6 +4705,7 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponse(ctx context.
 func readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx context.Context, r *client.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-expired-pingfederate-persistent-sessions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	config.CheckMismatchedPDFormattedAttributes("polling_interval",
 		expectedValues.PollingInterval, state.PollingInterval, diagnostics)
@@ -4670,6 +4727,7 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx c
 func readGroovyScriptedPluginResponse(ctx context.Context, r *client.GroovyScriptedPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
@@ -4686,6 +4744,7 @@ func readGroovyScriptedPluginResponse(ctx context.Context, r *client.GroovyScrip
 func readGroovyScriptedPluginResponseDefault(ctx context.Context, r *client.GroovyScriptedPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
@@ -4702,6 +4761,7 @@ func readGroovyScriptedPluginResponseDefault(ctx context.Context, r *client.Groo
 func readLastModPluginResponseDefault(ctx context.Context, r *client.LastModPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("last-mod")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -4717,6 +4777,7 @@ func readLastModPluginResponseDefault(ctx context.Context, r *client.LastModPlug
 func readPluggablePassThroughAuthenticationPluginResponse(ctx context.Context, r *client.PluggablePassThroughAuthenticationPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("pluggable-pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PassThroughAuthenticationHandler = types.StringValue(r.PassThroughAuthenticationHandler)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
@@ -4739,6 +4800,7 @@ func readPluggablePassThroughAuthenticationPluginResponse(ctx context.Context, r
 func readPluggablePassThroughAuthenticationPluginResponseDefault(ctx context.Context, r *client.PluggablePassThroughAuthenticationPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("pluggable-pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PassThroughAuthenticationHandler = types.StringValue(r.PassThroughAuthenticationHandler)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
@@ -4761,6 +4823,7 @@ func readPluggablePassThroughAuthenticationPluginResponseDefault(ctx context.Con
 func readReferentialIntegrityPluginResponse(ctx context.Context, r *client.ReferentialIntegrityPluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referential-integrity")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
@@ -4780,6 +4843,7 @@ func readReferentialIntegrityPluginResponse(ctx context.Context, r *client.Refer
 func readReferentialIntegrityPluginResponseDefault(ctx context.Context, r *client.ReferentialIntegrityPluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referential-integrity")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
@@ -4799,6 +4863,7 @@ func readReferentialIntegrityPluginResponseDefault(ctx context.Context, r *clien
 func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttributePluginResponse, state *pluginResourceModel, expectedValues *pluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("unique-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
@@ -4823,6 +4888,7 @@ func readUniqueAttributePluginResponse(ctx context.Context, r *client.UniqueAttr
 func readUniqueAttributePluginResponseDefault(ctx context.Context, r *client.UniqueAttributePluginResponse, state *defaultPluginResourceModel, expectedValues *defaultPluginResourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("unique-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
@@ -5149,7 +5215,7 @@ func createPluginOperationsDefault(plan defaultPluginResourceModel, state defaul
 
 // Create a internal-search-rate plugin
 func (r *pluginResource) CreateInternalSearchRatePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddInternalSearchRatePluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddInternalSearchRatePluginRequest(plan.Name.ValueString(),
 		[]client.EnuminternalSearchRatePluginSchemaUrn{client.ENUMINTERNALSEARCHRATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGININTERNAL_SEARCH_RATE},
 		plan.BaseDN.Elements()[0].(types.String).ValueString(),
 		plan.FilterPrefix.ValueString(),
@@ -5189,7 +5255,7 @@ func (r *pluginResource) CreateInternalSearchRatePlugin(ctx context.Context, req
 
 // Create a modifiable-password-policy-state plugin
 func (r *pluginResource) CreateModifiablePasswordPolicyStatePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddModifiablePasswordPolicyStatePluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddModifiablePasswordPolicyStatePluginRequest(plan.Name.ValueString(),
 		[]client.EnummodifiablePasswordPolicyStatePluginSchemaUrn{client.ENUMMODIFIABLEPASSWORDPOLICYSTATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINMODIFIABLE_PASSWORD_POLICY_STATE},
 		plan.Enabled.ValueBool())
 	err := addOptionalModifiablePasswordPolicyStatePluginFields(ctx, addRequest, plan)
@@ -5227,7 +5293,7 @@ func (r *pluginResource) CreateModifiablePasswordPolicyStatePlugin(ctx context.C
 
 // Create a seven-bit-clean plugin
 func (r *pluginResource) CreateSevenBitCleanPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSevenBitCleanPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSevenBitCleanPluginRequest(plan.Name.ValueString(),
 		[]client.EnumsevenBitCleanPluginSchemaUrn{client.ENUMSEVENBITCLEANPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEVEN_BIT_CLEAN},
 		plan.Enabled.ValueBool())
 	err := addOptionalSevenBitCleanPluginFields(ctx, addRequest, plan)
@@ -5265,7 +5331,7 @@ func (r *pluginResource) CreateSevenBitCleanPlugin(ctx context.Context, req reso
 
 // Create a clean-up-expired-pingfederate-persistent-access-grants plugin
 func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentAccessGrantsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentAccessGrantsPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentAccessGrantsPluginRequest(plan.Name.ValueString(),
 		[]client.EnumcleanUpExpiredPingfederatePersistentAccessGrantsPluginSchemaUrn{client.ENUMCLEANUPEXPIREDPINGFEDERATEPERSISTENTACCESSGRANTSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_EXPIRED_PINGFEDERATE_PERSISTENT_ACCESS_GRANTS},
 		plan.Enabled.ValueBool())
 	err := addOptionalCleanUpExpiredPingfederatePersistentAccessGrantsPluginFields(ctx, addRequest, plan)
@@ -5305,7 +5371,7 @@ func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentAccessGrantsP
 func (r *pluginResource) CreatePeriodicGcPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var InvokeGCTimeUtcSlice []string
 	plan.InvokeGCTimeUtc.ElementsAs(ctx, &InvokeGCTimeUtcSlice, false)
-	addRequest := client.NewAddPeriodicGcPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPeriodicGcPluginRequest(plan.Name.ValueString(),
 		[]client.EnumperiodicGcPluginSchemaUrn{client.ENUMPERIODICGCPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_GC},
 		InvokeGCTimeUtcSlice,
 		plan.Enabled.ValueBool())
@@ -5348,7 +5414,7 @@ func (r *pluginResource) CreatePingOnePassThroughAuthenticationPlugin(ctx contex
 	plan.UserMappingLocalAttribute.ElementsAs(ctx, &UserMappingLocalAttributeSlice, false)
 	var UserMappingRemoteJSONFieldSlice []string
 	plan.UserMappingRemoteJSONField.ElementsAs(ctx, &UserMappingRemoteJSONFieldSlice, false)
-	addRequest := client.NewAddPingOnePassThroughAuthenticationPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPingOnePassThroughAuthenticationPluginRequest(plan.Name.ValueString(),
 		[]client.EnumpingOnePassThroughAuthenticationPluginSchemaUrn{client.ENUMPINGONEPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPING_ONE_PASS_THROUGH_AUTHENTICATION},
 		plan.ApiURL.ValueString(),
 		plan.AuthURL.ValueString(),
@@ -5397,7 +5463,7 @@ func (r *pluginResource) CreateSearchShutdownPlugin(ctx context.Context, req res
 		resp.Diagnostics.AddError("Failed to parse enum value for Scope", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddSearchShutdownPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSearchShutdownPluginRequest(plan.Name.ValueString(),
 		[]client.EnumsearchShutdownPluginSchemaUrn{client.ENUMSEARCHSHUTDOWNPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSEARCH_SHUTDOWN},
 		*scope,
 		plan.Filter.Elements()[0].(types.String).ValueString(),
@@ -5438,7 +5504,7 @@ func (r *pluginResource) CreateSearchShutdownPlugin(ctx context.Context, req res
 
 // Create a periodic-stats-logger plugin
 func (r *pluginResource) CreatePeriodicStatsLoggerPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddPeriodicStatsLoggerPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPeriodicStatsLoggerPluginRequest(plan.Name.ValueString(),
 		[]client.EnumperiodicStatsLoggerPluginSchemaUrn{client.ENUMPERIODICSTATSLOGGERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPERIODIC_STATS_LOGGER},
 		plan.LogFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -5477,7 +5543,7 @@ func (r *pluginResource) CreatePeriodicStatsLoggerPlugin(ctx context.Context, re
 
 // Create a purge-expired-data plugin
 func (r *pluginResource) CreatePurgeExpiredDataPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddPurgeExpiredDataPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPurgeExpiredDataPluginRequest(plan.Name.ValueString(),
 		[]client.EnumpurgeExpiredDataPluginSchemaUrn{client.ENUMPURGEEXPIREDDATAPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPURGE_EXPIRED_DATA},
 		plan.DatetimeAttribute.ValueString(),
 		plan.ExpirationOffset.ValueString(),
@@ -5517,7 +5583,7 @@ func (r *pluginResource) CreatePurgeExpiredDataPlugin(ctx context.Context, req r
 
 // Create a sub-operation-timing plugin
 func (r *pluginResource) CreateSubOperationTimingPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSubOperationTimingPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSubOperationTimingPluginRequest(plan.Name.ValueString(),
 		[]client.EnumsubOperationTimingPluginSchemaUrn{client.ENUMSUBOPERATIONTIMINGPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSUB_OPERATION_TIMING},
 		plan.Enabled.ValueBool())
 	err := addOptionalSubOperationTimingPluginFields(ctx, addRequest, plan)
@@ -5557,7 +5623,7 @@ func (r *pluginResource) CreateSubOperationTimingPlugin(ctx context.Context, req
 func (r *pluginResource) CreateThirdPartyPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var PluginTypeSlice []client.EnumpluginPluginTypeProp
 	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
-	addRequest := client.NewAddThirdPartyPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyPluginRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyPluginSchemaUrn{client.ENUMTHIRDPARTYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -5599,7 +5665,7 @@ func (r *pluginResource) CreateThirdPartyPlugin(ctx context.Context, req resourc
 func (r *pluginResource) CreatePassThroughAuthenticationPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var ServerSlice []string
 	plan.Server.ElementsAs(ctx, &ServerSlice, false)
-	addRequest := client.NewAddPassThroughAuthenticationPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPassThroughAuthenticationPluginRequest(plan.Name.ValueString(),
 		[]client.EnumpassThroughAuthenticationPluginSchemaUrn{client.ENUMPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPASS_THROUGH_AUTHENTICATION},
 		ServerSlice,
 		plan.Enabled.ValueBool())
@@ -5638,7 +5704,7 @@ func (r *pluginResource) CreatePassThroughAuthenticationPlugin(ctx context.Conte
 
 // Create a dn-mapper plugin
 func (r *pluginResource) CreateDnMapperPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddDnMapperPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDnMapperPluginRequest(plan.Name.ValueString(),
 		[]client.EnumdnMapperPluginSchemaUrn{client.ENUMDNMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDN_MAPPER},
 		plan.SourceDN.ValueString(),
 		plan.TargetDN.ValueString(),
@@ -5680,7 +5746,7 @@ func (r *pluginResource) CreateDnMapperPlugin(ctx context.Context, req resource.
 func (r *pluginResource) CreateReferralOnUpdatePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var ReferralBaseURLSlice []string
 	plan.ReferralBaseURL.ElementsAs(ctx, &ReferralBaseURLSlice, false)
-	addRequest := client.NewAddReferralOnUpdatePluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddReferralOnUpdatePluginRequest(plan.Name.ValueString(),
 		[]client.EnumreferralOnUpdatePluginSchemaUrn{client.ENUMREFERRALONUPDATEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERRAL_ON_UPDATE},
 		ReferralBaseURLSlice,
 		plan.Enabled.ValueBool())
@@ -5719,7 +5785,7 @@ func (r *pluginResource) CreateReferralOnUpdatePlugin(ctx context.Context, req r
 
 // Create a simple-to-external-bind plugin
 func (r *pluginResource) CreateSimpleToExternalBindPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSimpleToExternalBindPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleToExternalBindPluginRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleToExternalBindPluginSchemaUrn{client.ENUMSIMPLETOEXTERNALBINDPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSIMPLE_TO_EXTERNAL_BIND},
 		plan.Enabled.ValueBool())
 	err := addOptionalSimpleToExternalBindPluginFields(ctx, addRequest, plan)
@@ -5757,7 +5823,7 @@ func (r *pluginResource) CreateSimpleToExternalBindPlugin(ctx context.Context, r
 
 // Create a snmp-subagent plugin
 func (r *pluginResource) CreateSnmpSubagentPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddSnmpSubagentPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSnmpSubagentPluginRequest(plan.Name.ValueString(),
 		[]client.EnumsnmpSubagentPluginSchemaUrn{client.ENUMSNMPSUBAGENTPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINSNMP_SUBAGENT},
 		plan.Enabled.ValueBool())
 	err := addOptionalSnmpSubagentPluginFields(ctx, addRequest, plan)
@@ -5795,7 +5861,7 @@ func (r *pluginResource) CreateSnmpSubagentPlugin(ctx context.Context, req resou
 
 // Create a coalesce-modifications plugin
 func (r *pluginResource) CreateCoalesceModificationsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCoalesceModificationsPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCoalesceModificationsPluginRequest(plan.Name.ValueString(),
 		[]client.EnumcoalesceModificationsPluginSchemaUrn{client.ENUMCOALESCEMODIFICATIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOALESCE_MODIFICATIONS},
 		plan.RequestCriteria.ValueString(),
 		plan.Enabled.ValueBool())
@@ -5834,7 +5900,7 @@ func (r *pluginResource) CreateCoalesceModificationsPlugin(ctx context.Context, 
 
 // Create a clean-up-inactive-pingfederate-persistent-sessions plugin
 func (r *pluginResource) CreateCleanUpInactivePingfederatePersistentSessionsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCleanUpInactivePingfederatePersistentSessionsPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCleanUpInactivePingfederatePersistentSessionsPluginRequest(plan.Name.ValueString(),
 		[]client.EnumcleanUpInactivePingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPINACTIVEPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_INACTIVE_PINGFEDERATE_PERSISTENT_SESSIONS},
 		plan.ExpirationOffset.ValueString(),
 		plan.Enabled.ValueBool())
@@ -5875,7 +5941,7 @@ func (r *pluginResource) CreateCleanUpInactivePingfederatePersistentSessionsPlug
 func (r *pluginResource) CreateComposedAttributePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
-	addRequest := client.NewAddComposedAttributePluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddComposedAttributePluginRequest(plan.Name.ValueString(),
 		[]client.EnumcomposedAttributePluginSchemaUrn{client.ENUMCOMPOSEDATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCOMPOSED_ATTRIBUTE},
 		plan.AttributeType.Elements()[0].(types.String).ValueString(),
 		ValuePatternSlice,
@@ -5915,7 +5981,7 @@ func (r *pluginResource) CreateComposedAttributePlugin(ctx context.Context, req 
 
 // Create a attribute-mapper plugin
 func (r *pluginResource) CreateAttributeMapperPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddAttributeMapperPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAttributeMapperPluginRequest(plan.Name.ValueString(),
 		[]client.EnumattributeMapperPluginSchemaUrn{client.ENUMATTRIBUTEMAPPERPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINATTRIBUTE_MAPPER},
 		plan.SourceAttribute.ValueString(),
 		plan.TargetAttribute.ValueString(),
@@ -5955,7 +6021,7 @@ func (r *pluginResource) CreateAttributeMapperPlugin(ctx context.Context, req re
 
 // Create a delay plugin
 func (r *pluginResource) CreateDelayPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddDelayPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDelayPluginRequest(plan.Name.ValueString(),
 		[]client.EnumdelayPluginSchemaUrn{client.ENUMDELAYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINDELAY},
 		plan.Delay.ValueString(),
 		plan.Enabled.ValueBool())
@@ -5994,7 +6060,7 @@ func (r *pluginResource) CreateDelayPlugin(ctx context.Context, req resource.Cre
 
 // Create a clean-up-expired-pingfederate-persistent-sessions plugin
 func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentSessionsPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentSessionsPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCleanUpExpiredPingfederatePersistentSessionsPluginRequest(plan.Name.ValueString(),
 		[]client.EnumcleanUpExpiredPingfederatePersistentSessionsPluginSchemaUrn{client.ENUMCLEANUPEXPIREDPINGFEDERATEPERSISTENTSESSIONSPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINCLEAN_UP_EXPIRED_PINGFEDERATE_PERSISTENT_SESSIONS},
 		plan.Enabled.ValueBool())
 	err := addOptionalCleanUpExpiredPingfederatePersistentSessionsPluginFields(ctx, addRequest, plan)
@@ -6034,7 +6100,7 @@ func (r *pluginResource) CreateCleanUpExpiredPingfederatePersistentSessionsPlugi
 func (r *pluginResource) CreateGroovyScriptedPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var PluginTypeSlice []client.EnumpluginPluginTypeProp
 	plan.PluginType.ElementsAs(ctx, &PluginTypeSlice, false)
-	addRequest := client.NewAddGroovyScriptedPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedPluginRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedPluginSchemaUrn{client.ENUMGROOVYSCRIPTEDPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -6074,7 +6140,7 @@ func (r *pluginResource) CreateGroovyScriptedPlugin(ctx context.Context, req res
 
 // Create a pluggable-pass-through-authentication plugin
 func (r *pluginResource) CreatePluggablePassThroughAuthenticationPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
-	addRequest := client.NewAddPluggablePassThroughAuthenticationPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPluggablePassThroughAuthenticationPluginRequest(plan.Name.ValueString(),
 		[]client.EnumpluggablePassThroughAuthenticationPluginSchemaUrn{client.ENUMPLUGGABLEPASSTHROUGHAUTHENTICATIONPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINPLUGGABLE_PASS_THROUGH_AUTHENTICATION},
 		plan.PassThroughAuthenticationHandler.ValueString(),
 		plan.Enabled.ValueBool())
@@ -6115,7 +6181,7 @@ func (r *pluginResource) CreatePluggablePassThroughAuthenticationPlugin(ctx cont
 func (r *pluginResource) CreateReferentialIntegrityPlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var AttributeTypeSlice []string
 	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
-	addRequest := client.NewAddReferentialIntegrityPluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddReferentialIntegrityPluginRequest(plan.Name.ValueString(),
 		[]client.EnumreferentialIntegrityPluginSchemaUrn{client.ENUMREFERENTIALINTEGRITYPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINREFERENTIAL_INTEGRITY},
 		AttributeTypeSlice,
 		plan.Enabled.ValueBool())
@@ -6156,7 +6222,7 @@ func (r *pluginResource) CreateReferentialIntegrityPlugin(ctx context.Context, r
 func (r *pluginResource) CreateUniqueAttributePlugin(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan pluginResourceModel) (*pluginResourceModel, error) {
 	var TypeSlice []string
 	plan.Type.ElementsAs(ctx, &TypeSlice, false)
-	addRequest := client.NewAddUniqueAttributePluginRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUniqueAttributePluginRequest(plan.Name.ValueString(),
 		[]client.EnumuniqueAttributePluginSchemaUrn{client.ENUMUNIQUEATTRIBUTEPLUGINSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PLUGINUNIQUE_ATTRIBUTE},
 		TypeSlice,
 		plan.Enabled.ValueBool())
@@ -6388,7 +6454,7 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
 		return
@@ -6518,7 +6584,7 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.PluginApi.UpdatePlugin(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPluginOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -6675,7 +6741,7 @@ func (r *pluginResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
 		return
@@ -6782,7 +6848,7 @@ func (r *defaultPluginResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
 		return
@@ -6851,7 +6917,7 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 	var state pluginResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPluginOperations(plan, state)
@@ -6978,7 +7044,7 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 	var state defaultPluginResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.PluginApi.UpdatePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPluginOperationsDefault(plan, state)
@@ -7145,7 +7211,7 @@ func (r *pluginResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	httpResp, err := r.apiClient.PluginApi.DeletePluginExecute(r.apiClient.PluginApi.DeletePlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Plugin", err, httpResp)
 		return
@@ -7161,6 +7227,6 @@ func (r *defaultPluginResource) ImportState(ctx context.Context, req resource.Im
 }
 
 func importPlugin(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

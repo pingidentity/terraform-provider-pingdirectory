@@ -93,7 +93,7 @@ func TestAccTopologyAdminUser(t *testing.T) {
 func testAccTopologyAdminUserResource(resourceName string, resourceModel topologyAdminUserTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_topology_admin_user" "%[1]s" {
-  id                              = "%[2]s"
+  name                            = "%[2]s"
   inherit_default_root_privileges = %[3]t
   search_result_entry_limit       = %[4]d
   time_limit_seconds              = %[5]d
@@ -105,7 +105,7 @@ resource "pingdirectory_topology_admin_user" "%[1]s" {
 }
 
 data "pingdirectory_topology_admin_user" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_topology_admin_user.%[1]s
   ]

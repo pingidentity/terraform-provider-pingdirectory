@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_soft_delete_policy" "mySoftDeletePolicy" {
-  id          = "MySoftDeletePolicy"
+  name        = "MySoftDeletePolicy"
   description = "My soft delete policy"
 }

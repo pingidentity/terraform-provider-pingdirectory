@@ -89,7 +89,7 @@ func testAccInternalSearchRatePluginResource(resourceName string, resourceModel 
 	return fmt.Sprintf(`
 resource "pingdirectory_plugin" "%[1]s" {
   resource_type = "internal-search-rate"
-  id            = "%[2]s"
+  name          = "%[2]s"
   description   = "%[3]s"
   plugin_type   = %[4]s
   num_threads   = %[5]d
@@ -99,7 +99,7 @@ resource "pingdirectory_plugin" "%[1]s" {
 }
 
 data "pingdirectory_plugin" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_plugin.%[1]s
   ]

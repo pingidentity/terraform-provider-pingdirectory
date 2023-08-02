@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_field_mapping" "myLogFieldMapping" {
-  id = "MyLogFieldMapping"
+  name = "MyLogFieldMapping"
 }
 ```
 
@@ -46,11 +46,12 @@ data "pingdirectory_log_field_mapping" "myLogFieldMapping" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Log Field Mapping
+- `id` (String) The ID of this resource.
 - `log_field_additional_information` (String) Additional information about the operation that was processed which was not returned to the client.
 - `log_field_alternate_authorization_dn` (String) The DN of the alternate authorization identity used when processing the operation.
 - `log_field_authenticated_user_dn` (String) The DN of the user that authenticated to the server.

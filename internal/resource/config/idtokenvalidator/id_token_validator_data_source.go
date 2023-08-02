@@ -48,6 +48,7 @@ func (r *idTokenValidatorDataSource) Configure(_ context.Context, req datasource
 
 type idTokenValidatorDataSourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
+	Name                               types.String `tfsdk:"name"`
 	Type                               types.String `tfsdk:"type"`
 	AllowedSigningAlgorithm            types.Set    `tfsdk:"allowed_signing_algorithm"`
 	SigningCertificate                 types.Set    `tfsdk:"signing_certificate"`
@@ -66,13 +67,9 @@ type idTokenValidatorDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *idTokenValidatorDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Id Token Validator.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of ID Token Validator resource. Options are ['ping-one', 'openid-connect']",
 				Required:    false,
@@ -161,12 +158,15 @@ func (r *idTokenValidatorDataSource) Schema(ctx context.Context, req datasource.
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a PingOneIdTokenValidatorResponse object into the model struct
 func readPingOneIdTokenValidatorResponseDataSource(ctx context.Context, r *client.PingOneIdTokenValidatorResponse, state *idTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IssuerURL = types.StringValue(r.IssuerURL)
 	state.OpenIDConnectProvider = types.StringValue(r.OpenIDConnectProvider)
 	state.OpenIDConnectMetadataCacheDuration = internaltypes.StringTypeOrNil(r.OpenIDConnectMetadataCacheDuration, false)
@@ -183,6 +183,7 @@ func readPingOneIdTokenValidatorResponseDataSource(ctx context.Context, r *clien
 func readOpenidConnectIdTokenValidatorResponseDataSource(ctx context.Context, r *client.OpenidConnectIdTokenValidatorResponse, state *idTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("openid-connect")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumidTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
@@ -209,7 +210,7 @@ func (r *idTokenValidatorDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.GetIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)
 		return

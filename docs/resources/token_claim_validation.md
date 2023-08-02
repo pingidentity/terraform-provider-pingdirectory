@@ -38,7 +38,7 @@ provider "pingdirectory" {
 
 resource "pingdirectory_id_token_validator" "myPingOneIdTokenValidator" {
   type                   = "ping-one"
-  id                     = "MyPingOneIdTokenValidator"
+  name                   = "MyPingOneIdTokenValidator"
   issuer_url             = "example.com"
   enabled                = false
   identity_mapper        = "Exact Match"
@@ -46,7 +46,7 @@ resource "pingdirectory_id_token_validator" "myPingOneIdTokenValidator" {
 }
 
 resource "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
-  id                      = "MyTokenClaimValidation"
+  name                    = "MyTokenClaimValidation"
   id_token_validator_name = pingdirectory_id_token_validator.myPingOneIdTokenValidator.id
   any_required_value      = ["my_example_value"]
   claim_name              = "my_example_claim_name"
@@ -59,8 +59,8 @@ resource "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
 ### Required
 
 - `claim_name` (String) The name of the claim to be validated.
-- `id` (String) Name of this object.
 - `id_token_validator_name` (String) Name of the parent ID Token Validator
+- `name` (String) Name of this config object.
 - `type` (String) The type of Token Claim Validation resource. Options are ['string-array', 'boolean', 'string']
 
 ### Optional
@@ -72,6 +72,7 @@ resource "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

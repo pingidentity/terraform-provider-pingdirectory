@@ -48,6 +48,7 @@ func (r *tokenClaimValidationDataSource) Configure(_ context.Context, req dataso
 
 type tokenClaimValidationDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
 	Type                 types.String `tfsdk:"type"`
 	IdTokenValidatorName types.String `tfsdk:"id_token_validator_name"`
 	RequiredValue        types.String `tfsdk:"required_value"`
@@ -59,13 +60,9 @@ type tokenClaimValidationDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *tokenClaimValidationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Token Claim Validation.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Token Claim Validation resource. Options are ['string-array', 'boolean', 'string']",
 				Required:    false,
@@ -110,12 +107,15 @@ func (r *tokenClaimValidationDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a StringArrayTokenClaimValidationResponse object into the model struct
 func readStringArrayTokenClaimValidationResponseDataSource(ctx context.Context, r *client.StringArrayTokenClaimValidationResponse, state *tokenClaimValidationDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("string-array")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllRequiredValue = internaltypes.GetStringSet(r.AllRequiredValue)
 	state.AnyRequiredValue = internaltypes.GetStringSet(r.AnyRequiredValue)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -126,6 +126,7 @@ func readStringArrayTokenClaimValidationResponseDataSource(ctx context.Context, 
 func readBooleanTokenClaimValidationResponseDataSource(ctx context.Context, r *client.BooleanTokenClaimValidationResponse, state *tokenClaimValidationDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("boolean")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequiredValue = types.StringValue(r.RequiredValue.String())
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.ClaimName = types.StringValue(r.ClaimName)
@@ -135,6 +136,7 @@ func readBooleanTokenClaimValidationResponseDataSource(ctx context.Context, r *c
 func readStringTokenClaimValidationResponseDataSource(ctx context.Context, r *client.StringTokenClaimValidationResponse, state *tokenClaimValidationDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AnyRequiredValue = internaltypes.GetStringSet(r.AnyRequiredValue)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.ClaimName = types.StringValue(r.ClaimName)
@@ -151,7 +153,7 @@ func (r *tokenClaimValidationDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.TokenClaimValidationApi.GetTokenClaimValidation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.IdTokenValidatorName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.IdTokenValidatorName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Token Claim Validation", err, httpResp)
 		return

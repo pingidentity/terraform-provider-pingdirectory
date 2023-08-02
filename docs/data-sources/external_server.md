@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_external_server" "myExternalServer" {
-  id = "MyExternalServer"
+  name = "MyExternalServer"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_external_server" "myExternalServer" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -70,6 +70,7 @@ data "pingdirectory_external_server" "myExternalServer" {
 - `health_check_connect_timeout` (String) Specifies the maximum length of time to wait for a connection to be established for the purpose of performing a health check. If the connection cannot be established within this length of time, the server will be classified as unavailable.
 - `hostname_verification_method` (String) The mechanism for checking if the hostname in the PingOne ID Token Validator's base-url value matches the name(s) stored inside the X.509 certificate presented by PingOne.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the AWS service. Supported in PingDirectory product version 9.2.0.0+.
+- `id` (String) The ID of this resource.
 - `initial_connections` (Number) The number of connections to initially establish to the LDAP external server. A value of zero indicates that the number of connections should be dynamically based on the number of available worker threads. This will be ignored when using a thread-local connection pool.
 - `jdbc_connection_properties` (Set of String) Specifies the connection properties for the JDBC datasource.
 - `jdbc_driver_type` (String) Specifies a supported database driver type. The driver class will be automatically selected based on this selection. We highly recommend using a JDBC 4 driver that is suitable for the current Java platform.

@@ -17,7 +17,7 @@ Manages a Velocity Context Provider.
 ### Required
 
 - `http_servlet_extension_name` (String) Name of the parent HTTP Servlet Extension
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -36,6 +36,7 @@ Manages a Velocity Context Provider.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

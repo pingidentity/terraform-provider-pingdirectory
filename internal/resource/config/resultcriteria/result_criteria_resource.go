@@ -87,6 +87,7 @@ func (r *defaultResultCriteriaResource) Configure(_ context.Context, req resourc
 
 type resultCriteriaResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -589,9 +590,9 @@ func resultCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1268,6 +1269,7 @@ func populateResultCriteriaUnknownValues(ctx context.Context, model *resultCrite
 func readSuccessfulBindResultCriteriaResponse(ctx context.Context, r *client.SuccessfulBindResultCriteriaResponse, state *resultCriteriaResourceModel, expectedValues *resultCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("successful-bind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.IncludeAnonymousBinds = internaltypes.BoolTypeOrNil(r.IncludeAnonymousBinds)
 	state.IncludedUserBaseDN = internaltypes.GetStringSet(r.IncludedUserBaseDN)
@@ -1285,6 +1287,7 @@ func readSuccessfulBindResultCriteriaResponse(ctx context.Context, r *client.Suc
 func readSimpleResultCriteriaResponse(ctx context.Context, r *client.SimpleResultCriteriaResponse, state *resultCriteriaResourceModel, expectedValues *resultCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.ResultCodeCriteria = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumresultCriteriaResultCodeCriteriaProp(r.ResultCodeCriteria), internaltypes.IsEmptyString(expectedValues.ResultCodeCriteria))
@@ -1341,6 +1344,7 @@ func readSimpleResultCriteriaResponse(ctx context.Context, r *client.SimpleResul
 func readAggregateResultCriteriaResponse(ctx context.Context, r *client.AggregateResultCriteriaResponse, state *resultCriteriaResourceModel, expectedValues *resultCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedResultCriteria = internaltypes.GetStringSet(r.AllIncludedResultCriteria)
 	state.AnyIncludedResultCriteria = internaltypes.GetStringSet(r.AnyIncludedResultCriteria)
 	state.NotAllIncludedResultCriteria = internaltypes.GetStringSet(r.NotAllIncludedResultCriteria)
@@ -1354,6 +1358,7 @@ func readAggregateResultCriteriaResponse(ctx context.Context, r *client.Aggregat
 func readReplicationAssuranceResultCriteriaResponse(ctx context.Context, r *client.ReplicationAssuranceResultCriteriaResponse, state *resultCriteriaResourceModel, expectedValues *resultCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replication-assurance")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LocalAssuranceLevel = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaLocalAssuranceLevelProp(r.LocalAssuranceLevel))
 	state.RemoteAssuranceLevel = internaltypes.GetStringSet(
@@ -1378,6 +1383,7 @@ func readReplicationAssuranceResultCriteriaResponse(ctx context.Context, r *clie
 func readThirdPartyResultCriteriaResponse(ctx context.Context, r *client.ThirdPartyResultCriteriaResponse, state *resultCriteriaResourceModel, expectedValues *resultCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1443,7 +1449,7 @@ func createResultCriteriaOperations(plan resultCriteriaResourceModel, state resu
 
 // Create a successful-bind result-criteria
 func (r *resultCriteriaResource) CreateSuccessfulBindResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddSuccessfulBindResultCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSuccessfulBindResultCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsuccessfulBindResultCriteriaSchemaUrn{client.ENUMSUCCESSFULBINDRESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIASUCCESSFUL_BIND})
 	err := addOptionalSuccessfulBindResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1480,7 +1486,7 @@ func (r *resultCriteriaResource) CreateSuccessfulBindResultCriteria(ctx context.
 
 // Create a simple result-criteria
 func (r *resultCriteriaResource) CreateSimpleResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleResultCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleResultCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleResultCriteriaSchemaUrn{client.ENUMSIMPLERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIASIMPLE})
 	err := addOptionalSimpleResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1517,7 +1523,7 @@ func (r *resultCriteriaResource) CreateSimpleResultCriteria(ctx context.Context,
 
 // Create a aggregate result-criteria
 func (r *resultCriteriaResource) CreateAggregateResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateResultCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAggregateResultCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumaggregateResultCriteriaSchemaUrn{client.ENUMAGGREGATERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIAAGGREGATE})
 	err := addOptionalAggregateResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1554,7 +1560,7 @@ func (r *resultCriteriaResource) CreateAggregateResultCriteria(ctx context.Conte
 
 // Create a replication-assurance result-criteria
 func (r *resultCriteriaResource) CreateReplicationAssuranceResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddReplicationAssuranceResultCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddReplicationAssuranceResultCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumreplicationAssuranceResultCriteriaSchemaUrn{client.ENUMREPLICATIONASSURANCERESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIAREPLICATION_ASSURANCE})
 	err := addOptionalReplicationAssuranceResultCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1591,7 +1597,7 @@ func (r *resultCriteriaResource) CreateReplicationAssuranceResultCriteria(ctx co
 
 // Create a third-party result-criteria
 func (r *resultCriteriaResource) CreateThirdPartyResultCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCriteriaResourceModel) (*resultCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyResultCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyResultCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyResultCriteriaSchemaUrn{client.ENUMTHIRDPARTYRESULTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RESULT_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	err := addOptionalThirdPartyResultCriteriaFields(ctx, addRequest, plan)
@@ -1695,7 +1701,7 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 	}
 
 	readResponse, httpResp, err := r.apiClient.ResultCriteriaApi.GetResultCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Criteria", err, httpResp)
 		return
@@ -1726,7 +1732,7 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ResultCriteriaApi.UpdateResultCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ResultCriteriaApi.UpdateResultCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createResultCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1791,7 +1797,7 @@ func readResultCriteria(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	readResponse, httpResp, err := apiClient.ResultCriteriaApi.GetResultCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Criteria", err, httpResp)
 		return
@@ -1847,7 +1853,7 @@ func updateResultCriteria(ctx context.Context, req resource.UpdateRequest, resp 
 	var state resultCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ResultCriteriaApi.UpdateResultCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createResultCriteriaOperations(plan, state)
@@ -1914,7 +1920,7 @@ func (r *resultCriteriaResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	httpResp, err := r.apiClient.ResultCriteriaApi.DeleteResultCriteriaExecute(r.apiClient.ResultCriteriaApi.DeleteResultCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Result Criteria", err, httpResp)
 		return
@@ -1930,6 +1936,6 @@ func (r *defaultResultCriteriaResource) ImportState(ctx context.Context, req res
 }
 
 func importResultCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

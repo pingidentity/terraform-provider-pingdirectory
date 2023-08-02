@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
-  id             = "MySensitiveAttribute"
+  name           = "MySensitiveAttribute"
   attribute_type = ["userPassword", "pwdHistory"]
 }

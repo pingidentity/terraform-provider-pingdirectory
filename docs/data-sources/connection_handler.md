@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_connection_handler" "myConnectionHandler" {
-  id = "MyConnectionHandler"
+  name = "MyConnectionHandler"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_connection_handler" "myConnectionHandler" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -68,6 +68,7 @@ data "pingdirectory_connection_handler" "myConnectionHandler" {
 - `http_operation_log_publisher` (Set of String) Specifies the set of HTTP operation loggers that should be used to log information about requests and responses for operations processed through this HTTP Connection Handler.
 - `http_request_header_size` (Number) Specifies the maximum buffer size of an http request including the request uri and all of the request headers.
 - `http_servlet_extension` (Set of String) Specifies information about servlets that will be provided via this connection handler.
+- `id` (String) The ID of this resource.
 - `idle_time_limit` (String) Specifies the maximum idle time for a connection. The max idle time is applied when waiting for a new request to be received on a connection, when reading the headers and content of a request, or when writing the headers and content of a response.
 - `keep_stats` (Boolean) Indicates whether to enable statistics collection for this connection handler.
 - `key_manager_provider` (String) Specifies the name of the key manager that should be used with this JMX Connection Handler .

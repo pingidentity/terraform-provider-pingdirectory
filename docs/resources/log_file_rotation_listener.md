@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" {
-  id               = "MyLogFileRotationListener"
+  name             = "MyLogFileRotationListener"
   type             = "summarize"
   description      = "My summarize log file rotation listener"
   enabled          = true
@@ -51,7 +51,7 @@ resource "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" 
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Log File Rotation Listener is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']
 
 ### Optional
@@ -65,6 +65,7 @@ resource "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" 
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

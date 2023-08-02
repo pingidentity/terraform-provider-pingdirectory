@@ -49,7 +49,7 @@ data "pingdirectory_log_rotation_policies" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `objects` (Set of Object) Log Rotation Policy objects found in the configuration (see [below for nested schema](#nestedatt--objects))
 
 <a id="nestedatt--objects"></a>

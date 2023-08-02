@@ -79,6 +79,7 @@ func (r *defaultObscuredValueResource) Configure(_ context.Context, req resource
 
 type obscuredValueResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -112,9 +113,9 @@ func obscuredValueSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -136,6 +137,7 @@ func populateObscuredValueUnknownValues(ctx context.Context, model *obscuredValu
 // Read a ObscuredValueResponse object into the model struct
 func readObscuredValueResponse(ctx context.Context, r *client.ObscuredValueResponse, state *obscuredValueResourceModel, expectedValues *obscuredValueResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateObscuredValueUnknownValues(ctx, state)
@@ -159,7 +161,7 @@ func createObscuredValueOperations(plan obscuredValueResourceModel, state obscur
 
 // Create a obscured-value obscured-value
 func (r *obscuredValueResource) CreateObscuredValue(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan obscuredValueResourceModel) (*obscuredValueResourceModel, error) {
-	addRequest := client.NewAddObscuredValueRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddObscuredValueRequest(plan.Name.ValueString(),
 		plan.ObscuredValue.ValueString())
 	addOptionalObscuredValueFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -230,7 +232,7 @@ func (r *defaultObscuredValueResource) Create(ctx context.Context, req resource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.ObscuredValueApi.GetObscuredValue(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Obscured Value", err, httpResp)
 		return
@@ -247,7 +249,7 @@ func (r *defaultObscuredValueResource) Create(ctx context.Context, req resource.
 	readObscuredValueResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ObscuredValueApi.UpdateObscuredValue(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ObscuredValueApi.UpdateObscuredValue(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createObscuredValueOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -299,7 +301,7 @@ func readObscuredValue(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 
 	readResponse, httpResp, err := apiClient.ObscuredValueApi.GetObscuredValue(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Obscured Value", err, httpResp)
 		return
@@ -341,7 +343,7 @@ func updateObscuredValue(ctx context.Context, req resource.UpdateRequest, resp *
 	var state obscuredValueResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ObscuredValueApi.UpdateObscuredValue(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createObscuredValueOperations(plan, state)
@@ -395,7 +397,7 @@ func (r *obscuredValueResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	httpResp, err := r.apiClient.ObscuredValueApi.DeleteObscuredValueExecute(r.apiClient.ObscuredValueApi.DeleteObscuredValue(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Obscured Value", err, httpResp)
 		return
@@ -411,6 +413,6 @@ func (r *defaultObscuredValueResource) ImportState(ctx context.Context, req reso
 }
 
 func importObscuredValue(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

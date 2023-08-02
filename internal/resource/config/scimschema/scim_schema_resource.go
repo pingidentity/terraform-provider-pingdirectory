@@ -121,9 +121,9 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"schema_urn"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"schema_urn"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

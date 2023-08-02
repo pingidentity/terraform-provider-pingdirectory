@@ -48,6 +48,7 @@ func (r *serverInstanceListenerDataSource) Configure(_ context.Context, req data
 
 type serverInstanceListenerDataSourceModel struct {
 	Id                  types.String `tfsdk:"id"`
+	Name                types.String `tfsdk:"name"`
 	Type                types.String `tfsdk:"type"`
 	ServerInstanceName  types.String `tfsdk:"server_instance_name"`
 	ListenAddress       types.String `tfsdk:"listen_address"`
@@ -60,13 +61,9 @@ type serverInstanceListenerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *serverInstanceListenerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Server Instance Listener.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Server Instance Listener resource. Options are ['ldap', 'http']",
 				Required:    false,
@@ -116,12 +113,15 @@ func (r *serverInstanceListenerDataSource) Schema(ctx context.Context, req datas
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a LdapServerInstanceListenerResponse object into the model struct
 func readLdapServerInstanceListenerResponseDataSource(ctx context.Context, r *client.LdapServerInstanceListenerResponse, state *serverInstanceListenerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerLDAPPort = internaltypes.Int64TypeOrNil(r.ServerLDAPPort)
 	state.ConnectionSecurity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceListenerLdapConnectionSecurityProp(r.ConnectionSecurity), false)
@@ -134,6 +134,7 @@ func readLdapServerInstanceListenerResponseDataSource(ctx context.Context, r *cl
 func readHttpServerInstanceListenerResponseDataSource(ctx context.Context, r *client.HttpServerInstanceListenerResponse, state *serverInstanceListenerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ListenAddress = internaltypes.StringTypeOrNil(r.ListenAddress, false)
 	state.ServerHTTPPort = internaltypes.Int64TypeOrNil(r.ServerHTTPPort)
 	state.ConnectionSecurity = internaltypes.StringTypeOrNil(
@@ -153,7 +154,7 @@ func (r *serverInstanceListenerDataSource) Read(ctx context.Context, req datasou
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.GetServerInstanceListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance Listener", err, httpResp)
 		return

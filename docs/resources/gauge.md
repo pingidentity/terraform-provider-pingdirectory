@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_gauge" "myGauge" {
-  id                = "MyGauge"
+  name              = "MyGauge"
   type              = "indicator"
   gauge_data_source = "Replication Connection Status"
   enabled           = false
@@ -50,7 +50,7 @@ resource "pingdirectory_gauge" "myGauge" {
 ### Required
 
 - `gauge_data_source` (String) Specifies the source of data to use in determining this Indicator Gauge's severity and status.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Gauge resource. Options are ['indicator', 'numeric']
 
 ### Optional
@@ -76,6 +76,7 @@ resource "pingdirectory_gauge" "myGauge" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

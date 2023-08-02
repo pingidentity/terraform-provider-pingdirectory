@@ -48,6 +48,7 @@ func (r *replicationAssurancePolicyDataSource) Configure(_ context.Context, req 
 
 type replicationAssurancePolicyDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
 	Description          types.String `tfsdk:"description"`
 	Enabled              types.Bool   `tfsdk:"enabled"`
 	EvaluationOrderIndex types.Int64  `tfsdk:"evaluation_order_index"`
@@ -60,13 +61,9 @@ type replicationAssurancePolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *replicationAssurancePolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Replication Assurance Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "Description of the Replication Assurance Policy.",
 				Required:    false,
@@ -117,11 +114,14 @@ func (r *replicationAssurancePolicyDataSource) Schema(ctx context.Context, req d
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ReplicationAssurancePolicyResponse object into the model struct
 func readReplicationAssurancePolicyResponseDataSource(ctx context.Context, r *client.ReplicationAssurancePolicyResponse, state *replicationAssurancePolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
@@ -143,7 +143,7 @@ func (r *replicationAssurancePolicyDataSource) Read(ctx context.Context, req dat
 	}
 
 	readResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Assurance Policy", err, httpResp)
 		return

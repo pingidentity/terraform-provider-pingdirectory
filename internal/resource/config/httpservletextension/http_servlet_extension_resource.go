@@ -87,6 +87,7 @@ func (r *defaultHttpServletExtensionResource) Configure(_ context.Context, req r
 
 type httpServletExtensionResourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
+	Name                               types.String `tfsdk:"name"`
 	LastUpdated                        types.String `tfsdk:"last_updated"`
 	Notifications                      types.Set    `tfsdk:"notifications"`
 	RequiredActions                    types.Set    `tfsdk:"required_actions"`
@@ -148,6 +149,7 @@ type httpServletExtensionResourceModel struct {
 
 type defaultHttpServletExtensionResourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
+	Name                               types.String `tfsdk:"name"`
 	LastUpdated                        types.String `tfsdk:"last_updated"`
 	Notifications                      types.Set    `tfsdk:"notifications"`
 	RequiredActions                    types.Set    `tfsdk:"required_actions"`
@@ -828,9 +830,9 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1611,6 +1613,7 @@ func populateHttpServletExtensionUnknownValuesDefault(ctx context.Context, model
 func readDelegatedAdminHttpServletExtensionResponseDefault(ctx context.Context, r *client.DelegatedAdminHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delegated-admin")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
@@ -1628,6 +1631,7 @@ func readDelegatedAdminHttpServletExtensionResponseDefault(ctx context.Context, 
 func readQuickstartHttpServletExtensionResponse(ctx context.Context, r *client.QuickstartHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("quickstart")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = internaltypes.StringTypeOrNil(r.Server, internaltypes.IsEmptyString(expectedValues.Server))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
@@ -1641,6 +1645,7 @@ func readQuickstartHttpServletExtensionResponse(ctx context.Context, r *client.Q
 func readQuickstartHttpServletExtensionResponseDefault(ctx context.Context, r *client.QuickstartHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("quickstart")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = internaltypes.StringTypeOrNil(r.Server, internaltypes.IsEmptyString(expectedValues.Server))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
@@ -1654,6 +1659,7 @@ func readQuickstartHttpServletExtensionResponseDefault(ctx context.Context, r *c
 func readAvailabilityStateHttpServletExtensionResponse(ctx context.Context, r *client.AvailabilityStateHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("availability-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.AvailableStatusCode = types.Int64Value(r.AvailableStatusCode)
 	state.DegradedStatusCode = types.Int64Value(r.DegradedStatusCode)
@@ -1673,6 +1679,7 @@ func readAvailabilityStateHttpServletExtensionResponse(ctx context.Context, r *c
 func readAvailabilityStateHttpServletExtensionResponseDefault(ctx context.Context, r *client.AvailabilityStateHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("availability-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.AvailableStatusCode = types.Int64Value(r.AvailableStatusCode)
 	state.DegradedStatusCode = types.Int64Value(r.DegradedStatusCode)
@@ -1692,6 +1699,7 @@ func readAvailabilityStateHttpServletExtensionResponseDefault(ctx context.Contex
 func readPrometheusMonitoringHttpServletExtensionResponse(ctx context.Context, r *client.PrometheusMonitoringHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("prometheus-monitoring")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.IncludeInstanceNameLabel = internaltypes.BoolTypeOrNil(r.IncludeInstanceNameLabel)
 	state.IncludeProductNameLabel = internaltypes.BoolTypeOrNil(r.IncludeProductNameLabel)
@@ -1712,6 +1720,7 @@ func readPrometheusMonitoringHttpServletExtensionResponse(ctx context.Context, r
 func readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx context.Context, r *client.PrometheusMonitoringHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("prometheus-monitoring")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.IncludeInstanceNameLabel = internaltypes.BoolTypeOrNil(r.IncludeInstanceNameLabel)
 	state.IncludeProductNameLabel = internaltypes.BoolTypeOrNil(r.IncludeProductNameLabel)
@@ -1732,6 +1741,7 @@ func readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx context.Con
 func readVelocityHttpServletExtensionResponseDefault(ctx context.Context, r *client.VelocityHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("velocity")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.StaticContextPath = internaltypes.StringTypeOrNil(r.StaticContextPath, internaltypes.IsEmptyString(expectedValues.StaticContextPath))
 	state.StaticContentDirectory = internaltypes.StringTypeOrNil(r.StaticContentDirectory, internaltypes.IsEmptyString(expectedValues.StaticContentDirectory))
@@ -1759,6 +1769,7 @@ func readVelocityHttpServletExtensionResponseDefault(ctx context.Context, r *cli
 func readConsentHttpServletExtensionResponseDefault(ctx context.Context, r *client.ConsentHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("consent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BearerTokenAuthEnabled = internaltypes.BoolTypeOrNil(r.BearerTokenAuthEnabled)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
@@ -1775,6 +1786,7 @@ func readConsentHttpServletExtensionResponseDefault(ctx context.Context, r *clie
 func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *client.LdapMappedScimHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapped-scim")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, internaltypes.IsEmptyString(expectedValues.OAuthTokenHandler))
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
@@ -1810,6 +1822,7 @@ func readLdapMappedScimHttpServletExtensionResponse(ctx context.Context, r *clie
 func readLdapMappedScimHttpServletExtensionResponseDefault(ctx context.Context, r *client.LdapMappedScimHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapped-scim")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OAuthTokenHandler = internaltypes.StringTypeOrNil(r.OAuthTokenHandler, internaltypes.IsEmptyString(expectedValues.OAuthTokenHandler))
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
@@ -1845,6 +1858,7 @@ func readLdapMappedScimHttpServletExtensionResponseDefault(ctx context.Context, 
 func readGroovyScriptedHttpServletExtensionResponse(ctx context.Context, r *client.GroovyScriptedHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1859,6 +1873,7 @@ func readGroovyScriptedHttpServletExtensionResponse(ctx context.Context, r *clie
 func readGroovyScriptedHttpServletExtensionResponseDefault(ctx context.Context, r *client.GroovyScriptedHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1873,6 +1888,7 @@ func readGroovyScriptedHttpServletExtensionResponseDefault(ctx context.Context, 
 func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.FileServerHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.DocumentRootDirectory = types.StringValue(r.DocumentRootDirectory)
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
@@ -1899,6 +1915,7 @@ func readFileServerHttpServletExtensionResponse(ctx context.Context, r *client.F
 func readFileServerHttpServletExtensionResponseDefault(ctx context.Context, r *client.FileServerHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.DocumentRootDirectory = types.StringValue(r.DocumentRootDirectory)
 	state.EnableDirectoryIndexing = internaltypes.BoolTypeOrNil(r.EnableDirectoryIndexing)
@@ -1925,6 +1942,7 @@ func readFileServerHttpServletExtensionResponseDefault(ctx context.Context, r *c
 func readConfigHttpServletExtensionResponseDefault(ctx context.Context, r *client.ConfigHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("config")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CrossOriginPolicy = internaltypes.StringTypeOrNil(r.CrossOriginPolicy, internaltypes.IsEmptyString(expectedValues.CrossOriginPolicy))
@@ -1938,6 +1956,7 @@ func readConfigHttpServletExtensionResponseDefault(ctx context.Context, r *clien
 func readScim2HttpServletExtensionResponseDefault(ctx context.Context, r *client.Scim2HttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("scim2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
 	state.MapAccessTokensToLocalUsers = internaltypes.StringTypeOrNil(
@@ -1960,6 +1979,7 @@ func readScim2HttpServletExtensionResponseDefault(ctx context.Context, r *client
 func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context, r *client.DirectoryRestApiHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory-rest-api")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BasicAuthEnabled = internaltypes.BoolTypeOrNil(r.BasicAuthEnabled)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, internaltypes.IsEmptyString(expectedValues.IdentityMapper))
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
@@ -1984,6 +2004,7 @@ func readDirectoryRestApiHttpServletExtensionResponseDefault(ctx context.Context
 func readThirdPartyHttpServletExtensionResponse(ctx context.Context, r *client.ThirdPartyHttpServletExtensionResponse, state *httpServletExtensionResourceModel, expectedValues *httpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1998,6 +2019,7 @@ func readThirdPartyHttpServletExtensionResponse(ctx context.Context, r *client.T
 func readThirdPartyHttpServletExtensionResponseDefault(ctx context.Context, r *client.ThirdPartyHttpServletExtensionResponse, state *defaultHttpServletExtensionResourceModel, expectedValues *defaultHttpServletExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2149,7 +2171,7 @@ func createHttpServletExtensionOperationsDefault(plan defaultHttpServletExtensio
 
 // Create a quickstart http-servlet-extension
 func (r *httpServletExtensionResource) CreateQuickstartHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddQuickstartHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddQuickstartHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumquickstartHttpServletExtensionSchemaUrn{client.ENUMQUICKSTARTHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONQUICKSTART})
 	err := addOptionalQuickstartHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2186,7 +2208,7 @@ func (r *httpServletExtensionResource) CreateQuickstartHttpServletExtension(ctx 
 
 // Create a groovy-scripted http-servlet-extension
 func (r *httpServletExtensionResource) CreateGroovyScriptedHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedHttpServletExtensionSchemaUrn{client.ENUMGROOVYSCRIPTEDHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString())
 	err := addOptionalGroovyScriptedHttpServletExtensionFields(ctx, addRequest, plan)
@@ -2224,7 +2246,7 @@ func (r *httpServletExtensionResource) CreateGroovyScriptedHttpServletExtension(
 
 // Create a availability-state http-servlet-extension
 func (r *httpServletExtensionResource) CreateAvailabilityStateHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddAvailabilityStateHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAvailabilityStateHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumavailabilityStateHttpServletExtensionSchemaUrn{client.ENUMAVAILABILITYSTATEHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONAVAILABILITY_STATE},
 		plan.BaseContextPath.ValueString(),
 		plan.AvailableStatusCode.ValueInt64(),
@@ -2265,7 +2287,7 @@ func (r *httpServletExtensionResource) CreateAvailabilityStateHttpServletExtensi
 
 // Create a prometheus-monitoring http-servlet-extension
 func (r *httpServletExtensionResource) CreatePrometheusMonitoringHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddPrometheusMonitoringHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPrometheusMonitoringHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumprometheusMonitoringHttpServletExtensionSchemaUrn{client.ENUMPROMETHEUSMONITORINGHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONPROMETHEUS_MONITORING})
 	err := addOptionalPrometheusMonitoringHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2302,7 +2324,7 @@ func (r *httpServletExtensionResource) CreatePrometheusMonitoringHttpServletExte
 
 // Create a file-server http-servlet-extension
 func (r *httpServletExtensionResource) CreateFileServerHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddFileServerHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileServerHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumfileServerHttpServletExtensionSchemaUrn{client.ENUMFILESERVERHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONFILE_SERVER},
 		plan.BaseContextPath.ValueString(),
 		plan.DocumentRootDirectory.ValueString())
@@ -2341,7 +2363,7 @@ func (r *httpServletExtensionResource) CreateFileServerHttpServletExtension(ctx 
 
 // Create a ldap-mapped-scim http-servlet-extension
 func (r *httpServletExtensionResource) CreateLdapMappedScimHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddLdapMappedScimHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdapMappedScimHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumldapMappedScimHttpServletExtensionSchemaUrn{client.ENUMLDAPMAPPEDSCIMHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONLDAP_MAPPED_SCIM})
 	err := addOptionalLdapMappedScimHttpServletExtensionFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2378,7 +2400,7 @@ func (r *httpServletExtensionResource) CreateLdapMappedScimHttpServletExtension(
 
 // Create a third-party http-servlet-extension
 func (r *httpServletExtensionResource) CreateThirdPartyHttpServletExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan httpServletExtensionResourceModel) (*httpServletExtensionResourceModel, error) {
-	addRequest := client.NewAddThirdPartyHttpServletExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyHttpServletExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyHttpServletExtensionSchemaUrn{client.ENUMTHIRDPARTYHTTPSERVLETEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0HTTP_SERVLET_EXTENSIONTHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	err := addOptionalThirdPartyHttpServletExtensionFields(ctx, addRequest, plan)
@@ -2494,7 +2516,7 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
 		return
@@ -2549,7 +2571,7 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createHttpServletExtensionOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -2630,7 +2652,7 @@ func (r *httpServletExtensionResource) Read(ctx context.Context, req resource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
 		return
@@ -2680,7 +2702,7 @@ func (r *defaultHttpServletExtensionResource) Read(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.HttpServletExtensionApi.GetHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Extension", err, httpResp)
 		return
@@ -2731,7 +2753,7 @@ func (r *httpServletExtensionResource) Update(ctx context.Context, req resource.
 	var state httpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createHttpServletExtensionOperations(plan, state)
@@ -2800,7 +2822,7 @@ func (r *defaultHttpServletExtensionResource) Update(ctx context.Context, req re
 	var state defaultHttpServletExtensionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.HttpServletExtensionApi.UpdateHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createHttpServletExtensionOperationsDefault(plan, state)
@@ -2891,7 +2913,7 @@ func (r *httpServletExtensionResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.HttpServletExtensionApi.DeleteHttpServletExtensionExecute(r.apiClient.HttpServletExtensionApi.DeleteHttpServletExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Http Servlet Extension", err, httpResp)
 		return
@@ -2907,6 +2929,6 @@ func (r *defaultHttpServletExtensionResource) ImportState(ctx context.Context, r
 }
 
 func importHttpServletExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

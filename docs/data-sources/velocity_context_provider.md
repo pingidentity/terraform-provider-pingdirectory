@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_velocity_context_provider" "myVelocityContextProvider" {
-  id                          = "MyVelocityContextProvider"
+  name                        = "MyVelocityContextProvider"
   http_servlet_extension_name = "MyHttpServletExtension"
 }
 ```
@@ -48,7 +48,7 @@ data "pingdirectory_velocity_context_provider" "myVelocityContextProvider" {
 ### Required
 
 - `http_servlet_extension_name` (String) Name of the parent HTTP Servlet Extension
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -58,6 +58,7 @@ data "pingdirectory_velocity_context_provider" "myVelocityContextProvider" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Velocity Context Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Velocity Context Provider.
 - `http_method` (Set of String) Specifies the set of HTTP methods handled by this Velocity Context Provider, which will perform actions necessary to fulfill the request before updating the context for the response. The values of this property are not case-sensitive.
+- `id` (String) The ID of this resource.
 - `included_view` (Set of String) The name of a view for which this Velocity Context Provider will contribute content.
 - `object_scope` (String) Scope for context objects contributed by this Velocity Context Provider. Must be either 'request' or 'session' or 'application'.
 - `request_tool` (Set of String) The fully-qualified name of a Velocity Tool class that will be initialized for each request. May optionally include a path to a properties file used to configure this tool separated from the class name by a semi-colon (;). The path may absolute or relative to the server root.

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_cipher_secret_key" "myCipherSecretKey" {
-  id                   = "MyKeyId"
+  name                 = "MyKeyId"
   server_instance_name = "MyServerInstance"
   key_id               = "MyKeyId"
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_default_cipher_secret_key" "myCipherSecretKey" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `server_instance_name` (String) Name of the parent Server Instance
 
 ### Optional
@@ -62,6 +62,7 @@ resource "pingdirectory_default_cipher_secret_key" "myCipherSecretKey" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

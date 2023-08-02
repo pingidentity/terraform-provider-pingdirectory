@@ -55,15 +55,9 @@ type velocityTemplateLoadersDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *velocityTemplateLoadersDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Velocity Template Loader objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *velocityTemplateLoadersDataSource) Schema(ctx context.Context, req data
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

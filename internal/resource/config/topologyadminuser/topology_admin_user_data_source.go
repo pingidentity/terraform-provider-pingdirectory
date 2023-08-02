@@ -48,6 +48,7 @@ func (r *topologyAdminUserDataSource) Configure(_ context.Context, req datasourc
 
 type topologyAdminUserDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	AlternateBindDN                types.Set    `tfsdk:"alternate_bind_dn"`
 	Description                    types.String `tfsdk:"description"`
 	Password                       types.String `tfsdk:"password"`
@@ -85,13 +86,9 @@ type topologyAdminUserDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *topologyAdminUserDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Topology Admin User.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"alternate_bind_dn": schema.SetAttribute{
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Required:    false,
@@ -311,11 +308,14 @@ func (r *topologyAdminUserDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a TopologyAdminUserResponse object into the model struct
 func readTopologyAdminUserResponseDataSource(ctx context.Context, r *client.TopologyAdminUserResponse, state *topologyAdminUserDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.FirstName = internaltypes.GetStringSet(r.FirstName)
@@ -363,7 +363,7 @@ func (r *topologyAdminUserDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
 		return

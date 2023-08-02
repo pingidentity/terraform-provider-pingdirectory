@@ -47,7 +47,6 @@ func (r *alarmManagerDataSource) Configure(_ context.Context, req datasource.Con
 }
 
 type alarmManagerDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                     types.String `tfsdk:"id"`
 	DefaultGaugeAlertLevel types.String `tfsdk:"default_gauge_alert_level"`
 	GeneratedAlertTypes    types.Set    `tfsdk:"generated_alert_types"`
@@ -56,15 +55,9 @@ type alarmManagerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *alarmManagerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Alarm Manager.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"default_gauge_alert_level": schema.StringAttribute{
 				Description: "Specifies the level at which alerts are sent for alarms raised by the Alarm Manager.",
 				Required:    false,
@@ -87,6 +80,8 @@ func (r *alarmManagerDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a AlarmManagerResponse object into the model struct

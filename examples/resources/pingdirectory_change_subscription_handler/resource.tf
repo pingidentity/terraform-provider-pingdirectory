@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandler" {
-  id           = "MyChangeSubscriptionHandler"
+  name         = "MyChangeSubscriptionHandler"
   type         = "groovy-scripted"
   script_class = "com.example.myscriptclass"
   enabled      = false

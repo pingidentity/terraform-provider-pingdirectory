@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_gauge_data_source" "myGaugeDataSource" {
-  id = "MyGaugeDataSource"
+  name = "MyGaugeDataSource"
 }

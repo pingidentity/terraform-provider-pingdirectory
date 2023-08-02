@@ -54,6 +54,6 @@ data "pingdirectory_replication_domains" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Replication Domain IDs found in the configuration
 

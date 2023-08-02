@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
-  id                          = "MyVelocityTemplateLoader"
+  name                        = "MyVelocityTemplateLoader"
   http_servlet_extension_name = "MyHttpServletExtension"
 }

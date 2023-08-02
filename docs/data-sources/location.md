@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_location" "myLocation" {
-  id = "MyLocation"
+  name = "MyLocation"
 }
 ```
 
@@ -46,9 +46,10 @@ data "pingdirectory_location" "myLocation" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Location
+- `id` (String) The ID of this resource.
 

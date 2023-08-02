@@ -73,12 +73,12 @@ func testAccSubjectEqualsDnCertificateMapperResource(resourceName string, resour
 	return fmt.Sprintf(`
 resource "pingdirectory_certificate_mapper" "%[1]s" {
   type    = "subject-equals-dn"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }
 
 data "pingdirectory_certificate_mapper" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_certificate_mapper.%[1]s
   ]

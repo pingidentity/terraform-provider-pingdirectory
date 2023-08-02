@@ -48,6 +48,7 @@ func (r *logRetentionPolicyDataSource) Configure(_ context.Context, req datasour
 
 type logRetentionPolicyDataSourceModel struct {
 	Id             types.String `tfsdk:"id"`
+	Name           types.String `tfsdk:"name"`
 	Type           types.String `tfsdk:"type"`
 	DiskSpaceUsed  types.String `tfsdk:"disk_space_used"`
 	FreeDiskSpace  types.String `tfsdk:"free_disk_space"`
@@ -58,13 +59,9 @@ type logRetentionPolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logRetentionPolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log Retention Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log Retention Policy resource. Options are ['time-limit', 'never-delete', 'file-count', 'free-disk-space', 'size-limit']",
 				Required:    false,
@@ -103,12 +100,15 @@ func (r *logRetentionPolicyDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a TimeLimitLogRetentionPolicyResponse object into the model struct
 func readTimeLimitLogRetentionPolicyResponseDataSource(ctx context.Context, r *client.TimeLimitLogRetentionPolicyResponse, state *logRetentionPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("time-limit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RetainDuration = types.StringValue(r.RetainDuration)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -117,6 +117,7 @@ func readTimeLimitLogRetentionPolicyResponseDataSource(ctx context.Context, r *c
 func readNeverDeleteLogRetentionPolicyResponseDataSource(ctx context.Context, r *client.NeverDeleteLogRetentionPolicyResponse, state *logRetentionPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("never-delete")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
 
@@ -124,6 +125,7 @@ func readNeverDeleteLogRetentionPolicyResponseDataSource(ctx context.Context, r 
 func readFileCountLogRetentionPolicyResponseDataSource(ctx context.Context, r *client.FileCountLogRetentionPolicyResponse, state *logRetentionPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-count")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.NumberOfFiles = types.Int64Value(r.NumberOfFiles)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -132,6 +134,7 @@ func readFileCountLogRetentionPolicyResponseDataSource(ctx context.Context, r *c
 func readFreeDiskSpaceLogRetentionPolicyResponseDataSource(ctx context.Context, r *client.FreeDiskSpaceLogRetentionPolicyResponse, state *logRetentionPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("free-disk-space")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.FreeDiskSpace = types.StringValue(r.FreeDiskSpace)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -140,6 +143,7 @@ func readFreeDiskSpaceLogRetentionPolicyResponseDataSource(ctx context.Context, 
 func readSizeLimitLogRetentionPolicyResponseDataSource(ctx context.Context, r *client.SizeLimitLogRetentionPolicyResponse, state *logRetentionPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("size-limit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DiskSpaceUsed = types.StringValue(r.DiskSpaceUsed)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -155,7 +159,7 @@ func (r *logRetentionPolicyDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogRetentionPolicyApi.GetLogRetentionPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Retention Policy", err, httpResp)
 		return

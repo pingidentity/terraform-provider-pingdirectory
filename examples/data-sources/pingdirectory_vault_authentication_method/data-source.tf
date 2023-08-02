@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_vault_authentication_method" "myVaultAuthenticationMethod" {
-  id = "MyVaultAuthenticationMethod"
+  name = "MyVaultAuthenticationMethod"
 }

@@ -48,6 +48,7 @@ func (r *logFieldMappingDataSource) Configure(_ context.Context, req datasource.
 
 type logFieldMappingDataSourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Name                                types.String `tfsdk:"name"`
 	Type                                types.String `tfsdk:"type"`
 	LogFieldTimestamp                   types.String `tfsdk:"log_field_timestamp"`
 	LogFieldConnectionID                types.String `tfsdk:"log_field_connection_id"`
@@ -108,13 +109,9 @@ type logFieldMappingDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logFieldMappingDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log Field Mapping.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log Field Mapping resource. Options are ['access', 'error']",
 				Required:    false,
@@ -453,12 +450,15 @@ func (r *logFieldMappingDataSource) Schema(ctx context.Context, req datasource.S
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a AccessLogFieldMappingResponse object into the model struct
 func readAccessLogFieldMappingResponseDataSource(ctx context.Context, r *client.AccessLogFieldMappingResponse, state *logFieldMappingDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFieldTimestamp = internaltypes.StringTypeOrNil(r.LogFieldTimestamp, false)
 	state.LogFieldConnectionID = internaltypes.StringTypeOrNil(r.LogFieldConnectionID, false)
 	state.LogFieldStartupid = internaltypes.StringTypeOrNil(r.LogFieldStartupid, false)
@@ -518,6 +518,7 @@ func readAccessLogFieldMappingResponseDataSource(ctx context.Context, r *client.
 func readErrorLogFieldMappingResponseDataSource(ctx context.Context, r *client.ErrorLogFieldMappingResponse, state *logFieldMappingDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFieldTimestamp = internaltypes.StringTypeOrNil(r.LogFieldTimestamp, false)
 	state.LogFieldProductName = internaltypes.StringTypeOrNil(r.LogFieldProductName, false)
 	state.LogFieldInstanceName = internaltypes.StringTypeOrNil(r.LogFieldInstanceName, false)
@@ -540,7 +541,7 @@ func (r *logFieldMappingDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.GetLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
 		return

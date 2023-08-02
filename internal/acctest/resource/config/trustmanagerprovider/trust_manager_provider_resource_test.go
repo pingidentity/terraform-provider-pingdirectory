@@ -135,14 +135,14 @@ func testAccFileBasedTrustManagerProviderResource(resourceName, providerName str
 	return fmt.Sprintf(`
 resource "pingdirectory_trust_manager_provider" "%[1]s" {
   type             = "file-based"
-  id               = "%[2]s"
+  name             = "%[2]s"
   enabled          = %[3]t
   trust_store_file = "%[4]s"
   trust_store_type = "%[5]s"
 }
 
 data "pingdirectory_trust_manager_provider" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_trust_manager_provider.%[1]s
   ]
@@ -159,7 +159,7 @@ func testAccJvmDefaultTrustManagerProviderResource(resourceName, providerName st
 	return fmt.Sprintf(`
 resource "pingdirectory_trust_manager_provider" "%[1]s" {
   type    = "jvm-default"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }`, resourceName, providerName, enabled)
 }
@@ -168,7 +168,7 @@ func testAccThirdPartyTrustManagerProviderResource(resourceName, providerName st
 	return fmt.Sprintf(`
 resource "pingdirectory_trust_manager_provider" "%[1]s" {
   type               = "third-party"
-  id                 = "%[2]s"
+  name               = "%[2]s"
   enabled            = %[3]t
   extension_class    = "%[4]s"
   extension_argument = %[5]s

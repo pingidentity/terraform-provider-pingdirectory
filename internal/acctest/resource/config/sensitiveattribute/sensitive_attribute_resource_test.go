@@ -71,12 +71,12 @@ func TestAccSensitiveAttribute(t *testing.T) {
 func testAccSensitiveAttributeResource(resourceName string, resourceModel sensitiveAttributeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_sensitive_attribute" "%[1]s" {
-  id             = "%[2]s"
+  name           = "%[2]s"
   attribute_type = %[3]s
 }
 
 data "pingdirectory_sensitive_attribute" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_sensitive_attribute.%[1]s
   ]

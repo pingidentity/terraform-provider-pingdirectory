@@ -48,6 +48,7 @@ func (r *pluginDataSource) Configure(_ context.Context, req datasource.Configure
 
 type pluginDataSourceModel struct {
 	Id                                                   types.String `tfsdk:"id"`
+	Name                                                 types.String `tfsdk:"name"`
 	ResourceType                                         types.String `tfsdk:"resource_type"`
 	PassThroughAuthenticationHandler                     types.String `tfsdk:"pass_through_authentication_handler"`
 	Type                                                 types.Set    `tfsdk:"type"`
@@ -202,13 +203,9 @@ type pluginDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Plugin.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"resource_type": schema.StringAttribute{
 				Description: "The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']",
 				Required:    false,
@@ -1150,12 +1147,15 @@ func (r *pluginDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a LastAccessTimePluginResponse object into the model struct
 func readLastAccessTimePluginResponseDataSource(ctx context.Context, r *client.LastAccessTimePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("last-access-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxUpdateFrequency = internaltypes.StringTypeOrNil(r.MaxUpdateFrequency, false)
 	state.OperationType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginOperationTypeProp(r.OperationType))
@@ -1171,6 +1171,7 @@ func readLastAccessTimePluginResponseDataSource(ctx context.Context, r *client.L
 func readStatsCollectorPluginResponseDataSource(ctx context.Context, r *client.StatsCollectorPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("stats-collector")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SampleInterval = types.StringValue(r.SampleInterval)
 	state.CollectionInterval = types.StringValue(r.CollectionInterval)
 	state.LdapInfo = internaltypes.StringTypeOrNil(
@@ -1201,6 +1202,7 @@ func readStatsCollectorPluginResponseDataSource(ctx context.Context, r *client.S
 func readInternalSearchRatePluginResponseDataSource(ctx context.Context, r *client.InternalSearchRatePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("internal-search-rate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.NumThreads = types.Int64Value(r.NumThreads)
@@ -1219,6 +1221,7 @@ func readInternalSearchRatePluginResponseDataSource(ctx context.Context, r *clie
 func readModifiablePasswordPolicyStatePluginResponseDataSource(ctx context.Context, r *client.ModifiablePasswordPolicyStatePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("modifiable-password-policy-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -1229,6 +1232,7 @@ func readModifiablePasswordPolicyStatePluginResponseDataSource(ctx context.Conte
 func readSevenBitCleanPluginResponseDataSource(ctx context.Context, r *client.SevenBitCleanPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("seven-bit-clean")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
@@ -1242,6 +1246,7 @@ func readSevenBitCleanPluginResponseDataSource(ctx context.Context, r *client.Se
 func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDataSource(ctx context.Context, r *client.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-expired-pingfederate-persistent-access-grants")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
 	baseDNValues := []string{}
@@ -1259,6 +1264,7 @@ func readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDataSourc
 func readPeriodicGcPluginResponseDataSource(ctx context.Context, r *client.PeriodicGcPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("periodic-gc")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.InvokeGCDayOfWeek = internaltypes.GetStringSet(
@@ -1275,6 +1281,7 @@ func readPeriodicGcPluginResponseDataSource(ctx context.Context, r *client.Perio
 func readPingOnePassThroughAuthenticationPluginResponseDataSource(ctx context.Context, r *client.PingOnePassThroughAuthenticationPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("ping-one-pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ApiURL = types.StringValue(r.ApiURL)
 	state.AuthURL = types.StringValue(r.AuthURL)
 	state.OAuthClientID = types.StringValue(r.OAuthClientID)
@@ -1303,6 +1310,7 @@ func readPingOnePassThroughAuthenticationPluginResponseDataSource(ctx context.Co
 func readChangelogPasswordEncryptionPluginResponseDataSource(ctx context.Context, r *client.ChangelogPasswordEncryptionPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("changelog-password-encryption")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ChangelogPasswordEncryptionKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.ChangelogPasswordEncryptionKeyPassphraseProvider, false)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
@@ -1315,6 +1323,7 @@ func readChangelogPasswordEncryptionPluginResponseDataSource(ctx context.Context
 func readProcessingTimeHistogramPluginResponseDataSource(ctx context.Context, r *client.ProcessingTimeHistogramPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("processing-time-histogram")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.HistogramCategoryBoundary = internaltypes.GetStringSet(r.HistogramCategoryBoundary)
@@ -1329,6 +1338,7 @@ func readProcessingTimeHistogramPluginResponseDataSource(ctx context.Context, r 
 func readSearchShutdownPluginResponseDataSource(ctx context.Context, r *client.SearchShutdownPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("search-shutdown")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	baseDNValues := []string{}
 	baseDNType := internaltypes.StringTypeOrNil(r.BaseDN, false)
 	if !baseDNType.IsNull() {
@@ -1349,6 +1359,7 @@ func readSearchShutdownPluginResponseDataSource(ctx context.Context, r *client.S
 func readPeriodicStatsLoggerPluginResponseDataSource(ctx context.Context, r *client.PeriodicStatsLoggerPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("periodic-stats-logger")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogInterval = types.StringValue(r.LogInterval)
 	state.CollectionInterval = types.StringValue(r.CollectionInterval)
 	state.SuppressIfIdle = types.BoolValue(r.SuppressIfIdle)
@@ -1397,6 +1408,7 @@ func readPeriodicStatsLoggerPluginResponseDataSource(ctx context.Context, r *cli
 func readPurgeExpiredDataPluginResponseDataSource(ctx context.Context, r *client.PurgeExpiredDataPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("purge-expired-data")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DatetimeAttribute = types.StringValue(r.DatetimeAttribute)
 	state.DatetimeJSONField = internaltypes.StringTypeOrNil(r.DatetimeJSONField, false)
 	state.DatetimeFormat = types.StringValue(r.DatetimeFormat.String())
@@ -1429,6 +1441,7 @@ func readPurgeExpiredDataPluginResponseDataSource(ctx context.Context, r *client
 func readChangeSubscriptionNotificationPluginResponseDataSource(ctx context.Context, r *client.ChangeSubscriptionNotificationPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("change-subscription-notification")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -1440,6 +1453,7 @@ func readChangeSubscriptionNotificationPluginResponseDataSource(ctx context.Cont
 func readSubOperationTimingPluginResponseDataSource(ctx context.Context, r *client.SubOperationTimingPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("sub-operation-timing")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
@@ -1453,6 +1467,7 @@ func readSubOperationTimingPluginResponseDataSource(ctx context.Context, r *clie
 func readThirdPartyPluginResponseDataSource(ctx context.Context, r *client.ThirdPartyPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
@@ -1467,6 +1482,7 @@ func readThirdPartyPluginResponseDataSource(ctx context.Context, r *client.Third
 func readEncryptAttributeValuesPluginResponseDataSource(ctx context.Context, r *client.EncryptAttributeValuesPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("encrypt-attribute-values")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(
@@ -1481,6 +1497,7 @@ func readEncryptAttributeValuesPluginResponseDataSource(ctx context.Context, r *
 func readPassThroughAuthenticationPluginResponseDataSource(ctx context.Context, r *client.PassThroughAuthenticationPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Server = internaltypes.GetStringSet(r.Server)
@@ -1507,6 +1524,7 @@ func readPassThroughAuthenticationPluginResponseDataSource(ctx context.Context, 
 func readDnMapperPluginResponseDataSource(ctx context.Context, r *client.DnMapperPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("dn-mapper")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.SourceDN = types.StringValue(r.SourceDN)
@@ -1524,6 +1542,7 @@ func readDnMapperPluginResponseDataSource(ctx context.Context, r *client.DnMappe
 func readMonitorHistoryPluginResponseDataSource(ctx context.Context, r *client.MonitorHistoryPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("monitor-history")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogInterval = types.StringValue(r.LogInterval)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -1540,6 +1559,7 @@ func readMonitorHistoryPluginResponseDataSource(ctx context.Context, r *client.M
 func readReferralOnUpdatePluginResponseDataSource(ctx context.Context, r *client.ReferralOnUpdatePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referral-on-update")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.ReferralBaseURL = internaltypes.GetStringSet(r.ReferralBaseURL)
@@ -1553,6 +1573,7 @@ func readReferralOnUpdatePluginResponseDataSource(ctx context.Context, r *client
 func readSimpleToExternalBindPluginResponseDataSource(ctx context.Context, r *client.SimpleToExternalBindPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("simple-to-external-bind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, false)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -1563,6 +1584,7 @@ func readSimpleToExternalBindPluginResponseDataSource(ctx context.Context, r *cl
 func readCustomPluginResponseDataSource(ctx context.Context, r *client.CustomPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.PluginType = internaltypes.GetStringSet(
@@ -1574,6 +1596,7 @@ func readCustomPluginResponseDataSource(ctx context.Context, r *client.CustomPlu
 func readSnmpSubagentPluginResponseDataSource(ctx context.Context, r *client.SnmpSubagentPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("snmp-subagent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ContextName = internaltypes.StringTypeOrNil(r.ContextName, false)
 	state.AgentxAddress = types.StringValue(r.AgentxAddress)
 	state.AgentxPort = types.Int64Value(r.AgentxPort)
@@ -1590,6 +1613,7 @@ func readSnmpSubagentPluginResponseDataSource(ctx context.Context, r *client.Snm
 func readCoalesceModificationsPluginResponseDataSource(ctx context.Context, r *client.CoalesceModificationsPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("coalesce-modifications")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = types.StringValue(r.RequestCriteria)
 	state.AllowedRequestControl = internaltypes.GetStringSet(r.AllowedRequestControl)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
@@ -1601,6 +1625,7 @@ func readCoalesceModificationsPluginResponseDataSource(ctx context.Context, r *c
 func readPasswordPolicyImportPluginResponseDataSource(ctx context.Context, r *client.PasswordPolicyImportPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("password-policy-import")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.InvokeForInternalOperations = internaltypes.BoolTypeOrNil(r.InvokeForInternalOperations)
 	state.DefaultUserPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultUserPasswordStorageScheme)
 	state.DefaultAuthPasswordStorageScheme = internaltypes.GetStringSet(r.DefaultAuthPasswordStorageScheme)
@@ -1612,6 +1637,7 @@ func readPasswordPolicyImportPluginResponseDataSource(ctx context.Context, r *cl
 func readProfilerPluginResponseDataSource(ctx context.Context, r *client.ProfilerPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("profiler")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ProfileSampleInterval = types.StringValue(r.ProfileSampleInterval)
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.EnableProfilingOnStartup = types.BoolValue(r.EnableProfilingOnStartup)
@@ -1625,6 +1651,7 @@ func readProfilerPluginResponseDataSource(ctx context.Context, r *client.Profile
 func readCleanUpInactivePingfederatePersistentSessionsPluginResponseDataSource(ctx context.Context, r *client.CleanUpInactivePingfederatePersistentSessionsPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-inactive-pingfederate-persistent-sessions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExpirationOffset = types.StringValue(r.ExpirationOffset)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
@@ -1643,6 +1670,7 @@ func readCleanUpInactivePingfederatePersistentSessionsPluginResponseDataSource(c
 func readComposedAttributePluginResponseDataSource(ctx context.Context, r *client.ComposedAttributePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("composed-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	attributeTypeValues := []string{r.AttributeType}
@@ -1677,6 +1705,7 @@ func readComposedAttributePluginResponseDataSource(ctx context.Context, r *clien
 func readLdapResultCodeTrackerPluginResponseDataSource(ctx context.Context, r *client.LdapResultCodeTrackerPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("ldap-result-code-tracker")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -1688,6 +1717,7 @@ func readLdapResultCodeTrackerPluginResponseDataSource(ctx context.Context, r *c
 func readAttributeMapperPluginResponseDataSource(ctx context.Context, r *client.AttributeMapperPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("attribute-mapper")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
@@ -1703,6 +1733,7 @@ func readAttributeMapperPluginResponseDataSource(ctx context.Context, r *client.
 func readDelayPluginResponseDataSource(ctx context.Context, r *client.DelayPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("delay")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Delay = types.StringValue(r.Delay)
@@ -1717,6 +1748,7 @@ func readDelayPluginResponseDataSource(ctx context.Context, r *client.DelayPlugi
 func readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDataSource(ctx context.Context, r *client.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("clean-up-expired-pingfederate-persistent-sessions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PollingInterval = types.StringValue(r.PollingInterval)
 	state.PeerServerPriorityIndex = internaltypes.Int64TypeOrNil(r.PeerServerPriorityIndex)
 	baseDNValues := []string{}
@@ -1734,6 +1766,7 @@ func readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDataSource(ct
 func readGroovyScriptedPluginResponseDataSource(ctx context.Context, r *client.GroovyScriptedPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
@@ -1748,6 +1781,7 @@ func readGroovyScriptedPluginResponseDataSource(ctx context.Context, r *client.G
 func readLastModPluginResponseDataSource(ctx context.Context, r *client.LastModPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("last-mod")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -1761,6 +1795,7 @@ func readLastModPluginResponseDataSource(ctx context.Context, r *client.LastModP
 func readPluggablePassThroughAuthenticationPluginResponseDataSource(ctx context.Context, r *client.PluggablePassThroughAuthenticationPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("pluggable-pass-through-authentication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PassThroughAuthenticationHandler = types.StringValue(r.PassThroughAuthenticationHandler)
 	state.IncludedLocalEntryBaseDN = internaltypes.GetStringSet(r.IncludedLocalEntryBaseDN)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, false)
@@ -1781,6 +1816,7 @@ func readPluggablePassThroughAuthenticationPluginResponseDataSource(ctx context.
 func readReferentialIntegrityPluginResponseDataSource(ctx context.Context, r *client.ReferentialIntegrityPluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("referential-integrity")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
@@ -1796,6 +1832,7 @@ func readReferentialIntegrityPluginResponseDataSource(ctx context.Context, r *cl
 func readUniqueAttributePluginResponseDataSource(ctx context.Context, r *client.UniqueAttributePluginResponse, state *pluginDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.ResourceType = types.StringValue("unique-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PluginType = internaltypes.GetStringSet(
 		client.StringSliceEnumpluginPluginTypeProp(r.PluginType))
 	state.Type = internaltypes.GetStringSet(r.Type)
@@ -1825,7 +1862,7 @@ func (r *pluginDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	readResponse, httpResp, err := r.apiClient.PluginApi.GetPlugin(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Plugin", err, httpResp)
 		return

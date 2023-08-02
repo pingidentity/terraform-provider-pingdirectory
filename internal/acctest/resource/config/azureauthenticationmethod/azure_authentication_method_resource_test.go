@@ -57,11 +57,11 @@ func testAccDefaultAzureAuthenticationMethodResource(resourceName string, resour
 	return fmt.Sprintf(`
 resource "pingdirectory_azure_authentication_method" "%[1]s" {
   type = "default"
-  id   = "%[2]s"
+  name = "%[2]s"
 }
 
 data "pingdirectory_azure_authentication_method" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_azure_authentication_method.%[1]s
   ]

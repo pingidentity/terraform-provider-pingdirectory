@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_directory_server_instance" "myServerInstance" {
-  id                   = "MyServerInstance"
+  name                 = "MyServerInstance"
   type                 = "directory"
   server_instance_name = "MyDirectoryServerInstance"
   server_version       = "9.3.0.0"

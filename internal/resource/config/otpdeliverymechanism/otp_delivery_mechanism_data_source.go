@@ -48,6 +48,7 @@ func (r *otpDeliveryMechanismDataSource) Configure(_ context.Context, req dataso
 
 type otpDeliveryMechanismDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
@@ -72,13 +73,9 @@ type otpDeliveryMechanismDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *otpDeliveryMechanismDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Otp Delivery Mechanism.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of OTP Delivery Mechanism resource. Options are ['twilio', 'email', 'third-party']",
 				Required:    false,
@@ -204,12 +201,15 @@ func (r *otpDeliveryMechanismDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a TwilioOtpDeliveryMechanismResponse object into the model struct
 func readTwilioOtpDeliveryMechanismResponseDataSource(ctx context.Context, r *client.TwilioOtpDeliveryMechanismResponse, state *otpDeliveryMechanismDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("twilio")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
 	state.TwilioAuthTokenPassphraseProvider = internaltypes.StringTypeOrNil(r.TwilioAuthTokenPassphraseProvider, false)
@@ -227,6 +227,7 @@ func readTwilioOtpDeliveryMechanismResponseDataSource(ctx context.Context, r *cl
 func readEmailOtpDeliveryMechanismResponseDataSource(ctx context.Context, r *client.EmailOtpDeliveryMechanismResponse, state *otpDeliveryMechanismDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("email")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EmailAddressAttributeType = types.StringValue(r.EmailAddressAttributeType)
 	state.EmailAddressJSONField = internaltypes.StringTypeOrNil(r.EmailAddressJSONField, false)
 	state.EmailAddressJSONObjectFilter = internaltypes.StringTypeOrNil(r.EmailAddressJSONObjectFilter, false)
@@ -242,6 +243,7 @@ func readEmailOtpDeliveryMechanismResponseDataSource(ctx context.Context, r *cli
 func readThirdPartyOtpDeliveryMechanismResponseDataSource(ctx context.Context, r *client.ThirdPartyOtpDeliveryMechanismResponse, state *otpDeliveryMechanismDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -259,7 +261,7 @@ func (r *otpDeliveryMechanismDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.OtpDeliveryMechanismApi.GetOtpDeliveryMechanism(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Otp Delivery Mechanism", err, httpResp)
 		return

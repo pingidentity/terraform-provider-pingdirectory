@@ -54,6 +54,6 @@ data "pingdirectory_debug_targets" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Debug Target IDs found in the configuration
 

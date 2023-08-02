@@ -48,6 +48,7 @@ func (r *accountStatusNotificationHandlerDataSource) Configure(_ context.Context
 
 type accountStatusNotificationHandlerDataSourceModel struct {
 	Id                                              types.String `tfsdk:"id"`
+	Name                                            types.String `tfsdk:"name"`
 	Type                                            types.String `tfsdk:"type"`
 	ExtensionClass                                  types.String `tfsdk:"extension_class"`
 	ExtensionArgument                               types.Set    `tfsdk:"extension_argument"`
@@ -92,13 +93,9 @@ type accountStatusNotificationHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *accountStatusNotificationHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Account Status Notification Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Account Status Notification Handler resource. Options are ['smtp', 'groovy-scripted', 'admin-alert', 'error-log', 'multi-part-email', 'third-party']",
 				Required:    false,
@@ -348,12 +345,15 @@ func (r *accountStatusNotificationHandlerDataSource) Schema(ctx context.Context,
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SmtpAccountStatusNotificationHandlerResponse object into the model struct
 func readSmtpAccountStatusNotificationHandlerResponseDataSource(ctx context.Context, r *client.SmtpAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EmailAddressAttributeType = internaltypes.GetStringSet(r.EmailAddressAttributeType)
 	state.EmailAddressJSONField = internaltypes.StringTypeOrNil(r.EmailAddressJSONField, false)
 	state.EmailAddressJSONObjectFilter = internaltypes.StringTypeOrNil(r.EmailAddressJSONObjectFilter, false)
@@ -375,6 +375,7 @@ func readSmtpAccountStatusNotificationHandlerResponseDataSource(ctx context.Cont
 func readGroovyScriptedAccountStatusNotificationHandlerResponseDataSource(ctx context.Context, r *client.GroovyScriptedAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -390,6 +391,7 @@ func readGroovyScriptedAccountStatusNotificationHandlerResponseDataSource(ctx co
 func readAdminAlertAccountStatusNotificationHandlerResponseDataSource(ctx context.Context, r *client.AdminAlertAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("admin-alert")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccountStatusNotificationType = internaltypes.GetStringSet(
 		client.StringSliceEnumaccountStatusNotificationHandlerAccountStatusNotificationTypeProp(r.AccountStatusNotificationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -405,6 +407,7 @@ func readAdminAlertAccountStatusNotificationHandlerResponseDataSource(ctx contex
 func readErrorLogAccountStatusNotificationHandlerResponseDataSource(ctx context.Context, r *client.ErrorLogAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccountStatusNotificationType = internaltypes.GetStringSet(
 		client.StringSliceEnumaccountStatusNotificationHandlerAccountStatusNotificationTypeProp(r.AccountStatusNotificationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -420,6 +423,7 @@ func readErrorLogAccountStatusNotificationHandlerResponseDataSource(ctx context.
 func readMultiPartEmailAccountStatusNotificationHandlerResponseDataSource(ctx context.Context, r *client.MultiPartEmailAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("multi-part-email")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccountTemporarilyFailureLockedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountTemporarilyFailureLockedMessageTemplate, false)
 	state.AccountPermanentlyFailureLockedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountPermanentlyFailureLockedMessageTemplate, false)
 	state.AccountIdleLockedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountIdleLockedMessageTemplate, false)
@@ -452,6 +456,7 @@ func readMultiPartEmailAccountStatusNotificationHandlerResponseDataSource(ctx co
 func readThirdPartyAccountStatusNotificationHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartyAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -474,7 +479,7 @@ func (r *accountStatusNotificationHandlerDataSource) Read(ctx context.Context, r
 	}
 
 	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Account Status Notification Handler", err, httpResp)
 		return

@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_matching_rule" "myMatchingRule" {
-  id = "MyMatchingRule"
+  name = "MyMatchingRule"
 }

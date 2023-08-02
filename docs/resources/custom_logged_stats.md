@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
-  id                  = "MyCustomLoggedStats"
+  name                = "MyCustomLoggedStats"
   plugin_name         = "JSON Stats Logger"
   monitor_objectclass = "ds-memory-usage-monitor-entry"
   attribute_to_log    = ["total-bytes-used-by-memory-consumers"]
@@ -51,8 +51,8 @@ resource "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
 ### Required
 
 - `attribute_to_log` (Set of String) Specifies the attributes on the monitor entries that should be included in the output.
-- `id` (String) Name of this object.
 - `monitor_objectclass` (String) The objectclass name of the monitor entries to examine for generating these statistics.
+- `name` (String) Name of this config object.
 - `plugin_name` (String) Name of the parent Plugin
 - `statistic_type` (Set of String) Specifies the type of statistic to include in the output for each monitored attribute.
 
@@ -73,6 +73,7 @@ resource "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

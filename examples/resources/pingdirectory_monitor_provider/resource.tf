@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
-  id          = "MyMonitorProvider"
+  name        = "MyMonitorProvider"
   type        = "general"
   description = "My general monitor entry resource provider"
   enabled     = false

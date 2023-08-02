@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_gauge_data_source" "myGaugeDataSource" {
-  id = "MyGaugeDataSource"
+  name = "MyGaugeDataSource"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_gauge_data_source" "myGaugeDataSource" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -56,6 +56,7 @@ data "pingdirectory_gauge_data_source" "myGaugeDataSource" {
 - `divide_value_by` (Number) An optional floating point value that can be used to scale the resulting value.
 - `divide_value_by_attribute` (String) An optional property that can scale the resulting value by another attribute in the monitored entry.
 - `divide_value_by_counter_attribute` (String) An optional property that can scale the resulting value by another attribute whose value represents a counter in the monitored entry.
+- `id` (String) The ID of this resource.
 - `include_filter` (String) An optional LDAP filter that can be used restrict which monitor entries are used to compute output.
 - `minimum_update_interval` (String) The minimum frequency with which gauges using this Gauge Data Source can be configured for update. In order to prevent undesirable side effects, some Gauge Data Sources may use this property to impose a higher bound on the update frequency of gauges.
 - `monitor_attribute` (String) Specifies the attribute on the monitor entries from which to derive the current gauge value.

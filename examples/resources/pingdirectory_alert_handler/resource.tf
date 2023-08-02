@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_alert_handler" "myAlertHandler" {
-  id      = "MyAlertHandler"
+  name    = "MyAlertHandler"
   type    = "output"
   enabled = false
 }

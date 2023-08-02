@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_extended_operation_handler" "myExtendedOperationHandler" {
-  id      = "MyExtendedOperationHandler"
+  name    = "MyExtendedOperationHandler"
   type    = "cancel"
   enabled = false
 }

@@ -48,6 +48,7 @@ func (r *identityMapperDataSource) Configure(_ context.Context, req datasource.C
 
 type identityMapperDataSourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	Type                      types.String `tfsdk:"type"`
 	ExtensionClass            types.String `tfsdk:"extension_class"`
 	ExtensionArgument         types.Set    `tfsdk:"extension_argument"`
@@ -66,13 +67,9 @@ type identityMapperDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *identityMapperDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Identity Mapper.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']",
 				Required:    false,
@@ -165,12 +162,15 @@ func (r *identityMapperDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ExactMatchIdentityMapperResponse object into the model struct
 func readExactMatchIdentityMapperResponseDataSource(ctx context.Context, r *client.ExactMatchIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exact-match")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchAttribute = internaltypes.GetStringSet(r.MatchAttribute)
 	state.MatchBaseDN = internaltypes.GetStringSet(r.MatchBaseDN)
 	state.MatchFilter = internaltypes.StringTypeOrNil(r.MatchFilter, false)
@@ -182,6 +182,7 @@ func readExactMatchIdentityMapperResponseDataSource(ctx context.Context, r *clie
 func readGroovyScriptedIdentityMapperResponseDataSource(ctx context.Context, r *client.GroovyScriptedIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -192,6 +193,7 @@ func readGroovyScriptedIdentityMapperResponseDataSource(ctx context.Context, r *
 func readRegularExpressionIdentityMapperResponseDataSource(ctx context.Context, r *client.RegularExpressionIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("regular-expression")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchAttribute = internaltypes.GetStringSet(r.MatchAttribute)
 	state.MatchBaseDN = internaltypes.GetStringSet(r.MatchBaseDN)
 	state.MatchFilter = internaltypes.StringTypeOrNil(r.MatchFilter, false)
@@ -205,6 +207,7 @@ func readRegularExpressionIdentityMapperResponseDataSource(ctx context.Context, 
 func readAggregateIdentityMapperResponseDataSource(ctx context.Context, r *client.AggregateIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedIdentityMapper = internaltypes.GetStringSet(r.AllIncludedIdentityMapper)
 	state.AnyIncludedIdentityMapper = internaltypes.GetStringSet(r.AnyIncludedIdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -215,6 +218,7 @@ func readAggregateIdentityMapperResponseDataSource(ctx context.Context, r *clien
 func readThirdPartyIdentityMapperResponseDataSource(ctx context.Context, r *client.ThirdPartyIdentityMapperResponse, state *identityMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -232,7 +236,7 @@ func (r *identityMapperDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
 		return

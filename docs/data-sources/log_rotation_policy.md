@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_rotation_policy" "myLogRotationPolicy" {
-  id = "MyLogRotationPolicy"
+  name = "MyLogRotationPolicy"
 }
 ```
 
@@ -46,12 +46,13 @@ data "pingdirectory_log_rotation_policy" "myLogRotationPolicy" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Log Rotation Policy
 - `file_size_limit` (String) Specifies the maximum size that a log file can reach before it is rotated.
+- `id` (String) The ID of this resource.
 - `rotation_interval` (String) Specifies the time interval between rotations.
 - `time_of_day` (Set of String) Specifies the time of day at which log rotation should occur.
 - `type` (String) The type of Log Rotation Policy resource. Options are ['time-limit', 'fixed-time', 'never-rotate', 'size-limit']

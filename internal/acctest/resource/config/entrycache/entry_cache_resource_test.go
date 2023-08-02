@@ -76,13 +76,13 @@ func TestAccFifoEntryCache(t *testing.T) {
 func testAccFifoEntryCacheResource(resourceName string, resourceModel fifoEntryCacheTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_entry_cache" "%[1]s" {
-  id          = "%[2]s"
+  name        = "%[2]s"
   enabled     = %[3]t
   cache_level = %[4]d
 }
 
 data "pingdirectory_entry_cache" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_entry_cache.%[1]s
   ]

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
-  id                          = "MyVelocityTemplateLoader"
+  name                        = "MyVelocityTemplateLoader"
   http_servlet_extension_name = "MyHttpServletExtension"
 }
 ```
@@ -48,12 +48,13 @@ data "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
 ### Required
 
 - `http_servlet_extension_name` (String) Name of the parent HTTP Servlet Extension
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `enabled` (Boolean) Indicates whether this Velocity Template Loader is enabled.
 - `evaluation_order_index` (Number) This property determines the evaluation order for determining the correct Velocity Template Loader to load a template for generating content for a particular request.
+- `id` (String) The ID of this resource.
 - `mime_type` (String) Specifies a the value that will be used in the response's Content-Type header that indicates the type of content to return.
 - `mime_type_matcher` (String) Specifies a media type for matching Accept request-header values.
 - `template_directory` (String) Specifies the directory in which to search for the template files.

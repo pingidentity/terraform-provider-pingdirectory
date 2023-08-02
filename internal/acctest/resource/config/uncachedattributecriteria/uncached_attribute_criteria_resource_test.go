@@ -76,13 +76,13 @@ func testAccDefaultUncachedAttributeCriteriaResource(resourceName string, resour
 	return fmt.Sprintf(`
 resource "pingdirectory_uncached_attribute_criteria" "%[1]s" {
   type        = "default"
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t
 }
 
 data "pingdirectory_uncached_attribute_criteria" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_uncached_attribute_criteria.%[1]s
   ]

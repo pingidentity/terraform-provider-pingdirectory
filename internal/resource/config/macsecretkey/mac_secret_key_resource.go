@@ -58,6 +58,7 @@ func (r *macSecretKeyResource) Configure(_ context.Context, req resource.Configu
 
 type macSecretKeyResourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
@@ -124,13 +125,14 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
 // Read a MacSecretKeyResponse object into the model struct
 func readMacSecretKeyResponse(ctx context.Context, r *client.MacSecretKeyResponse, state *macSecretKeyResourceModel, expectedValues *macSecretKeyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MacAlgorithmName = internaltypes.StringTypeOrNil(r.MacAlgorithmName, true)
 	state.KeyID = types.StringValue(r.KeyID)
 	state.IsCompromised = internaltypes.BoolTypeOrNil(r.IsCompromised)
@@ -172,7 +174,7 @@ func (r *macSecretKeyResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.MacSecretKeyApi.GetMacSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mac Secret Key", err, httpResp)
 		return
@@ -189,7 +191,7 @@ func (r *macSecretKeyResource) Create(ctx context.Context, req resource.CreateRe
 	readMacSecretKeyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MacSecretKeyApi.UpdateMacSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.MacSecretKeyApi.UpdateMacSecretKey(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createMacSecretKeyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -233,7 +235,7 @@ func (r *macSecretKeyResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	readResponse, httpResp, err := r.apiClient.MacSecretKeyApi.GetMacSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Mac Secret Key", err, httpResp)
 		return
@@ -267,7 +269,7 @@ func (r *macSecretKeyResource) Update(ctx context.Context, req resource.UpdateRe
 	var state macSecretKeyResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.MacSecretKeyApi.UpdateMacSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMacSecretKeyOperations(plan, state)
@@ -319,5 +321,5 @@ func (r *macSecretKeyResource) ImportState(ctx context.Context, req resource.Imp
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("server_instance_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

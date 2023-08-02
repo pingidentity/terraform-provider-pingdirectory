@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
-  id           = "MyOauthTokenHandler"
+  name         = "MyOauthTokenHandler"
   type         = "groovy-scripted"
   description  = "My groovy scripted OAuth token handler"
   script_class = "com.example"
@@ -49,7 +49,7 @@ resource "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of OAuth Token Handler resource. Options are ['groovy-scripted', 'third-party']
 
 ### Optional
@@ -62,6 +62,7 @@ resource "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

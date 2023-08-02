@@ -85,6 +85,7 @@ func (r *defaultKeyManagerProviderResource) Configure(_ context.Context, req res
 
 type keyManagerProviderResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                 types.Set    `tfsdk:"required_actions"`
@@ -226,9 +227,9 @@ func keyManagerProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -416,6 +417,7 @@ func populateKeyManagerProviderUnknownValues(ctx context.Context, model *keyMana
 func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.FileBasedKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyStoreFile = types.StringValue(r.KeyStoreFile)
 	state.KeyStoreType = internaltypes.StringTypeOrNil(r.KeyStoreType, internaltypes.IsEmptyString(expectedValues.KeyStoreType))
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
@@ -432,6 +434,7 @@ func readFileBasedKeyManagerProviderResponse(ctx context.Context, r *client.File
 func readCustomKeyManagerProviderResponse(ctx context.Context, r *client.CustomKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -442,6 +445,7 @@ func readCustomKeyManagerProviderResponse(ctx context.Context, r *client.CustomK
 func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11KeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pkcs11")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, internaltypes.IsEmptyString(expectedValues.Pkcs11KeyStoreType))
@@ -460,6 +464,7 @@ func readPkcs11KeyManagerProviderResponse(ctx context.Context, r *client.Pkcs11K
 func readThirdPartyKeyManagerProviderResponse(ctx context.Context, r *client.ThirdPartyKeyManagerProviderResponse, state *keyManagerProviderResourceModel, expectedValues *keyManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -503,7 +508,7 @@ func createKeyManagerProviderOperations(plan keyManagerProviderResourceModel, st
 
 // Create a file-based key-manager-provider
 func (r *keyManagerProviderResource) CreateFileBasedKeyManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyManagerProviderResourceModel) (*keyManagerProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedKeyManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedKeyManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedKeyManagerProviderSchemaUrn{client.ENUMFILEBASEDKEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERFILE_BASED},
 		plan.KeyStoreFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -538,7 +543,7 @@ func (r *keyManagerProviderResource) CreateFileBasedKeyManagerProvider(ctx conte
 
 // Create a pkcs11 key-manager-provider
 func (r *keyManagerProviderResource) CreatePkcs11KeyManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyManagerProviderResourceModel) (*keyManagerProviderResourceModel, error) {
-	addRequest := client.NewAddPkcs11KeyManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPkcs11KeyManagerProviderRequest(plan.Name.ValueString(),
 		[]client.Enumpkcs11KeyManagerProviderSchemaUrn{client.ENUMPKCS11KEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERPKCS11},
 		plan.Enabled.ValueBool())
 	addOptionalPkcs11KeyManagerProviderFields(ctx, addRequest, plan)
@@ -572,7 +577,7 @@ func (r *keyManagerProviderResource) CreatePkcs11KeyManagerProvider(ctx context.
 
 // Create a third-party key-manager-provider
 func (r *keyManagerProviderResource) CreateThirdPartyKeyManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyManagerProviderResourceModel) (*keyManagerProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyKeyManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyKeyManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyKeyManagerProviderSchemaUrn{client.ENUMTHIRDPARTYKEYMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0KEY_MANAGER_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -662,7 +667,7 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
 		return
@@ -690,7 +695,7 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createKeyManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -753,7 +758,7 @@ func readKeyManagerProvider(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
 		return
@@ -806,7 +811,7 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 	var state keyManagerProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.KeyManagerProviderApi.UpdateKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createKeyManagerProviderOperations(plan, state)
@@ -871,7 +876,7 @@ func (r *keyManagerProviderResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.KeyManagerProviderApi.DeleteKeyManagerProviderExecute(r.apiClient.KeyManagerProviderApi.DeleteKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Key Manager Provider", err, httpResp)
 		return
@@ -887,6 +892,6 @@ func (r *defaultKeyManagerProviderResource) ImportState(ctx context.Context, req
 }
 
 func importKeyManagerProvider(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

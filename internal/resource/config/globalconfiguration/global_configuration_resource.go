@@ -57,7 +57,6 @@ func (r *globalConfigurationResource) Configure(_ context.Context, req resource.
 }
 
 type globalConfigurationResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                                             types.String `tfsdk:"id"`
 	LastUpdated                                                    types.String `tfsdk:"last_updated"`
 	Notifications                                                  types.Set    `tfsdk:"notifications"`
@@ -880,7 +879,7 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 
@@ -897,14 +896,14 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 	}
 	var model globalConfigurationResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.UnauthenticatedLookthroughLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_lookthrough_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
-	if internaltypes.IsNonEmptyString(model.UnauthenticatedIdleTimeLimit) {
-		resp.Diagnostics.AddError("Attribute 'unauthenticated_idle_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
+	if internaltypes.IsDefined(model.UnauthenticatedSizeLimit) {
+		resp.Diagnostics.AddError("Attribute 'unauthenticated_size_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsNonEmptyString(model.UnauthenticatedTimeLimit) {
 		resp.Diagnostics.AddError("Attribute 'unauthenticated_time_limit' not supported by PingDirectory version "+r.providerConfig.ProductVersion, "")

@@ -54,7 +54,6 @@ func (r *httpConfigurationResource) Configure(_ context.Context, req resource.Co
 }
 
 type httpConfigurationResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                    types.String `tfsdk:"id"`
 	LastUpdated                           types.String `tfsdk:"last_updated"`
 	Notifications                         types.Set    `tfsdk:"notifications"`
@@ -86,7 +85,7 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

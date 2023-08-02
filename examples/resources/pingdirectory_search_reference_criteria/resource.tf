@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
-  id   = "MySearchReferenceCriteria"
+  name = "MySearchReferenceCriteria"
   type = "simple"
 }

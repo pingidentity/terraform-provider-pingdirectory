@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_extended_operation_handler" "myExtendedOperationHandler" {
-  id = "MyExtendedOperationHandler"
+  name = "MyExtendedOperationHandler"
 }

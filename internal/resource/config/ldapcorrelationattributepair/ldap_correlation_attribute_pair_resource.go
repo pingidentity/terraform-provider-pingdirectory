@@ -82,6 +82,7 @@ func (r *defaultLdapCorrelationAttributePairResource) Configure(_ context.Contex
 
 type ldapCorrelationAttributePairResourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Name                          types.String `tfsdk:"name"`
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
@@ -130,9 +131,9 @@ func ldapCorrelationAttributePairSchema(ctx context.Context, req resource.Schema
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "correlated_ldap_data_view_name", "scim_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"correlated_ldap_data_view_name", "scim_resource_type_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -143,6 +144,7 @@ func addOptionalLdapCorrelationAttributePairFields(ctx context.Context, addReque
 // Read a LdapCorrelationAttributePairResponse object into the model struct
 func readLdapCorrelationAttributePairResponse(ctx context.Context, r *client.LdapCorrelationAttributePairResponse, state *ldapCorrelationAttributePairResourceModel, expectedValues *ldapCorrelationAttributePairResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PrimaryCorrelationAttribute = types.StringValue(r.PrimaryCorrelationAttribute)
 	state.SecondaryCorrelationAttribute = types.StringValue(r.SecondaryCorrelationAttribute)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -169,7 +171,7 @@ func createLdapCorrelationAttributePairOperations(plan ldapCorrelationAttributeP
 
 // Create a ldap-correlation-attribute-pair ldap-correlation-attribute-pair
 func (r *ldapCorrelationAttributePairResource) CreateLdapCorrelationAttributePair(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan ldapCorrelationAttributePairResourceModel) (*ldapCorrelationAttributePairResourceModel, error) {
-	addRequest := client.NewAddLdapCorrelationAttributePairRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdapCorrelationAttributePairRequest(plan.Name.ValueString(),
 		plan.PrimaryCorrelationAttribute.ValueString(),
 		plan.SecondaryCorrelationAttribute.ValueString())
 	addOptionalLdapCorrelationAttributePairFields(ctx, addRequest, plan)
@@ -241,7 +243,7 @@ func (r *defaultLdapCorrelationAttributePairResource) Create(ctx context.Context
 	}
 
 	readResponse, httpResp, err := r.apiClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Correlation Attribute Pair", err, httpResp)
 		return
@@ -258,7 +260,7 @@ func (r *defaultLdapCorrelationAttributePairResource) Create(ctx context.Context
 	readLdapCorrelationAttributePairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LdapCorrelationAttributePairApi.UpdateLdapCorrelationAttributePair(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString())
+	updateRequest := r.apiClient.LdapCorrelationAttributePairApi.UpdateLdapCorrelationAttributePair(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString())
 	ops := createLdapCorrelationAttributePairOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -310,7 +312,7 @@ func readLdapCorrelationAttributePair(ctx context.Context, req resource.ReadRequ
 	}
 
 	readResponse, httpResp, err := apiClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Correlation Attribute Pair", err, httpResp)
 		return
@@ -352,7 +354,7 @@ func updateLdapCorrelationAttributePair(ctx context.Context, req resource.Update
 	var state ldapCorrelationAttributePairResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LdapCorrelationAttributePairApi.UpdateLdapCorrelationAttributePair(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.CorrelatedLdapDataViewName.ValueString(), plan.ScimResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLdapCorrelationAttributePairOperations(plan, state)
@@ -406,7 +408,7 @@ func (r *ldapCorrelationAttributePairResource) Delete(ctx context.Context, req r
 	}
 
 	httpResp, err := r.apiClient.LdapCorrelationAttributePairApi.DeleteLdapCorrelationAttributePairExecute(r.apiClient.LdapCorrelationAttributePairApi.DeleteLdapCorrelationAttributePair(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Ldap Correlation Attribute Pair", err, httpResp)
 		return
@@ -430,5 +432,5 @@ func importLdapCorrelationAttributePair(ctx context.Context, req resource.Import
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scim_resource_type_name"), split[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("correlated_ldap_data_view_name"), split[1])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[2])...)
 }

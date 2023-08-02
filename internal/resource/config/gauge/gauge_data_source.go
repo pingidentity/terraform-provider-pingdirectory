@@ -49,6 +49,7 @@ func (r *gaugeDataSource) Configure(_ context.Context, req datasource.ConfigureR
 
 type gaugeDataSourceModel struct {
 	Id                             types.String  `tfsdk:"id"`
+	Name                           types.String  `tfsdk:"name"`
 	Type                           types.String  `tfsdk:"type"`
 	GaugeDataSource                types.String  `tfsdk:"gauge_data_source"`
 	CriticalValue                  types.String  `tfsdk:"critical_value"`
@@ -73,13 +74,9 @@ type gaugeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Gauge.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Gauge resource. Options are ['indicator', 'numeric']",
 				Required:    false,
@@ -204,12 +201,15 @@ func (r *gaugeDataSource) Schema(ctx context.Context, req datasource.SchemaReque
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a IndicatorGaugeResponse object into the model struct
 func readIndicatorGaugeResponseDataSource(ctx context.Context, r *client.IndicatorGaugeResponse, state *gaugeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("indicator")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
 	state.CriticalValue = internaltypes.StringTypeOrNil(r.CriticalValue, false)
 	state.MajorValue = internaltypes.StringTypeOrNil(r.MajorValue, false)
@@ -235,6 +235,7 @@ func readIndicatorGaugeResponseDataSource(ctx context.Context, r *client.Indicat
 func readNumericGaugeResponseDataSource(ctx context.Context, r *client.NumericGaugeResponse, state *gaugeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("numeric")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.GaugeDataSource = types.StringValue(r.GaugeDataSource)
 	if r.CriticalValue == nil {
 		state.CriticalValue = types.StringNull()
@@ -287,7 +288,7 @@ func (r *gaugeDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	}
 
 	readResponse, httpResp, err := r.apiClient.GaugeApi.GetGauge(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge", err, httpResp)
 		return

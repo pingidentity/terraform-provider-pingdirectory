@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_group_implementation" "myGroupImplementation" {
-  id = "MyGroupImplementation"
+  name = "MyGroupImplementation"
 }

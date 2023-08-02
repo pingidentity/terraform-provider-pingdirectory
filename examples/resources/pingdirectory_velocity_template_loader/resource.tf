@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
-  id                          = "MyVelocityTemplateLoader"
+  name                        = "MyVelocityTemplateLoader"
   evaluation_order_index      = 10100
   http_servlet_extension_name = "Velocity"
   mime_type_matcher           = "text/html"

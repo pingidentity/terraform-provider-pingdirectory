@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAdminCorrelatedRestResource" {
-  id                                            = "MyDelegatedAdminCorrelatedRestResource"
+  name                                          = "MyDelegatedAdminCorrelatedRestResource"
   rest_resource_type_name                       = "MyRestResourceType"
   display_name                                  = "MyDisplayName"
   correlated_rest_resource                      = "MyRestResourceType"
@@ -53,7 +53,7 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAd
 
 - `correlated_rest_resource` (String) The REST Resource Type that will be linked to this REST Resource Type.
 - `display_name` (String) A human readable display name for this Delegated Admin Correlated REST Resource.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `primary_rest_resource_correlation_attribute` (String) The LDAP attribute from the parent REST Resource Type whose value will be used to match objects in the Delegated Admin Correlated REST Resource. This attribute must be writeable when use-secondary-value-for-linking is enabled.
 - `rest_resource_type_name` (String) Name of the parent REST Resource Type
 - `secondary_rest_resource_correlation_attribute` (String) The LDAP attribute from the Delegated Admin Correlated REST Resource whose value will be matched with the primary-rest-resource-correlation-attribute. This attribute must be writeable when use-secondary-value-for-linking is disabled.
@@ -64,6 +64,7 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAd
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

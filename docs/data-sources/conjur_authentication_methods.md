@@ -49,6 +49,6 @@ data "pingdirectory_conjur_authentication_methods" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Conjur Authentication Method IDs found in the configuration
 

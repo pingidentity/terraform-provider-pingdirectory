@@ -82,6 +82,7 @@ func (r *defaultReplicationAssurancePolicyResource) Configure(_ context.Context,
 
 type replicationAssurancePolicyResourceModel struct {
 	Id                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
 	LastUpdated          types.String `tfsdk:"last_updated"`
 	Notifications        types.Set    `tfsdk:"notifications"`
 	RequiredActions      types.Set    `tfsdk:"required_actions"`
@@ -156,9 +157,9 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -201,6 +202,7 @@ func addOptionalReplicationAssurancePolicyFields(ctx context.Context, addRequest
 // Read a ReplicationAssurancePolicyResponse object into the model struct
 func readReplicationAssurancePolicyResponse(ctx context.Context, r *client.ReplicationAssurancePolicyResponse, state *replicationAssurancePolicyResourceModel, expectedValues *replicationAssurancePolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
@@ -230,7 +232,7 @@ func createReplicationAssurancePolicyOperations(plan replicationAssurancePolicyR
 
 // Create a replication-assurance-policy replication-assurance-policy
 func (r *replicationAssurancePolicyResource) CreateReplicationAssurancePolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan replicationAssurancePolicyResourceModel) (*replicationAssurancePolicyResourceModel, error) {
-	addRequest := client.NewAddReplicationAssurancePolicyRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddReplicationAssurancePolicyRequest(plan.Name.ValueString(),
 		plan.EvaluationOrderIndex.ValueInt64(),
 		plan.Timeout.ValueString())
 	err := addOptionalReplicationAssurancePolicyFields(ctx, addRequest, plan)
@@ -305,7 +307,7 @@ func (r *defaultReplicationAssurancePolicyResource) Create(ctx context.Context, 
 	}
 
 	readResponse, httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Assurance Policy", err, httpResp)
 		return
@@ -322,7 +324,7 @@ func (r *defaultReplicationAssurancePolicyResource) Create(ctx context.Context, 
 	readReplicationAssurancePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createReplicationAssurancePolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -373,7 +375,7 @@ func readReplicationAssurancePolicy(ctx context.Context, req resource.ReadReques
 	}
 
 	readResponse, httpResp, err := apiClient.ReplicationAssurancePolicyApi.GetReplicationAssurancePolicy(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Assurance Policy", err, httpResp)
 		return
@@ -415,7 +417,7 @@ func updateReplicationAssurancePolicy(ctx context.Context, req resource.UpdateRe
 	var state replicationAssurancePolicyResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ReplicationAssurancePolicyApi.UpdateReplicationAssurancePolicy(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createReplicationAssurancePolicyOperations(plan, state)
@@ -468,7 +470,7 @@ func (r *replicationAssurancePolicyResource) Delete(ctx context.Context, req res
 	}
 
 	httpResp, err := r.apiClient.ReplicationAssurancePolicyApi.DeleteReplicationAssurancePolicyExecute(r.apiClient.ReplicationAssurancePolicyApi.DeleteReplicationAssurancePolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Replication Assurance Policy", err, httpResp)
 		return
@@ -484,6 +486,6 @@ func (r *defaultReplicationAssurancePolicyResource) ImportState(ctx context.Cont
 }
 
 func importReplicationAssurancePolicy(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

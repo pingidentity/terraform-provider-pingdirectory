@@ -84,6 +84,7 @@ func (r *defaultLogFieldBehaviorResource) Configure(_ context.Context, req resou
 
 type logFieldBehaviorResourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
 	RequiredActions                  types.Set    `tfsdk:"required_actions"`
@@ -252,9 +253,9 @@ func logFieldBehaviorSchema(ctx context.Context, req resource.SchemaRequest, res
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -512,6 +513,7 @@ func addOptionalJsonFormattedAccessLogFieldBehaviorFields(ctx context.Context, a
 func readTextAccessLogFieldBehaviorResponse(ctx context.Context, r *client.TextAccessLogFieldBehaviorResponse, state *logFieldBehaviorResourceModel, expectedValues *logFieldBehaviorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("text-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PreserveField = internaltypes.GetStringSet(
 		client.StringSliceEnumlogFieldBehaviorTextAccessPreserveFieldProp(r.PreserveField))
 	state.PreserveFieldName = internaltypes.GetStringSet(r.PreserveFieldName)
@@ -540,6 +542,7 @@ func readTextAccessLogFieldBehaviorResponse(ctx context.Context, r *client.TextA
 func readJsonFormattedAccessLogFieldBehaviorResponse(ctx context.Context, r *client.JsonFormattedAccessLogFieldBehaviorResponse, state *logFieldBehaviorResourceModel, expectedValues *logFieldBehaviorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-formatted-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PreserveField = internaltypes.GetStringSet(
 		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessPreserveFieldProp(r.PreserveField))
 	state.PreserveFieldName = internaltypes.GetStringSet(r.PreserveFieldName)
@@ -586,7 +589,7 @@ func createLogFieldBehaviorOperations(plan logFieldBehaviorResourceModel, state 
 
 // Create a text-access log-field-behavior
 func (r *logFieldBehaviorResource) CreateTextAccessLogFieldBehavior(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldBehaviorResourceModel) (*logFieldBehaviorResourceModel, error) {
-	addRequest := client.NewAddTextAccessLogFieldBehaviorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddTextAccessLogFieldBehaviorRequest(plan.Name.ValueString(),
 		[]client.EnumtextAccessLogFieldBehaviorSchemaUrn{client.ENUMTEXTACCESSLOGFIELDBEHAVIORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_BEHAVIORTEXT_ACCESS})
 	err := addOptionalTextAccessLogFieldBehaviorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -623,7 +626,7 @@ func (r *logFieldBehaviorResource) CreateTextAccessLogFieldBehavior(ctx context.
 
 // Create a json-formatted-access log-field-behavior
 func (r *logFieldBehaviorResource) CreateJsonFormattedAccessLogFieldBehavior(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldBehaviorResourceModel) (*logFieldBehaviorResourceModel, error) {
-	addRequest := client.NewAddJsonFormattedAccessLogFieldBehaviorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJsonFormattedAccessLogFieldBehaviorRequest(plan.Name.ValueString(),
 		[]client.EnumjsonFormattedAccessLogFieldBehaviorSchemaUrn{client.ENUMJSONFORMATTEDACCESSLOGFIELDBEHAVIORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_BEHAVIORJSON_FORMATTED_ACCESS})
 	err := addOptionalJsonFormattedAccessLogFieldBehaviorFields(ctx, addRequest, plan)
 	if err != nil {
@@ -708,7 +711,7 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
 		return
@@ -730,7 +733,7 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFieldBehaviorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -786,7 +789,7 @@ func readLogFieldBehavior(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	readResponse, httpResp, err := apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
 		return
@@ -833,7 +836,7 @@ func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, res
 	var state logFieldBehaviorResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LogFieldBehaviorApi.UpdateLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLogFieldBehaviorOperations(plan, state)
@@ -891,7 +894,7 @@ func (r *logFieldBehaviorResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.LogFieldBehaviorApi.DeleteLogFieldBehaviorExecute(r.apiClient.LogFieldBehaviorApi.DeleteLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Field Behavior", err, httpResp)
 		return
@@ -907,6 +910,6 @@ func (r *defaultLogFieldBehaviorResource) ImportState(ctx context.Context, req r
 }
 
 func importLogFieldBehavior(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

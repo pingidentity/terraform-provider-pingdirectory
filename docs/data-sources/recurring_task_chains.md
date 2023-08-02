@@ -49,6 +49,6 @@ data "pingdirectory_recurring_task_chains" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Recurring Task Chain IDs found in the configuration
 

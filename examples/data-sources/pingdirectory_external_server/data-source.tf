@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_external_server" "myExternalServer" {
-  id = "MyExternalServer"
+  name = "MyExternalServer"
 }

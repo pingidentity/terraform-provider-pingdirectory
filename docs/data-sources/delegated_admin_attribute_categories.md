@@ -49,6 +49,6 @@ data "pingdirectory_delegated_admin_attribute_categories" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Delegated Admin Attribute Category IDs found in the configuration
 

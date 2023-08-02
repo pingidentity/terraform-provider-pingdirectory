@@ -58,15 +58,9 @@ type consentDefinitionLocalizationDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *consentDefinitionLocalizationDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Consent Definition Localization.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"consent_definition_name": schema.StringAttribute{
 				Description: "Name of the parent Consent Definition",
 				Required:    true,
@@ -101,6 +95,8 @@ func (r *consentDefinitionLocalizationDataSource) Schema(ctx context.Context, re
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ConsentDefinitionLocalizationResponse object into the model struct

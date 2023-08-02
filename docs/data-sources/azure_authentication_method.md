@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_azure_authentication_method" "myAzureAuthenticationMethod" {
-  id = "MyAzureAuthenticationMethod"
+  name = "MyAzureAuthenticationMethod"
 }
 ```
 
@@ -46,13 +46,14 @@ data "pingdirectory_azure_authentication_method" "myAzureAuthenticationMethod" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `client_id` (String) The client ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_CLIENT_ID
 - `client_secret` (String, Sensitive) The client secret to use to authenticate.
 - `description` (String) A description for this Azure Authentication Method
+- `id` (String) The ID of this resource.
 - `password` (String, Sensitive) The password for the user to authenticate.
 - `tenant_id` (String) The tenant ID to use to authenticate. If this is not provided, then it will be obtained from the AZURE_TENANT_ID environment variable.
 - `type` (String) The type of Azure Authentication Method resource. Options are ['default', 'client-secret', 'username-password']

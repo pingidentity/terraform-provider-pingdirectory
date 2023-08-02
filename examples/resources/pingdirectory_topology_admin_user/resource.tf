@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_topology_admin_user" "myTopologyAdminUser" {
-  id                              = "MyTopologyAdminUser"
+  name                            = "MyTopologyAdminUser"
   inherit_default_root_privileges = true
   search_result_entry_limit       = 100
   time_limit_seconds              = 60

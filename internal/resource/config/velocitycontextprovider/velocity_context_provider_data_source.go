@@ -48,6 +48,7 @@ func (r *velocityContextProviderDataSource) Configure(_ context.Context, req dat
 
 type velocityContextProviderDataSourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Name                     types.String `tfsdk:"name"`
 	Type                     types.String `tfsdk:"type"`
 	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
 	ExtensionClass           types.String `tfsdk:"extension_class"`
@@ -65,13 +66,9 @@ type velocityContextProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *velocityContextProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Velocity Context Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Velocity Context Provider resource. Options are ['velocity-tools', 'custom', 'third-party']",
 				Required:    false,
@@ -158,12 +155,15 @@ func (r *velocityContextProviderDataSource) Schema(ctx context.Context, req data
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a VelocityToolsVelocityContextProviderResponse object into the model struct
 func readVelocityToolsVelocityContextProviderResponseDataSource(ctx context.Context, r *client.VelocityToolsVelocityContextProviderResponse, state *velocityContextProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("velocity-tools")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestTool = internaltypes.GetStringSet(r.RequestTool)
 	state.SessionTool = internaltypes.GetStringSet(r.SessionTool)
 	state.ApplicationTool = internaltypes.GetStringSet(r.ApplicationTool)
@@ -179,6 +179,7 @@ func readVelocityToolsVelocityContextProviderResponseDataSource(ctx context.Cont
 func readCustomVelocityContextProviderResponseDataSource(ctx context.Context, r *client.CustomVelocityContextProviderResponse, state *velocityContextProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), false)
@@ -192,6 +193,7 @@ func readCustomVelocityContextProviderResponseDataSource(ctx context.Context, r 
 func readThirdPartyVelocityContextProviderResponseDataSource(ctx context.Context, r *client.ThirdPartyVelocityContextProviderResponse, state *velocityContextProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
@@ -214,7 +216,7 @@ func (r *velocityContextProviderDataSource) Read(ctx context.Context, req dataso
 	}
 
 	readResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)
 		return

@@ -84,6 +84,7 @@ func (r *defaultIdTokenValidatorResource) Configure(_ context.Context, req resou
 
 type idTokenValidatorResourceModel struct {
 	Id                                 types.String `tfsdk:"id"`
+	Name                               types.String `tfsdk:"name"`
 	LastUpdated                        types.String `tfsdk:"last_updated"`
 	Notifications                      types.Set    `tfsdk:"notifications"`
 	RequiredActions                    types.Set    `tfsdk:"required_actions"`
@@ -221,9 +222,9 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -332,6 +333,7 @@ func populateIdTokenValidatorUnknownValues(ctx context.Context, model *idTokenVa
 func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneIdTokenValidatorResponse, state *idTokenValidatorResourceModel, expectedValues *idTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IssuerURL = types.StringValue(r.IssuerURL)
 	state.OpenIDConnectProvider = types.StringValue(r.OpenIDConnectProvider)
 	state.OpenIDConnectMetadataCacheDuration = internaltypes.StringTypeOrNil(r.OpenIDConnectMetadataCacheDuration, internaltypes.IsEmptyString(expectedValues.OpenIDConnectMetadataCacheDuration))
@@ -356,6 +358,7 @@ func readPingOneIdTokenValidatorResponse(ctx context.Context, r *client.PingOneI
 func readOpenidConnectIdTokenValidatorResponse(ctx context.Context, r *client.OpenidConnectIdTokenValidatorResponse, state *idTokenValidatorResourceModel, expectedValues *idTokenValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("openid-connect")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumidTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
@@ -398,7 +401,7 @@ func createIdTokenValidatorOperations(plan idTokenValidatorResourceModel, state 
 
 // Create a ping-one id-token-validator
 func (r *idTokenValidatorResource) CreatePingOneIdTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan idTokenValidatorResourceModel) (*idTokenValidatorResourceModel, error) {
-	addRequest := client.NewAddPingOneIdTokenValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPingOneIdTokenValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumpingOneIdTokenValidatorSchemaUrn{client.ENUMPINGONEIDTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ID_TOKEN_VALIDATORPING_ONE},
 		plan.IssuerURL.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -437,7 +440,7 @@ func (r *idTokenValidatorResource) CreatePingOneIdTokenValidator(ctx context.Con
 func (r *idTokenValidatorResource) CreateOpenidConnectIdTokenValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan idTokenValidatorResourceModel) (*idTokenValidatorResourceModel, error) {
 	var AllowedSigningAlgorithmSlice []client.EnumidTokenValidatorAllowedSigningAlgorithmProp
 	plan.AllowedSigningAlgorithm.ElementsAs(ctx, &AllowedSigningAlgorithmSlice, false)
-	addRequest := client.NewAddOpenidConnectIdTokenValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddOpenidConnectIdTokenValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumopenidConnectIdTokenValidatorSchemaUrn{client.ENUMOPENIDCONNECTIDTOKENVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ID_TOKEN_VALIDATOROPENID_CONNECT},
 		AllowedSigningAlgorithmSlice,
 		plan.Enabled.ValueBool(),
@@ -523,7 +526,7 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.IdTokenValidatorApi.GetIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)
 		return
@@ -545,7 +548,7 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createIdTokenValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -601,7 +604,7 @@ func readIdTokenValidator(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	readResponse, httpResp, err := apiClient.IdTokenValidatorApi.GetIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Id Token Validator", err, httpResp)
 		return
@@ -648,7 +651,7 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 	var state idTokenValidatorResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.IdTokenValidatorApi.UpdateIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createIdTokenValidatorOperations(plan, state)
@@ -706,7 +709,7 @@ func (r *idTokenValidatorResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.IdTokenValidatorApi.DeleteIdTokenValidatorExecute(r.apiClient.IdTokenValidatorApi.DeleteIdTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Id Token Validator", err, httpResp)
 		return
@@ -722,6 +725,6 @@ func (r *defaultIdTokenValidatorResource) ImportState(ctx context.Context, req r
 }
 
 func importIdTokenValidator(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

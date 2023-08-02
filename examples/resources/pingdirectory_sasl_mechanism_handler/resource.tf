@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_sasl_mechanism_handler" "mySaslMechanismHandler" {
-  id              = "MySaslMechanismHandler"
+  name            = "MySaslMechanismHandler"
   type            = "unboundid-ms-chap-v2"
   identity_mapper = "Exact Match"
   enabled         = false

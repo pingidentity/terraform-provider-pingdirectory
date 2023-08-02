@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginPolicy" {
-  id = "MyHttpServletCrossOriginPolicy"
+  name = "MyHttpServletCrossOriginPolicy"
 }

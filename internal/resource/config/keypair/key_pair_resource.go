@@ -81,6 +81,7 @@ func (r *defaultKeyPairResource) Configure(_ context.Context, req resource.Confi
 
 type keyPairResourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Name                          types.String `tfsdk:"name"`
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
@@ -149,9 +150,9 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -194,6 +195,7 @@ func populateKeyPairUnknownValues(ctx context.Context, model *keyPairResourceMod
 // Read a KeyPairResponse object into the model struct
 func readKeyPairResponse(ctx context.Context, r *client.KeyPairResponse, state *keyPairResourceModel, expectedValues *keyPairResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyAlgorithm = types.StringValue(r.KeyAlgorithm.String())
 	state.SelfSignedCertificateValidity = internaltypes.StringTypeOrNil(r.SelfSignedCertificateValidity, internaltypes.IsEmptyString(expectedValues.SelfSignedCertificateValidity))
 	config.CheckMismatchedPDFormattedAttributes("self_signed_certificate_validity",
@@ -225,7 +227,7 @@ func createKeyPairOperations(plan keyPairResourceModel, state keyPairResourceMod
 
 // Create a key-pair key-pair
 func (r *keyPairResource) CreateKeyPair(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan keyPairResourceModel) (*keyPairResourceModel, error) {
-	addRequest := client.NewAddKeyPairRequest(plan.Id.ValueString())
+	addRequest := client.NewAddKeyPairRequest(plan.Name.ValueString())
 	err := addOptionalKeyPairFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Key Pair", err.Error())
@@ -299,7 +301,7 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 	}
 
 	readResponse, httpResp, err := r.apiClient.KeyPairApi.GetKeyPair(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)
 		return
@@ -316,7 +318,7 @@ func (r *defaultKeyPairResource) Create(ctx context.Context, req resource.Create
 	readKeyPairResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.KeyPairApi.UpdateKeyPair(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.KeyPairApi.UpdateKeyPair(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createKeyPairOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -368,7 +370,7 @@ func readKeyPair(ctx context.Context, req resource.ReadRequest, resp *resource.R
 	}
 
 	readResponse, httpResp, err := apiClient.KeyPairApi.GetKeyPair(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)
 		return
@@ -410,7 +412,7 @@ func updateKeyPair(ctx context.Context, req resource.UpdateRequest, resp *resour
 	var state keyPairResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.KeyPairApi.UpdateKeyPair(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createKeyPairOperations(plan, state)
@@ -464,7 +466,7 @@ func (r *keyPairResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 
 	httpResp, err := r.apiClient.KeyPairApi.DeleteKeyPairExecute(r.apiClient.KeyPairApi.DeleteKeyPair(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Key Pair", err, httpResp)
 		return
@@ -480,6 +482,6 @@ func (r *defaultKeyPairResource) ImportState(ctx context.Context, req resource.I
 }
 
 func importKeyPair(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

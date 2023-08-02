@@ -48,6 +48,7 @@ func (r *oauthTokenHandlerDataSource) Configure(_ context.Context, req datasourc
 
 type oauthTokenHandlerDataSourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	Type              types.String `tfsdk:"type"`
 	ExtensionClass    types.String `tfsdk:"extension_class"`
 	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
@@ -58,13 +59,9 @@ type oauthTokenHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *oauthTokenHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Oauth Token Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of OAuth Token Handler resource. Options are ['groovy-scripted', 'third-party']",
 				Required:    false,
@@ -105,12 +102,15 @@ func (r *oauthTokenHandlerDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a GroovyScriptedOauthTokenHandlerResponse object into the model struct
 func readGroovyScriptedOauthTokenHandlerResponseDataSource(ctx context.Context, r *client.GroovyScriptedOauthTokenHandlerResponse, state *oauthTokenHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -120,6 +120,7 @@ func readGroovyScriptedOauthTokenHandlerResponseDataSource(ctx context.Context, 
 func readThirdPartyOauthTokenHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartyOauthTokenHandlerResponse, state *oauthTokenHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -136,7 +137,7 @@ func (r *oauthTokenHandlerDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.OauthTokenHandlerApi.GetOauthTokenHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Oauth Token Handler", err, httpResp)
 		return

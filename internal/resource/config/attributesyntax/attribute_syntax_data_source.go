@@ -48,6 +48,7 @@ func (r *attributeSyntaxDataSource) Configure(_ context.Context, req datasource.
 
 type attributeSyntaxDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	Type                           types.String `tfsdk:"type"`
 	EnableCompaction               types.Bool   `tfsdk:"enable_compaction"`
 	IncludeAttributeInCompaction   types.Set    `tfsdk:"include_attribute_in_compaction"`
@@ -61,13 +62,9 @@ type attributeSyntaxDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *attributeSyntaxDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Attribute Syntax.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Attribute Syntax resource. Options are ['attribute-type-description', 'directory-string', 'telephone-number', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'generic', 'json-object', 'user-password', 'boolean', 'hex-string', 'bit-string', 'ldap-url', 'name-and-optional-uid']",
 				Required:    false,
@@ -126,12 +123,15 @@ func (r *attributeSyntaxDataSource) Schema(ctx context.Context, req datasource.S
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a AttributeTypeDescriptionAttributeSyntaxResponse object into the model struct
 func readAttributeTypeDescriptionAttributeSyntaxResponseDataSource(ctx context.Context, r *client.AttributeTypeDescriptionAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-type-description")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StripSyntaxMinUpperBound = internaltypes.BoolTypeOrNil(r.StripSyntaxMinUpperBound)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -141,6 +141,7 @@ func readAttributeTypeDescriptionAttributeSyntaxResponseDataSource(ctx context.C
 func readDirectoryStringAttributeSyntaxResponseDataSource(ctx context.Context, r *client.DirectoryStringAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory-string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowZeroLengthValues = internaltypes.BoolTypeOrNil(r.AllowZeroLengthValues)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -150,6 +151,7 @@ func readDirectoryStringAttributeSyntaxResponseDataSource(ctx context.Context, r
 func readTelephoneNumberAttributeSyntaxResponseDataSource(ctx context.Context, r *client.TelephoneNumberAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("telephone-number")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StrictFormat = internaltypes.BoolTypeOrNil(r.StrictFormat)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -159,6 +161,7 @@ func readTelephoneNumberAttributeSyntaxResponseDataSource(ctx context.Context, r
 func readDistinguishedNameAttributeSyntaxResponseDataSource(ctx context.Context, r *client.DistinguishedNameAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("distinguished-name")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -170,6 +173,7 @@ func readDistinguishedNameAttributeSyntaxResponseDataSource(ctx context.Context,
 func readGeneralizedTimeAttributeSyntaxResponseDataSource(ctx context.Context, r *client.GeneralizedTimeAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generalized-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -181,6 +185,7 @@ func readGeneralizedTimeAttributeSyntaxResponseDataSource(ctx context.Context, r
 func readIntegerAttributeSyntaxResponseDataSource(ctx context.Context, r *client.IntegerAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("integer")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -192,6 +197,7 @@ func readIntegerAttributeSyntaxResponseDataSource(ctx context.Context, r *client
 func readUuidAttributeSyntaxResponseDataSource(ctx context.Context, r *client.UuidAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("uuid")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -203,6 +209,7 @@ func readUuidAttributeSyntaxResponseDataSource(ctx context.Context, r *client.Uu
 func readGenericAttributeSyntaxResponseDataSource(ctx context.Context, r *client.GenericAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 }
@@ -211,6 +218,7 @@ func readGenericAttributeSyntaxResponseDataSource(ctx context.Context, r *client
 func readJsonObjectAttributeSyntaxResponseDataSource(ctx context.Context, r *client.JsonObjectAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-object")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 }
@@ -219,6 +227,7 @@ func readJsonObjectAttributeSyntaxResponseDataSource(ctx context.Context, r *cli
 func readUserPasswordAttributeSyntaxResponseDataSource(ctx context.Context, r *client.UserPasswordAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -230,6 +239,7 @@ func readUserPasswordAttributeSyntaxResponseDataSource(ctx context.Context, r *c
 func readBooleanAttributeSyntaxResponseDataSource(ctx context.Context, r *client.BooleanAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("boolean")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -241,6 +251,7 @@ func readBooleanAttributeSyntaxResponseDataSource(ctx context.Context, r *client
 func readHexStringAttributeSyntaxResponseDataSource(ctx context.Context, r *client.HexStringAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("hex-string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 }
@@ -249,6 +260,7 @@ func readHexStringAttributeSyntaxResponseDataSource(ctx context.Context, r *clie
 func readBitStringAttributeSyntaxResponseDataSource(ctx context.Context, r *client.BitStringAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("bit-string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -260,6 +272,7 @@ func readBitStringAttributeSyntaxResponseDataSource(ctx context.Context, r *clie
 func readLdapUrlAttributeSyntaxResponseDataSource(ctx context.Context, r *client.LdapUrlAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-url")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StrictFormat = internaltypes.BoolTypeOrNil(r.StrictFormat)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -269,6 +282,7 @@ func readLdapUrlAttributeSyntaxResponseDataSource(ctx context.Context, r *client
 func readNameAndOptionalUidAttributeSyntaxResponseDataSource(ctx context.Context, r *client.NameAndOptionalUidAttributeSyntaxResponse, state *attributeSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("name-and-optional-uid")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -287,7 +301,7 @@ func (r *attributeSyntaxDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.GetAttributeSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Attribute Syntax", err, httpResp)
 		return

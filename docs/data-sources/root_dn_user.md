@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_root_dn_user" "myRootDnUser" {
-  id = "MyRootDnUser"
+  name = "MyRootDnUser"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_root_dn_user" "myRootDnUser" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -60,6 +60,7 @@ data "pingdirectory_root_dn_user" "myRootDnUser" {
 - `email_address` (Set of String) Specifies the user's email address. This is stored in the mail LDAP attribute.
 - `first_name` (Set of String) Specifies the user's first name. This is stored in the givenName LDAP attribute.
 - `home_telephone_number` (Set of String) Specifies the user's home telephone number. This is stored in the homePhone LDAP attribute.
+- `id` (String) The ID of this resource.
 - `idle_time_limit_seconds` (Number) Specifies the maximum length of time (in seconds) that a connection authenticated as this user may remain established without issuing any requests. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-idle-time-limit LDAP attribute.
 - `inherit_default_root_privileges` (Boolean) Indicates whether this User should be automatically granted the set of privileges defined in the default-root-privilege-name property of the Root DN configuration object.
 - `is_proxyable` (String) This can be used to indicate whether the User can be used as an alternate authorization identity (using the proxied authorization v1 or v2 control, the intermediate client control, or a SASL mechanism that allows specifying an alternate authorization identity).

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_recurring_task_chain" "myRecurringTaskChain" {
-  id                            = "MyRecurringTaskChain"
+  name                          = "MyRecurringTaskChain"
   recurring_task                = ["Export All Non-Administrative Backends"]
   scheduled_date_selection_type = "every-day"
   scheduled_time_of_day         = ["10:00", "11:00"]
@@ -49,7 +49,7 @@ resource "pingdirectory_recurring_task_chain" "myRecurringTaskChain" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `recurring_task` (Set of String) The set of recurring tasks that make up this chain. At least one value must be provided. If multiple values are given, then the task instances will be invoked in the order in which they are listed.
 - `scheduled_date_selection_type` (String) The mechanism used to determine the dates on which instances of this Recurring Task Chain may be scheduled to start.
 - `scheduled_time_of_day` (Set of String) The time of day at which instances of the Recurring Task Chain should be eligible to start running. Values should be in the format HH:MM (where HH is a two-digit representation of the hour of the day, between 00 and 23, inclusive), and MM is a two-digit representation of the minute of the hour (between 00 and 59, inclusive). Alternately, the value can be in the form *:MM, which indicates that the task should be eligible to start at the specified minute of every hour. At least one value must be provided, but multiple values may be given to indicate multiple start times within the same day.
@@ -67,6 +67,7 @@ resource "pingdirectory_recurring_task_chain" "myRecurringTaskChain" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

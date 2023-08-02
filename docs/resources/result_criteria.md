@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_result_criteria" "myResultCriteria" {
-  id   = "MyResultCriteria"
+  name = "MyResultCriteria"
   type = "simple"
 }
 ```
@@ -47,7 +47,7 @@ resource "pingdirectory_result_criteria" "myResultCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Result Criteria resource. Options are ['successful-bind', 'simple', 'aggregate', 'replication-assurance', 'third-party']
 
 ### Optional
@@ -105,6 +105,7 @@ resource "pingdirectory_result_criteria" "myResultCriteria" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

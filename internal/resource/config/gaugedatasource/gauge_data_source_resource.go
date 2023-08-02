@@ -83,6 +83,7 @@ func (r *defaultGaugeDataSourceResource) Configure(_ context.Context, req resour
 
 type gaugeDataSourceResourceModel struct {
 	Id                            types.String  `tfsdk:"id"`
+	Name                          types.String  `tfsdk:"name"`
 	LastUpdated                   types.String  `tfsdk:"last_updated"`
 	Notifications                 types.Set     `tfsdk:"notifications"`
 	RequiredActions               types.Set     `tfsdk:"required_actions"`
@@ -202,9 +203,9 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -331,6 +332,7 @@ func addOptionalNumericGaugeDataSourceFields(ctx context.Context, addRequest *cl
 func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.IndicatorGaugeDataSourceResponse, state *gaugeDataSourceResourceModel, expectedValues *gaugeDataSourceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("indicator")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AdditionalText = internaltypes.StringTypeOrNil(r.AdditionalText, internaltypes.IsEmptyString(expectedValues.AdditionalText))
 	state.MonitorObjectclass = types.StringValue(r.MonitorObjectclass)
@@ -348,6 +350,7 @@ func readIndicatorGaugeDataSourceResponse(ctx context.Context, r *client.Indicat
 func readNumericGaugeDataSourceResponse(ctx context.Context, r *client.NumericGaugeDataSourceResponse, state *gaugeDataSourceResourceModel, expectedValues *gaugeDataSourceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("numeric")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DataOrientation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumgaugeDataSourceDataOrientationProp(r.DataOrientation), internaltypes.IsEmptyString(expectedValues.DataOrientation))
 	state.StatisticType = types.StringValue(r.StatisticType.String())
@@ -388,7 +391,7 @@ func createGaugeDataSourceOperations(plan gaugeDataSourceResourceModel, state ga
 
 // Create a indicator gauge-data-source
 func (r *gaugeDataSourceResource) CreateIndicatorGaugeDataSource(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan gaugeDataSourceResourceModel) (*gaugeDataSourceResourceModel, error) {
-	addRequest := client.NewAddIndicatorGaugeDataSourceRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddIndicatorGaugeDataSourceRequest(plan.Name.ValueString(),
 		[]client.EnumindicatorGaugeDataSourceSchemaUrn{client.ENUMINDICATORGAUGEDATASOURCESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0GAUGE_DATA_SOURCEINDICATOR},
 		plan.MonitorObjectclass.ValueString(),
 		plan.MonitorAttribute.ValueString())
@@ -427,7 +430,7 @@ func (r *gaugeDataSourceResource) CreateIndicatorGaugeDataSource(ctx context.Con
 
 // Create a numeric gauge-data-source
 func (r *gaugeDataSourceResource) CreateNumericGaugeDataSource(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan gaugeDataSourceResourceModel) (*gaugeDataSourceResourceModel, error) {
-	addRequest := client.NewAddNumericGaugeDataSourceRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddNumericGaugeDataSourceRequest(plan.Name.ValueString(),
 		[]client.EnumnumericGaugeDataSourceSchemaUrn{client.ENUMNUMERICGAUGEDATASOURCESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0GAUGE_DATA_SOURCENUMERIC},
 		plan.MonitorObjectclass.ValueString(),
 		plan.MonitorAttribute.ValueString())
@@ -514,7 +517,7 @@ func (r *defaultGaugeDataSourceResource) Create(ctx context.Context, req resourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.GaugeDataSourceApi.GetGaugeDataSource(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge Data Source", err, httpResp)
 		return
@@ -536,7 +539,7 @@ func (r *defaultGaugeDataSourceResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.GaugeDataSourceApi.UpdateGaugeDataSource(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.GaugeDataSourceApi.UpdateGaugeDataSource(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createGaugeDataSourceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -592,7 +595,7 @@ func readGaugeDataSource(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 
 	readResponse, httpResp, err := apiClient.GaugeDataSourceApi.GetGaugeDataSource(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Gauge Data Source", err, httpResp)
 		return
@@ -639,7 +642,7 @@ func updateGaugeDataSource(ctx context.Context, req resource.UpdateRequest, resp
 	var state gaugeDataSourceResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.GaugeDataSourceApi.UpdateGaugeDataSource(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGaugeDataSourceOperations(plan, state)
@@ -697,7 +700,7 @@ func (r *gaugeDataSourceResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	httpResp, err := r.apiClient.GaugeDataSourceApi.DeleteGaugeDataSourceExecute(r.apiClient.GaugeDataSourceApi.DeleteGaugeDataSource(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Gauge Data Source", err, httpResp)
 		return
@@ -713,6 +716,6 @@ func (r *defaultGaugeDataSourceResource) ImportState(ctx context.Context, req re
 }
 
 func importGaugeDataSource(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

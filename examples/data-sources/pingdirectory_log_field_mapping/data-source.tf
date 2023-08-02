@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_field_mapping" "myLogFieldMapping" {
-  id = "MyLogFieldMapping"
+  name = "MyLogFieldMapping"
 }

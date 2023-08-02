@@ -49,7 +49,7 @@ data "pingdirectory_account_status_notification_handlers" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `objects` (Set of Object) Account Status Notification Handler objects found in the configuration (see [below for nested schema](#nestedatt--objects))
 
 <a id="nestedatt--objects"></a>

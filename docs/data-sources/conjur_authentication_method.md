@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMethod" {
-  id = "MyConjurAuthenticationMethod"
+  name = "MyConjurAuthenticationMethod"
 }
 ```
 
@@ -46,12 +46,13 @@ data "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMethod"
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `api_key` (String, Sensitive) The API key for the user to authenticate.
 - `description` (String) A description for this Conjur Authentication Method
+- `id` (String) The ID of this resource.
 - `password` (String, Sensitive) The password for the user to authenticate. This will be used to obtain an API key for the target user.
 - `username` (String) The username for the user to authenticate.
 

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_field_behavior" "myLogFieldBehavior" {
-  id = "MyLogFieldBehavior"
+  name = "MyLogFieldBehavior"
 }
 ```
 
@@ -46,12 +46,13 @@ data "pingdirectory_log_field_behavior" "myLogFieldBehavior" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `default_behavior` (String) The default behavior that the server should exhibit for fields for which no explicit behavior is defined. If no default behavior is defined, the server will fall back to using the default behavior configured for the syntax used for each log field.
 - `description` (String) A description for this Log Field Behavior
+- `id` (String) The ID of this resource.
 - `omit_field` (Set of String) The log fields that should be omitted entirely from log messages. Neither the field name nor value will be included.
 - `omit_field_name` (Set of String) The names of any custom fields that should be omitted from log messages. This should generally only be used for fields that are not available through the omit-field property (for example, custom log fields defined in Server SDK extensions).
 - `preserve_field` (Set of String) The log fields whose values should be logged with the intended value. The values for these fields will be preserved, although they may be sanitized for parsability or safety purposes (for example, to escape special characters in the value), and values that are too long may be truncated.

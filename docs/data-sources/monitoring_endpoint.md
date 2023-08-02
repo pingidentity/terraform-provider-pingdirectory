@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
-  id = "MyMonitoringEndpoint"
+  name = "MyMonitoringEndpoint"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,6 +54,7 @@ data "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
 - `connection_type` (String) Specifies the protocol and security that this StatsD Monitoring Endpoint should use to connect to the configured endpoint.
 - `enabled` (Boolean) Indicates whether this Monitoring Endpoint is enabled for use in the Directory Server.
 - `hostname` (String) The name of the host where this StatsD Monitoring Endpoint should send metric data.
+- `id` (String) The ID of this resource.
 - `server_port` (Number) Specifies the port number of the endpoint where metric data should be sent.
 - `trust_manager_provider` (String) The trust manager provider to use if SSL over TCP is to be used for connection-level security.
 

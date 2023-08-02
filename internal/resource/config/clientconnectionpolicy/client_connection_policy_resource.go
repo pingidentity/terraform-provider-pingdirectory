@@ -461,9 +461,9 @@ func clientConnectionPolicySchema(ctx context.Context, req resource.SchemaReques
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"policy_id"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"policy_id"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

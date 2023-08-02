@@ -79,14 +79,14 @@ func TestAccLocalDbCompositeIndex(t *testing.T) {
 func testAccLocalDbCompositeIndexResource(resourceName string, resourceModel localDbCompositeIndexTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_local_db_composite_index" "%[1]s" {
-  id                   = "%[2]s"
+  name                 = "%[2]s"
   backend_name         = "%[3]s"
   description          = "%[4]s"
   index_filter_pattern = "%[5]s"
 }
 
 data "pingdirectory_local_db_composite_index" "%[1]s" {
-  id           = "%[2]s"
+  name         = "%[2]s"
   backend_name = "%[3]s"
   depends_on = [
     pingdirectory_local_db_composite_index.%[1]s

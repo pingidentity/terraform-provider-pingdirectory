@@ -73,13 +73,13 @@ func TestAccDelegatedAdminRights(t *testing.T) {
 func testAccDelegatedAdminRightsResource(resourceName string, resourceModel delegatedAdminRightsTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_delegated_admin_rights" "%[1]s" {
-  id            = "%[2]s"
+  name          = "%[2]s"
   enabled       = %[3]t
   admin_user_dn = "%[4]s"
 }
 
 data "pingdirectory_delegated_admin_rights" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_delegated_admin_rights.%[1]s
   ]

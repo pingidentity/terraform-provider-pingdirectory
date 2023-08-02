@@ -71,12 +71,12 @@ func TestAccSoftDeletePolicy(t *testing.T) {
 func testAccSoftDeletePolicyResource(resourceName string, resourceModel softDeletePolicyTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_soft_delete_policy" "%[1]s" {
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
 }
 
 data "pingdirectory_soft_delete_policy" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_soft_delete_policy.%[1]s
   ]

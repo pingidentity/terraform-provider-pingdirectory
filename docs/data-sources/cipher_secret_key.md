@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_cipher_secret_key" "myCipherSecretKey" {
-  id                   = "MyCipherSecretKey"
+  name                 = "MyCipherSecretKey"
   server_instance_name = "MyServerInstance"
 }
 ```
@@ -47,12 +47,13 @@ data "pingdirectory_cipher_secret_key" "myCipherSecretKey" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `server_instance_name` (String) Name of the parent Server Instance
 
 ### Read-Only
 
 - `cipher_transformation_name` (String) The algorithm name used to produce this cipher, e.g. AES/CBC/PKCS5Padding.
+- `id` (String) The ID of this resource.
 - `initialization_vector_length_bits` (Number) The initialization vector length of the cipher in bits.
 - `is_compromised` (Boolean) If the key is compromised, an administrator may set this flag to immediately trigger the creation of a new secret key. After the new key is generated, the value of this property will be reset to false.
 - `key_id` (String) The unique system-generated identifier for the Secret Key.

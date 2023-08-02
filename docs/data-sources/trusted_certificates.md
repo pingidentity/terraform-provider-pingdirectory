@@ -49,6 +49,6 @@ data "pingdirectory_trusted_certificates" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Trusted Certificate IDs found in the configuration
 

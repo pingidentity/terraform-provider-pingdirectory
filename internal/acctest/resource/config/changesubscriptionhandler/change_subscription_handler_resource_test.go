@@ -74,12 +74,12 @@ func testAccLoggingChangeSubscriptionHandlerResource(resourceName string, resour
 	return fmt.Sprintf(`
 resource "pingdirectory_change_subscription_handler" "%[1]s" {
   type    = "logging"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }
 
 data "pingdirectory_change_subscription_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_change_subscription_handler.%[1]s
   ]

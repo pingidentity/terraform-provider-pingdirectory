@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_password_storage_scheme" "myPasswordStorageScheme" {
-  id = "MyPasswordStorageScheme"
+  name = "MyPasswordStorageScheme"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_password_storage_scheme" "myPasswordStorageScheme" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -63,6 +63,7 @@ data "pingdirectory_password_storage_scheme" "myPasswordStorageScheme" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Storage Scheme. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Storage Scheme.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.
+- `id` (String) The ID of this resource.
 - `iteration_count` (Number) The number of rounds of cryptographic processing required in the course of encoding each password.
 - `key_vault_uri` (String) The URI that identifies the Azure Key Vault from which the secret is to be retrieved.
 - `max_password_length` (Number) Specifies the maximum allowed length, in bytes, for passwords encoded with this scheme, which can help mitigate denial of service attacks from clients that attempt to bind with very long passwords.

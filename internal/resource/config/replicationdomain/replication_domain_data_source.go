@@ -48,6 +48,7 @@ func (r *replicationDomainDataSource) Configure(_ context.Context, req datasourc
 
 type replicationDomainDataSourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
+	Name                                      types.String `tfsdk:"name"`
 	SynchronizationProviderName               types.String `tfsdk:"synchronization_provider_name"`
 	ServerID                                  types.Int64  `tfsdk:"server_id"`
 	BaseDN                                    types.String `tfsdk:"base_dn"`
@@ -61,13 +62,9 @@ type replicationDomainDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *replicationDomainDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Replication Domain.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"synchronization_provider_name": schema.StringAttribute{
 				Description: "Name of the parent Synchronization Provider",
 				Required:    true,
@@ -122,11 +119,14 @@ func (r *replicationDomainDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ReplicationDomainResponse object into the model struct
 func readReplicationDomainResponseDataSource(ctx context.Context, r *client.ReplicationDomainResponse, state *replicationDomainDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerID = types.Int64Value(r.ServerID)
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.WindowSize = internaltypes.Int64TypeOrNil(r.WindowSize)
@@ -148,7 +148,7 @@ func (r *replicationDomainDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.GetReplicationDomain(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.SynchronizationProviderName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Domain", err, httpResp)
 		return

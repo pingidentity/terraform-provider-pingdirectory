@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
-  id      = "MyUncachedEntryCriteria"
+  name    = "MyUncachedEntryCriteria"
   type    = "default"
   enabled = false
 }

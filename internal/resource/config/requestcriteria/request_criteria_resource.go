@@ -84,6 +84,7 @@ func (r *defaultRequestCriteriaResource) Configure(_ context.Context, req resour
 
 type requestCriteriaResourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Name                                   types.String `tfsdk:"name"`
 	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
@@ -456,9 +457,9 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -961,6 +962,7 @@ func populateRequestCriteriaUnknownValues(ctx context.Context, model *requestCri
 func readRootDseRequestCriteriaResponse(ctx context.Context, r *client.RootDseRequestCriteriaResponse, state *requestCriteriaResourceModel, expectedValues *requestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("root-dse")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OperationType = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaRootDseOperationTypeProp(r.OperationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -972,6 +974,7 @@ func readRootDseRequestCriteriaResponse(ctx context.Context, r *client.RootDseRe
 func readSimpleRequestCriteriaResponse(ctx context.Context, r *client.SimpleRequestCriteriaResponse, state *requestCriteriaResourceModel, expectedValues *requestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OperationType = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaSimpleOperationTypeProp(r.OperationType))
 	state.OperationOrigin = internaltypes.GetStringSet(
@@ -1014,6 +1017,7 @@ func readSimpleRequestCriteriaResponse(ctx context.Context, r *client.SimpleRequ
 func readAggregateRequestCriteriaResponse(ctx context.Context, r *client.AggregateRequestCriteriaResponse, state *requestCriteriaResourceModel, expectedValues *requestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedRequestCriteria = internaltypes.GetStringSet(r.AllIncludedRequestCriteria)
 	state.AnyIncludedRequestCriteria = internaltypes.GetStringSet(r.AnyIncludedRequestCriteria)
 	state.NotAllIncludedRequestCriteria = internaltypes.GetStringSet(r.NotAllIncludedRequestCriteria)
@@ -1027,6 +1031,7 @@ func readAggregateRequestCriteriaResponse(ctx context.Context, r *client.Aggrega
 func readThirdPartyRequestCriteriaResponse(ctx context.Context, r *client.ThirdPartyRequestCriteriaResponse, state *requestCriteriaResourceModel, expectedValues *requestCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1077,7 +1082,7 @@ func createRequestCriteriaOperations(plan requestCriteriaResourceModel, state re
 
 // Create a root-dse request-criteria
 func (r *requestCriteriaResource) CreateRootDseRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddRootDseRequestCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddRootDseRequestCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumrootDseRequestCriteriaSchemaUrn{client.ENUMROOTDSEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIAROOT_DSE})
 	err := addOptionalRootDseRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1114,7 +1119,7 @@ func (r *requestCriteriaResource) CreateRootDseRequestCriteria(ctx context.Conte
 
 // Create a simple request-criteria
 func (r *requestCriteriaResource) CreateSimpleRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleRequestCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleRequestCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleRequestCriteriaSchemaUrn{client.ENUMSIMPLEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIASIMPLE})
 	err := addOptionalSimpleRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1151,7 +1156,7 @@ func (r *requestCriteriaResource) CreateSimpleRequestCriteria(ctx context.Contex
 
 // Create a aggregate request-criteria
 func (r *requestCriteriaResource) CreateAggregateRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateRequestCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAggregateRequestCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumaggregateRequestCriteriaSchemaUrn{client.ENUMAGGREGATEREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIAAGGREGATE})
 	err := addOptionalAggregateRequestCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1188,7 +1193,7 @@ func (r *requestCriteriaResource) CreateAggregateRequestCriteria(ctx context.Con
 
 // Create a third-party request-criteria
 func (r *requestCriteriaResource) CreateThirdPartyRequestCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan requestCriteriaResourceModel) (*requestCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyRequestCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyRequestCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyRequestCriteriaSchemaUrn{client.ENUMTHIRDPARTYREQUESTCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0REQUEST_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	err := addOptionalThirdPartyRequestCriteriaFields(ctx, addRequest, plan)
@@ -1286,7 +1291,7 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Request Criteria", err, httpResp)
 		return
@@ -1314,7 +1319,7 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.RequestCriteriaApi.UpdateRequestCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRequestCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1376,7 +1381,7 @@ func readRequestCriteria(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 
 	readResponse, httpResp, err := apiClient.RequestCriteriaApi.GetRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Request Criteria", err, httpResp)
 		return
@@ -1429,7 +1434,7 @@ func updateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp
 	var state requestCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.RequestCriteriaApi.UpdateRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createRequestCriteriaOperations(plan, state)
@@ -1493,7 +1498,7 @@ func (r *requestCriteriaResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	httpResp, err := r.apiClient.RequestCriteriaApi.DeleteRequestCriteriaExecute(r.apiClient.RequestCriteriaApi.DeleteRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Request Criteria", err, httpResp)
 		return
@@ -1509,6 +1514,6 @@ func (r *defaultRequestCriteriaResource) ImportState(ctx context.Context, req re
 }
 
 func importRequestCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

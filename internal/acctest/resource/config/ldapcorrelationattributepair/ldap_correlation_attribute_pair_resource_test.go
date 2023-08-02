@@ -84,7 +84,7 @@ func testAccLdapCorrelationAttributePairResource(resourceName string, resourceMo
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_resource_type" "%[4]s" {
   type        = "ldap-mapping"
-  id          = "%[4]s"
+  name        = "%[4]s"
   core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
   enabled     = false
   endpoint    = "myendpoint"
@@ -95,7 +95,7 @@ resource "pingdirectory_scim_schema" "myScimSchema" {
 }
 
 resource "pingdirectory_correlated_ldap_data_view" "%[3]s" {
-  id                              = "%[3]s"
+  name                            = "%[3]s"
   scim_resource_type_name         = pingdirectory_scim_resource_type.%[4]s.id
   structural_ldap_objectclass     = "ldapObject"
   include_base_dn                 = "cn=com.example"
@@ -104,7 +104,7 @@ resource "pingdirectory_correlated_ldap_data_view" "%[3]s" {
 }
 
 resource "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
-  id                              = "%[2]s"
+  name                            = "%[2]s"
   correlated_ldap_data_view_name  = pingdirectory_correlated_ldap_data_view.%[3]s.id
   scim_resource_type_name         = pingdirectory_scim_resource_type.%[4]s.id
   primary_correlation_attribute   = "%[5]s"
@@ -112,7 +112,7 @@ resource "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
 }
 
 data "pingdirectory_ldap_correlation_attribute_pair" "%[1]s" {
-  id                             = "%[2]s"
+  name                           = "%[2]s"
   correlated_ldap_data_view_name = "%[3]s"
   scim_resource_type_name        = "%[4]s"
   depends_on = [

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthenticationHandler" {
-  id = "MyPassThroughAuthenticationHandler"
+  name = "MyPassThroughAuthenticationHandler"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthentic
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -62,6 +62,7 @@ data "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthentic
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Pass Through Authentication Handler. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Pass Through Authentication Handler.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the PingOne service.
+- `id` (String) The ID of this resource.
 - `included_local_entry_base_dn` (Set of String) The base DNs for the local users whose authentication attempts may be passed through to the external authentication service.
 - `initial_connections` (Number) Specifies the initial number of connections to establish to each external server against which authentication may be attempted.
 - `max_connections` (Number) Specifies the maximum number of connections to maintain to each external server against which authentication may be attempted. This value must be greater than or equal to the value for the initial-connections property.

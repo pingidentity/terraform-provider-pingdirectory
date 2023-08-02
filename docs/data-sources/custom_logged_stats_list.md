@@ -54,6 +54,6 @@ data "pingdirectory_custom_logged_stats_list" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Custom Logged Stats IDs found in the configuration
 

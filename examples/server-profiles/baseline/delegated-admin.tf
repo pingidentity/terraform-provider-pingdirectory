@@ -3,7 +3,7 @@
 #
 resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
   resource_type                                              = "composed-attribute"
-  id                                                         = "pf-connected-identities"
+  name                                                       = "pf-connected-identities"
   enabled                                                    = true
   attribute_type                                             = ["objectClass"]
   value_pattern                                              = ["pf-connected-identities"]
@@ -14,7 +14,7 @@ resource "pingdirectory_plugin" "pfConnectedIdentitiesPlugin" {
 
 resource "pingdirectory_plugin" "pfConnectedIdentityPlugin" {
   resource_type   = "composed-attribute"
-  id              = "pf-connected-identity"
+  name            = "pf-connected-identity"
   enabled         = true
   attribute_type  = ["pf-connected-identity"]
   value_pattern   = ["auth-source=pf-local-identity:user-id={uid}"]
@@ -28,7 +28,7 @@ resource "pingdirectory_plugin" "pfConnectedIdentityPlugin" {
 #
 resource "pingdirectory_rest_resource_type" "usersRestResourceType" {
   type                           = "user"
-  id                             = "users"
+  name                           = "users"
   display_name                   = "Users"
   enabled                        = true
   search_base_dn                 = "ou=people,${var.user_base_dn}"
@@ -42,7 +42,7 @@ resource "pingdirectory_rest_resource_type" "usersRestResourceType" {
 
 resource "pingdirectory_rest_resource_type" "groupsRestResourceType" {
   type                           = "group"
-  id                             = "groups"
+  name                           = "groups"
   display_name                   = "Groups"
   enabled                        = true
   search_base_dn                 = "ou=groups,${var.user_base_dn}"
@@ -122,7 +122,7 @@ resource "pingdirectory_delegated_admin_attribute" "descriptionGroupAttribute" {
 # Create Delegated Admin Rights
 #
 resource "pingdirectory_delegated_admin_rights" "deladminRights" {
-  id            = "deladmin"
+  name          = "deladmin"
   enabled       = true
   admin_user_dn = "uid=administrator,ou=people,${var.user_base_dn}"
 }
@@ -158,13 +158,13 @@ resource "pingdirectory_delegated_admin_resource_rights" "groupsRights" {
 #
 resource "pingdirectory_default_trust_manager_provider" "blindTrustManagerProvider" {
   type    = "blind"
-  id      = "Blind Trust"
+  name    = "Blind Trust"
   enabled = true
 }
 
 resource "pingdirectory_external_server" "pfExternalServer" {
   type                         = "http"
-  id                           = "pingfederate"
+  name                         = "pingfederate"
   base_url                     = "https://${var.pingfederate_hostname}:${var.pingfederate_https_port}"
   hostname_verification_method = "allow-all"
   trust_manager_provider       = pingdirectory_default_trust_manager_provider.blindTrustManagerProvider.id
@@ -172,7 +172,7 @@ resource "pingdirectory_external_server" "pfExternalServer" {
 
 resource "pingdirectory_identity_mapper" "entryUUIDMatchMapper" {
   type            = "exact-match"
-  id              = "entryUUIDMatch"
+  name            = "entryUUIDMatch"
   enabled         = true
   match_attribute = ["entryUUID"]
   match_base_dn   = [var.user_base_dn]
@@ -180,7 +180,7 @@ resource "pingdirectory_identity_mapper" "entryUUIDMatchMapper" {
 
 resource "pingdirectory_access_token_validator" "pfAccessTokenValidator" {
   type                 = "ping-federate"
-  id                   = "pingfederate-validator"
+  name                 = "pingfederate-validator"
   enabled              = true
   identity_mapper      = pingdirectory_identity_mapper.entryUUIDMatchMapper.id
   subject_claim_name   = "Username"
@@ -194,7 +194,7 @@ resource "pingdirectory_access_token_validator" "pfAccessTokenValidator" {
 #
 resource "pingdirectory_default_virtual_attribute" "delegatedAdminPrivilegeVirtualAttribute" {
   type    = "custom"
-  id      = "Delegated Admin Privilege"
+  name    = "Delegated Admin Privilege"
   enabled = true
 }
 
@@ -204,14 +204,14 @@ resource "pingdirectory_default_virtual_attribute" "delegatedAdminPrivilegeVirtu
 # public name of the host, proxy, or load balancer that is going to be presenting the delegated admin web application.
 #
 resource "pingdirectory_http_servlet_cross_origin_policy" "daCrossOriginPolicy" {
-  id                   = "Delegated Admin Cross-Origin Policy"
+  name                 = "Delegated Admin Cross-Origin Policy"
   cors_allowed_methods = ["GET", "OPTIONS", "POST", "DELETE", "PATCH"]
   cors_allowed_origins = ["*"]
 }
 
 resource "pingdirectory_default_http_servlet_extension" "daServletExtension" {
   type                = "delegated-admin"
-  id                  = "Delegated Admin"
+  name                = "Delegated Admin"
   access_token_scope  = "urn:pingidentity:directory-delegated-admin"
   response_header     = ["Cache-Control: no-cache, no-store, must-revalidate", "Expires: 0", "Pragma: no-cache"]
   cross_origin_policy = pingdirectory_http_servlet_cross_origin_policy.daCrossOriginPolicy.id
@@ -226,7 +226,7 @@ resource "pingdirectory_default_http_servlet_extension" "daServletExtension" {
 #
 resource "pingdirectory_request_criteria" "daUserCreationRequestCriteria" {
   type                             = "simple"
-  id                               = "Delegated Admin User Creation Request Criteria"
+  name                             = "Delegated Admin User Creation Request Criteria"
   operation_type                   = ["add"]
   included_target_entry_dn         = ["ou=people,${var.user_base_dn}"]
   any_included_target_entry_filter = ["(objectClass=inetOrgPerson)"]
@@ -235,7 +235,7 @@ resource "pingdirectory_request_criteria" "daUserCreationRequestCriteria" {
 
 resource "pingdirectory_account_status_notification_handler" "daEmailAccountStatusNotificationHandler" {
   type                                           = "multi-part-email"
-  id                                             = "Delegated Admin Email Account Status Notification Handler"
+  name                                           = "Delegated Admin Email Account Status Notification Handler"
   enabled                                        = false
   account_creation_notification_request_criteria = pingdirectory_request_criteria.daUserCreationRequestCriteria.id
   account_created_message_template               = "config/account-status-notification-email-templates/delegated-admin-account-created.template"

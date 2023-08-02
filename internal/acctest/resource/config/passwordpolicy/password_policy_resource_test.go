@@ -78,14 +78,14 @@ func TestAccPasswordPolicy(t *testing.T) {
 func testAccPasswordPolicyResource(resourceName string, resourceModel passwordPolicyTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_password_policy" "%[1]s" {
-  id                              = "%[2]s"
+  name                            = "%[2]s"
   password_attribute              = "%[3]s"
   default_password_storage_scheme = %[4]s
   allow_pre_encoded_passwords     = "%[5]s"
 }
 
 data "pingdirectory_password_policy" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_password_policy.%[1]s
   ]

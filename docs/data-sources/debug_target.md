@@ -55,7 +55,7 @@ data "pingdirectory_debug_target" "myDebugTarget" {
 - `debug_category` (Set of String) Specifies the debug message categories to be logged.
 - `debug_level` (String) Specifies the lowest severity level of debug messages to log.
 - `description` (String) A description for this Debug Target
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `include_throwable_cause` (Boolean) Specifies the property to indicate whether to include the cause of exceptions in exception thrown and caught messages.
 - `omit_method_entry_arguments` (Boolean) Specifies the property to indicate whether to include method arguments in debug messages.
 - `omit_method_return_value` (Boolean) Specifies the property to indicate whether to include the return value in debug messages.

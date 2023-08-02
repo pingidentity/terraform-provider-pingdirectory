@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_group_implementation" "myGroupImplementation" {
-  id = "MyGroupImplementation"
+  name = "MyGroupImplementation"
 }
 ```
 
@@ -46,11 +46,12 @@ data "pingdirectory_group_implementation" "myGroupImplementation" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Group Implementation
 - `enabled` (Boolean) Indicates whether the Group Implementation is enabled.
+- `id` (String) The ID of this resource.
 - `type` (String) The type of Group Implementation resource. Options are ['static', 'virtual-static', 'dynamic']
 

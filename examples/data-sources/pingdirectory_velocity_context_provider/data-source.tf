@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_velocity_context_provider" "myVelocityContextProvider" {
-  id                          = "MyVelocityContextProvider"
+  name                        = "MyVelocityContextProvider"
   http_servlet_extension_name = "MyHttpServletExtension"
 }

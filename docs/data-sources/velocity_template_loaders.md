@@ -54,6 +54,6 @@ data "pingdirectory_velocity_template_loaders" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Velocity Template Loader IDs found in the configuration
 

@@ -84,6 +84,7 @@ func (r *defaultTopologyAdminUserResource) Configure(_ context.Context, req reso
 
 type topologyAdminUserResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
@@ -402,9 +403,9 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -577,6 +578,7 @@ func populateTopologyAdminUserUnknownValues(ctx context.Context, model *topology
 // Read a TopologyAdminUserResponse object into the model struct
 func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminUserResponse, state *topologyAdminUserResourceModel, expectedValues *topologyAdminUserResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.FirstName = internaltypes.GetStringSet(r.FirstName)
@@ -664,7 +666,7 @@ func createTopologyAdminUserOperations(plan topologyAdminUserResourceModel, stat
 
 // Create a topology-admin-user topology-admin-user
 func (r *topologyAdminUserResource) CreateTopologyAdminUser(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan topologyAdminUserResourceModel) (*topologyAdminUserResourceModel, error) {
-	addRequest := client.NewAddTopologyAdminUserRequest(plan.Id.ValueString())
+	addRequest := client.NewAddTopologyAdminUserRequest(plan.Name.ValueString())
 	err := addOptionalTopologyAdminUserFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Topology Admin User", err.Error())
@@ -738,7 +740,7 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
 		return
@@ -755,7 +757,7 @@ func (r *defaultTopologyAdminUserResource) Create(ctx context.Context, req resou
 	readTopologyAdminUserResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createTopologyAdminUserOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -807,7 +809,7 @@ func readTopologyAdminUser(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.TopologyAdminUserApi.GetTopologyAdminUser(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Topology Admin User", err, httpResp)
 		return
@@ -849,7 +851,7 @@ func updateTopologyAdminUser(ctx context.Context, req resource.UpdateRequest, re
 	var state topologyAdminUserResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.TopologyAdminUserApi.UpdateTopologyAdminUser(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createTopologyAdminUserOperations(plan, state)
@@ -903,7 +905,7 @@ func (r *topologyAdminUserResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUserExecute(r.apiClient.TopologyAdminUserApi.DeleteTopologyAdminUser(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Topology Admin User", err, httpResp)
 		return
@@ -919,6 +921,6 @@ func (r *defaultTopologyAdminUserResource) ImportState(ctx context.Context, req 
 }
 
 func importTopologyAdminUser(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

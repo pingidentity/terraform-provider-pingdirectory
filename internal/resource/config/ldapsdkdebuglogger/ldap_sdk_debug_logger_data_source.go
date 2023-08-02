@@ -47,7 +47,6 @@ func (r *ldapSdkDebugLoggerDataSource) Configure(_ context.Context, req datasour
 }
 
 type ldapSdkDebugLoggerDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                             types.String `tfsdk:"id"`
 	Description                    types.String `tfsdk:"description"`
 	Enabled                        types.Bool   `tfsdk:"enabled"`
@@ -75,15 +74,9 @@ type ldapSdkDebugLoggerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *ldapSdkDebugLoggerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Ldap Sdk Debug Logger.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this LDAP SDK Debug Logger",
 				Required:    false,
@@ -222,6 +215,8 @@ func (r *ldapSdkDebugLoggerDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a LdapSdkDebugLoggerResponse object into the model struct

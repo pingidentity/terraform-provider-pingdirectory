@@ -48,6 +48,7 @@ func (r *uncachedEntryCriteriaDataSource) Configure(_ context.Context, req datas
 
 type uncachedEntryCriteriaDataSourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	Type                            types.String `tfsdk:"type"`
 	ExtensionClass                  types.String `tfsdk:"extension_class"`
 	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
@@ -62,13 +63,9 @@ type uncachedEntryCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *uncachedEntryCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Uncached Entry Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Uncached Entry Criteria resource. Options are ['default', 'last-access-time', 'filter-based', 'groovy-scripted', 'third-party']",
 				Required:    false,
@@ -133,12 +130,15 @@ func (r *uncachedEntryCriteriaDataSource) Schema(ctx context.Context, req dataso
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DefaultUncachedEntryCriteriaResponse object into the model struct
 func readDefaultUncachedEntryCriteriaResponseDataSource(ctx context.Context, r *client.DefaultUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -147,6 +147,7 @@ func readDefaultUncachedEntryCriteriaResponseDataSource(ctx context.Context, r *
 func readLastAccessTimeUncachedEntryCriteriaResponseDataSource(ctx context.Context, r *client.LastAccessTimeUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("last-access-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccessTimeThreshold = types.StringValue(r.AccessTimeThreshold)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -156,6 +157,7 @@ func readLastAccessTimeUncachedEntryCriteriaResponseDataSource(ctx context.Conte
 func readFilterBasedUncachedEntryCriteriaResponseDataSource(ctx context.Context, r *client.FilterBasedUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("filter-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Filter = types.StringValue(r.Filter)
 	state.FilterIdentifiesUncachedEntries = types.BoolValue(r.FilterIdentifiesUncachedEntries)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -166,6 +168,7 @@ func readFilterBasedUncachedEntryCriteriaResponseDataSource(ctx context.Context,
 func readGroovyScriptedUncachedEntryCriteriaResponseDataSource(ctx context.Context, r *client.GroovyScriptedUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -176,6 +179,7 @@ func readGroovyScriptedUncachedEntryCriteriaResponseDataSource(ctx context.Conte
 func readThirdPartyUncachedEntryCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartyUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -193,7 +197,7 @@ func (r *uncachedEntryCriteriaDataSource) Read(ctx context.Context, req datasour
 	}
 
 	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
 		return

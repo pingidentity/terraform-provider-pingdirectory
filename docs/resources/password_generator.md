@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_password_generator" "myPasswordGenerator" {
-  id                     = "MyPasswordGenerator"
+  name                   = "MyPasswordGenerator"
   type                   = "random"
   password_character_set = ["set:abcdefghijklmnopqrstuvwxyz"]
   password_format        = "set:15"
@@ -51,7 +51,7 @@ resource "pingdirectory_password_generator" "myPasswordGenerator" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Password Generator is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Password Generator resource. Options are ['random', 'groovy-scripted', 'passphrase', 'third-party']
 
 ### Optional
@@ -70,6 +70,7 @@ resource "pingdirectory_password_generator" "myPasswordGenerator" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

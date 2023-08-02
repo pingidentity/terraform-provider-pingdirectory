@@ -48,6 +48,7 @@ func (r *cipherStreamProviderDataSource) Configure(_ context.Context, req dataso
 
 type cipherStreamProviderDataSourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	Type                            types.String `tfsdk:"type"`
 	ExtensionClass                  types.String `tfsdk:"extension_class"`
 	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
@@ -93,13 +94,9 @@ type cipherStreamProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Cipher Stream Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Cipher Stream Provider resource. Options are ['amazon-key-management-service', 'amazon-secrets-manager', 'azure-key-vault', 'file-based', 'wait-for-passphrase', 'conjur', 'pkcs11', 'vault', 'third-party']",
 				Required:    false,
@@ -353,12 +350,15 @@ func (r *cipherStreamProviderDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a AmazonKeyManagementServiceCipherStreamProviderResponse object into the model struct
 func readAmazonKeyManagementServiceCipherStreamProviderResponseDataSource(ctx context.Context, r *client.AmazonKeyManagementServiceCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-key-management-service")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EncryptedPassphraseFile = types.StringValue(r.EncryptedPassphraseFile)
 	state.AwsExternalServer = internaltypes.StringTypeOrNil(r.AwsExternalServer, false)
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, false)
@@ -373,6 +373,7 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponseDataSource(ctx co
 func readAmazonSecretsManagerCipherStreamProviderResponseDataSource(ctx context.Context, r *client.AmazonSecretsManagerCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-secrets-manager")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
 	state.SecretID = types.StringValue(r.SecretID)
 	state.SecretFieldName = types.StringValue(r.SecretFieldName)
@@ -388,6 +389,7 @@ func readAmazonSecretsManagerCipherStreamProviderResponseDataSource(ctx context.
 func readAzureKeyVaultCipherStreamProviderResponseDataSource(ctx context.Context, r *client.AzureKeyVaultCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("azure-key-vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
@@ -402,6 +404,7 @@ func readAzureKeyVaultCipherStreamProviderResponseDataSource(ctx context.Context
 func readFileBasedCipherStreamProviderResponseDataSource(ctx context.Context, r *client.FileBasedCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
 	state.WaitForPasswordFile = internaltypes.BoolTypeOrNil(r.WaitForPasswordFile)
 	state.EncryptionMetadataFile = internaltypes.StringTypeOrNil(r.EncryptionMetadataFile, false)
@@ -414,6 +417,7 @@ func readFileBasedCipherStreamProviderResponseDataSource(ctx context.Context, r 
 func readWaitForPassphraseCipherStreamProviderResponseDataSource(ctx context.Context, r *client.WaitForPassphraseCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("wait-for-passphrase")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -422,6 +426,7 @@ func readWaitForPassphraseCipherStreamProviderResponseDataSource(ctx context.Con
 func readConjurCipherStreamProviderResponseDataSource(ctx context.Context, r *client.ConjurCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
@@ -434,6 +439,7 @@ func readConjurCipherStreamProviderResponseDataSource(ctx context.Context, r *cl
 func readPkcs11CipherStreamProviderResponseDataSource(ctx context.Context, r *client.Pkcs11CipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pkcs11")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, false)
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, false)
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, false)
@@ -450,6 +456,7 @@ func readPkcs11CipherStreamProviderResponseDataSource(ctx context.Context, r *cl
 func readVaultCipherStreamProviderResponseDataSource(ctx context.Context, r *client.VaultCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultExternalServer = internaltypes.StringTypeOrNil(r.VaultExternalServer, false)
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = internaltypes.StringTypeOrNil(r.VaultAuthenticationMethod, false)
@@ -467,6 +474,7 @@ func readVaultCipherStreamProviderResponseDataSource(ctx context.Context, r *cli
 func readThirdPartyCipherStreamProviderResponseDataSource(ctx context.Context, r *client.ThirdPartyCipherStreamProviderResponse, state *cipherStreamProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -484,7 +492,7 @@ func (r *cipherStreamProviderDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.GetCipherStreamProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Stream Provider", err, httpResp)
 		return

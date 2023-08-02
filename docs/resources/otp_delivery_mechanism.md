@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
-  id             = "MyOtpDeliveryMechanism"
+  name           = "MyOtpDeliveryMechanism"
   type           = "email"
   sender_address = "sender@example.com"
   enabled        = true
@@ -50,7 +50,7 @@ resource "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether this OTP Delivery Mechanism is enabled for use in the server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of OTP Delivery Mechanism resource. Options are ['twilio', 'email', 'third-party']
 
 ### Optional
@@ -76,6 +76,7 @@ resource "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandler" {
-  id = "MyChangeSubscriptionHandler"
+  name = "MyChangeSubscriptionHandler"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandler" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -55,6 +55,7 @@ data "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandler" {
 - `enabled` (Boolean) Indicates whether this change subscription handler is enabled within the server.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Change Subscription Handler. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Change Subscription Handler.
+- `id` (String) The ID of this resource.
 - `log_file` (String) Specifies the log file in which the change notification messages will be written.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Change Subscription Handler. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Change Subscription Handler.

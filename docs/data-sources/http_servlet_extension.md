@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_http_servlet_extension" "myHttpServletExtension" {
-  id = "MyHttpServletExtension"
+  name = "MyHttpServletExtension"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_http_servlet_extension" "myHttpServletExtension" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -86,6 +86,7 @@ data "pingdirectory_http_servlet_extension" "myHttpServletExtension" {
 - `expose_session_attributes` (Boolean) Specifies whether the HTTP session will be exposed to templates.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party HTTP Servlet Extension. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party HTTP Servlet Extension.
+- `id` (String) The ID of this resource.
 - `id_token_validator` (Set of String) The ID token validators that may be used to verify the authenticity of an of an OpenID Connect ID token.
 - `identity_mapper` (String) Specifies the Identity Mapper that is to be used for associating user entries with basic authentication user names.
 - `include_instance_name_label` (Boolean) Indicates whether generated metrics should include an "instance" label whose value is the instance name for this Directory Server instance.

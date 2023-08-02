@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_rest_resource_type" "myRestResourceType" {
-  id = "MyRestResourceType"
+  name = "MyRestResourceType"
 }

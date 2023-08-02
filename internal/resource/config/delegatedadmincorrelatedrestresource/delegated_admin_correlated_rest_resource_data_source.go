@@ -48,6 +48,7 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Configure(_ context.Con
 
 type delegatedAdminCorrelatedRestResourceDataSourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
+	Name                                      types.String `tfsdk:"name"`
 	RestResourceTypeName                      types.String `tfsdk:"rest_resource_type_name"`
 	DisplayName                               types.String `tfsdk:"display_name"`
 	CorrelatedRESTResource                    types.String `tfsdk:"correlated_rest_resource"`
@@ -58,13 +59,9 @@ type delegatedAdminCorrelatedRestResourceDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *delegatedAdminCorrelatedRestResourceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Correlated Rest Resource.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"rest_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent REST Resource Type",
 				Required:    true,
@@ -101,11 +98,14 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Schema(ctx context.Cont
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DelegatedAdminCorrelatedRestResourceResponse object into the model struct
 func readDelegatedAdminCorrelatedRestResourceResponseDataSource(ctx context.Context, r *client.DelegatedAdminCorrelatedRestResourceResponse, state *delegatedAdminCorrelatedRestResourceDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DisplayName = types.StringValue(r.DisplayName)
 	state.CorrelatedRESTResource = types.StringValue(r.CorrelatedRESTResource)
 	state.PrimaryRESTResourceCorrelationAttribute = types.StringValue(r.PrimaryRESTResourceCorrelationAttribute)
@@ -124,7 +124,7 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Read(ctx context.Contex
 	}
 
 	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Correlated Rest Resource", err, httpResp)
 		return

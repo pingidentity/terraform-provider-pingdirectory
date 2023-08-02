@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_certificate_mapper" "myCertificateMapper" {
-  id      = "MyCertificateMapper"
+  name    = "MyCertificateMapper"
   type    = "subject-equals-dn"
   enabled = false
 }

@@ -59,6 +59,7 @@ func (r *serverInstanceListenerResource) Configure(_ context.Context, req resour
 
 type serverInstanceListenerResourceModel struct {
 	Id                  types.String `tfsdk:"id"`
+	Name                types.String `tfsdk:"name"`
 	LastUpdated         types.String `tfsdk:"last_updated"`
 	Notifications       types.Set    `tfsdk:"notifications"`
 	RequiredActions     types.Set    `tfsdk:"required_actions"`
@@ -145,7 +146,7 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -175,6 +176,7 @@ func (r *serverInstanceListenerResource) ModifyPlan(ctx context.Context, req res
 func readLdapServerInstanceListenerResponse(ctx context.Context, r *client.LdapServerInstanceListenerResponse, state *serverInstanceListenerResourceModel, expectedValues *serverInstanceListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerLDAPPort = internaltypes.Int64TypeOrNil(r.ServerLDAPPort)
 	state.ConnectionSecurity = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceListenerLdapConnectionSecurityProp(r.ConnectionSecurity), true)
@@ -188,6 +190,7 @@ func readLdapServerInstanceListenerResponse(ctx context.Context, r *client.LdapS
 func readHttpServerInstanceListenerResponse(ctx context.Context, r *client.HttpServerInstanceListenerResponse, state *serverInstanceListenerResourceModel, expectedValues *serverInstanceListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ListenAddress = internaltypes.StringTypeOrNil(r.ListenAddress, true)
 	state.ServerHTTPPort = internaltypes.Int64TypeOrNil(r.ServerHTTPPort)
 	state.ConnectionSecurity = internaltypes.StringTypeOrNil(
@@ -231,7 +234,7 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.GetServerInstanceListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance Listener", err, httpResp)
 		return
@@ -253,7 +256,7 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createServerInstanceListenerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -302,7 +305,7 @@ func (r *serverInstanceListenerResource) Read(ctx context.Context, req resource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerInstanceListenerApi.GetServerInstanceListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance Listener", err, httpResp)
 		return
@@ -341,7 +344,7 @@ func (r *serverInstanceListenerResource) Update(ctx context.Context, req resourc
 	var state serverInstanceListenerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.ServerInstanceListenerApi.UpdateServerInstanceListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceName.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createServerInstanceListenerOperations(plan, state)
@@ -398,5 +401,5 @@ func (r *serverInstanceListenerResource) ImportState(ctx context.Context, req re
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("server_instance_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

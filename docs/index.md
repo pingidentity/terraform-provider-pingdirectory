@@ -65,7 +65,7 @@ provider "pingdirectory" {
 
 # Create a sample location
 resource "pingdirectory_location" "myLocation" {
-  id          = "MyLocation"
+  name        = "MyLocation"
   description = "My description"
 }
 
@@ -112,7 +112,7 @@ provider "pingdirectory" {
 
 # Disable the default failed operations access logger
 resource "pingdirectory_default_log_publisher" "defaultFileBasedAccessLogPublisher" {
-  id      = "Failed Operations Access Logger"
+  name    = "Failed Operations Access Logger"
   type    = "file-based-access"
   enabled = false
 }
@@ -120,7 +120,7 @@ resource "pingdirectory_default_log_publisher" "defaultFileBasedAccessLogPublish
 # Create a new custom file based access logger
 resource "pingdirectory_log_publisher" "myNewFileBasedAccessLogPublisher" {
   type                 = "file-based-access"
-  id                   = "MyNewFileBasedAccessLogPublisher"
+  name                 = "MyNewFileBasedAccessLogPublisher"
   log_file             = "logs/example.log"
   log_file_permissions = "600"
   rotation_policy      = ["Size Limit Rotation Policy"]
@@ -132,14 +132,14 @@ resource "pingdirectory_log_publisher" "myNewFileBasedAccessLogPublisher" {
 # Enable the default JMX connection handler
 resource "pingdirectory_default_connection_handler" "defaultJmxConnHandler" {
   type    = "jmx"
-  id      = "JMX Connection Handler"
+  name    = "JMX Connection Handler"
   enabled = true
 }
 
 # Create a new custom JMX connection handler
 resource "pingdirectory_connection_handler" "myJmxConnHandler" {
   type        = "jmx"
-  id          = "MyJmxConnHandler"
+  name        = "MyJmxConnHandler"
   enabled     = false
   listen_port = 8888
 }

@@ -60,11 +60,11 @@ func testAccExpiredPasswordDataSecurityAuditorResource(resourceName string, reso
 	return fmt.Sprintf(`
 resource "pingdirectory_data_security_auditor" "%[1]s" {
   type = "expired-password"
-  id   = "%[2]s"
+  name = "%[2]s"
 }
 
 data "pingdirectory_data_security_auditor" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_data_security_auditor.%[1]s
   ]

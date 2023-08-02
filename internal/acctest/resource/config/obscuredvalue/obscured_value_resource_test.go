@@ -75,13 +75,13 @@ func TestAccObscuredValue(t *testing.T) {
 func testAccObscuredValueResource(resourceName string, resourceModel obscuredValueTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_obscured_value" "%[1]s" {
-  id             = "%[2]s"
+  name           = "%[2]s"
   obscured_value = "%[3]s"
   description    = "%[4]s"
 }
 
 data "pingdirectory_obscured_value" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_obscured_value.%[1]s
   ]

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAdminCorrelatedRestResource" {
-  id                      = "MyDelegatedAdminCorrelatedRestResource"
+  name                    = "MyDelegatedAdminCorrelatedRestResource"
   rest_resource_type_name = "MyRestResourceType"
 }
 ```
@@ -47,13 +47,14 @@ data "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAdminC
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `rest_resource_type_name` (String) Name of the parent REST Resource Type
 
 ### Read-Only
 
 - `correlated_rest_resource` (String) The REST Resource Type that will be linked to this REST Resource Type.
 - `display_name` (String) A human readable display name for this Delegated Admin Correlated REST Resource.
+- `id` (String) The ID of this resource.
 - `primary_rest_resource_correlation_attribute` (String) The LDAP attribute from the parent REST Resource Type whose value will be used to match objects in the Delegated Admin Correlated REST Resource. This attribute must be writeable when use-secondary-value-for-linking is enabled.
 - `secondary_rest_resource_correlation_attribute` (String) The LDAP attribute from the Delegated Admin Correlated REST Resource whose value will be matched with the primary-rest-resource-correlation-attribute. This attribute must be writeable when use-secondary-value-for-linking is disabled.
 - `use_secondary_value_for_linking` (Boolean) Indicates whether links should be created using the secondary correlation attribute value.

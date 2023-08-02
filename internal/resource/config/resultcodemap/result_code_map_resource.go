@@ -81,6 +81,7 @@ func (r *defaultResultCodeMapResource) Configure(_ context.Context, req resource
 
 type resultCodeMapResourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Name                          types.String `tfsdk:"name"`
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
@@ -144,9 +145,9 @@ func resultCodeMapSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -173,6 +174,7 @@ func addOptionalResultCodeMapFields(ctx context.Context, addRequest *client.AddR
 // Read a ResultCodeMapResponse object into the model struct
 func readResultCodeMapResponse(ctx context.Context, r *client.ResultCodeMapResponse, state *resultCodeMapResourceModel, expectedValues *resultCodeMapResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.BindAccountLockedResultCode = internaltypes.Int64TypeOrNil(r.BindAccountLockedResultCode)
 	state.BindMissingUserResultCode = internaltypes.Int64TypeOrNil(r.BindMissingUserResultCode)
@@ -194,7 +196,7 @@ func createResultCodeMapOperations(plan resultCodeMapResourceModel, state result
 
 // Create a result-code-map result-code-map
 func (r *resultCodeMapResource) CreateResultCodeMap(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan resultCodeMapResourceModel) (*resultCodeMapResourceModel, error) {
-	addRequest := client.NewAddResultCodeMapRequest(plan.Id.ValueString())
+	addRequest := client.NewAddResultCodeMapRequest(plan.Name.ValueString())
 	addOptionalResultCodeMapFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -263,7 +265,7 @@ func (r *defaultResultCodeMapResource) Create(ctx context.Context, req resource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.ResultCodeMapApi.GetResultCodeMap(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Code Map", err, httpResp)
 		return
@@ -280,7 +282,7 @@ func (r *defaultResultCodeMapResource) Create(ctx context.Context, req resource.
 	readResultCodeMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ResultCodeMapApi.UpdateResultCodeMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ResultCodeMapApi.UpdateResultCodeMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createResultCodeMapOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -331,7 +333,7 @@ func readResultCodeMap(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 
 	readResponse, httpResp, err := apiClient.ResultCodeMapApi.GetResultCodeMap(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Code Map", err, httpResp)
 		return
@@ -373,7 +375,7 @@ func updateResultCodeMap(ctx context.Context, req resource.UpdateRequest, resp *
 	var state resultCodeMapResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ResultCodeMapApi.UpdateResultCodeMap(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createResultCodeMapOperations(plan, state)
@@ -426,7 +428,7 @@ func (r *resultCodeMapResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	httpResp, err := r.apiClient.ResultCodeMapApi.DeleteResultCodeMapExecute(r.apiClient.ResultCodeMapApi.DeleteResultCodeMap(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Result Code Map", err, httpResp)
 		return
@@ -442,6 +444,6 @@ func (r *defaultResultCodeMapResource) ImportState(ctx context.Context, req reso
 }
 
 func importResultCodeMap(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

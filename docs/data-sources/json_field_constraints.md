@@ -58,7 +58,7 @@ data "pingdirectory_json_field_constraints" "myJsonFieldConstraints" {
 - `allowed_value_regular_expression` (Set of String) Specifies an explicit set of regular expressions that may be used to restrict the set of values that may be used for the target field. If a set of allowed value regular expressions is defined, then the server will reject any attempt to store a JSON object with a value for the target field that does not match at least one of those regular expressions.
 - `cache_mode` (String) Specifies the behavior that the server should exhibit when caching data for the associated JSON index. This can be useful in environments in which the system does not have enough memory to fully cache the entire data set, as it makes it possible to prioritize which data is the most important to keep in memory.
 - `description` (String) A description for this JSON Field Constraints
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `index_entry_limit` (Number) The maximum number of entries that may contain a particular value for the target field before the server will stop maintaining the index for that value.
 - `index_values` (Boolean) Indicates whether backends that support JSON indexing should maintain an index for values of the target field.
 - `is_array` (String) Indicates whether the value of the target field may be an array of values rather than a single value. If this property is set to "required" or "optional", then the constraints defined for this field will be applied to each element of the array.

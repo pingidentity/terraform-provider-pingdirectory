@@ -56,15 +56,9 @@ type interServerAuthenticationInfoListDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *interServerAuthenticationInfoListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Inter Server Authentication Info objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"server_instance_listener_name": schema.StringAttribute{
 				Description: "Name of the parent Server Instance Listener",
 				Required:    true,
@@ -86,6 +80,8 @@ func (r *interServerAuthenticationInfoListDataSource) Schema(ctx context.Context
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

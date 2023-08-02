@@ -84,6 +84,7 @@ func (r *defaultSearchEntryCriteriaResource) Configure(_ context.Context, req re
 
 type searchEntryCriteriaResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -327,9 +328,9 @@ func searchEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest, 
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -619,6 +620,7 @@ func populateSearchEntryCriteriaUnknownValues(ctx context.Context, model *search
 func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.SimpleSearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
 	state.AllIncludedEntryControl = internaltypes.GetStringSet(r.AllIncludedEntryControl)
 	state.AnyIncludedEntryControl = internaltypes.GetStringSet(r.AnyIncludedEntryControl)
@@ -643,6 +645,7 @@ func readSimpleSearchEntryCriteriaResponse(ctx context.Context, r *client.Simple
 func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.AggregateSearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.AllIncludedSearchEntryCriteria)
 	state.AnyIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.AnyIncludedSearchEntryCriteria)
 	state.NotAllIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NotAllIncludedSearchEntryCriteria)
@@ -656,6 +659,7 @@ func readAggregateSearchEntryCriteriaResponse(ctx context.Context, r *client.Agg
 func readThirdPartySearchEntryCriteriaResponse(ctx context.Context, r *client.ThirdPartySearchEntryCriteriaResponse, state *searchEntryCriteriaResourceModel, expectedValues *searchEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -693,7 +697,7 @@ func createSearchEntryCriteriaOperations(plan searchEntryCriteriaResourceModel, 
 
 // Create a simple search-entry-criteria
 func (r *searchEntryCriteriaResource) CreateSimpleSearchEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchEntryCriteriaResourceModel) (*searchEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleSearchEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleSearchEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleSearchEntryCriteriaSchemaUrn{client.ENUMSIMPLESEARCHENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_ENTRY_CRITERIASIMPLE})
 	addOptionalSimpleSearchEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -726,7 +730,7 @@ func (r *searchEntryCriteriaResource) CreateSimpleSearchEntryCriteria(ctx contex
 
 // Create a aggregate search-entry-criteria
 func (r *searchEntryCriteriaResource) CreateAggregateSearchEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchEntryCriteriaResourceModel) (*searchEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateSearchEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAggregateSearchEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumaggregateSearchEntryCriteriaSchemaUrn{client.ENUMAGGREGATESEARCHENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_ENTRY_CRITERIAAGGREGATE})
 	addOptionalAggregateSearchEntryCriteriaFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -759,7 +763,7 @@ func (r *searchEntryCriteriaResource) CreateAggregateSearchEntryCriteria(ctx con
 
 // Create a third-party search-entry-criteria
 func (r *searchEntryCriteriaResource) CreateThirdPartySearchEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan searchEntryCriteriaResourceModel) (*searchEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartySearchEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartySearchEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartySearchEntryCriteriaSchemaUrn{client.ENUMTHIRDPARTYSEARCHENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SEARCH_ENTRY_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	addOptionalThirdPartySearchEntryCriteriaFields(ctx, addRequest, plan)
@@ -847,7 +851,7 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 	}
 
 	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
 		return
@@ -872,7 +876,7 @@ func (r *defaultSearchEntryCriteriaResource) Create(ctx context.Context, req res
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSearchEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -931,7 +935,7 @@ func readSearchEntryCriteria(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	readResponse, httpResp, err := apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
 		return
@@ -981,7 +985,7 @@ func updateSearchEntryCriteria(ctx context.Context, req resource.UpdateRequest, 
 	var state searchEntryCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.SearchEntryCriteriaApi.UpdateSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSearchEntryCriteriaOperations(plan, state)
@@ -1042,7 +1046,7 @@ func (r *searchEntryCriteriaResource) Delete(ctx context.Context, req resource.D
 	}
 
 	httpResp, err := r.apiClient.SearchEntryCriteriaApi.DeleteSearchEntryCriteriaExecute(r.apiClient.SearchEntryCriteriaApi.DeleteSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Search Entry Criteria", err, httpResp)
 		return
@@ -1058,6 +1062,6 @@ func (r *defaultSearchEntryCriteriaResource) ImportState(ctx context.Context, re
 }
 
 func importSearchEntryCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

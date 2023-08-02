@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_entry_cache" "myEntryCache" {
-  id = "MyEntryCache"
+  name = "MyEntryCache"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_entry_cache" "myEntryCache" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -55,6 +55,7 @@ data "pingdirectory_entry_cache" "myEntryCache" {
 - `description` (String) A description for this Entry Cache
 - `enabled` (Boolean) Indicates whether the Entry Cache is enabled.
 - `exclude_filter` (Set of String) The set of filters that define the entries that should be excluded from the cache.
+- `id` (String) The ID of this resource.
 - `include_filter` (Set of String) The set of filters that define the entries that should be included in the cache.
 - `max_entries` (Number) Specifies the maximum number of entries that will be allowed in the cache. Once the cache reaches this size, then adding new entries will cause existing entries to be purged, starting with the oldest.
 - `max_memory_percent` (Number) Specifies the maximum amount of memory, as a percentage of the total maximum JVM heap size, that this cache should occupy when full. If the amount of memory the cache is using is greater than this amount, then an attempt to put a new entry in the cache will be ignored and will cause the oldest entry to be purged.

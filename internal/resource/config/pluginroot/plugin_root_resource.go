@@ -53,7 +53,6 @@ func (r *pluginRootResource) Configure(_ context.Context, req resource.Configure
 }
 
 type pluginRootResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                     types.String `tfsdk:"id"`
 	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
@@ -517,7 +516,7 @@ func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequ
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

@@ -19,7 +19,7 @@ provider "pingdirectory" {
 
 # Create a sample location
 resource "pingdirectory_location" "myLocation" {
-  id          = "MyLocation"
+  name        = "MyLocation"
   description = "My description"
 }
 

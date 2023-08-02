@@ -48,6 +48,7 @@ func (r *saslMechanismHandlerDataSource) Configure(_ context.Context, req dataso
 
 type saslMechanismHandlerDataSourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
+	Name                                         types.String `tfsdk:"name"`
 	Type                                         types.String `tfsdk:"type"`
 	ExtensionClass                               types.String `tfsdk:"extension_class"`
 	ExtensionArgument                            types.Set    `tfsdk:"extension_argument"`
@@ -91,13 +92,9 @@ type saslMechanismHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *saslMechanismHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Sasl Mechanism Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of SASL Mechanism Handler resource. Options are ['unboundid-ms-chap-v2', 'unboundid-totp', 'unboundid-yubikey-otp', 'external', 'digest-md5', 'plain', 'unboundid-delivered-otp', 'unboundid-external-auth', 'anonymous', 'cram-md5', 'oauth-bearer', 'unboundid-certificate-plus-password', 'gssapi', 'third-party']",
 				Required:    false,
@@ -342,12 +339,15 @@ func (r *saslMechanismHandlerDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a UnboundidMsChapV2SaslMechanismHandlerResponse object into the model struct
 func readUnboundidMsChapV2SaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.UnboundidMsChapV2SaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unboundid-ms-chap-v2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -357,6 +357,7 @@ func readUnboundidMsChapV2SaslMechanismHandlerResponseDataSource(ctx context.Con
 func readUnboundidTotpSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.UnboundidTotpSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unboundid-totp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, false)
 	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, false)
@@ -371,6 +372,7 @@ func readUnboundidTotpSaslMechanismHandlerResponseDataSource(ctx context.Context
 func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.UnboundidYubikeyOtpSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unboundid-yubikey-otp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.YubikeyClientID = internaltypes.StringTypeOrNil(r.YubikeyClientID, false)
 	state.YubikeyAPIKeyPassphraseProvider = internaltypes.StringTypeOrNil(r.YubikeyAPIKeyPassphraseProvider, false)
 	state.YubikeyValidationServerBaseURL = internaltypes.GetStringSet(r.YubikeyValidationServerBaseURL)
@@ -387,6 +389,7 @@ func readUnboundidYubikeyOtpSaslMechanismHandlerResponseDataSource(ctx context.C
 func readExternalSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.ExternalSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("external")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CertificateValidationPolicy = types.StringValue(r.CertificateValidationPolicy.String())
 	state.CertificateAttribute = internaltypes.StringTypeOrNil(r.CertificateAttribute, false)
 	state.CertificateMapper = types.StringValue(r.CertificateMapper)
@@ -398,6 +401,7 @@ func readExternalSaslMechanismHandlerResponseDataSource(ctx context.Context, r *
 func readDigestMd5SaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.DigestMd5SaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("digest-md5")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Realm = internaltypes.StringTypeOrNil(r.Realm, false)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.ServerFqdn = internaltypes.StringTypeOrNil(r.ServerFqdn, false)
@@ -409,6 +413,7 @@ func readDigestMd5SaslMechanismHandlerResponseDataSource(ctx context.Context, r 
 func readPlainSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.PlainSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("plain")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -418,6 +423,7 @@ func readPlainSaslMechanismHandlerResponseDataSource(ctx context.Context, r *cli
 func readUnboundidDeliveredOtpSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.UnboundidDeliveredOtpSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unboundid-delivered-otp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.OtpValidityDuration = types.StringValue(r.OtpValidityDuration)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -428,6 +434,7 @@ func readUnboundidDeliveredOtpSaslMechanismHandlerResponseDataSource(ctx context
 func readUnboundidExternalAuthSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.UnboundidExternalAuthSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unboundid-external-auth")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -437,6 +444,7 @@ func readUnboundidExternalAuthSaslMechanismHandlerResponseDataSource(ctx context
 func readAnonymousSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.AnonymousSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("anonymous")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -445,6 +453,7 @@ func readAnonymousSaslMechanismHandlerResponseDataSource(ctx context.Context, r 
 func readCramMd5SaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.CramMd5SaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("cram-md5")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -454,6 +463,7 @@ func readCramMd5SaslMechanismHandlerResponseDataSource(ctx context.Context, r *c
 func readOauthBearerSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.OauthBearerSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("oauth-bearer")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccessTokenValidator = internaltypes.GetStringSet(r.AccessTokenValidator)
 	state.IdTokenValidator = internaltypes.GetStringSet(r.IdTokenValidator)
 	state.RequireBothAccessTokenAndIDToken = internaltypes.BoolTypeOrNil(r.RequireBothAccessTokenAndIDToken)
@@ -471,6 +481,7 @@ func readOauthBearerSaslMechanismHandlerResponseDataSource(ctx context.Context, 
 func readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unboundid-certificate-plus-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CertificateMapper = types.StringValue(r.CertificateMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -480,6 +491,7 @@ func readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDataSource(
 func readGssapiSaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.GssapiSaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("gssapi")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Realm = internaltypes.StringTypeOrNil(r.Realm, false)
 	state.KdcAddress = internaltypes.StringTypeOrNil(r.KdcAddress, false)
 	state.Keytab = internaltypes.StringTypeOrNil(r.Keytab, false)
@@ -502,6 +514,7 @@ func readGssapiSaslMechanismHandlerResponseDataSource(ctx context.Context, r *cl
 func readThirdPartySaslMechanismHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartySaslMechanismHandlerResponse, state *saslMechanismHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
@@ -520,7 +533,7 @@ func (r *saslMechanismHandlerDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.SaslMechanismHandlerApi.GetSaslMechanismHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sasl Mechanism Handler", err, httpResp)
 		return

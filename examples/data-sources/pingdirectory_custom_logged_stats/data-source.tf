@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
-  id          = "MyCustomLoggedStats"
+  name        = "MyCustomLoggedStats"
   plugin_name = "MyPlugin"
 }

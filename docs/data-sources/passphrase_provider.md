@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_passphrase_provider" "myPassphraseProvider" {
-  id = "MyPassphraseProvider"
+  name = "MyPassphraseProvider"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_passphrase_provider" "myPassphraseProvider" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -60,6 +60,7 @@ data "pingdirectory_passphrase_provider" "myPassphraseProvider" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Passphrase Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Passphrase Provider.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Azure service. Supported in PingDirectory product version 9.2.0.0+.
+- `id` (String) The ID of this resource.
 - `key_vault_uri` (String) The URI that identifies the Azure Key Vault from which the secret is to be retrieved.
 - `max_cache_duration` (String) The maximum length of time that the passphrase provider may cache the passphrase that has been read from Vault. A value of zero seconds indicates that the provider should always attempt to read the passphrase from Vault.
 - `obscured_value` (String, Sensitive) The value to be stored in an obscured form.

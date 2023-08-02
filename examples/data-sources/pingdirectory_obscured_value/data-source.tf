@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_obscured_value" "myObscuredValue" {
-  id = "MyObscuredValue"
+  name = "MyObscuredValue"
 }

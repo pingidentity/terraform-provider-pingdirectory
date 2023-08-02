@@ -75,13 +75,13 @@ func testAccGenericWebApplicationExtensionResource(resourceName string, resource
 	return fmt.Sprintf(`
 resource "pingdirectory_web_application_extension" "%[1]s" {
   type                    = "generic"
-  id                      = "%[2]s"
+  name                    = "%[2]s"
   base_context_path       = "%[3]s"
   document_root_directory = "%[4]s"
 }
 
 data "pingdirectory_web_application_extension" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_web_application_extension.%[1]s
   ]

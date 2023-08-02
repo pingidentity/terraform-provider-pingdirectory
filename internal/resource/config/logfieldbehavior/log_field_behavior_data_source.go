@@ -48,6 +48,7 @@ func (r *logFieldBehaviorDataSource) Configure(_ context.Context, req datasource
 
 type logFieldBehaviorDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	Type                             types.String `tfsdk:"type"`
 	PreserveField                    types.Set    `tfsdk:"preserve_field"`
 	PreserveFieldName                types.Set    `tfsdk:"preserve_field_name"`
@@ -67,13 +68,9 @@ type logFieldBehaviorDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logFieldBehaviorDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log Field Behavior.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log Field Behavior resource. Options are ['text-access', 'json-formatted-access']",
 				Required:    false,
@@ -178,12 +175,15 @@ func (r *logFieldBehaviorDataSource) Schema(ctx context.Context, req datasource.
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a TextAccessLogFieldBehaviorResponse object into the model struct
 func readTextAccessLogFieldBehaviorResponseDataSource(ctx context.Context, r *client.TextAccessLogFieldBehaviorResponse, state *logFieldBehaviorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("text-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PreserveField = internaltypes.GetStringSet(
 		client.StringSliceEnumlogFieldBehaviorTextAccessPreserveFieldProp(r.PreserveField))
 	state.PreserveFieldName = internaltypes.GetStringSet(r.PreserveFieldName)
@@ -211,6 +211,7 @@ func readTextAccessLogFieldBehaviorResponseDataSource(ctx context.Context, r *cl
 func readJsonFormattedAccessLogFieldBehaviorResponseDataSource(ctx context.Context, r *client.JsonFormattedAccessLogFieldBehaviorResponse, state *logFieldBehaviorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-formatted-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PreserveField = internaltypes.GetStringSet(
 		client.StringSliceEnumlogFieldBehaviorJsonFormattedAccessPreserveFieldProp(r.PreserveField))
 	state.PreserveFieldName = internaltypes.GetStringSet(r.PreserveFieldName)
@@ -245,7 +246,7 @@ func (r *logFieldBehaviorDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldBehaviorApi.GetLogFieldBehavior(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Behavior", err, httpResp)
 		return

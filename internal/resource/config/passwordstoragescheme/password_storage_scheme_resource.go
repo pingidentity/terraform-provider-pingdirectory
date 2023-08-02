@@ -86,6 +86,7 @@ func (r *defaultPasswordStorageSchemeResource) Configure(_ context.Context, req 
 
 type passwordStorageSchemeResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -302,9 +303,9 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -659,6 +660,7 @@ func populatePasswordStorageSchemeUnknownValues(ctx context.Context, model *pass
 func readSaltedSha256PasswordStorageSchemeResponse(ctx context.Context, r *client.SaltedSha256PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha256")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -670,6 +672,7 @@ func readSaltedSha256PasswordStorageSchemeResponse(ctx context.Context, r *clien
 func readArgon2dPasswordStorageSchemeResponse(ctx context.Context, r *client.Argon2dPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2d")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -685,6 +688,7 @@ func readArgon2dPasswordStorageSchemeResponse(ctx context.Context, r *client.Arg
 func readCryptPasswordStorageSchemeResponse(ctx context.Context, r *client.CryptPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("crypt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordEncodingMechanism = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordStorageSchemePasswordEncodingMechanismProp(r.PasswordEncodingMechanism), internaltypes.IsEmptyString(expectedValues.PasswordEncodingMechanism))
 	state.NumDigestRounds = internaltypes.Int64TypeOrNil(r.NumDigestRounds)
@@ -699,6 +703,7 @@ func readCryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Crypt
 func readArgon2iPasswordStorageSchemeResponse(ctx context.Context, r *client.Argon2iPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2i")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -714,6 +719,7 @@ func readArgon2iPasswordStorageSchemeResponse(ctx context.Context, r *client.Arg
 func readBase64PasswordStorageSchemeResponse(ctx context.Context, r *client.Base64PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("base64")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -724,6 +730,7 @@ func readBase64PasswordStorageSchemeResponse(ctx context.Context, r *client.Base
 func readSaltedMd5PasswordStorageSchemeResponse(ctx context.Context, r *client.SaltedMd5PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-md5")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -735,6 +742,7 @@ func readSaltedMd5PasswordStorageSchemeResponse(ctx context.Context, r *client.S
 func readAesPasswordStorageSchemeResponse(ctx context.Context, r *client.AesPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aes")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -745,6 +753,7 @@ func readAesPasswordStorageSchemeResponse(ctx context.Context, r *client.AesPass
 func readArgon2idPasswordStorageSchemeResponse(ctx context.Context, r *client.Argon2idPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2id")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -760,6 +769,7 @@ func readArgon2idPasswordStorageSchemeResponse(ctx context.Context, r *client.Ar
 func readVaultPasswordStorageSchemeResponse(ctx context.Context, r *client.VaultPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultExternalServer = types.StringValue(r.VaultExternalServer)
 	state.DefaultField = internaltypes.StringTypeOrNil(r.DefaultField, internaltypes.IsEmptyString(expectedValues.DefaultField))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -772,6 +782,7 @@ func readVaultPasswordStorageSchemeResponse(ctx context.Context, r *client.Vault
 func readThirdPartyPasswordStorageSchemeResponse(ctx context.Context, r *client.ThirdPartyPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -784,6 +795,7 @@ func readThirdPartyPasswordStorageSchemeResponse(ctx context.Context, r *client.
 func readArgon2PasswordStorageSchemeResponse(ctx context.Context, r *client.Argon2PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -799,6 +811,7 @@ func readArgon2PasswordStorageSchemeResponse(ctx context.Context, r *client.Argo
 func readThirdPartyEnhancedPasswordStorageSchemeResponse(ctx context.Context, r *client.ThirdPartyEnhancedPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-enhanced")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -811,6 +824,7 @@ func readThirdPartyEnhancedPasswordStorageSchemeResponse(ctx context.Context, r 
 func readPbkdf2PasswordStorageSchemeResponse(ctx context.Context, r *client.Pbkdf2PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pbkdf2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordStorageSchemeDigestAlgorithmProp(r.DigestAlgorithm), internaltypes.IsEmptyString(expectedValues.DigestAlgorithm))
 	state.IterationCount = types.Int64Value(r.IterationCount)
@@ -827,6 +841,7 @@ func readPbkdf2PasswordStorageSchemeResponse(ctx context.Context, r *client.Pbkd
 func readRc4PasswordStorageSchemeResponse(ctx context.Context, r *client.Rc4PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("rc4")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -837,6 +852,7 @@ func readRc4PasswordStorageSchemeResponse(ctx context.Context, r *client.Rc4Pass
 func readSaltedSha384PasswordStorageSchemeResponse(ctx context.Context, r *client.SaltedSha384PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha384")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -848,6 +864,7 @@ func readSaltedSha384PasswordStorageSchemeResponse(ctx context.Context, r *clien
 func readTripleDesPasswordStorageSchemeResponse(ctx context.Context, r *client.TripleDesPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("triple-des")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -858,6 +875,7 @@ func readTripleDesPasswordStorageSchemeResponse(ctx context.Context, r *client.T
 func readClearPasswordStorageSchemeResponse(ctx context.Context, r *client.ClearPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("clear")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -868,6 +886,7 @@ func readClearPasswordStorageSchemeResponse(ctx context.Context, r *client.Clear
 func readAes256PasswordStorageSchemeResponse(ctx context.Context, r *client.Aes256PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aes-256")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, internaltypes.IsEmptyString(expectedValues.EncryptionSettingsDefinitionID))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -879,6 +898,7 @@ func readAes256PasswordStorageSchemeResponse(ctx context.Context, r *client.Aes2
 func readBcryptPasswordStorageSchemeResponse(ctx context.Context, r *client.BcryptPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("bcrypt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BcryptCostFactor = internaltypes.Int64TypeOrNil(r.BcryptCostFactor)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -890,6 +910,7 @@ func readBcryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Bcry
 func readBlowfishPasswordStorageSchemeResponse(ctx context.Context, r *client.BlowfishPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("blowfish")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -900,6 +921,7 @@ func readBlowfishPasswordStorageSchemeResponse(ctx context.Context, r *client.Bl
 func readSha1PasswordStorageSchemeResponse(ctx context.Context, r *client.Sha1PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("sha1")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -910,6 +932,7 @@ func readSha1PasswordStorageSchemeResponse(ctx context.Context, r *client.Sha1Pa
 func readAmazonSecretsManagerPasswordStorageSchemeResponse(ctx context.Context, r *client.AmazonSecretsManagerPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-secrets-manager")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
 	state.DefaultField = internaltypes.StringTypeOrNil(r.DefaultField, internaltypes.IsEmptyString(expectedValues.DefaultField))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -922,6 +945,7 @@ func readAmazonSecretsManagerPasswordStorageSchemeResponse(ctx context.Context, 
 func readAzureKeyVaultPasswordStorageSchemeResponse(ctx context.Context, r *client.AzureKeyVaultPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("azure-key-vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -935,6 +959,7 @@ func readAzureKeyVaultPasswordStorageSchemeResponse(ctx context.Context, r *clie
 func readConjurPasswordStorageSchemeResponse(ctx context.Context, r *client.ConjurPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -946,6 +971,7 @@ func readConjurPasswordStorageSchemeResponse(ctx context.Context, r *client.Conj
 func readSaltedSha1PasswordStorageSchemeResponse(ctx context.Context, r *client.SaltedSha1PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha1")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -957,6 +983,7 @@ func readSaltedSha1PasswordStorageSchemeResponse(ctx context.Context, r *client.
 func readSaltedSha512PasswordStorageSchemeResponse(ctx context.Context, r *client.SaltedSha512PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha512")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -968,6 +995,7 @@ func readSaltedSha512PasswordStorageSchemeResponse(ctx context.Context, r *clien
 func readScryptPasswordStorageSchemeResponse(ctx context.Context, r *client.ScryptPasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("scrypt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScryptCpuMemoryCostFactorExponent = internaltypes.Int64TypeOrNil(r.ScryptCpuMemoryCostFactorExponent)
 	state.ScryptBlockSize = internaltypes.Int64TypeOrNil(r.ScryptBlockSize)
 	state.ScryptParallelizationParameter = internaltypes.Int64TypeOrNil(r.ScryptParallelizationParameter)
@@ -982,6 +1010,7 @@ func readScryptPasswordStorageSchemeResponse(ctx context.Context, r *client.Scry
 func readMd5PasswordStorageSchemeResponse(ctx context.Context, r *client.Md5PasswordStorageSchemeResponse, state *passwordStorageSchemeResourceModel, expectedValues *passwordStorageSchemeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("md5")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -1021,7 +1050,7 @@ func createPasswordStorageSchemeOperations(plan passwordStorageSchemeResourceMod
 
 // Create a argon2 password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2PasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2PasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddArgon2PasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.Enumargon2PasswordStorageSchemeSchemaUrn{client.ENUMARGON2PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
@@ -1064,7 +1093,7 @@ func (r *passwordStorageSchemeResource) CreateArgon2PasswordStorageScheme(ctx co
 
 // Create a third-party-enhanced password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateThirdPartyEnhancedPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddThirdPartyEnhancedPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyEnhancedPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyEnhancedPasswordStorageSchemeSchemaUrn{client.ENUMTHIRDPARTYENHANCEDPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMETHIRD_PARTY_ENHANCED},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1103,7 +1132,7 @@ func (r *passwordStorageSchemeResource) CreateThirdPartyEnhancedPasswordStorageS
 
 // Create a pbkdf2 password-storage-scheme
 func (r *passwordStorageSchemeResource) CreatePbkdf2PasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddPbkdf2PasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPbkdf2PasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.Enumpbkdf2PasswordStorageSchemeSchemaUrn{client.ENUMPBKDF2PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEPBKDF2},
 		plan.Enabled.ValueBool())
 	err := addOptionalPbkdf2PasswordStorageSchemeFields(ctx, addRequest, plan)
@@ -1141,7 +1170,7 @@ func (r *passwordStorageSchemeResource) CreatePbkdf2PasswordStorageScheme(ctx co
 
 // Create a argon2d password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2dPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2dPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddArgon2dPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.Enumargon2dPasswordStorageSchemeSchemaUrn{client.ENUMARGON2DPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2D},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
@@ -1184,7 +1213,7 @@ func (r *passwordStorageSchemeResource) CreateArgon2dPasswordStorageScheme(ctx c
 
 // Create a crypt password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateCryptPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddCryptPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCryptPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumcryptPasswordStorageSchemeSchemaUrn{client.ENUMCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMECRYPT},
 		plan.Enabled.ValueBool())
 	err := addOptionalCryptPasswordStorageSchemeFields(ctx, addRequest, plan)
@@ -1222,7 +1251,7 @@ func (r *passwordStorageSchemeResource) CreateCryptPasswordStorageScheme(ctx con
 
 // Create a argon2i password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2iPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2iPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddArgon2iPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.Enumargon2iPasswordStorageSchemeSchemaUrn{client.ENUMARGON2IPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2I},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
@@ -1265,7 +1294,7 @@ func (r *passwordStorageSchemeResource) CreateArgon2iPasswordStorageScheme(ctx c
 
 // Create a aes-256 password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateAes256PasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddAes256PasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAes256PasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.Enumaes256PasswordStorageSchemeSchemaUrn{client.ENUMAES256PASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAES_256},
 		plan.Enabled.ValueBool())
 	err := addOptionalAes256PasswordStorageSchemeFields(ctx, addRequest, plan)
@@ -1303,7 +1332,7 @@ func (r *passwordStorageSchemeResource) CreateAes256PasswordStorageScheme(ctx co
 
 // Create a bcrypt password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateBcryptPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddBcryptPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddBcryptPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumbcryptPasswordStorageSchemeSchemaUrn{client.ENUMBCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEBCRYPT},
 		plan.Enabled.ValueBool())
 	err := addOptionalBcryptPasswordStorageSchemeFields(ctx, addRequest, plan)
@@ -1341,7 +1370,7 @@ func (r *passwordStorageSchemeResource) CreateBcryptPasswordStorageScheme(ctx co
 
 // Create a argon2id password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateArgon2idPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddArgon2idPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddArgon2idPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.Enumargon2idPasswordStorageSchemeSchemaUrn{client.ENUMARGON2IDPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEARGON2ID},
 		plan.IterationCount.ValueInt64(),
 		plan.ParallelismFactor.ValueInt64(),
@@ -1384,7 +1413,7 @@ func (r *passwordStorageSchemeResource) CreateArgon2idPasswordStorageScheme(ctx 
 
 // Create a amazon-secrets-manager password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateAmazonSecretsManagerPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddAmazonSecretsManagerPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAmazonSecretsManagerPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumamazonSecretsManagerPasswordStorageSchemeSchemaUrn{client.ENUMAMAZONSECRETSMANAGERPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAMAZON_SECRETS_MANAGER},
 		plan.AwsExternalServer.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1423,7 +1452,7 @@ func (r *passwordStorageSchemeResource) CreateAmazonSecretsManagerPasswordStorag
 
 // Create a azure-key-vault password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateAzureKeyVaultPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddAzureKeyVaultPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAzureKeyVaultPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumazureKeyVaultPasswordStorageSchemeSchemaUrn{client.ENUMAZUREKEYVAULTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEAZURE_KEY_VAULT},
 		plan.KeyVaultURI.ValueString(),
 		plan.AzureAuthenticationMethod.ValueString(),
@@ -1463,7 +1492,7 @@ func (r *passwordStorageSchemeResource) CreateAzureKeyVaultPasswordStorageScheme
 
 // Create a conjur password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateConjurPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddConjurPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConjurPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumconjurPasswordStorageSchemeSchemaUrn{client.ENUMCONJURPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMECONJUR},
 		plan.ConjurExternalServer.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1502,7 +1531,7 @@ func (r *passwordStorageSchemeResource) CreateConjurPasswordStorageScheme(ctx co
 
 // Create a scrypt password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateScryptPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddScryptPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddScryptPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumscryptPasswordStorageSchemeSchemaUrn{client.ENUMSCRYPTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMESCRYPT},
 		plan.Enabled.ValueBool())
 	err := addOptionalScryptPasswordStorageSchemeFields(ctx, addRequest, plan)
@@ -1540,7 +1569,7 @@ func (r *passwordStorageSchemeResource) CreateScryptPasswordStorageScheme(ctx co
 
 // Create a vault password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateVaultPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddVaultPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddVaultPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumvaultPasswordStorageSchemeSchemaUrn{client.ENUMVAULTPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMEVAULT},
 		plan.VaultExternalServer.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1579,7 +1608,7 @@ func (r *passwordStorageSchemeResource) CreateVaultPasswordStorageScheme(ctx con
 
 // Create a third-party password-storage-scheme
 func (r *passwordStorageSchemeResource) CreateThirdPartyPasswordStorageScheme(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordStorageSchemeResourceModel) (*passwordStorageSchemeResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPasswordStorageSchemeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyPasswordStorageSchemeRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyPasswordStorageSchemeSchemaUrn{client.ENUMTHIRDPARTYPASSWORDSTORAGESCHEMESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_STORAGE_SCHEMETHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1744,7 +1773,7 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)
 		return
@@ -1844,7 +1873,7 @@ func (r *defaultPasswordStorageSchemeResource) Create(ctx context.Context, req r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageScheme(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageScheme(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordStorageSchemeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1978,7 +2007,7 @@ func readPasswordStorageScheme(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	readResponse, httpResp, err := apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)
 		return
@@ -2103,7 +2132,7 @@ func updatePasswordStorageScheme(ctx context.Context, req resource.UpdateRequest
 	var state passwordStorageSchemeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.PasswordStorageSchemeApi.UpdatePasswordStorageScheme(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPasswordStorageSchemeOperations(plan, state)
@@ -2239,7 +2268,7 @@ func (r *passwordStorageSchemeResource) Delete(ctx context.Context, req resource
 	}
 
 	httpResp, err := r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageSchemeExecute(r.apiClient.PasswordStorageSchemeApi.DeletePasswordStorageScheme(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Storage Scheme", err, httpResp)
 		return
@@ -2255,6 +2284,6 @@ func (r *defaultPasswordStorageSchemeResource) ImportState(ctx context.Context, 
 }
 
 func importPasswordStorageScheme(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

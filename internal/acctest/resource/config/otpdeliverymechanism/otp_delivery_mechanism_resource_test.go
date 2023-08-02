@@ -77,13 +77,13 @@ func testAccOtpDeliveryMechanismResource(resourceName string, resourceModel otpD
 	return fmt.Sprintf(`
 resource "pingdirectory_otp_delivery_mechanism" "%[1]s" {
   type           = "email"
-  id             = "%[2]s"
+  name           = "%[2]s"
   sender_address = "%[3]s"
   enabled        = %[4]t
 }
 
 data "pingdirectory_otp_delivery_mechanism" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_otp_delivery_mechanism.%[1]s
   ]

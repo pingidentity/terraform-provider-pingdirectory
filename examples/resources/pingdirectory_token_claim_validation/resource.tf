@@ -24,7 +24,7 @@ provider "pingdirectory" {
 
 resource "pingdirectory_id_token_validator" "myPingOneIdTokenValidator" {
   type                   = "ping-one"
-  id                     = "MyPingOneIdTokenValidator"
+  name                   = "MyPingOneIdTokenValidator"
   issuer_url             = "example.com"
   enabled                = false
   identity_mapper        = "Exact Match"
@@ -32,7 +32,7 @@ resource "pingdirectory_id_token_validator" "myPingOneIdTokenValidator" {
 }
 
 resource "pingdirectory_token_claim_validation" "myTokenClaimValidation" {
-  id                      = "MyTokenClaimValidation"
+  name                    = "MyTokenClaimValidation"
   id_token_validator_name = pingdirectory_id_token_validator.myPingOneIdTokenValidator.id
   any_required_value      = ["my_example_value"]
   claim_name              = "my_example_claim_name"

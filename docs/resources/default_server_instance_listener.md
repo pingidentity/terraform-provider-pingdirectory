@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_server_instance_listener" "myServerInstanceListener" {
-  id                   = "ldap-listener-mirrored-config"
+  name                 = "ldap-listener-mirrored-config"
   server_instance_name = "MyServerInstance"
   type                 = "ldap"
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_default_server_instance_listener" "myServerInstanceListe
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `server_instance_name` (String) Name of the parent Server Instance
 - `type` (String) The type of Server Instance Listener resource. Options are ['ldap', 'http']
 
@@ -63,6 +63,7 @@ resource "pingdirectory_default_server_instance_listener" "myServerInstanceListe
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

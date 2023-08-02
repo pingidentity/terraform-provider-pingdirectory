@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
-  id          = "MyCustomLoggedStats"
+  name        = "MyCustomLoggedStats"
   plugin_name = "MyPlugin"
 }
 ```
@@ -47,7 +47,7 @@ data "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `plugin_name` (String) Name of the parent Plugin
 
 ### Read-Only
@@ -61,6 +61,7 @@ data "pingdirectory_custom_logged_stats" "myCustomLoggedStats" {
 - `enabled` (Boolean) Indicates whether the Custom Logged Stats object is enabled.
 - `header_prefix` (String) An optional prefix that is included in the header before the column name.
 - `header_prefix_attribute` (String) An optional attribute from the monitor entry that is included as a prefix before the column name in the column header.
+- `id` (String) The ID of this resource.
 - `include_filter` (String) An optional LDAP filter that can be used restrict which monitor entries are used to produce the output.
 - `monitor_objectclass` (String) The objectclass name of the monitor entries to examine for generating these statistics.
 - `non_zero_implies_not_idle` (Boolean) If this property is set to true, then the value of any of the monitored attributes here can contribute to whether an interval is considered "idle" by the Periodic Stats Logger.

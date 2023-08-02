@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_constructed_attribute" "myConstructedAttribute" {
-  id = "MyConstructedAttribute"
+  name = "MyConstructedAttribute"
 }

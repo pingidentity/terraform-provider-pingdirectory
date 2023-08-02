@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_root_dn_user" "myRootDnUser" {
-  id                              = "MyRootDnUser"
+  name                            = "MyRootDnUser"
   inherit_default_root_privileges = true
   search_result_entry_limit       = 0
   time_limit_seconds              = 0

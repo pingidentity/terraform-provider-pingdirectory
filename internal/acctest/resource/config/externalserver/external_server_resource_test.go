@@ -74,13 +74,13 @@ func testAccSmtpExternalServerResource(resourceName string, resourceModel smtpEx
 	return fmt.Sprintf(`
 resource "pingdirectory_external_server" "%[1]s" {
   type             = "smtp"
-  id               = "%[2]s"
+  name             = "%[2]s"
   server_host_name = "%[3]s"
   server_port      = %[4]d
 }
 
 data "pingdirectory_external_server" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_external_server.%[1]s
   ]

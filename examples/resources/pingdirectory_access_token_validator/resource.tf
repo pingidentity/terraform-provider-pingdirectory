@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_access_token_validator" "myAccessTokenValidator" {
-  id                   = "MyAccessTokenValidator"
+  name                 = "MyAccessTokenValidator"
   type                 = "ping-federate"
   client_id            = "my-client-id"
   enabled              = false

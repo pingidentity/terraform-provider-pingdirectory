@@ -49,6 +49,6 @@ data "pingdirectory_http_servlet_cross_origin_policies" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Http Servlet Cross Origin Policy IDs found in the configuration
 

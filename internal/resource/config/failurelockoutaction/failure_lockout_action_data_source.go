@@ -48,6 +48,7 @@ func (r *failureLockoutActionDataSource) Configure(_ context.Context, req dataso
 
 type failureLockoutActionDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	Delay                             types.String `tfsdk:"delay"`
 	AllowBlockingDelay                types.Bool   `tfsdk:"allow_blocking_delay"`
@@ -57,13 +58,9 @@ type failureLockoutActionDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *failureLockoutActionDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Failure Lockout Action.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Failure Lockout Action resource. Options are ['delay-bind-response', 'no-operation', 'lock-account']",
 				Required:    false,
@@ -96,12 +93,15 @@ func (r *failureLockoutActionDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DelayBindResponseFailureLockoutActionResponse object into the model struct
 func readDelayBindResponseFailureLockoutActionResponseDataSource(ctx context.Context, r *client.DelayBindResponseFailureLockoutActionResponse, state *failureLockoutActionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delay-bind-response")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Delay = types.StringValue(r.Delay)
 	state.AllowBlockingDelay = internaltypes.BoolTypeOrNil(r.AllowBlockingDelay)
 	state.GenerateAccountStatusNotification = internaltypes.BoolTypeOrNil(r.GenerateAccountStatusNotification)
@@ -112,6 +112,7 @@ func readDelayBindResponseFailureLockoutActionResponseDataSource(ctx context.Con
 func readNoOperationFailureLockoutActionResponseDataSource(ctx context.Context, r *client.NoOperationFailureLockoutActionResponse, state *failureLockoutActionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("no-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.GenerateAccountStatusNotification = internaltypes.BoolTypeOrNil(r.GenerateAccountStatusNotification)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -120,6 +121,7 @@ func readNoOperationFailureLockoutActionResponseDataSource(ctx context.Context, 
 func readLockAccountFailureLockoutActionResponseDataSource(ctx context.Context, r *client.LockAccountFailureLockoutActionResponse, state *failureLockoutActionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("lock-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
 
@@ -134,7 +136,7 @@ func (r *failureLockoutActionDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
 		return

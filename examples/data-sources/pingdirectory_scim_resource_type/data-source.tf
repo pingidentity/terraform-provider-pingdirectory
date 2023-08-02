@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_scim_resource_type" "myScimResourceType" {
-  id = "MyScimResourceType"
+  name = "MyScimResourceType"
 }

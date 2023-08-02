@@ -88,7 +88,7 @@ func testAccFileBasedAccessLogPublisherResource(resourceName string, resourceMod
 	return fmt.Sprintf(`
 resource "pingdirectory_log_publisher" "%[1]s" {
   type                 = "file-based-access"
-  id                   = "%[2]s"
+  name                 = "%[2]s"
   log_file             = "%[3]s"
   log_file_permissions = "%[4]s"
   rotation_policy      = %[5]s
@@ -98,7 +98,7 @@ resource "pingdirectory_log_publisher" "%[1]s" {
 }
 
 data "pingdirectory_log_publisher" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_log_publisher.%[1]s
   ]

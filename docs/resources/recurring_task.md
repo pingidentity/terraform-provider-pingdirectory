@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_recurring_task" "myRecurringTask" {
-  id                            = "MyRecurringTask"
+  name                          = "MyRecurringTask"
   type                          = "generate-server-profile"
   profile_directory             = "/opt/out/instance"
   retain_previous_profile_count = 10
@@ -49,7 +49,7 @@ resource "pingdirectory_recurring_task" "myRecurringTask" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Recurring Task resource. Options are ['generate-server-profile', 'leave-lockdown-mode', 'backup', 'delay', 'statically-defined', 'collect-support-data', 'ldif-export', 'enter-lockdown-mode', 'audit-data-security', 'exec', 'file-retention', 'third-party']
 
 ### Optional
@@ -134,6 +134,7 @@ resource "pingdirectory_recurring_task" "myRecurringTask" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

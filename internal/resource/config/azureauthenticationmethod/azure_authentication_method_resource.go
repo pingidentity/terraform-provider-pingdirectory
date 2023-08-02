@@ -83,6 +83,7 @@ func (r *defaultAzureAuthenticationMethodResource) Configure(_ context.Context, 
 
 type azureAuthenticationMethodResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -153,9 +154,9 @@ func azureAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -231,6 +232,7 @@ func populateAzureAuthenticationMethodUnknownValues(ctx context.Context, model *
 func readDefaultAzureAuthenticationMethodResponse(ctx context.Context, r *client.DefaultAzureAuthenticationMethodResponse, state *azureAuthenticationMethodResourceModel, expectedValues *azureAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TenantID = internaltypes.StringTypeOrNil(r.TenantID, internaltypes.IsEmptyString(expectedValues.TenantID))
 	state.ClientID = internaltypes.StringTypeOrNil(r.ClientID, internaltypes.IsEmptyString(expectedValues.ClientID))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -242,6 +244,7 @@ func readDefaultAzureAuthenticationMethodResponse(ctx context.Context, r *client
 func readClientSecretAzureAuthenticationMethodResponse(ctx context.Context, r *client.ClientSecretAzureAuthenticationMethodResponse, state *azureAuthenticationMethodResourceModel, expectedValues *azureAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-secret")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TenantID = types.StringValue(r.TenantID)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -253,6 +256,7 @@ func readClientSecretAzureAuthenticationMethodResponse(ctx context.Context, r *c
 func readUsernamePasswordAzureAuthenticationMethodResponse(ctx context.Context, r *client.UsernamePasswordAzureAuthenticationMethodResponse, state *azureAuthenticationMethodResourceModel, expectedValues *azureAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("username-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TenantID = types.StringValue(r.TenantID)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.Username = types.StringValue(r.Username)
@@ -286,7 +290,7 @@ func createAzureAuthenticationMethodOperations(plan azureAuthenticationMethodRes
 
 // Create a default azure-authentication-method
 func (r *azureAuthenticationMethodResource) CreateDefaultAzureAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan azureAuthenticationMethodResourceModel) (*azureAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddDefaultAzureAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDefaultAzureAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumdefaultAzureAuthenticationMethodSchemaUrn{client.ENUMDEFAULTAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODDEFAULT})
 	addOptionalDefaultAzureAuthenticationMethodFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -319,7 +323,7 @@ func (r *azureAuthenticationMethodResource) CreateDefaultAzureAuthenticationMeth
 
 // Create a client-secret azure-authentication-method
 func (r *azureAuthenticationMethodResource) CreateClientSecretAzureAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan azureAuthenticationMethodResourceModel) (*azureAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddClientSecretAzureAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddClientSecretAzureAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumclientSecretAzureAuthenticationMethodSchemaUrn{client.ENUMCLIENTSECRETAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODCLIENT_SECRET},
 		plan.TenantID.ValueString(),
 		plan.ClientID.ValueString(),
@@ -355,7 +359,7 @@ func (r *azureAuthenticationMethodResource) CreateClientSecretAzureAuthenticatio
 
 // Create a username-password azure-authentication-method
 func (r *azureAuthenticationMethodResource) CreateUsernamePasswordAzureAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan azureAuthenticationMethodResourceModel) (*azureAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddUsernamePasswordAzureAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUsernamePasswordAzureAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumusernamePasswordAzureAuthenticationMethodSchemaUrn{client.ENUMUSERNAMEPASSWORDAZUREAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0AZURE_AUTHENTICATION_METHODUSERNAME_PASSWORD},
 		plan.TenantID.ValueString(),
 		plan.ClientID.ValueString(),
@@ -447,7 +451,7 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	readResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Azure Authentication Method", err, httpResp)
 		return
@@ -472,7 +476,7 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAzureAuthenticationMethodOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -532,7 +536,7 @@ func readAzureAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 	}
 
 	readResponse, httpResp, err := apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Azure Authentication Method", err, httpResp)
 		return
@@ -582,7 +586,7 @@ func updateAzureAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 	var state azureAuthenticationMethodResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.AzureAuthenticationMethodApi.UpdateAzureAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAzureAuthenticationMethodOperations(plan, state)
@@ -644,7 +648,7 @@ func (r *azureAuthenticationMethodResource) Delete(ctx context.Context, req reso
 	}
 
 	httpResp, err := r.apiClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethodExecute(r.apiClient.AzureAuthenticationMethodApi.DeleteAzureAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Azure Authentication Method", err, httpResp)
 		return
@@ -660,6 +664,6 @@ func (r *defaultAzureAuthenticationMethodResource) ImportState(ctx context.Conte
 }
 
 func importAzureAuthenticationMethod(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -84,6 +84,7 @@ func (r *defaultLogRotationPolicyResource) Configure(_ context.Context, req reso
 
 type logRotationPolicyResourceModel struct {
 	Id               types.String `tfsdk:"id"`
+	Name             types.String `tfsdk:"name"`
 	LastUpdated      types.String `tfsdk:"last_updated"`
 	Notifications    types.Set    `tfsdk:"notifications"`
 	RequiredActions  types.Set    `tfsdk:"required_actions"`
@@ -147,9 +148,9 @@ func logRotationPolicySchema(ctx context.Context, req resource.SchemaRequest, re
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -222,6 +223,7 @@ func populateLogRotationPolicyUnknownValues(ctx context.Context, model *logRotat
 func readTimeLimitLogRotationPolicyResponse(ctx context.Context, r *client.TimeLimitLogRotationPolicyResponse, state *logRotationPolicyResourceModel, expectedValues *logRotationPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("time-limit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RotationInterval = types.StringValue(r.RotationInterval)
 	config.CheckMismatchedPDFormattedAttributes("rotation_interval",
 		expectedValues.RotationInterval, state.RotationInterval, diagnostics)
@@ -234,6 +236,7 @@ func readTimeLimitLogRotationPolicyResponse(ctx context.Context, r *client.TimeL
 func readFixedTimeLogRotationPolicyResponse(ctx context.Context, r *client.FixedTimeLogRotationPolicyResponse, state *logRotationPolicyResourceModel, expectedValues *logRotationPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("fixed-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TimeOfDay = internaltypes.GetStringSet(r.TimeOfDay)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -244,6 +247,7 @@ func readFixedTimeLogRotationPolicyResponse(ctx context.Context, r *client.Fixed
 func readNeverRotateLogRotationPolicyResponse(ctx context.Context, r *client.NeverRotateLogRotationPolicyResponse, state *logRotationPolicyResourceModel, expectedValues *logRotationPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("never-rotate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateLogRotationPolicyUnknownValues(ctx, state)
@@ -253,6 +257,7 @@ func readNeverRotateLogRotationPolicyResponse(ctx context.Context, r *client.Nev
 func readSizeLimitLogRotationPolicyResponse(ctx context.Context, r *client.SizeLimitLogRotationPolicyResponse, state *logRotationPolicyResourceModel, expectedValues *logRotationPolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("size-limit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.FileSizeLimit = types.StringValue(r.FileSizeLimit)
 	config.CheckMismatchedPDFormattedAttributes("file_size_limit",
 		expectedValues.FileSizeLimit, state.FileSizeLimit, diagnostics)
@@ -273,7 +278,7 @@ func createLogRotationPolicyOperations(plan logRotationPolicyResourceModel, stat
 
 // Create a time-limit log-rotation-policy
 func (r *logRotationPolicyResource) CreateTimeLimitLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
-	addRequest := client.NewAddTimeLimitLogRotationPolicyRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddTimeLimitLogRotationPolicyRequest(plan.Name.ValueString(),
 		[]client.EnumtimeLimitLogRotationPolicySchemaUrn{client.ENUMTIMELIMITLOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYTIME_LIMIT},
 		plan.RotationInterval.ValueString())
 	addOptionalTimeLimitLogRotationPolicyFields(ctx, addRequest, plan)
@@ -309,7 +314,7 @@ func (r *logRotationPolicyResource) CreateTimeLimitLogRotationPolicy(ctx context
 func (r *logRotationPolicyResource) CreateFixedTimeLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
 	var TimeOfDaySlice []string
 	plan.TimeOfDay.ElementsAs(ctx, &TimeOfDaySlice, false)
-	addRequest := client.NewAddFixedTimeLogRotationPolicyRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFixedTimeLogRotationPolicyRequest(plan.Name.ValueString(),
 		[]client.EnumfixedTimeLogRotationPolicySchemaUrn{client.ENUMFIXEDTIMELOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYFIXED_TIME},
 		TimeOfDaySlice)
 	addOptionalFixedTimeLogRotationPolicyFields(ctx, addRequest, plan)
@@ -343,7 +348,7 @@ func (r *logRotationPolicyResource) CreateFixedTimeLogRotationPolicy(ctx context
 
 // Create a never-rotate log-rotation-policy
 func (r *logRotationPolicyResource) CreateNeverRotateLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
-	addRequest := client.NewAddNeverRotateLogRotationPolicyRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddNeverRotateLogRotationPolicyRequest(plan.Name.ValueString(),
 		[]client.EnumneverRotateLogRotationPolicySchemaUrn{client.ENUMNEVERROTATELOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYNEVER_ROTATE})
 	addOptionalNeverRotateLogRotationPolicyFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -376,7 +381,7 @@ func (r *logRotationPolicyResource) CreateNeverRotateLogRotationPolicy(ctx conte
 
 // Create a size-limit log-rotation-policy
 func (r *logRotationPolicyResource) CreateSizeLimitLogRotationPolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logRotationPolicyResourceModel) (*logRotationPolicyResourceModel, error) {
-	addRequest := client.NewAddSizeLimitLogRotationPolicyRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSizeLimitLogRotationPolicyRequest(plan.Name.ValueString(),
 		[]client.EnumsizeLimitLogRotationPolicySchemaUrn{client.ENUMSIZELIMITLOGROTATIONPOLICYSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_ROTATION_POLICYSIZE_LIMIT},
 		plan.FileSizeLimit.ValueString())
 	addOptionalSizeLimitLogRotationPolicyFields(ctx, addRequest, plan)
@@ -470,7 +475,7 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogRotationPolicyApi.GetLogRotationPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Rotation Policy", err, httpResp)
 		return
@@ -498,7 +503,7 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogRotationPolicyApi.UpdateLogRotationPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LogRotationPolicyApi.UpdateLogRotationPolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogRotationPolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -560,7 +565,7 @@ func readLogRotationPolicy(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.LogRotationPolicyApi.GetLogRotationPolicy(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Rotation Policy", err, httpResp)
 		return
@@ -613,7 +618,7 @@ func updateLogRotationPolicy(ctx context.Context, req resource.UpdateRequest, re
 	var state logRotationPolicyResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LogRotationPolicyApi.UpdateLogRotationPolicy(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLogRotationPolicyOperations(plan, state)
@@ -677,7 +682,7 @@ func (r *logRotationPolicyResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.LogRotationPolicyApi.DeleteLogRotationPolicyExecute(r.apiClient.LogRotationPolicyApi.DeleteLogRotationPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Rotation Policy", err, httpResp)
 		return
@@ -693,6 +698,6 @@ func (r *defaultLogRotationPolicyResource) ImportState(ctx context.Context, req 
 }
 
 func importLogRotationPolicy(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

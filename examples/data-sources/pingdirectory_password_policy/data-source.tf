@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_password_policy" "myPasswordPolicy" {
-  id = "MyPasswordPolicy"
+  name = "MyPasswordPolicy"
 }

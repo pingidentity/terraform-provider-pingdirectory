@@ -83,6 +83,7 @@ func (r *defaultNotificationManagerResource) Configure(_ context.Context, req re
 
 type notificationManagerResourceModel struct {
 	Id                      types.String `tfsdk:"id"`
+	Name                    types.String `tfsdk:"name"`
 	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
@@ -153,9 +154,9 @@ func notificationManagerSchema(ctx context.Context, req resource.SchemaRequest, 
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -187,6 +188,7 @@ func addOptionalThirdPartyNotificationManagerFields(ctx context.Context, addRequ
 // Read a ThirdPartyNotificationManagerResponse object into the model struct
 func readThirdPartyNotificationManagerResponse(ctx context.Context, r *client.ThirdPartyNotificationManagerResponse, state *notificationManagerResourceModel, expectedValues *notificationManagerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -212,7 +214,7 @@ func createNotificationManagerOperations(plan notificationManagerResourceModel, 
 
 // Create a third-party notification-manager
 func (r *notificationManagerResource) CreateThirdPartyNotificationManager(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan notificationManagerResourceModel) (*notificationManagerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyNotificationManagerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyNotificationManagerRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyNotificationManagerSchemaUrn{client.ENUMTHIRDPARTYNOTIFICATIONMANAGERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0NOTIFICATION_MANAGERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -289,7 +291,7 @@ func (r *defaultNotificationManagerResource) Create(ctx context.Context, req res
 	}
 
 	readResponse, httpResp, err := r.apiClient.NotificationManagerApi.GetNotificationManager(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Notification Manager", err, httpResp)
 		return
@@ -306,7 +308,7 @@ func (r *defaultNotificationManagerResource) Create(ctx context.Context, req res
 	readThirdPartyNotificationManagerResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.NotificationManagerApi.UpdateNotificationManager(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.NotificationManagerApi.UpdateNotificationManager(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createNotificationManagerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -357,7 +359,7 @@ func readNotificationManager(ctx context.Context, req resource.ReadRequest, resp
 	}
 
 	readResponse, httpResp, err := apiClient.NotificationManagerApi.GetNotificationManager(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Notification Manager", err, httpResp)
 		return
@@ -399,7 +401,7 @@ func updateNotificationManager(ctx context.Context, req resource.UpdateRequest, 
 	var state notificationManagerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.NotificationManagerApi.UpdateNotificationManager(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createNotificationManagerOperations(plan, state)
@@ -452,7 +454,7 @@ func (r *notificationManagerResource) Delete(ctx context.Context, req resource.D
 	}
 
 	httpResp, err := r.apiClient.NotificationManagerApi.DeleteNotificationManagerExecute(r.apiClient.NotificationManagerApi.DeleteNotificationManager(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Notification Manager", err, httpResp)
 		return
@@ -468,6 +470,6 @@ func (r *defaultNotificationManagerResource) ImportState(ctx context.Context, re
 }
 
 func importNotificationManager(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_replication_assurance_policy" "myReplicationAssurancePolicy" {
-  id                     = "MyReplicationAssurancePolicy"
+  name                   = "MyReplicationAssurancePolicy"
   description            = "My replication assurance policy"
   evaluation_order_index = 3
   timeout                = "3 s"
@@ -50,7 +50,7 @@ resource "pingdirectory_replication_assurance_policy" "myReplicationAssurancePol
 ### Required
 
 - `evaluation_order_index` (Number) When multiple Replication Assurance Policies are defined, this property determines the evaluation order for finding a Replication Assurance Policy match against an operation. Policies are evaluated based on this index from least to greatest. Values of this property must be unique but not necessarily contiguous.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `timeout` (String) Specifies the maximum length of time to wait for the replication assurance requirements to be met before timing out and replying to the client.
 
 ### Optional
@@ -64,6 +64,7 @@ resource "pingdirectory_replication_assurance_policy" "myReplicationAssurancePol
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

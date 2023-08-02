@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_account_status_notification_handler" "myAccountStatusNotificationHandler" {
-  id                                    = "MyAccountStatusNotificationHandler"
+  name                                  = "MyAccountStatusNotificationHandler"
   type                                  = "smtp"
   send_message_without_end_user_address = false
   recipient_address                     = ["test@example.com", "users@example.com"]
@@ -54,7 +54,7 @@ resource "pingdirectory_account_status_notification_handler" "myAccountStatusNot
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Account Status Notification Handler is enabled. Only enabled handlers are invoked whenever a related event occurs in the server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Account Status Notification Handler resource. Options are ['smtp', 'groovy-scripted', 'admin-alert', 'error-log', 'multi-part-email', 'third-party']
 
 ### Optional
@@ -100,6 +100,7 @@ resource "pingdirectory_account_status_notification_handler" "myAccountStatusNot
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

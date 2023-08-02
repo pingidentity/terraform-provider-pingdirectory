@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_id_token_validator" "myIdTokenValidator" {
-  id                     = "MyIdTokenValidator"
+  name                   = "MyIdTokenValidator"
   type                   = "ping-one"
   issuer_url             = "example.com"
   enabled                = false

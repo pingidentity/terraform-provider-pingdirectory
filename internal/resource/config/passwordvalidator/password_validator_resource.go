@@ -87,6 +87,7 @@ func (r *defaultPasswordValidatorResource) Configure(_ context.Context, req reso
 
 type passwordValidatorResourceModel struct {
 	Id                                             types.String `tfsdk:"id"`
+	Name                                           types.String `tfsdk:"name"`
 	LastUpdated                                    types.String `tfsdk:"last_updated"`
 	Notifications                                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                                types.Set    `tfsdk:"required_actions"`
@@ -489,9 +490,9 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1102,6 +1103,7 @@ func populatePasswordValidatorUnknownValues(ctx context.Context, model *password
 func readCharacterSetPasswordValidatorResponse(ctx context.Context, r *client.CharacterSetPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("character-set")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CharacterSet = internaltypes.GetStringSet(r.CharacterSet)
 	state.AllowUnclassifiedCharacters = types.BoolValue(r.AllowUnclassifiedCharacters)
 	state.MinimumRequiredCharacterSets = internaltypes.Int64TypeOrNil(r.MinimumRequiredCharacterSets)
@@ -1117,6 +1119,7 @@ func readCharacterSetPasswordValidatorResponse(ctx context.Context, r *client.Ch
 func readSimilarityBasedPasswordValidatorResponse(ctx context.Context, r *client.SimilarityBasedPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("similarity-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MinPasswordDifference = types.Int64Value(r.MinPasswordDifference)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1130,6 +1133,7 @@ func readSimilarityBasedPasswordValidatorResponse(ctx context.Context, r *client
 func readAttributeValuePasswordValidatorResponse(ctx context.Context, r *client.AttributeValuePasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-value")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchAttribute = internaltypes.GetStringSet(r.MatchAttribute)
 	state.TestPasswordSubstringOfAttributeValue = internaltypes.BoolTypeOrNil(r.TestPasswordSubstringOfAttributeValue)
 	state.TestAttributeValueSubstringOfPassword = internaltypes.BoolTypeOrNil(r.TestAttributeValueSubstringOfPassword)
@@ -1147,6 +1151,7 @@ func readAttributeValuePasswordValidatorResponse(ctx context.Context, r *client.
 func readCustomPasswordValidatorResponse(ctx context.Context, r *client.CustomPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, internaltypes.IsEmptyString(expectedValues.ValidatorRequirementDescription))
@@ -1159,6 +1164,7 @@ func readCustomPasswordValidatorResponse(ctx context.Context, r *client.CustomPa
 func readRepeatedCharactersPasswordValidatorResponse(ctx context.Context, r *client.RepeatedCharactersPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("repeated-characters")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxConsecutiveLength = types.Int64Value(r.MaxConsecutiveLength)
 	state.CaseSensitiveValidation = types.BoolValue(r.CaseSensitiveValidation)
 	state.CharacterSet = internaltypes.GetStringSet(r.CharacterSet)
@@ -1174,6 +1180,7 @@ func readRepeatedCharactersPasswordValidatorResponse(ctx context.Context, r *cli
 func readDictionaryPasswordValidatorResponse(ctx context.Context, r *client.DictionaryPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dictionary")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DictionaryFile = types.StringValue(r.DictionaryFile)
 	state.CaseSensitiveValidation = types.BoolValue(r.CaseSensitiveValidation)
 	state.TestReversedPassword = types.BoolValue(r.TestReversedPassword)
@@ -1194,6 +1201,7 @@ func readDictionaryPasswordValidatorResponse(ctx context.Context, r *client.Dict
 func readHaystackPasswordValidatorResponse(ctx context.Context, r *client.HaystackPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("haystack")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AssumedPasswordGuessesPerSecond = types.StringValue(r.AssumedPasswordGuessesPerSecond)
 	state.MinimumAcceptableTimeToExhaustSearchSpace = types.StringValue(r.MinimumAcceptableTimeToExhaustSearchSpace)
 	config.CheckMismatchedPDFormattedAttributes("minimum_acceptable_time_to_exhaust_search_space",
@@ -1210,6 +1218,7 @@ func readHaystackPasswordValidatorResponse(ctx context.Context, r *client.Haysta
 func readUtf8PasswordValidatorResponse(ctx context.Context, r *client.Utf8PasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("utf-8")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowNonAsciiCharacters = internaltypes.BoolTypeOrNil(r.AllowNonAsciiCharacters)
 	state.AllowUnknownCharacters = internaltypes.BoolTypeOrNil(r.AllowUnknownCharacters)
 	state.AllowedCharacterType = internaltypes.GetStringSet(
@@ -1226,6 +1235,7 @@ func readUtf8PasswordValidatorResponse(ctx context.Context, r *client.Utf8Passwo
 func readGroovyScriptedPasswordValidatorResponse(ctx context.Context, r *client.GroovyScriptedPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1240,6 +1250,7 @@ func readGroovyScriptedPasswordValidatorResponse(ctx context.Context, r *client.
 func readPwnedPasswordsPasswordValidatorResponse(ctx context.Context, r *client.PwnedPasswordsPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pwned-passwords")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PwnedPasswordsBaseURL = types.StringValue(r.PwnedPasswordsBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.InvokeForAdd = types.BoolValue(r.InvokeForAdd)
@@ -1260,6 +1271,7 @@ func readPwnedPasswordsPasswordValidatorResponse(ctx context.Context, r *client.
 func readDisallowedCharactersPasswordValidatorResponse(ctx context.Context, r *client.DisallowedCharactersPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("disallowed-characters")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DisallowedCharacters = internaltypes.StringTypeOrNil(r.DisallowedCharacters, internaltypes.IsEmptyString(expectedValues.DisallowedCharacters))
 	state.DisallowedLeadingCharacters = internaltypes.StringTypeOrNil(r.DisallowedLeadingCharacters, internaltypes.IsEmptyString(expectedValues.DisallowedLeadingCharacters))
 	state.DisallowedTrailingCharacters = internaltypes.StringTypeOrNil(r.DisallowedTrailingCharacters, internaltypes.IsEmptyString(expectedValues.DisallowedTrailingCharacters))
@@ -1275,6 +1287,7 @@ func readDisallowedCharactersPasswordValidatorResponse(ctx context.Context, r *c
 func readLengthBasedPasswordValidatorResponse(ctx context.Context, r *client.LengthBasedPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("length-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
 	state.MinPasswordLength = internaltypes.Int64TypeOrNil(r.MinPasswordLength)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1289,6 +1302,7 @@ func readLengthBasedPasswordValidatorResponse(ctx context.Context, r *client.Len
 func readRegularExpressionPasswordValidatorResponse(ctx context.Context, r *client.RegularExpressionPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("regular-expression")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchPattern = types.StringValue(r.MatchPattern)
 	state.MatchBehavior = types.StringValue(r.MatchBehavior.String())
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1303,6 +1317,7 @@ func readRegularExpressionPasswordValidatorResponse(ctx context.Context, r *clie
 func readUniqueCharactersPasswordValidatorResponse(ctx context.Context, r *client.UniqueCharactersPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unique-characters")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MinUniqueCharacters = types.Int64Value(r.MinUniqueCharacters)
 	state.CaseSensitiveValidation = types.BoolValue(r.CaseSensitiveValidation)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1317,6 +1332,7 @@ func readUniqueCharactersPasswordValidatorResponse(ctx context.Context, r *clien
 func readThirdPartyPasswordValidatorResponse(ctx context.Context, r *client.ThirdPartyPasswordValidatorResponse, state *passwordValidatorResourceModel, expectedValues *passwordValidatorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1383,7 +1399,7 @@ func createPasswordValidatorOperations(plan passwordValidatorResourceModel, stat
 func (r *passwordValidatorResource) CreateCharacterSetPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
 	var CharacterSetSlice []string
 	plan.CharacterSet.ElementsAs(ctx, &CharacterSetSlice, false)
-	addRequest := client.NewAddCharacterSetPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCharacterSetPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumcharacterSetPasswordValidatorSchemaUrn{client.ENUMCHARACTERSETPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORCHARACTER_SET},
 		CharacterSetSlice,
 		plan.AllowUnclassifiedCharacters.ValueBool(),
@@ -1423,7 +1439,7 @@ func (r *passwordValidatorResource) CreateCharacterSetPasswordValidator(ctx cont
 
 // Create a similarity-based password-validator
 func (r *passwordValidatorResource) CreateSimilarityBasedPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddSimilarityBasedPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimilarityBasedPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumsimilarityBasedPasswordValidatorSchemaUrn{client.ENUMSIMILARITYBASEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORSIMILARITY_BASED},
 		plan.MinPasswordDifference.ValueInt64(),
 		plan.Enabled.ValueBool())
@@ -1462,7 +1478,7 @@ func (r *passwordValidatorResource) CreateSimilarityBasedPasswordValidator(ctx c
 
 // Create a attribute-value password-validator
 func (r *passwordValidatorResource) CreateAttributeValuePasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddAttributeValuePasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAttributeValuePasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumattributeValuePasswordValidatorSchemaUrn{client.ENUMATTRIBUTEVALUEPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORATTRIBUTE_VALUE},
 		plan.TestReversedPassword.ValueBool(),
 		plan.Enabled.ValueBool())
@@ -1501,7 +1517,7 @@ func (r *passwordValidatorResource) CreateAttributeValuePasswordValidator(ctx co
 
 // Create a repeated-characters password-validator
 func (r *passwordValidatorResource) CreateRepeatedCharactersPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddRepeatedCharactersPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddRepeatedCharactersPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumrepeatedCharactersPasswordValidatorSchemaUrn{client.ENUMREPEATEDCHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORREPEATED_CHARACTERS},
 		plan.MaxConsecutiveLength.ValueInt64(),
 		plan.CaseSensitiveValidation.ValueBool(),
@@ -1541,7 +1557,7 @@ func (r *passwordValidatorResource) CreateRepeatedCharactersPasswordValidator(ct
 
 // Create a dictionary password-validator
 func (r *passwordValidatorResource) CreateDictionaryPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddDictionaryPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDictionaryPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumdictionaryPasswordValidatorSchemaUrn{client.ENUMDICTIONARYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDICTIONARY},
 		plan.Enabled.ValueBool())
 	err := addOptionalDictionaryPasswordValidatorFields(ctx, addRequest, plan)
@@ -1579,7 +1595,7 @@ func (r *passwordValidatorResource) CreateDictionaryPasswordValidator(ctx contex
 
 // Create a haystack password-validator
 func (r *passwordValidatorResource) CreateHaystackPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddHaystackPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddHaystackPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumhaystackPasswordValidatorSchemaUrn{client.ENUMHAYSTACKPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORHAYSTACK},
 		plan.Enabled.ValueBool())
 	err := addOptionalHaystackPasswordValidatorFields(ctx, addRequest, plan)
@@ -1617,7 +1633,7 @@ func (r *passwordValidatorResource) CreateHaystackPasswordValidator(ctx context.
 
 // Create a utf-8 password-validator
 func (r *passwordValidatorResource) CreateUtf8PasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddUtf8PasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUtf8PasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.Enumutf8PasswordValidatorSchemaUrn{client.ENUMUTF8PASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORUTF_8},
 		plan.Enabled.ValueBool())
 	err := addOptionalUtf8PasswordValidatorFields(ctx, addRequest, plan)
@@ -1655,7 +1671,7 @@ func (r *passwordValidatorResource) CreateUtf8PasswordValidator(ctx context.Cont
 
 // Create a groovy-scripted password-validator
 func (r *passwordValidatorResource) CreateGroovyScriptedPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedPasswordValidatorSchemaUrn{client.ENUMGROOVYSCRIPTEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1694,7 +1710,7 @@ func (r *passwordValidatorResource) CreateGroovyScriptedPasswordValidator(ctx co
 
 // Create a pwned-passwords password-validator
 func (r *passwordValidatorResource) CreatePwnedPasswordsPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddPwnedPasswordsPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPwnedPasswordsPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumpwnedPasswordsPasswordValidatorSchemaUrn{client.ENUMPWNEDPASSWORDSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORPWNED_PASSWORDS},
 		plan.Enabled.ValueBool())
 	err := addOptionalPwnedPasswordsPasswordValidatorFields(ctx, addRequest, plan)
@@ -1732,7 +1748,7 @@ func (r *passwordValidatorResource) CreatePwnedPasswordsPasswordValidator(ctx co
 
 // Create a disallowed-characters password-validator
 func (r *passwordValidatorResource) CreateDisallowedCharactersPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddDisallowedCharactersPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDisallowedCharactersPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumdisallowedCharactersPasswordValidatorSchemaUrn{client.ENUMDISALLOWEDCHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORDISALLOWED_CHARACTERS},
 		plan.Enabled.ValueBool())
 	err := addOptionalDisallowedCharactersPasswordValidatorFields(ctx, addRequest, plan)
@@ -1770,7 +1786,7 @@ func (r *passwordValidatorResource) CreateDisallowedCharactersPasswordValidator(
 
 // Create a length-based password-validator
 func (r *passwordValidatorResource) CreateLengthBasedPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddLengthBasedPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLengthBasedPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumlengthBasedPasswordValidatorSchemaUrn{client.ENUMLENGTHBASEDPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORLENGTH_BASED},
 		plan.Enabled.ValueBool())
 	err := addOptionalLengthBasedPasswordValidatorFields(ctx, addRequest, plan)
@@ -1813,7 +1829,7 @@ func (r *passwordValidatorResource) CreateRegularExpressionPasswordValidator(ctx
 		resp.Diagnostics.AddError("Failed to parse enum value for MatchBehavior", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddRegularExpressionPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddRegularExpressionPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumregularExpressionPasswordValidatorSchemaUrn{client.ENUMREGULAREXPRESSIONPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORREGULAR_EXPRESSION},
 		plan.MatchPattern.ValueString(),
 		*matchBehavior,
@@ -1853,7 +1869,7 @@ func (r *passwordValidatorResource) CreateRegularExpressionPasswordValidator(ctx
 
 // Create a unique-characters password-validator
 func (r *passwordValidatorResource) CreateUniqueCharactersPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddUniqueCharactersPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUniqueCharactersPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumuniqueCharactersPasswordValidatorSchemaUrn{client.ENUMUNIQUECHARACTERSPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORUNIQUE_CHARACTERS},
 		plan.MinUniqueCharacters.ValueInt64(),
 		plan.CaseSensitiveValidation.ValueBool(),
@@ -1893,7 +1909,7 @@ func (r *passwordValidatorResource) CreateUniqueCharactersPasswordValidator(ctx 
 
 // Create a third-party password-validator
 func (r *passwordValidatorResource) CreateThirdPartyPasswordValidator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordValidatorResourceModel) (*passwordValidatorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPasswordValidatorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyPasswordValidatorRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyPasswordValidatorSchemaUrn{client.ENUMTHIRDPARTYPASSWORDVALIDATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_VALIDATORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -2052,7 +2068,7 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordValidatorApi.GetPasswordValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
 		return
@@ -2113,7 +2129,7 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordValidatorApi.UpdatePasswordValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.PasswordValidatorApi.UpdatePasswordValidator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordValidatorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -2208,7 +2224,7 @@ func readPasswordValidator(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.PasswordValidatorApi.GetPasswordValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
 		return
@@ -2294,7 +2310,7 @@ func updatePasswordValidator(ctx context.Context, req resource.UpdateRequest, re
 	var state passwordValidatorResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.PasswordValidatorApi.UpdatePasswordValidator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPasswordValidatorOperations(plan, state)
@@ -2391,7 +2407,7 @@ func (r *passwordValidatorResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.PasswordValidatorApi.DeletePasswordValidatorExecute(r.apiClient.PasswordValidatorApi.DeletePasswordValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Validator", err, httpResp)
 		return
@@ -2407,6 +2423,6 @@ func (r *defaultPasswordValidatorResource) ImportState(ctx context.Context, req 
 }
 
 func importPasswordValidator(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

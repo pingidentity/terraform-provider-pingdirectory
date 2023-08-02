@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_notification_manager" "myNotificationManager" {
-  id                   = "MyNotificationManager"
+  name                 = "MyNotificationManager"
   extension_class      = "com.example.MyClass"
   enabled              = true
   subscription_base_dn = "ou=subscriptionbase,dc=example,dc=com"
@@ -51,7 +51,7 @@ resource "pingdirectory_notification_manager" "myNotificationManager" {
 
 - `enabled` (Boolean) Indicates whether this Notification Manager is enabled within the server.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Notification Manager.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `subscription_base_dn` (String) Specifies the DN of the entry below which subscription data is stored for this Notification Manager. This needs to be in the backend that has the data to be notified on, and must not be the same entry as the backend base DN. The subscription base DN entry does not need to exist as it will be created by the server.
 
 ### Optional
@@ -63,6 +63,7 @@ resource "pingdirectory_notification_manager" "myNotificationManager" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

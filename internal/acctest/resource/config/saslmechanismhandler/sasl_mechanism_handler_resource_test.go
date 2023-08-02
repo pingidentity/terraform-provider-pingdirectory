@@ -77,13 +77,13 @@ func testAccUnboundidMsChapV2SaslMechanismHandlerResource(resourceName string, r
 	return fmt.Sprintf(`
 resource "pingdirectory_sasl_mechanism_handler" "%[1]s" {
   type            = "unboundid-ms-chap-v2"
-  id              = "%[2]s"
+  name            = "%[2]s"
   identity_mapper = "%[3]s"
   enabled         = %[4]t
 }
 
 data "pingdirectory_sasl_mechanism_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_sasl_mechanism_handler.%[1]s
   ]

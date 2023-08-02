@@ -159,9 +159,9 @@ func localDbVlvIndexSchema(ctx context.Context, req resource.SchemaRequest, resp
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"name", "backend_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"name", "backend_name"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

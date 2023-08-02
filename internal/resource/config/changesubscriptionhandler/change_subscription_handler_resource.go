@@ -84,6 +84,7 @@ func (r *defaultChangeSubscriptionHandlerResource) Configure(_ context.Context, 
 
 type changeSubscriptionHandlerResourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
@@ -181,9 +182,9 @@ func changeSubscriptionHandlerSchema(ctx context.Context, req resource.SchemaReq
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -288,6 +289,7 @@ func populateChangeSubscriptionHandlerUnknownValues(ctx context.Context, model *
 func readGroovyScriptedChangeSubscriptionHandlerResponse(ctx context.Context, r *client.GroovyScriptedChangeSubscriptionHandlerResponse, state *changeSubscriptionHandlerResourceModel, expectedValues *changeSubscriptionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -301,6 +303,7 @@ func readGroovyScriptedChangeSubscriptionHandlerResponse(ctx context.Context, r 
 func readLoggingChangeSubscriptionHandlerResponse(ctx context.Context, r *client.LoggingChangeSubscriptionHandlerResponse, state *changeSubscriptionHandlerResourceModel, expectedValues *changeSubscriptionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("logging")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -313,6 +316,7 @@ func readLoggingChangeSubscriptionHandlerResponse(ctx context.Context, r *client
 func readThirdPartyChangeSubscriptionHandlerResponse(ctx context.Context, r *client.ThirdPartyChangeSubscriptionHandlerResponse, state *changeSubscriptionHandlerResourceModel, expectedValues *changeSubscriptionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -338,7 +342,7 @@ func createChangeSubscriptionHandlerOperations(plan changeSubscriptionHandlerRes
 
 // Create a groovy-scripted change-subscription-handler
 func (r *changeSubscriptionHandlerResource) CreateGroovyScriptedChangeSubscriptionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionHandlerResourceModel) (*changeSubscriptionHandlerResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedChangeSubscriptionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedChangeSubscriptionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedChangeSubscriptionHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -373,7 +377,7 @@ func (r *changeSubscriptionHandlerResource) CreateGroovyScriptedChangeSubscripti
 
 // Create a logging change-subscription-handler
 func (r *changeSubscriptionHandlerResource) CreateLoggingChangeSubscriptionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionHandlerResourceModel) (*changeSubscriptionHandlerResourceModel, error) {
-	addRequest := client.NewAddLoggingChangeSubscriptionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLoggingChangeSubscriptionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumloggingChangeSubscriptionHandlerSchemaUrn{client.ENUMLOGGINGCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERLOGGING},
 		plan.Enabled.ValueBool())
 	addOptionalLoggingChangeSubscriptionHandlerFields(ctx, addRequest, plan)
@@ -407,7 +411,7 @@ func (r *changeSubscriptionHandlerResource) CreateLoggingChangeSubscriptionHandl
 
 // Create a third-party change-subscription-handler
 func (r *changeSubscriptionHandlerResource) CreateThirdPartyChangeSubscriptionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionHandlerResourceModel) (*changeSubscriptionHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyChangeSubscriptionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyChangeSubscriptionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyChangeSubscriptionHandlerSchemaUrn{client.ENUMTHIRDPARTYCHANGESUBSCRIPTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CHANGE_SUBSCRIPTION_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -496,7 +500,7 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 	}
 
 	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription Handler", err, httpResp)
 		return
@@ -521,7 +525,7 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createChangeSubscriptionHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -580,7 +584,7 @@ func readChangeSubscriptionHandler(ctx context.Context, req resource.ReadRequest
 	}
 
 	readResponse, httpResp, err := apiClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription Handler", err, httpResp)
 		return
@@ -630,7 +634,7 @@ func updateChangeSubscriptionHandler(ctx context.Context, req resource.UpdateReq
 	var state changeSubscriptionHandlerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ChangeSubscriptionHandlerApi.UpdateChangeSubscriptionHandler(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createChangeSubscriptionHandlerOperations(plan, state)
@@ -691,7 +695,7 @@ func (r *changeSubscriptionHandlerResource) Delete(ctx context.Context, req reso
 	}
 
 	httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.DeleteChangeSubscriptionHandlerExecute(r.apiClient.ChangeSubscriptionHandlerApi.DeleteChangeSubscriptionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Change Subscription Handler", err, httpResp)
 		return
@@ -707,6 +711,6 @@ func (r *defaultChangeSubscriptionHandlerResource) ImportState(ctx context.Conte
 }
 
 func importChangeSubscriptionHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

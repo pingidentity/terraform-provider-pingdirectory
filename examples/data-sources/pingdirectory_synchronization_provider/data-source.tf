@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
-  id = "MySynchronizationProvider"
+  name = "MySynchronizationProvider"
 }

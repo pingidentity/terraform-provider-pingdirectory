@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_server_instance_listener" "myServerInstanceListener" {
-  id                   = "MyServerInstanceListener"
+  name                 = "MyServerInstanceListener"
   server_instance_name = "MyServerInstance"
 }

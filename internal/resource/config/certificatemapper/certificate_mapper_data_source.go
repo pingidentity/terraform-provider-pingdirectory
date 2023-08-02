@@ -48,6 +48,7 @@ func (r *certificateMapperDataSource) Configure(_ context.Context, req datasourc
 
 type certificateMapperDataSourceModel struct {
 	Id                      types.String `tfsdk:"id"`
+	Name                    types.String `tfsdk:"name"`
 	Type                    types.String `tfsdk:"type"`
 	ExtensionClass          types.String `tfsdk:"extension_class"`
 	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
@@ -64,13 +65,9 @@ type certificateMapperDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *certificateMapperDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Certificate Mapper.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Certificate Mapper resource. Options are ['subject-equals-dn', 'subject-dn-to-user-attribute', 'groovy-scripted', 'subject-attribute-to-user-attribute', 'fingerprint', 'third-party']",
 				Required:    false,
@@ -149,12 +146,15 @@ func (r *certificateMapperDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SubjectEqualsDnCertificateMapperResponse object into the model struct
 func readSubjectEqualsDnCertificateMapperResponseDataSource(ctx context.Context, r *client.SubjectEqualsDnCertificateMapperResponse, state *certificateMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-equals-dn")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -163,6 +163,7 @@ func readSubjectEqualsDnCertificateMapperResponseDataSource(ctx context.Context,
 func readSubjectDnToUserAttributeCertificateMapperResponseDataSource(ctx context.Context, r *client.SubjectDnToUserAttributeCertificateMapperResponse, state *certificateMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-dn-to-user-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SubjectAttribute = types.StringValue(r.SubjectAttribute)
 	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -173,6 +174,7 @@ func readSubjectDnToUserAttributeCertificateMapperResponseDataSource(ctx context
 func readGroovyScriptedCertificateMapperResponseDataSource(ctx context.Context, r *client.GroovyScriptedCertificateMapperResponse, state *certificateMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -183,6 +185,7 @@ func readGroovyScriptedCertificateMapperResponseDataSource(ctx context.Context, 
 func readSubjectAttributeToUserAttributeCertificateMapperResponseDataSource(ctx context.Context, r *client.SubjectAttributeToUserAttributeCertificateMapperResponse, state *certificateMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-attribute-to-user-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SubjectAttributeMapping = internaltypes.GetStringSet(r.SubjectAttributeMapping)
 	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -193,6 +196,7 @@ func readSubjectAttributeToUserAttributeCertificateMapperResponseDataSource(ctx 
 func readFingerprintCertificateMapperResponseDataSource(ctx context.Context, r *client.FingerprintCertificateMapperResponse, state *certificateMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("fingerprint")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.FingerprintAttribute = types.StringValue(r.FingerprintAttribute)
 	state.FingerprintAlgorithm = types.StringValue(r.FingerprintAlgorithm.String())
 	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
@@ -204,6 +208,7 @@ func readFingerprintCertificateMapperResponseDataSource(ctx context.Context, r *
 func readThirdPartyCertificateMapperResponseDataSource(ctx context.Context, r *client.ThirdPartyCertificateMapperResponse, state *certificateMapperDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -221,7 +226,7 @@ func (r *certificateMapperDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.GetCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
 		return

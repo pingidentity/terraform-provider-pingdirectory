@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_gauge" "myGauge" {
-  id = "MyGauge"
+  name = "MyGauge"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_gauge" "myGauge" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,6 +57,7 @@ data "pingdirectory_gauge" "myGauge" {
 - `enabled` (Boolean) Indicates whether this Gauge is enabled.
 - `exclude_resource` (Set of String) Specifies resources to exclude from being monitored.
 - `gauge_data_source` (String) Specifies the source of data to use in determining this Indicator Gauge's severity and status.
+- `id` (String) The ID of this resource.
 - `include_resource` (Set of String) Specifies set of resources to be monitored.
 - `major_exit_value` (Number) A value that is used to determine whether the current monitored value indicates this gauge's severity should no longer be 'major'.
 - `major_value` (String) A regular expression pattern that is used to determine whether the current monitored value indicates this gauge's severity will be 'major'.

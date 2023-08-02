@@ -48,6 +48,7 @@ func (r *softDeletePolicyDataSource) Configure(_ context.Context, req datasource
 
 type softDeletePolicyDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	Description                      types.String `tfsdk:"description"`
 	AutoSoftDeleteConnectionCriteria types.String `tfsdk:"auto_soft_delete_connection_criteria"`
 	AutoSoftDeleteRequestCriteria    types.String `tfsdk:"auto_soft_delete_request_criteria"`
@@ -57,13 +58,9 @@ type softDeletePolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *softDeletePolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Soft Delete Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Soft Delete Policy",
 				Required:    false,
@@ -96,11 +93,14 @@ func (r *softDeletePolicyDataSource) Schema(ctx context.Context, req datasource.
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SoftDeletePolicyResponse object into the model struct
 func readSoftDeletePolicyResponseDataSource(ctx context.Context, r *client.SoftDeletePolicyResponse, state *softDeletePolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.AutoSoftDeleteConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteConnectionCriteria, false)
 	state.AutoSoftDeleteRequestCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteRequestCriteria, false)
@@ -119,7 +119,7 @@ func (r *softDeletePolicyDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
 		return

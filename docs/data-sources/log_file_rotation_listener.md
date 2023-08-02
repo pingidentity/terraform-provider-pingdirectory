@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" {
-  id = "MyLogFileRotationListener"
+  name = "MyLogFileRotationListener"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -56,6 +56,7 @@ data "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" {
 - `enabled` (Boolean) Indicates whether the Log File Rotation Listener is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Log File Rotation Listener. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Log File Rotation Listener.
+- `id` (String) The ID of this resource.
 - `output_directory` (String) The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.
 - `type` (String) The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']
 

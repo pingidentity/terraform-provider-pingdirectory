@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_result_code_map" "myResultCodeMap" {
-  id = "MyResultCodeMap"
+  name = "MyResultCodeMap"
 }

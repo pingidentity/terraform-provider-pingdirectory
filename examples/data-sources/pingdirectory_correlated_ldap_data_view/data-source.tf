@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
-  id                      = "MyCorrelatedLdapDataView"
+  name                    = "MyCorrelatedLdapDataView"
   scim_resource_type_name = "MyScimResourceType"
 }

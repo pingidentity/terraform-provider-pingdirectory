@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_http_servlet_extension" "myHttpServletExtension" {
-  id   = "MyHttpServletExtension"
+  name = "MyHttpServletExtension"
   type = "delegated-admin"
 }

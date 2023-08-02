@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" {
-  id               = "MyLogFileRotationListener"
+  name             = "MyLogFileRotationListener"
   type             = "summarize"
   description      = "My summarize log file rotation listener"
   enabled          = true

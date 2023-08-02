@@ -48,6 +48,7 @@ func (r *entryCacheDataSource) Configure(_ context.Context, req datasource.Confi
 
 type entryCacheDataSourceModel struct {
 	Id                          types.String `tfsdk:"id"`
+	Name                        types.String `tfsdk:"name"`
 	MaxMemoryPercent            types.Int64  `tfsdk:"max_memory_percent"`
 	MaxEntries                  types.Int64  `tfsdk:"max_entries"`
 	OnlyCacheFrequentlyAccessed types.Bool   `tfsdk:"only_cache_frequently_accessed"`
@@ -63,13 +64,9 @@ type entryCacheDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *entryCacheDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Entry Cache.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"max_memory_percent": schema.Int64Attribute{
 				Description: "Specifies the maximum amount of memory, as a percentage of the total maximum JVM heap size, that this cache should occupy when full. If the amount of memory the cache is using is greater than this amount, then an attempt to put a new entry in the cache will be ignored and will cause the oldest entry to be purged.",
 				Required:    false,
@@ -141,11 +138,14 @@ func (r *entryCacheDataSource) Schema(ctx context.Context, req datasource.Schema
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a FifoEntryCacheResponse object into the model struct
 func readFifoEntryCacheResponseDataSource(ctx context.Context, r *client.FifoEntryCacheResponse, state *entryCacheDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxMemoryPercent = internaltypes.Int64TypeOrNil(r.MaxMemoryPercent)
 	state.MaxEntries = internaltypes.Int64TypeOrNil(r.MaxEntries)
 	state.OnlyCacheFrequentlyAccessed = internaltypes.BoolTypeOrNil(r.OnlyCacheFrequentlyAccessed)
@@ -170,7 +170,7 @@ func (r *entryCacheDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	}
 
 	readResponse, httpResp, err := r.apiClient.EntryCacheApi.GetEntryCache(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Entry Cache", err, httpResp)
 		return

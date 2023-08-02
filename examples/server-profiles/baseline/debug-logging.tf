@@ -1,6 +1,6 @@
 resource "pingdirectory_default_log_publisher" "defaultFileBasedDebugLogger" {
   type    = "file-based-debug"
-  id      = "File-Based Debug Logger"
+  name    = "File-Based Debug Logger"
   enabled = true
 }
 

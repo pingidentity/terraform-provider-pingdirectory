@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_account_status_notification_handler" "myAccountStatusNotificationHandler" {
-  id = "MyAccountStatusNotificationHandler"
+  name = "MyAccountStatusNotificationHandler"
 }

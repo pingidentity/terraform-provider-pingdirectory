@@ -85,6 +85,7 @@ func (r *defaultUncachedEntryCriteriaResource) Configure(_ context.Context, req 
 
 type uncachedEntryCriteriaResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                 types.Set    `tfsdk:"required_actions"`
@@ -182,9 +183,9 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -297,6 +298,7 @@ func populateUncachedEntryCriteriaUnknownValues(ctx context.Context, model *unca
 func readDefaultUncachedEntryCriteriaResponse(ctx context.Context, r *client.DefaultUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -307,6 +309,7 @@ func readDefaultUncachedEntryCriteriaResponse(ctx context.Context, r *client.Def
 func readLastAccessTimeUncachedEntryCriteriaResponse(ctx context.Context, r *client.LastAccessTimeUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("last-access-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccessTimeThreshold = types.StringValue(r.AccessTimeThreshold)
 	config.CheckMismatchedPDFormattedAttributes("access_time_threshold",
 		expectedValues.AccessTimeThreshold, state.AccessTimeThreshold, diagnostics)
@@ -320,6 +323,7 @@ func readLastAccessTimeUncachedEntryCriteriaResponse(ctx context.Context, r *cli
 func readFilterBasedUncachedEntryCriteriaResponse(ctx context.Context, r *client.FilterBasedUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("filter-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Filter = types.StringValue(r.Filter)
 	state.FilterIdentifiesUncachedEntries = types.BoolValue(r.FilterIdentifiesUncachedEntries)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -332,6 +336,7 @@ func readFilterBasedUncachedEntryCriteriaResponse(ctx context.Context, r *client
 func readGroovyScriptedUncachedEntryCriteriaResponse(ctx context.Context, r *client.GroovyScriptedUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -344,6 +349,7 @@ func readGroovyScriptedUncachedEntryCriteriaResponse(ctx context.Context, r *cli
 func readThirdPartyUncachedEntryCriteriaResponse(ctx context.Context, r *client.ThirdPartyUncachedEntryCriteriaResponse, state *uncachedEntryCriteriaResourceModel, expectedValues *uncachedEntryCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -369,7 +375,7 @@ func createUncachedEntryCriteriaOperations(plan uncachedEntryCriteriaResourceMod
 
 // Create a default uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateDefaultUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddDefaultUncachedEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDefaultUncachedEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumdefaultUncachedEntryCriteriaSchemaUrn{client.ENUMDEFAULTUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIADEFAULT},
 		plan.Enabled.ValueBool())
 	addOptionalDefaultUncachedEntryCriteriaFields(ctx, addRequest, plan)
@@ -403,7 +409,7 @@ func (r *uncachedEntryCriteriaResource) CreateDefaultUncachedEntryCriteria(ctx c
 
 // Create a last-access-time uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateLastAccessTimeUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddLastAccessTimeUncachedEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLastAccessTimeUncachedEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumlastAccessTimeUncachedEntryCriteriaSchemaUrn{client.ENUMLASTACCESSTIMEUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIALAST_ACCESS_TIME},
 		plan.AccessTimeThreshold.ValueString(),
 		plan.Enabled.ValueBool())
@@ -438,7 +444,7 @@ func (r *uncachedEntryCriteriaResource) CreateLastAccessTimeUncachedEntryCriteri
 
 // Create a filter-based uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateFilterBasedUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddFilterBasedUncachedEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFilterBasedUncachedEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumfilterBasedUncachedEntryCriteriaSchemaUrn{client.ENUMFILTERBASEDUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIAFILTER_BASED},
 		plan.Filter.ValueString(),
 		plan.Enabled.ValueBool())
@@ -473,7 +479,7 @@ func (r *uncachedEntryCriteriaResource) CreateFilterBasedUncachedEntryCriteria(c
 
 // Create a groovy-scripted uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateGroovyScriptedUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedUncachedEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedUncachedEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedUncachedEntryCriteriaSchemaUrn{client.ENUMGROOVYSCRIPTEDUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIAGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -508,7 +514,7 @@ func (r *uncachedEntryCriteriaResource) CreateGroovyScriptedUncachedEntryCriteri
 
 // Create a third-party uncached-entry-criteria
 func (r *uncachedEntryCriteriaResource) CreateThirdPartyUncachedEntryCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedEntryCriteriaResourceModel) (*uncachedEntryCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyUncachedEntryCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyUncachedEntryCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyUncachedEntryCriteriaSchemaUrn{client.ENUMTHIRDPARTYUNCACHEDENTRYCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ENTRY_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -609,7 +615,7 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 	}
 
 	readResponse, httpResp, err := r.apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
 		return
@@ -640,7 +646,7 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createUncachedEntryCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -705,7 +711,7 @@ func readUncachedEntryCriteria(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	readResponse, httpResp, err := apiClient.UncachedEntryCriteriaApi.GetUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Entry Criteria", err, httpResp)
 		return
@@ -761,7 +767,7 @@ func updateUncachedEntryCriteria(ctx context.Context, req resource.UpdateRequest
 	var state uncachedEntryCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.UncachedEntryCriteriaApi.UpdateUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createUncachedEntryCriteriaOperations(plan, state)
@@ -828,7 +834,7 @@ func (r *uncachedEntryCriteriaResource) Delete(ctx context.Context, req resource
 	}
 
 	httpResp, err := r.apiClient.UncachedEntryCriteriaApi.DeleteUncachedEntryCriteriaExecute(r.apiClient.UncachedEntryCriteriaApi.DeleteUncachedEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Uncached Entry Criteria", err, httpResp)
 		return
@@ -844,6 +850,6 @@ func (r *defaultUncachedEntryCriteriaResource) ImportState(ctx context.Context, 
 }
 
 func importUncachedEntryCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

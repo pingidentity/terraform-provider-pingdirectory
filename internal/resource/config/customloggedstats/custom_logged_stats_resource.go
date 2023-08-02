@@ -85,6 +85,7 @@ func (r *defaultCustomLoggedStatsResource) Configure(_ context.Context, req reso
 
 type customLoggedStatsResourceModel struct {
 	Id                     types.String `tfsdk:"id"`
+	Name                   types.String `tfsdk:"name"`
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
 	RequiredActions        types.Set    `tfsdk:"required_actions"`
@@ -209,9 +210,9 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "plugin_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"plugin_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -279,6 +280,7 @@ func addOptionalCustomLoggedStatsFields(ctx context.Context, addRequest *client.
 // Read a CustomLoggedStatsResponse object into the model struct
 func readCustomLoggedStatsResponse(ctx context.Context, r *client.CustomLoggedStatsResponse, state *customLoggedStatsResourceModel, expectedValues *customLoggedStatsResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.MonitorObjectclass = types.StringValue(r.MonitorObjectclass)
@@ -333,7 +335,7 @@ func (r *customLoggedStatsResource) CreateCustomLoggedStats(ctx context.Context,
 	plan.AttributeToLog.ElementsAs(ctx, &AttributeToLogSlice, false)
 	var StatisticTypeSlice []client.EnumcustomLoggedStatsStatisticTypeProp
 	plan.StatisticType.ElementsAs(ctx, &StatisticTypeSlice, false)
-	addRequest := client.NewAddCustomLoggedStatsRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCustomLoggedStatsRequest(plan.Name.ValueString(),
 		[]client.EnumcustomLoggedStatsSchemaUrn{client.ENUMCUSTOMLOGGEDSTATSSCHEMAURN_STATSCUSTOM},
 		plan.MonitorObjectclass.ValueString(),
 		AttributeToLogSlice,
@@ -407,7 +409,7 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.PluginName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Custom Logged Stats", err, httpResp)
 		return
@@ -424,7 +426,7 @@ func (r *defaultCustomLoggedStatsResource) Create(ctx context.Context, req resou
 	readCustomLoggedStatsResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStats(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.PluginName.ValueString())
+	updateRequest := r.apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStats(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString())
 	ops := createCustomLoggedStatsOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -476,7 +478,7 @@ func readCustomLoggedStats(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.PluginName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.PluginName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Custom Logged Stats", err, httpResp)
 		return
@@ -518,7 +520,7 @@ func updateCustomLoggedStats(ctx context.Context, req resource.UpdateRequest, re
 	var state customLoggedStatsResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.CustomLoggedStatsApi.UpdateCustomLoggedStats(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.PluginName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.PluginName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCustomLoggedStatsOperations(plan, state)
@@ -572,7 +574,7 @@ func (r *customLoggedStatsResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.CustomLoggedStatsApi.DeleteCustomLoggedStatsExecute(r.apiClient.CustomLoggedStatsApi.DeleteCustomLoggedStats(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.PluginName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.PluginName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Custom Logged Stats", err, httpResp)
 		return
@@ -595,5 +597,5 @@ func importCustomLoggedStats(ctx context.Context, req resource.ImportStateReques
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("plugin_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

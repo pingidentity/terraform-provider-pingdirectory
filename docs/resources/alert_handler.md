@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_alert_handler" "myAlertHandler" {
-  id      = "MyAlertHandler"
+  name    = "MyAlertHandler"
   type    = "output"
   enabled = false
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_alert_handler" "myAlertHandler" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Alert Handler is enabled.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Alert Handler resource. Options are ['output', 'smtp', 'jmx', 'groovy-scripted', 'custom', 'snmp', 'twilio', 'error-log', 'snmp-sub-agent', 'exec', 'third-party']
 
 ### Optional
@@ -82,6 +82,7 @@ resource "pingdirectory_alert_handler" "myAlertHandler" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

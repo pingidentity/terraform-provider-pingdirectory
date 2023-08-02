@@ -72,12 +72,12 @@ func testAccDelayBindResponseFailureLockoutActionResource(resourceName string, r
 	return fmt.Sprintf(`
 resource "pingdirectory_failure_lockout_action" "%[1]s" {
   type  = "delay-bind-response"
-  id    = "%[2]s"
+  name  = "%[2]s"
   delay = "%[3]s"
 }
 
 data "pingdirectory_failure_lockout_action" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_failure_lockout_action.%[1]s
   ]

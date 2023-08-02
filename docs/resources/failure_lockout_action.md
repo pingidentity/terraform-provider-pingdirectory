@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
-  id    = "MyFailureLockoutAction"
+  name  = "MyFailureLockoutAction"
   type  = "delay-bind-response"
   delay = "1 s"
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Failure Lockout Action resource. Options are ['delay-bind-response', 'no-operation', 'lock-account']
 
 ### Optional
@@ -60,6 +60,7 @@ resource "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

@@ -84,6 +84,7 @@ func (r *defaultConnectionCriteriaResource) Configure(_ context.Context, req res
 
 type connectionCriteriaResourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
 	RequiredActions                  types.Set    `tfsdk:"required_actions"`
@@ -430,9 +431,9 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -889,6 +890,7 @@ func populateConnectionCriteriaUnknownValues(ctx context.Context, model *connect
 func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleConnectionCriteriaResponse, state *connectionCriteriaResourceModel, expectedValues *connectionCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IncludedClientAddress = internaltypes.GetStringSet(r.IncludedClientAddress)
 	state.ExcludedClientAddress = internaltypes.GetStringSet(r.ExcludedClientAddress)
 	state.IncludedConnectionHandler = internaltypes.GetStringSet(r.IncludedConnectionHandler)
@@ -930,6 +932,7 @@ func readSimpleConnectionCriteriaResponse(ctx context.Context, r *client.SimpleC
 func readAggregateConnectionCriteriaResponse(ctx context.Context, r *client.AggregateConnectionCriteriaResponse, state *connectionCriteriaResourceModel, expectedValues *connectionCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedConnectionCriteria = internaltypes.GetStringSet(r.AllIncludedConnectionCriteria)
 	state.AnyIncludedConnectionCriteria = internaltypes.GetStringSet(r.AnyIncludedConnectionCriteria)
 	state.NotAllIncludedConnectionCriteria = internaltypes.GetStringSet(r.NotAllIncludedConnectionCriteria)
@@ -943,6 +946,7 @@ func readAggregateConnectionCriteriaResponse(ctx context.Context, r *client.Aggr
 func readThirdPartyConnectionCriteriaResponse(ctx context.Context, r *client.ThirdPartyConnectionCriteriaResponse, state *connectionCriteriaResourceModel, expectedValues *connectionCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -990,7 +994,7 @@ func createConnectionCriteriaOperations(plan connectionCriteriaResourceModel, st
 
 // Create a simple connection-criteria
 func (r *connectionCriteriaResource) CreateSimpleConnectionCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionCriteriaResourceModel) (*connectionCriteriaResourceModel, error) {
-	addRequest := client.NewAddSimpleConnectionCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleConnectionCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleConnectionCriteriaSchemaUrn{client.ENUMSIMPLECONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIASIMPLE})
 	err := addOptionalSimpleConnectionCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1027,7 +1031,7 @@ func (r *connectionCriteriaResource) CreateSimpleConnectionCriteria(ctx context.
 
 // Create a aggregate connection-criteria
 func (r *connectionCriteriaResource) CreateAggregateConnectionCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionCriteriaResourceModel) (*connectionCriteriaResourceModel, error) {
-	addRequest := client.NewAddAggregateConnectionCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAggregateConnectionCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumaggregateConnectionCriteriaSchemaUrn{client.ENUMAGGREGATECONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIAAGGREGATE})
 	err := addOptionalAggregateConnectionCriteriaFields(ctx, addRequest, plan)
 	if err != nil {
@@ -1064,7 +1068,7 @@ func (r *connectionCriteriaResource) CreateAggregateConnectionCriteria(ctx conte
 
 // Create a third-party connection-criteria
 func (r *connectionCriteriaResource) CreateThirdPartyConnectionCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionCriteriaResourceModel) (*connectionCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyConnectionCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyConnectionCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyConnectionCriteriaSchemaUrn{client.ENUMTHIRDPARTYCONNECTIONCRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	err := addOptionalThirdPartyConnectionCriteriaFields(ctx, addRequest, plan)
@@ -1156,7 +1160,7 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Criteria", err, httpResp)
 		return
@@ -1181,7 +1185,7 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConnectionCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1240,7 +1244,7 @@ func readConnectionCriteria(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Criteria", err, httpResp)
 		return
@@ -1290,7 +1294,7 @@ func updateConnectionCriteria(ctx context.Context, req resource.UpdateRequest, r
 	var state connectionCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ConnectionCriteriaApi.UpdateConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConnectionCriteriaOperations(plan, state)
@@ -1351,7 +1355,7 @@ func (r *connectionCriteriaResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.ConnectionCriteriaApi.DeleteConnectionCriteriaExecute(r.apiClient.ConnectionCriteriaApi.DeleteConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Connection Criteria", err, httpResp)
 		return
@@ -1367,6 +1371,6 @@ func (r *defaultConnectionCriteriaResource) ImportState(ctx context.Context, req
 }
 
 func importConnectionCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

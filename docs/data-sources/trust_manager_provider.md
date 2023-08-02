@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
-  id = "MyTrustManagerProvider"
+  name = "MyTrustManagerProvider"
 }
 ```
 
@@ -46,13 +46,14 @@ data "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Trust Manager Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Trust Manager Provider.
+- `id` (String) The ID of this resource.
 - `include_jvm_default_issuers` (Boolean) Indicates whether certificates issued by an authority included in the JVM's set of default issuers should be automatically trusted, even if they would not otherwise be trusted by this provider.
 - `trust_store_file` (String) Specifies the path to the file containing the trust information. It can be an absolute path or a path that is relative to the Directory Server instance root.
 - `trust_store_pin` (String, Sensitive) Specifies the clear-text PIN needed to access the File Based Trust Manager Provider.

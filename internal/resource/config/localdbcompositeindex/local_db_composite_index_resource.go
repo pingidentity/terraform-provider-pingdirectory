@@ -84,6 +84,7 @@ func (r *defaultLocalDbCompositeIndexResource) Configure(_ context.Context, req 
 
 type localDbCompositeIndexResourceModel struct {
 	Id                     types.String `tfsdk:"id"`
+	Name                   types.String `tfsdk:"name"`
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
 	RequiredActions        types.Set    `tfsdk:"required_actions"`
@@ -165,9 +166,9 @@ func localDbCompositeIndexSchema(ctx context.Context, req resource.SchemaRequest
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "backend_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"backend_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -204,6 +205,7 @@ func addOptionalLocalDbCompositeIndexFields(ctx context.Context, addRequest *cli
 // Read a LocalDbCompositeIndexResponse object into the model struct
 func readLocalDbCompositeIndexResponse(ctx context.Context, r *client.LocalDbCompositeIndexResponse, state *localDbCompositeIndexResourceModel, expectedValues *localDbCompositeIndexResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.IndexFilterPattern = types.StringValue(r.IndexFilterPattern)
 	state.IndexBaseDNPattern = internaltypes.StringTypeOrNil(r.IndexBaseDNPattern, internaltypes.IsEmptyString(expectedValues.IndexBaseDNPattern))
@@ -238,7 +240,7 @@ func createLocalDbCompositeIndexOperations(plan localDbCompositeIndexResourceMod
 
 // Create a local-db-composite-index local-db-composite-index
 func (r *localDbCompositeIndexResource) CreateLocalDbCompositeIndex(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan localDbCompositeIndexResourceModel) (*localDbCompositeIndexResourceModel, error) {
-	addRequest := client.NewAddLocalDbCompositeIndexRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLocalDbCompositeIndexRequest(plan.Name.ValueString(),
 		plan.IndexFilterPattern.ValueString())
 	err := addOptionalLocalDbCompositeIndexFields(ctx, addRequest, plan)
 	if err != nil {
@@ -313,7 +315,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 	}
 
 	readResponse, httpResp, err := r.apiClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.BackendName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Composite Index", err, httpResp)
 		return
@@ -330,7 +332,7 @@ func (r *defaultLocalDbCompositeIndexResource) Create(ctx context.Context, req r
 	readLocalDbCompositeIndexResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.BackendName.ValueString())
+	updateRequest := r.apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 	ops := createLocalDbCompositeIndexOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -382,7 +384,7 @@ func readLocalDbCompositeIndex(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	readResponse, httpResp, err := apiClient.LocalDbCompositeIndexApi.GetLocalDbCompositeIndex(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.BackendName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.BackendName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Local Db Composite Index", err, httpResp)
 		return
@@ -424,7 +426,7 @@ func updateLocalDbCompositeIndex(ctx context.Context, req resource.UpdateRequest
 	var state localDbCompositeIndexResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LocalDbCompositeIndexApi.UpdateLocalDbCompositeIndex(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.BackendName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.BackendName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocalDbCompositeIndexOperations(plan, state)
@@ -478,7 +480,7 @@ func (r *localDbCompositeIndexResource) Delete(ctx context.Context, req resource
 	}
 
 	httpResp, err := r.apiClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndexExecute(r.apiClient.LocalDbCompositeIndexApi.DeleteLocalDbCompositeIndex(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.BackendName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.BackendName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Local Db Composite Index", err, httpResp)
 		return
@@ -501,5 +503,5 @@ func importLocalDbCompositeIndex(ctx context.Context, req resource.ImportStateRe
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("backend_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

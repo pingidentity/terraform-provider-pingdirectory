@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
-  id = "MyCipherStreamProvider"
+  name = "MyCipherStreamProvider"
 }

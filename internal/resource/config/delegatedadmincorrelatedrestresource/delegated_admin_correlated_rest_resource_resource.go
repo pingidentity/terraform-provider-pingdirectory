@@ -83,6 +83,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Configure(_ contex
 
 type delegatedAdminCorrelatedRestResourceResourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
+	Name                                      types.String `tfsdk:"name"`
 	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
@@ -142,9 +143,9 @@ func delegatedAdminCorrelatedRestResourceSchema(ctx context.Context, req resourc
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "rest_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"rest_resource_type_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -158,6 +159,7 @@ func addOptionalDelegatedAdminCorrelatedRestResourceFields(ctx context.Context, 
 // Read a DelegatedAdminCorrelatedRestResourceResponse object into the model struct
 func readDelegatedAdminCorrelatedRestResourceResponse(ctx context.Context, r *client.DelegatedAdminCorrelatedRestResourceResponse, state *delegatedAdminCorrelatedRestResourceResourceModel, expectedValues *delegatedAdminCorrelatedRestResourceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DisplayName = types.StringValue(r.DisplayName)
 	state.CorrelatedRESTResource = types.StringValue(r.CorrelatedRESTResource)
 	state.PrimaryRESTResourceCorrelationAttribute = types.StringValue(r.PrimaryRESTResourceCorrelationAttribute)
@@ -187,7 +189,7 @@ func createDelegatedAdminCorrelatedRestResourceOperations(plan delegatedAdminCor
 
 // Create a delegated-admin-correlated-rest-resource delegated-admin-correlated-rest-resource
 func (r *delegatedAdminCorrelatedRestResourceResource) CreateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan delegatedAdminCorrelatedRestResourceResourceModel) (*delegatedAdminCorrelatedRestResourceResourceModel, error) {
-	addRequest := client.NewAddDelegatedAdminCorrelatedRestResourceRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDelegatedAdminCorrelatedRestResourceRequest(plan.Name.ValueString(),
 		plan.DisplayName.ValueString(),
 		plan.CorrelatedRESTResource.ValueString(),
 		plan.PrimaryRESTResourceCorrelationAttribute.ValueString(),
@@ -261,7 +263,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 	}
 
 	readResponse, httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.RestResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Correlated Rest Resource", err, httpResp)
 		return
@@ -278,7 +280,7 @@ func (r *defaultDelegatedAdminCorrelatedRestResourceResource) Create(ctx context
 	readDelegatedAdminCorrelatedRestResourceResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResource(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.RestResourceTypeName.ValueString())
+	updateRequest := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResource(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString())
 	ops := createDelegatedAdminCorrelatedRestResourceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -330,7 +332,7 @@ func readDelegatedAdminCorrelatedRestResource(ctx context.Context, req resource.
 	}
 
 	readResponse, httpResp, err := apiClient.DelegatedAdminCorrelatedRestResourceApi.GetDelegatedAdminCorrelatedRestResource(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Correlated Rest Resource", err, httpResp)
 		return
@@ -372,7 +374,7 @@ func updateDelegatedAdminCorrelatedRestResource(ctx context.Context, req resourc
 	var state delegatedAdminCorrelatedRestResourceResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.DelegatedAdminCorrelatedRestResourceApi.UpdateDelegatedAdminCorrelatedRestResource(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.RestResourceTypeName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.RestResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDelegatedAdminCorrelatedRestResourceOperations(plan, state)
@@ -426,7 +428,7 @@ func (r *delegatedAdminCorrelatedRestResourceResource) Delete(ctx context.Contex
 	}
 
 	httpResp, err := r.apiClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResourceExecute(r.apiClient.DelegatedAdminCorrelatedRestResourceApi.DeleteDelegatedAdminCorrelatedRestResource(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.RestResourceTypeName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.RestResourceTypeName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Delegated Admin Correlated Rest Resource", err, httpResp)
 		return
@@ -449,5 +451,5 @@ func importDelegatedAdminCorrelatedRestResource(ctx context.Context, req resourc
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("rest_resource_type_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

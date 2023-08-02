@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_http_servlet_extension" "myHttpServletExtension" {
-  id = "MyHttpServletExtension"
+  name = "MyHttpServletExtension"
 }

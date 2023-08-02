@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_plugin" "myPlugin" {
-  id = "MyPlugin"
+  name = "MyPlugin"
 }

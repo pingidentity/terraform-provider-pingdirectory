@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_local_db_composite_index" "myLocalDbCompositeIndex" {
-  id           = "MyLocalDbCompositeIndex"
+  name         = "MyLocalDbCompositeIndex"
   backend_name = "MyBackend"
 }
 ```
@@ -48,12 +48,13 @@ data "pingdirectory_local_db_composite_index" "myLocalDbCompositeIndex" {
 ### Required
 
 - `backend_name` (String) Name of the parent Backend
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `cache_mode` (String) The behavior that the server should exhibit when storing information from this index in the database cache.
 - `description` (String) A description for this Local DB Composite Index
+- `id` (String) The ID of this resource.
 - `index_base_dn_pattern` (String) An optional base DN pattern that identifies portions of the DIT in which entries to index may exist.
 - `index_entry_limit` (Number) The maximum number of entries that any single index key will be allowed to match before the server stops maintaining the ID set for that index key.
 - `index_filter_pattern` (String) A filter pattern that identifies which entries to include in the index.

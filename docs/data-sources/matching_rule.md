@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_matching_rule" "myMatchingRule" {
-  id = "MyMatchingRule"
+  name = "MyMatchingRule"
 }
 ```
 
@@ -46,10 +46,11 @@ data "pingdirectory_matching_rule" "myMatchingRule" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `enabled` (Boolean) Indicates whether the Matching Rule is enabled for use.
+- `id` (String) The ID of this resource.
 - `type` (String) The type of Matching Rule resource. Options are ['ordering', 'approximate', 'equality', 'substring', 'generic']
 

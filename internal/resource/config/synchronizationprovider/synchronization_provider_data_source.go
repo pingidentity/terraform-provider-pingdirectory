@@ -48,6 +48,7 @@ func (r *synchronizationProviderDataSource) Configure(_ context.Context, req dat
 
 type synchronizationProviderDataSourceModel struct {
 	Id                     types.String `tfsdk:"id"`
+	Name                   types.String `tfsdk:"name"`
 	Type                   types.String `tfsdk:"type"`
 	NumUpdateReplayThreads types.Int64  `tfsdk:"num_update_replay_threads"`
 	Description            types.String `tfsdk:"description"`
@@ -56,13 +57,9 @@ type synchronizationProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *synchronizationProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Synchronization Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Synchronization Provider resource. Options are ['replication', 'custom']",
 				Required:    false,
@@ -89,12 +86,15 @@ func (r *synchronizationProviderDataSource) Schema(ctx context.Context, req data
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ReplicationSynchronizationProviderResponse object into the model struct
 func readReplicationSynchronizationProviderResponseDataSource(ctx context.Context, r *client.ReplicationSynchronizationProviderResponse, state *synchronizationProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.NumUpdateReplayThreads = internaltypes.Int64TypeOrNil(r.NumUpdateReplayThreads)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -104,6 +104,7 @@ func readReplicationSynchronizationProviderResponseDataSource(ctx context.Contex
 func readCustomSynchronizationProviderResponseDataSource(ctx context.Context, r *client.CustomSynchronizationProviderResponse, state *synchronizationProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -119,7 +120,7 @@ func (r *synchronizationProviderDataSource) Read(ctx context.Context, req dataso
 	}
 
 	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.GetSynchronizationProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Synchronization Provider", err, httpResp)
 		return

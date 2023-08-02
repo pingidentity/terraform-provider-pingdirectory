@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_local_db_composite_index" "myLocalDbCompositeIndex" {
-  id                   = "MyLocalDbCompositeIndex"
+  name                 = "MyLocalDbCompositeIndex"
   backend_name         = "userRoot"
   description          = "My local DB composite index"
   index_filter_pattern = "(sn=?)"
@@ -50,8 +50,8 @@ resource "pingdirectory_local_db_composite_index" "myLocalDbCompositeIndex" {
 ### Required
 
 - `backend_name` (String) Name of the parent Backend
-- `id` (String) Name of this object.
 - `index_filter_pattern` (String) A filter pattern that identifies which entries to include in the index.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -64,6 +64,7 @@ resource "pingdirectory_local_db_composite_index" "myLocalDbCompositeIndex" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

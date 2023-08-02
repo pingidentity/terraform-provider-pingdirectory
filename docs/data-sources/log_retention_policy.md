@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_retention_policy" "myLogRetentionPolicy" {
-  id = "MyLogRetentionPolicy"
+  name = "MyLogRetentionPolicy"
 }
 ```
 
@@ -46,13 +46,14 @@ data "pingdirectory_log_retention_policy" "myLogRetentionPolicy" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Log Retention Policy
 - `disk_space_used` (String) Specifies the maximum total disk space used by the log files.
 - `free_disk_space` (String) Specifies the minimum amount of free disk space that should be available on the file system on which the archived log files are stored.
+- `id` (String) The ID of this resource.
 - `number_of_files` (Number) Specifies the number of archived log files to retain before the oldest ones are cleaned.
 - `retain_duration` (String) Specifies the desired minimum length of time that each log file should be retained.
 - `type` (String) The type of Log Retention Policy resource. Options are ['time-limit', 'never-delete', 'file-count', 'free-disk-space', 'size-limit']

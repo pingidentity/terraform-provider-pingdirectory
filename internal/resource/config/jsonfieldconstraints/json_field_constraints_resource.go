@@ -264,9 +264,9 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"json_field", "json_attribute_constraints_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"json_field", "json_attribute_constraints_name"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

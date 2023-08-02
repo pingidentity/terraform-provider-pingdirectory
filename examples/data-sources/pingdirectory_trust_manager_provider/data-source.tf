@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
-  id = "MyTrustManagerProvider"
+  name = "MyTrustManagerProvider"
 }

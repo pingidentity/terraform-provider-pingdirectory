@@ -74,13 +74,13 @@ func testAccAccessLogFieldMappingResource(resourceName string, resourceModel acc
 	return fmt.Sprintf(`
 resource "pingdirectory_log_field_mapping" "%[1]s" {
   type              = "access"
-  id                = "%[2]s"
+  name              = "%[2]s"
   description       = "%[3]s"
   log_field_message = "%[4]s"
 }
 
 data "pingdirectory_log_field_mapping" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_log_field_mapping.%[1]s
   ]

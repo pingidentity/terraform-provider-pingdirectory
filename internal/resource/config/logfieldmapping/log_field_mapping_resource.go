@@ -83,6 +83,7 @@ func (r *defaultLogFieldMappingResource) Configure(_ context.Context, req resour
 
 type logFieldMappingResourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Name                                types.String `tfsdk:"name"`
 	LastUpdated                         types.String `tfsdk:"last_updated"`
 	Notifications                       types.Set    `tfsdk:"notifications"`
 	RequiredActions                     types.Set    `tfsdk:"required_actions"`
@@ -396,9 +397,9 @@ func logFieldMappingSchema(ctx context.Context, req resource.SchemaRequest, resp
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -868,6 +869,7 @@ func addOptionalErrorLogFieldMappingFields(ctx context.Context, addRequest *clie
 func readAccessLogFieldMappingResponse(ctx context.Context, r *client.AccessLogFieldMappingResponse, state *logFieldMappingResourceModel, expectedValues *logFieldMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFieldTimestamp = internaltypes.StringTypeOrNil(r.LogFieldTimestamp, internaltypes.IsEmptyString(expectedValues.LogFieldTimestamp))
 	state.LogFieldConnectionID = internaltypes.StringTypeOrNil(r.LogFieldConnectionID, internaltypes.IsEmptyString(expectedValues.LogFieldConnectionID))
 	state.LogFieldStartupid = internaltypes.StringTypeOrNil(r.LogFieldStartupid, internaltypes.IsEmptyString(expectedValues.LogFieldStartupid))
@@ -928,6 +930,7 @@ func readAccessLogFieldMappingResponse(ctx context.Context, r *client.AccessLogF
 func readErrorLogFieldMappingResponse(ctx context.Context, r *client.ErrorLogFieldMappingResponse, state *logFieldMappingResourceModel, expectedValues *logFieldMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFieldTimestamp = internaltypes.StringTypeOrNil(r.LogFieldTimestamp, internaltypes.IsEmptyString(expectedValues.LogFieldTimestamp))
 	state.LogFieldProductName = internaltypes.StringTypeOrNil(r.LogFieldProductName, internaltypes.IsEmptyString(expectedValues.LogFieldProductName))
 	state.LogFieldInstanceName = internaltypes.StringTypeOrNil(r.LogFieldInstanceName, internaltypes.IsEmptyString(expectedValues.LogFieldInstanceName))
@@ -1003,7 +1006,7 @@ func createLogFieldMappingOperations(plan logFieldMappingResourceModel, state lo
 
 // Create a access log-field-mapping
 func (r *logFieldMappingResource) CreateAccessLogFieldMapping(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldMappingResourceModel) (*logFieldMappingResourceModel, error) {
-	addRequest := client.NewAddAccessLogFieldMappingRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAccessLogFieldMappingRequest(plan.Name.ValueString(),
 		[]client.EnumaccessLogFieldMappingSchemaUrn{client.ENUMACCESSLOGFIELDMAPPINGSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_MAPPINGACCESS})
 	addOptionalAccessLogFieldMappingFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -1036,7 +1039,7 @@ func (r *logFieldMappingResource) CreateAccessLogFieldMapping(ctx context.Contex
 
 // Create a error log-field-mapping
 func (r *logFieldMappingResource) CreateErrorLogFieldMapping(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFieldMappingResourceModel) (*logFieldMappingResourceModel, error) {
-	addRequest := client.NewAddErrorLogFieldMappingRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddErrorLogFieldMappingRequest(plan.Name.ValueString(),
 		[]client.EnumerrorLogFieldMappingSchemaUrn{client.ENUMERRORLOGFIELDMAPPINGSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FIELD_MAPPINGERROR})
 	addOptionalErrorLogFieldMappingFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -1117,7 +1120,7 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldMappingApi.GetLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
 		return
@@ -1139,7 +1142,7 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFieldMappingApi.UpdateLogFieldMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LogFieldMappingApi.UpdateLogFieldMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFieldMappingOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1195,7 +1198,7 @@ func readLogFieldMapping(ctx context.Context, req resource.ReadRequest, resp *re
 	}
 
 	readResponse, httpResp, err := apiClient.LogFieldMappingApi.GetLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Mapping", err, httpResp)
 		return
@@ -1242,7 +1245,7 @@ func updateLogFieldMapping(ctx context.Context, req resource.UpdateRequest, resp
 	var state logFieldMappingResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LogFieldMappingApi.UpdateLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLogFieldMappingOperations(plan, state)
@@ -1300,7 +1303,7 @@ func (r *logFieldMappingResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	httpResp, err := r.apiClient.LogFieldMappingApi.DeleteLogFieldMappingExecute(r.apiClient.LogFieldMappingApi.DeleteLogFieldMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log Field Mapping", err, httpResp)
 		return
@@ -1316,6 +1319,6 @@ func (r *defaultLogFieldMappingResource) ImportState(ctx context.Context, req re
 }
 
 func importLogFieldMapping(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

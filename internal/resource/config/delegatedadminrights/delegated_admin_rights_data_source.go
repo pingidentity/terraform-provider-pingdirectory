@@ -48,6 +48,7 @@ func (r *delegatedAdminRightsDataSource) Configure(_ context.Context, req dataso
 
 type delegatedAdminRightsDataSourceModel struct {
 	Id           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
 	Description  types.String `tfsdk:"description"`
 	Enabled      types.Bool   `tfsdk:"enabled"`
 	AdminUserDN  types.String `tfsdk:"admin_user_dn"`
@@ -56,13 +57,9 @@ type delegatedAdminRightsDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *delegatedAdminRightsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Rights.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Delegated Admin Rights",
 				Required:    false,
@@ -89,11 +86,14 @@ func (r *delegatedAdminRightsDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DelegatedAdminRightsResponse object into the model struct
 func readDelegatedAdminRightsResponseDataSource(ctx context.Context, r *client.DelegatedAdminRightsResponse, state *delegatedAdminRightsDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AdminUserDN = internaltypes.StringTypeOrNil(r.AdminUserDN, false)
@@ -111,7 +111,7 @@ func (r *delegatedAdminRightsDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.DelegatedAdminRightsApi.GetDelegatedAdminRights(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Delegated Admin Rights", err, httpResp)
 		return

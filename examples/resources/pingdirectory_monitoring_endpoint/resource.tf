@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
-  id       = "MyMonitoringEndpoint"
+  name     = "MyMonitoringEndpoint"
   hostname = "localhost"
   enabled  = false
 }

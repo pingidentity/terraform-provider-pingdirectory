@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_dn_map" "myDnMap" {
-  id              = "MyDnMap"
+  name            = "MyDnMap"
   from_dn_pattern = "*,**,dc=com"
   to_dn_pattern   = "uid={givenname:/^(.)(.*)/$1/s}{sn:/^(.)(.*)/$1/s}{eid},{2},o=example"
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_dn_map" "myDnMap" {
 ### Required
 
 - `from_dn_pattern` (String) Specifies the DN pattern to match when determining whether this map applies to a specific source DN. If the provided bind DN matches this pattern, then the to-dn-pattern will be used to perform the mapping. If the provided bind DN does not match this pattern, then no mapping will be performed.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `to_dn_pattern` (String) Specifies a pattern for constructing the DN value using fixed text, DN components matching wild-card values in from-dn-pattern, and attribute values from the source entry.
 
 ### Optional
@@ -58,6 +58,7 @@ resource "pingdirectory_dn_map" "myDnMap" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

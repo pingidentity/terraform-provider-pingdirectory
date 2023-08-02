@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
-  id = "MyUncachedEntryCriteria"
+  name = "MyUncachedEntryCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,6 +57,7 @@ data "pingdirectory_uncached_entry_criteria" "myUncachedEntryCriteria" {
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Uncached Entry Criteria.
 - `filter` (String) Specifies the search filter that should be used to differentiate entries into cached and uncached sets.
 - `filter_identifies_uncached_entries` (Boolean) Indicates whether the associated filter identifies those entries which should be stored in the uncached-id2entry database (if true) or entries which should be stored in the id2entry database (if false).
+- `id` (String) The ID of this resource.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Uncached Entry Criteria. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Uncached Entry Criteria.
 - `type` (String) The type of Uncached Entry Criteria resource. Options are ['default', 'last-access-time', 'filter-based', 'groovy-scripted', 'third-party']

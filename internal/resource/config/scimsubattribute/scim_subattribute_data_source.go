@@ -48,6 +48,7 @@ func (r *scimSubattributeDataSource) Configure(_ context.Context, req datasource
 
 type scimSubattributeDataSourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	ScimAttributeName types.String `tfsdk:"scim_attribute_name"`
 	ScimSchemaName    types.String `tfsdk:"scim_schema_name"`
 	Description       types.String `tfsdk:"description"`
@@ -63,13 +64,9 @@ type scimSubattributeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *scimSubattributeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Scim Subattribute.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"scim_attribute_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Attribute",
 				Required:    true,
@@ -136,11 +133,14 @@ func (r *scimSubattributeDataSource) Schema(ctx context.Context, req datasource.
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ScimSubattributeResponse object into the model struct
 func readScimSubattributeResponseDataSource(ctx context.Context, r *client.ScimSubattributeResponse, state *scimSubattributeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Type = types.StringValue(r.Type.String())
 	state.Required = types.BoolValue(r.Required)
@@ -163,7 +163,7 @@ func (r *scimSubattributeDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.ScimSubattributeApi.GetScimSubattribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Subattribute", err, httpResp)
 		return

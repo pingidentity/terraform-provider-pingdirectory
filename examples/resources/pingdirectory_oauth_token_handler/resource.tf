@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
-  id           = "MyOauthTokenHandler"
+  name         = "MyOauthTokenHandler"
   type         = "groovy-scripted"
   description  = "My groovy scripted OAuth token handler"
   script_class = "com.example"
