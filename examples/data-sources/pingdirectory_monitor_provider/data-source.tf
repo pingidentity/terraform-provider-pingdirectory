@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_monitor_provider" "myMonitorProvider" {
-  id = "MyMonitorProvider"
+  name = "MyMonitorProvider"
 }

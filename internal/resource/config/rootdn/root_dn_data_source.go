@@ -47,22 +47,15 @@ func (r *rootDnDataSource) Configure(_ context.Context, req datasource.Configure
 }
 
 type rootDnDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                       types.String `tfsdk:"id"`
 	DefaultRootPrivilegeName types.Set    `tfsdk:"default_root_privilege_name"`
 }
 
 // GetSchema defines the schema for the datasource.
 func (r *rootDnDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Root Dn.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"default_root_privilege_name": schema.SetAttribute{
 				Description: "Specifies the names of the privileges that root users will be granted by default.",
 				Required:    false,
@@ -72,6 +65,8 @@ func (r *rootDnDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a RootDnResponse object into the model struct

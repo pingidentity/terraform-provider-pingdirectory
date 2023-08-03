@@ -48,6 +48,7 @@ func (r *recurringTaskChainDataSource) Configure(_ context.Context, req datasour
 
 type recurringTaskChainDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	Description                      types.String `tfsdk:"description"`
 	Enabled                          types.Bool   `tfsdk:"enabled"`
 	RecurringTask                    types.Set    `tfsdk:"recurring_task"`
@@ -63,13 +64,9 @@ type recurringTaskChainDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *recurringTaskChainDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Recurring Task Chain.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Recurring Task Chain",
 				Required:    false,
@@ -143,11 +140,14 @@ func (r *recurringTaskChainDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a RecurringTaskChainResponse object into the model struct
 func readRecurringTaskChainResponseDataSource(ctx context.Context, r *client.RecurringTaskChainResponse, state *recurringTaskChainDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RecurringTask = internaltypes.GetStringSet(r.RecurringTask)
@@ -177,7 +177,7 @@ func (r *recurringTaskChainDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.RecurringTaskChainApi.GetRecurringTaskChain(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task Chain", err, httpResp)
 		return

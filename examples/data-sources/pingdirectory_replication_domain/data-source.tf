@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_replication_domain" "myReplicationDomain" {
-  id                            = "MyReplicationDomain"
+  name                          = "MyReplicationDomain"
   synchronization_provider_name = "MySynchronizationProvider"
 }

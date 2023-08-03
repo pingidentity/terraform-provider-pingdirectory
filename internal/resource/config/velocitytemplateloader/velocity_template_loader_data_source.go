@@ -48,6 +48,7 @@ func (r *velocityTemplateLoaderDataSource) Configure(_ context.Context, req data
 
 type velocityTemplateLoaderDataSourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Name                     types.String `tfsdk:"name"`
 	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
 	Enabled                  types.Bool   `tfsdk:"enabled"`
 	EvaluationOrderIndex     types.Int64  `tfsdk:"evaluation_order_index"`
@@ -59,13 +60,9 @@ type velocityTemplateLoaderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *velocityTemplateLoaderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Velocity Template Loader.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
 				Required:    true,
@@ -108,11 +105,14 @@ func (r *velocityTemplateLoaderDataSource) Schema(ctx context.Context, req datas
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a VelocityTemplateLoaderResponse object into the model struct
 func readVelocityTemplateLoaderResponseDataSource(ctx context.Context, r *client.VelocityTemplateLoaderResponse, state *velocityTemplateLoaderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
 	state.MimeTypeMatcher = types.StringValue(r.MimeTypeMatcher)
@@ -132,7 +132,7 @@ func (r *velocityTemplateLoaderDataSource) Read(ctx context.Context, req datasou
 	}
 
 	readResponse, httpResp, err := r.apiClient.VelocityTemplateLoaderApi.GetVelocityTemplateLoader(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Template Loader", err, httpResp)
 		return

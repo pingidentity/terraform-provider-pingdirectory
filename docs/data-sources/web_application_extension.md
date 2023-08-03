@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_web_application_extension" "myWebApplicationExtension" {
-  id = "MyWebApplicationExtension"
+  name = "MyWebApplicationExtension"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_web_application_extension" "myWebApplicationExtension" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -55,6 +55,7 @@ data "pingdirectory_web_application_extension" "myWebApplicationExtension" {
 - `deployment_descriptor_file` (String) Specifies the path to the deployment descriptor file when used with document-root-directory.
 - `description` (String) A description for this Web Application Extension
 - `document_root_directory` (String) Specifies the path to the directory on the local filesystem containing the files to be served by this Web Application Extension. The path must exist, and it must be a directory.
+- `id` (String) The ID of this resource.
 - `init_parameter` (Set of String) Specifies an initialization parameter to pass into the web application during startup.
 - `ldap_server` (String) The LDAP URL used to connect to the managed server.
 - `log_file` (String) The path to the log file for the web application.

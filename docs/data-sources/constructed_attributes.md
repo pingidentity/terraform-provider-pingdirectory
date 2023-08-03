@@ -49,6 +49,6 @@ data "pingdirectory_constructed_attributes" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Constructed Attribute IDs found in the configuration
 

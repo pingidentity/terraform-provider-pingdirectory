@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
-  id            = "MyDelegatedAdminRights"
+  name          = "MyDelegatedAdminRights"
   enabled       = true
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Delegated Admin Rights is enabled.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -59,6 +59,7 @@ resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -77,7 +78,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "delegatedAdminRightsId" should be the id of the Delegated Admin Rights to be imported
+# "delegatedAdminRightsId" should be the name of the Delegated Admin Rights to be imported
 terraform import pingdirectory_delegated_admin_rights.myDelegatedAdminRights delegatedAdminRightsId
 ```
 

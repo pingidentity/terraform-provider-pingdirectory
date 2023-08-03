@@ -87,6 +87,7 @@ func (r *defaultAlertHandlerResource) Configure(_ context.Context, req resource.
 
 type alertHandlerResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -121,6 +122,7 @@ type alertHandlerResourceModel struct {
 
 type defaultAlertHandlerResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -376,9 +378,9 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1052,6 +1054,7 @@ func populateAlertHandlerUnknownValuesDefault(ctx context.Context, model *defaul
 func readOutputAlertHandlerResponseDefault(ctx context.Context, r *client.OutputAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("output")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumalertHandlerOutputLocationProp(r.OutputLocation), internaltypes.IsEmptyString(expectedValues.OutputLocation))
 	state.OutputFormat = internaltypes.StringTypeOrNil(
@@ -1073,6 +1076,7 @@ func readOutputAlertHandlerResponseDefault(ctx context.Context, r *client.Output
 func readSmtpAlertHandlerResponse(ctx context.Context, r *client.SmtpAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.SenderAddress = types.StringValue(r.SenderAddress)
 	state.RecipientAddress = internaltypes.GetStringSet(r.RecipientAddress)
@@ -1095,6 +1099,7 @@ func readSmtpAlertHandlerResponse(ctx context.Context, r *client.SmtpAlertHandle
 func readSmtpAlertHandlerResponseDefault(ctx context.Context, r *client.SmtpAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.SenderAddress = types.StringValue(r.SenderAddress)
 	state.RecipientAddress = internaltypes.GetStringSet(r.RecipientAddress)
@@ -1117,6 +1122,7 @@ func readSmtpAlertHandlerResponseDefault(ctx context.Context, r *client.SmtpAler
 func readJmxAlertHandlerResponse(ctx context.Context, r *client.JmxAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1134,6 +1140,7 @@ func readJmxAlertHandlerResponse(ctx context.Context, r *client.JmxAlertHandlerR
 func readJmxAlertHandlerResponseDefault(ctx context.Context, r *client.JmxAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1151,6 +1158,7 @@ func readJmxAlertHandlerResponseDefault(ctx context.Context, r *client.JmxAlertH
 func readGroovyScriptedAlertHandlerResponse(ctx context.Context, r *client.GroovyScriptedAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1170,6 +1178,7 @@ func readGroovyScriptedAlertHandlerResponse(ctx context.Context, r *client.Groov
 func readGroovyScriptedAlertHandlerResponseDefault(ctx context.Context, r *client.GroovyScriptedAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1189,6 +1198,7 @@ func readGroovyScriptedAlertHandlerResponseDefault(ctx context.Context, r *clien
 func readCustomAlertHandlerResponseDefault(ctx context.Context, r *client.CustomAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
@@ -1206,6 +1216,7 @@ func readCustomAlertHandlerResponseDefault(ctx context.Context, r *client.Custom
 func readSnmpAlertHandlerResponse(ctx context.Context, r *client.SnmpAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("snmp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -1226,6 +1237,7 @@ func readSnmpAlertHandlerResponse(ctx context.Context, r *client.SnmpAlertHandle
 func readSnmpAlertHandlerResponseDefault(ctx context.Context, r *client.SnmpAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("snmp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -1246,6 +1258,7 @@ func readSnmpAlertHandlerResponseDefault(ctx context.Context, r *client.SnmpAler
 func readTwilioAlertHandlerResponse(ctx context.Context, r *client.TwilioAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("twilio")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
@@ -1269,6 +1282,7 @@ func readTwilioAlertHandlerResponse(ctx context.Context, r *client.TwilioAlertHa
 func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.TwilioAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("twilio")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
@@ -1292,6 +1306,7 @@ func readTwilioAlertHandlerResponseDefault(ctx context.Context, r *client.Twilio
 func readErrorLogAlertHandlerResponse(ctx context.Context, r *client.ErrorLogAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
@@ -1309,6 +1324,7 @@ func readErrorLogAlertHandlerResponse(ctx context.Context, r *client.ErrorLogAle
 func readErrorLogAlertHandlerResponseDefault(ctx context.Context, r *client.ErrorLogAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
@@ -1326,6 +1342,7 @@ func readErrorLogAlertHandlerResponseDefault(ctx context.Context, r *client.Erro
 func readSnmpSubAgentAlertHandlerResponse(ctx context.Context, r *client.SnmpSubAgentAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("snmp-sub-agent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1343,6 +1360,7 @@ func readSnmpSubAgentAlertHandlerResponse(ctx context.Context, r *client.SnmpSub
 func readSnmpSubAgentAlertHandlerResponseDefault(ctx context.Context, r *client.SnmpSubAgentAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("snmp-sub-agent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1360,6 +1378,7 @@ func readSnmpSubAgentAlertHandlerResponseDefault(ctx context.Context, r *client.
 func readExecAlertHandlerResponse(ctx context.Context, r *client.ExecAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exec")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1378,6 +1397,7 @@ func readExecAlertHandlerResponse(ctx context.Context, r *client.ExecAlertHandle
 func readExecAlertHandlerResponseDefault(ctx context.Context, r *client.ExecAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exec")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1396,6 +1416,7 @@ func readExecAlertHandlerResponseDefault(ctx context.Context, r *client.ExecAler
 func readThirdPartyAlertHandlerResponse(ctx context.Context, r *client.ThirdPartyAlertHandlerResponse, state *alertHandlerResourceModel, expectedValues *alertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1415,6 +1436,7 @@ func readThirdPartyAlertHandlerResponse(ctx context.Context, r *client.ThirdPart
 func readThirdPartyAlertHandlerResponseDefault(ctx context.Context, r *client.ThirdPartyAlertHandlerResponse, state *defaultAlertHandlerResourceModel, expectedValues *defaultAlertHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1514,7 +1536,7 @@ func createAlertHandlerOperationsDefault(plan defaultAlertHandlerResourceModel, 
 func (r *alertHandlerResource) CreateSmtpAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
 	var RecipientAddressSlice []string
 	plan.RecipientAddress.ElementsAs(ctx, &RecipientAddressSlice, false)
-	addRequest := client.NewAddSmtpAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSmtpAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumsmtpAlertHandlerSchemaUrn{client.ENUMSMTPALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSMTP},
 		plan.SenderAddress.ValueString(),
 		RecipientAddressSlice,
@@ -1554,7 +1576,7 @@ func (r *alertHandlerResource) CreateSmtpAlertHandler(ctx context.Context, req r
 
 // Create a jmx alert-handler
 func (r *alertHandlerResource) CreateJmxAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddJmxAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJmxAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumjmxAlertHandlerSchemaUrn{client.ENUMJMXALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERJMX},
 		plan.Enabled.ValueBool())
 	err := addOptionalJmxAlertHandlerFields(ctx, addRequest, plan)
@@ -1592,7 +1614,7 @@ func (r *alertHandlerResource) CreateJmxAlertHandler(ctx context.Context, req re
 
 // Create a groovy-scripted alert-handler
 func (r *alertHandlerResource) CreateGroovyScriptedAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedAlertHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1631,7 +1653,7 @@ func (r *alertHandlerResource) CreateGroovyScriptedAlertHandler(ctx context.Cont
 
 // Create a snmp alert-handler
 func (r *alertHandlerResource) CreateSnmpAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddSnmpAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSnmpAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumsnmpAlertHandlerSchemaUrn{client.ENUMSNMPALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSNMP},
 		plan.ServerHostName.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1674,7 +1696,7 @@ func (r *alertHandlerResource) CreateTwilioAlertHandler(ctx context.Context, req
 	plan.SenderPhoneNumber.ElementsAs(ctx, &SenderPhoneNumberSlice, false)
 	var RecipientPhoneNumberSlice []string
 	plan.RecipientPhoneNumber.ElementsAs(ctx, &RecipientPhoneNumberSlice, false)
-	addRequest := client.NewAddTwilioAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddTwilioAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumtwilioAlertHandlerSchemaUrn{client.ENUMTWILIOALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERTWILIO},
 		plan.TwilioAccountSID.ValueString(),
 		SenderPhoneNumberSlice,
@@ -1715,7 +1737,7 @@ func (r *alertHandlerResource) CreateTwilioAlertHandler(ctx context.Context, req
 
 // Create a error-log alert-handler
 func (r *alertHandlerResource) CreateErrorLogAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddErrorLogAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddErrorLogAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumerrorLogAlertHandlerSchemaUrn{client.ENUMERRORLOGALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERERROR_LOG},
 		plan.Enabled.ValueBool())
 	err := addOptionalErrorLogAlertHandlerFields(ctx, addRequest, plan)
@@ -1753,7 +1775,7 @@ func (r *alertHandlerResource) CreateErrorLogAlertHandler(ctx context.Context, r
 
 // Create a snmp-sub-agent alert-handler
 func (r *alertHandlerResource) CreateSnmpSubAgentAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddSnmpSubAgentAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSnmpSubAgentAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumsnmpSubAgentAlertHandlerSchemaUrn{client.ENUMSNMPSUBAGENTALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERSNMP_SUB_AGENT},
 		plan.Enabled.ValueBool())
 	err := addOptionalSnmpSubAgentAlertHandlerFields(ctx, addRequest, plan)
@@ -1791,7 +1813,7 @@ func (r *alertHandlerResource) CreateSnmpSubAgentAlertHandler(ctx context.Contex
 
 // Create a exec alert-handler
 func (r *alertHandlerResource) CreateExecAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddExecAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddExecAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumexecAlertHandlerSchemaUrn{client.ENUMEXECALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLEREXEC},
 		plan.Command.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1830,7 +1852,7 @@ func (r *alertHandlerResource) CreateExecAlertHandler(ctx context.Context, req r
 
 // Create a third-party alert-handler
 func (r *alertHandlerResource) CreateThirdPartyAlertHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan alertHandlerResourceModel) (*alertHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyAlertHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyAlertHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyAlertHandlerSchemaUrn{client.ENUMTHIRDPARTYALERTHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ALERT_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1960,7 +1982,7 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 	}
 
 	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
 		return
@@ -2009,7 +2031,7 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAlertHandlerOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -2085,7 +2107,7 @@ func (r *alertHandlerResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
 		return
@@ -2141,7 +2163,7 @@ func (r *defaultAlertHandlerResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
 		return
@@ -2180,7 +2202,7 @@ func (r *alertHandlerResource) Update(ctx context.Context, req resource.UpdateRe
 	var state alertHandlerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAlertHandlerOperations(plan, state)
@@ -2256,7 +2278,7 @@ func (r *defaultAlertHandlerResource) Update(ctx context.Context, req resource.U
 	var state defaultAlertHandlerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.AlertHandlerApi.UpdateAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAlertHandlerOperationsDefault(plan, state)
@@ -2342,7 +2364,7 @@ func (r *alertHandlerResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	httpResp, err := r.apiClient.AlertHandlerApi.DeleteAlertHandlerExecute(r.apiClient.AlertHandlerApi.DeleteAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Alert Handler", err, httpResp)
 		return
@@ -2358,6 +2380,6 @@ func (r *defaultAlertHandlerResource) ImportState(ctx context.Context, req resou
 }
 
 func importAlertHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

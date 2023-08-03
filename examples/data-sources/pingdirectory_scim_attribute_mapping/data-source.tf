@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
-  id                      = "MyScimAttributeMapping"
+  name                    = "MyScimAttributeMapping"
   scim_resource_type_name = "MyScimResourceType"
 }

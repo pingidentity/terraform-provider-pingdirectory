@@ -16,8 +16,8 @@ Manages a Token Claim Validation.
 
 ### Required
 
-- `id` (String) Name of this object.
 - `id_token_validator_name` (String) Name of the parent ID Token Validator
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -30,6 +30,7 @@ Manages a Token Claim Validation.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

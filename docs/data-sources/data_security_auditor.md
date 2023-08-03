@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_data_security_auditor" "myDataSecurityAuditor" {
-  id = "MyDataSecurityAuditor"
+  name = "MyDataSecurityAuditor"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_data_security_auditor" "myDataSecurityAuditor" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,6 +57,7 @@ data "pingdirectory_data_security_auditor" "myDataSecurityAuditor" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Data Security Auditor. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Data Security Auditor.
 - `filter` (Set of String) The filter to use to identify entries that should be reported. Multiple filters may be configured, and each reported entry will indicate which of these filter(s) matched that entry.
+- `id` (String) The ID of this resource.
 - `idle_account_error_interval` (String) The length of time to use as the error interval for idle accounts. If the length of time since a user last authenticated is greater than the error interval, then an error will be generated for that account. If no error interval is defined, then only the warning interval will be used.
 - `idle_account_warning_interval` (String) The length of time to use as the warning interval for idle accounts. If the length of time since a user last authenticated is greater than the warning interval but less than the error interval (or if it is greater than the warning interval and no error interval is defined), then a warning will be generated for that account.
 - `include_attribute` (Set of String) Specifies the attributes from the audited entries that should be included detailed reports. By default, no attributes are included.

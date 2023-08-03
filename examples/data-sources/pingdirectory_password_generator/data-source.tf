@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_password_generator" "myPasswordGenerator" {
-  id = "MyPasswordGenerator"
+  name = "MyPasswordGenerator"
 }

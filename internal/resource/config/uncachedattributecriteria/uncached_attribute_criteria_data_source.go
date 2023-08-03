@@ -48,6 +48,7 @@ func (r *uncachedAttributeCriteriaDataSource) Configure(_ context.Context, req d
 
 type uncachedAttributeCriteriaDataSourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	Type              types.String `tfsdk:"type"`
 	ExtensionClass    types.String `tfsdk:"extension_class"`
 	ExtensionArgument types.Set    `tfsdk:"extension_argument"`
@@ -62,13 +63,9 @@ type uncachedAttributeCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *uncachedAttributeCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Uncached Attribute Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Uncached Attribute Criteria resource. Options are ['default', 'groovy-scripted', 'simple', 'third-party']",
 				Required:    false,
@@ -134,12 +131,15 @@ func (r *uncachedAttributeCriteriaDataSource) Schema(ctx context.Context, req da
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DefaultUncachedAttributeCriteriaResponse object into the model struct
 func readDefaultUncachedAttributeCriteriaResponseDataSource(ctx context.Context, r *client.DefaultUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -148,6 +148,7 @@ func readDefaultUncachedAttributeCriteriaResponseDataSource(ctx context.Context,
 func readGroovyScriptedUncachedAttributeCriteriaResponseDataSource(ctx context.Context, r *client.GroovyScriptedUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -158,6 +159,7 @@ func readGroovyScriptedUncachedAttributeCriteriaResponseDataSource(ctx context.C
 func readSimpleUncachedAttributeCriteriaResponseDataSource(ctx context.Context, r *client.SimpleUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.MinValueCount = internaltypes.Int64TypeOrNil(r.MinValueCount)
 	state.MinTotalValueSize = internaltypes.StringTypeOrNil(r.MinTotalValueSize, false)
@@ -169,6 +171,7 @@ func readSimpleUncachedAttributeCriteriaResponseDataSource(ctx context.Context, 
 func readThirdPartyUncachedAttributeCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartyUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -186,7 +189,7 @@ func (r *uncachedAttributeCriteriaDataSource) Read(ctx context.Context, req data
 	}
 
 	readResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Attribute Criteria", err, httpResp)
 		return

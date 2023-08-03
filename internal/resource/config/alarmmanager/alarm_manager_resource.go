@@ -54,7 +54,6 @@ func (r *alarmManagerResource) Configure(_ context.Context, req resource.Configu
 }
 
 type alarmManagerResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                     types.String `tfsdk:"id"`
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
@@ -97,7 +96,7 @@ func (r *alarmManagerResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

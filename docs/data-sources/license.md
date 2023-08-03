@@ -46,5 +46,5 @@ data "pingdirectory_license" "myLicense" {
 ### Read-Only
 
 - `directory_platform_license_key` (String) License key enabling use of Directory Server, Directory Proxy Server, Data Sync Server, and Data Metrics Server products.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 

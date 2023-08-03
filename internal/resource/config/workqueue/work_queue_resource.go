@@ -55,7 +55,6 @@ func (r *workQueueResource) Configure(_ context.Context, req resource.ConfigureR
 }
 
 type workQueueResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                       types.String `tfsdk:"id"`
 	LastUpdated                              types.String `tfsdk:"last_updated"`
 	Notifications                            types.Set    `tfsdk:"notifications"`
@@ -177,7 +176,7 @@ func (r *workQueueResource) Schema(ctx context.Context, req resource.SchemaReque
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

@@ -58,6 +58,7 @@ func (r *synchronizationProviderResource) Configure(_ context.Context, req resou
 
 type synchronizationProviderResourceModel struct {
 	Id                     types.String `tfsdk:"id"`
+	Name                   types.String `tfsdk:"name"`
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
 	RequiredActions        types.Set    `tfsdk:"required_actions"`
@@ -108,7 +109,7 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -126,6 +127,7 @@ func (r *synchronizationProviderResource) ModifyPlan(ctx context.Context, req re
 func readReplicationSynchronizationProviderResponse(ctx context.Context, r *client.ReplicationSynchronizationProviderResponse, state *synchronizationProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replication")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.NumUpdateReplayThreads = internaltypes.Int64TypeOrNil(r.NumUpdateReplayThreads)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -136,6 +138,7 @@ func readReplicationSynchronizationProviderResponse(ctx context.Context, r *clie
 func readCustomSynchronizationProviderResponse(ctx context.Context, r *client.CustomSynchronizationProviderResponse, state *synchronizationProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -164,7 +167,7 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.GetSynchronizationProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Synchronization Provider", err, httpResp)
 		return
@@ -186,7 +189,7 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSynchronizationProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -234,7 +237,7 @@ func (r *synchronizationProviderResource) Read(ctx context.Context, req resource
 	}
 
 	readResponse, httpResp, err := r.apiClient.SynchronizationProviderApi.GetSynchronizationProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Synchronization Provider", err, httpResp)
 		return
@@ -273,7 +276,7 @@ func (r *synchronizationProviderResource) Update(ctx context.Context, req resour
 	var state synchronizationProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.SynchronizationProviderApi.UpdateSynchronizationProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSynchronizationProviderOperations(plan, state)
@@ -322,6 +325,6 @@ func (r *synchronizationProviderResource) Delete(ctx context.Context, req resour
 }
 
 func (r *synchronizationProviderResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

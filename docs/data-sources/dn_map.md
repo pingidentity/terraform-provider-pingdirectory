@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_dn_map" "myDnMap" {
-  id = "MyDnMap"
+  name = "MyDnMap"
 }
 ```
 
@@ -46,11 +46,12 @@ data "pingdirectory_dn_map" "myDnMap" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this DN Map
 - `from_dn_pattern` (String) Specifies the DN pattern to match when determining whether this map applies to a specific source DN. If the provided bind DN matches this pattern, then the to-dn-pattern will be used to perform the mapping. If the provided bind DN does not match this pattern, then no mapping will be performed.
+- `id` (String) The ID of this resource.
 - `to_dn_pattern` (String) Specifies a pattern for constructing the DN value using fixed text, DN components matching wild-card values in from-dn-pattern, and attribute values from the source entry.
 

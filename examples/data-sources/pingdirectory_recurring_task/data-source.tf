@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_recurring_task" "myRecurringTask" {
-  id = "MyRecurringTask"
+  name = "MyRecurringTask"
 }

@@ -54,7 +54,7 @@ data "pingdirectory_local_db_index" "myLocalDbIndex" {
 
 - `cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the database for this index. This controls how much database cache memory can be consumed by this index.
 - `equality_index_filter` (Set of String) A search filter that may be used in conjunction with an equality component for the associated attribute type. If an equality index filter is defined, then an additional equality index will be maintained for the associated attribute, but only for entries which match the provided filter. Further, the index will be used only for searches containing an equality component with the associated attribute type ANDed with this filter.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `index_entry_limit` (Number) Specifies the maximum number of entries that are allowed to match a given index key before that particular index key is no longer maintained.
 - `index_type` (Set of String) Specifies the type(s) of indexing that should be performed for the associated attribute.
 - `maintain_equality_index_without_filter` (Boolean) Indicates whether to maintain a separate equality index for the associated attribute without any filter, in addition to maintaining an index for each equality index filter that is defined. If this is false, then the attribute will not be indexed for equality by itself but only in conjunction with the defined equality index filters.

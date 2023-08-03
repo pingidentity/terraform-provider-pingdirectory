@@ -79,14 +79,14 @@ func TestAccReplicationAssurancePolicy(t *testing.T) {
 func testAccReplicationAssurancePolicyResource(resourceName string, resourceModel replicationAssurancePolicyTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_replication_assurance_policy" "%[1]s" {
-  id                     = "%[2]s"
+  name                   = "%[2]s"
   description            = "%[3]s"
   evaluation_order_index = %[4]d
   timeout                = "%[5]s"
 }
 
 data "pingdirectory_replication_assurance_policy" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_replication_assurance_policy.%[1]s
   ]

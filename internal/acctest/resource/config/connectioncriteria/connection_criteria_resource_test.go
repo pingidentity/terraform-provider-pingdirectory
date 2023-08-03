@@ -76,13 +76,13 @@ func testAccSimpleConnectionCriteriaResource(resourceName string, resourceModel 
 	return fmt.Sprintf(`
 resource "pingdirectory_connection_criteria" "%[1]s" {
   type           = "simple"
-  id             = "%[2]s"
+  name           = "%[2]s"
   description    = "%[3]s"
   user_auth_type = %[4]s
 }
 
 data "pingdirectory_connection_criteria" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_connection_criteria.%[1]s
   ]

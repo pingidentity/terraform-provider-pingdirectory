@@ -86,6 +86,7 @@ func (r *defaultConnectionHandlerResource) Configure(_ context.Context, req reso
 
 type connectionHandlerResourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Name                                   types.String `tfsdk:"name"`
 	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
@@ -510,9 +511,9 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1005,6 +1006,7 @@ func populateConnectionHandlerUnknownValues(ctx context.Context, model *connecti
 func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, internaltypes.IsEmptyString(expectedValues.SslCertNickname))
@@ -1021,6 +1023,7 @@ func readJmxConnectionHandlerResponse(ctx context.Context, r *client.JmxConnecti
 func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ListenAddress = internaltypes.GetStringSet(r.ListenAddress)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
@@ -1063,6 +1066,7 @@ func readLdapConnectionHandlerResponse(ctx context.Context, r *client.LdapConnec
 func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.LdifDirectory = types.StringValue(r.LdifDirectory)
@@ -1079,6 +1083,7 @@ func readLdifConnectionHandlerResponse(ctx context.Context, r *client.LdifConnec
 func readHttpConnectionHandlerResponse(ctx context.Context, r *client.HttpConnectionHandlerResponse, state *connectionHandlerResourceModel, expectedValues *connectionHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	listenAddressValues := []string{}
 	listenAddressType := internaltypes.StringTypeOrNil(r.ListenAddress, false)
 	if !listenAddressType.IsNull() {
@@ -1173,7 +1178,7 @@ func createConnectionHandlerOperations(plan connectionHandlerResourceModel, stat
 
 // Create a jmx connection-handler
 func (r *connectionHandlerResource) CreateJmxConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddJmxConnectionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJmxConnectionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumjmxConnectionHandlerSchemaUrn{client.ENUMJMXCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERJMX},
 		plan.ListenPort.ValueInt64(),
 		plan.Enabled.ValueBool())
@@ -1212,7 +1217,7 @@ func (r *connectionHandlerResource) CreateJmxConnectionHandler(ctx context.Conte
 
 // Create a ldap connection-handler
 func (r *connectionHandlerResource) CreateLdapConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddLdapConnectionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdapConnectionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumldapConnectionHandlerSchemaUrn{client.ENUMLDAPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDAP},
 		plan.ListenPort.ValueInt64(),
 		plan.Enabled.ValueBool())
@@ -1251,7 +1256,7 @@ func (r *connectionHandlerResource) CreateLdapConnectionHandler(ctx context.Cont
 
 // Create a ldif connection-handler
 func (r *connectionHandlerResource) CreateLdifConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddLdifConnectionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdifConnectionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumldifConnectionHandlerSchemaUrn{client.ENUMLDIFCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERLDIF},
 		plan.Enabled.ValueBool())
 	err := addOptionalLdifConnectionHandlerFields(ctx, addRequest, plan)
@@ -1289,7 +1294,7 @@ func (r *connectionHandlerResource) CreateLdifConnectionHandler(ctx context.Cont
 
 // Create a http connection-handler
 func (r *connectionHandlerResource) CreateHttpConnectionHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan connectionHandlerResourceModel) (*connectionHandlerResourceModel, error) {
-	addRequest := client.NewAddHttpConnectionHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddHttpConnectionHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumhttpConnectionHandlerSchemaUrn{client.ENUMHTTPCONNECTIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONNECTION_HANDLERHTTP},
 		plan.ListenPort.ValueInt64(),
 		plan.Enabled.ValueBool())
@@ -1388,7 +1393,7 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
 		return
@@ -1416,7 +1421,7 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ConnectionHandlerApi.UpdateConnectionHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConnectionHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1478,7 +1483,7 @@ func readConnectionHandler(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
 		return
@@ -1531,7 +1536,7 @@ func updateConnectionHandler(ctx context.Context, req resource.UpdateRequest, re
 	var state connectionHandlerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ConnectionHandlerApi.UpdateConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConnectionHandlerOperations(plan, state)
@@ -1595,7 +1600,7 @@ func (r *connectionHandlerResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.ConnectionHandlerApi.DeleteConnectionHandlerExecute(r.apiClient.ConnectionHandlerApi.DeleteConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Connection Handler", err, httpResp)
 		return
@@ -1611,6 +1616,6 @@ func (r *defaultConnectionHandlerResource) ImportState(ctx context.Context, req 
 }
 
 func importConnectionHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

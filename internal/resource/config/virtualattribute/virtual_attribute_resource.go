@@ -86,6 +86,7 @@ func (r *defaultVirtualAttributeResource) Configure(_ context.Context, req resou
 
 type virtualAttributeResourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
+	Name                                         types.String `tfsdk:"name"`
 	LastUpdated                                  types.String `tfsdk:"last_updated"`
 	Notifications                                types.Set    `tfsdk:"notifications"`
 	RequiredActions                              types.Set    `tfsdk:"required_actions"`
@@ -132,6 +133,7 @@ type virtualAttributeResourceModel struct {
 
 type defaultVirtualAttributeResourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
+	Name                                         types.String `tfsdk:"name"`
 	LastUpdated                                  types.String `tfsdk:"last_updated"`
 	Notifications                                types.Set    `tfsdk:"notifications"`
 	RequiredActions                              types.Set    `tfsdk:"required_actions"`
@@ -505,9 +507,9 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				setplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1584,6 +1586,7 @@ func populateVirtualAttributeUnknownValuesDefault(ctx context.Context, model *de
 func readMirrorVirtualAttributeResponse(ctx context.Context, r *client.MirrorVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("mirror")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
@@ -1610,6 +1613,7 @@ func readMirrorVirtualAttributeResponse(ctx context.Context, r *client.MirrorVir
 func readMirrorVirtualAttributeResponseDefault(ctx context.Context, r *client.MirrorVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("mirror")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.SourceAttribute = types.StringValue(r.SourceAttribute)
@@ -1636,6 +1640,7 @@ func readMirrorVirtualAttributeResponseDefault(ctx context.Context, r *client.Mi
 func readEntryChecksumVirtualAttributeResponseDefault(ctx context.Context, r *client.EntryChecksumVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("entry-checksum")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -1660,6 +1665,7 @@ func readEntryChecksumVirtualAttributeResponseDefault(ctx context.Context, r *cl
 func readMemberOfServerGroupVirtualAttributeResponseDefault(ctx context.Context, r *client.MemberOfServerGroupVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("member-of-server-group")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -1682,6 +1688,7 @@ func readMemberOfServerGroupVirtualAttributeResponseDefault(ctx context.Context,
 func readConstructedVirtualAttributeResponse(ctx context.Context, r *client.ConstructedVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("constructed")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1705,6 +1712,7 @@ func readConstructedVirtualAttributeResponse(ctx context.Context, r *client.Cons
 func readConstructedVirtualAttributeResponseDefault(ctx context.Context, r *client.ConstructedVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("constructed")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1728,6 +1736,7 @@ func readConstructedVirtualAttributeResponseDefault(ctx context.Context, r *clie
 func readIsMemberOfVirtualAttributeResponse(ctx context.Context, r *client.IsMemberOfVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("is-member-of")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -1754,6 +1763,7 @@ func readIsMemberOfVirtualAttributeResponse(ctx context.Context, r *client.IsMem
 func readIsMemberOfVirtualAttributeResponseDefault(ctx context.Context, r *client.IsMemberOfVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("is-member-of")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -1780,6 +1790,7 @@ func readIsMemberOfVirtualAttributeResponseDefault(ctx context.Context, r *clien
 func readCustomVirtualAttributeResponseDefault(ctx context.Context, r *client.CustomVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -1802,6 +1813,7 @@ func readCustomVirtualAttributeResponseDefault(ctx context.Context, r *client.Cu
 func readNumSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *client.NumSubordinatesVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("num-subordinates")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -1824,6 +1836,7 @@ func readNumSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 func readReverseDnJoinVirtualAttributeResponse(ctx context.Context, r *client.ReverseDnJoinVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("reverse-dn-join")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JoinDNAttribute = types.StringValue(r.JoinDNAttribute)
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
@@ -1854,6 +1867,7 @@ func readReverseDnJoinVirtualAttributeResponse(ctx context.Context, r *client.Re
 func readReverseDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.ReverseDnJoinVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("reverse-dn-join")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JoinDNAttribute = types.StringValue(r.JoinDNAttribute)
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
@@ -1884,6 +1898,7 @@ func readReverseDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *cl
 func readIdentifyReferencesVirtualAttributeResponse(ctx context.Context, r *client.IdentifyReferencesVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("identify-references")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReferencedByAttribute = internaltypes.GetStringSet(r.ReferencedByAttribute)
 	state.ReferenceSearchBaseDN = internaltypes.GetStringSet(r.ReferenceSearchBaseDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1908,6 +1923,7 @@ func readIdentifyReferencesVirtualAttributeResponse(ctx context.Context, r *clie
 func readIdentifyReferencesVirtualAttributeResponseDefault(ctx context.Context, r *client.IdentifyReferencesVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("identify-references")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReferencedByAttribute = internaltypes.GetStringSet(r.ReferencedByAttribute)
 	state.ReferenceSearchBaseDN = internaltypes.GetStringSet(r.ReferenceSearchBaseDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1932,6 +1948,7 @@ func readIdentifyReferencesVirtualAttributeResponseDefault(ctx context.Context, 
 func readUserDefinedVirtualAttributeResponse(ctx context.Context, r *client.UserDefinedVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-defined")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Value = internaltypes.GetStringSet(r.Value)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1955,6 +1972,7 @@ func readUserDefinedVirtualAttributeResponse(ctx context.Context, r *client.User
 func readUserDefinedVirtualAttributeResponseDefault(ctx context.Context, r *client.UserDefinedVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-defined")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Value = internaltypes.GetStringSet(r.Value)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -1978,6 +1996,7 @@ func readUserDefinedVirtualAttributeResponseDefault(ctx context.Context, r *clie
 func readCurrentTimeVirtualAttributeResponseDefault(ctx context.Context, r *client.CurrentTimeVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("current-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -2002,6 +2021,7 @@ func readCurrentTimeVirtualAttributeResponseDefault(ctx context.Context, r *clie
 func readShortUniqueIdVirtualAttributeResponseDefault(ctx context.Context, r *client.ShortUniqueIdVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("short-unique-id")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SequenceNumberAttribute = types.StringValue(r.SequenceNumberAttribute)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -2022,6 +2042,7 @@ func readShortUniqueIdVirtualAttributeResponseDefault(ctx context.Context, r *cl
 func readEntryDnVirtualAttributeResponse(ctx context.Context, r *client.EntryDnVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("entry-dn")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -2044,6 +2065,7 @@ func readEntryDnVirtualAttributeResponse(ctx context.Context, r *client.EntryDnV
 func readEntryDnVirtualAttributeResponseDefault(ctx context.Context, r *client.EntryDnVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("entry-dn")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -2066,6 +2088,7 @@ func readEntryDnVirtualAttributeResponseDefault(ctx context.Context, r *client.E
 func readHasSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *client.HasSubordinatesVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("has-subordinates")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -2088,6 +2111,7 @@ func readHasSubordinatesVirtualAttributeResponseDefault(ctx context.Context, r *
 func readEqualityJoinVirtualAttributeResponse(ctx context.Context, r *client.EqualityJoinVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("equality-join")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JoinSourceAttribute = types.StringValue(r.JoinSourceAttribute)
 	state.JoinTargetAttribute = types.StringValue(r.JoinTargetAttribute)
 	state.JoinMatchAll = internaltypes.BoolTypeOrNil(r.JoinMatchAll)
@@ -2120,6 +2144,7 @@ func readEqualityJoinVirtualAttributeResponse(ctx context.Context, r *client.Equ
 func readEqualityJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.EqualityJoinVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("equality-join")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JoinSourceAttribute = types.StringValue(r.JoinSourceAttribute)
 	state.JoinTargetAttribute = types.StringValue(r.JoinTargetAttribute)
 	state.JoinMatchAll = internaltypes.BoolTypeOrNil(r.JoinMatchAll)
@@ -2152,6 +2177,7 @@ func readEqualityJoinVirtualAttributeResponseDefault(ctx context.Context, r *cli
 func readGroovyScriptedVirtualAttributeResponse(ctx context.Context, r *client.GroovyScriptedVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2176,6 +2202,7 @@ func readGroovyScriptedVirtualAttributeResponse(ctx context.Context, r *client.G
 func readGroovyScriptedVirtualAttributeResponseDefault(ctx context.Context, r *client.GroovyScriptedVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2200,6 +2227,7 @@ func readGroovyScriptedVirtualAttributeResponseDefault(ctx context.Context, r *c
 func readInstanceNameVirtualAttributeResponseDefault(ctx context.Context, r *client.InstanceNameVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("instance-name")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -2222,6 +2250,7 @@ func readInstanceNameVirtualAttributeResponseDefault(ctx context.Context, r *cli
 func readReplicationStateDetailVirtualAttributeResponseDefault(ctx context.Context, r *client.ReplicationStateDetailVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replication-state-detail")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireExplicitRequestByName = internaltypes.BoolTypeOrNil(r.RequireExplicitRequestByName)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -2232,6 +2261,7 @@ func readReplicationStateDetailVirtualAttributeResponseDefault(ctx context.Conte
 func readMemberVirtualAttributeResponse(ctx context.Context, r *client.MemberVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("member")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AllowRetrievingMembership = types.BoolValue(r.AllowRetrievingMembership)
@@ -2255,6 +2285,7 @@ func readMemberVirtualAttributeResponse(ctx context.Context, r *client.MemberVir
 func readMemberVirtualAttributeResponseDefault(ctx context.Context, r *client.MemberVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("member")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AllowRetrievingMembership = types.BoolValue(r.AllowRetrievingMembership)
@@ -2278,6 +2309,7 @@ func readMemberVirtualAttributeResponseDefault(ctx context.Context, r *client.Me
 func readPasswordPolicyStateJsonVirtualAttributeResponse(ctx context.Context, r *client.PasswordPolicyStateJsonVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password-policy-state-json")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -2294,6 +2326,7 @@ func readPasswordPolicyStateJsonVirtualAttributeResponse(ctx context.Context, r 
 func readPasswordPolicyStateJsonVirtualAttributeResponseDefault(ctx context.Context, r *client.PasswordPolicyStateJsonVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password-policy-state-json")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.BaseDN = internaltypes.GetStringSet(r.BaseDN)
@@ -2310,6 +2343,7 @@ func readPasswordPolicyStateJsonVirtualAttributeResponseDefault(ctx context.Cont
 func readSubschemaSubentryVirtualAttributeResponseDefault(ctx context.Context, r *client.SubschemaSubentryVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subschema-subentry")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConflictBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvirtualAttributeConflictBehaviorProp(r.ConflictBehavior), internaltypes.IsEmptyString(expectedValues.ConflictBehavior))
 	state.AttributeType = types.StringValue(r.AttributeType)
@@ -2332,6 +2366,7 @@ func readSubschemaSubentryVirtualAttributeResponseDefault(ctx context.Context, r
 func readDnJoinVirtualAttributeResponse(ctx context.Context, r *client.DnJoinVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dn-join")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JoinDNAttribute = types.StringValue(r.JoinDNAttribute)
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
@@ -2362,6 +2397,7 @@ func readDnJoinVirtualAttributeResponse(ctx context.Context, r *client.DnJoinVir
 func readDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.DnJoinVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dn-join")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JoinDNAttribute = types.StringValue(r.JoinDNAttribute)
 	state.JoinBaseDNType = types.StringValue(r.JoinBaseDNType.String())
 	state.JoinCustomBaseDN = internaltypes.StringTypeOrNil(r.JoinCustomBaseDN, internaltypes.IsEmptyString(expectedValues.JoinCustomBaseDN))
@@ -2392,6 +2428,7 @@ func readDnJoinVirtualAttributeResponseDefault(ctx context.Context, r *client.Dn
 func readThirdPartyVirtualAttributeResponse(ctx context.Context, r *client.ThirdPartyVirtualAttributeResponse, state *virtualAttributeResourceModel, expectedValues *virtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2416,6 +2453,7 @@ func readThirdPartyVirtualAttributeResponse(ctx context.Context, r *client.Third
 func readThirdPartyVirtualAttributeResponseDefault(ctx context.Context, r *client.ThirdPartyVirtualAttributeResponse, state *defaultVirtualAttributeResourceModel, expectedValues *defaultVirtualAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2531,7 +2569,7 @@ func createVirtualAttributeOperationsDefault(plan defaultVirtualAttributeResourc
 
 // Create a mirror virtual-attribute
 func (r *virtualAttributeResource) CreateMirrorVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddMirrorVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddMirrorVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnummirrorVirtualAttributeSchemaUrn{client.ENUMMIRRORVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMIRROR},
 		plan.SourceAttribute.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -2573,7 +2611,7 @@ func (r *virtualAttributeResource) CreateMirrorVirtualAttribute(ctx context.Cont
 func (r *virtualAttributeResource) CreateConstructedVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
-	addRequest := client.NewAddConstructedVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConstructedVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumconstructedVirtualAttributeSchemaUrn{client.ENUMCONSTRUCTEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTECONSTRUCTED},
 		ValuePatternSlice,
 		plan.Enabled.ValueBool(),
@@ -2613,7 +2651,7 @@ func (r *virtualAttributeResource) CreateConstructedVirtualAttribute(ctx context
 
 // Create a is-member-of virtual-attribute
 func (r *virtualAttributeResource) CreateIsMemberOfVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddIsMemberOfVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddIsMemberOfVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumisMemberOfVirtualAttributeSchemaUrn{client.ENUMISMEMBEROFVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIS_MEMBER_OF},
 		plan.Enabled.ValueBool())
 	err := addOptionalIsMemberOfVirtualAttributeFields(ctx, addRequest, plan)
@@ -2656,7 +2694,7 @@ func (r *virtualAttributeResource) CreateReverseDnJoinVirtualAttribute(ctx conte
 		resp.Diagnostics.AddError("Failed to parse enum value for JoinBaseDNType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddReverseDnJoinVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddReverseDnJoinVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumreverseDnJoinVirtualAttributeSchemaUrn{client.ENUMREVERSEDNJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEREVERSE_DN_JOIN},
 		plan.JoinDNAttribute.ValueString(),
 		*joinBaseDNType,
@@ -2699,7 +2737,7 @@ func (r *virtualAttributeResource) CreateReverseDnJoinVirtualAttribute(ctx conte
 func (r *virtualAttributeResource) CreateIdentifyReferencesVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
 	var ReferencedByAttributeSlice []string
 	plan.ReferencedByAttribute.ElementsAs(ctx, &ReferencedByAttributeSlice, false)
-	addRequest := client.NewAddIdentifyReferencesVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddIdentifyReferencesVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumidentifyReferencesVirtualAttributeSchemaUrn{client.ENUMIDENTIFYREFERENCESVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEIDENTIFY_REFERENCES},
 		ReferencedByAttributeSlice,
 		plan.Enabled.ValueBool(),
@@ -2741,7 +2779,7 @@ func (r *virtualAttributeResource) CreateIdentifyReferencesVirtualAttribute(ctx 
 func (r *virtualAttributeResource) CreateUserDefinedVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
 	var ValueSlice []string
 	plan.Value.ElementsAs(ctx, &ValueSlice, false)
-	addRequest := client.NewAddUserDefinedVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUserDefinedVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumuserDefinedVirtualAttributeSchemaUrn{client.ENUMUSERDEFINEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEUSER_DEFINED},
 		ValueSlice,
 		plan.Enabled.ValueBool(),
@@ -2781,7 +2819,7 @@ func (r *virtualAttributeResource) CreateUserDefinedVirtualAttribute(ctx context
 
 // Create a entry-dn virtual-attribute
 func (r *virtualAttributeResource) CreateEntryDnVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddEntryDnVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddEntryDnVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumentryDnVirtualAttributeSchemaUrn{client.ENUMENTRYDNVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEENTRY_DN},
 		plan.Enabled.ValueBool())
 	err := addOptionalEntryDnVirtualAttributeFields(ctx, addRequest, plan)
@@ -2824,7 +2862,7 @@ func (r *virtualAttributeResource) CreateEqualityJoinVirtualAttribute(ctx contex
 		resp.Diagnostics.AddError("Failed to parse enum value for JoinBaseDNType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddEqualityJoinVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddEqualityJoinVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumequalityJoinVirtualAttributeSchemaUrn{client.ENUMEQUALITYJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEEQUALITY_JOIN},
 		plan.JoinSourceAttribute.ValueString(),
 		plan.JoinTargetAttribute.ValueString(),
@@ -2866,7 +2904,7 @@ func (r *virtualAttributeResource) CreateEqualityJoinVirtualAttribute(ctx contex
 
 // Create a groovy-scripted virtual-attribute
 func (r *virtualAttributeResource) CreateGroovyScriptedVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedVirtualAttributeSchemaUrn{client.ENUMGROOVYSCRIPTEDVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -2906,7 +2944,7 @@ func (r *virtualAttributeResource) CreateGroovyScriptedVirtualAttribute(ctx cont
 
 // Create a member virtual-attribute
 func (r *virtualAttributeResource) CreateMemberVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddMemberVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddMemberVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnummemberVirtualAttributeSchemaUrn{client.ENUMMEMBERVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEMEMBER},
 		plan.Enabled.ValueBool(),
 		plan.AttributeType.ValueString())
@@ -2945,7 +2983,7 @@ func (r *virtualAttributeResource) CreateMemberVirtualAttribute(ctx context.Cont
 
 // Create a password-policy-state-json virtual-attribute
 func (r *virtualAttributeResource) CreatePasswordPolicyStateJsonVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddPasswordPolicyStateJsonVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPasswordPolicyStateJsonVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumpasswordPolicyStateJsonVirtualAttributeSchemaUrn{client.ENUMPASSWORDPOLICYSTATEJSONVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEPASSWORD_POLICY_STATE_JSON},
 		plan.Enabled.ValueBool())
 	err := addOptionalPasswordPolicyStateJsonVirtualAttributeFields(ctx, addRequest, plan)
@@ -2988,7 +3026,7 @@ func (r *virtualAttributeResource) CreateDnJoinVirtualAttribute(ctx context.Cont
 		resp.Diagnostics.AddError("Failed to parse enum value for JoinBaseDNType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddDnJoinVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDnJoinVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumdnJoinVirtualAttributeSchemaUrn{client.ENUMDNJOINVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTEDN_JOIN},
 		plan.JoinDNAttribute.ValueString(),
 		*joinBaseDNType,
@@ -3029,7 +3067,7 @@ func (r *virtualAttributeResource) CreateDnJoinVirtualAttribute(ctx context.Cont
 
 // Create a third-party virtual-attribute
 func (r *virtualAttributeResource) CreateThirdPartyVirtualAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan virtualAttributeResourceModel) (*virtualAttributeResourceModel, error) {
-	addRequest := client.NewAddThirdPartyVirtualAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyVirtualAttributeRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyVirtualAttributeSchemaUrn{client.ENUMTHIRDPARTYVIRTUALATTRIBUTESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VIRTUAL_ATTRIBUTETHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -3183,7 +3221,7 @@ func (r *defaultVirtualAttributeResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)
 		return
@@ -3268,7 +3306,7 @@ func (r *defaultVirtualAttributeResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createVirtualAttributeOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -3379,7 +3417,7 @@ func (r *virtualAttributeResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)
 		return
@@ -3447,7 +3485,7 @@ func (r *defaultVirtualAttributeResource) Read(ctx context.Context, req resource
 	}
 
 	readResponse, httpResp, err := r.apiClient.VirtualAttributeApi.GetVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Virtual Attribute", err, httpResp)
 		return
@@ -3510,7 +3548,7 @@ func (r *virtualAttributeResource) Update(ctx context.Context, req resource.Upda
 	var state virtualAttributeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createVirtualAttributeOperations(plan, state)
@@ -3597,7 +3635,7 @@ func (r *defaultVirtualAttributeResource) Update(ctx context.Context, req resour
 	var state defaultVirtualAttributeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.VirtualAttributeApi.UpdateVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createVirtualAttributeOperationsDefault(plan, state)
@@ -3718,7 +3756,7 @@ func (r *virtualAttributeResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.VirtualAttributeApi.DeleteVirtualAttributeExecute(r.apiClient.VirtualAttributeApi.DeleteVirtualAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Virtual Attribute", err, httpResp)
 		return
@@ -3734,6 +3772,6 @@ func (r *defaultVirtualAttributeResource) ImportState(ctx context.Context, req r
 }
 
 func importVirtualAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

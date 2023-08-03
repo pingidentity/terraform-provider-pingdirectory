@@ -86,6 +86,7 @@ func (r *defaultWebApplicationExtensionResource) Configure(_ context.Context, re
 
 type webApplicationExtensionResourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Name                     types.String `tfsdk:"name"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
@@ -101,6 +102,7 @@ type webApplicationExtensionResourceModel struct {
 
 type defaultWebApplicationExtensionResourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Name                                types.String `tfsdk:"name"`
 	LastUpdated                         types.String `tfsdk:"last_updated"`
 	Notifications                       types.Set    `tfsdk:"notifications"`
 	RequiredActions                     types.Set    `tfsdk:"required_actions"`
@@ -292,9 +294,9 @@ func webApplicationExtensionSchema(ctx context.Context, req resource.SchemaReque
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -427,6 +429,7 @@ func populateWebApplicationExtensionUnknownValuesDefault(ctx context.Context, mo
 func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *client.ConsoleWebApplicationExtensionResponse, state *defaultWebApplicationExtensionResourceModel, expectedValues *defaultWebApplicationExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SsoEnabled = internaltypes.BoolTypeOrNil(r.SsoEnabled)
 	state.OidcClientID = internaltypes.StringTypeOrNil(r.OidcClientID, internaltypes.IsEmptyString(expectedValues.OidcClientID))
 	state.OidcClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.OidcClientSecretPassphraseProvider, internaltypes.IsEmptyString(expectedValues.OidcClientSecretPassphraseProvider))
@@ -458,6 +461,7 @@ func readConsoleWebApplicationExtensionResponseDefault(ctx context.Context, r *c
 func readGenericWebApplicationExtensionResponse(ctx context.Context, r *client.GenericWebApplicationExtensionResponse, state *webApplicationExtensionResourceModel, expectedValues *webApplicationExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
@@ -472,6 +476,7 @@ func readGenericWebApplicationExtensionResponse(ctx context.Context, r *client.G
 func readGenericWebApplicationExtensionResponseDefault(ctx context.Context, r *client.GenericWebApplicationExtensionResponse, state *defaultWebApplicationExtensionResourceModel, expectedValues *defaultWebApplicationExtensionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.BaseContextPath = types.StringValue(r.BaseContextPath)
 	state.WarFile = internaltypes.StringTypeOrNil(r.WarFile, internaltypes.IsEmptyString(expectedValues.WarFile))
@@ -535,7 +540,7 @@ func createWebApplicationExtensionOperationsDefault(plan defaultWebApplicationEx
 
 // Create a generic web-application-extension
 func (r *webApplicationExtensionResource) CreateGenericWebApplicationExtension(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan webApplicationExtensionResourceModel) (*webApplicationExtensionResourceModel, error) {
-	addRequest := client.NewAddGenericWebApplicationExtensionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGenericWebApplicationExtensionRequest(plan.Name.ValueString(),
 		[]client.EnumgenericWebApplicationExtensionSchemaUrn{client.ENUMGENERICWEBAPPLICATIONEXTENSIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0WEB_APPLICATION_EXTENSIONGENERIC},
 		plan.BaseContextPath.ValueString())
 	err := addOptionalGenericWebApplicationExtensionFields(ctx, addRequest, plan)
@@ -610,7 +615,7 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 	}
 
 	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
 		return
@@ -632,7 +637,7 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createWebApplicationExtensionOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -681,7 +686,7 @@ func (r *webApplicationExtensionResource) Read(ctx context.Context, req resource
 	}
 
 	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
 		return
@@ -713,7 +718,7 @@ func (r *defaultWebApplicationExtensionResource) Read(ctx context.Context, req r
 	}
 
 	readResponse, httpResp, err := r.apiClient.WebApplicationExtensionApi.GetWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Web Application Extension", err, httpResp)
 		return
@@ -749,7 +754,7 @@ func (r *webApplicationExtensionResource) Update(ctx context.Context, req resour
 	var state webApplicationExtensionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createWebApplicationExtensionOperations(plan, state)
@@ -800,7 +805,7 @@ func (r *defaultWebApplicationExtensionResource) Update(ctx context.Context, req
 	var state defaultWebApplicationExtensionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.WebApplicationExtensionApi.UpdateWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createWebApplicationExtensionOperationsDefault(plan, state)
@@ -858,7 +863,7 @@ func (r *webApplicationExtensionResource) Delete(ctx context.Context, req resour
 	}
 
 	httpResp, err := r.apiClient.WebApplicationExtensionApi.DeleteWebApplicationExtensionExecute(r.apiClient.WebApplicationExtensionApi.DeleteWebApplicationExtension(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Web Application Extension", err, httpResp)
 		return
@@ -874,6 +879,6 @@ func (r *defaultWebApplicationExtensionResource) ImportState(ctx context.Context
 }
 
 func importWebApplicationExtension(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

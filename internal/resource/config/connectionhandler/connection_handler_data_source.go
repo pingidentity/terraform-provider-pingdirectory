@@ -48,6 +48,7 @@ func (r *connectionHandlerDataSource) Configure(_ context.Context, req datasourc
 
 type connectionHandlerDataSourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Name                                   types.String `tfsdk:"name"`
 	Type                                   types.String `tfsdk:"type"`
 	ListenAddress                          types.Set    `tfsdk:"listen_address"`
 	ListenPort                             types.Int64  `tfsdk:"listen_port"`
@@ -97,13 +98,9 @@ type connectionHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *connectionHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Connection Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Connection Handler resource. Options are ['jmx', 'ldap', 'ldif', 'http']",
 				Required:    false,
@@ -386,12 +383,15 @@ func (r *connectionHandlerDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a JmxConnectionHandlerResponse object into the model struct
 func readJmxConnectionHandlerResponseDataSource(ctx context.Context, r *client.JmxConnectionHandlerResponse, state *connectionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
 	state.SslCertNickname = internaltypes.StringTypeOrNil(r.SslCertNickname, false)
@@ -406,6 +406,7 @@ func readJmxConnectionHandlerResponseDataSource(ctx context.Context, r *client.J
 func readLdapConnectionHandlerResponseDataSource(ctx context.Context, r *client.LdapConnectionHandlerResponse, state *connectionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ListenAddress = internaltypes.GetStringSet(r.ListenAddress)
 	state.ListenPort = types.Int64Value(r.ListenPort)
 	state.UseSSL = internaltypes.BoolTypeOrNil(r.UseSSL)
@@ -440,6 +441,7 @@ func readLdapConnectionHandlerResponseDataSource(ctx context.Context, r *client.
 func readLdifConnectionHandlerResponseDataSource(ctx context.Context, r *client.LdifConnectionHandlerResponse, state *connectionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowedClient = internaltypes.GetStringSet(r.AllowedClient)
 	state.DeniedClient = internaltypes.GetStringSet(r.DeniedClient)
 	state.LdifDirectory = types.StringValue(r.LdifDirectory)
@@ -452,6 +454,7 @@ func readLdifConnectionHandlerResponseDataSource(ctx context.Context, r *client.
 func readHttpConnectionHandlerResponseDataSource(ctx context.Context, r *client.HttpConnectionHandlerResponse, state *connectionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	listenAddressValues := []string{}
 	listenAddressType := internaltypes.StringTypeOrNil(r.ListenAddress, false)
 	if !listenAddressType.IsNull() {
@@ -499,7 +502,7 @@ func (r *connectionHandlerDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConnectionHandlerApi.GetConnectionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Handler", err, httpResp)
 		return

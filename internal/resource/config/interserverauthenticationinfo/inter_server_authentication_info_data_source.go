@@ -48,6 +48,7 @@ func (r *interServerAuthenticationInfoDataSource) Configure(_ context.Context, r
 
 type interServerAuthenticationInfoDataSourceModel struct {
 	Id                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
 	Type                       types.String `tfsdk:"type"`
 	ServerInstanceListenerName types.String `tfsdk:"server_instance_listener_name"`
 	ServerInstanceName         types.String `tfsdk:"server_instance_name"`
@@ -60,13 +61,9 @@ type interServerAuthenticationInfoDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *interServerAuthenticationInfoDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Inter Server Authentication Info.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Inter Server Authentication Info resource. Options are ['password', 'certificate']",
 				Required:    false,
@@ -115,12 +112,15 @@ func (r *interServerAuthenticationInfoDataSource) Schema(ctx context.Context, re
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a PasswordInterServerAuthenticationInfoResponse object into the model struct
 func readPasswordInterServerAuthenticationInfoResponseDataSource(ctx context.Context, r *client.PasswordInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AuthenticationType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnuminterServerAuthenticationInfoAuthenticationTypeProp(r.AuthenticationType), false)
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, false)
@@ -133,6 +133,7 @@ func readPasswordInterServerAuthenticationInfoResponseDataSource(ctx context.Con
 func readCertificateInterServerAuthenticationInfoResponseDataSource(ctx context.Context, r *client.CertificateInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("certificate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 }
@@ -148,7 +149,7 @@ func (r *interServerAuthenticationInfoDataSource) Read(ctx context.Context, req 
 	}
 
 	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Inter Server Authentication Info", err, httpResp)
 		return

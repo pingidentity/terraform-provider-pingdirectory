@@ -72,12 +72,12 @@ func testAccSimpleSearchEntryCriteriaResource(resourceName string, resourceModel
 	return fmt.Sprintf(`
 resource "pingdirectory_search_entry_criteria" "%[1]s" {
   type        = "simple"
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
 }
 
 data "pingdirectory_search_entry_criteria" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_search_entry_criteria.%[1]s
   ]

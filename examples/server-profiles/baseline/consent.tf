@@ -15,13 +15,13 @@ resource "pingdirectory_consent_definition_localization" "emailConsentDefinition
 
 resource "pingdirectory_default_http_servlet_extension" "defaultDirectoryRestApiExtension" {
   type               = "directory-rest-api"
-  id                 = "Directory REST API"
+  name               = "Directory REST API"
   access_token_scope = "ds"
 }
 
 resource "pingdirectory_identity_mapper" "userIdIdentityMapper" {
   type            = "exact-match"
-  id              = "user-id-identity-mapper"
+  name            = "user-id-identity-mapper"
   enabled         = true
   match_attribute = ["cn", "entryUUID", "uid"]
   match_base_dn   = ["cn=config", "ou=people,${var.user_base_dn}"]
@@ -29,14 +29,14 @@ resource "pingdirectory_identity_mapper" "userIdIdentityMapper" {
 
 resource "pingdirectory_access_token_validator" "mockAccessTokenValidate" {
   type                   = "mock"
-  id                     = "mock-access-token-validator"
+  name                   = "mock-access-token-validator"
   identity_mapper        = pingdirectory_identity_mapper.userIdIdentityMapper.id
   enabled                = true
   evaluation_order_index = 2
 }
 
 resource "pingdirectory_topology_admin_user" "consentInternalServiceAccount" {
-  id                              = "Consent API internal service account"
+  name                            = "Consent API internal service account"
   alternate_bind_dn               = ["cn=consent service account"]
   first_name                      = ["Consent"]
   inherit_default_root_privileges = false
@@ -59,7 +59,7 @@ resource "pingdirectory_default_consent_service" "defaultConsentService" {
 
 resource "pingdirectory_default_http_servlet_extension" "defaultConsentServletExtension" {
   type            = "consent"
-  id              = "Consent"
+  name            = "Consent"
   identity_mapper = pingdirectory_identity_mapper.userIdIdentityMapper.id
   # The above attribute must be changed to allow destroying the user-id-identity-mapper object.
   # Exact Match is the default identity mapper.

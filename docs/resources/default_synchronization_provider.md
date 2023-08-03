@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
-  id      = "MySynchronizationProvider"
+  name    = "MySynchronizationProvider"
   type    = "replication"
   enabled = false
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Synchronization Provider resource. Options are ['replication', 'custom']
 
 ### Optional
@@ -59,6 +59,7 @@ resource "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -77,7 +78,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "synchronizationProviderId" should be the id of the Synchronization Provider to be imported
+# "synchronizationProviderId" should be the name of the Synchronization Provider to be imported
 terraform import pingdirectory_synchronization_provider.mySynchronizationProvider synchronizationProviderId
 ```
 

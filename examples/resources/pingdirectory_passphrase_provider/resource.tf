@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_passphrase_provider" "myPassphraseProvider" {
-  id                   = "MyPassphraseProvider"
+  name                 = "MyPassphraseProvider"
   type                 = "environment-variable"
   environment_variable = "PASSPHRASE_ENV_VARIABLE"
   enabled              = true

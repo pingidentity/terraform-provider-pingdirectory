@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
-  id = "MySearchReferenceCriteria"
+  name = "MySearchReferenceCriteria"
 }

@@ -81,14 +81,14 @@ func testAccPasswordValidatorResource(resourceName string, resourceModel passwor
 	return fmt.Sprintf(`
 resource "pingdirectory_password_validator" "%[1]s" {
   type                = "length-based"
-  id                  = "%[2]s"
+  name                = "%[2]s"
   min_password_length = %[3]d
   max_password_length = %[4]d
   enabled             = %[5]t
 }
 
 data "pingdirectory_password_validator" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_password_validator.%[1]s
   ]

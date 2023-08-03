@@ -55,15 +55,9 @@ type jsonFieldConstraintsListDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *jsonFieldConstraintsListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Json Field Constraints objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"json_attribute_constraints_name": schema.StringAttribute{
 				Description: "Name of the parent JSON Attribute Constraints",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *jsonFieldConstraintsListDataSource) Schema(ctx context.Context, req dat
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

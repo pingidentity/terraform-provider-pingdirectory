@@ -48,6 +48,7 @@ func (r *passwordGeneratorDataSource) Configure(_ context.Context, req datasourc
 
 type passwordGeneratorDataSourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	Type                      types.String `tfsdk:"type"`
 	ExtensionClass            types.String `tfsdk:"extension_class"`
 	ExtensionArgument         types.Set    `tfsdk:"extension_argument"`
@@ -65,13 +66,9 @@ type passwordGeneratorDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *passwordGeneratorDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Password Generator.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Password Generator resource. Options are ['random', 'groovy-scripted', 'passphrase', 'third-party']",
 				Required:    false,
@@ -155,12 +152,15 @@ func (r *passwordGeneratorDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a RandomPasswordGeneratorResponse object into the model struct
 func readRandomPasswordGeneratorResponseDataSource(ctx context.Context, r *client.RandomPasswordGeneratorResponse, state *passwordGeneratorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("random")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordCharacterSet = internaltypes.GetStringSet(r.PasswordCharacterSet)
 	state.PasswordFormat = types.StringValue(r.PasswordFormat)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -171,6 +171,7 @@ func readRandomPasswordGeneratorResponseDataSource(ctx context.Context, r *clien
 func readGroovyScriptedPasswordGeneratorResponseDataSource(ctx context.Context, r *client.GroovyScriptedPasswordGeneratorResponse, state *passwordGeneratorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -181,6 +182,7 @@ func readGroovyScriptedPasswordGeneratorResponseDataSource(ctx context.Context, 
 func readPassphrasePasswordGeneratorResponseDataSource(ctx context.Context, r *client.PassphrasePasswordGeneratorResponse, state *passwordGeneratorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("passphrase")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DictionaryFile = types.StringValue(r.DictionaryFile)
 	state.MinimumPasswordCharacters = internaltypes.Int64TypeOrNil(r.MinimumPasswordCharacters)
 	state.MinimumPasswordWords = internaltypes.Int64TypeOrNil(r.MinimumPasswordWords)
@@ -193,6 +195,7 @@ func readPassphrasePasswordGeneratorResponseDataSource(ctx context.Context, r *c
 func readThirdPartyPasswordGeneratorResponseDataSource(ctx context.Context, r *client.ThirdPartyPasswordGeneratorResponse, state *passwordGeneratorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -210,7 +213,7 @@ func (r *passwordGeneratorDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.GetPasswordGenerator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Generator", err, httpResp)
 		return

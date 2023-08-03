@@ -47,7 +47,6 @@ func (r *cryptoManagerDataSource) Configure(_ context.Context, req datasource.Co
 }
 
 type cryptoManagerDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                               types.String `tfsdk:"id"`
 	DigestAlgorithm                  types.String `tfsdk:"digest_algorithm"`
 	MacAlgorithm                     types.String `tfsdk:"mac_algorithm"`
@@ -67,15 +66,9 @@ type cryptoManagerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *cryptoManagerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Crypto Manager.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"digest_algorithm": schema.StringAttribute{
 				Description: "Specifies the preferred message digest algorithm for the Directory Server.",
 				Required:    false,
@@ -166,6 +159,8 @@ func (r *cryptoManagerDataSource) Schema(ctx context.Context, req datasource.Sch
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a CryptoManagerResponse object into the model struct

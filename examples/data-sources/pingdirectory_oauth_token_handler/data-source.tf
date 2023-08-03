@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_oauth_token_handler" "myOauthTokenHandler" {
-  id = "MyOauthTokenHandler"
+  name = "MyOauthTokenHandler"
 }

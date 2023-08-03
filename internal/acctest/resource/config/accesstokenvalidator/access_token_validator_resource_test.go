@@ -86,7 +86,7 @@ func testAccPingFederateAccessTokenValidatorResource(resourceName string, resour
 	return fmt.Sprintf(`
 resource "pingdirectory_access_token_validator" "%[1]s" {
   type                 = "ping-federate"
-  id                   = "%[2]s"
+  name                 = "%[2]s"
   client_id            = "%[3]s"
   client_secret        = "%[4]s"
   authorization_server = "%[5]s"
@@ -94,7 +94,7 @@ resource "pingdirectory_access_token_validator" "%[1]s" {
 }
 
 data "pingdirectory_access_token_validator" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_access_token_validator.%[1]s
   ]

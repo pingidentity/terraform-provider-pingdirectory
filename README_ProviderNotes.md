@@ -38,7 +38,7 @@ For example, consider these two examples using dsconfig and the provider that ac
 - ### Terraform (omitting the provider configuration elements)
   ```text
   resource "pingdirectory_location" "mylocation" {
-    id = "MyLocation"
+    name = "MyLocation"
     description = "My description"
   }
 

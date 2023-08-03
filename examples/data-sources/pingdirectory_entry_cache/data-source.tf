@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_entry_cache" "myEntryCache" {
-  id = "MyEntryCache"
+  name = "MyEntryCache"
 }

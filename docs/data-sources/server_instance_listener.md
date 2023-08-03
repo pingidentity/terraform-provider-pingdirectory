@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_server_instance_listener" "myServerInstanceListener" {
-  id                   = "MyServerInstanceListener"
+  name                 = "MyServerInstanceListener"
   server_instance_name = "MyServerInstance"
 }
 ```
@@ -47,12 +47,13 @@ data "pingdirectory_server_instance_listener" "myServerInstanceListener" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `server_instance_name` (String) Name of the parent Server Instance
 
 ### Read-Only
 
 - `connection_security` (String) Specifies the mechanism to use for securing connections to the server.
+- `id` (String) The ID of this resource.
 - `listen_address` (String) If the server is listening on a particular address different from the hostname, then this property may be used to specify the address on which to listen for connections from HTTP clients.
 - `listener_certificate` (String) The public component of the certificate that the listener is expected to present to clients. When establishing a connection to this server, only the certificate(s) listed here will be trusted.
 - `purpose` (Set of String) Identifies the purpose of this Server Instance Listener.

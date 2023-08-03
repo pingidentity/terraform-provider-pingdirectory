@@ -48,6 +48,7 @@ func (r *connectionCriteriaDataSource) Configure(_ context.Context, req datasour
 
 type connectionCriteriaDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	Type                             types.String `tfsdk:"type"`
 	ExtensionClass                   types.String `tfsdk:"extension_class"`
 	ExtensionArgument                types.Set    `tfsdk:"extension_argument"`
@@ -85,13 +86,9 @@ type connectionCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *connectionCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Connection Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Connection Criteria resource. Options are ['simple', 'aggregate', 'third-party']",
 				Required:    false,
@@ -320,12 +317,15 @@ func (r *connectionCriteriaDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SimpleConnectionCriteriaResponse object into the model struct
 func readSimpleConnectionCriteriaResponseDataSource(ctx context.Context, r *client.SimpleConnectionCriteriaResponse, state *connectionCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IncludedClientAddress = internaltypes.GetStringSet(r.IncludedClientAddress)
 	state.ExcludedClientAddress = internaltypes.GetStringSet(r.ExcludedClientAddress)
 	state.IncludedConnectionHandler = internaltypes.GetStringSet(r.IncludedConnectionHandler)
@@ -365,6 +365,7 @@ func readSimpleConnectionCriteriaResponseDataSource(ctx context.Context, r *clie
 func readAggregateConnectionCriteriaResponseDataSource(ctx context.Context, r *client.AggregateConnectionCriteriaResponse, state *connectionCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedConnectionCriteria = internaltypes.GetStringSet(r.AllIncludedConnectionCriteria)
 	state.AnyIncludedConnectionCriteria = internaltypes.GetStringSet(r.AnyIncludedConnectionCriteria)
 	state.NotAllIncludedConnectionCriteria = internaltypes.GetStringSet(r.NotAllIncludedConnectionCriteria)
@@ -376,6 +377,7 @@ func readAggregateConnectionCriteriaResponseDataSource(ctx context.Context, r *c
 func readThirdPartyConnectionCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartyConnectionCriteriaResponse, state *connectionCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -392,7 +394,7 @@ func (r *connectionCriteriaDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConnectionCriteriaApi.GetConnectionCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Connection Criteria", err, httpResp)
 		return

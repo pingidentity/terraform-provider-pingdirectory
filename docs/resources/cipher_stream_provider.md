@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
-  id                     = "MyCipherStreamProvider"
+  name                   = "MyCipherStreamProvider"
   type                   = "amazon-key-management-service"
   kms_encryption_key_arn = "my_example_Encryption_Key"
   enabled                = false
@@ -50,7 +50,7 @@ resource "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether this Cipher Stream Provider is enabled for use in the Directory Server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Cipher Stream Provider resource. Options are ['amazon-key-management-service', 'amazon-secrets-manager', 'azure-key-vault', 'file-based', 'wait-for-passphrase', 'conjur', 'pkcs11', 'vault', 'third-party']
 
 ### Optional
@@ -97,6 +97,7 @@ resource "pingdirectory_cipher_stream_provider" "myCipherStreamProvider" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -115,7 +116,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "cipherStreamProviderId" should be the id of the Cipher Stream Provider to be imported
+# "cipherStreamProviderId" should be the name of the Cipher Stream Provider to be imported
 terraform import pingdirectory_cipher_stream_provider.myCipherStreamProvider cipherStreamProviderId
 ```
 

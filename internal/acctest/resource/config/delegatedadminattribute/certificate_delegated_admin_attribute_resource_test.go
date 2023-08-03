@@ -72,7 +72,7 @@ func testAccCertificateDelegatedAdminAttributeResource(resourceName string, reso
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[2]s" {
   type                        = "generic"
-  id                          = "%[2]s"
+  name                        = "%[2]s"
   enabled                     = false
   resource_endpoint           = "myendpoint"
   structural_ldap_objectclass = "device"

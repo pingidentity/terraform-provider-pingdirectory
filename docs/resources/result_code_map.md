@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_result_code_map" "myResultCodeMap" {
-  id                            = "MyResultCodeMap"
+  name                          = "MyResultCodeMap"
   description                   = "mapping my codes"
   bind_missing_user_result_code = 59
   server_error_result_code      = 81
@@ -49,7 +49,7 @@ resource "pingdirectory_result_code_map" "myResultCodeMap" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -61,6 +61,7 @@ resource "pingdirectory_result_code_map" "myResultCodeMap" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -79,7 +80,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "resultCodeMapId" should be the id of the Result Code Map to be imported
+# "resultCodeMapId" should be the name of the Result Code Map to be imported
 terraform import pingdirectory_result_code_map.myResultCodeMap resultCodeMapId
 ```
 

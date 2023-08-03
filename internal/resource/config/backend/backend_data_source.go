@@ -166,15 +166,9 @@ type backendDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *backendDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Backend.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Backend resource. Options are ['schema', 'backup', 'encryption-settings', 'ldif', 'trust-store', 'custom', 'changelog', 'monitor', 'local-db', 'config-file-handler', 'task', 'alert', 'alarm', 'metrics']",
 				Required:    false,
@@ -886,6 +880,8 @@ func (r *backendDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a SchemaBackendResponse object into the model struct

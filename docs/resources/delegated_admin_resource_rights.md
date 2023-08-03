@@ -38,7 +38,7 @@ provider "pingdirectory" {
 
 # Use "pingdirectory_default_delegated_admin_rights" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
-  id            = "MyDelegatedAdminRights"
+  name          = "MyDelegatedAdminRights"
   enabled       = true
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }
@@ -46,7 +46,7 @@ resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 # Use "pingdirectory_default_rest_resource_type" if you are adopting existing configuration from the PingDirectory server into Terraform
 resource "pingdirectory_rest_resource_type" "myUserRestResourceType" {
   type                        = "user"
-  id                          = "MyUserRestResourceType"
+  name                        = "MyUserRestResourceType"
   enabled                     = true
   resource_endpoint           = "userRestResource"
   structural_ldap_objectclass = "inetOrgPerson"
@@ -81,7 +81,7 @@ resource "pingdirectory_delegated_admin_resource_rights" "myDelegatedAdminResour
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

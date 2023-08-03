@@ -57,6 +57,7 @@ func (r *replicationDomainResource) Configure(_ context.Context, req resource.Co
 
 type replicationDomainResourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
+	Name                                      types.String `tfsdk:"name"`
 	LastUpdated                               types.String `tfsdk:"last_updated"`
 	Notifications                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                           types.Set    `tfsdk:"required_actions"`
@@ -149,13 +150,14 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
 // Read a ReplicationDomainResponse object into the model struct
 func readReplicationDomainResponse(ctx context.Context, r *client.ReplicationDomainResponse, state *replicationDomainResourceModel, expectedValues *replicationDomainResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerID = types.Int64Value(r.ServerID)
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.WindowSize = internaltypes.Int64TypeOrNil(r.WindowSize)
@@ -211,7 +213,7 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.GetReplicationDomain(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.SynchronizationProviderName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Domain", err, httpResp)
 		return
@@ -228,7 +230,7 @@ func (r *replicationDomainResource) Create(ctx context.Context, req resource.Cre
 	readReplicationDomainResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.SynchronizationProviderName.ValueString())
+	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString())
 	ops := createReplicationDomainOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -272,7 +274,7 @@ func (r *replicationDomainResource) Read(ctx context.Context, req resource.ReadR
 	}
 
 	readResponse, httpResp, err := r.apiClient.ReplicationDomainApi.GetReplicationDomain(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.SynchronizationProviderName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.SynchronizationProviderName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Replication Domain", err, httpResp)
 		return
@@ -306,7 +308,7 @@ func (r *replicationDomainResource) Update(ctx context.Context, req resource.Upd
 	var state replicationDomainResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.ReplicationDomainApi.UpdateReplicationDomain(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.SynchronizationProviderName.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.SynchronizationProviderName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createReplicationDomainOperations(plan, state)
@@ -358,5 +360,5 @@ func (r *replicationDomainResource) ImportState(ctx context.Context, req resourc
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("synchronization_provider_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

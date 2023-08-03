@@ -79,6 +79,7 @@ func (r *defaultTrustedCertificateResource) Configure(_ context.Context, req res
 
 type trustedCertificateResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -106,9 +107,9 @@ func trustedCertificateSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -119,6 +120,7 @@ func addOptionalTrustedCertificateFields(ctx context.Context, addRequest *client
 // Read a TrustedCertificateResponse object into the model struct
 func readTrustedCertificateResponse(ctx context.Context, r *client.TrustedCertificateResponse, state *trustedCertificateResourceModel, expectedValues *trustedCertificateResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Certificate = types.StringValue(r.Certificate)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -132,7 +134,7 @@ func createTrustedCertificateOperations(plan trustedCertificateResourceModel, st
 
 // Create a trusted-certificate trusted-certificate
 func (r *trustedCertificateResource) CreateTrustedCertificate(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustedCertificateResourceModel) (*trustedCertificateResourceModel, error) {
-	addRequest := client.NewAddTrustedCertificateRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddTrustedCertificateRequest(plan.Name.ValueString(),
 		plan.Certificate.ValueString())
 	addOptionalTrustedCertificateFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -202,7 +204,7 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.GetTrustedCertificate(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
 		return
@@ -219,7 +221,7 @@ func (r *defaultTrustedCertificateResource) Create(ctx context.Context, req reso
 	readTrustedCertificateResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.TrustedCertificateApi.UpdateTrustedCertificate(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createTrustedCertificateOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -270,7 +272,7 @@ func readTrustedCertificate(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.TrustedCertificateApi.GetTrustedCertificate(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
 		return
@@ -312,7 +314,7 @@ func updateTrustedCertificate(ctx context.Context, req resource.UpdateRequest, r
 	var state trustedCertificateResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.TrustedCertificateApi.UpdateTrustedCertificate(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createTrustedCertificateOperations(plan, state)
@@ -365,7 +367,7 @@ func (r *trustedCertificateResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.TrustedCertificateApi.DeleteTrustedCertificateExecute(r.apiClient.TrustedCertificateApi.DeleteTrustedCertificate(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trusted Certificate", err, httpResp)
 		return
@@ -381,6 +383,6 @@ func (r *defaultTrustedCertificateResource) ImportState(ctx context.Context, req
 }
 
 func importTrustedCertificate(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

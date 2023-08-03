@@ -87,6 +87,7 @@ func (r *defaultCipherStreamProviderResource) Configure(_ context.Context, req r
 
 type cipherStreamProviderResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                 types.Set    `tfsdk:"required_actions"`
@@ -378,9 +379,9 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -803,6 +804,7 @@ func populateCipherStreamProviderUnknownValues(ctx context.Context, model *ciphe
 func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Context, r *client.AmazonKeyManagementServiceCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-key-management-service")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EncryptedPassphraseFile = types.StringValue(r.EncryptedPassphraseFile)
 	state.AwsExternalServer = internaltypes.StringTypeOrNil(r.AwsExternalServer, internaltypes.IsEmptyString(expectedValues.AwsExternalServer))
 	state.AwsAccessKeyID = internaltypes.StringTypeOrNil(r.AwsAccessKeyID, internaltypes.IsEmptyString(expectedValues.AwsAccessKeyID))
@@ -819,6 +821,7 @@ func readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx context.Cont
 func readAmazonSecretsManagerCipherStreamProviderResponse(ctx context.Context, r *client.AmazonSecretsManagerCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-secrets-manager")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
 	state.SecretID = types.StringValue(r.SecretID)
 	state.SecretFieldName = types.StringValue(r.SecretFieldName)
@@ -836,6 +839,7 @@ func readAmazonSecretsManagerCipherStreamProviderResponse(ctx context.Context, r
 func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *client.AzureKeyVaultCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("azure-key-vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -852,6 +856,7 @@ func readAzureKeyVaultCipherStreamProviderResponse(ctx context.Context, r *clien
 func readFileBasedCipherStreamProviderResponse(ctx context.Context, r *client.FileBasedCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
 	state.WaitForPasswordFile = internaltypes.BoolTypeOrNil(r.WaitForPasswordFile)
 	state.EncryptionMetadataFile = internaltypes.StringTypeOrNil(r.EncryptionMetadataFile, internaltypes.IsEmptyString(expectedValues.EncryptionMetadataFile))
@@ -866,6 +871,7 @@ func readFileBasedCipherStreamProviderResponse(ctx context.Context, r *client.Fi
 func readWaitForPassphraseCipherStreamProviderResponse(ctx context.Context, r *client.WaitForPassphraseCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("wait-for-passphrase")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -876,6 +882,7 @@ func readWaitForPassphraseCipherStreamProviderResponse(ctx context.Context, r *c
 func readConjurCipherStreamProviderResponse(ctx context.Context, r *client.ConjurCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
 	state.EncryptionMetadataFile = types.StringValue(r.EncryptionMetadataFile)
@@ -890,6 +897,7 @@ func readConjurCipherStreamProviderResponse(ctx context.Context, r *client.Conju
 func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs11CipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pkcs11")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderClass))
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, internaltypes.IsEmptyString(expectedValues.Pkcs11ProviderConfigurationFile))
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, internaltypes.IsEmptyString(expectedValues.KeyStorePinFile))
@@ -908,6 +916,7 @@ func readPkcs11CipherStreamProviderResponse(ctx context.Context, r *client.Pkcs1
 func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultExternalServer = internaltypes.StringTypeOrNil(r.VaultExternalServer, internaltypes.IsEmptyString(expectedValues.VaultExternalServer))
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = internaltypes.StringTypeOrNil(r.VaultAuthenticationMethod, internaltypes.IsEmptyString(expectedValues.VaultAuthenticationMethod))
@@ -927,6 +936,7 @@ func readVaultCipherStreamProviderResponse(ctx context.Context, r *client.VaultC
 func readThirdPartyCipherStreamProviderResponse(ctx context.Context, r *client.ThirdPartyCipherStreamProviderResponse, state *cipherStreamProviderResourceModel, expectedValues *cipherStreamProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -997,7 +1007,7 @@ func createCipherStreamProviderOperations(plan cipherStreamProviderResourceModel
 
 // Create a amazon-key-management-service cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateAmazonKeyManagementServiceCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddAmazonKeyManagementServiceCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAmazonKeyManagementServiceCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumamazonKeyManagementServiceCipherStreamProviderSchemaUrn{client.ENUMAMAZONKEYMANAGEMENTSERVICECIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAMAZON_KEY_MANAGEMENT_SERVICE},
 		plan.KmsEncryptionKeyArn.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1032,7 +1042,7 @@ func (r *cipherStreamProviderResource) CreateAmazonKeyManagementServiceCipherStr
 
 // Create a amazon-secrets-manager cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateAmazonSecretsManagerCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddAmazonSecretsManagerCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAmazonSecretsManagerCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumamazonSecretsManagerCipherStreamProviderSchemaUrn{client.ENUMAMAZONSECRETSMANAGERCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAMAZON_SECRETS_MANAGER},
 		plan.AwsExternalServer.ValueString(),
 		plan.SecretID.ValueString(),
@@ -1069,7 +1079,7 @@ func (r *cipherStreamProviderResource) CreateAmazonSecretsManagerCipherStreamPro
 
 // Create a azure-key-vault cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateAzureKeyVaultCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddAzureKeyVaultCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAzureKeyVaultCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumazureKeyVaultCipherStreamProviderSchemaUrn{client.ENUMAZUREKEYVAULTCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERAZURE_KEY_VAULT},
 		plan.KeyVaultURI.ValueString(),
 		plan.AzureAuthenticationMethod.ValueString(),
@@ -1106,7 +1116,7 @@ func (r *cipherStreamProviderResource) CreateAzureKeyVaultCipherStreamProvider(c
 
 // Create a file-based cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateFileBasedCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedCipherStreamProviderSchemaUrn{client.ENUMFILEBASEDCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERFILE_BASED},
 		plan.PasswordFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1141,7 +1151,7 @@ func (r *cipherStreamProviderResource) CreateFileBasedCipherStreamProvider(ctx c
 
 // Create a wait-for-passphrase cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateWaitForPassphraseCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddWaitForPassphraseCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddWaitForPassphraseCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumwaitForPassphraseCipherStreamProviderSchemaUrn{client.ENUMWAITFORPASSPHRASECIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERWAIT_FOR_PASSPHRASE},
 		plan.Enabled.ValueBool())
 	addOptionalWaitForPassphraseCipherStreamProviderFields(ctx, addRequest, plan)
@@ -1175,7 +1185,7 @@ func (r *cipherStreamProviderResource) CreateWaitForPassphraseCipherStreamProvid
 
 // Create a conjur cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateConjurCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddConjurCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConjurCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumconjurCipherStreamProviderSchemaUrn{client.ENUMCONJURCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERCONJUR},
 		plan.ConjurExternalServer.ValueString(),
 		plan.ConjurSecretRelativePath.ValueString(),
@@ -1211,7 +1221,7 @@ func (r *cipherStreamProviderResource) CreateConjurCipherStreamProvider(ctx cont
 
 // Create a pkcs11 cipher-stream-provider
 func (r *cipherStreamProviderResource) CreatePkcs11CipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddPkcs11CipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPkcs11CipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.Enumpkcs11CipherStreamProviderSchemaUrn{client.ENUMPKCS11CIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERPKCS11},
 		plan.SslCertNickname.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1246,7 +1256,7 @@ func (r *cipherStreamProviderResource) CreatePkcs11CipherStreamProvider(ctx cont
 
 // Create a vault cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateVaultCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddVaultCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddVaultCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumvaultCipherStreamProviderSchemaUrn{client.ENUMVAULTCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERVAULT},
 		plan.VaultSecretPath.ValueString(),
 		plan.VaultSecretFieldName.ValueString(),
@@ -1282,7 +1292,7 @@ func (r *cipherStreamProviderResource) CreateVaultCipherStreamProvider(ctx conte
 
 // Create a third-party cipher-stream-provider
 func (r *cipherStreamProviderResource) CreateThirdPartyCipherStreamProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan cipherStreamProviderResourceModel) (*cipherStreamProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyCipherStreamProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyCipherStreamProviderRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyCipherStreamProviderSchemaUrn{client.ENUMTHIRDPARTYCIPHERSTREAMPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CIPHER_STREAM_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1408,7 +1418,7 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.CipherStreamProviderApi.GetCipherStreamProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Stream Provider", err, httpResp)
 		return
@@ -1451,7 +1461,7 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CipherStreamProviderApi.UpdateCipherStreamProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.CipherStreamProviderApi.UpdateCipherStreamProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createCipherStreamProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1529,7 +1539,7 @@ func readCipherStreamProvider(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := apiClient.CipherStreamProviderApi.GetCipherStreamProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Stream Provider", err, httpResp)
 		return
@@ -1597,7 +1607,7 @@ func updateCipherStreamProvider(ctx context.Context, req resource.UpdateRequest,
 	var state cipherStreamProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.CipherStreamProviderApi.UpdateCipherStreamProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCipherStreamProviderOperations(plan, state)
@@ -1677,7 +1687,7 @@ func (r *cipherStreamProviderResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.CipherStreamProviderApi.DeleteCipherStreamProviderExecute(r.apiClient.CipherStreamProviderApi.DeleteCipherStreamProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Cipher Stream Provider", err, httpResp)
 		return
@@ -1693,6 +1703,6 @@ func (r *defaultCipherStreamProviderResource) ImportState(ctx context.Context, r
 }
 
 func importCipherStreamProvider(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

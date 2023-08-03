@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_constructed_attribute" "myConstructedAttribute" {
-  id = "MyConstructedAttribute"
+  name = "MyConstructedAttribute"
 }
 ```
 
@@ -46,11 +46,12 @@ data "pingdirectory_constructed_attribute" "myConstructedAttribute" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `attribute_type` (String) Specifies the attribute type for the attribute whose values are to be constructed.
 - `description` (String) A description for this Constructed Attribute
+- `id` (String) The ID of this resource.
 - `value_pattern` (Set of String) Specifies a pattern for constructing the attribute value using fixed text and attribute values from the entry.
 

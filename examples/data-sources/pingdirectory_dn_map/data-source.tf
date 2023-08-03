@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_dn_map" "myDnMap" {
-  id = "MyDnMap"
+  name = "MyDnMap"
 }

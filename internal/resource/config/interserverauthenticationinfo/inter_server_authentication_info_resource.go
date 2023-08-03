@@ -58,6 +58,7 @@ func (r *interServerAuthenticationInfoResource) Configure(_ context.Context, req
 
 type interServerAuthenticationInfoResourceModel struct {
 	Id                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
 	LastUpdated                types.String `tfsdk:"last_updated"`
 	Notifications              types.Set    `tfsdk:"notifications"`
 	RequiredActions            types.Set    `tfsdk:"required_actions"`
@@ -144,7 +145,7 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -181,6 +182,7 @@ func populateInterServerAuthenticationInfoUnknownValues(ctx context.Context, mod
 func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *client.PasswordInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoResourceModel, expectedValues *interServerAuthenticationInfoResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AuthenticationType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnuminterServerAuthenticationInfoAuthenticationTypeProp(r.AuthenticationType), true)
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, true)
@@ -195,6 +197,7 @@ func readPasswordInterServerAuthenticationInfoResponse(ctx context.Context, r *c
 func readCertificateInterServerAuthenticationInfoResponse(ctx context.Context, r *client.CertificateInterServerAuthenticationInfoResponse, state *interServerAuthenticationInfoResourceModel, expectedValues *interServerAuthenticationInfoResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("certificate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Purpose = internaltypes.GetStringSet(
 		client.StringSliceEnuminterServerAuthenticationInfoPurposeProp(r.Purpose))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -240,7 +243,7 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 	}
 
 	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Inter Server Authentication Info", err, httpResp)
 		return
@@ -262,7 +265,7 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfo(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
+	updateRequest := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfo(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
 	ops := createInterServerAuthenticationInfoOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -311,7 +314,7 @@ func (r *interServerAuthenticationInfoResource) Read(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.InterServerAuthenticationInfoApi.GetInterServerAuthenticationInfo(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceListenerName.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Inter Server Authentication Info", err, httpResp)
 		return
@@ -350,7 +353,7 @@ func (r *interServerAuthenticationInfoResource) Update(ctx context.Context, req 
 	var state interServerAuthenticationInfoResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.InterServerAuthenticationInfoApi.UpdateInterServerAuthenticationInfo(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ServerInstanceListenerName.ValueString(), plan.ServerInstanceName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createInterServerAuthenticationInfoOperations(plan, state)
@@ -408,5 +411,5 @@ func (r *interServerAuthenticationInfoResource) ImportState(ctx context.Context,
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("server_instance_name"), split[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("server_instance_listener_name"), split[1])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[2])...)
 }

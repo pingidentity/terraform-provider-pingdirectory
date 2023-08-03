@@ -85,6 +85,7 @@ func (r *defaultUncachedAttributeCriteriaResource) Configure(_ context.Context, 
 
 type uncachedAttributeCriteriaResourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
@@ -191,9 +192,9 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -305,6 +306,7 @@ func populateUncachedAttributeCriteriaUnknownValues(ctx context.Context, model *
 func readDefaultUncachedAttributeCriteriaResponse(ctx context.Context, r *client.DefaultUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaResourceModel, expectedValues *uncachedAttributeCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -315,6 +317,7 @@ func readDefaultUncachedAttributeCriteriaResponse(ctx context.Context, r *client
 func readGroovyScriptedUncachedAttributeCriteriaResponse(ctx context.Context, r *client.GroovyScriptedUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaResourceModel, expectedValues *uncachedAttributeCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -327,6 +330,7 @@ func readGroovyScriptedUncachedAttributeCriteriaResponse(ctx context.Context, r 
 func readSimpleUncachedAttributeCriteriaResponse(ctx context.Context, r *client.SimpleUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaResourceModel, expectedValues *uncachedAttributeCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.MinValueCount = internaltypes.Int64TypeOrNil(r.MinValueCount)
 	state.MinTotalValueSize = internaltypes.StringTypeOrNil(r.MinTotalValueSize, internaltypes.IsEmptyString(expectedValues.MinTotalValueSize))
@@ -342,6 +346,7 @@ func readSimpleUncachedAttributeCriteriaResponse(ctx context.Context, r *client.
 func readThirdPartyUncachedAttributeCriteriaResponse(ctx context.Context, r *client.ThirdPartyUncachedAttributeCriteriaResponse, state *uncachedAttributeCriteriaResourceModel, expectedValues *uncachedAttributeCriteriaResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -367,7 +372,7 @@ func createUncachedAttributeCriteriaOperations(plan uncachedAttributeCriteriaRes
 
 // Create a default uncached-attribute-criteria
 func (r *uncachedAttributeCriteriaResource) CreateDefaultUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
-	addRequest := client.NewAddDefaultUncachedAttributeCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDefaultUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumdefaultUncachedAttributeCriteriaSchemaUrn{client.ENUMDEFAULTUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIADEFAULT},
 		plan.Enabled.ValueBool())
 	addOptionalDefaultUncachedAttributeCriteriaFields(ctx, addRequest, plan)
@@ -401,7 +406,7 @@ func (r *uncachedAttributeCriteriaResource) CreateDefaultUncachedAttributeCriter
 
 // Create a groovy-scripted uncached-attribute-criteria
 func (r *uncachedAttributeCriteriaResource) CreateGroovyScriptedUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedUncachedAttributeCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedUncachedAttributeCriteriaSchemaUrn{client.ENUMGROOVYSCRIPTEDUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIAGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -438,7 +443,7 @@ func (r *uncachedAttributeCriteriaResource) CreateGroovyScriptedUncachedAttribut
 func (r *uncachedAttributeCriteriaResource) CreateSimpleUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
 	var AttributeTypeSlice []string
 	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
-	addRequest := client.NewAddSimpleUncachedAttributeCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSimpleUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumsimpleUncachedAttributeCriteriaSchemaUrn{client.ENUMSIMPLEUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIASIMPLE},
 		AttributeTypeSlice,
 		plan.Enabled.ValueBool())
@@ -473,7 +478,7 @@ func (r *uncachedAttributeCriteriaResource) CreateSimpleUncachedAttributeCriteri
 
 // Create a third-party uncached-attribute-criteria
 func (r *uncachedAttributeCriteriaResource) CreateThirdPartyUncachedAttributeCriteria(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan uncachedAttributeCriteriaResourceModel) (*uncachedAttributeCriteriaResourceModel, error) {
-	addRequest := client.NewAddThirdPartyUncachedAttributeCriteriaRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyUncachedAttributeCriteriaRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyUncachedAttributeCriteriaSchemaUrn{client.ENUMTHIRDPARTYUNCACHEDATTRIBUTECRITERIASCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0UNCACHED_ATTRIBUTE_CRITERIATHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -568,7 +573,7 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 	}
 
 	readResponse, httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Attribute Criteria", err, httpResp)
 		return
@@ -596,7 +601,7 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteria(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createUncachedAttributeCriteriaOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -658,7 +663,7 @@ func readUncachedAttributeCriteria(ctx context.Context, req resource.ReadRequest
 	}
 
 	readResponse, httpResp, err := apiClient.UncachedAttributeCriteriaApi.GetUncachedAttributeCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Uncached Attribute Criteria", err, httpResp)
 		return
@@ -711,7 +716,7 @@ func updateUncachedAttributeCriteria(ctx context.Context, req resource.UpdateReq
 	var state uncachedAttributeCriteriaResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.UncachedAttributeCriteriaApi.UpdateUncachedAttributeCriteria(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createUncachedAttributeCriteriaOperations(plan, state)
@@ -775,7 +780,7 @@ func (r *uncachedAttributeCriteriaResource) Delete(ctx context.Context, req reso
 	}
 
 	httpResp, err := r.apiClient.UncachedAttributeCriteriaApi.DeleteUncachedAttributeCriteriaExecute(r.apiClient.UncachedAttributeCriteriaApi.DeleteUncachedAttributeCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Uncached Attribute Criteria", err, httpResp)
 		return
@@ -791,6 +796,6 @@ func (r *defaultUncachedAttributeCriteriaResource) ImportState(ctx context.Conte
 }
 
 func importUncachedAttributeCriteria(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

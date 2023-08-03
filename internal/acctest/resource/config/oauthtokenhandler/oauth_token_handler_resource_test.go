@@ -75,13 +75,13 @@ func testAccGroovyScriptedOauthTokenHandlerResource(resourceName string, resourc
 	return fmt.Sprintf(`
 resource "pingdirectory_oauth_token_handler" "%[1]s" {
   type         = "groovy-scripted"
-  id           = "%[2]s"
+  name         = "%[2]s"
   description  = "%[3]s"
   script_class = "%[4]s"
 }
 
 data "pingdirectory_oauth_token_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_oauth_token_handler.%[1]s
   ]

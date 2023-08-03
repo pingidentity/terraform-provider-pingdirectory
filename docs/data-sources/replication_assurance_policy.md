@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_replication_assurance_policy" "myReplicationAssurancePolicy" {
-  id = "MyReplicationAssurancePolicy"
+  name = "MyReplicationAssurancePolicy"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_replication_assurance_policy" "myReplicationAssurancePolicy"
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,6 +54,7 @@ data "pingdirectory_replication_assurance_policy" "myReplicationAssurancePolicy"
 - `description` (String) Description of the Replication Assurance Policy.
 - `enabled` (Boolean) Indicates whether this Replication Assurance Policy is enabled for use in the server. If a Replication Assurance Policy is disabled, then no new operations will be associated with it.
 - `evaluation_order_index` (Number) When multiple Replication Assurance Policies are defined, this property determines the evaluation order for finding a Replication Assurance Policy match against an operation. Policies are evaluated based on this index from least to greatest. Values of this property must be unique but not necessarily contiguous.
+- `id` (String) The ID of this resource.
 - `local_level` (String) Specifies the assurance level used to replicate to local servers. A local server is defined as one with the same value for the location setting in the global configuration.  The local-level must be set to an assurance level at least as strict as the remote-level. In other words, if remote-level is set to "received-any-remote-location" or "received-all-remote-locations", then local-level must be either "received-any-server" or "processed-all-servers". If remote-level is "processed-all-remote-servers", then local-level must be "processed-all-servers".
 - `remote_level` (String) Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.
 - `request_criteria` (String) Specifies a request criteria used to indicate which operations from clients matching this criteria use this policy. If both a connection criteria and a request criteria are specified for a policy, then both must match an operation for the policy to be assigned.

@@ -48,6 +48,7 @@ func (r *extendedOperationHandlerDataSource) Configure(_ context.Context, req da
 
 type extendedOperationHandlerDataSourceModel struct {
 	Id                                    types.String `tfsdk:"id"`
+	Name                                  types.String `tfsdk:"name"`
 	Type                                  types.String `tfsdk:"type"`
 	ExtensionClass                        types.String `tfsdk:"extension_class"`
 	ExtensionArgument                     types.Set    `tfsdk:"extension_argument"`
@@ -75,13 +76,9 @@ type extendedOperationHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Extended Operation Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']",
 				Required:    false,
@@ -226,12 +223,15 @@ func (r *extendedOperationHandlerDataSource) Schema(ctx context.Context, req dat
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a CancelExtendedOperationHandlerResponse object into the model struct
 func readCancelExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.CancelExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("cancel")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -240,6 +240,7 @@ func readCancelExtendedOperationHandlerResponseDataSource(ctx context.Context, r
 func readValidateTotpPasswordExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.ValidateTotpPasswordExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("validate-totp-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SharedSecretAttributeType = internaltypes.StringTypeOrNil(r.SharedSecretAttributeType, false)
 	state.TimeIntervalDuration = internaltypes.StringTypeOrNil(r.TimeIntervalDuration, false)
 	state.AdjacentIntervalsToCheck = internaltypes.Int64TypeOrNil(r.AdjacentIntervalsToCheck)
@@ -252,6 +253,7 @@ func readValidateTotpPasswordExtendedOperationHandlerResponseDataSource(ctx cont
 func readReplaceCertificateExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.ReplaceCertificateExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replace-certificate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowRemotelyProvidedCertificates = internaltypes.BoolTypeOrNil(r.AllowRemotelyProvidedCertificates)
 	state.AllowedOperation = internaltypes.GetStringSet(
 		client.StringSliceEnumextendedOperationHandlerAllowedOperationProp(r.AllowedOperation))
@@ -265,6 +267,7 @@ func readReplaceCertificateExtendedOperationHandlerResponseDataSource(ctx contex
 func readGetConnectionIdExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetConnectionIdExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("get-connection-id")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -273,6 +276,7 @@ func readGetConnectionIdExtendedOperationHandlerResponseDataSource(ctx context.C
 func readMultiUpdateExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.MultiUpdateExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("multi-update")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -281,6 +285,7 @@ func readMultiUpdateExtendedOperationHandlerResponseDataSource(ctx context.Conte
 func readNotificationSubscriptionExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.NotificationSubscriptionExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("notification-subscription")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -289,6 +294,7 @@ func readNotificationSubscriptionExtendedOperationHandlerResponseDataSource(ctx 
 func readPasswordModifyExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.PasswordModifyExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password-modify")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -298,6 +304,7 @@ func readPasswordModifyExtendedOperationHandlerResponseDataSource(ctx context.Co
 func readCustomExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.CustomExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -306,6 +313,7 @@ func readCustomExtendedOperationHandlerResponseDataSource(ctx context.Context, r
 func readCollectSupportDataExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.CollectSupportDataExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("collect-support-data")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -314,6 +322,7 @@ func readCollectSupportDataExtendedOperationHandlerResponseDataSource(ctx contex
 func readExportReversiblePasswordsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.ExportReversiblePasswordsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("export-reversible-passwords")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -322,6 +331,7 @@ func readExportReversiblePasswordsExtendedOperationHandlerResponseDataSource(ctx
 func readBatchedTransactionsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.BatchedTransactionsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("batched-transactions")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -330,6 +340,7 @@ func readBatchedTransactionsExtendedOperationHandlerResponseDataSource(ctx conte
 func readGetChangelogBatchExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetChangelogBatchExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("get-changelog-batch")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -338,6 +349,7 @@ func readGetChangelogBatchExtendedOperationHandlerResponseDataSource(ctx context
 func readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("get-supported-otp-delivery-mechanisms")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -346,6 +358,7 @@ func readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDataSo
 func readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.SingleUseTokensExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("single-use-tokens")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultOTPDeliveryMechanism = internaltypes.GetStringSet(r.DefaultOTPDeliveryMechanism)
 	state.DefaultSingleUseTokenValidityDuration = internaltypes.StringTypeOrNil(r.DefaultSingleUseTokenValidityDuration, false)
@@ -357,6 +370,7 @@ func readSingleUseTokensExtendedOperationHandlerResponseDataSource(ctx context.C
 func readGeneratePasswordExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GeneratePasswordExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generate-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DefaultPasswordPolicy = internaltypes.StringTypeOrNil(r.DefaultPasswordPolicy, false)
 	state.DefaultPasswordGenerator = types.StringValue(r.DefaultPasswordGenerator)
 	state.MaximumPasswordsPerRequest = internaltypes.Int64TypeOrNil(r.MaximumPasswordsPerRequest)
@@ -369,6 +383,7 @@ func readGeneratePasswordExtendedOperationHandlerResponseDataSource(ctx context.
 func readWhoAmIExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.WhoAmIExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("who-am-i")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -377,6 +392,7 @@ func readWhoAmIExtendedOperationHandlerResponseDataSource(ctx context.Context, r
 func readStartTlsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.StartTlsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("start-tls")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -385,6 +401,7 @@ func readStartTlsExtendedOperationHandlerResponseDataSource(ctx context.Context,
 func readDeliverPasswordResetTokenExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.DeliverPasswordResetTokenExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("deliver-password-reset-token")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultTokenDeliveryMechanism = internaltypes.GetStringSet(r.DefaultTokenDeliveryMechanism)
 	state.PasswordResetTokenValidityDuration = types.StringValue(r.PasswordResetTokenValidityDuration)
@@ -396,6 +413,7 @@ func readDeliverPasswordResetTokenExtendedOperationHandlerResponseDataSource(ctx
 func readPasswordPolicyStateExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.PasswordPolicyStateExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("password-policy-state")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -404,6 +422,7 @@ func readPasswordPolicyStateExtendedOperationHandlerResponseDataSource(ctx conte
 func readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("get-password-quality-requirements")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -412,6 +431,7 @@ func readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDataSourc
 func readDeliverOtpExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.DeliverOtpExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("deliver-otp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IdentityMapper = types.StringValue(r.IdentityMapper)
 	state.PasswordGenerator = types.StringValue(r.PasswordGenerator)
 	state.DefaultOTPDeliveryMechanism = internaltypes.GetStringSet(r.DefaultOTPDeliveryMechanism)
@@ -423,6 +443,7 @@ func readDeliverOtpExtendedOperationHandlerResponseDataSource(ctx context.Contex
 func readThirdPartyExtendedOperationHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartyExtendedOperationHandlerResponse, state *extendedOperationHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -440,7 +461,7 @@ func (r *extendedOperationHandlerDataSource) Read(ctx context.Context, req datas
 	}
 
 	readResponse, httpResp, err := r.apiClient.ExtendedOperationHandlerApi.GetExtendedOperationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Extended Operation Handler", err, httpResp)
 		return

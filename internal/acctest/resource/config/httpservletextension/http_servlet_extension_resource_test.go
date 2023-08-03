@@ -70,12 +70,12 @@ func testAccQuickstartHttpServletExtensionResource(resourceName string, resource
 	return fmt.Sprintf(`
 resource "pingdirectory_http_servlet_extension" "%[1]s" {
   type        = "quickstart"
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
 }
 
 data "pingdirectory_http_servlet_extension" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_http_servlet_extension.%[1]s
   ]

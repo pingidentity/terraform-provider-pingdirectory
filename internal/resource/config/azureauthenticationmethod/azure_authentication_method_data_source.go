@@ -48,6 +48,7 @@ func (r *azureAuthenticationMethodDataSource) Configure(_ context.Context, req d
 
 type azureAuthenticationMethodDataSourceModel struct {
 	Id           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
 	Type         types.String `tfsdk:"type"`
 	TenantID     types.String `tfsdk:"tenant_id"`
 	ClientID     types.String `tfsdk:"client_id"`
@@ -59,13 +60,9 @@ type azureAuthenticationMethodDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *azureAuthenticationMethodDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Azure Authentication Method.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Azure Authentication Method resource. Options are ['default', 'client-secret', 'username-password']",
 				Required:    false,
@@ -112,12 +109,15 @@ func (r *azureAuthenticationMethodDataSource) Schema(ctx context.Context, req da
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a DefaultAzureAuthenticationMethodResponse object into the model struct
 func readDefaultAzureAuthenticationMethodResponseDataSource(ctx context.Context, r *client.DefaultAzureAuthenticationMethodResponse, state *azureAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TenantID = internaltypes.StringTypeOrNil(r.TenantID, false)
 	state.ClientID = internaltypes.StringTypeOrNil(r.ClientID, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -127,6 +127,7 @@ func readDefaultAzureAuthenticationMethodResponseDataSource(ctx context.Context,
 func readClientSecretAzureAuthenticationMethodResponseDataSource(ctx context.Context, r *client.ClientSecretAzureAuthenticationMethodResponse, state *azureAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-secret")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TenantID = types.StringValue(r.TenantID)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -136,6 +137,7 @@ func readClientSecretAzureAuthenticationMethodResponseDataSource(ctx context.Con
 func readUsernamePasswordAzureAuthenticationMethodResponseDataSource(ctx context.Context, r *client.UsernamePasswordAzureAuthenticationMethodResponse, state *azureAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("username-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TenantID = types.StringValue(r.TenantID)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.Username = types.StringValue(r.Username)
@@ -153,7 +155,7 @@ func (r *azureAuthenticationMethodDataSource) Read(ctx context.Context, req data
 	}
 
 	readResponse, httpResp, err := r.apiClient.AzureAuthenticationMethodApi.GetAzureAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Azure Authentication Method", err, httpResp)
 		return

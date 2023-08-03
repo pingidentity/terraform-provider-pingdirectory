@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_data_security_auditor" "myDataSecurityAuditor" {
-  id   = "MyDataSecurityAuditor"
+  name = "MyDataSecurityAuditor"
   type = "expired-password"
 }

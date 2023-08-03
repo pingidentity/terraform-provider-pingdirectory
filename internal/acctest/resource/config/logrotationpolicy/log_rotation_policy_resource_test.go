@@ -72,12 +72,12 @@ func testAccTimeLimitLogRotationPolicyResource(resourceName string, resourceMode
 	return fmt.Sprintf(`
 resource "pingdirectory_log_rotation_policy" "%[1]s" {
   type              = "time-limit"
-  id                = "%[2]s"
+  name              = "%[2]s"
   rotation_interval = "%[3]s"
 }
 
 data "pingdirectory_log_rotation_policy" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_log_rotation_policy.%[1]s
   ]

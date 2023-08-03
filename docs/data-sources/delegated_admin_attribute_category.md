@@ -52,5 +52,5 @@ data "pingdirectory_delegated_admin_attribute_category" "myDelegatedAdminAttribu
 
 - `description` (String) A description for this Delegated Admin Attribute Category
 - `display_order_index` (Number) Delegated Admin Attribute Categories are ordered for display based on this index from least to greatest.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 

@@ -83,6 +83,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Configure(_ context.Context, req
 
 type correlatedLdapDataViewResourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Name                          types.String `tfsdk:"name"`
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
@@ -168,9 +169,9 @@ func correlatedLdapDataViewSchema(ctx context.Context, req resource.SchemaReques
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "scim_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"scim_resource_type_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -200,6 +201,7 @@ func addOptionalCorrelatedLdapDataViewFields(ctx context.Context, addRequest *cl
 // Read a CorrelatedLdapDataViewResponse object into the model struct
 func readCorrelatedLdapDataViewResponse(ctx context.Context, r *client.CorrelatedLdapDataViewResponse, state *correlatedLdapDataViewResourceModel, expectedValues *correlatedLdapDataViewResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StructuralLDAPObjectclass = types.StringValue(r.StructuralLDAPObjectclass)
 	state.AuxiliaryLDAPObjectclass = internaltypes.GetStringSet(r.AuxiliaryLDAPObjectclass)
 	state.IncludeBaseDN = types.StringValue(r.IncludeBaseDN)
@@ -235,7 +237,7 @@ func createCorrelatedLdapDataViewOperations(plan correlatedLdapDataViewResourceM
 
 // Create a correlated-ldap-data-view correlated-ldap-data-view
 func (r *correlatedLdapDataViewResource) CreateCorrelatedLdapDataView(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan correlatedLdapDataViewResourceModel) (*correlatedLdapDataViewResourceModel, error) {
-	addRequest := client.NewAddCorrelatedLdapDataViewRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCorrelatedLdapDataViewRequest(plan.Name.ValueString(),
 		plan.StructuralLDAPObjectclass.ValueString(),
 		plan.IncludeBaseDN.ValueString(),
 		plan.PrimaryCorrelationAttribute.ValueString(),
@@ -309,7 +311,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 	}
 
 	readResponse, httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Correlated Ldap Data View", err, httpResp)
 		return
@@ -326,7 +328,7 @@ func (r *defaultCorrelatedLdapDataViewResource) Create(ctx context.Context, req 
 	readCorrelatedLdapDataViewResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataView(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
+	updateRequest := r.apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataView(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
 	ops := createCorrelatedLdapDataViewOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -378,7 +380,7 @@ func readCorrelatedLdapDataView(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	readResponse, httpResp, err := apiClient.CorrelatedLdapDataViewApi.GetCorrelatedLdapDataView(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Correlated Ldap Data View", err, httpResp)
 		return
@@ -420,7 +422,7 @@ func updateCorrelatedLdapDataView(ctx context.Context, req resource.UpdateReques
 	var state correlatedLdapDataViewResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.CorrelatedLdapDataViewApi.UpdateCorrelatedLdapDataView(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCorrelatedLdapDataViewOperations(plan, state)
@@ -474,7 +476,7 @@ func (r *correlatedLdapDataViewResource) Delete(ctx context.Context, req resourc
 	}
 
 	httpResp, err := r.apiClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataViewExecute(r.apiClient.CorrelatedLdapDataViewApi.DeleteCorrelatedLdapDataView(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Correlated Ldap Data View", err, httpResp)
 		return
@@ -497,5 +499,5 @@ func importCorrelatedLdapDataView(ctx context.Context, req resource.ImportStateR
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scim_resource_type_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

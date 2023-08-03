@@ -80,7 +80,7 @@ func testAccGenericDelegatedAdminAttributeResource(resourceName string, resource
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[2]s" {
   type                           = "generic"
-  id                             = "%[2]s"
+  name                           = "%[2]s"
   enabled                        = true
   resource_endpoint              = "device"
   display_name                   = "Device"

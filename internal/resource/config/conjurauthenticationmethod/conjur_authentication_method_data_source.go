@@ -48,6 +48,7 @@ func (r *conjurAuthenticationMethodDataSource) Configure(_ context.Context, req 
 
 type conjurAuthenticationMethodDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
 	Username    types.String `tfsdk:"username"`
 	Password    types.String `tfsdk:"password"`
 	ApiKey      types.String `tfsdk:"api_key"`
@@ -56,13 +57,9 @@ type conjurAuthenticationMethodDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *conjurAuthenticationMethodDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Conjur Authentication Method.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"username": schema.StringAttribute{
 				Description: "The username for the user to authenticate.",
 				Required:    false,
@@ -91,11 +88,14 @@ func (r *conjurAuthenticationMethodDataSource) Schema(ctx context.Context, req d
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ApiKeyConjurAuthenticationMethodResponse object into the model struct
 func readApiKeyConjurAuthenticationMethodResponseDataSource(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -111,7 +111,7 @@ func (r *conjurAuthenticationMethodDataSource) Read(ctx context.Context, req dat
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Conjur Authentication Method", err, httpResp)
 		return

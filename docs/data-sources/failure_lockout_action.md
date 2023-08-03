@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
-  id = "MyFailureLockoutAction"
+  name = "MyFailureLockoutAction"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,5 +54,6 @@ data "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
 - `delay` (String) The length of time to delay the bind response for accounts with too many failed authentication attempts.
 - `description` (String) A description for this Failure Lockout Action
 - `generate_account_status_notification` (Boolean) Indicates whether to generate an account status notification for cases in which a bind response is delayed because of failure lockout.
+- `id` (String) The ID of this resource.
 - `type` (String) The type of Failure Lockout Action resource. Options are ['delay-bind-response', 'no-operation', 'lock-account']
 

@@ -59,7 +59,7 @@ data "pingdirectory_delegated_admin_attribute" "myDelegatedAdminAttribute" {
 - `description` (String) A description for this Delegated Admin Attribute
 - `display_name` (String) A human readable display name for this Delegated Admin Attribute.
 - `display_order_index` (Number) This property determines a display order for attributes within a given attribute category. Attributes are ordered within their category based on this index from least to greatest.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `include_in_summary` (Boolean) Indicates whether this Delegated Admin Attribute is to be included in the summary display for a resource.
 - `multi_valued` (Boolean) Indicates whether this Delegated Admin Attribute may have multiple values.
 - `mutability` (String) Specifies the circumstances under which the values of the attribute can be written.

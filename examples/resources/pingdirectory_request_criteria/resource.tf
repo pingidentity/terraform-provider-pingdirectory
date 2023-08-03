@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_request_criteria" "myRequestCriteria" {
-  id   = "MyRequestCriteria"
+  name = "MyRequestCriteria"
   type = "root-dse"
 }

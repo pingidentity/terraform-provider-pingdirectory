@@ -46,5 +46,5 @@ data "pingdirectory_root_dn" "myRootDn" {
 ### Read-Only
 
 - `default_root_privilege_name` (Set of String) Specifies the names of the privileges that root users will be granted by default.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 

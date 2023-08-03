@@ -97,12 +97,12 @@ O153rbh1O3sXFjeKFSvpi6BM4OBaTDwtlZL+ZtDjvLX5xY278udB140n+XYdJaW7
 func testAccTrustedCertificateResource(resourceName string, resourceModel trustedCertificateTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_trusted_certificate" "%[1]s" {
-  id          = "%[2]s"
+  name        = "%[2]s"
   certificate = file("%[3]s")
 }
 
 data "pingdirectory_trusted_certificate" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_trusted_certificate.%[1]s
   ]

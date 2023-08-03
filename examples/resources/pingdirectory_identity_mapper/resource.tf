@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_identity_mapper" "myIdentityMapper" {
-  id              = "MyIdentityMapper"
+  name            = "MyIdentityMapper"
   type            = "exact-match"
   match_attribute = ["uid"]
   enabled         = true

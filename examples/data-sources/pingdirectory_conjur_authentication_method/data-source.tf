@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMethod" {
-  id = "MyConjurAuthenticationMethod"
+  name = "MyConjurAuthenticationMethod"
 }

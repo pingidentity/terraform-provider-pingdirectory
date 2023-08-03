@@ -48,6 +48,7 @@ func (r *requestCriteriaDataSource) Configure(_ context.Context, req datasource.
 
 type requestCriteriaDataSourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Name                                   types.String `tfsdk:"name"`
 	Type                                   types.String `tfsdk:"type"`
 	ExtensionClass                         types.String `tfsdk:"extension_class"`
 	ExtensionArgument                      types.Set    `tfsdk:"extension_argument"`
@@ -88,13 +89,9 @@ type requestCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *requestCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Request Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Request Criteria resource. Options are ['root-dse', 'simple', 'aggregate', 'third-party']",
 				Required:    false,
@@ -344,12 +341,15 @@ func (r *requestCriteriaDataSource) Schema(ctx context.Context, req datasource.S
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a RootDseRequestCriteriaResponse object into the model struct
 func readRootDseRequestCriteriaResponseDataSource(ctx context.Context, r *client.RootDseRequestCriteriaResponse, state *requestCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("root-dse")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OperationType = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaRootDseOperationTypeProp(r.OperationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -359,6 +359,7 @@ func readRootDseRequestCriteriaResponseDataSource(ctx context.Context, r *client
 func readSimpleRequestCriteriaResponseDataSource(ctx context.Context, r *client.SimpleRequestCriteriaResponse, state *requestCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OperationType = internaltypes.GetStringSet(
 		client.StringSliceEnumrequestCriteriaSimpleOperationTypeProp(r.OperationType))
 	state.OperationOrigin = internaltypes.GetStringSet(
@@ -399,6 +400,7 @@ func readSimpleRequestCriteriaResponseDataSource(ctx context.Context, r *client.
 func readAggregateRequestCriteriaResponseDataSource(ctx context.Context, r *client.AggregateRequestCriteriaResponse, state *requestCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedRequestCriteria = internaltypes.GetStringSet(r.AllIncludedRequestCriteria)
 	state.AnyIncludedRequestCriteria = internaltypes.GetStringSet(r.AnyIncludedRequestCriteria)
 	state.NotAllIncludedRequestCriteria = internaltypes.GetStringSet(r.NotAllIncludedRequestCriteria)
@@ -410,6 +412,7 @@ func readAggregateRequestCriteriaResponseDataSource(ctx context.Context, r *clie
 func readThirdPartyRequestCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartyRequestCriteriaResponse, state *requestCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -426,7 +429,7 @@ func (r *requestCriteriaDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.RequestCriteriaApi.GetRequestCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Request Criteria", err, httpResp)
 		return

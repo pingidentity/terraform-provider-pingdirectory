@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_connection_criteria" "myConnectionCriteria" {
-  id             = "MyConnectionCriteria"
+  name           = "MyConnectionCriteria"
   type           = "simple"
   description    = "Simple connection example"
   user_auth_type = ["internal", "sasl"]
@@ -49,7 +49,7 @@ resource "pingdirectory_connection_criteria" "myConnectionCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Connection Criteria resource. Options are ['simple', 'aggregate', 'third-party']
 
 ### Optional
@@ -89,6 +89,7 @@ resource "pingdirectory_connection_criteria" "myConnectionCriteria" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -107,7 +108,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "connectionCriteriaId" should be the id of the Connection Criteria to be imported
+# "connectionCriteriaId" should be the name of the Connection Criteria to be imported
 terraform import pingdirectory_connection_criteria.myConnectionCriteria connectionCriteriaId
 ```
 

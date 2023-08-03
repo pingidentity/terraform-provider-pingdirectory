@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_change_subscription" "myChangeSubscription" {
-  id = "MyChangeSubscription"
+  name = "MyChangeSubscription"
 }
 ```
 
@@ -46,13 +46,14 @@ data "pingdirectory_change_subscription" "myChangeSubscription" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `connection_criteria` (String) Specifies a set of connection criteria that must match the client connection associated with an operation in order for that operation to be processed by a change subscription handler.
 - `description` (String) A description for this Change Subscription
 - `expiration_time` (String) Specifies a timestamp that provides an expiration time for this change subscription. If an expiration time is provided, then the change subscription will not be active after that time has passed.
+- `id` (String) The ID of this resource.
 - `request_criteria` (String) Specifies a set of request criteria that must match the request associated with an operation in order for that operation to be processed by a change subscription handler.
 - `result_criteria` (String) Specifies a set of result criteria that must match the result associated with an operation in order for that operation to be processed by a change subscription handler.
 

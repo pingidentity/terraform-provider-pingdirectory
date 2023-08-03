@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_recurring_task_chain" "myRecurringTaskChain" {
-  id = "MyRecurringTaskChain"
+  name = "MyRecurringTaskChain"
 }
 ```
 
@@ -46,12 +46,13 @@ data "pingdirectory_recurring_task_chain" "myRecurringTaskChain" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Recurring Task Chain
 - `enabled` (Boolean) Indicates whether this Recurring Task Chain is enabled for use. Recurring Task Chains that are disabled will not have any new instances scheduled, but instances that are already scheduled will be preserved. Those instances may be manually canceled if desired.
+- `id` (String) The ID of this resource.
 - `interrupted_by_shutdown_behavior` (String) Specifies the behavior that the server should exhibit if it is shut down or abnormally terminated while an instance of this Recurring Task Chain is running.
 - `recurring_task` (Set of String) The set of recurring tasks that make up this chain. At least one value must be provided. If multiple values are given, then the task instances will be invoked in the order in which they are listed.
 - `scheduled_date_selection_type` (String) The mechanism used to determine the dates on which instances of this Recurring Task Chain may be scheduled to start.

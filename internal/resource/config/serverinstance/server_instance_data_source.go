@@ -48,6 +48,7 @@ func (r *serverInstanceDataSource) Configure(_ context.Context, req datasource.C
 
 type serverInstanceDataSourceModel struct {
 	Id                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
 	Type                       types.String `tfsdk:"type"`
 	ServerInstanceType         types.String `tfsdk:"server_instance_type"`
 	ReplicationSetName         types.String `tfsdk:"replication_set_name"`
@@ -76,13 +77,9 @@ type serverInstanceDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *serverInstanceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Server Instance.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Server Instance resource. Options are ['proxy', 'metrics-engine', 'authorize', 'directory', 'sync']",
 				Required:    false,
@@ -233,12 +230,15 @@ func (r *serverInstanceDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ProxyServerInstanceResponse object into the model struct
 func readProxyServerInstanceResponseDataSource(ctx context.Context, r *client.ProxyServerInstanceResponse, state *serverInstanceDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("proxy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), false)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -268,6 +268,7 @@ func readProxyServerInstanceResponseDataSource(ctx context.Context, r *client.Pr
 func readMetricsEngineServerInstanceResponseDataSource(ctx context.Context, r *client.MetricsEngineServerInstanceResponse, state *serverInstanceDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("metrics-engine")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), false)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -297,6 +298,7 @@ func readMetricsEngineServerInstanceResponseDataSource(ctx context.Context, r *c
 func readAuthorizeServerInstanceResponseDataSource(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *serverInstanceDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("authorize")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), false)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -326,6 +328,7 @@ func readAuthorizeServerInstanceResponseDataSource(ctx context.Context, r *clien
 func readDirectoryServerInstanceResponseDataSource(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *serverInstanceDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), false)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, false)
@@ -357,6 +360,7 @@ func readDirectoryServerInstanceResponseDataSource(ctx context.Context, r *clien
 func readSyncServerInstanceResponseDataSource(ctx context.Context, r *client.SyncServerInstanceResponse, state *serverInstanceDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("sync")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), false)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -393,7 +397,7 @@ func (r *serverInstanceDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return

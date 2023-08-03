@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttributePair" {
-  id                             = "MyLdapCorrelationAttributePair"
+  name                           = "MyLdapCorrelationAttributePair"
   correlated_ldap_data_view_name = "MyCorrelatedLdapDataView"
   scim_resource_type_name        = "MyScimResourceType"
 }
@@ -49,11 +49,12 @@ data "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttribute
 ### Required
 
 - `correlated_ldap_data_view_name` (String) Name of the parent Correlated LDAP Data View
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `scim_resource_type_name` (String) Name of the parent SCIM Resource Type
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `primary_correlation_attribute` (String) The LDAP attribute from the base SCIM Resource Type whose value will be used to match objects in the Correlated LDAP Data View.
 - `secondary_correlation_attribute` (String) The LDAP attribute from the Correlated LDAP Data View whose value will be matched.
 

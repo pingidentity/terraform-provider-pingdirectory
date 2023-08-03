@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteria" {
-  id = "MyUncachedAttributeCriteria"
+  name = "MyUncachedAttributeCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -55,6 +55,7 @@ data "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteria" {
 - `enabled` (Boolean) Indicates whether this Uncached Attribute Criteria is enabled for use in the server.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Uncached Attribute Criteria. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Uncached Attribute Criteria.
+- `id` (String) The ID of this resource.
 - `min_total_value_size` (String) Specifies the minimum total value size (i.e., the sum of the sizes of all values) that an attribute must have before it will be written into the uncached-id2entry database.
 - `min_value_count` (Number) Specifies the minimum number of values that an attribute must have before it will be written into the uncached-id2entry database.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Uncached Attribute Criteria. Each configuration property should be given in the form 'name=value'.

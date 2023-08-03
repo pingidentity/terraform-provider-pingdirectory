@@ -76,13 +76,13 @@ func TestAccStatsdMonitoringEndpoint(t *testing.T) {
 func testAccStatsdMonitoringEndpointResource(resourceName string, resourceModel statsdMonitoringEndpointTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_monitoring_endpoint" "%[1]s" {
-  id       = "%[2]s"
+  name     = "%[2]s"
   hostname = "%[3]s"
   enabled  = %[4]t
 }
 
 data "pingdirectory_monitoring_endpoint" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_monitoring_endpoint.%[1]s
   ]

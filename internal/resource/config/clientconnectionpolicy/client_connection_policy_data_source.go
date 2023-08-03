@@ -93,15 +93,9 @@ type clientConnectionPolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *clientConnectionPolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Client Connection Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"policy_id": schema.StringAttribute{
 				Description: "Specifies a name which uniquely identifies this Client Connection Policy in the server.",
 				Required:    true,
@@ -363,6 +357,8 @@ func (r *clientConnectionPolicyDataSource) Schema(ctx context.Context, req datas
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ClientConnectionPolicyResponse object into the model struct

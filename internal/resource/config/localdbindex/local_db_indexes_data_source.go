@@ -55,15 +55,9 @@ type localDbIndexesDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *localDbIndexesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Local Db Index objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *localDbIndexesDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

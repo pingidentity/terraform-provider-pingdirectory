@@ -48,18 +48,15 @@ func (r *trustedCertificateDataSource) Configure(_ context.Context, req datasour
 
 type trustedCertificateDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
 	Certificate types.String `tfsdk:"certificate"`
 }
 
 // GetSchema defines the schema for the datasource.
 func (r *trustedCertificateDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Trusted Certificate.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"certificate": schema.StringAttribute{
 				Description: "The PEM-encoded X.509v3 certificate.",
 				Required:    false,
@@ -68,11 +65,14 @@ func (r *trustedCertificateDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a TrustedCertificateResponse object into the model struct
 func readTrustedCertificateResponseDataSource(ctx context.Context, r *client.TrustedCertificateResponse, state *trustedCertificateDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Certificate = types.StringValue(r.Certificate)
 }
 
@@ -87,7 +87,7 @@ func (r *trustedCertificateDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.TrustedCertificateApi.GetTrustedCertificate(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trusted Certificate", err, httpResp)
 		return

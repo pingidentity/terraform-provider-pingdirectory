@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_extended_operation_handler" "myExtendedOperationHandler" {
-  id      = "MyExtendedOperationHandler"
+  name    = "MyExtendedOperationHandler"
   type    = "cancel"
   enabled = false
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_extended_operation_handler" "myExtendedOperationHandler"
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Extended Operation Handler is enabled (that is, whether the types of extended operations are allowed in the server).
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Extended Operation Handler resource. Options are ['cancel', 'validate-totp-password', 'replace-certificate', 'get-connection-id', 'multi-update', 'notification-subscription', 'password-modify', 'custom', 'collect-support-data', 'export-reversible-passwords', 'batched-transactions', 'get-changelog-batch', 'get-supported-otp-delivery-mechanisms', 'single-use-tokens', 'generate-password', 'who-am-i', 'start-tls', 'deliver-password-reset-token', 'password-policy-state', 'get-password-quality-requirements', 'deliver-otp', 'third-party']
 
 ### Optional
@@ -74,6 +74,7 @@ resource "pingdirectory_extended_operation_handler" "myExtendedOperationHandler"
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -92,7 +93,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "extendedOperationHandlerId" should be the id of the Extended Operation Handler to be imported
+# "extendedOperationHandlerId" should be the name of the Extended Operation Handler to be imported
 terraform import pingdirectory_extended_operation_handler.myExtendedOperationHandler extendedOperationHandlerId
 ```
 

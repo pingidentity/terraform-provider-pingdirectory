@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
-  id = "MyOtpDeliveryMechanism"
+  name = "MyOtpDeliveryMechanism"
 }

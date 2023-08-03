@@ -48,6 +48,7 @@ func (r *keyManagerProviderDataSource) Configure(_ context.Context, req datasour
 
 type keyManagerProviderDataSourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	Type                            types.String `tfsdk:"type"`
 	ExtensionClass                  types.String `tfsdk:"extension_class"`
 	ExtensionArgument               types.Set    `tfsdk:"extension_argument"`
@@ -69,13 +70,9 @@ type keyManagerProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *keyManagerProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Key Manager Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Key Manager Provider resource. Options are ['file-based', 'custom', 'pkcs11', 'third-party']",
 				Required:    false,
@@ -183,12 +180,15 @@ func (r *keyManagerProviderDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a FileBasedKeyManagerProviderResponse object into the model struct
 func readFileBasedKeyManagerProviderResponseDataSource(ctx context.Context, r *client.FileBasedKeyManagerProviderResponse, state *keyManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyStoreFile = types.StringValue(r.KeyStoreFile)
 	state.KeyStoreType = internaltypes.StringTypeOrNil(r.KeyStoreType, false)
 	state.KeyStorePinFile = internaltypes.StringTypeOrNil(r.KeyStorePinFile, false)
@@ -203,6 +203,7 @@ func readFileBasedKeyManagerProviderResponseDataSource(ctx context.Context, r *c
 func readCustomKeyManagerProviderResponseDataSource(ctx context.Context, r *client.CustomKeyManagerProviderResponse, state *keyManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -211,6 +212,7 @@ func readCustomKeyManagerProviderResponseDataSource(ctx context.Context, r *clie
 func readPkcs11KeyManagerProviderResponseDataSource(ctx context.Context, r *client.Pkcs11KeyManagerProviderResponse, state *keyManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pkcs11")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Pkcs11ProviderClass = internaltypes.StringTypeOrNil(r.Pkcs11ProviderClass, false)
 	state.Pkcs11ProviderConfigurationFile = internaltypes.StringTypeOrNil(r.Pkcs11ProviderConfigurationFile, false)
 	state.Pkcs11KeyStoreType = internaltypes.StringTypeOrNil(r.Pkcs11KeyStoreType, false)
@@ -225,6 +227,7 @@ func readPkcs11KeyManagerProviderResponseDataSource(ctx context.Context, r *clie
 func readThirdPartyKeyManagerProviderResponseDataSource(ctx context.Context, r *client.ThirdPartyKeyManagerProviderResponse, state *keyManagerProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -242,7 +245,7 @@ func (r *keyManagerProviderDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.KeyManagerProviderApi.GetKeyManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Manager Provider", err, httpResp)
 		return

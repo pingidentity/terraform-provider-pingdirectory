@@ -56,11 +56,11 @@ func TestAccServerGroup(t *testing.T) {
 func testAccServerGroupResource(resourceName string, resourceModel serverGroupTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_server_group" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
 }
 
 data "pingdirectory_server_group" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_server_group.%[1]s
   ]

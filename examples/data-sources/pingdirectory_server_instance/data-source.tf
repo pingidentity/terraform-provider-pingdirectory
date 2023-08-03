@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_server_instance" "myServerInstance" {
-  id = "MyServerInstance"
+  name = "MyServerInstance"
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_rest_resource_type" "myRestResourceType" {
-  id = "MyRestResourceType"
+  name = "MyRestResourceType"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_rest_resource_type" "myRestResourceType" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,6 +57,7 @@ data "pingdirectory_rest_resource_type" "myRestResourceType" {
 - `description` (String) A description for this REST Resource Type
 - `display_name` (String) A human readable display name for this REST Resource Type.
 - `enabled` (Boolean) Indicates whether the REST Resource Type is enabled.
+- `id` (String) The ID of this resource.
 - `include_filter` (Set of String) The set of LDAP filters that define the LDAP entries that should be included in this REST Resource Type.
 - `members_column_name` (String) Specifies the name of the group member column that will be displayed in the Delegated Admin UI
 - `nonmembers_column_name` (String) Specifies the name of the group nonmember column that will be displayed in the Delegated Admin UI

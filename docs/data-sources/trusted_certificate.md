@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_trusted_certificate" "myTrustedCertificate" {
-  id = "MyTrustedCertificate"
+  name = "MyTrustedCertificate"
 }
 ```
 
@@ -46,9 +46,10 @@ data "pingdirectory_trusted_certificate" "myTrustedCertificate" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `certificate` (String) The PEM-encoded X.509v3 certificate.
+- `id` (String) The ID of this resource.
 

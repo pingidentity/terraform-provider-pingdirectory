@@ -48,6 +48,7 @@ func (r *logFieldSyntaxDataSource) Configure(_ context.Context, req datasource.C
 
 type logFieldSyntaxDataSourceModel struct {
 	Id                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
 	Type                       types.String `tfsdk:"type"`
 	IncludedSensitiveAttribute types.Set    `tfsdk:"included_sensitive_attribute"`
 	ExcludedSensitiveAttribute types.Set    `tfsdk:"excluded_sensitive_attribute"`
@@ -59,13 +60,9 @@ type logFieldSyntaxDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logFieldSyntaxDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log Field Syntax.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log Field Syntax resource. Options are ['json', 'attribute-based', 'generic']",
 				Required:    false,
@@ -114,12 +111,15 @@ func (r *logFieldSyntaxDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a JsonLogFieldSyntaxResponse object into the model struct
 func readJsonLogFieldSyntaxResponseDataSource(ctx context.Context, r *client.JsonLogFieldSyntaxResponse, state *logFieldSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IncludedSensitiveField = internaltypes.GetStringSet(r.IncludedSensitiveField)
 	state.ExcludedSensitiveField = internaltypes.GetStringSet(r.ExcludedSensitiveField)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -131,6 +131,7 @@ func readJsonLogFieldSyntaxResponseDataSource(ctx context.Context, r *client.Jso
 func readAttributeBasedLogFieldSyntaxResponseDataSource(ctx context.Context, r *client.AttributeBasedLogFieldSyntaxResponse, state *logFieldSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IncludedSensitiveAttribute = internaltypes.GetStringSet(r.IncludedSensitiveAttribute)
 	state.ExcludedSensitiveAttribute = internaltypes.GetStringSet(r.ExcludedSensitiveAttribute)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -142,6 +143,7 @@ func readAttributeBasedLogFieldSyntaxResponseDataSource(ctx context.Context, r *
 func readGenericLogFieldSyntaxResponseDataSource(ctx context.Context, r *client.GenericLogFieldSyntaxResponse, state *logFieldSyntaxDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), false)
@@ -158,7 +160,7 @@ func (r *logFieldSyntaxDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.GetLogFieldSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Syntax", err, httpResp)
 		return

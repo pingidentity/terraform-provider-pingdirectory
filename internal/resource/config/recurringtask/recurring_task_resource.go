@@ -87,6 +87,7 @@ func (r *defaultRecurringTaskResource) Configure(_ context.Context, req resource
 
 type recurringTaskResourceModel struct {
 	Id                                      types.String `tfsdk:"id"`
+	Name                                    types.String `tfsdk:"name"`
 	LastUpdated                             types.String `tfsdk:"last_updated"`
 	Notifications                           types.Set    `tfsdk:"notifications"`
 	RequiredActions                         types.Set    `tfsdk:"required_actions"`
@@ -741,9 +742,9 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1789,6 +1790,7 @@ func populateRecurringTaskUnknownValues(ctx context.Context, model *recurringTas
 func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *client.GenerateServerProfileRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generate-server-profile")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ProfileDirectory = types.StringValue(r.ProfileDirectory)
 	state.IncludePath = internaltypes.GetStringSet(r.IncludePath)
 	state.RetainPreviousProfileCount = internaltypes.Int64TypeOrNil(r.RetainPreviousProfileCount)
@@ -1811,6 +1813,7 @@ func readGenerateServerProfileRecurringTaskResponse(ctx context.Context, r *clie
 func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.LeaveLockdownModeRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("leave-lockdown-mode")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Reason = internaltypes.StringTypeOrNil(r.Reason, internaltypes.IsEmptyString(expectedValues.Reason))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
@@ -1828,6 +1831,7 @@ func readLeaveLockdownModeRecurringTaskResponse(ctx context.Context, r *client.L
 func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("backup")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BackupDirectory = types.StringValue(r.BackupDirectory)
 	state.IncludedBackendID = internaltypes.GetStringSet(r.IncludedBackendID)
 	state.ExcludedBackendID = internaltypes.GetStringSet(r.ExcludedBackendID)
@@ -1856,6 +1860,7 @@ func readBackupRecurringTaskResponse(ctx context.Context, r *client.BackupRecurr
 func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delay")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SleepDuration = internaltypes.StringTypeOrNil(r.SleepDuration, internaltypes.IsEmptyString(expectedValues.SleepDuration))
 	config.CheckMismatchedPDFormattedAttributes("sleep_duration",
 		expectedValues.SleepDuration, state.SleepDuration, diagnostics)
@@ -1890,6 +1895,7 @@ func readDelayRecurringTaskResponse(ctx context.Context, r *client.DelayRecurrin
 func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.StaticallyDefinedRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("statically-defined")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TaskJavaClass = types.StringValue(r.TaskJavaClass)
 	state.TaskObjectClass = internaltypes.GetStringSet(r.TaskObjectClass)
 	state.TaskAttributeValue = internaltypes.GetStringSet(r.TaskAttributeValue)
@@ -1909,6 +1915,7 @@ func readStaticallyDefinedRecurringTaskResponse(ctx context.Context, r *client.S
 func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.CollectSupportDataRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("collect-support-data")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OutputDirectory = types.StringValue(r.OutputDirectory)
 	state.EncryptionPassphraseFile = internaltypes.StringTypeOrNil(r.EncryptionPassphraseFile, internaltypes.IsEmptyString(expectedValues.EncryptionPassphraseFile))
 	state.IncludeExpensiveData = internaltypes.BoolTypeOrNil(r.IncludeExpensiveData)
@@ -1951,6 +1958,7 @@ func readCollectSupportDataRecurringTaskResponse(ctx context.Context, r *client.
 func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExportRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldif-export")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LdifDirectory = types.StringValue(r.LdifDirectory)
 	state.BackendID = internaltypes.GetStringSet(r.BackendID)
 	state.ExcludeBackendID = internaltypes.GetStringSet(r.ExcludeBackendID)
@@ -1979,6 +1987,7 @@ func readLdifExportRecurringTaskResponse(ctx context.Context, r *client.LdifExpo
 func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.EnterLockdownModeRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("enter-lockdown-mode")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Reason = internaltypes.StringTypeOrNil(r.Reason, internaltypes.IsEmptyString(expectedValues.Reason))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.CancelOnTaskDependencyFailure = internaltypes.BoolTypeOrNil(r.CancelOnTaskDependencyFailure)
@@ -1996,6 +2005,7 @@ func readEnterLockdownModeRecurringTaskResponse(ctx context.Context, r *client.E
 func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.AuditDataSecurityRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("audit-data-security")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseOutputDirectory = types.StringValue(r.BaseOutputDirectory)
 	state.DataSecurityAuditor = internaltypes.GetStringSet(r.DataSecurityAuditor)
 	state.Backend = internaltypes.GetStringSet(r.Backend)
@@ -2020,6 +2030,7 @@ func readAuditDataSecurityRecurringTaskResponse(ctx context.Context, r *client.A
 func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exec")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CommandPath = types.StringValue(r.CommandPath)
 	state.CommandArguments = internaltypes.StringTypeOrNil(r.CommandArguments, internaltypes.IsEmptyString(expectedValues.CommandArguments))
 	state.CommandOutputFileBaseName = internaltypes.StringTypeOrNil(r.CommandOutputFileBaseName, internaltypes.IsEmptyString(expectedValues.CommandOutputFileBaseName))
@@ -2047,6 +2058,7 @@ func readExecRecurringTaskResponse(ctx context.Context, r *client.ExecRecurringT
 func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileRetentionRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-retention")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TargetDirectory = types.StringValue(r.TargetDirectory)
 	state.FilenamePattern = types.StringValue(r.FilenamePattern)
 	state.TimestampFormat = types.StringValue(r.TimestampFormat.String())
@@ -2073,6 +2085,7 @@ func readFileRetentionRecurringTaskResponse(ctx context.Context, r *client.FileR
 func readThirdPartyRecurringTaskResponse(ctx context.Context, r *client.ThirdPartyRecurringTaskResponse, state *recurringTaskResourceModel, expectedValues *recurringTaskResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -2172,7 +2185,7 @@ func createRecurringTaskOperations(plan recurringTaskResourceModel, state recurr
 
 // Create a generate-server-profile recurring-task
 func (r *recurringTaskResource) CreateGenerateServerProfileRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddGenerateServerProfileRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGenerateServerProfileRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumgenerateServerProfileRecurringTaskSchemaUrn{client.ENUMGENERATESERVERPROFILERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKGENERATE_SERVER_PROFILE},
 		plan.ProfileDirectory.ValueString())
 	err := addOptionalGenerateServerProfileRecurringTaskFields(ctx, addRequest, plan)
@@ -2210,7 +2223,7 @@ func (r *recurringTaskResource) CreateGenerateServerProfileRecurringTask(ctx con
 
 // Create a leave-lockdown-mode recurring-task
 func (r *recurringTaskResource) CreateLeaveLockdownModeRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddLeaveLockdownModeRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLeaveLockdownModeRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumleaveLockdownModeRecurringTaskSchemaUrn{client.ENUMLEAVELOCKDOWNMODERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLEAVE_LOCKDOWN_MODE})
 	err := addOptionalLeaveLockdownModeRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2247,7 +2260,7 @@ func (r *recurringTaskResource) CreateLeaveLockdownModeRecurringTask(ctx context
 
 // Create a backup recurring-task
 func (r *recurringTaskResource) CreateBackupRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddBackupRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddBackupRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumbackupRecurringTaskSchemaUrn{client.ENUMBACKUPRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKBACKUP})
 	err := addOptionalBackupRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2284,7 +2297,7 @@ func (r *recurringTaskResource) CreateBackupRecurringTask(ctx context.Context, r
 
 // Create a delay recurring-task
 func (r *recurringTaskResource) CreateDelayRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddDelayRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDelayRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumdelayRecurringTaskSchemaUrn{client.ENUMDELAYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKDELAY})
 	err := addOptionalDelayRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2323,7 +2336,7 @@ func (r *recurringTaskResource) CreateDelayRecurringTask(ctx context.Context, re
 func (r *recurringTaskResource) CreateStaticallyDefinedRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
 	var TaskObjectClassSlice []string
 	plan.TaskObjectClass.ElementsAs(ctx, &TaskObjectClassSlice, false)
-	addRequest := client.NewAddStaticallyDefinedRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddStaticallyDefinedRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumstaticallyDefinedRecurringTaskSchemaUrn{client.ENUMSTATICALLYDEFINEDRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKSTATICALLY_DEFINED},
 		plan.TaskJavaClass.ValueString(),
 		TaskObjectClassSlice)
@@ -2362,7 +2375,7 @@ func (r *recurringTaskResource) CreateStaticallyDefinedRecurringTask(ctx context
 
 // Create a collect-support-data recurring-task
 func (r *recurringTaskResource) CreateCollectSupportDataRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddCollectSupportDataRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCollectSupportDataRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumcollectSupportDataRecurringTaskSchemaUrn{client.ENUMCOLLECTSUPPORTDATARECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKCOLLECT_SUPPORT_DATA},
 		plan.OutputDirectory.ValueString())
 	err := addOptionalCollectSupportDataRecurringTaskFields(ctx, addRequest, plan)
@@ -2400,7 +2413,7 @@ func (r *recurringTaskResource) CreateCollectSupportDataRecurringTask(ctx contex
 
 // Create a ldif-export recurring-task
 func (r *recurringTaskResource) CreateLdifExportRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddLdifExportRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdifExportRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumldifExportRecurringTaskSchemaUrn{client.ENUMLDIFEXPORTRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKLDIF_EXPORT})
 	err := addOptionalLdifExportRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2437,7 +2450,7 @@ func (r *recurringTaskResource) CreateLdifExportRecurringTask(ctx context.Contex
 
 // Create a enter-lockdown-mode recurring-task
 func (r *recurringTaskResource) CreateEnterLockdownModeRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddEnterLockdownModeRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddEnterLockdownModeRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumenterLockdownModeRecurringTaskSchemaUrn{client.ENUMENTERLOCKDOWNMODERECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKENTER_LOCKDOWN_MODE})
 	err := addOptionalEnterLockdownModeRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2474,7 +2487,7 @@ func (r *recurringTaskResource) CreateEnterLockdownModeRecurringTask(ctx context
 
 // Create a audit-data-security recurring-task
 func (r *recurringTaskResource) CreateAuditDataSecurityRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddAuditDataSecurityRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAuditDataSecurityRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumauditDataSecurityRecurringTaskSchemaUrn{client.ENUMAUDITDATASECURITYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKAUDIT_DATA_SECURITY})
 	err := addOptionalAuditDataSecurityRecurringTaskFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2511,7 +2524,7 @@ func (r *recurringTaskResource) CreateAuditDataSecurityRecurringTask(ctx context
 
 // Create a exec recurring-task
 func (r *recurringTaskResource) CreateExecRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddExecRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddExecRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumexecRecurringTaskSchemaUrn{client.ENUMEXECRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKEXEC},
 		plan.CommandPath.ValueString())
 	err := addOptionalExecRecurringTaskFields(ctx, addRequest, plan)
@@ -2554,7 +2567,7 @@ func (r *recurringTaskResource) CreateFileRetentionRecurringTask(ctx context.Con
 		resp.Diagnostics.AddError("Failed to parse enum value for TimestampFormat", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddFileRetentionRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileRetentionRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumfileRetentionRecurringTaskSchemaUrn{client.ENUMFILERETENTIONRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKFILE_RETENTION},
 		plan.TargetDirectory.ValueString(),
 		plan.FilenamePattern.ValueString(),
@@ -2594,7 +2607,7 @@ func (r *recurringTaskResource) CreateFileRetentionRecurringTask(ctx context.Con
 
 // Create a third-party recurring-task
 func (r *recurringTaskResource) CreateThirdPartyRecurringTask(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan recurringTaskResourceModel) (*recurringTaskResourceModel, error) {
-	addRequest := client.NewAddThirdPartyRecurringTaskRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyRecurringTaskRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyRecurringTaskSchemaUrn{client.ENUMTHIRDPARTYRECURRINGTASKSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0RECURRING_TASKTHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	err := addOptionalThirdPartyRecurringTaskFields(ctx, addRequest, plan)
@@ -2740,7 +2753,7 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
 		return
@@ -2792,7 +2805,7 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.RecurringTaskApi.UpdateRecurringTask(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createRecurringTaskOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -2878,7 +2891,7 @@ func readRecurringTask(ctx context.Context, req resource.ReadRequest, resp *reso
 	}
 
 	readResponse, httpResp, err := apiClient.RecurringTaskApi.GetRecurringTask(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Recurring Task", err, httpResp)
 		return
@@ -2955,7 +2968,7 @@ func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *
 	var state recurringTaskResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.RecurringTaskApi.UpdateRecurringTask(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createRecurringTaskOperations(plan, state)
@@ -3043,7 +3056,7 @@ func (r *recurringTaskResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	httpResp, err := r.apiClient.RecurringTaskApi.DeleteRecurringTaskExecute(r.apiClient.RecurringTaskApi.DeleteRecurringTask(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Recurring Task", err, httpResp)
 		return
@@ -3059,6 +3072,6 @@ func (r *defaultRecurringTaskResource) ImportState(ctx context.Context, req reso
 }
 
 func importRecurringTask(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

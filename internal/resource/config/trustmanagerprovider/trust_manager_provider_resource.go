@@ -85,6 +85,7 @@ func (r *defaultTrustManagerProviderResource) Configure(_ context.Context, req r
 
 type trustManagerProviderResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	Name                            types.String `tfsdk:"name"`
 	LastUpdated                     types.String `tfsdk:"last_updated"`
 	Notifications                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                 types.Set    `tfsdk:"required_actions"`
@@ -178,9 +179,9 @@ func trustManagerProviderSchema(ctx context.Context, req resource.SchemaRequest,
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -290,6 +291,7 @@ func populateTrustManagerProviderUnknownValues(ctx context.Context, model *trust
 func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindTrustManagerProviderResponse, state *trustManagerProviderResourceModel, expectedValues *trustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("blind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeJVMDefaultIssuers = internaltypes.BoolTypeOrNil(r.IncludeJVMDefaultIssuers)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -300,6 +302,7 @@ func readBlindTrustManagerProviderResponse(ctx context.Context, r *client.BlindT
 func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.FileBasedTrustManagerProviderResponse, state *trustManagerProviderResourceModel, expectedValues *trustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.TrustStoreFile = types.StringValue(r.TrustStoreFile)
 	state.TrustStoreType = internaltypes.StringTypeOrNil(r.TrustStoreType, internaltypes.IsEmptyString(expectedValues.TrustStoreType))
 	state.TrustStorePinFile = internaltypes.StringTypeOrNil(r.TrustStorePinFile, internaltypes.IsEmptyString(expectedValues.TrustStorePinFile))
@@ -314,6 +317,7 @@ func readFileBasedTrustManagerProviderResponse(ctx context.Context, r *client.Fi
 func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.JvmDefaultTrustManagerProviderResponse, state *trustManagerProviderResourceModel, expectedValues *trustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jvm-default")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateTrustManagerProviderUnknownValues(ctx, state)
@@ -323,6 +327,7 @@ func readJvmDefaultTrustManagerProviderResponse(ctx context.Context, r *client.J
 func readThirdPartyTrustManagerProviderResponse(ctx context.Context, r *client.ThirdPartyTrustManagerProviderResponse, state *trustManagerProviderResourceModel, expectedValues *trustManagerProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -356,7 +361,7 @@ func createTrustManagerProviderOperations(plan trustManagerProviderResourceModel
 
 // Create a blind trust-manager-provider
 func (r *trustManagerProviderResource) CreateBlindTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddBlindTrustManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddBlindTrustManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumblindTrustManagerProviderSchemaUrn{client.ENUMBLINDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERBLIND},
 		plan.Enabled.ValueBool())
 	addOptionalBlindTrustManagerProviderFields(ctx, addRequest, plan)
@@ -390,7 +395,7 @@ func (r *trustManagerProviderResource) CreateBlindTrustManagerProvider(ctx conte
 
 // Create a file-based trust-manager-provider
 func (r *trustManagerProviderResource) CreateFileBasedTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedTrustManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedTrustManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedTrustManagerProviderSchemaUrn{client.ENUMFILEBASEDTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERFILE_BASED},
 		plan.TrustStoreFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -425,7 +430,7 @@ func (r *trustManagerProviderResource) CreateFileBasedTrustManagerProvider(ctx c
 
 // Create a jvm-default trust-manager-provider
 func (r *trustManagerProviderResource) CreateJvmDefaultTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJvmDefaultTrustManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumjvmDefaultTrustManagerProviderSchemaUrn{client.ENUMJVMDEFAULTTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERJVM_DEFAULT},
 		plan.Enabled.ValueBool())
 	addOptionalJvmDefaultTrustManagerProviderFields(ctx, addRequest, plan)
@@ -459,7 +464,7 @@ func (r *trustManagerProviderResource) CreateJvmDefaultTrustManagerProvider(ctx 
 
 // Create a third-party trust-manager-provider
 func (r *trustManagerProviderResource) CreateThirdPartyTrustManagerProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan trustManagerProviderResourceModel) (*trustManagerProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyTrustManagerProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyTrustManagerProviderRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyTrustManagerProviderSchemaUrn{client.ENUMTHIRDPARTYTRUSTMANAGERPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0TRUST_MANAGER_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -555,7 +560,7 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
@@ -583,7 +588,7 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createTrustManagerProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -646,7 +651,7 @@ func readTrustManagerProvider(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := apiClient.TrustManagerProviderApi.GetTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Trust Manager Provider", err, httpResp)
 		return
@@ -699,7 +704,7 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 	var state trustManagerProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.TrustManagerProviderApi.UpdateTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createTrustManagerProviderOperations(plan, state)
@@ -764,7 +769,7 @@ func (r *trustManagerProviderResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProviderExecute(r.apiClient.TrustManagerProviderApi.DeleteTrustManagerProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Trust Manager Provider", err, httpResp)
 		return
@@ -780,6 +785,6 @@ func (r *defaultTrustManagerProviderResource) ImportState(ctx context.Context, r
 }
 
 func importTrustManagerProvider(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

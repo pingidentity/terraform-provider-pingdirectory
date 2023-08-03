@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_obscured_value" "myObscuredValue" {
-  id = "MyObscuredValue"
+  name = "MyObscuredValue"
 }
 ```
 
@@ -46,10 +46,11 @@ data "pingdirectory_obscured_value" "myObscuredValue" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Obscured Value
+- `id` (String) The ID of this resource.
 - `obscured_value` (String, Sensitive) The value to be stored in an obscured form.
 

@@ -48,6 +48,7 @@ func (r *externalServerDataSource) Configure(_ context.Context, req datasource.C
 
 type externalServerDataSourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Name                                   types.String `tfsdk:"name"`
 	Type                                   types.String `tfsdk:"type"`
 	VaultServerBaseURI                     types.Set    `tfsdk:"vault_server_base_uri"`
 	VaultAuthenticationMethod              types.String `tfsdk:"vault_authentication_method"`
@@ -105,13 +106,9 @@ type externalServerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a External Server.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of External Server resource. Options are ['smtp', 'nokia-ds', 'ping-identity-ds', 'active-directory', 'jdbc', 'syslog', 'ping-identity-proxy-server', 'http-proxy', 'nokia-proxy-server', 'opendj', 'ldap', 'ping-one-http', 'http', 'oracle-unified-directory', 'conjur', 'amazon-aws', 'vault']",
 				Required:    false,
@@ -440,12 +437,15 @@ func (r *externalServerDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SmtpExternalServerResponse object into the model struct
 func readSmtpExternalServerResponseDataSource(ctx context.Context, r *client.SmtpExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.SmtpSecurity = internaltypes.StringTypeOrNil(
@@ -461,6 +461,7 @@ func readSmtpExternalServerResponseDataSource(ctx context.Context, r *client.Smt
 func readNokiaDsExternalServerResponseDataSource(ctx context.Context, r *client.NokiaDsExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("nokia-ds")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -489,6 +490,7 @@ func readNokiaDsExternalServerResponseDataSource(ctx context.Context, r *client.
 func readPingIdentityDsExternalServerResponseDataSource(ctx context.Context, r *client.PingIdentityDsExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-identity-ds")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -517,6 +519,7 @@ func readPingIdentityDsExternalServerResponseDataSource(ctx context.Context, r *
 func readActiveDirectoryExternalServerResponseDataSource(ctx context.Context, r *client.ActiveDirectoryExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("active-directory")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, false)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -544,6 +547,7 @@ func readActiveDirectoryExternalServerResponseDataSource(ctx context.Context, r 
 func readJdbcExternalServerResponseDataSource(ctx context.Context, r *client.JdbcExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jdbc")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JdbcDriverType = types.StringValue(r.JdbcDriverType.String())
 	state.JdbcDriverURL = internaltypes.StringTypeOrNil(r.JdbcDriverURL, false)
 	state.DatabaseName = internaltypes.StringTypeOrNil(r.DatabaseName, false)
@@ -563,6 +567,7 @@ func readJdbcExternalServerResponseDataSource(ctx context.Context, r *client.Jdb
 func readSyslogExternalServerResponseDataSource(ctx context.Context, r *client.SyslogExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.TransportMechanism = types.StringValue(r.TransportMechanism.String())
@@ -576,6 +581,7 @@ func readSyslogExternalServerResponseDataSource(ctx context.Context, r *client.S
 func readPingIdentityProxyServerExternalServerResponseDataSource(ctx context.Context, r *client.PingIdentityProxyServerExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-identity-proxy-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -604,6 +610,7 @@ func readPingIdentityProxyServerExternalServerResponseDataSource(ctx context.Con
 func readHttpProxyExternalServerResponseDataSource(ctx context.Context, r *client.HttpProxyExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http-proxy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.BasicAuthenticationUsername = internaltypes.StringTypeOrNil(r.BasicAuthenticationUsername, false)
@@ -615,6 +622,7 @@ func readHttpProxyExternalServerResponseDataSource(ctx context.Context, r *clien
 func readNokiaProxyServerExternalServerResponseDataSource(ctx context.Context, r *client.NokiaProxyServerExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("nokia-proxy-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -643,6 +651,7 @@ func readNokiaProxyServerExternalServerResponseDataSource(ctx context.Context, r
 func readOpendjExternalServerResponseDataSource(ctx context.Context, r *client.OpendjExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("opendj")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, false)
@@ -670,6 +679,7 @@ func readOpendjExternalServerResponseDataSource(ctx context.Context, r *client.O
 func readLdapExternalServerResponseDataSource(ctx context.Context, r *client.LdapExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, false)
@@ -697,6 +707,7 @@ func readLdapExternalServerResponseDataSource(ctx context.Context, r *client.Lda
 func readPingOneHttpExternalServerResponseDataSource(ctx context.Context, r *client.PingOneHttpExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one-http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerPingOneHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), false)
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, false)
@@ -709,6 +720,7 @@ func readPingOneHttpExternalServerResponseDataSource(ctx context.Context, r *cli
 func readHttpExternalServerResponseDataSource(ctx context.Context, r *client.HttpExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseURL = types.StringValue(r.BaseURL)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), false)
@@ -724,6 +736,7 @@ func readHttpExternalServerResponseDataSource(ctx context.Context, r *client.Htt
 func readOracleUnifiedDirectoryExternalServerResponseDataSource(ctx context.Context, r *client.OracleUnifiedDirectoryExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("oracle-unified-directory")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, false)
@@ -751,6 +764,7 @@ func readOracleUnifiedDirectoryExternalServerResponseDataSource(ctx context.Cont
 func readConjurExternalServerResponseDataSource(ctx context.Context, r *client.ConjurExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurServerBaseURI = internaltypes.GetStringSet(r.ConjurServerBaseURI)
 	state.ConjurAuthenticationMethod = types.StringValue(r.ConjurAuthenticationMethod)
 	state.ConjurAccountName = types.StringValue(r.ConjurAccountName)
@@ -763,6 +777,7 @@ func readConjurExternalServerResponseDataSource(ctx context.Context, r *client.C
 func readAmazonAwsExternalServerResponseDataSource(ctx context.Context, r *client.AmazonAwsExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-aws")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
 	state.AuthenticationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), false)
@@ -775,6 +790,7 @@ func readAmazonAwsExternalServerResponseDataSource(ctx context.Context, r *clien
 func readVaultExternalServerResponseDataSource(ctx context.Context, r *client.VaultExternalServerResponse, state *externalServerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, false)
@@ -793,7 +809,7 @@ func (r *externalServerDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
 		return

@@ -76,13 +76,13 @@ func testAccGeneralMonitorProviderResource(resourceName string, resourceModel ge
 	return fmt.Sprintf(`
 resource "pingdirectory_default_monitor_provider" "%[1]s" {
   type        = "general"
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t
 }
 
 data "pingdirectory_monitor_provider" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_default_monitor_provider.%[1]s
   ]

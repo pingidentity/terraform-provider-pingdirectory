@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_recurring_task" "myRecurringTask" {
-  id = "MyRecurringTask"
+  name = "MyRecurringTask"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_recurring_task" "myRecurringTask" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -78,6 +78,7 @@ data "pingdirectory_recurring_task" "myRecurringTask" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Recurring Task. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Recurring Task.
 - `filename_pattern` (String) A pattern that specifies the names of the files to examine. The pattern may contain zero or more asterisks as wildcards, where each wildcard matches zero or more characters. It may also contain at most one occurrence of the special string "${timestamp}", which will match a timestamp with the format specified using the timestamp-format property. All other characters in the pattern will be treated literally.
+- `id` (String) The ID of this resource.
 - `include_binary_files` (Boolean) Indicates whether the support data archive should include binary files that may not have otherwise been included. Note that it may not be possible to obscure or redact sensitive information in binary files.
 - `include_expensive_data` (Boolean) Indicates whether the support data archive should include information that may be expensive to obtain, and that may temporarily affect the server's performance or responsiveness.
 - `include_extension_source` (Boolean) Indicates whether the support data archive should include the source code (if available) for any third-party extensions that may be installed in the server.

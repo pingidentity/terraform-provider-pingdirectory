@@ -85,6 +85,7 @@ func (r *defaultScimResourceTypeResource) Configure(_ context.Context, req resou
 
 type scimResourceTypeResourceModel struct {
 	Id                          types.String `tfsdk:"id"`
+	Name                        types.String `tfsdk:"name"`
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
 	RequiredActions             types.Set    `tfsdk:"required_actions"`
@@ -227,9 +228,9 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -387,6 +388,7 @@ func populateScimResourceTypeUnknownValues(ctx context.Context, model *scimResou
 func readLdapPassThroughScimResourceTypeResponse(ctx context.Context, r *client.LdapPassThroughScimResourceTypeResponse, state *scimResourceTypeResourceModel, expectedValues *scimResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-pass-through")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
@@ -407,6 +409,7 @@ func readLdapPassThroughScimResourceTypeResponse(ctx context.Context, r *client.
 func readLdapMappingScimResourceTypeResponse(ctx context.Context, r *client.LdapMappingScimResourceTypeResponse, state *scimResourceTypeResourceModel, expectedValues *scimResourceTypeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapping")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CoreSchema = types.StringValue(r.CoreSchema)
 	state.RequiredSchemaExtension = internaltypes.GetStringSet(r.RequiredSchemaExtension)
 	state.OptionalSchemaExtension = internaltypes.GetStringSet(r.OptionalSchemaExtension)
@@ -448,7 +451,7 @@ func createScimResourceTypeOperations(plan scimResourceTypeResourceModel, state 
 
 // Create a ldap-pass-through scim-resource-type
 func (r *scimResourceTypeResource) CreateLdapPassThroughScimResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimResourceTypeResourceModel) (*scimResourceTypeResourceModel, error) {
-	addRequest := client.NewAddLdapPassThroughScimResourceTypeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdapPassThroughScimResourceTypeRequest(plan.Name.ValueString(),
 		[]client.EnumldapPassThroughScimResourceTypeSchemaUrn{client.ENUMLDAPPASSTHROUGHSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPELDAP_PASS_THROUGH},
 		plan.Enabled.ValueBool(),
 		plan.Endpoint.ValueString())
@@ -487,7 +490,7 @@ func (r *scimResourceTypeResource) CreateLdapPassThroughScimResourceType(ctx con
 
 // Create a ldap-mapping scim-resource-type
 func (r *scimResourceTypeResource) CreateLdapMappingScimResourceType(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimResourceTypeResourceModel) (*scimResourceTypeResourceModel, error) {
-	addRequest := client.NewAddLdapMappingScimResourceTypeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdapMappingScimResourceTypeRequest(plan.Name.ValueString(),
 		[]client.EnumldapMappingScimResourceTypeSchemaUrn{client.ENUMLDAPMAPPINGSCIMRESOURCETYPESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0SCIM_RESOURCE_TYPELDAP_MAPPING},
 		plan.CoreSchema.ValueString(),
 		plan.Enabled.ValueBool(),
@@ -575,7 +578,7 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.GetScimResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
 		return
@@ -597,7 +600,7 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ScimResourceTypeApi.UpdateScimResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ScimResourceTypeApi.UpdateScimResourceType(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createScimResourceTypeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -653,7 +656,7 @@ func readScimResourceType(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	readResponse, httpResp, err := apiClient.ScimResourceTypeApi.GetScimResourceType(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
 		return
@@ -700,7 +703,7 @@ func updateScimResourceType(ctx context.Context, req resource.UpdateRequest, res
 	var state scimResourceTypeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ScimResourceTypeApi.UpdateScimResourceType(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createScimResourceTypeOperations(plan, state)
@@ -758,7 +761,7 @@ func (r *scimResourceTypeResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.ScimResourceTypeApi.DeleteScimResourceTypeExecute(r.apiClient.ScimResourceTypeApi.DeleteScimResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Resource Type", err, httpResp)
 		return
@@ -774,6 +777,6 @@ func (r *defaultScimResourceTypeResource) ImportState(ctx context.Context, req r
 }
 
 func importScimResourceType(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_virtual_attribute" "myVirtualAttribute" {
-  id               = "MyVirtualAttribute"
+  name             = "MyVirtualAttribute"
   type             = "mirror"
   source_attribute = "mail"
   enabled          = true
@@ -51,7 +51,7 @@ resource "pingdirectory_virtual_attribute" "myVirtualAttribute" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Virtual Attribute is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Virtual Attribute resource. Options are ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'replication-state-detail', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']
 
 ### Optional
@@ -96,6 +96,7 @@ resource "pingdirectory_virtual_attribute" "myVirtualAttribute" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -114,7 +115,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "virtualAttributeId" should be the id of the Virtual Attribute to be imported
+# "virtualAttributeId" should be the name of the Virtual Attribute to be imported
 terraform import pingdirectory_virtual_attribute.myVirtualAttribute virtualAttributeId
 ```
 

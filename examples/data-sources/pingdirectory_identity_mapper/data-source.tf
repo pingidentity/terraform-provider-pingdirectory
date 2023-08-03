@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_identity_mapper" "myIdentityMapper" {
-  id = "MyIdentityMapper"
+  name = "MyIdentityMapper"
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
-  id                      = "MyCorrelatedLdapDataView"
+  name                    = "MyCorrelatedLdapDataView"
   scim_resource_type_name = "MyScimResourceType"
 }
 ```
@@ -47,13 +47,14 @@ data "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `scim_resource_type_name` (String) Name of the parent SCIM Resource Type
 
 ### Read-Only
 
 - `auxiliary_ldap_objectclass` (Set of String) Specifies an auxiliary LDAP object class that should be exposed by this Correlated LDAP Data View.
 - `create_dn_pattern` (String) Specifies the template to use for the DN when creating new entries.
+- `id` (String) The ID of this resource.
 - `include_base_dn` (String) Specifies the base DN of the branch of the LDAP directory that can be accessed by this Correlated LDAP Data View.
 - `include_filter` (Set of String) The set of LDAP filters that define the LDAP entries that should be included in this Correlated LDAP Data View.
 - `include_operational_attribute` (Set of String) Specifies the set of operational LDAP attributes to be provided by this Correlated LDAP Data View.

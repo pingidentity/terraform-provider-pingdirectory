@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_rotation_policy" "myLogRotationPolicy" {
-  id                = "MyLogRotationPolicy"
+  name              = "MyLogRotationPolicy"
   type              = "time-limit"
   description       = "Time limit before rotating logs"
   rotation_interval = "2 w"
@@ -49,7 +49,7 @@ resource "pingdirectory_log_rotation_policy" "myLogRotationPolicy" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Log Rotation Policy resource. Options are ['time-limit', 'fixed-time', 'never-rotate', 'size-limit']
 
 ### Optional
@@ -61,6 +61,7 @@ resource "pingdirectory_log_rotation_policy" "myLogRotationPolicy" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -79,7 +80,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "logRotationPolicyId" should be the id of the Log Rotation Policy to be imported
+# "logRotationPolicyId" should be the name of the Log Rotation Policy to be imported
 terraform import pingdirectory_log_rotation_policy.myLogRotationPolicy logRotationPolicyId
 ```
 

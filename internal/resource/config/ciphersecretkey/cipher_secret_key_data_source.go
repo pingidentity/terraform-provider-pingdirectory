@@ -48,6 +48,7 @@ func (r *cipherSecretKeyDataSource) Configure(_ context.Context, req datasource.
 
 type cipherSecretKeyDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	ServerInstanceName             types.String `tfsdk:"server_instance_name"`
 	CipherTransformationName       types.String `tfsdk:"cipher_transformation_name"`
 	InitializationVectorLengthBits types.Int64  `tfsdk:"initialization_vector_length_bits"`
@@ -59,13 +60,9 @@ type cipherSecretKeyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *cipherSecretKeyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Cipher Secret Key.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"server_instance_name": schema.StringAttribute{
 				Description: "Name of the parent Server Instance",
 				Required:    true,
@@ -109,11 +106,14 @@ func (r *cipherSecretKeyDataSource) Schema(ctx context.Context, req datasource.S
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a CipherSecretKeyResponse object into the model struct
 func readCipherSecretKeyResponseDataSource(ctx context.Context, r *client.CipherSecretKeyResponse, state *cipherSecretKeyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CipherTransformationName = internaltypes.StringTypeOrNil(r.CipherTransformationName, false)
 	state.InitializationVectorLengthBits = internaltypes.Int64TypeOrNil(r.InitializationVectorLengthBits)
 	state.KeyID = types.StringValue(r.KeyID)
@@ -133,7 +133,7 @@ func (r *cipherSecretKeyDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.CipherSecretKeyApi.GetCipherSecretKey(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ServerInstanceName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ServerInstanceName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Cipher Secret Key", err, httpResp)
 		return

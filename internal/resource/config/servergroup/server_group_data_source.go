@@ -48,18 +48,15 @@ func (r *serverGroupDataSource) Configure(_ context.Context, req datasource.Conf
 
 type serverGroupDataSourceModel struct {
 	Id     types.String `tfsdk:"id"`
+	Name   types.String `tfsdk:"name"`
 	Member types.Set    `tfsdk:"member"`
 }
 
 // GetSchema defines the schema for the datasource.
 func (r *serverGroupDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Server Group.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"member": schema.SetAttribute{
 				Description: "A server instance that is a member of this group.",
 				Required:    false,
@@ -69,11 +66,14 @@ func (r *serverGroupDataSource) Schema(ctx context.Context, req datasource.Schem
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ServerGroupResponse object into the model struct
 func readServerGroupResponseDataSource(ctx context.Context, r *client.ServerGroupResponse, state *serverGroupDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Member = internaltypes.GetStringSet(r.Member)
 }
 
@@ -88,7 +88,7 @@ func (r *serverGroupDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerGroupApi.GetServerGroup(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Group", err, httpResp)
 		return

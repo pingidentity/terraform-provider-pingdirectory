@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_result_code_map" "myResultCodeMap" {
-  id = "MyResultCodeMap"
+  name = "MyResultCodeMap"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_result_code_map" "myResultCodeMap" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,5 +54,6 @@ data "pingdirectory_result_code_map" "myResultCodeMap" {
 - `bind_missing_password_result_code` (Number) Specifies the result code that should be returned if a password-based bind attempt fails because the target user entry does not have a password.
 - `bind_missing_user_result_code` (Number) Specifies the result code that should be returned if a bind attempt fails because the target user entry does not exist in the server.
 - `description` (String) A description for this Result Code Map
+- `id` (String) The ID of this resource.
 - `server_error_result_code` (Number) Specifies the result code that should be returned if a generic error occurs within the server.
 

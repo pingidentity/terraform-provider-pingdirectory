@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_constructed_attribute" "myConstructedAttribute" {
-  id             = "MyConstructedAttribute"
+  name           = "MyConstructedAttribute"
   attribute_type = "cn"
   value_pattern  = ["{givenName} {sn}"]
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_constructed_attribute" "myConstructedAttribute" {
 ### Required
 
 - `attribute_type` (String) Specifies the attribute type for the attribute whose values are to be constructed.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `value_pattern` (Set of String) Specifies a pattern for constructing the attribute value using fixed text and attribute values from the entry.
 
 ### Optional
@@ -58,6 +58,7 @@ resource "pingdirectory_constructed_attribute" "myConstructedAttribute" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -76,7 +77,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "constructedAttributeId" should be the id of the Constructed Attribute to be imported
+# "constructedAttributeId" should be the name of the Constructed Attribute to be imported
 terraform import pingdirectory_constructed_attribute.myConstructedAttribute constructedAttributeId
 ```
 

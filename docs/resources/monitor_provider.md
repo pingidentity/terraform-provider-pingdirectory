@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
-  id          = "MyMonitorProvider"
+  name        = "MyMonitorProvider"
   type        = "general"
   description = "My general monitor entry resource provider"
   enabled     = false
@@ -50,7 +50,7 @@ resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Monitor Provider is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']
 
 ### Optional
@@ -64,6 +64,7 @@ resource "pingdirectory_default_monitor_provider" "myMonitorProvider" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -82,7 +83,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "monitorProviderId" should be the id of the Monitor Provider to be imported
+# "monitorProviderId" should be the name of the Monitor Provider to be imported
 terraform import pingdirectory_monitor_provider.myMonitorProvider monitorProviderId
 ```
 

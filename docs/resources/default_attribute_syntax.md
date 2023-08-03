@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_attribute_syntax" "myAttributeSyntax" {
-  id                      = "MyAttributeSyntax"
+  name                    = "MyAttributeSyntax"
   type                    = "attribute-type-description"
   enabled                 = false
   require_binary_transfer = true
@@ -49,7 +49,7 @@ resource "pingdirectory_attribute_syntax" "myAttributeSyntax" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Attribute Syntax resource. Options are ['attribute-type-description', 'directory-string', 'telephone-number', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'generic', 'json-object', 'user-password', 'boolean', 'hex-string', 'bit-string', 'ldap-url', 'name-and-optional-uid']
 
 ### Optional
@@ -65,6 +65,7 @@ resource "pingdirectory_attribute_syntax" "myAttributeSyntax" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -83,7 +84,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "attributeSyntaxId" should be the id of the Attribute Syntax to be imported
+# "attributeSyntaxId" should be the name of the Attribute Syntax to be imported
 terraform import pingdirectory_attribute_syntax.myAttributeSyntax attributeSyntaxId
 ```
 

@@ -53,7 +53,6 @@ func (r *rootDnResource) Configure(_ context.Context, req resource.ConfigureRequ
 }
 
 type rootDnResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                       types.String `tfsdk:"id"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
@@ -77,7 +76,7 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

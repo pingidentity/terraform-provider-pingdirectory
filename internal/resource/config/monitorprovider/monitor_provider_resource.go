@@ -85,6 +85,7 @@ func (r *defaultMonitorProviderResource) Configure(_ context.Context, req resour
 
 type monitorProviderResourceModel struct {
 	Id                      types.String `tfsdk:"id"`
+	Name                    types.String `tfsdk:"name"`
 	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
@@ -100,6 +101,7 @@ type monitorProviderResourceModel struct {
 
 type defaultMonitorProviderResourceModel struct {
 	Id                                   types.String `tfsdk:"id"`
+	Name                                 types.String `tfsdk:"name"`
 	LastUpdated                          types.String `tfsdk:"last_updated"`
 	Notifications                        types.Set    `tfsdk:"notifications"`
 	RequiredActions                      types.Set    `tfsdk:"required_actions"`
@@ -258,9 +260,9 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -414,6 +416,7 @@ func populateMonitorProviderUnknownValuesDefault(ctx context.Context, model *def
 func readMemoryUsageMonitorProviderResponseDefault(ctx context.Context, r *client.MemoryUsageMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("memory-usage")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -424,6 +427,7 @@ func readMemoryUsageMonitorProviderResponseDefault(ctx context.Context, r *clien
 func readStackTraceMonitorProviderResponseDefault(ctx context.Context, r *client.StackTraceMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("stack-trace")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -434,6 +438,7 @@ func readStackTraceMonitorProviderResponseDefault(ctx context.Context, r *client
 func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx context.Context, r *client.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, state *monitorProviderResourceModel, expectedValues *monitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("encryption-settings-database-accessibility")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CheckFrequency = types.StringValue(r.CheckFrequency)
 	config.CheckMismatchedPDFormattedAttributes("check_frequency",
 		expectedValues.CheckFrequency, state.CheckFrequency, diagnostics)
@@ -452,6 +457,7 @@ func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx cont
 func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx context.Context, r *client.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("encryption-settings-database-accessibility")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CheckFrequency = types.StringValue(r.CheckFrequency)
 	config.CheckMismatchedPDFormattedAttributes("check_frequency",
 		expectedValues.CheckFrequency, state.CheckFrequency, diagnostics)
@@ -470,6 +476,7 @@ func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(c
 func readCustomMonitorProviderResponseDefault(ctx context.Context, r *client.CustomMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -480,6 +487,7 @@ func readCustomMonitorProviderResponseDefault(ctx context.Context, r *client.Cus
 func readActiveOperationsMonitorProviderResponseDefault(ctx context.Context, r *client.ActiveOperationsMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("active-operations")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -490,6 +498,7 @@ func readActiveOperationsMonitorProviderResponseDefault(ctx context.Context, r *
 func readSslContextMonitorProviderResponseDefault(ctx context.Context, r *client.SslContextMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ssl-context")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -500,6 +509,7 @@ func readSslContextMonitorProviderResponseDefault(ctx context.Context, r *client
 func readVersionMonitorProviderResponseDefault(ctx context.Context, r *client.VersionMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("version")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -510,6 +520,7 @@ func readVersionMonitorProviderResponseDefault(ctx context.Context, r *client.Ve
 func readHostSystemMonitorProviderResponseDefault(ctx context.Context, r *client.HostSystemMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("host-system")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.DiskDevices = internaltypes.GetStringSet(r.DiskDevices)
 	state.NetworkDevices = internaltypes.GetStringSet(r.NetworkDevices)
@@ -523,6 +534,7 @@ func readHostSystemMonitorProviderResponseDefault(ctx context.Context, r *client
 func readGeneralMonitorProviderResponseDefault(ctx context.Context, r *client.GeneralMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("general")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -533,6 +545,7 @@ func readGeneralMonitorProviderResponseDefault(ctx context.Context, r *client.Ge
 func readDiskSpaceUsageMonitorProviderResponseDefault(ctx context.Context, r *client.DiskSpaceUsageMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("disk-space-usage")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LowSpaceWarningSizeThreshold = internaltypes.StringTypeOrNil(r.LowSpaceWarningSizeThreshold, internaltypes.IsEmptyString(expectedValues.LowSpaceWarningSizeThreshold))
 	config.CheckMismatchedPDFormattedAttributes("low_space_warning_size_threshold",
 		expectedValues.LowSpaceWarningSizeThreshold, state.LowSpaceWarningSizeThreshold, diagnostics)
@@ -558,6 +571,7 @@ func readDiskSpaceUsageMonitorProviderResponseDefault(ctx context.Context, r *cl
 func readSystemInfoMonitorProviderResponseDefault(ctx context.Context, r *client.SystemInfoMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("system-info")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -568,6 +582,7 @@ func readSystemInfoMonitorProviderResponseDefault(ctx context.Context, r *client
 func readClientConnectionMonitorProviderResponseDefault(ctx context.Context, r *client.ClientConnectionMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-connection")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -578,6 +593,7 @@ func readClientConnectionMonitorProviderResponseDefault(ctx context.Context, r *
 func readThirdPartyMonitorProviderResponse(ctx context.Context, r *client.ThirdPartyMonitorProviderResponse, state *monitorProviderResourceModel, expectedValues *monitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -590,6 +606,7 @@ func readThirdPartyMonitorProviderResponse(ctx context.Context, r *client.ThirdP
 func readThirdPartyMonitorProviderResponseDefault(ctx context.Context, r *client.ThirdPartyMonitorProviderResponse, state *defaultMonitorProviderResourceModel, expectedValues *defaultMonitorProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -636,7 +653,7 @@ func createMonitorProviderOperationsDefault(plan defaultMonitorProviderResourceM
 
 // Create a encryption-settings-database-accessibility monitor-provider
 func (r *monitorProviderResource) CreateEncryptionSettingsDatabaseAccessibilityMonitorProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitorProviderResourceModel) (*monitorProviderResourceModel, error) {
-	addRequest := client.NewAddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddEncryptionSettingsDatabaseAccessibilityMonitorProviderRequest(plan.Name.ValueString(),
 		[]client.EnumencryptionSettingsDatabaseAccessibilityMonitorProviderSchemaUrn{client.ENUMENCRYPTIONSETTINGSDATABASEACCESSIBILITYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERENCRYPTION_SETTINGS_DATABASE_ACCESSIBILITY},
 		plan.Enabled.ValueBool())
 	err := addOptionalEncryptionSettingsDatabaseAccessibilityMonitorProviderFields(ctx, addRequest, plan)
@@ -674,7 +691,7 @@ func (r *monitorProviderResource) CreateEncryptionSettingsDatabaseAccessibilityM
 
 // Create a third-party monitor-provider
 func (r *monitorProviderResource) CreateThirdPartyMonitorProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitorProviderResourceModel) (*monitorProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyMonitorProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyMonitorProviderRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyMonitorProviderSchemaUrn{client.ENUMTHIRDPARTYMONITORPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITOR_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -761,7 +778,7 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
 		return
@@ -816,7 +833,7 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createMonitorProviderOperationsDefault(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -897,7 +914,7 @@ func (r *monitorProviderResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
 		return
@@ -932,7 +949,7 @@ func (r *defaultMonitorProviderResource) Read(ctx context.Context, req resource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
 		return
@@ -998,7 +1015,7 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 	var state monitorProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMonitorProviderOperations(plan, state)
@@ -1052,7 +1069,7 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 	var state defaultMonitorProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.MonitorProviderApi.UpdateMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMonitorProviderOperationsDefault(plan, state)
@@ -1143,7 +1160,7 @@ func (r *monitorProviderResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	httpResp, err := r.apiClient.MonitorProviderApi.DeleteMonitorProviderExecute(r.apiClient.MonitorProviderApi.DeleteMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Monitor Provider", err, httpResp)
 		return
@@ -1159,6 +1176,6 @@ func (r *defaultMonitorProviderResource) ImportState(ctx context.Context, req re
 }
 
 func importMonitorProvider(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

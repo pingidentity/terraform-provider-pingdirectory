@@ -80,7 +80,7 @@ func testAccDelegatedAdminResourceRightsResource(resourceName string, resourceMo
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[4]s" {
   type                        = "user"
-  id                          = "%[4]s"
+  name                        = "%[4]s"
   enabled                     = true
   resource_endpoint           = "userRestResourceDelegatedAdminResourceRightsTest"
   structural_ldap_objectclass = "inetOrgPerson"
@@ -88,7 +88,7 @@ resource "pingdirectory_rest_resource_type" "%[4]s" {
 }
 
 resource "pingdirectory_delegated_admin_rights" "%[2]s" {
-  id            = "%[2]s"
+  name          = "%[2]s"
   enabled       = true
   admin_user_dn = "cn=admin-users,dc=test,dc=com"
 }

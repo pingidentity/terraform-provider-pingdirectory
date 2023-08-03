@@ -87,6 +87,7 @@ func (r *defaultExternalServerResource) Configure(_ context.Context, req resourc
 
 type externalServerResourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Name                                   types.String `tfsdk:"name"`
 	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
@@ -517,9 +518,9 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -1893,6 +1894,7 @@ func populateExternalServerUnknownValues(ctx context.Context, model *externalSer
 func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.SmtpSecurity = internaltypes.StringTypeOrNil(
@@ -1912,6 +1914,7 @@ func readSmtpExternalServerResponse(ctx context.Context, r *client.SmtpExternalS
 func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("nokia-ds")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -1952,6 +1955,7 @@ func readNokiaDsExternalServerResponse(ctx context.Context, r *client.NokiaDsExt
 func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.PingIdentityDsExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-identity-ds")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -1992,6 +1996,7 @@ func readPingIdentityDsExternalServerResponse(ctx context.Context, r *client.Pin
 func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.ActiveDirectoryExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("active-directory")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BindDN = internaltypes.StringTypeOrNil(r.BindDN, internaltypes.IsEmptyString(expectedValues.BindDN))
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -2031,6 +2036,7 @@ func readActiveDirectoryExternalServerResponse(ctx context.Context, r *client.Ac
 func readJdbcExternalServerResponse(ctx context.Context, r *client.JdbcExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jdbc")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.JdbcDriverType = types.StringValue(r.JdbcDriverType.String())
 	state.JdbcDriverURL = internaltypes.StringTypeOrNil(r.JdbcDriverURL, internaltypes.IsEmptyString(expectedValues.JdbcDriverURL))
 	state.DatabaseName = internaltypes.StringTypeOrNil(r.DatabaseName, internaltypes.IsEmptyString(expectedValues.DatabaseName))
@@ -2054,6 +2060,7 @@ func readJdbcExternalServerResponse(ctx context.Context, r *client.JdbcExternalS
 func readSyslogExternalServerResponse(ctx context.Context, r *client.SyslogExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = internaltypes.Int64TypeOrNil(r.ServerPort)
 	state.TransportMechanism = types.StringValue(r.TransportMechanism.String())
@@ -2073,6 +2080,7 @@ func readSyslogExternalServerResponse(ctx context.Context, r *client.SyslogExter
 func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *client.PingIdentityProxyServerExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-identity-proxy-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -2113,6 +2121,7 @@ func readPingIdentityProxyServerExternalServerResponse(ctx context.Context, r *c
 func readHttpProxyExternalServerResponse(ctx context.Context, r *client.HttpProxyExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http-proxy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.BasicAuthenticationUsername = internaltypes.StringTypeOrNil(r.BasicAuthenticationUsername, internaltypes.IsEmptyString(expectedValues.BasicAuthenticationUsername))
@@ -2126,6 +2135,7 @@ func readHttpProxyExternalServerResponse(ctx context.Context, r *client.HttpProx
 func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.NokiaProxyServerExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("nokia-proxy-server")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VerifyCredentialsMethod = types.StringValue(r.VerifyCredentialsMethod.String())
 	state.UseAdministrativeOperationControl = internaltypes.BoolTypeOrNil(r.UseAdministrativeOperationControl)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
@@ -2166,6 +2176,7 @@ func readNokiaProxyServerExternalServerResponse(ctx context.Context, r *client.N
 func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("opendj")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
@@ -2205,6 +2216,7 @@ func readOpendjExternalServerResponse(ctx context.Context, r *client.OpendjExter
 func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
@@ -2244,6 +2256,7 @@ func readLdapExternalServerResponse(ctx context.Context, r *client.LdapExternalS
 func readPingOneHttpExternalServerResponse(ctx context.Context, r *client.PingOneHttpExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-one-http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerPingOneHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
 	state.TrustManagerProvider = internaltypes.StringTypeOrNil(r.TrustManagerProvider, internaltypes.IsEmptyString(expectedValues.TrustManagerProvider))
@@ -2262,6 +2275,7 @@ func readPingOneHttpExternalServerResponse(ctx context.Context, r *client.PingOn
 func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("http")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BaseURL = types.StringValue(r.BaseURL)
 	state.HostnameVerificationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerHttpHostnameVerificationMethodProp(r.HostnameVerificationMethod), internaltypes.IsEmptyString(expectedValues.HostnameVerificationMethod))
@@ -2283,6 +2297,7 @@ func readHttpExternalServerResponse(ctx context.Context, r *client.HttpExternalS
 func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *client.OracleUnifiedDirectoryExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("oracle-unified-directory")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.Location = internaltypes.StringTypeOrNil(r.Location, internaltypes.IsEmptyString(expectedValues.Location))
@@ -2322,6 +2337,7 @@ func readOracleUnifiedDirectoryExternalServerResponse(ctx context.Context, r *cl
 func readConjurExternalServerResponse(ctx context.Context, r *client.ConjurExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurServerBaseURI = internaltypes.GetStringSet(r.ConjurServerBaseURI)
 	state.ConjurAuthenticationMethod = types.StringValue(r.ConjurAuthenticationMethod)
 	state.ConjurAccountName = types.StringValue(r.ConjurAccountName)
@@ -2336,6 +2352,7 @@ func readConjurExternalServerResponse(ctx context.Context, r *client.ConjurExter
 func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAwsExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-aws")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
 	state.AuthenticationMethod = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumexternalServerAmazonAwsAuthenticationMethodProp(r.AuthenticationMethod), internaltypes.IsEmptyString(expectedValues.AuthenticationMethod))
@@ -2350,6 +2367,7 @@ func readAmazonAwsExternalServerResponse(ctx context.Context, r *client.AmazonAw
 func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExternalServerResponse, state *externalServerResourceModel, expectedValues *externalServerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultServerBaseURI = internaltypes.GetStringSet(r.VaultServerBaseURI)
 	state.VaultAuthenticationMethod = types.StringValue(r.VaultAuthenticationMethod)
 	state.TrustStoreFile = internaltypes.StringTypeOrNil(r.TrustStoreFile, internaltypes.IsEmptyString(expectedValues.TrustStoreFile))
@@ -2433,7 +2451,7 @@ func createExternalServerOperations(plan externalServerResourceModel, state exte
 
 // Create a smtp external-server
 func (r *externalServerResource) CreateSmtpExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddSmtpExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSmtpExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumsmtpExternalServerSchemaUrn{client.ENUMSMTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSMTP},
 		plan.ServerHostName.ValueString())
 	err := addOptionalSmtpExternalServerFields(ctx, addRequest, plan)
@@ -2471,7 +2489,7 @@ func (r *externalServerResource) CreateSmtpExternalServer(ctx context.Context, r
 
 // Create a nokia-ds external-server
 func (r *externalServerResource) CreateNokiaDsExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddNokiaDsExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddNokiaDsExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumnokiaDsExternalServerSchemaUrn{client.ENUMNOKIADSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERNOKIA_DS},
 		plan.ServerHostName.ValueString())
 	err := addOptionalNokiaDsExternalServerFields(ctx, addRequest, plan)
@@ -2509,7 +2527,7 @@ func (r *externalServerResource) CreateNokiaDsExternalServer(ctx context.Context
 
 // Create a ping-identity-ds external-server
 func (r *externalServerResource) CreatePingIdentityDsExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddPingIdentityDsExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPingIdentityDsExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumpingIdentityDsExternalServerSchemaUrn{client.ENUMPINGIDENTITYDSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_IDENTITY_DS},
 		plan.ServerHostName.ValueString())
 	err := addOptionalPingIdentityDsExternalServerFields(ctx, addRequest, plan)
@@ -2547,7 +2565,7 @@ func (r *externalServerResource) CreatePingIdentityDsExternalServer(ctx context.
 
 // Create a active-directory external-server
 func (r *externalServerResource) CreateActiveDirectoryExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddActiveDirectoryExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddActiveDirectoryExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumactiveDirectoryExternalServerSchemaUrn{client.ENUMACTIVEDIRECTORYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERACTIVE_DIRECTORY},
 		plan.ServerHostName.ValueString())
 	err := addOptionalActiveDirectoryExternalServerFields(ctx, addRequest, plan)
@@ -2590,7 +2608,7 @@ func (r *externalServerResource) CreateJdbcExternalServer(ctx context.Context, r
 		resp.Diagnostics.AddError("Failed to parse enum value for JdbcDriverType", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddJdbcExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddJdbcExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumjdbcExternalServerSchemaUrn{client.ENUMJDBCEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERJDBC},
 		*jdbcDriverType)
 	err = addOptionalJdbcExternalServerFields(ctx, addRequest, plan)
@@ -2633,7 +2651,7 @@ func (r *externalServerResource) CreateSyslogExternalServer(ctx context.Context,
 		resp.Diagnostics.AddError("Failed to parse enum value for TransportMechanism", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddSyslogExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSyslogExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumsyslogExternalServerSchemaUrn{client.ENUMSYSLOGEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERSYSLOG},
 		plan.ServerHostName.ValueString(),
 		*transportMechanism)
@@ -2672,7 +2690,7 @@ func (r *externalServerResource) CreateSyslogExternalServer(ctx context.Context,
 
 // Create a ping-identity-proxy-server external-server
 func (r *externalServerResource) CreatePingIdentityProxyServerExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddPingIdentityProxyServerExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPingIdentityProxyServerExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumpingIdentityProxyServerExternalServerSchemaUrn{client.ENUMPINGIDENTITYPROXYSERVEREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_IDENTITY_PROXY_SERVER},
 		plan.ServerHostName.ValueString())
 	err := addOptionalPingIdentityProxyServerExternalServerFields(ctx, addRequest, plan)
@@ -2710,7 +2728,7 @@ func (r *externalServerResource) CreatePingIdentityProxyServerExternalServer(ctx
 
 // Create a http-proxy external-server
 func (r *externalServerResource) CreateHttpProxyExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddHttpProxyExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddHttpProxyExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumhttpProxyExternalServerSchemaUrn{client.ENUMHTTPPROXYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP_PROXY},
 		plan.ServerHostName.ValueString(),
 		plan.ServerPort.ValueInt64())
@@ -2749,7 +2767,7 @@ func (r *externalServerResource) CreateHttpProxyExternalServer(ctx context.Conte
 
 // Create a nokia-proxy-server external-server
 func (r *externalServerResource) CreateNokiaProxyServerExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddNokiaProxyServerExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddNokiaProxyServerExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumnokiaProxyServerExternalServerSchemaUrn{client.ENUMNOKIAPROXYSERVEREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERNOKIA_PROXY_SERVER},
 		plan.ServerHostName.ValueString())
 	err := addOptionalNokiaProxyServerExternalServerFields(ctx, addRequest, plan)
@@ -2787,7 +2805,7 @@ func (r *externalServerResource) CreateNokiaProxyServerExternalServer(ctx contex
 
 // Create a opendj external-server
 func (r *externalServerResource) CreateOpendjExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddOpendjExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddOpendjExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumopendjExternalServerSchemaUrn{client.ENUMOPENDJEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVEROPENDJ},
 		plan.ServerHostName.ValueString())
 	err := addOptionalOpendjExternalServerFields(ctx, addRequest, plan)
@@ -2825,7 +2843,7 @@ func (r *externalServerResource) CreateOpendjExternalServer(ctx context.Context,
 
 // Create a ldap external-server
 func (r *externalServerResource) CreateLdapExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddLdapExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLdapExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumldapExternalServerSchemaUrn{client.ENUMLDAPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERLDAP},
 		plan.ServerHostName.ValueString())
 	err := addOptionalLdapExternalServerFields(ctx, addRequest, plan)
@@ -2863,7 +2881,7 @@ func (r *externalServerResource) CreateLdapExternalServer(ctx context.Context, r
 
 // Create a ping-one-http external-server
 func (r *externalServerResource) CreatePingOneHttpExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddPingOneHttpExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPingOneHttpExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumpingOneHttpExternalServerSchemaUrn{client.ENUMPINGONEHTTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERPING_ONE_HTTP})
 	err := addOptionalPingOneHttpExternalServerFields(ctx, addRequest, plan)
 	if err != nil {
@@ -2900,7 +2918,7 @@ func (r *externalServerResource) CreatePingOneHttpExternalServer(ctx context.Con
 
 // Create a http external-server
 func (r *externalServerResource) CreateHttpExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddHttpExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddHttpExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumhttpExternalServerSchemaUrn{client.ENUMHTTPEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERHTTP},
 		plan.BaseURL.ValueString())
 	err := addOptionalHttpExternalServerFields(ctx, addRequest, plan)
@@ -2938,7 +2956,7 @@ func (r *externalServerResource) CreateHttpExternalServer(ctx context.Context, r
 
 // Create a oracle-unified-directory external-server
 func (r *externalServerResource) CreateOracleUnifiedDirectoryExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddOracleUnifiedDirectoryExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddOracleUnifiedDirectoryExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumoracleUnifiedDirectoryExternalServerSchemaUrn{client.ENUMORACLEUNIFIEDDIRECTORYEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERORACLE_UNIFIED_DIRECTORY},
 		plan.ServerHostName.ValueString())
 	err := addOptionalOracleUnifiedDirectoryExternalServerFields(ctx, addRequest, plan)
@@ -2978,7 +2996,7 @@ func (r *externalServerResource) CreateOracleUnifiedDirectoryExternalServer(ctx 
 func (r *externalServerResource) CreateConjurExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
 	var ConjurServerBaseURISlice []string
 	plan.ConjurServerBaseURI.ElementsAs(ctx, &ConjurServerBaseURISlice, false)
-	addRequest := client.NewAddConjurExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConjurExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumconjurExternalServerSchemaUrn{client.ENUMCONJUREXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERCONJUR},
 		ConjurServerBaseURISlice,
 		plan.ConjurAuthenticationMethod.ValueString(),
@@ -3018,7 +3036,7 @@ func (r *externalServerResource) CreateConjurExternalServer(ctx context.Context,
 
 // Create a amazon-aws external-server
 func (r *externalServerResource) CreateAmazonAwsExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
-	addRequest := client.NewAddAmazonAwsExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAmazonAwsExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumamazonAwsExternalServerSchemaUrn{client.ENUMAMAZONAWSEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERAMAZON_AWS},
 		plan.AwsRegionName.ValueString())
 	err := addOptionalAmazonAwsExternalServerFields(ctx, addRequest, plan)
@@ -3058,7 +3076,7 @@ func (r *externalServerResource) CreateAmazonAwsExternalServer(ctx context.Conte
 func (r *externalServerResource) CreateVaultExternalServer(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan externalServerResourceModel) (*externalServerResourceModel, error) {
 	var VaultServerBaseURISlice []string
 	plan.VaultServerBaseURI.ElementsAs(ctx, &VaultServerBaseURISlice, false)
-	addRequest := client.NewAddVaultExternalServerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddVaultExternalServerRequest(plan.Name.ValueString(),
 		[]client.EnumvaultExternalServerSchemaUrn{client.ENUMVAULTEXTERNALSERVERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0EXTERNAL_SERVERVAULT},
 		VaultServerBaseURISlice,
 		plan.VaultAuthenticationMethod.ValueString())
@@ -3236,7 +3254,7 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 	}
 
 	readResponse, httpResp, err := r.apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
 		return
@@ -3303,7 +3321,7 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ExternalServerApi.UpdateExternalServer(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createExternalServerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -3405,7 +3423,7 @@ func readExternalServer(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	readResponse, httpResp, err := apiClient.ExternalServerApi.GetExternalServer(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the External Server", err, httpResp)
 		return
@@ -3497,7 +3515,7 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 	var state externalServerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ExternalServerApi.UpdateExternalServer(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createExternalServerOperations(plan, state)
@@ -3601,7 +3619,7 @@ func (r *externalServerResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	httpResp, err := r.apiClient.ExternalServerApi.DeleteExternalServerExecute(r.apiClient.ExternalServerApi.DeleteExternalServer(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the External Server", err, httpResp)
 		return
@@ -3617,6 +3635,6 @@ func (r *defaultExternalServerResource) ImportState(ctx context.Context, req res
 }
 
 func importExternalServer(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

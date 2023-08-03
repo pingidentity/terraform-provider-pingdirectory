@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_vault_authentication_method" "myVaultAuthenticationMethod" {
-  id                 = "MyVaultAuthenticationMethod"
+  name               = "MyVaultAuthenticationMethod"
   type               = "static-token"
   vault_access_token = "myExampleToken"
 }

@@ -84,6 +84,7 @@ func (r *defaultIdentityMapperResource) Configure(_ context.Context, req resourc
 
 type identityMapperResourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
 	RequiredActions           types.Set    `tfsdk:"required_actions"`
@@ -221,9 +222,9 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -403,6 +404,7 @@ func populateIdentityMapperUnknownValues(ctx context.Context, model *identityMap
 func readExactMatchIdentityMapperResponse(ctx context.Context, r *client.ExactMatchIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exact-match")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchAttribute = internaltypes.GetStringSet(r.MatchAttribute)
 	state.MatchBaseDN = internaltypes.GetStringSet(r.MatchBaseDN)
 	state.MatchFilter = internaltypes.StringTypeOrNil(r.MatchFilter, internaltypes.IsEmptyString(expectedValues.MatchFilter))
@@ -416,6 +418,7 @@ func readExactMatchIdentityMapperResponse(ctx context.Context, r *client.ExactMa
 func readGroovyScriptedIdentityMapperResponse(ctx context.Context, r *client.GroovyScriptedIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -428,6 +431,7 @@ func readGroovyScriptedIdentityMapperResponse(ctx context.Context, r *client.Gro
 func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.RegularExpressionIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("regular-expression")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchAttribute = internaltypes.GetStringSet(r.MatchAttribute)
 	state.MatchBaseDN = internaltypes.GetStringSet(r.MatchBaseDN)
 	state.MatchFilter = internaltypes.StringTypeOrNil(r.MatchFilter, internaltypes.IsEmptyString(expectedValues.MatchFilter))
@@ -443,6 +447,7 @@ func readRegularExpressionIdentityMapperResponse(ctx context.Context, r *client.
 func readAggregateIdentityMapperResponse(ctx context.Context, r *client.AggregateIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedIdentityMapper = internaltypes.GetStringSet(r.AllIncludedIdentityMapper)
 	state.AnyIncludedIdentityMapper = internaltypes.GetStringSet(r.AnyIncludedIdentityMapper)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -455,6 +460,7 @@ func readAggregateIdentityMapperResponse(ctx context.Context, r *client.Aggregat
 func readThirdPartyIdentityMapperResponse(ctx context.Context, r *client.ThirdPartyIdentityMapperResponse, state *identityMapperResourceModel, expectedValues *identityMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -484,7 +490,7 @@ func createIdentityMapperOperations(plan identityMapperResourceModel, state iden
 
 // Create a exact-match identity-mapper
 func (r *identityMapperResource) CreateExactMatchIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddExactMatchIdentityMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddExactMatchIdentityMapperRequest(plan.Name.ValueString(),
 		[]client.EnumexactMatchIdentityMapperSchemaUrn{client.ENUMEXACTMATCHIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPEREXACT_MATCH},
 		plan.Enabled.ValueBool())
 	addOptionalExactMatchIdentityMapperFields(ctx, addRequest, plan)
@@ -518,7 +524,7 @@ func (r *identityMapperResource) CreateExactMatchIdentityMapper(ctx context.Cont
 
 // Create a groovy-scripted identity-mapper
 func (r *identityMapperResource) CreateGroovyScriptedIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedIdentityMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedIdentityMapperRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedIdentityMapperSchemaUrn{client.ENUMGROOVYSCRIPTEDIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -553,7 +559,7 @@ func (r *identityMapperResource) CreateGroovyScriptedIdentityMapper(ctx context.
 
 // Create a regular-expression identity-mapper
 func (r *identityMapperResource) CreateRegularExpressionIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddRegularExpressionIdentityMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddRegularExpressionIdentityMapperRequest(plan.Name.ValueString(),
 		[]client.EnumregularExpressionIdentityMapperSchemaUrn{client.ENUMREGULAREXPRESSIONIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERREGULAR_EXPRESSION},
 		plan.MatchPattern.ValueString(),
 		plan.Enabled.ValueBool())
@@ -588,7 +594,7 @@ func (r *identityMapperResource) CreateRegularExpressionIdentityMapper(ctx conte
 
 // Create a aggregate identity-mapper
 func (r *identityMapperResource) CreateAggregateIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddAggregateIdentityMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAggregateIdentityMapperRequest(plan.Name.ValueString(),
 		[]client.EnumaggregateIdentityMapperSchemaUrn{client.ENUMAGGREGATEIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERAGGREGATE},
 		plan.Enabled.ValueBool())
 	addOptionalAggregateIdentityMapperFields(ctx, addRequest, plan)
@@ -622,7 +628,7 @@ func (r *identityMapperResource) CreateAggregateIdentityMapper(ctx context.Conte
 
 // Create a third-party identity-mapper
 func (r *identityMapperResource) CreateThirdPartyIdentityMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan identityMapperResourceModel) (*identityMapperResourceModel, error) {
-	addRequest := client.NewAddThirdPartyIdentityMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyIdentityMapperRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyIdentityMapperSchemaUrn{client.ENUMTHIRDPARTYIDENTITYMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0IDENTITY_MAPPERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -723,7 +729,7 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 	}
 
 	readResponse, httpResp, err := r.apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
 		return
@@ -754,7 +760,7 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.IdentityMapperApi.UpdateIdentityMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createIdentityMapperOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -819,7 +825,7 @@ func readIdentityMapper(ctx context.Context, req resource.ReadRequest, resp *res
 	}
 
 	readResponse, httpResp, err := apiClient.IdentityMapperApi.GetIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Identity Mapper", err, httpResp)
 		return
@@ -875,7 +881,7 @@ func updateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp 
 	var state identityMapperResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.IdentityMapperApi.UpdateIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createIdentityMapperOperations(plan, state)
@@ -942,7 +948,7 @@ func (r *identityMapperResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	httpResp, err := r.apiClient.IdentityMapperApi.DeleteIdentityMapperExecute(r.apiClient.IdentityMapperApi.DeleteIdentityMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Identity Mapper", err, httpResp)
 		return
@@ -958,6 +964,6 @@ func (r *defaultIdentityMapperResource) ImportState(ctx context.Context, req res
 }
 
 func importIdentityMapper(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_password_policy" "myPasswordPolicy" {
-  id                              = "MyPasswordPolicy"
+  name                            = "MyPasswordPolicy"
   password_attribute              = "userPassword"
   default_password_storage_scheme = ["Blowfish", "Salted SHA-384", "Salted SHA-512"]
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_password_policy" "myPasswordPolicy" {
 ### Required
 
 - `default_password_storage_scheme` (Set of String) Specifies the names of the password storage schemes that are used to encode clear-text passwords for this password policy.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `password_attribute` (String) Specifies the attribute type used to hold user passwords.
 
 ### Optional
@@ -105,6 +105,7 @@ resource "pingdirectory_password_policy" "myPasswordPolicy" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -123,7 +124,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "passwordPolicyId" should be the id of the Password Policy to be imported
+# "passwordPolicyId" should be the name of the Password Policy to be imported
 terraform import pingdirectory_password_policy.myPasswordPolicy passwordPolicyId
 ```
 

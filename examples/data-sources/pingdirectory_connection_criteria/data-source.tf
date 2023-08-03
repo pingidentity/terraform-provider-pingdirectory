@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_connection_criteria" "myConnectionCriteria" {
-  id = "MyConnectionCriteria"
+  name = "MyConnectionCriteria"
 }

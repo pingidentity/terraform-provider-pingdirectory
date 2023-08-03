@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_key_manager_provider" "myKeyManagerProvider" {
-  id = "MyKeyManagerProvider"
+  name = "MyKeyManagerProvider"
 }

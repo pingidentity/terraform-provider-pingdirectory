@@ -84,6 +84,7 @@ func (r *defaultFailureLockoutActionResource) Configure(_ context.Context, req r
 
 type failureLockoutActionResourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	LastUpdated                       types.String `tfsdk:"last_updated"`
 	Notifications                     types.Set    `tfsdk:"notifications"`
 	RequiredActions                   types.Set    `tfsdk:"required_actions"`
@@ -150,9 +151,9 @@ func failureLockoutActionSchema(ctx context.Context, req resource.SchemaRequest,
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -219,6 +220,7 @@ func addOptionalLockAccountFailureLockoutActionFields(ctx context.Context, addRe
 func readDelayBindResponseFailureLockoutActionResponse(ctx context.Context, r *client.DelayBindResponseFailureLockoutActionResponse, state *failureLockoutActionResourceModel, expectedValues *failureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("delay-bind-response")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Delay = types.StringValue(r.Delay)
 	config.CheckMismatchedPDFormattedAttributes("delay",
 		expectedValues.Delay, state.Delay, diagnostics)
@@ -232,6 +234,7 @@ func readDelayBindResponseFailureLockoutActionResponse(ctx context.Context, r *c
 func readNoOperationFailureLockoutActionResponse(ctx context.Context, r *client.NoOperationFailureLockoutActionResponse, state *failureLockoutActionResourceModel, expectedValues *failureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("no-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.GenerateAccountStatusNotification = internaltypes.BoolTypeOrNil(r.GenerateAccountStatusNotification)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -241,6 +244,7 @@ func readNoOperationFailureLockoutActionResponse(ctx context.Context, r *client.
 func readLockAccountFailureLockoutActionResponse(ctx context.Context, r *client.LockAccountFailureLockoutActionResponse, state *failureLockoutActionResourceModel, expectedValues *failureLockoutActionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("lock-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -257,7 +261,7 @@ func createFailureLockoutActionOperations(plan failureLockoutActionResourceModel
 
 // Create a delay-bind-response failure-lockout-action
 func (r *failureLockoutActionResource) CreateDelayBindResponseFailureLockoutAction(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan failureLockoutActionResourceModel) (*failureLockoutActionResourceModel, error) {
-	addRequest := client.NewAddDelayBindResponseFailureLockoutActionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDelayBindResponseFailureLockoutActionRequest(plan.Name.ValueString(),
 		[]client.EnumdelayBindResponseFailureLockoutActionSchemaUrn{client.ENUMDELAYBINDRESPONSEFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONDELAY_BIND_RESPONSE},
 		plan.Delay.ValueString())
 	addOptionalDelayBindResponseFailureLockoutActionFields(ctx, addRequest, plan)
@@ -291,7 +295,7 @@ func (r *failureLockoutActionResource) CreateDelayBindResponseFailureLockoutActi
 
 // Create a no-operation failure-lockout-action
 func (r *failureLockoutActionResource) CreateNoOperationFailureLockoutAction(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan failureLockoutActionResourceModel) (*failureLockoutActionResourceModel, error) {
-	addRequest := client.NewAddNoOperationFailureLockoutActionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddNoOperationFailureLockoutActionRequest(plan.Name.ValueString(),
 		[]client.EnumnoOperationFailureLockoutActionSchemaUrn{client.ENUMNOOPERATIONFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONNO_OPERATION})
 	addOptionalNoOperationFailureLockoutActionFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -324,7 +328,7 @@ func (r *failureLockoutActionResource) CreateNoOperationFailureLockoutAction(ctx
 
 // Create a lock-account failure-lockout-action
 func (r *failureLockoutActionResource) CreateLockAccountFailureLockoutAction(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan failureLockoutActionResourceModel) (*failureLockoutActionResourceModel, error) {
-	addRequest := client.NewAddLockAccountFailureLockoutActionRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddLockAccountFailureLockoutActionRequest(plan.Name.ValueString(),
 		[]client.EnumlockAccountFailureLockoutActionSchemaUrn{client.ENUMLOCKACCOUNTFAILURELOCKOUTACTIONSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0FAILURE_LOCKOUT_ACTIONLOCK_ACCOUNT})
 	addOptionalLockAccountFailureLockoutActionFields(ctx, addRequest, plan)
 	// Log request JSON
@@ -411,7 +415,7 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
 		return
@@ -436,7 +440,7 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createFailureLockoutActionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -495,7 +499,7 @@ func readFailureLockoutAction(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := apiClient.FailureLockoutActionApi.GetFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Failure Lockout Action", err, httpResp)
 		return
@@ -545,7 +549,7 @@ func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest,
 	var state failureLockoutActionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.FailureLockoutActionApi.UpdateFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createFailureLockoutActionOperations(plan, state)
@@ -606,7 +610,7 @@ func (r *failureLockoutActionResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.FailureLockoutActionApi.DeleteFailureLockoutActionExecute(r.apiClient.FailureLockoutActionApi.DeleteFailureLockoutAction(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Failure Lockout Action", err, httpResp)
 		return
@@ -622,6 +626,6 @@ func (r *defaultFailureLockoutActionResource) ImportState(ctx context.Context, r
 }
 
 func importFailureLockoutAction(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -89,14 +89,14 @@ resource "pingdirectory_scim_schema" "myScimSchema" {
 }
 
 resource "pingdirectory_scim_subattribute" "%[1]s" {
-  id                  = "%[2]s"
+  name                = "%[2]s"
   scim_attribute_name = pingdirectory_scim_attribute.%[3]s.name
   scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
   case_exact          = %[5]t
 }
 
 data "pingdirectory_scim_subattribute" "%[1]s" {
-  id                  = "%[2]s"
+  name                = "%[2]s"
   scim_attribute_name = "%[3]s"
   scim_schema_name    = "%[4]s"
   depends_on = [

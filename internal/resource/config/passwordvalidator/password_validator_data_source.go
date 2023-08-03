@@ -48,6 +48,7 @@ func (r *passwordValidatorDataSource) Configure(_ context.Context, req datasourc
 
 type passwordValidatorDataSourceModel struct {
 	Id                                             types.String `tfsdk:"id"`
+	Name                                           types.String `tfsdk:"name"`
 	Type                                           types.String `tfsdk:"type"`
 	ExtensionClass                                 types.String `tfsdk:"extension_class"`
 	ExtensionArgument                              types.Set    `tfsdk:"extension_argument"`
@@ -99,13 +100,9 @@ type passwordValidatorDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Password Validator.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Password Validator resource. Options are ['character-set', 'similarity-based', 'attribute-value', 'custom', 'repeated-characters', 'dictionary', 'haystack', 'utf-8', 'groovy-scripted', 'pwned-passwords', 'disallowed-characters', 'length-based', 'regular-expression', 'unique-characters', 'third-party']",
 				Required:    false,
@@ -396,12 +393,15 @@ func (r *passwordValidatorDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a CharacterSetPasswordValidatorResponse object into the model struct
 func readCharacterSetPasswordValidatorResponseDataSource(ctx context.Context, r *client.CharacterSetPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("character-set")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CharacterSet = internaltypes.GetStringSet(r.CharacterSet)
 	state.AllowUnclassifiedCharacters = types.BoolValue(r.AllowUnclassifiedCharacters)
 	state.MinimumRequiredCharacterSets = internaltypes.Int64TypeOrNil(r.MinimumRequiredCharacterSets)
@@ -415,6 +415,7 @@ func readCharacterSetPasswordValidatorResponseDataSource(ctx context.Context, r 
 func readSimilarityBasedPasswordValidatorResponseDataSource(ctx context.Context, r *client.SimilarityBasedPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("similarity-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MinPasswordDifference = types.Int64Value(r.MinPasswordDifference)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -426,6 +427,7 @@ func readSimilarityBasedPasswordValidatorResponseDataSource(ctx context.Context,
 func readAttributeValuePasswordValidatorResponseDataSource(ctx context.Context, r *client.AttributeValuePasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-value")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchAttribute = internaltypes.GetStringSet(r.MatchAttribute)
 	state.TestPasswordSubstringOfAttributeValue = internaltypes.BoolTypeOrNil(r.TestPasswordSubstringOfAttributeValue)
 	state.TestAttributeValueSubstringOfPassword = internaltypes.BoolTypeOrNil(r.TestAttributeValueSubstringOfPassword)
@@ -441,6 +443,7 @@ func readAttributeValuePasswordValidatorResponseDataSource(ctx context.Context, 
 func readCustomPasswordValidatorResponseDataSource(ctx context.Context, r *client.CustomPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ValidatorRequirementDescription = internaltypes.StringTypeOrNil(r.ValidatorRequirementDescription, false)
@@ -451,6 +454,7 @@ func readCustomPasswordValidatorResponseDataSource(ctx context.Context, r *clien
 func readRepeatedCharactersPasswordValidatorResponseDataSource(ctx context.Context, r *client.RepeatedCharactersPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("repeated-characters")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxConsecutiveLength = types.Int64Value(r.MaxConsecutiveLength)
 	state.CaseSensitiveValidation = types.BoolValue(r.CaseSensitiveValidation)
 	state.CharacterSet = internaltypes.GetStringSet(r.CharacterSet)
@@ -464,6 +468,7 @@ func readRepeatedCharactersPasswordValidatorResponseDataSource(ctx context.Conte
 func readDictionaryPasswordValidatorResponseDataSource(ctx context.Context, r *client.DictionaryPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dictionary")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DictionaryFile = types.StringValue(r.DictionaryFile)
 	state.CaseSensitiveValidation = types.BoolValue(r.CaseSensitiveValidation)
 	state.TestReversedPassword = types.BoolValue(r.TestReversedPassword)
@@ -482,6 +487,7 @@ func readDictionaryPasswordValidatorResponseDataSource(ctx context.Context, r *c
 func readHaystackPasswordValidatorResponseDataSource(ctx context.Context, r *client.HaystackPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("haystack")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AssumedPasswordGuessesPerSecond = types.StringValue(r.AssumedPasswordGuessesPerSecond)
 	state.MinimumAcceptableTimeToExhaustSearchSpace = types.StringValue(r.MinimumAcceptableTimeToExhaustSearchSpace)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -494,6 +500,7 @@ func readHaystackPasswordValidatorResponseDataSource(ctx context.Context, r *cli
 func readUtf8PasswordValidatorResponseDataSource(ctx context.Context, r *client.Utf8PasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("utf-8")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowNonAsciiCharacters = internaltypes.BoolTypeOrNil(r.AllowNonAsciiCharacters)
 	state.AllowUnknownCharacters = internaltypes.BoolTypeOrNil(r.AllowUnknownCharacters)
 	state.AllowedCharacterType = internaltypes.GetStringSet(
@@ -508,6 +515,7 @@ func readUtf8PasswordValidatorResponseDataSource(ctx context.Context, r *client.
 func readGroovyScriptedPasswordValidatorResponseDataSource(ctx context.Context, r *client.GroovyScriptedPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -520,6 +528,7 @@ func readGroovyScriptedPasswordValidatorResponseDataSource(ctx context.Context, 
 func readPwnedPasswordsPasswordValidatorResponseDataSource(ctx context.Context, r *client.PwnedPasswordsPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pwned-passwords")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PwnedPasswordsBaseURL = types.StringValue(r.PwnedPasswordsBaseURL)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
 	state.InvokeForAdd = types.BoolValue(r.InvokeForAdd)
@@ -538,6 +547,7 @@ func readPwnedPasswordsPasswordValidatorResponseDataSource(ctx context.Context, 
 func readDisallowedCharactersPasswordValidatorResponseDataSource(ctx context.Context, r *client.DisallowedCharactersPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("disallowed-characters")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DisallowedCharacters = internaltypes.StringTypeOrNil(r.DisallowedCharacters, false)
 	state.DisallowedLeadingCharacters = internaltypes.StringTypeOrNil(r.DisallowedLeadingCharacters, false)
 	state.DisallowedTrailingCharacters = internaltypes.StringTypeOrNil(r.DisallowedTrailingCharacters, false)
@@ -551,6 +561,7 @@ func readDisallowedCharactersPasswordValidatorResponseDataSource(ctx context.Con
 func readLengthBasedPasswordValidatorResponseDataSource(ctx context.Context, r *client.LengthBasedPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("length-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxPasswordLength = internaltypes.Int64TypeOrNil(r.MaxPasswordLength)
 	state.MinPasswordLength = internaltypes.Int64TypeOrNil(r.MinPasswordLength)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -563,6 +574,7 @@ func readLengthBasedPasswordValidatorResponseDataSource(ctx context.Context, r *
 func readRegularExpressionPasswordValidatorResponseDataSource(ctx context.Context, r *client.RegularExpressionPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("regular-expression")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MatchPattern = types.StringValue(r.MatchPattern)
 	state.MatchBehavior = types.StringValue(r.MatchBehavior.String())
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -575,6 +587,7 @@ func readRegularExpressionPasswordValidatorResponseDataSource(ctx context.Contex
 func readUniqueCharactersPasswordValidatorResponseDataSource(ctx context.Context, r *client.UniqueCharactersPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("unique-characters")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MinUniqueCharacters = types.Int64Value(r.MinUniqueCharacters)
 	state.CaseSensitiveValidation = types.BoolValue(r.CaseSensitiveValidation)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -587,6 +600,7 @@ func readUniqueCharactersPasswordValidatorResponseDataSource(ctx context.Context
 func readThirdPartyPasswordValidatorResponseDataSource(ctx context.Context, r *client.ThirdPartyPasswordValidatorResponse, state *passwordValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -606,7 +620,7 @@ func (r *passwordValidatorDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordValidatorApi.GetPasswordValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Validator", err, httpResp)
 		return

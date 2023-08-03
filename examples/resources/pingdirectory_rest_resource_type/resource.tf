@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_rest_resource_type" "myRestResourceType" {
-  id                          = "MyRestResourceType"
+  name                        = "MyRestResourceType"
   type                        = "user"
   enabled                     = true
   resource_endpoint           = "userRestResource"

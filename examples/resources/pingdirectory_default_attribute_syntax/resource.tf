@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_attribute_syntax" "myAttributeSyntax" {
-  id                      = "MyAttributeSyntax"
+  name                    = "MyAttributeSyntax"
   type                    = "attribute-type-description"
   enabled                 = false
   require_binary_transfer = true

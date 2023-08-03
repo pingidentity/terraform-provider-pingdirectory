@@ -48,6 +48,7 @@ func (r *httpServletCrossOriginPolicyDataSource) Configure(_ context.Context, re
 
 type httpServletCrossOriginPolicyDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
 	Description          types.String `tfsdk:"description"`
 	CorsAllowedMethods   types.Set    `tfsdk:"cors_allowed_methods"`
 	CorsAllowedOrigins   types.Set    `tfsdk:"cors_allowed_origins"`
@@ -59,13 +60,9 @@ type httpServletCrossOriginPolicyDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *httpServletCrossOriginPolicyDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Http Servlet Cross Origin Policy.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Cross Origin Policy",
 				Required:    false,
@@ -114,11 +111,14 @@ func (r *httpServletCrossOriginPolicyDataSource) Schema(ctx context.Context, req
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a HttpServletCrossOriginPolicyResponse object into the model struct
 func readHttpServletCrossOriginPolicyResponseDataSource(ctx context.Context, r *client.HttpServletCrossOriginPolicyResponse, state *httpServletCrossOriginPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.CorsAllowedMethods = internaltypes.GetStringSet(r.CorsAllowedMethods)
 	state.CorsAllowedOrigins = internaltypes.GetStringSet(r.CorsAllowedOrigins)
@@ -139,7 +139,7 @@ func (r *httpServletCrossOriginPolicyDataSource) Read(ctx context.Context, req d
 	}
 
 	readResponse, httpResp, err := r.apiClient.HttpServletCrossOriginPolicyApi.GetHttpServletCrossOriginPolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Http Servlet Cross Origin Policy", err, httpResp)
 		return

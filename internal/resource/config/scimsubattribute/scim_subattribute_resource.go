@@ -84,6 +84,7 @@ func (r *defaultScimSubattributeResource) Configure(_ context.Context, req resou
 
 type scimSubattributeResourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
@@ -201,9 +202,9 @@ func scimSubattributeSchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "scim_attribute_name", "scim_schema_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"scim_attribute_name", "scim_schema_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -262,6 +263,7 @@ func addOptionalScimSubattributeFields(ctx context.Context, addRequest *client.A
 // Read a ScimSubattributeResponse object into the model struct
 func readScimSubattributeResponse(ctx context.Context, r *client.ScimSubattributeResponse, state *scimSubattributeResourceModel, expectedValues *scimSubattributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Type = types.StringValue(r.Type.String())
 	state.Required = types.BoolValue(r.Required)
@@ -302,7 +304,7 @@ func createScimSubattributeOperations(plan scimSubattributeResourceModel, state 
 
 // Create a scim-subattribute scim-subattribute
 func (r *scimSubattributeResource) CreateScimSubattribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimSubattributeResourceModel) (*scimSubattributeResourceModel, error) {
-	addRequest := client.NewAddScimSubattributeRequest(plan.Id.ValueString())
+	addRequest := client.NewAddScimSubattributeRequest(plan.Name.ValueString())
 	err := addOptionalScimSubattributeFields(ctx, addRequest, plan)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to add optional properties to add request for Scim Subattribute", err.Error())
@@ -376,7 +378,7 @@ func (r *defaultScimSubattributeResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.ScimSubattributeApi.GetScimSubattribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimAttributeName.ValueString(), plan.ScimSchemaName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimAttributeName.ValueString(), plan.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Subattribute", err, httpResp)
 		return
@@ -393,7 +395,7 @@ func (r *defaultScimSubattributeResource) Create(ctx context.Context, req resour
 	readScimSubattributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ScimSubattributeApi.UpdateScimSubattribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimAttributeName.ValueString(), plan.ScimSchemaName.ValueString())
+	updateRequest := r.apiClient.ScimSubattributeApi.UpdateScimSubattribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimAttributeName.ValueString(), plan.ScimSchemaName.ValueString())
 	ops := createScimSubattributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -445,7 +447,7 @@ func readScimSubattribute(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	readResponse, httpResp, err := apiClient.ScimSubattributeApi.GetScimSubattribute(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Subattribute", err, httpResp)
 		return
@@ -487,7 +489,7 @@ func updateScimSubattribute(ctx context.Context, req resource.UpdateRequest, res
 	var state scimSubattributeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ScimSubattributeApi.UpdateScimSubattribute(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.ScimAttributeName.ValueString(), plan.ScimSchemaName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.ScimAttributeName.ValueString(), plan.ScimSchemaName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createScimSubattributeOperations(plan, state)
@@ -541,7 +543,7 @@ func (r *scimSubattributeResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.ScimSubattributeApi.DeleteScimSubattributeExecute(r.apiClient.ScimSubattributeApi.DeleteScimSubattribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimAttributeName.ValueString(), state.ScimSchemaName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Subattribute", err, httpResp)
 		return
@@ -565,5 +567,5 @@ func importScimSubattribute(ctx context.Context, req resource.ImportStateRequest
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scim_schema_name"), split[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scim_attribute_name"), split[1])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[2])...)
 }

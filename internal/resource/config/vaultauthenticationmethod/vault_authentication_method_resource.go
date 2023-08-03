@@ -83,6 +83,7 @@ func (r *defaultVaultAuthenticationMethodResource) Configure(_ context.Context, 
 
 type vaultAuthenticationMethodResourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
@@ -163,9 +164,9 @@ func vaultAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -256,6 +257,7 @@ func populateVaultAuthenticationMethodUnknownValues(ctx context.Context, model *
 func readStaticTokenVaultAuthenticationMethodResponse(ctx context.Context, r *client.StaticTokenVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodResourceModel, expectedValues *vaultAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static-token")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 	populateVaultAuthenticationMethodUnknownValues(ctx, state)
@@ -265,6 +267,7 @@ func readStaticTokenVaultAuthenticationMethodResponse(ctx context.Context, r *cl
 func readAppRoleVaultAuthenticationMethodResponse(ctx context.Context, r *client.AppRoleVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodResourceModel, expectedValues *vaultAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("app-role")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultRoleID = types.StringValue(r.VaultRoleID)
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, internaltypes.IsEmptyString(expectedValues.LoginMechanismName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -276,6 +279,7 @@ func readAppRoleVaultAuthenticationMethodResponse(ctx context.Context, r *client
 func readUserPassVaultAuthenticationMethodResponse(ctx context.Context, r *client.UserPassVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodResourceModel, expectedValues *vaultAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-pass")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, internaltypes.IsEmptyString(expectedValues.LoginMechanismName))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -312,7 +316,7 @@ func createVaultAuthenticationMethodOperations(plan vaultAuthenticationMethodRes
 
 // Create a static-token vault-authentication-method
 func (r *vaultAuthenticationMethodResource) CreateStaticTokenVaultAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan vaultAuthenticationMethodResourceModel) (*vaultAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddStaticTokenVaultAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddStaticTokenVaultAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumstaticTokenVaultAuthenticationMethodSchemaUrn{client.ENUMSTATICTOKENVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODSTATIC_TOKEN},
 		plan.VaultAccessToken.ValueString())
 	addOptionalStaticTokenVaultAuthenticationMethodFields(ctx, addRequest, plan)
@@ -346,7 +350,7 @@ func (r *vaultAuthenticationMethodResource) CreateStaticTokenVaultAuthentication
 
 // Create a app-role vault-authentication-method
 func (r *vaultAuthenticationMethodResource) CreateAppRoleVaultAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan vaultAuthenticationMethodResourceModel) (*vaultAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddAppRoleVaultAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAppRoleVaultAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumappRoleVaultAuthenticationMethodSchemaUrn{client.ENUMAPPROLEVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODAPP_ROLE},
 		plan.VaultRoleID.ValueString(),
 		plan.VaultSecretID.ValueString())
@@ -381,7 +385,7 @@ func (r *vaultAuthenticationMethodResource) CreateAppRoleVaultAuthenticationMeth
 
 // Create a user-pass vault-authentication-method
 func (r *vaultAuthenticationMethodResource) CreateUserPassVaultAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan vaultAuthenticationMethodResourceModel) (*vaultAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddUserPassVaultAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddUserPassVaultAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumuserPassVaultAuthenticationMethodSchemaUrn{client.ENUMUSERPASSVAULTAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VAULT_AUTHENTICATION_METHODUSER_PASS},
 		plan.Username.ValueString(),
 		plan.Password.ValueString())
@@ -471,7 +475,7 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Vault Authentication Method", err, httpResp)
 		return
@@ -496,7 +500,7 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createVaultAuthenticationMethodOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -556,7 +560,7 @@ func readVaultAuthenticationMethod(ctx context.Context, req resource.ReadRequest
 	}
 
 	readResponse, httpResp, err := apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Vault Authentication Method", err, httpResp)
 		return
@@ -606,7 +610,7 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 	var state vaultAuthenticationMethodResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.VaultAuthenticationMethodApi.UpdateVaultAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createVaultAuthenticationMethodOperations(plan, state)
@@ -668,7 +672,7 @@ func (r *vaultAuthenticationMethodResource) Delete(ctx context.Context, req reso
 	}
 
 	httpResp, err := r.apiClient.VaultAuthenticationMethodApi.DeleteVaultAuthenticationMethodExecute(r.apiClient.VaultAuthenticationMethodApi.DeleteVaultAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Vault Authentication Method", err, httpResp)
 		return
@@ -684,6 +688,6 @@ func (r *defaultVaultAuthenticationMethodResource) ImportState(ctx context.Conte
 }
 
 func importVaultAuthenticationMethod(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

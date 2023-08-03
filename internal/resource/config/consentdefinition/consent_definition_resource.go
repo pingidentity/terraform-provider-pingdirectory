@@ -132,9 +132,9 @@ func consentDefinitionSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"unique_id"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"unique_id"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

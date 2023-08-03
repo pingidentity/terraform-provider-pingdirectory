@@ -63,12 +63,12 @@ func TestAccKeyPair(t *testing.T) {
 func testAccKeyPairResource(resourceName string, resourceModel keyPairTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_key_pair" "%[1]s" {
-  id         = "%[2]s"
+  name       = "%[2]s"
   subject_dn = "%[3]s"
 }
 
 data "pingdirectory_key_pair" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_key_pair.%[1]s
   ]

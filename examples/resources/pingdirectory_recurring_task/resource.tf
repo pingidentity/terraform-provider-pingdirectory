@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_recurring_task" "myRecurringTask" {
-  id                            = "MyRecurringTask"
+  name                          = "MyRecurringTask"
   type                          = "generate-server-profile"
   profile_directory             = "/opt/out/instance"
   retain_previous_profile_count = 10

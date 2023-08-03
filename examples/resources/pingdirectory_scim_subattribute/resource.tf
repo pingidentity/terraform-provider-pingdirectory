@@ -32,7 +32,7 @@ resource "pingdirectory_scim_attribute" "myScimAttribute" {
 }
 
 resource "pingdirectory_scim_subattribute" "myScimSubattribute" {
-  id                  = "MyScimSubattribute"
+  name                = "MyScimSubattribute"
   scim_attribute_name = pingdirectory_scim_attribute.myScimAttribute.name
   scim_schema_name    = pingdirectory_scim_schema.myScimSchema.schema_urn
 }

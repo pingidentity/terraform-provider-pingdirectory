@@ -64,15 +64,9 @@ type localDbIndexDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *localDbIndexDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Local Db Index.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -145,6 +139,8 @@ func (r *localDbIndexDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a LocalDbIndexResponse object into the model struct

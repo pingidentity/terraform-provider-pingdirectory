@@ -68,7 +68,7 @@ data "pingdirectory_client_connection_policy" "myClientConnectionPolicy" {
 - `evaluation_order_index` (Number) Specifies the order in which Client Connection Policy definitions will be evaluated. A Client Connection Policy with a lower index will be evaluated before one with a higher index, and the first Client Connection Policy evaluated which may apply to a client connection will be used for that connection. Each Client Connection Policy must be assigned a unique evaluation order index value.
 - `exclude_global_sensitive_attribute` (Set of String) Specifies the set of global sensitive attribute definitions that should not apply to this client connection policy.
 - `excluded_backend_base_dn` (Set of String) Specifies the set of backend base DNs for which subtree views should be excluded from this Client Connection Policy.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `included_backend_base_dn` (Set of String) Specifies the set of backend base DNs for which subtree views should be included in this Client Connection Policy.
 - `maximum_concurrent_connections` (Number) Specifies the maximum number of client connections which may be associated with this Client Connection Policy at any given time.
 - `maximum_concurrent_operation_wait_time_before_rejecting` (String) Specifies the maximum length of time that the server should wait for an outstanding operation to complete before rejecting a new request received when the maximum number of outstanding operations are already in progress on that connection. If an existing outstanding operation on the connection completes before this time, then the operation will be processed. Otherwise, the operation will be rejected with a "busy" result.

@@ -79,6 +79,7 @@ func (r *defaultChangeSubscriptionResource) Configure(_ context.Context, req res
 
 type changeSubscriptionResourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
@@ -126,9 +127,9 @@ func changeSubscriptionSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -159,6 +160,7 @@ func addOptionalChangeSubscriptionFields(ctx context.Context, addRequest *client
 // Read a ChangeSubscriptionResponse object into the model struct
 func readChangeSubscriptionResponse(ctx context.Context, r *client.ChangeSubscriptionResponse, state *changeSubscriptionResourceModel, expectedValues *changeSubscriptionResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, internaltypes.IsEmptyString(expectedValues.ConnectionCriteria))
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, internaltypes.IsEmptyString(expectedValues.RequestCriteria))
@@ -180,7 +182,7 @@ func createChangeSubscriptionOperations(plan changeSubscriptionResourceModel, st
 
 // Create a change-subscription change-subscription
 func (r *changeSubscriptionResource) CreateChangeSubscription(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan changeSubscriptionResourceModel) (*changeSubscriptionResourceModel, error) {
-	addRequest := client.NewAddChangeSubscriptionRequest(plan.Id.ValueString())
+	addRequest := client.NewAddChangeSubscriptionRequest(plan.Name.ValueString())
 	addOptionalChangeSubscriptionFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -249,7 +251,7 @@ func (r *defaultChangeSubscriptionResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionApi.GetChangeSubscription(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription", err, httpResp)
 		return
@@ -266,7 +268,7 @@ func (r *defaultChangeSubscriptionResource) Create(ctx context.Context, req reso
 	readChangeSubscriptionResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ChangeSubscriptionApi.UpdateChangeSubscription(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ChangeSubscriptionApi.UpdateChangeSubscription(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createChangeSubscriptionOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -317,7 +319,7 @@ func readChangeSubscription(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.ChangeSubscriptionApi.GetChangeSubscription(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription", err, httpResp)
 		return
@@ -359,7 +361,7 @@ func updateChangeSubscription(ctx context.Context, req resource.UpdateRequest, r
 	var state changeSubscriptionResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ChangeSubscriptionApi.UpdateChangeSubscription(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createChangeSubscriptionOperations(plan, state)
@@ -412,7 +414,7 @@ func (r *changeSubscriptionResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.ChangeSubscriptionApi.DeleteChangeSubscriptionExecute(r.apiClient.ChangeSubscriptionApi.DeleteChangeSubscription(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Change Subscription", err, httpResp)
 		return
@@ -428,6 +430,6 @@ func (r *defaultChangeSubscriptionResource) ImportState(ctx context.Context, req
 }
 
 func importChangeSubscription(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

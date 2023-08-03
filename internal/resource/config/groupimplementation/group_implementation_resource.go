@@ -57,6 +57,7 @@ func (r *groupImplementationResource) Configure(_ context.Context, req resource.
 
 type groupImplementationResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -98,7 +99,7 @@ func (r *groupImplementationResource) Schema(ctx context.Context, req resource.S
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -106,6 +107,7 @@ func (r *groupImplementationResource) Schema(ctx context.Context, req resource.S
 func readStaticGroupImplementationResponse(ctx context.Context, r *client.StaticGroupImplementationResponse, state *groupImplementationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -115,6 +117,7 @@ func readStaticGroupImplementationResponse(ctx context.Context, r *client.Static
 func readVirtualStaticGroupImplementationResponse(ctx context.Context, r *client.VirtualStaticGroupImplementationResponse, state *groupImplementationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("virtual-static")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -124,6 +127,7 @@ func readVirtualStaticGroupImplementationResponse(ctx context.Context, r *client
 func readDynamicGroupImplementationResponse(ctx context.Context, r *client.DynamicGroupImplementationResponse, state *groupImplementationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("dynamic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -151,7 +155,7 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 	}
 
 	readResponse, httpResp, err := r.apiClient.GroupImplementationApi.GetGroupImplementation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Group Implementation", err, httpResp)
 		return
@@ -176,7 +180,7 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.GroupImplementationApi.UpdateGroupImplementation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.GroupImplementationApi.UpdateGroupImplementation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createGroupImplementationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -227,7 +231,7 @@ func (r *groupImplementationResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.GroupImplementationApi.GetGroupImplementation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Group Implementation", err, httpResp)
 		return
@@ -269,7 +273,7 @@ func (r *groupImplementationResource) Update(ctx context.Context, req resource.U
 	var state groupImplementationResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.GroupImplementationApi.UpdateGroupImplementation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createGroupImplementationOperations(plan, state)
@@ -321,6 +325,6 @@ func (r *groupImplementationResource) Delete(ctx context.Context, req resource.D
 }
 
 func (r *groupImplementationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

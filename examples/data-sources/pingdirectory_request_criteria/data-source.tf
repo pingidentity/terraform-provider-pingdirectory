@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_request_criteria" "myRequestCriteria" {
-  id = "MyRequestCriteria"
+  name = "MyRequestCriteria"
 }

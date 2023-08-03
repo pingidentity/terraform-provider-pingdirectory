@@ -48,6 +48,7 @@ func (r *monitoringEndpointDataSource) Configure(_ context.Context, req datasour
 
 type monitoringEndpointDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
 	Hostname             types.String `tfsdk:"hostname"`
 	ServerPort           types.Int64  `tfsdk:"server_port"`
 	ConnectionType       types.String `tfsdk:"connection_type"`
@@ -58,13 +59,9 @@ type monitoringEndpointDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *monitoringEndpointDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Monitoring Endpoint.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"hostname": schema.StringAttribute{
 				Description: "The name of the host where this StatsD Monitoring Endpoint should send metric data.",
 				Required:    false,
@@ -104,11 +101,14 @@ func (r *monitoringEndpointDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a StatsdMonitoringEndpointResponse object into the model struct
 func readStatsdMonitoringEndpointResponseDataSource(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *monitoringEndpointDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Hostname = types.StringValue(r.Hostname)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.ConnectionType = types.StringValue(r.ConnectionType.String())
@@ -128,7 +128,7 @@ func (r *monitoringEndpointDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
 		return

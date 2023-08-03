@@ -85,6 +85,7 @@ func (r *defaultPassphraseProviderResource) Configure(_ context.Context, req res
 
 type passphraseProviderResourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
 	RequiredActions           types.Set    `tfsdk:"required_actions"`
@@ -247,9 +248,9 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -474,6 +475,7 @@ func populatePassphraseProviderUnknownValues(ctx context.Context, model *passphr
 func readEnvironmentVariablePassphraseProviderResponse(ctx context.Context, r *client.EnvironmentVariablePassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("environment-variable")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnvironmentVariable = types.StringValue(r.EnvironmentVariable)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -485,6 +487,7 @@ func readEnvironmentVariablePassphraseProviderResponse(ctx context.Context, r *c
 func readAmazonSecretsManagerPassphraseProviderResponse(ctx context.Context, r *client.AmazonSecretsManagerPassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-secrets-manager")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
 	state.SecretID = types.StringValue(r.SecretID)
 	state.SecretFieldName = types.StringValue(r.SecretFieldName)
@@ -503,6 +506,7 @@ func readAmazonSecretsManagerPassphraseProviderResponse(ctx context.Context, r *
 func readObscuredValuePassphraseProviderResponse(ctx context.Context, r *client.ObscuredValuePassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("obscured-value")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -513,6 +517,7 @@ func readObscuredValuePassphraseProviderResponse(ctx context.Context, r *client.
 func readAzureKeyVaultPassphraseProviderResponse(ctx context.Context, r *client.AzureKeyVaultPassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("azure-key-vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, internaltypes.IsEmptyString(expectedValues.HttpProxyExternalServer))
@@ -530,6 +535,7 @@ func readAzureKeyVaultPassphraseProviderResponse(ctx context.Context, r *client.
 func readFileBasedPassphraseProviderResponse(ctx context.Context, r *client.FileBasedPassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordFile = types.StringValue(r.PasswordFile)
 	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
 	config.CheckMismatchedPDFormattedAttributes("max_cache_duration",
@@ -544,6 +550,7 @@ func readFileBasedPassphraseProviderResponse(ctx context.Context, r *client.File
 func readConjurPassphraseProviderResponse(ctx context.Context, r *client.ConjurPassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.ConjurSecretRelativePath = types.StringValue(r.ConjurSecretRelativePath)
 	state.MaxCacheDuration = internaltypes.StringTypeOrNil(r.MaxCacheDuration, internaltypes.IsEmptyString(expectedValues.MaxCacheDuration))
@@ -559,6 +566,7 @@ func readConjurPassphraseProviderResponse(ctx context.Context, r *client.ConjurP
 func readVaultPassphraseProviderResponse(ctx context.Context, r *client.VaultPassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultExternalServer = types.StringValue(r.VaultExternalServer)
 	state.VaultSecretPath = types.StringValue(r.VaultSecretPath)
 	state.VaultSecretFieldName = types.StringValue(r.VaultSecretFieldName)
@@ -575,6 +583,7 @@ func readVaultPassphraseProviderResponse(ctx context.Context, r *client.VaultPas
 func readThirdPartyPassphraseProviderResponse(ctx context.Context, r *client.ThirdPartyPassphraseProviderResponse, state *passphraseProviderResourceModel, expectedValues *passphraseProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -621,7 +630,7 @@ func createPassphraseProviderOperations(plan passphraseProviderResourceModel, st
 
 // Create a environment-variable passphrase-provider
 func (r *passphraseProviderResource) CreateEnvironmentVariablePassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddEnvironmentVariablePassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddEnvironmentVariablePassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumenvironmentVariablePassphraseProviderSchemaUrn{client.ENUMENVIRONMENTVARIABLEPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERENVIRONMENT_VARIABLE},
 		plan.EnvironmentVariable.ValueString(),
 		plan.Enabled.ValueBool())
@@ -656,7 +665,7 @@ func (r *passphraseProviderResource) CreateEnvironmentVariablePassphraseProvider
 
 // Create a amazon-secrets-manager passphrase-provider
 func (r *passphraseProviderResource) CreateAmazonSecretsManagerPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddAmazonSecretsManagerPassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAmazonSecretsManagerPassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumamazonSecretsManagerPassphraseProviderSchemaUrn{client.ENUMAMAZONSECRETSMANAGERPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERAMAZON_SECRETS_MANAGER},
 		plan.AwsExternalServer.ValueString(),
 		plan.SecretID.ValueString(),
@@ -693,7 +702,7 @@ func (r *passphraseProviderResource) CreateAmazonSecretsManagerPassphraseProvide
 
 // Create a obscured-value passphrase-provider
 func (r *passphraseProviderResource) CreateObscuredValuePassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddObscuredValuePassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddObscuredValuePassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumobscuredValuePassphraseProviderSchemaUrn{client.ENUMOBSCUREDVALUEPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDEROBSCURED_VALUE},
 		plan.ObscuredValue.ValueString(),
 		plan.Enabled.ValueBool())
@@ -728,7 +737,7 @@ func (r *passphraseProviderResource) CreateObscuredValuePassphraseProvider(ctx c
 
 // Create a azure-key-vault passphrase-provider
 func (r *passphraseProviderResource) CreateAzureKeyVaultPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddAzureKeyVaultPassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAzureKeyVaultPassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumazureKeyVaultPassphraseProviderSchemaUrn{client.ENUMAZUREKEYVAULTPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERAZURE_KEY_VAULT},
 		plan.KeyVaultURI.ValueString(),
 		plan.AzureAuthenticationMethod.ValueString(),
@@ -765,7 +774,7 @@ func (r *passphraseProviderResource) CreateAzureKeyVaultPassphraseProvider(ctx c
 
 // Create a file-based passphrase-provider
 func (r *passphraseProviderResource) CreateFileBasedPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddFileBasedPassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFileBasedPassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumfileBasedPassphraseProviderSchemaUrn{client.ENUMFILEBASEDPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERFILE_BASED},
 		plan.PasswordFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -800,7 +809,7 @@ func (r *passphraseProviderResource) CreateFileBasedPassphraseProvider(ctx conte
 
 // Create a conjur passphrase-provider
 func (r *passphraseProviderResource) CreateConjurPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddConjurPassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConjurPassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumconjurPassphraseProviderSchemaUrn{client.ENUMCONJURPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERCONJUR},
 		plan.ConjurExternalServer.ValueString(),
 		plan.ConjurSecretRelativePath.ValueString(),
@@ -836,7 +845,7 @@ func (r *passphraseProviderResource) CreateConjurPassphraseProvider(ctx context.
 
 // Create a vault passphrase-provider
 func (r *passphraseProviderResource) CreateVaultPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddVaultPassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddVaultPassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumvaultPassphraseProviderSchemaUrn{client.ENUMVAULTPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERVAULT},
 		plan.VaultExternalServer.ValueString(),
 		plan.VaultSecretPath.ValueString(),
@@ -873,7 +882,7 @@ func (r *passphraseProviderResource) CreateVaultPassphraseProvider(ctx context.C
 
 // Create a third-party passphrase-provider
 func (r *passphraseProviderResource) CreateThirdPartyPassphraseProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passphraseProviderResourceModel) (*passphraseProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPassphraseProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyPassphraseProviderRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyPassphraseProviderSchemaUrn{client.ENUMTHIRDPARTYPASSPHRASEPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSPHRASE_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -993,7 +1002,7 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.PassphraseProviderApi.GetPassphraseProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
 		return
@@ -1033,7 +1042,7 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PassphraseProviderApi.UpdatePassphraseProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.PassphraseProviderApi.UpdatePassphraseProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPassphraseProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1108,7 +1117,7 @@ func readPassphraseProvider(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.PassphraseProviderApi.GetPassphraseProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Passphrase Provider", err, httpResp)
 		return
@@ -1173,7 +1182,7 @@ func updatePassphraseProvider(ctx context.Context, req resource.UpdateRequest, r
 	var state passphraseProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.PassphraseProviderApi.UpdatePassphraseProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPassphraseProviderOperations(plan, state)
@@ -1250,7 +1259,7 @@ func (r *passphraseProviderResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.PassphraseProviderApi.DeletePassphraseProviderExecute(r.apiClient.PassphraseProviderApi.DeletePassphraseProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Passphrase Provider", err, httpResp)
 		return
@@ -1266,6 +1275,6 @@ func (r *defaultPassphraseProviderResource) ImportState(ctx context.Context, req
 }
 
 func importPassphraseProvider(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

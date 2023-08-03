@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_sasl_mechanism_handler" "mySaslMechanismHandler" {
-  id = "MySaslMechanismHandler"
+  name = "MySaslMechanismHandler"
 }

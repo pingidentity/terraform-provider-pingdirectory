@@ -50,7 +50,7 @@ data "pingdirectory_consent_service" "myConsentService" {
 - `bind_dn` (String) The DN of an internal service account used by the Consent Service to make internal LDAP requests.
 - `consent_record_identity_mapper` (Set of String) If specified, the Identity Mapper(s) that may be used to map consent record subject and actor values to DNs. This is typically only needed if privileged API clients will be used.
 - `enabled` (Boolean) Indicates whether the Consent Service is enabled.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `privileged_consent_scope` (String) The name of a scope that must be present in an access token accepted by the Consent Service if the client is to be considered privileged.
 - `search_size_limit` (Number) The maximum number of consent resources that may be returned from a search request.
 - `service_account_dn` (Set of String) The set of account DNs that the Consent Service will consider to be privileged.

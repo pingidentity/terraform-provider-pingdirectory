@@ -229,9 +229,9 @@ func delegatedAdminAttributeSchema(ctx context.Context, req resource.SchemaReque
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type", "rest_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"attribute_type", "rest_resource_type_name"})
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

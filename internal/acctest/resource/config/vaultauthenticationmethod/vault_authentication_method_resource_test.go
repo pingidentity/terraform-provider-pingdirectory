@@ -76,13 +76,13 @@ func testAccVaultAuthenticationMethodResource(resourceName string, resourceModel
 	return fmt.Sprintf(`
 resource "pingdirectory_vault_authentication_method" "%[1]s" {
   type               = "static-token"
-  id                 = "%[2]s"
+  name               = "%[2]s"
   vault_access_token = "%[3]s"
   description        = "%[4]s"
 }
 
 data "pingdirectory_vault_authentication_method" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_vault_authentication_method.%[1]s
   ]

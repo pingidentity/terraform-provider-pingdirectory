@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_topology_admin_user" "myTopologyAdminUser" {
-  id                              = "MyTopologyAdminUser"
+  name                            = "MyTopologyAdminUser"
   inherit_default_root_privileges = true
   search_result_entry_limit       = 100
   time_limit_seconds              = 60
@@ -54,7 +54,7 @@ resource "pingdirectory_topology_admin_user" "myTopologyAdminUser" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -94,6 +94,7 @@ resource "pingdirectory_topology_admin_user" "myTopologyAdminUser" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -112,7 +113,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "topologyAdminUserId" should be the id of the Topology Admin User to be imported
+# "topologyAdminUserId" should be the name of the Topology Admin User to be imported
 terraform import pingdirectory_topology_admin_user.myTopologyAdminUser topologyAdminUserId
 ```
 

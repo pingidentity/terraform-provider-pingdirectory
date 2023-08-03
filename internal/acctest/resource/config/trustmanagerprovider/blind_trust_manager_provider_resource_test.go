@@ -68,7 +68,7 @@ func testAccBlindTrustManagerProviderResource(resourceName string, resourceModel
 	return fmt.Sprintf(`
 resource "pingdirectory_trust_manager_provider" "%[1]s" {
   type    = "blind"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }`, resourceName,
 		resourceModel.id,

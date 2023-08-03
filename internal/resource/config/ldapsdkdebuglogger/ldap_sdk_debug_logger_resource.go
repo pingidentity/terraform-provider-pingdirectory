@@ -56,7 +56,6 @@ func (r *ldapSdkDebugLoggerResource) Configure(_ context.Context, req resource.C
 }
 
 type ldapSdkDebugLoggerResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                             types.String `tfsdk:"id"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
@@ -272,7 +271,7 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

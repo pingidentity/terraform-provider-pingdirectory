@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
-  id = "MySynchronizationProvider"
+  name = "MySynchronizationProvider"
 }
 ```
 
@@ -46,12 +46,13 @@ data "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Synchronization Provider
 - `enabled` (Boolean) Indicates whether the Synchronization Provider is enabled for use.
+- `id` (String) The ID of this resource.
 - `num_update_replay_threads` (Number) Specifies the number of update replay threads.
 - `type` (String) The type of Synchronization Provider resource. Options are ['replication', 'custom']
 

@@ -38,13 +38,13 @@ provider "pingdirectory" {
 
 resource "pingdirectory_external_server" "myLdapExternalServer" {
   type                  = "ldap"
-  id                    = "MyLdapExternalServer"
+  name                  = "MyLdapExternalServer"
   server_host_name      = "example.com"
   authentication_method = "none"
 }
 
 resource "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthenticationHandler" {
-  id     = "MyPassThroughAuthenticationHandler"
+  name   = "MyPassThroughAuthenticationHandler"
   type   = "ldap"
   server = [pingdirectory_ldap_external_server.myLdapExternalServer.id]
 }
@@ -55,7 +55,7 @@ resource "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthe
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Pass Through Authentication Handler resource. Options are ['ping-one', 'ldap', 'aggregate', 'third-party']
 
 ### Optional
@@ -93,6 +93,7 @@ resource "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthe
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -111,7 +112,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "passThroughAuthenticationHandlerId" should be the id of the Pass Through Authentication Handler to be imported
+# "passThroughAuthenticationHandlerId" should be the name of the Pass Through Authentication Handler to be imported
 terraform import pingdirectory_pass_through_authentication_handler.myPassThroughAuthenticationHandler passThroughAuthenticationHandlerId
 ```
 

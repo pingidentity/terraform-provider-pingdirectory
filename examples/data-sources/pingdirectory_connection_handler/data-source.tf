@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_connection_handler" "myConnectionHandler" {
-  id = "MyConnectionHandler"
+  name = "MyConnectionHandler"
 }

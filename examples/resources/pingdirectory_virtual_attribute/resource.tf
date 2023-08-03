@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_virtual_attribute" "myVirtualAttribute" {
-  id               = "MyVirtualAttribute"
+  name             = "MyVirtualAttribute"
   type             = "mirror"
   source_attribute = "mail"
   enabled          = true

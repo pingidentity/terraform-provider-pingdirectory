@@ -47,7 +47,6 @@ func (r *workQueueDataSource) Configure(_ context.Context, req datasource.Config
 }
 
 type workQueueDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                                       types.String `tfsdk:"id"`
 	NumWorkerThreads                         types.Int64  `tfsdk:"num_worker_threads"`
 	NumWriteWorkerThreads                    types.Int64  `tfsdk:"num_write_worker_threads"`
@@ -65,15 +64,9 @@ type workQueueDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *workQueueDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Work Queue.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"num_worker_threads": schema.Int64Attribute{
 				Description: "Specifies the total number of worker threads that should be used within the server in order to process requested operations. The worker threads will be split evenly across all of the configured queues.",
 				Required:    false,
@@ -148,6 +141,8 @@ func (r *workQueueDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a HighThroughputWorkQueueResponse object into the model struct

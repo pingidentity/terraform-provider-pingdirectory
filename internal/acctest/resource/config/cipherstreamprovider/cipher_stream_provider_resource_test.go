@@ -75,12 +75,12 @@ func testAccWaitForPassphraseCipherStreamProviderResource(resourceName string, r
 	return fmt.Sprintf(`
 resource "pingdirectory_cipher_stream_provider" "%[1]s" {
   type    = "wait-for-passphrase"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }
 
 data "pingdirectory_cipher_stream_provider" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_cipher_stream_provider.%[1]s
   ]

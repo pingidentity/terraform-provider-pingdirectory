@@ -53,7 +53,7 @@ data "pingdirectory_prometheus_monitor_attribute_metric" "myPrometheusMonitorAtt
 ### Read-Only
 
 - `filter` (String) A filter that may be used to restrict the set of monitor entries for which the metric should be generated.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `label_name_value_pair` (Set of String) A set of name-value pairs for labels that should be included in the published metric for the target attribute.
 - `metric_description` (String) A human-readable description that should be published as part of the metric definition.
 - `metric_type` (String) The metric type that should be used for the value of the specified monitor attribute.

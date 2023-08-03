@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
-  id = "MySensitiveAttribute"
+  name = "MySensitiveAttribute"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,5 +57,6 @@ data "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
 - `allow_in_returned_entries` (String) Indicates whether sensitive attributes should be included in entries returned to the client. This includes not only search result entries, but also other forms including in the values of controls like the pre-read, post-read, get authorization entry, and LDAP join response controls.
 - `attribute_type` (Set of String) The name(s) or OID(s) of the attribute types for attributes whose values may be considered sensitive.
 - `description` (String) A description for this Sensitive Attribute
+- `id` (String) The ID of this resource.
 - `include_default_sensitive_operational_attributes` (Boolean) Indicates whether to automatically include any server-generated operational attributes that may contain sensitive data.
 

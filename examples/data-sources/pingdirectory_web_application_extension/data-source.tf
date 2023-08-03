@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_web_application_extension" "myWebApplicationExtension" {
-  id = "MyWebApplicationExtension"
+  name = "MyWebApplicationExtension"
 }

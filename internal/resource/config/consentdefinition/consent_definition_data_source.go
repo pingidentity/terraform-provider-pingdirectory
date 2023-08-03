@@ -56,15 +56,9 @@ type consentDefinitionDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *consentDefinitionDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Consent Definition.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"unique_id": schema.StringAttribute{
 				Description: "A version-independent unique identifier for this Consent Definition.",
 				Required:    true,
@@ -90,6 +84,8 @@ func (r *consentDefinitionDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a ConsentDefinitionResponse object into the model struct

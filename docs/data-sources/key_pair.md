@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_key_pair" "myKeyPair" {
-  id = "MyKeyPair"
+  name = "MyKeyPair"
 }
 ```
 
@@ -46,11 +46,12 @@ data "pingdirectory_key_pair" "myKeyPair" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `certificate_chain` (String) The PEM-encoded X.509 certificate chain.
+- `id` (String) The ID of this resource.
 - `key_algorithm` (String) The algorithm name and the length in bits of the key, e.g. RSA_2048.
 - `private_key` (String, Sensitive) The base64-encoded private key that is encrypted using the preferred encryption settings definition.
 - `self_signed_certificate_validity` (String) The validity period for a self-signed certificate. If not specified, the self-signed certificate will be valid for approximately 20 years. This is not used when importing an existing key-pair. The system will not automatically rotate expired certificates. It is up to the administrator to do that when that happens.

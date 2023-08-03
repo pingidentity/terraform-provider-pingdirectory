@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_connection_handler" "myConnectionHandler" {
-  id          = "MyConnectionHandler"
+  name        = "MyConnectionHandler"
   type        = "jmx"
   listen_port = 1234
   enabled     = false
@@ -50,7 +50,7 @@ resource "pingdirectory_connection_handler" "myConnectionHandler" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Connection Handler is enabled.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Connection Handler resource. Options are ['jmx', 'ldap', 'ldif', 'http']
 
 ### Optional
@@ -101,6 +101,7 @@ resource "pingdirectory_connection_handler" "myConnectionHandler" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -119,7 +120,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "connectionHandlerId" should be the id of the Connection Handler to be imported
+# "connectionHandlerId" should be the name of the Connection Handler to be imported
 terraform import pingdirectory_connection_handler.myConnectionHandler connectionHandlerId
 ```
 

@@ -48,6 +48,7 @@ func (r *scimAttributeMappingDataSource) Configure(_ context.Context, req dataso
 
 type scimAttributeMappingDataSourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	ScimResourceTypeName      types.String `tfsdk:"scim_resource_type_name"`
 	CorrelatedLDAPDataView    types.String `tfsdk:"correlated_ldap_data_view"`
 	ScimResourceTypeAttribute types.String `tfsdk:"scim_resource_type_attribute"`
@@ -60,13 +61,9 @@ type scimAttributeMappingDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *scimAttributeMappingDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Scim Attribute Mapping.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"scim_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Resource Type",
 				Required:    true,
@@ -115,11 +112,14 @@ func (r *scimAttributeMappingDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ScimAttributeMappingResponse object into the model struct
 func readScimAttributeMappingResponseDataSource(ctx context.Context, r *client.ScimAttributeMappingResponse, state *scimAttributeMappingDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, false)
 	state.ScimResourceTypeAttribute = types.StringValue(r.ScimResourceTypeAttribute)
 	state.LdapAttribute = types.StringValue(r.LdapAttribute)
@@ -140,7 +140,7 @@ func (r *scimAttributeMappingDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute Mapping", err, httpResp)
 		return

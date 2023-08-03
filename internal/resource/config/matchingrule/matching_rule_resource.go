@@ -57,6 +57,7 @@ func (r *matchingRuleResource) Configure(_ context.Context, req resource.Configu
 
 type matchingRuleResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -89,7 +90,7 @@ func (r *matchingRuleResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -97,6 +98,7 @@ func (r *matchingRuleResource) Schema(ctx context.Context, req resource.SchemaRe
 func readOrderingMatchingRuleResponse(ctx context.Context, r *client.OrderingMatchingRuleResponse, state *matchingRuleResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ordering")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -105,6 +107,7 @@ func readOrderingMatchingRuleResponse(ctx context.Context, r *client.OrderingMat
 func readApproximateMatchingRuleResponse(ctx context.Context, r *client.ApproximateMatchingRuleResponse, state *matchingRuleResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("approximate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -113,6 +116,7 @@ func readApproximateMatchingRuleResponse(ctx context.Context, r *client.Approxim
 func readEqualityMatchingRuleResponse(ctx context.Context, r *client.EqualityMatchingRuleResponse, state *matchingRuleResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("equality")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -121,6 +125,7 @@ func readEqualityMatchingRuleResponse(ctx context.Context, r *client.EqualityMat
 func readSubstringMatchingRuleResponse(ctx context.Context, r *client.SubstringMatchingRuleResponse, state *matchingRuleResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("substring")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -129,6 +134,7 @@ func readSubstringMatchingRuleResponse(ctx context.Context, r *client.SubstringM
 func readGenericMatchingRuleResponse(ctx context.Context, r *client.GenericMatchingRuleResponse, state *matchingRuleResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -154,7 +160,7 @@ func (r *matchingRuleResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.MatchingRuleApi.GetMatchingRule(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Matching Rule", err, httpResp)
 		return
@@ -185,7 +191,7 @@ func (r *matchingRuleResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MatchingRuleApi.UpdateMatchingRule(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.MatchingRuleApi.UpdateMatchingRule(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createMatchingRuleOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -242,7 +248,7 @@ func (r *matchingRuleResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	readResponse, httpResp, err := r.apiClient.MatchingRuleApi.GetMatchingRule(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Matching Rule", err, httpResp)
 		return
@@ -290,7 +296,7 @@ func (r *matchingRuleResource) Update(ctx context.Context, req resource.UpdateRe
 	var state matchingRuleResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.MatchingRuleApi.UpdateMatchingRule(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMatchingRuleOperations(plan, state)
@@ -348,6 +354,6 @@ func (r *matchingRuleResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *matchingRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

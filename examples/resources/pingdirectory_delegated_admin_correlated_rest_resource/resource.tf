@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_delegated_admin_correlated_rest_resource" "myDelegatedAdminCorrelatedRestResource" {
-  id                                            = "MyDelegatedAdminCorrelatedRestResource"
+  name                                          = "MyDelegatedAdminCorrelatedRestResource"
   rest_resource_type_name                       = "MyRestResourceType"
   display_name                                  = "MyDisplayName"
   correlated_rest_resource                      = "MyRestResourceType"

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
-  id = "MyOtpDeliveryMechanism"
+  name = "MyOtpDeliveryMechanism"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -58,6 +58,7 @@ data "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party OTP Delivery Mechanism. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party OTP Delivery Mechanism.
 - `http_proxy_external_server` (String) A reference to an HTTP proxy server that should be used for requests sent to the Twilio service. Supported in PingDirectory product version 9.2.0.0+.
+- `id` (String) The ID of this resource.
 - `message_subject` (String) The subject to use for the e-mail message.
 - `message_text_after_otp` (String) Any text that should appear in the message after the one-time password value.
 - `message_text_before_otp` (String) Any text that should appear in the message before the one-time password value.

@@ -79,6 +79,7 @@ func (r *defaultConstructedAttributeResource) Configure(_ context.Context, req r
 
 type constructedAttributeResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -117,9 +118,9 @@ func constructedAttributeSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -134,6 +135,7 @@ func addOptionalConstructedAttributeFields(ctx context.Context, addRequest *clie
 // Read a ConstructedAttributeResponse object into the model struct
 func readConstructedAttributeResponse(ctx context.Context, r *client.ConstructedAttributeResponse, state *constructedAttributeResourceModel, expectedValues *constructedAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
@@ -153,7 +155,7 @@ func createConstructedAttributeOperations(plan constructedAttributeResourceModel
 func (r *constructedAttributeResource) CreateConstructedAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan constructedAttributeResourceModel) (*constructedAttributeResourceModel, error) {
 	var ValuePatternSlice []string
 	plan.ValuePattern.ElementsAs(ctx, &ValuePatternSlice, false)
-	addRequest := client.NewAddConstructedAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddConstructedAttributeRequest(plan.Name.ValueString(),
 		plan.AttributeType.ValueString(),
 		ValuePatternSlice)
 	addOptionalConstructedAttributeFields(ctx, addRequest, plan)
@@ -224,7 +226,7 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.GetConstructedAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
 		return
@@ -241,7 +243,7 @@ func (r *defaultConstructedAttributeResource) Create(ctx context.Context, req re
 	readConstructedAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConstructedAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -292,7 +294,7 @@ func readConstructedAttribute(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := apiClient.ConstructedAttributeApi.GetConstructedAttribute(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
 		return
@@ -334,7 +336,7 @@ func updateConstructedAttribute(ctx context.Context, req resource.UpdateRequest,
 	var state constructedAttributeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ConstructedAttributeApi.UpdateConstructedAttribute(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConstructedAttributeOperations(plan, state)
@@ -387,7 +389,7 @@ func (r *constructedAttributeResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.ConstructedAttributeApi.DeleteConstructedAttributeExecute(r.apiClient.ConstructedAttributeApi.DeleteConstructedAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Constructed Attribute", err, httpResp)
 		return
@@ -403,6 +405,6 @@ func (r *defaultConstructedAttributeResource) ImportState(ctx context.Context, r
 }
 
 func importConstructedAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

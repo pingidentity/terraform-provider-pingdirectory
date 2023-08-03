@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_server_group" "myServerGroup" {
-  id = "MyServerGroup"
+  name = "MyServerGroup"
 }
 ```
 
@@ -46,9 +46,10 @@ data "pingdirectory_server_group" "myServerGroup" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `member` (Set of String) A server instance that is a member of this group.
 

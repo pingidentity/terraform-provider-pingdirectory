@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMethod" {
-  id       = "MyConjurAuthenticationMethod"
+  name     = "MyConjurAuthenticationMethod"
   username = "myusername"
   password = "mypassword"
 }

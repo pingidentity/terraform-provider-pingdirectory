@@ -72,12 +72,12 @@ func testAccTextAccessLogFieldBehaviorResource(resourceName string, resourceMode
 	return fmt.Sprintf(`
 resource "pingdirectory_log_field_behavior" "%[1]s" {
   type        = "text-access"
-  id          = "%[2]s"
+  name        = "%[2]s"
   description = "%[3]s"
 }
 
 data "pingdirectory_log_field_behavior" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_log_field_behavior.%[1]s
   ]

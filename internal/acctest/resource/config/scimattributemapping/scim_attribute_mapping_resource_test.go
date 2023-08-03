@@ -84,21 +84,21 @@ resource "pingdirectory_scim_schema" "mySchema" {
 
 resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
   type        = "ldap-mapping"
-  id          = "%[3]s"
+  name        = "%[3]s"
   core_schema = pingdirectory_scim_schema.mySchema.schema_urn
   enabled     = false
   endpoint    = "myendpoint"
 }
 
 resource "pingdirectory_scim_attribute_mapping" "%[1]s" {
-  id                           = "%[2]s"
+  name                         = "%[2]s"
   scim_resource_type_name      = pingdirectory_scim_resource_type.myLdapMappingScimResourceType.id
   scim_resource_type_attribute = "%[4]s"
   ldap_attribute               = "%[5]s"
 }
 
 data "pingdirectory_scim_attribute_mapping" "%[1]s" {
-  id                      = "%[2]s"
+  name                    = "%[2]s"
   scim_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_scim_attribute_mapping.%[1]s

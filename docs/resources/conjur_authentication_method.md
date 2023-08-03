@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMethod" {
-  id       = "MyConjurAuthenticationMethod"
+  name     = "MyConjurAuthenticationMethod"
   username = "myusername"
   password = "mypassword"
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMet
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `username` (String) The username for the user to authenticate.
 
 ### Optional
@@ -59,6 +59,7 @@ resource "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMet
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -77,7 +78,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "conjurAuthenticationMethodId" should be the id of the Conjur Authentication Method to be imported
+# "conjurAuthenticationMethodId" should be the name of the Conjur Authentication Method to be imported
 terraform import pingdirectory_conjur_authentication_method.myConjurAuthenticationMethod conjurAuthenticationMethodId
 ```
 

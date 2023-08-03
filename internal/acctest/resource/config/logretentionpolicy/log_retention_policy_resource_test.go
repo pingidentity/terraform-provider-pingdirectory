@@ -72,12 +72,12 @@ func testAccTimeLimitLogRetentionPolicyResource(resourceName string, resourceMod
 	return fmt.Sprintf(`
 resource "pingdirectory_log_retention_policy" "%[1]s" {
   type            = "time-limit"
-  id              = "%[2]s"
+  name            = "%[2]s"
   retain_duration = "%[3]s"
 }
 
 data "pingdirectory_log_retention_policy" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_log_retention_policy.%[1]s
   ]

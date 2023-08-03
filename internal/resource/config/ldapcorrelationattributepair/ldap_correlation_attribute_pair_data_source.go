@@ -48,6 +48,7 @@ func (r *ldapCorrelationAttributePairDataSource) Configure(_ context.Context, re
 
 type ldapCorrelationAttributePairDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Name                          types.String `tfsdk:"name"`
 	CorrelatedLdapDataViewName    types.String `tfsdk:"correlated_ldap_data_view_name"`
 	ScimResourceTypeName          types.String `tfsdk:"scim_resource_type_name"`
 	PrimaryCorrelationAttribute   types.String `tfsdk:"primary_correlation_attribute"`
@@ -56,13 +57,9 @@ type ldapCorrelationAttributePairDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *ldapCorrelationAttributePairDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Ldap Correlation Attribute Pair.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"correlated_ldap_data_view_name": schema.StringAttribute{
 				Description: "Name of the parent Correlated LDAP Data View",
 				Required:    true,
@@ -85,11 +82,14 @@ func (r *ldapCorrelationAttributePairDataSource) Schema(ctx context.Context, req
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a LdapCorrelationAttributePairResponse object into the model struct
 func readLdapCorrelationAttributePairResponseDataSource(ctx context.Context, r *client.LdapCorrelationAttributePairResponse, state *ldapCorrelationAttributePairDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PrimaryCorrelationAttribute = types.StringValue(r.PrimaryCorrelationAttribute)
 	state.SecondaryCorrelationAttribute = types.StringValue(r.SecondaryCorrelationAttribute)
 }
@@ -105,7 +105,7 @@ func (r *ldapCorrelationAttributePairDataSource) Read(ctx context.Context, req d
 	}
 
 	readResponse, httpResp, err := r.apiClient.LdapCorrelationAttributePairApi.GetLdapCorrelationAttributePair(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.CorrelatedLdapDataViewName.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Ldap Correlation Attribute Pair", err, httpResp)
 		return

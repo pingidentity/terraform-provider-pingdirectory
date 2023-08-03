@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_certificate_mapper" "myCertificateMapper" {
-  id      = "MyCertificateMapper"
+  name    = "MyCertificateMapper"
   type    = "subject-equals-dn"
   enabled = false
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_certificate_mapper" "myCertificateMapper" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Certificate Mapper is enabled.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Certificate Mapper resource. Options are ['subject-equals-dn', 'subject-dn-to-user-attribute', 'groovy-scripted', 'subject-attribute-to-user-attribute', 'fingerprint', 'third-party']
 
 ### Optional
@@ -67,6 +67,7 @@ resource "pingdirectory_certificate_mapper" "myCertificateMapper" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -85,7 +86,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "certificateMapperId" should be the id of the Certificate Mapper to be imported
+# "certificateMapperId" should be the name of the Certificate Mapper to be imported
 terraform import pingdirectory_certificate_mapper.myCertificateMapper certificateMapperId
 ```
 

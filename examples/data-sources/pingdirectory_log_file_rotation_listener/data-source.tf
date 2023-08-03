@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_file_rotation_listener" "myLogFileRotationListener" {
-  id = "MyLogFileRotationListener"
+  name = "MyLogFileRotationListener"
 }

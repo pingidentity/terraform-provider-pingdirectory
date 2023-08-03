@@ -83,6 +83,7 @@ func (r *defaultEntryCacheResource) Configure(_ context.Context, req resource.Co
 
 type entryCacheResourceModel struct {
 	Id                          types.String `tfsdk:"id"`
+	Name                        types.String `tfsdk:"name"`
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
 	RequiredActions             types.Set    `tfsdk:"required_actions"`
@@ -195,9 +196,9 @@ func entryCacheSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -242,6 +243,7 @@ func addOptionalFifoEntryCacheFields(ctx context.Context, addRequest *client.Add
 // Read a FifoEntryCacheResponse object into the model struct
 func readFifoEntryCacheResponse(ctx context.Context, r *client.FifoEntryCacheResponse, state *entryCacheResourceModel, expectedValues *entryCacheResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MaxMemoryPercent = internaltypes.Int64TypeOrNil(r.MaxMemoryPercent)
 	state.MaxEntries = internaltypes.Int64TypeOrNil(r.MaxEntries)
 	state.OnlyCacheFrequentlyAccessed = internaltypes.BoolTypeOrNil(r.OnlyCacheFrequentlyAccessed)
@@ -275,7 +277,7 @@ func createEntryCacheOperations(plan entryCacheResourceModel, state entryCacheRe
 
 // Create a fifo entry-cache
 func (r *entryCacheResource) CreateFifoEntryCache(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan entryCacheResourceModel) (*entryCacheResourceModel, error) {
-	addRequest := client.NewAddFifoEntryCacheRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFifoEntryCacheRequest(plan.Name.ValueString(),
 		[]client.EnumfifoEntryCacheSchemaUrn{client.ENUMFIFOENTRYCACHESCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ENTRY_CACHEFIFO},
 		plan.Enabled.ValueBool(),
 		plan.CacheLevel.ValueInt64())
@@ -347,7 +349,7 @@ func (r *defaultEntryCacheResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	readResponse, httpResp, err := r.apiClient.EntryCacheApi.GetEntryCache(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Entry Cache", err, httpResp)
 		return
@@ -364,7 +366,7 @@ func (r *defaultEntryCacheResource) Create(ctx context.Context, req resource.Cre
 	readFifoEntryCacheResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.EntryCacheApi.UpdateEntryCache(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.EntryCacheApi.UpdateEntryCache(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createEntryCacheOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -415,7 +417,7 @@ func readEntryCache(ctx context.Context, req resource.ReadRequest, resp *resourc
 	}
 
 	readResponse, httpResp, err := apiClient.EntryCacheApi.GetEntryCache(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Entry Cache", err, httpResp)
 		return
@@ -457,7 +459,7 @@ func updateEntryCache(ctx context.Context, req resource.UpdateRequest, resp *res
 	var state entryCacheResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.EntryCacheApi.UpdateEntryCache(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createEntryCacheOperations(plan, state)
@@ -510,7 +512,7 @@ func (r *entryCacheResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	httpResp, err := r.apiClient.EntryCacheApi.DeleteEntryCacheExecute(r.apiClient.EntryCacheApi.DeleteEntryCache(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Entry Cache", err, httpResp)
 		return
@@ -526,6 +528,6 @@ func (r *defaultEntryCacheResource) ImportState(ctx context.Context, req resourc
 }
 
 func importEntryCache(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
-  id             = "MySensitiveAttribute"
+  name           = "MySensitiveAttribute"
   attribute_type = ["userPassword", "pwdHistory"]
 }
 ```
@@ -48,7 +48,7 @@ resource "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
 ### Required
 
 - `attribute_type` (Set of String) The name(s) or OID(s) of the attribute types for attributes whose values may be considered sensitive.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -62,6 +62,7 @@ resource "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -80,7 +81,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "sensitiveAttributeId" should be the id of the Sensitive Attribute to be imported
+# "sensitiveAttributeId" should be the name of the Sensitive Attribute to be imported
 terraform import pingdirectory_sensitive_attribute.mySensitiveAttribute sensitiveAttributeId
 ```
 

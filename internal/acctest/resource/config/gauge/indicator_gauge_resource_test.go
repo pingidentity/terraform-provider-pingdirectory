@@ -69,7 +69,7 @@ func testAccIndicatorGaugeResource(resourceName string, resourceModel indicatorG
 	return fmt.Sprintf(`
 resource "pingdirectory_gauge" "%[1]s" {
   type              = "indicator"
-  id                = "%[2]s"
+  name              = "%[2]s"
   gauge_data_source = "%[3]s"
   enabled           = %[4]t
 }`, resourceName, resourceModel.id,

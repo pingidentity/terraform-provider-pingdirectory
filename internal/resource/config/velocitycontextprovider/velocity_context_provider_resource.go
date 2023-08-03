@@ -86,6 +86,7 @@ func (r *defaultVelocityContextProviderResource) Configure(_ context.Context, re
 
 type velocityContextProviderResourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Name                     types.String `tfsdk:"name"`
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
@@ -235,9 +236,9 @@ func velocityContextProviderSchema(ctx context.Context, req resource.SchemaReque
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "http_servlet_extension_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"http_servlet_extension_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -389,6 +390,7 @@ func populateVelocityContextProviderUnknownValues(ctx context.Context, model *ve
 func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *client.VelocityToolsVelocityContextProviderResponse, state *velocityContextProviderResourceModel, expectedValues *velocityContextProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("velocity-tools")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestTool = internaltypes.GetStringSet(r.RequestTool)
 	state.SessionTool = internaltypes.GetStringSet(r.SessionTool)
 	state.ApplicationTool = internaltypes.GetStringSet(r.ApplicationTool)
@@ -406,6 +408,7 @@ func readVelocityToolsVelocityContextProviderResponse(ctx context.Context, r *cl
 func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.CustomVelocityContextProviderResponse, state *velocityContextProviderResourceModel, expectedValues *velocityContextProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
 	state.ObjectScope = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumvelocityContextProviderObjectScopeProp(r.ObjectScope), internaltypes.IsEmptyString(expectedValues.ObjectScope))
@@ -421,6 +424,7 @@ func readCustomVelocityContextProviderResponse(ctx context.Context, r *client.Cu
 func readThirdPartyVelocityContextProviderResponse(ctx context.Context, r *client.ThirdPartyVelocityContextProviderResponse, state *velocityContextProviderResourceModel, expectedValues *velocityContextProviderResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = internaltypes.BoolTypeOrNil(r.Enabled)
@@ -461,7 +465,7 @@ func createVelocityContextProviderOperations(plan velocityContextProviderResourc
 
 // Create a velocity-tools velocity-context-provider
 func (r *velocityContextProviderResource) CreateVelocityToolsVelocityContextProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityContextProviderResourceModel) (*velocityContextProviderResourceModel, error) {
-	addRequest := client.NewAddVelocityToolsVelocityContextProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddVelocityToolsVelocityContextProviderRequest(plan.Name.ValueString(),
 		[]client.EnumvelocityToolsVelocityContextProviderSchemaUrn{client.ENUMVELOCITYTOOLSVELOCITYCONTEXTPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VELOCITY_CONTEXT_PROVIDERVELOCITY_TOOLS})
 	err := addOptionalVelocityToolsVelocityContextProviderFields(ctx, addRequest, plan)
 	if err != nil {
@@ -498,7 +502,7 @@ func (r *velocityContextProviderResource) CreateVelocityToolsVelocityContextProv
 
 // Create a third-party velocity-context-provider
 func (r *velocityContextProviderResource) CreateThirdPartyVelocityContextProvider(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan velocityContextProviderResourceModel) (*velocityContextProviderResourceModel, error) {
-	addRequest := client.NewAddThirdPartyVelocityContextProviderRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyVelocityContextProviderRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyVelocityContextProviderSchemaUrn{client.ENUMTHIRDPARTYVELOCITYCONTEXTPROVIDERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0VELOCITY_CONTEXT_PROVIDERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString())
 	err := addOptionalThirdPartyVelocityContextProviderFields(ctx, addRequest, plan)
@@ -585,7 +589,7 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 	}
 
 	readResponse, httpResp, err := r.apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)
 		return
@@ -610,7 +614,7 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.VelocityContextProviderApi.UpdateVelocityContextProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
+	updateRequest := r.apiClient.VelocityContextProviderApi.UpdateVelocityContextProvider(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 	ops := createVelocityContextProviderOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -670,7 +674,7 @@ func readVelocityContextProvider(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	readResponse, httpResp, err := apiClient.VelocityContextProviderApi.GetVelocityContextProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Velocity Context Provider", err, httpResp)
 		return
@@ -720,7 +724,7 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 	var state velocityContextProviderResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.VelocityContextProviderApi.UpdateVelocityContextProvider(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.HttpServletExtensionName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.HttpServletExtensionName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createVelocityContextProviderOperations(plan, state)
@@ -782,7 +786,7 @@ func (r *velocityContextProviderResource) Delete(ctx context.Context, req resour
 	}
 
 	httpResp, err := r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProviderExecute(r.apiClient.VelocityContextProviderApi.DeleteVelocityContextProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.HttpServletExtensionName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.HttpServletExtensionName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Velocity Context Provider", err, httpResp)
 		return
@@ -805,5 +809,5 @@ func importVelocityContextProvider(ctx context.Context, req resource.ImportState
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("http_servlet_extension_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

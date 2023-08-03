@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
-  id      = "MyTrustManagerProvider"
+  name    = "MyTrustManagerProvider"
   type    = "blind"
   enabled = false
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
 ### Required
 
 - `enabled` (Boolean) Indicate whether the Trust Manager Provider is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Trust Manager Provider resource. Options are ['blind', 'file-based', 'jvm-default', 'third-party']
 
 ### Optional
@@ -65,6 +65,7 @@ resource "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -83,7 +84,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "trustManagerProviderId" should be the id of the Trust Manager Provider to be imported
+# "trustManagerProviderId" should be the name of the Trust Manager Provider to be imported
 terraform import pingdirectory_trust_manager_provider.myTrustManagerProvider trustManagerProviderId
 ```
 

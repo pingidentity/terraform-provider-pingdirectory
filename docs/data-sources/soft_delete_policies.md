@@ -49,6 +49,6 @@ data "pingdirectory_soft_delete_policies" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Soft Delete Policy IDs found in the configuration
 

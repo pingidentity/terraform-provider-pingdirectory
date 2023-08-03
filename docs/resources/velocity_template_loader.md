@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
-  id                          = "MyVelocityTemplateLoader"
+  name                        = "MyVelocityTemplateLoader"
   evaluation_order_index      = 10100
   http_servlet_extension_name = "Velocity"
   mime_type_matcher           = "text/html"
@@ -51,8 +51,8 @@ resource "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
 ### Required
 
 - `http_servlet_extension_name` (String) Name of the parent HTTP Servlet Extension
-- `id` (String) Name of this object.
 - `mime_type_matcher` (String) Specifies a media type for matching Accept request-header values.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -64,6 +64,7 @@ resource "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

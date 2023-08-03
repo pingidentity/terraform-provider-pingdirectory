@@ -75,13 +75,13 @@ func TestAccConstructedAttribute(t *testing.T) {
 func testAccConstructedAttributeResource(resourceName string, resourceModel constructedAttributeTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_constructed_attribute" "%[1]s" {
-  id             = "%[2]s"
+  name           = "%[2]s"
   attribute_type = "%[3]s"
   value_pattern  = %[4]s
 }
 
 data "pingdirectory_constructed_attribute" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_constructed_attribute.%[1]s
   ]

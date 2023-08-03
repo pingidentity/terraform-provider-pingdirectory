@@ -76,13 +76,13 @@ func testAccIndicatorGaugeDataSourceResource(resourceName string, resourceModel 
 	return fmt.Sprintf(`
 resource "pingdirectory_gauge_data_source" "%[1]s" {
   type                = "indicator"
-  id                  = "%[2]s"
+  name                = "%[2]s"
   monitor_objectclass = "%[3]s"
   monitor_attribute   = "%[4]s"
 }
 
 data "pingdirectory_gauge_data_source" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_gauge_data_source.%[1]s
   ]

@@ -45,7 +45,7 @@ data "pingdirectory_plugin_root" "myPluginRoot" {
 
 ### Read-Only
 
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `plugin_order_intermediate_response` (String) Specifies the order in which intermediate response plug-ins are to be loaded and invoked.
 - `plugin_order_ldif_export` (String) Specifies the order in which LDIF export plug-ins are to be loaded and invoked.
 - `plugin_order_ldif_import` (String) Specifies the order in which LDIF import plug-ins are to be loaded and invoked.

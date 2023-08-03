@@ -58,6 +58,7 @@ func (r *attributeSyntaxResource) Configure(_ context.Context, req resource.Conf
 
 type attributeSyntaxResourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
@@ -155,7 +156,7 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -203,6 +204,7 @@ func populateAttributeSyntaxUnknownValues(ctx context.Context, model *attributeS
 func readAttributeTypeDescriptionAttributeSyntaxResponse(ctx context.Context, r *client.AttributeTypeDescriptionAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-type-description")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StripSyntaxMinUpperBound = internaltypes.BoolTypeOrNil(r.StripSyntaxMinUpperBound)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -214,6 +216,7 @@ func readAttributeTypeDescriptionAttributeSyntaxResponse(ctx context.Context, r 
 func readDirectoryStringAttributeSyntaxResponse(ctx context.Context, r *client.DirectoryStringAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory-string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowZeroLengthValues = internaltypes.BoolTypeOrNil(r.AllowZeroLengthValues)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -225,6 +228,7 @@ func readDirectoryStringAttributeSyntaxResponse(ctx context.Context, r *client.D
 func readTelephoneNumberAttributeSyntaxResponse(ctx context.Context, r *client.TelephoneNumberAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("telephone-number")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StrictFormat = internaltypes.BoolTypeOrNil(r.StrictFormat)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -236,6 +240,7 @@ func readTelephoneNumberAttributeSyntaxResponse(ctx context.Context, r *client.T
 func readDistinguishedNameAttributeSyntaxResponse(ctx context.Context, r *client.DistinguishedNameAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("distinguished-name")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -249,6 +254,7 @@ func readDistinguishedNameAttributeSyntaxResponse(ctx context.Context, r *client
 func readGeneralizedTimeAttributeSyntaxResponse(ctx context.Context, r *client.GeneralizedTimeAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generalized-time")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -262,6 +268,7 @@ func readGeneralizedTimeAttributeSyntaxResponse(ctx context.Context, r *client.G
 func readIntegerAttributeSyntaxResponse(ctx context.Context, r *client.IntegerAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("integer")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -275,6 +282,7 @@ func readIntegerAttributeSyntaxResponse(ctx context.Context, r *client.IntegerAt
 func readUuidAttributeSyntaxResponse(ctx context.Context, r *client.UuidAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("uuid")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -288,6 +296,7 @@ func readUuidAttributeSyntaxResponse(ctx context.Context, r *client.UuidAttribut
 func readGenericAttributeSyntaxResponse(ctx context.Context, r *client.GenericAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -298,6 +307,7 @@ func readGenericAttributeSyntaxResponse(ctx context.Context, r *client.GenericAt
 func readJsonObjectAttributeSyntaxResponse(ctx context.Context, r *client.JsonObjectAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-object")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -308,6 +318,7 @@ func readJsonObjectAttributeSyntaxResponse(ctx context.Context, r *client.JsonOb
 func readUserPasswordAttributeSyntaxResponse(ctx context.Context, r *client.UserPasswordAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -321,6 +332,7 @@ func readUserPasswordAttributeSyntaxResponse(ctx context.Context, r *client.User
 func readBooleanAttributeSyntaxResponse(ctx context.Context, r *client.BooleanAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("boolean")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -334,6 +346,7 @@ func readBooleanAttributeSyntaxResponse(ctx context.Context, r *client.BooleanAt
 func readHexStringAttributeSyntaxResponse(ctx context.Context, r *client.HexStringAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("hex-string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -344,6 +357,7 @@ func readHexStringAttributeSyntaxResponse(ctx context.Context, r *client.HexStri
 func readBitStringAttributeSyntaxResponse(ctx context.Context, r *client.BitStringAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("bit-string")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -357,6 +371,7 @@ func readBitStringAttributeSyntaxResponse(ctx context.Context, r *client.BitStri
 func readLdapUrlAttributeSyntaxResponse(ctx context.Context, r *client.LdapUrlAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-url")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.StrictFormat = internaltypes.BoolTypeOrNil(r.StrictFormat)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.RequireBinaryTransfer = internaltypes.BoolTypeOrNil(r.RequireBinaryTransfer)
@@ -368,6 +383,7 @@ func readLdapUrlAttributeSyntaxResponse(ctx context.Context, r *client.LdapUrlAt
 func readNameAndOptionalUidAttributeSyntaxResponse(ctx context.Context, r *client.NameAndOptionalUidAttributeSyntaxResponse, state *attributeSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("name-and-optional-uid")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EnableCompaction = internaltypes.BoolTypeOrNil(r.EnableCompaction)
 	state.IncludeAttributeInCompaction = internaltypes.GetStringSet(r.IncludeAttributeInCompaction)
 	state.ExcludeAttributeFromCompaction = internaltypes.GetStringSet(r.ExcludeAttributeFromCompaction)
@@ -405,7 +421,7 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	readResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.GetAttributeSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Attribute Syntax", err, httpResp)
 		return
@@ -466,7 +482,7 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAttributeSyntaxOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -553,7 +569,7 @@ func (r *attributeSyntaxResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	readResponse, httpResp, err := r.apiClient.AttributeSyntaxApi.GetAttributeSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Attribute Syntax", err, httpResp)
 		return
@@ -631,7 +647,7 @@ func (r *attributeSyntaxResource) Update(ctx context.Context, req resource.Updat
 	var state attributeSyntaxResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.AttributeSyntaxApi.UpdateAttributeSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAttributeSyntaxOperations(plan, state)
@@ -719,6 +735,6 @@ func (r *attributeSyntaxResource) Delete(ctx context.Context, req resource.Delet
 }
 
 func (r *attributeSyntaxResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

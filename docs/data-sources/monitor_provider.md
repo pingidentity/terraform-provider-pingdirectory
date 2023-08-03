@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_monitor_provider" "myMonitorProvider" {
-  id = "MyMonitorProvider"
+  name = "MyMonitorProvider"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_monitor_provider" "myMonitorProvider" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,6 +57,7 @@ data "pingdirectory_monitor_provider" "myMonitorProvider" {
 - `enabled` (Boolean) Indicates whether the Monitor Provider is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Monitor Provider. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Monitor Provider.
+- `id` (String) The ID of this resource.
 - `low_space_error_percent_threshold` (Number) Specifies the low space error threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will start rejecting operations requested by non-root users.
 - `low_space_error_size_threshold` (String) Specifies the low space error threshold value as an absolute amount of space. If the amount of usable disk space drops below this amount, then the Directory Server will start rejecting operations requested by non-root users.
 - `low_space_warning_percent_threshold` (Number) Specifies the low space warning threshold value as a percentage of total space. If the amount of usable disk space drops below this amount, then the Directory Server will begin generating warning alert notifications.

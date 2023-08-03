@@ -86,6 +86,7 @@ func (r *defaultPasswordGeneratorResource) Configure(_ context.Context, req reso
 
 type passwordGeneratorResourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
 	RequiredActions           types.Set    `tfsdk:"required_actions"`
@@ -211,9 +212,9 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -339,6 +340,7 @@ func populatePasswordGeneratorUnknownValues(ctx context.Context, model *password
 func readRandomPasswordGeneratorResponse(ctx context.Context, r *client.RandomPasswordGeneratorResponse, state *passwordGeneratorResourceModel, expectedValues *passwordGeneratorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("random")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordCharacterSet = internaltypes.GetStringSet(r.PasswordCharacterSet)
 	state.PasswordFormat = types.StringValue(r.PasswordFormat)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -351,6 +353,7 @@ func readRandomPasswordGeneratorResponse(ctx context.Context, r *client.RandomPa
 func readGroovyScriptedPasswordGeneratorResponse(ctx context.Context, r *client.GroovyScriptedPasswordGeneratorResponse, state *passwordGeneratorResourceModel, expectedValues *passwordGeneratorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -363,6 +366,7 @@ func readGroovyScriptedPasswordGeneratorResponse(ctx context.Context, r *client.
 func readPassphrasePasswordGeneratorResponse(ctx context.Context, r *client.PassphrasePasswordGeneratorResponse, state *passwordGeneratorResourceModel, expectedValues *passwordGeneratorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("passphrase")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DictionaryFile = types.StringValue(r.DictionaryFile)
 	state.MinimumPasswordCharacters = internaltypes.Int64TypeOrNil(r.MinimumPasswordCharacters)
 	state.MinimumPasswordWords = internaltypes.Int64TypeOrNil(r.MinimumPasswordWords)
@@ -377,6 +381,7 @@ func readPassphrasePasswordGeneratorResponse(ctx context.Context, r *client.Pass
 func readThirdPartyPasswordGeneratorResponse(ctx context.Context, r *client.ThirdPartyPasswordGeneratorResponse, state *passwordGeneratorResourceModel, expectedValues *passwordGeneratorResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -407,7 +412,7 @@ func createPasswordGeneratorOperations(plan passwordGeneratorResourceModel, stat
 func (r *passwordGeneratorResource) CreateRandomPasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
 	var PasswordCharacterSetSlice []string
 	plan.PasswordCharacterSet.ElementsAs(ctx, &PasswordCharacterSetSlice, false)
-	addRequest := client.NewAddRandomPasswordGeneratorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddRandomPasswordGeneratorRequest(plan.Name.ValueString(),
 		[]client.EnumrandomPasswordGeneratorSchemaUrn{client.ENUMRANDOMPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORRANDOM},
 		PasswordCharacterSetSlice,
 		plan.PasswordFormat.ValueString(),
@@ -443,7 +448,7 @@ func (r *passwordGeneratorResource) CreateRandomPasswordGenerator(ctx context.Co
 
 // Create a groovy-scripted password-generator
 func (r *passwordGeneratorResource) CreateGroovyScriptedPasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedPasswordGeneratorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedPasswordGeneratorRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedPasswordGeneratorSchemaUrn{client.ENUMGROOVYSCRIPTEDPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -478,7 +483,7 @@ func (r *passwordGeneratorResource) CreateGroovyScriptedPasswordGenerator(ctx co
 
 // Create a passphrase password-generator
 func (r *passwordGeneratorResource) CreatePassphrasePasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
-	addRequest := client.NewAddPassphrasePasswordGeneratorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddPassphrasePasswordGeneratorRequest(plan.Name.ValueString(),
 		[]client.EnumpassphrasePasswordGeneratorSchemaUrn{client.ENUMPASSPHRASEPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORPASSPHRASE},
 		plan.DictionaryFile.ValueString(),
 		plan.Enabled.ValueBool())
@@ -513,7 +518,7 @@ func (r *passwordGeneratorResource) CreatePassphrasePasswordGenerator(ctx contex
 
 // Create a third-party password-generator
 func (r *passwordGeneratorResource) CreateThirdPartyPasswordGenerator(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan passwordGeneratorResourceModel) (*passwordGeneratorResourceModel, error) {
-	addRequest := client.NewAddThirdPartyPasswordGeneratorRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyPasswordGeneratorRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyPasswordGeneratorSchemaUrn{client.ENUMTHIRDPARTYPASSWORDGENERATORSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0PASSWORD_GENERATORTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -608,7 +613,7 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordGeneratorApi.GetPasswordGenerator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Generator", err, httpResp)
 		return
@@ -636,7 +641,7 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.PasswordGeneratorApi.UpdatePasswordGenerator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.PasswordGeneratorApi.UpdatePasswordGenerator(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createPasswordGeneratorOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -698,7 +703,7 @@ func readPasswordGenerator(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.PasswordGeneratorApi.GetPasswordGenerator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Generator", err, httpResp)
 		return
@@ -751,7 +756,7 @@ func updatePasswordGenerator(ctx context.Context, req resource.UpdateRequest, re
 	var state passwordGeneratorResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.PasswordGeneratorApi.UpdatePasswordGenerator(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createPasswordGeneratorOperations(plan, state)
@@ -815,7 +820,7 @@ func (r *passwordGeneratorResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.PasswordGeneratorApi.DeletePasswordGeneratorExecute(r.apiClient.PasswordGeneratorApi.DeletePasswordGenerator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Password Generator", err, httpResp)
 		return
@@ -831,6 +836,6 @@ func (r *defaultPasswordGeneratorResource) ImportState(ctx context.Context, req 
 }
 
 func importPasswordGenerator(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

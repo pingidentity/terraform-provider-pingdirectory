@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_id_token_validator" "myIdTokenValidator" {
-  id = "MyIdTokenValidator"
+  name = "MyIdTokenValidator"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_id_token_validator" "myIdTokenValidator" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -55,6 +55,7 @@ data "pingdirectory_id_token_validator" "myIdTokenValidator" {
 - `description` (String) A description for this ID Token Validator
 - `enabled` (Boolean) Indicates whether this ID Token Validator is enabled for use in the Directory Server.
 - `evaluation_order_index` (Number) When multiple ID Token Validators are defined for a single Directory Server, this property determines the order in which the ID Token Validators are consulted. Values of this property must be unique among all ID Token Validators defined within Directory Server but not necessarily contiguous. ID Token Validators with lower values will be evaluated first to determine if they are able to validate the ID token.
+- `id` (String) The ID of this resource.
 - `identity_mapper` (String) Specifies the name of the Identity Mapper that should be used to correlate an ID token subject value to a user entry. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.
 - `issuer_url` (String) Specifies a PingOne base issuer URL.
 - `jwks_cache_duration` (String) How often the ID Token Validator should refresh its cache of JWKS token signing keys.

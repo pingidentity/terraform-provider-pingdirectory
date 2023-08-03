@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_inter_server_authentication_info" "myInterServerAuthenticationInfo" {
-  id                            = "MyInterServerAuthenticationInfo"
+  name                          = "MyInterServerAuthenticationInfo"
   server_instance_listener_name = "MyServerInstanceListener"
   server_instance_name          = "MyServerInstance"
 }
@@ -48,7 +48,7 @@ data "pingdirectory_inter_server_authentication_info" "myInterServerAuthenticati
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `server_instance_listener_name` (String) Name of the parent Server Instance Listener
 - `server_instance_name` (String) Name of the parent Server Instance
 
@@ -56,6 +56,7 @@ data "pingdirectory_inter_server_authentication_info" "myInterServerAuthenticati
 
 - `authentication_type` (String) Identifies the type of password authentication that will be used.
 - `bind_dn` (String) A DN of the username that should be used for the bind request.
+- `id` (String) The ID of this resource.
 - `password` (String, Sensitive) The password for the username or bind-dn.
 - `purpose` (Set of String) Identifies the purpose of this Inter Server Authentication Info.
 - `type` (String) The type of Inter Server Authentication Info resource. Options are ['password', 'certificate']

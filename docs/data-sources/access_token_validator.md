@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_access_token_validator" "myAccessTokenValidator" {
-  id = "MyAccessTokenValidator"
+  name = "MyAccessTokenValidator"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_access_token_validator" "myAccessTokenValidator" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -67,6 +67,7 @@ data "pingdirectory_access_token_validator" "myAccessTokenValidator" {
 - `evaluation_order_index` (Number) When multiple Ping Federate Access Token Validators are defined for a single Directory Server, this property determines the evaluation order for determining the correct validator class for an access token received by the Directory Server. Values of this property must be unique among all Ping Federate Access Token Validators defined within Directory Server but not necessarily contiguous. Ping Federate Access Token Validators with a smaller value will be evaluated first to determine if they are able to validate the access token.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Access Token Validator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Access Token Validator.
+- `id` (String) The ID of this resource.
 - `identity_mapper` (String) Specifies the name of the Identity Mapper that should be used for associating user entries with Bearer token subject names. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.
 - `include_aud_parameter` (Boolean) Whether to include the incoming request URL as the "aud" parameter when calling the PingFederate introspection endpoint. This property is ignored if the access-token-manager-id property is set.
 - `jwks_endpoint_path` (String) The relative path to JWKS endpoint from which to retrieve one or more public signing keys that may be used to validate the signature of an incoming JWT access token. This path is relative to the base_url property defined for the validator's external authorization server. If jwks-endpoint-path is specified, the JWT Access Token Validator will not consult locally stored certificates for validating token signatures.

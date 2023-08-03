@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteria" {
-  id = "MyUncachedAttributeCriteria"
+  name = "MyUncachedAttributeCriteria"
 }

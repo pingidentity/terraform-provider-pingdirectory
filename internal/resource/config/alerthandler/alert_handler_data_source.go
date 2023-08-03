@@ -48,6 +48,7 @@ func (r *alertHandlerDataSource) Configure(_ context.Context, req datasource.Con
 
 type alertHandlerDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
@@ -81,13 +82,9 @@ type alertHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *alertHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Alert Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Alert Handler resource. Options are ['output', 'smtp', 'jmx', 'groovy-scripted', 'custom', 'snmp', 'twilio', 'error-log', 'snmp-sub-agent', 'exec', 'third-party']",
 				Required:    false,
@@ -273,12 +270,15 @@ func (r *alertHandlerDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a OutputAlertHandlerResponse object into the model struct
 func readOutputAlertHandlerResponseDataSource(ctx context.Context, r *client.OutputAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("output")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumalertHandlerOutputLocationProp(r.OutputLocation), false)
 	state.OutputFormat = internaltypes.StringTypeOrNil(
@@ -298,6 +298,7 @@ func readOutputAlertHandlerResponseDataSource(ctx context.Context, r *client.Out
 func readSmtpAlertHandlerResponseDataSource(ctx context.Context, r *client.SmtpAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.SenderAddress = types.StringValue(r.SenderAddress)
 	state.RecipientAddress = internaltypes.GetStringSet(r.RecipientAddress)
@@ -318,6 +319,7 @@ func readSmtpAlertHandlerResponseDataSource(ctx context.Context, r *client.SmtpA
 func readJmxAlertHandlerResponseDataSource(ctx context.Context, r *client.JmxAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jmx")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -333,6 +335,7 @@ func readJmxAlertHandlerResponseDataSource(ctx context.Context, r *client.JmxAle
 func readGroovyScriptedAlertHandlerResponseDataSource(ctx context.Context, r *client.GroovyScriptedAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -350,6 +353,7 @@ func readGroovyScriptedAlertHandlerResponseDataSource(ctx context.Context, r *cl
 func readCustomAlertHandlerResponseDataSource(ctx context.Context, r *client.CustomAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
@@ -365,6 +369,7 @@ func readCustomAlertHandlerResponseDataSource(ctx context.Context, r *client.Cus
 func readSnmpAlertHandlerResponseDataSource(ctx context.Context, r *client.SnmpAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("snmp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -383,6 +388,7 @@ func readSnmpAlertHandlerResponseDataSource(ctx context.Context, r *client.SnmpA
 func readTwilioAlertHandlerResponseDataSource(ctx context.Context, r *client.TwilioAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("twilio")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
 	state.TwilioAccountSID = types.StringValue(r.TwilioAccountSID)
@@ -404,6 +410,7 @@ func readTwilioAlertHandlerResponseDataSource(ctx context.Context, r *client.Twi
 func readErrorLogAlertHandlerResponseDataSource(ctx context.Context, r *client.ErrorLogAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
@@ -419,6 +426,7 @@ func readErrorLogAlertHandlerResponseDataSource(ctx context.Context, r *client.E
 func readSnmpSubAgentAlertHandlerResponseDataSource(ctx context.Context, r *client.SnmpSubAgentAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("snmp-sub-agent")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -434,6 +442,7 @@ func readSnmpSubAgentAlertHandlerResponseDataSource(ctx context.Context, r *clie
 func readExecAlertHandlerResponseDataSource(ctx context.Context, r *client.ExecAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("exec")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Command = types.StringValue(r.Command)
 	state.Asynchronous = internaltypes.BoolTypeOrNil(r.Asynchronous)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -450,6 +459,7 @@ func readExecAlertHandlerResponseDataSource(ctx context.Context, r *client.ExecA
 func readThirdPartyAlertHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartyAlertHandlerResponse, state *alertHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -474,7 +484,7 @@ func (r *alertHandlerDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.AlertHandlerApi.GetAlertHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Alert Handler", err, httpResp)
 		return

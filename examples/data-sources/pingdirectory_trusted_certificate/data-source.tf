@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_trusted_certificate" "myTrustedCertificate" {
-  id = "MyTrustedCertificate"
+  name = "MyTrustedCertificate"
 }

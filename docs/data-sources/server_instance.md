@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_server_instance" "myServerInstance" {
-  id = "MyServerInstance"
+  name = "MyServerInstance"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_server_instance" "myServerInstance" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -55,6 +55,7 @@ data "pingdirectory_server_instance" "myServerInstance" {
 - `hostname` (String) The name of the host where this Server Instance is installed.
 - `http_port` (Number) The TCP port on which this server is listening for HTTP connections.
 - `https_port` (Number) The TCP port on which this server is listening for HTTPS connections.
+- `id` (String) The ID of this resource.
 - `inter_server_certificate` (String) The public component of the certificate used by this instance to protect inter-server communication and to perform server-specific encryption. This will generally be managed by the server and should only be altered by administrators under explicit direction from Ping Identity support personnel.
 - `jmx_port` (Number) The TCP port on which this server is listening for JMX connections.
 - `jmxs_port` (Number) The TCP port on which this server is listening for JMX secure connections.

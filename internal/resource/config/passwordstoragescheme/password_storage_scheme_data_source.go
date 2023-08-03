@@ -48,6 +48,7 @@ func (r *passwordStorageSchemeDataSource) Configure(_ context.Context, req datas
 
 type passwordStorageSchemeDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	ScryptCpuMemoryCostFactorExponent types.Int64  `tfsdk:"scrypt_cpu_memory_cost_factor_exponent"`
 	ScryptBlockSize                   types.Int64  `tfsdk:"scrypt_block_size"`
@@ -78,13 +79,9 @@ type passwordStorageSchemeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Password Storage Scheme.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Password Storage Scheme resource. Options are ['salted-sha256', 'argon2d', 'crypt', 'argon2i', 'base64', 'salted-md5', 'aes', 'argon2id', 'vault', 'third-party', 'argon2', 'third-party-enhanced', 'pbkdf2', 'rc4', 'salted-sha384', 'triple-des', 'clear', 'aes-256', 'bcrypt', 'blowfish', 'sha1', 'amazon-secrets-manager', 'azure-key-vault', 'conjur', 'salted-sha1', 'salted-sha512', 'scrypt', 'md5']",
 				Required:    false,
@@ -244,12 +241,15 @@ func (r *passwordStorageSchemeDataSource) Schema(ctx context.Context, req dataso
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SaltedSha256PasswordStorageSchemeResponse object into the model struct
 func readSaltedSha256PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.SaltedSha256PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha256")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -259,6 +259,7 @@ func readSaltedSha256PasswordStorageSchemeResponseDataSource(ctx context.Context
 func readArgon2dPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Argon2dPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2d")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -272,6 +273,7 @@ func readArgon2dPasswordStorageSchemeResponseDataSource(ctx context.Context, r *
 func readCryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.CryptPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("crypt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordEncodingMechanism = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordStorageSchemePasswordEncodingMechanismProp(r.PasswordEncodingMechanism), false)
 	state.NumDigestRounds = internaltypes.Int64TypeOrNil(r.NumDigestRounds)
@@ -284,6 +286,7 @@ func readCryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *cl
 func readArgon2iPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Argon2iPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2i")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -297,6 +300,7 @@ func readArgon2iPasswordStorageSchemeResponseDataSource(ctx context.Context, r *
 func readBase64PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Base64PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("base64")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -305,6 +309,7 @@ func readBase64PasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readSaltedMd5PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.SaltedMd5PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-md5")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -314,6 +319,7 @@ func readSaltedMd5PasswordStorageSchemeResponseDataSource(ctx context.Context, r
 func readAesPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.AesPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aes")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -322,6 +328,7 @@ func readAesPasswordStorageSchemeResponseDataSource(ctx context.Context, r *clie
 func readArgon2idPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Argon2idPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2id")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -335,6 +342,7 @@ func readArgon2idPasswordStorageSchemeResponseDataSource(ctx context.Context, r 
 func readVaultPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.VaultPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultExternalServer = types.StringValue(r.VaultExternalServer)
 	state.DefaultField = internaltypes.StringTypeOrNil(r.DefaultField, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -345,6 +353,7 @@ func readVaultPasswordStorageSchemeResponseDataSource(ctx context.Context, r *cl
 func readThirdPartyPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.ThirdPartyPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -355,6 +364,7 @@ func readThirdPartyPasswordStorageSchemeResponseDataSource(ctx context.Context, 
 func readArgon2PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Argon2PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("argon2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IterationCount = types.Int64Value(r.IterationCount)
 	state.ParallelismFactor = types.Int64Value(r.ParallelismFactor)
 	state.MemoryUsageKb = types.Int64Value(r.MemoryUsageKb)
@@ -368,6 +378,7 @@ func readArgon2PasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readThirdPartyEnhancedPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.ThirdPartyEnhancedPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-enhanced")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -378,6 +389,7 @@ func readThirdPartyEnhancedPasswordStorageSchemeResponseDataSource(ctx context.C
 func readPbkdf2PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Pbkdf2PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("pbkdf2")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumpasswordStorageSchemeDigestAlgorithmProp(r.DigestAlgorithm), false)
 	state.IterationCount = types.Int64Value(r.IterationCount)
@@ -392,6 +404,7 @@ func readPbkdf2PasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readRc4PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Rc4PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("rc4")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -400,6 +413,7 @@ func readRc4PasswordStorageSchemeResponseDataSource(ctx context.Context, r *clie
 func readSaltedSha384PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.SaltedSha384PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha384")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -409,6 +423,7 @@ func readSaltedSha384PasswordStorageSchemeResponseDataSource(ctx context.Context
 func readTripleDesPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.TripleDesPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("triple-des")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -417,6 +432,7 @@ func readTripleDesPasswordStorageSchemeResponseDataSource(ctx context.Context, r
 func readClearPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.ClearPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("clear")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -425,6 +441,7 @@ func readClearPasswordStorageSchemeResponseDataSource(ctx context.Context, r *cl
 func readAes256PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Aes256PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aes-256")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EncryptionSettingsDefinitionID = internaltypes.StringTypeOrNil(r.EncryptionSettingsDefinitionID, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -434,6 +451,7 @@ func readAes256PasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readBcryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.BcryptPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("bcrypt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.BcryptCostFactor = internaltypes.Int64TypeOrNil(r.BcryptCostFactor)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -443,6 +461,7 @@ func readBcryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readBlowfishPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.BlowfishPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("blowfish")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -451,6 +470,7 @@ func readBlowfishPasswordStorageSchemeResponseDataSource(ctx context.Context, r 
 func readSha1PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Sha1PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("sha1")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -459,6 +479,7 @@ func readSha1PasswordStorageSchemeResponseDataSource(ctx context.Context, r *cli
 func readAmazonSecretsManagerPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.AmazonSecretsManagerPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("amazon-secrets-manager")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AwsExternalServer = types.StringValue(r.AwsExternalServer)
 	state.DefaultField = internaltypes.StringTypeOrNil(r.DefaultField, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -469,6 +490,7 @@ func readAmazonSecretsManagerPasswordStorageSchemeResponseDataSource(ctx context
 func readAzureKeyVaultPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.AzureKeyVaultPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("azure-key-vault")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyVaultURI = types.StringValue(r.KeyVaultURI)
 	state.AzureAuthenticationMethod = types.StringValue(r.AzureAuthenticationMethod)
 	state.HttpProxyExternalServer = internaltypes.StringTypeOrNil(r.HttpProxyExternalServer, false)
@@ -480,6 +502,7 @@ func readAzureKeyVaultPasswordStorageSchemeResponseDataSource(ctx context.Contex
 func readConjurPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.ConjurPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("conjur")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ConjurExternalServer = types.StringValue(r.ConjurExternalServer)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -489,6 +512,7 @@ func readConjurPasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readSaltedSha1PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.SaltedSha1PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha1")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -498,6 +522,7 @@ func readSaltedSha1PasswordStorageSchemeResponseDataSource(ctx context.Context, 
 func readSaltedSha512PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.SaltedSha512PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("salted-sha512")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SaltLengthBytes = internaltypes.Int64TypeOrNil(r.SaltLengthBytes)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -507,6 +532,7 @@ func readSaltedSha512PasswordStorageSchemeResponseDataSource(ctx context.Context
 func readScryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.ScryptPasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("scrypt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScryptCpuMemoryCostFactorExponent = internaltypes.Int64TypeOrNil(r.ScryptCpuMemoryCostFactorExponent)
 	state.ScryptBlockSize = internaltypes.Int64TypeOrNil(r.ScryptBlockSize)
 	state.ScryptParallelizationParameter = internaltypes.Int64TypeOrNil(r.ScryptParallelizationParameter)
@@ -519,6 +545,7 @@ func readScryptPasswordStorageSchemeResponseDataSource(ctx context.Context, r *c
 func readMd5PasswordStorageSchemeResponseDataSource(ctx context.Context, r *client.Md5PasswordStorageSchemeResponse, state *passwordStorageSchemeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("md5")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
@@ -534,7 +561,7 @@ func (r *passwordStorageSchemeDataSource) Read(ctx context.Context, req datasour
 	}
 
 	readResponse, httpResp, err := r.apiClient.PasswordStorageSchemeApi.GetPasswordStorageScheme(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Password Storage Scheme", err, httpResp)
 		return

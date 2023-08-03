@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_obscured_value" "myObscuredValue" {
-  id             = "MyObscuredValue"
+  name           = "MyObscuredValue"
   obscured_value = "obscured"
 }

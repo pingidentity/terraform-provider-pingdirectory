@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_gauge_data_source" "myGaugeDataSource" {
-  id                  = "MyGaugeDataSource"
+  name                = "MyGaugeDataSource"
   type                = "indicator"
   monitor_objectclass = "ds-host-system-disk-monitor-entry"
   monitor_attribute   = "pct-busy"

@@ -88,14 +88,14 @@ func TestAccRecurringTaskChain(t *testing.T) {
 func testAccRecurringTaskChainResource(resourceName string, resourceModel recurringTaskChainTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_recurring_task_chain" "%[1]s" {
-  id                            = "%[2]s"
+  name                          = "%[2]s"
   recurring_task                = %[3]s
   scheduled_date_selection_type = "%[4]s"
   scheduled_time_of_day         = %[5]s
 }
 
 data "pingdirectory_recurring_task_chain" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_recurring_task_chain.%[1]s
   ]

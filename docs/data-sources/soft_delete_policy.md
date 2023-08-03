@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_soft_delete_policy" "mySoftDeletePolicy" {
-  id = "MySoftDeletePolicy"
+  name = "MySoftDeletePolicy"
 }
 ```
 
@@ -46,13 +46,14 @@ data "pingdirectory_soft_delete_policy" "mySoftDeletePolicy" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `auto_soft_delete_connection_criteria` (String) Connection criteria used to automatically identify a delete operation for processing as a soft delete request.
 - `auto_soft_delete_request_criteria` (String) Request criteria used to automatically identify a delete operation for processing as a soft delete request.
 - `description` (String) A description for this Soft Delete Policy
+- `id` (String) The ID of this resource.
 - `soft_delete_retain_number_of_entries` (Number) Specifies the number of soft deleted entries to retain before the oldest entries are purged.
 - `soft_delete_retention_time` (String) Specifies the maximum length of time that soft delete entries are retained before they are eligible to purged automatically.
 

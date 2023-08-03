@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_rest_resource_type" "myRestResourceType" {
-  id                          = "MyRestResourceType"
+  name                        = "MyRestResourceType"
   type                        = "user"
   enabled                     = true
   resource_endpoint           = "userRestResource"
@@ -52,7 +52,7 @@ resource "pingdirectory_rest_resource_type" "myRestResourceType" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the REST Resource Type is enabled.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `resource_endpoint` (String) The HTTP addressable endpoint of this REST Resource Type relative to a REST API base URL. Do not include a leading '/'.
 - `search_base_dn` (String) Specifies the base DN of the branch of the LDAP directory where resources of this type are located.
 - `structural_ldap_objectclass` (String) Specifies the LDAP structural object class that should be exposed by this REST Resource Type.
@@ -81,6 +81,7 @@ resource "pingdirectory_rest_resource_type" "myRestResourceType" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -99,7 +100,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "restResourceTypeId" should be the id of the Rest Resource Type to be imported
+# "restResourceTypeId" should be the name of the Rest Resource Type to be imported
 terraform import pingdirectory_rest_resource_type.myRestResourceType restResourceTypeId
 ```
 

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_result_criteria" "myResultCriteria" {
-  id = "MyResultCriteria"
+  name = "MyResultCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_result_criteria" "myResultCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -67,6 +67,7 @@ data "pingdirectory_result_criteria" "myResultCriteria" {
 - `excluded_user_group_dn` (Set of String) The DNs of the groups whose members will not be permitted to match this criteria.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Result Criteria. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Result Criteria.
+- `id` (String) The ID of this resource.
 - `include_anonymous_binds` (Boolean) Indicates whether this criteria will be permitted to match bind operations that resulted in anonymous authentication.
 - `included_authz_user_base_dn` (Set of String) Specifies a base DN below which authorization user entries may exist for operations included in this Simple Result Criteria. The authorization user could be the currently authenticated user on the connection (the user that performed the Bind operation), or different if proxied authorization was used to request that the operation be performed under the authorization of another user (as is the case for operations that come through a Directory Proxy Server). This property will be ignored for operations where no authentication or authorization has been performed.
 - `included_user_base_dn` (Set of String) A set of base DNs for authenticated users that will be permitted to match this criteria.

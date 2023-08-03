@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_synchronization_provider" "mySynchronizationProvider" {
-  id      = "MySynchronizationProvider"
+  name    = "MySynchronizationProvider"
   type    = "replication"
   enabled = false
 }

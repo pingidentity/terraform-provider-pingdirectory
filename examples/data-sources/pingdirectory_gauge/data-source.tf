@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_gauge" "myGauge" {
-  id = "MyGauge"
+  name = "MyGauge"
 }

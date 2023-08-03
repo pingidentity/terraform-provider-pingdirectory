@@ -79,6 +79,7 @@ func (r *defaultConjurAuthenticationMethodResource) Configure(_ context.Context,
 
 type conjurAuthenticationMethodResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -123,9 +124,9 @@ func conjurAuthenticationMethodSchema(ctx context.Context, req resource.SchemaRe
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -158,6 +159,7 @@ func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model 
 // Read a ApiKeyConjurAuthenticationMethodResponse object into the model struct
 func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodResourceModel, expectedValues *conjurAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -187,7 +189,7 @@ func createConjurAuthenticationMethodOperations(plan conjurAuthenticationMethodR
 
 // Create a api-key conjur-authentication-method
 func (r *conjurAuthenticationMethodResource) CreateApiKeyConjurAuthenticationMethod(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan conjurAuthenticationMethodResourceModel) (*conjurAuthenticationMethodResourceModel, error) {
-	addRequest := client.NewAddApiKeyConjurAuthenticationMethodRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddApiKeyConjurAuthenticationMethodRequest(plan.Name.ValueString(),
 		[]client.EnumapiKeyConjurAuthenticationMethodSchemaUrn{client.ENUMAPIKEYCONJURAUTHENTICATIONMETHODSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CONJUR_AUTHENTICATION_METHODAPI_KEY},
 		plan.Username.ValueString())
 	addOptionalApiKeyConjurAuthenticationMethodFields(ctx, addRequest, plan)
@@ -259,7 +261,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Conjur Authentication Method", err, httpResp)
 		return
@@ -276,7 +278,7 @@ func (r *defaultConjurAuthenticationMethodResource) Create(ctx context.Context, 
 	readApiKeyConjurAuthenticationMethodResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createConjurAuthenticationMethodOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -328,7 +330,7 @@ func readConjurAuthenticationMethod(ctx context.Context, req resource.ReadReques
 	}
 
 	readResponse, httpResp, err := apiClient.ConjurAuthenticationMethodApi.GetConjurAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Conjur Authentication Method", err, httpResp)
 		return
@@ -370,7 +372,7 @@ func updateConjurAuthenticationMethod(ctx context.Context, req resource.UpdateRe
 	var state conjurAuthenticationMethodResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ConjurAuthenticationMethodApi.UpdateConjurAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createConjurAuthenticationMethodOperations(plan, state)
@@ -424,7 +426,7 @@ func (r *conjurAuthenticationMethodResource) Delete(ctx context.Context, req res
 	}
 
 	httpResp, err := r.apiClient.ConjurAuthenticationMethodApi.DeleteConjurAuthenticationMethodExecute(r.apiClient.ConjurAuthenticationMethodApi.DeleteConjurAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Conjur Authentication Method", err, httpResp)
 		return
@@ -440,6 +442,6 @@ func (r *defaultConjurAuthenticationMethodResource) ImportState(ctx context.Cont
 }
 
 func importConjurAuthenticationMethod(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

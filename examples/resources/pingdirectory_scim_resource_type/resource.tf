@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_scim_resource_type" "myScimResourceType" {
-  id       = "MyScimResourceType"
+  name     = "MyScimResourceType"
   type     = "ldap-pass-through"
   enabled  = false
   endpoint = "myendpoint"

@@ -48,6 +48,7 @@ func (r *scimResourceTypeDataSource) Configure(_ context.Context, req datasource
 
 type scimResourceTypeDataSourceModel struct {
 	Id                          types.String `tfsdk:"id"`
+	Name                        types.String `tfsdk:"name"`
 	Type                        types.String `tfsdk:"type"`
 	CoreSchema                  types.String `tfsdk:"core_schema"`
 	RequiredSchemaExtension     types.Set    `tfsdk:"required_schema_extension"`
@@ -67,13 +68,9 @@ type scimResourceTypeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *scimResourceTypeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Scim Resource Type.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']",
 				Required:    false,
@@ -172,12 +169,15 @@ func (r *scimResourceTypeDataSource) Schema(ctx context.Context, req datasource.
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a LdapPassThroughScimResourceTypeResponse object into the model struct
 func readLdapPassThroughScimResourceTypeResponseDataSource(ctx context.Context, r *client.LdapPassThroughScimResourceTypeResponse, state *scimResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-pass-through")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Endpoint = types.StringValue(r.Endpoint)
@@ -196,6 +196,7 @@ func readLdapPassThroughScimResourceTypeResponseDataSource(ctx context.Context, 
 func readLdapMappingScimResourceTypeResponseDataSource(ctx context.Context, r *client.LdapMappingScimResourceTypeResponse, state *scimResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ldap-mapping")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CoreSchema = types.StringValue(r.CoreSchema)
 	state.RequiredSchemaExtension = internaltypes.GetStringSet(r.RequiredSchemaExtension)
 	state.OptionalSchemaExtension = internaltypes.GetStringSet(r.OptionalSchemaExtension)
@@ -224,7 +225,7 @@ func (r *scimResourceTypeDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.ScimResourceTypeApi.GetScimResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Resource Type", err, httpResp)
 		return

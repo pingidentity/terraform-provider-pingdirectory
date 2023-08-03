@@ -56,7 +56,6 @@ func (r *consentServiceResource) Configure(_ context.Context, req resource.Confi
 }
 
 type consentServiceResourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                          types.String `tfsdk:"id"`
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
@@ -153,7 +152,7 @@ func (r *consentServiceResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, false)
+	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
 }
 

@@ -48,6 +48,7 @@ func (r *accessTokenValidatorDataSource) Configure(_ context.Context, req dataso
 
 type accessTokenValidatorDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
@@ -76,13 +77,9 @@ type accessTokenValidatorDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *accessTokenValidatorDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Access Token Validator.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Access Token Validator resource. Options are ['ping-federate', 'jwt', 'mock', 'third-party']",
 				Required:    false,
@@ -235,12 +232,15 @@ func (r *accessTokenValidatorDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a PingFederateAccessTokenValidatorResponse object into the model struct
 func readPingFederateAccessTokenValidatorResponseDataSource(ctx context.Context, r *client.PingFederateAccessTokenValidatorResponse, state *accessTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ping-federate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ClientID = types.StringValue(r.ClientID)
 	state.ClientSecretPassphraseProvider = internaltypes.StringTypeOrNil(r.ClientSecretPassphraseProvider, false)
 	state.IncludeAudParameter = internaltypes.BoolTypeOrNil(r.IncludeAudParameter)
@@ -258,6 +258,7 @@ func readPingFederateAccessTokenValidatorResponseDataSource(ctx context.Context,
 func readJwtAccessTokenValidatorResponseDataSource(ctx context.Context, r *client.JwtAccessTokenValidatorResponse, state *accessTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jwt")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllowedSigningAlgorithm = internaltypes.GetStringSet(
 		client.StringSliceEnumaccessTokenValidatorAllowedSigningAlgorithmProp(r.AllowedSigningAlgorithm))
 	state.SigningCertificate = internaltypes.GetStringSet(r.SigningCertificate)
@@ -282,6 +283,7 @@ func readJwtAccessTokenValidatorResponseDataSource(ctx context.Context, r *clien
 func readMockAccessTokenValidatorResponseDataSource(ctx context.Context, r *client.MockAccessTokenValidatorResponse, state *accessTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("mock")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ClientIDClaimName = internaltypes.StringTypeOrNil(r.ClientIDClaimName, false)
 	state.ScopeClaimName = internaltypes.StringTypeOrNil(r.ScopeClaimName, false)
 	state.EvaluationOrderIndex = types.Int64Value(r.EvaluationOrderIndex)
@@ -295,6 +297,7 @@ func readMockAccessTokenValidatorResponseDataSource(ctx context.Context, r *clie
 func readThirdPartyAccessTokenValidatorResponseDataSource(ctx context.Context, r *client.ThirdPartyAccessTokenValidatorResponse, state *accessTokenValidatorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.IdentityMapper = internaltypes.StringTypeOrNil(r.IdentityMapper, false)
@@ -315,7 +318,7 @@ func (r *accessTokenValidatorDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.AccessTokenValidatorApi.GetAccessTokenValidator(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Access Token Validator", err, httpResp)
 		return

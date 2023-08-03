@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_pass_through_authentication_handler" "myPassThroughAuthenticationHandler" {
-  id = "MyPassThroughAuthenticationHandler"
+  name = "MyPassThroughAuthenticationHandler"
 }

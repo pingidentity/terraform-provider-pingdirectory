@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
-  id = "MyDelegatedAdminRights"
+  name = "MyDelegatedAdminRights"
 }

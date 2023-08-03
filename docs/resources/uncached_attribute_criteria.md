@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteria" {
-  id          = "MyUncachedAttributeCriteria"
+  name        = "MyUncachedAttributeCriteria"
   type        = "default"
   description = "My default uncached attribute criteria"
   enabled     = false
@@ -50,7 +50,7 @@ resource "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteri
 ### Required
 
 - `enabled` (Boolean) Indicates whether this Uncached Attribute Criteria is enabled for use in the server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Uncached Attribute Criteria resource. Options are ['default', 'groovy-scripted', 'simple', 'third-party']
 
 ### Optional
@@ -66,6 +66,7 @@ resource "pingdirectory_uncached_attribute_criteria" "myUncachedAttributeCriteri
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -84,7 +85,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "uncachedAttributeCriteriaId" should be the id of the Uncached Attribute Criteria to be imported
+# "uncachedAttributeCriteriaId" should be the name of the Uncached Attribute Criteria to be imported
 terraform import pingdirectory_uncached_attribute_criteria.myUncachedAttributeCriteria uncachedAttributeCriteriaId
 ```
 

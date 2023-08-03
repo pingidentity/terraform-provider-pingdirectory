@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_cipher_secret_key" "myCipherSecretKey" {
-  id                   = "MyCipherSecretKey"
+  name                 = "MyCipherSecretKey"
   server_instance_name = "MyServerInstance"
 }

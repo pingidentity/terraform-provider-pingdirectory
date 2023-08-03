@@ -48,6 +48,7 @@ func (r *vaultAuthenticationMethodDataSource) Configure(_ context.Context, req d
 
 type vaultAuthenticationMethodDataSourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	Type               types.String `tfsdk:"type"`
 	Username           types.String `tfsdk:"username"`
 	Password           types.String `tfsdk:"password"`
@@ -60,13 +61,9 @@ type vaultAuthenticationMethodDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *vaultAuthenticationMethodDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Vault Authentication Method.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Vault Authentication Method resource. Options are ['static-token', 'app-role', 'user-pass']",
 				Required:    false,
@@ -120,12 +117,15 @@ func (r *vaultAuthenticationMethodDataSource) Schema(ctx context.Context, req da
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a StaticTokenVaultAuthenticationMethodResponse object into the model struct
 func readStaticTokenVaultAuthenticationMethodResponseDataSource(ctx context.Context, r *client.StaticTokenVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("static-token")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 }
 
@@ -133,6 +133,7 @@ func readStaticTokenVaultAuthenticationMethodResponseDataSource(ctx context.Cont
 func readAppRoleVaultAuthenticationMethodResponseDataSource(ctx context.Context, r *client.AppRoleVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("app-role")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.VaultRoleID = types.StringValue(r.VaultRoleID)
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -142,6 +143,7 @@ func readAppRoleVaultAuthenticationMethodResponseDataSource(ctx context.Context,
 func readUserPassVaultAuthenticationMethodResponseDataSource(ctx context.Context, r *client.UserPassVaultAuthenticationMethodResponse, state *vaultAuthenticationMethodDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user-pass")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)
 	state.LoginMechanismName = internaltypes.StringTypeOrNil(r.LoginMechanismName, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -158,7 +160,7 @@ func (r *vaultAuthenticationMethodDataSource) Read(ctx context.Context, req data
 	}
 
 	readResponse, httpResp, err := r.apiClient.VaultAuthenticationMethodApi.GetVaultAuthenticationMethod(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Vault Authentication Method", err, httpResp)
 		return

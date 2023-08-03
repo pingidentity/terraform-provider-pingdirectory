@@ -55,15 +55,9 @@ type scimAttributesDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *scimAttributesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Scim Attribute objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"scim_schema_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Schema",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *scimAttributesDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

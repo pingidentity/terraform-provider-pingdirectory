@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_field_behavior" "myLogFieldBehavior" {
-  id          = "MyLogFieldBehavior"
+  name        = "MyLogFieldBehavior"
   type        = "text-access"
   description = "My text access log field behavior"
 }

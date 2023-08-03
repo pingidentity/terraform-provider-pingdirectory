@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_password_storage_scheme" "myPasswordStorageScheme" {
-  id                       = "MyPasswordStorageScheme"
+  name                     = "MyPasswordStorageScheme"
   type                     = "argon2d"
   enabled                  = false
   iteration_count          = 10

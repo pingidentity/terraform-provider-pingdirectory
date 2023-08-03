@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
-  id = "MySearchReferenceCriteria"
+  name = "MySearchReferenceCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -57,6 +57,7 @@ data "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
 - `description` (String) A description for this Search Reference Criteria
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Search Reference Criteria. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Search Reference Criteria.
+- `id` (String) The ID of this resource.
 - `none_included_reference_control` (Set of String) Specifies the OID of a control that must not be present in search result references included in this Simple Search Reference Criteria. If any control OIDs are provided, then the reference must not contain any of those controls.
 - `none_included_search_reference_criteria` (Set of String) Specifies a search reference criteria object that must not match the associated search result reference in order to match the aggregate search reference criteria. If one or more none-included search reference criteria objects are provided, then a search result reference must not match any of them in order to match the aggregate search reference criteria.
 - `not_all_included_reference_control` (Set of String) Specifies the OID of a control that should not be present in search result references included in this Simple Search Reference Criteria. If any control OIDs are provided, then the reference must not contain at least one of those controls (that is, it may contain zero or more of those controls, but not all of them).

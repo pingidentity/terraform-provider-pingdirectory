@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_entry_cache" "myEntryCache" {
-  id          = "MyEntryCache"
+  name        = "MyEntryCache"
   enabled     = true
   cache_level = 1
 }

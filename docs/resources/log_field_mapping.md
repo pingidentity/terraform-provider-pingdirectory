@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_field_mapping" "myLogFieldMapping" {
-  id              = "MyLogFieldMapping"
+  name            = "MyLogFieldMapping"
   type            = "access"
   description     = "My access log field mapping"
   log_field_scope = "search_scope"
@@ -49,7 +49,7 @@ resource "pingdirectory_log_field_mapping" "myLogFieldMapping" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Log Field Mapping resource. Options are ['access', 'error']
 
 ### Optional
@@ -112,6 +112,7 @@ resource "pingdirectory_log_field_mapping" "myLogFieldMapping" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -130,7 +131,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "logFieldMappingId" should be the id of the Log Field Mapping to be imported
+# "logFieldMappingId" should be the name of the Log Field Mapping to be imported
 terraform import pingdirectory_log_field_mapping.myLogFieldMapping logFieldMappingId
 ```
 

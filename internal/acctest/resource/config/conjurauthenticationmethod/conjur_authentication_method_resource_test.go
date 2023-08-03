@@ -76,13 +76,13 @@ func TestAccConjurAuthenticationMethod(t *testing.T) {
 func testAccConjurAuthenticationMethodResource(resourceName string, resourceModel conjurAuthenticationMethodTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_conjur_authentication_method" "%[1]s" {
-  id       = "%[2]s"
+  name     = "%[2]s"
   username = "%[3]s"
   password = "%[4]s"
 }
 
 data "pingdirectory_conjur_authentication_method" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_conjur_authentication_method.%[1]s
   ]

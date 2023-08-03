@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandler" {
-  id           = "MyChangeSubscriptionHandler"
+  name         = "MyChangeSubscriptionHandler"
   type         = "groovy-scripted"
   script_class = "com.example.myscriptclass"
   enabled      = false
@@ -50,7 +50,7 @@ resource "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandle
 ### Required
 
 - `enabled` (Boolean) Indicates whether this change subscription handler is enabled within the server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Change Subscription Handler resource. Options are ['groovy-scripted', 'logging', 'third-party']
 
 ### Optional
@@ -65,6 +65,7 @@ resource "pingdirectory_change_subscription_handler" "myChangeSubscriptionHandle
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -83,7 +84,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "changeSubscriptionHandlerId" should be the id of the Change Subscription Handler to be imported
+# "changeSubscriptionHandlerId" should be the name of the Change Subscription Handler to be imported
 terraform import pingdirectory_change_subscription_handler.myChangeSubscriptionHandler changeSubscriptionHandlerId
 ```
 

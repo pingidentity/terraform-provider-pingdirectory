@@ -48,6 +48,7 @@ func (r *keyPairDataSource) Configure(_ context.Context, req datasource.Configur
 
 type keyPairDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Name                          types.String `tfsdk:"name"`
 	KeyAlgorithm                  types.String `tfsdk:"key_algorithm"`
 	SelfSignedCertificateValidity types.String `tfsdk:"self_signed_certificate_validity"`
 	SubjectDN                     types.String `tfsdk:"subject_dn"`
@@ -57,13 +58,9 @@ type keyPairDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *keyPairDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Key Pair.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"key_algorithm": schema.StringAttribute{
 				Description: "The algorithm name and the length in bits of the key, e.g. RSA_2048.",
 				Required:    false,
@@ -97,11 +94,14 @@ func (r *keyPairDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a KeyPairResponse object into the model struct
 func readKeyPairResponseDataSource(ctx context.Context, r *client.KeyPairResponse, state *keyPairDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.KeyAlgorithm = types.StringValue(r.KeyAlgorithm.String())
 	state.SelfSignedCertificateValidity = internaltypes.StringTypeOrNil(r.SelfSignedCertificateValidity, false)
 	state.SubjectDN = internaltypes.StringTypeOrNil(r.SubjectDN, false)
@@ -119,7 +119,7 @@ func (r *keyPairDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	readResponse, httpResp, err := r.apiClient.KeyPairApi.GetKeyPair(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Key Pair", err, httpResp)
 		return

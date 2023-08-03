@@ -47,7 +47,6 @@ func (r *rootDseBackendDataSource) Configure(_ context.Context, req datasource.C
 }
 
 type rootDseBackendDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                            types.String `tfsdk:"id"`
 	SubordinateBaseDN             types.Set    `tfsdk:"subordinate_base_dn"`
 	AdditionalSupportedControlOID types.Set    `tfsdk:"additional_supported_control_oid"`
@@ -57,15 +56,9 @@ type rootDseBackendDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *rootDseBackendDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Root Dse Backend.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"subordinate_base_dn": schema.SetAttribute{
 				Description: "Specifies the set of base DNs used for singleLevel, wholeSubtree, and subordinateSubtree searches based at the root DSE.",
 				Required:    false,
@@ -94,6 +87,8 @@ func (r *rootDseBackendDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a RootDseBackendResponse object into the model struct

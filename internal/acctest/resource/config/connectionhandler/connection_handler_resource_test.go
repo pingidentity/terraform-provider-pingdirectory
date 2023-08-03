@@ -82,14 +82,14 @@ func testAccHttpConnectionHandler(resourceName string, resourceModel testModel) 
 	return fmt.Sprintf(`
 resource "pingdirectory_connection_handler" "%[1]s" {
   type                   = "http"
-  id                     = "%[2]s"
+  name                   = "%[2]s"
   listen_port            = %[3]d
   enabled                = %[4]t
   http_servlet_extension = %[5]s
 }
 
 data "pingdirectory_connection_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_connection_handler.%[1]s
   ]

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_obscured_value" "myObscuredValue" {
-  id             = "MyObscuredValue"
+  name           = "MyObscuredValue"
   obscured_value = "obscured"
 }
 ```
@@ -47,7 +47,7 @@ resource "pingdirectory_obscured_value" "myObscuredValue" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `obscured_value` (String, Sensitive) The value to be stored in an obscured form.
 
 ### Optional
@@ -56,6 +56,7 @@ resource "pingdirectory_obscured_value" "myObscuredValue" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -74,7 +75,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "obscuredValueId" should be the id of the Obscured Value to be imported
+# "obscuredValueId" should be the name of the Obscured Value to be imported
 terraform import pingdirectory_obscured_value.myObscuredValue obscuredValueId
 ```
 

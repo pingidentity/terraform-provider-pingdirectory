@@ -48,6 +48,7 @@ func (r *constructedAttributeDataSource) Configure(_ context.Context, req dataso
 
 type constructedAttributeDataSourceModel struct {
 	Id            types.String `tfsdk:"id"`
+	Name          types.String `tfsdk:"name"`
 	Description   types.String `tfsdk:"description"`
 	AttributeType types.String `tfsdk:"attribute_type"`
 	ValuePattern  types.Set    `tfsdk:"value_pattern"`
@@ -55,13 +56,9 @@ type constructedAttributeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *constructedAttributeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Constructed Attribute.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Constructed Attribute",
 				Required:    false,
@@ -83,11 +80,14 @@ func (r *constructedAttributeDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ConstructedAttributeResponse object into the model struct
 func readConstructedAttributeResponseDataSource(ctx context.Context, r *client.ConstructedAttributeResponse, state *constructedAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.AttributeType = types.StringValue(r.AttributeType)
 	state.ValuePattern = internaltypes.GetStringSet(r.ValuePattern)
@@ -104,7 +104,7 @@ func (r *constructedAttributeDataSource) Read(ctx context.Context, req datasourc
 	}
 
 	readResponse, httpResp, err := r.apiClient.ConstructedAttributeApi.GetConstructedAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Constructed Attribute", err, httpResp)
 		return

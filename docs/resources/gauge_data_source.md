@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_gauge_data_source" "myGaugeDataSource" {
-  id                  = "MyGaugeDataSource"
+  name                = "MyGaugeDataSource"
   type                = "indicator"
   monitor_objectclass = "ds-host-system-disk-monitor-entry"
   monitor_attribute   = "pct-busy"
@@ -49,9 +49,9 @@ resource "pingdirectory_gauge_data_source" "myGaugeDataSource" {
 
 ### Required
 
-- `id` (String) Name of this object.
 - `monitor_attribute` (String) Specifies the attribute on the monitor entries from which to derive the current gauge value.
 - `monitor_objectclass` (String) The object class name of the monitor entries to examine for generating gauge data.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Gauge Data Source resource. Options are ['indicator', 'numeric']
 
 ### Optional
@@ -70,6 +70,7 @@ resource "pingdirectory_gauge_data_source" "myGaugeDataSource" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -88,7 +89,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "gaugeDataSourceId" should be the id of the Gauge Data Source to be imported
+# "gaugeDataSourceId" should be the name of the Gauge Data Source to be imported
 terraform import pingdirectory_gauge_data_source.myGaugeDataSource gaugeDataSourceId
 ```
 

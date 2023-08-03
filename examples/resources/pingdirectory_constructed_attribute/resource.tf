@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_constructed_attribute" "myConstructedAttribute" {
-  id             = "MyConstructedAttribute"
+  name           = "MyConstructedAttribute"
   attribute_type = "cn"
   value_pattern  = ["{givenName} {sn}"]
 }

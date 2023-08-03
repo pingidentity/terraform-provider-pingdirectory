@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_vault_authentication_method" "myVaultAuthenticationMethod" {
-  id = "MyVaultAuthenticationMethod"
+  name = "MyVaultAuthenticationMethod"
 }
 ```
 
@@ -46,11 +46,12 @@ data "pingdirectory_vault_authentication_method" "myVaultAuthenticationMethod" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
 - `description` (String) A description for this Vault Authentication Method
+- `id` (String) The ID of this resource.
 - `login_mechanism_name` (String) The name used when enabling the desired AppRole authentication mechanism in the Vault server.
 - `password` (String, Sensitive) The password for the user to authenticate.
 - `type` (String) The type of Vault Authentication Method resource. Options are ['static-token', 'app-role', 'user-pass']

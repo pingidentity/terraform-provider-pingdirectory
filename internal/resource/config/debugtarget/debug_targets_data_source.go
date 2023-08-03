@@ -55,15 +55,9 @@ type debugTargetsDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *debugTargetsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Debug Target objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"log_publisher_name": schema.StringAttribute{
 				Description: "Name of the parent Log Publisher",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *debugTargetsDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

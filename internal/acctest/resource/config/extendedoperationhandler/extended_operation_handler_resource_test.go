@@ -73,12 +73,12 @@ func testAccValidateTotpPasswordExtendedOperationHandlerResource(resourceName st
 	return fmt.Sprintf(`
 resource "pingdirectory_extended_operation_handler" "%[1]s" {
   type    = "validate-totp-password"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }
 
 data "pingdirectory_extended_operation_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_extended_operation_handler.%[1]s
   ]

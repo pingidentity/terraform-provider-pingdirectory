@@ -23,6 +23,6 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_azure_authentication_method" "myAzureAuthenticationMethod" {
-  id   = "MyAzureAuthenticationMethod"
+  name = "MyAzureAuthenticationMethod"
   type = "default"
 }

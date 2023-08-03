@@ -59,6 +59,7 @@ func (r *serverInstanceResource) Configure(_ context.Context, req resource.Confi
 
 type serverInstanceResourceModel struct {
 	Id                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
 	LastUpdated                types.String `tfsdk:"last_updated"`
 	Notifications              types.Set    `tfsdk:"notifications"`
 	RequiredActions            types.Set    `tfsdk:"required_actions"`
@@ -293,7 +294,7 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -415,6 +416,7 @@ func populateServerInstanceUnknownValues(ctx context.Context, model *serverInsta
 func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("proxy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -446,6 +448,7 @@ func readProxyServerInstanceResponse(ctx context.Context, r *client.ProxyServerI
 func readMetricsEngineServerInstanceResponse(ctx context.Context, r *client.MetricsEngineServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("metrics-engine")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -477,6 +480,7 @@ func readMetricsEngineServerInstanceResponse(ctx context.Context, r *client.Metr
 func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.AuthorizeServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("authorize")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -508,6 +512,7 @@ func readAuthorizeServerInstanceResponse(ctx context.Context, r *client.Authoriz
 func readDirectoryServerInstanceResponse(ctx context.Context, r *client.DirectoryServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("directory")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ReplicationSetName = internaltypes.StringTypeOrNil(r.ReplicationSetName, true)
@@ -541,6 +546,7 @@ func readDirectoryServerInstanceResponse(ctx context.Context, r *client.Director
 func readSyncServerInstanceResponse(ctx context.Context, r *client.SyncServerInstanceResponse, state *serverInstanceResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("sync")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ServerInstanceType = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumserverInstanceServerInstanceTypeProp(r.ServerInstanceType), true)
 	state.ServerInstanceName = types.StringValue(r.ServerInstanceName)
@@ -611,7 +617,7 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -642,7 +648,7 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createServerInstanceOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -699,7 +705,7 @@ func (r *serverInstanceResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	readResponse, httpResp, err := r.apiClient.ServerInstanceApi.GetServerInstance(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Server Instance", err, httpResp)
 		return
@@ -747,7 +753,7 @@ func (r *serverInstanceResource) Update(ctx context.Context, req resource.Update
 	var state serverInstanceResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.ServerInstanceApi.UpdateServerInstance(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createServerInstanceOperations(plan, state)
@@ -805,6 +811,6 @@ func (r *serverInstanceResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *serverInstanceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

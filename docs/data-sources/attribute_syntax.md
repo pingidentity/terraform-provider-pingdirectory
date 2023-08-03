@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_attribute_syntax" "myAttributeSyntax" {
-  id = "MyAttributeSyntax"
+  name = "MyAttributeSyntax"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_attribute_syntax" "myAttributeSyntax" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,6 +54,7 @@ data "pingdirectory_attribute_syntax" "myAttributeSyntax" {
 - `enable_compaction` (Boolean) Indicates whether values of attributes with this syntax should be compacted when stored in a local DB database.
 - `enabled` (Boolean) Indicates whether the Attribute Syntax is enabled.
 - `exclude_attribute_from_compaction` (Set of String) Specifies the specific attributes (which should be associated with this syntax) whose values should not be compacted. If one or more exclude attributes are specified, then values of those attributes will not have their values compacted. This property takes precedence over the include-attribute-in-compaction property.
+- `id` (String) The ID of this resource.
 - `include_attribute_in_compaction` (Set of String) Specifies the specific attributes (which should be associated with this syntax) whose values should be compacted. If one or more include attributes are specified, then only those attributes will have their values compacted. If not set then all attributes will have their values compacted. The exclude-attribute-from-compaction property takes precedence over this property.
 - `require_binary_transfer` (Boolean) Indicates whether values of this attribute are required to have a "binary" transfer option as described in RFC 4522. Attributes with this syntax will generally be referenced with names including ";binary" (e.g., "userCertificate;binary").
 - `strict_format` (Boolean) Indicates whether to require telephone number values to strictly comply with the standard definition for this syntax.

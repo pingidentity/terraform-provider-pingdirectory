@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_field_syntax" "myLogFieldSyntax" {
-  id = "MyLogFieldSyntax"
+  name = "MyLogFieldSyntax"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_log_field_syntax" "myLogFieldSyntax" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,6 +54,7 @@ data "pingdirectory_log_field_syntax" "myLogFieldSyntax" {
 - `description` (String) A description for this Log Field Syntax
 - `excluded_sensitive_attribute` (Set of String) The set of attribute types that will not be considered sensitive.
 - `excluded_sensitive_field` (Set of String) The names of the JSON fields that will not be considered sensitive.
+- `id` (String) The ID of this resource.
 - `included_sensitive_attribute` (Set of String) The set of attribute types that will be considered sensitive.
 - `included_sensitive_field` (Set of String) The names of the JSON fields that will be considered sensitive.
 - `type` (String) The type of Log Field Syntax resource. Options are ['json', 'attribute-based', 'generic']

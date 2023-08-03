@@ -76,7 +76,7 @@ data "pingdirectory_global_configuration" "myGlobalConfiguration" {
 - `exit_on_jvm_error` (Boolean) Indicates whether the Directory Server should be shut down if a severe error is raised (e.g., an out of memory error) which may prevent the JVM from continuing to run properly.
 - `force_as_master_for_mirrored_data` (Boolean) Indicates whether this server should be forced to assume the master role if no other suitable server is found to act as master or if multiple masters are detected. A master is only needed when changes are made to mirrored data, i.e. data specific to the topology itself and cluster-wide configuration data.
 - `forced_gc_prime_duration` (String) Specifies the minimum length of time required for backend or request processor initialization that will trigger the server to force an explicit garbage collection. A value of "0 seconds" indicates that the server should never invoke an explicit garbage collection regardless of the length of time required to initialize the server backends.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `idle_time_limit` (String) Specifies the maximum length of time that a client connection may remain established since its last completed operation.
 - `instance_name` (String) Specifies a name that may be used to uniquely identify this Directory Server instance among other instances in the environment.
 - `invalid_attribute_syntax_behavior` (String) Specifies how the Directory Server should handle operations whenever an attribute value violates the associated attribute syntax.

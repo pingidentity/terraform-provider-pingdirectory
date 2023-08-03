@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_publisher" "myLogPublisher" {
-  id = "MyLogPublisher"
+  name = "MyLogPublisher"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_log_publisher" "myLogPublisher" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -80,6 +80,7 @@ data "pingdirectory_log_publisher" "myLogPublisher" {
 - `extension_message_type` (Set of String) Specifies the Server SDK extension message types that can be logged.
 - `generify_message_strings_when_possible` (Boolean) Indicates whether to use generified version of certain message strings, including diagnostic messages, additional information messages, authentication failure reasons, and disconnect messages. Generified versions of those strings may use placeholders (like %s for a string or %d for an integer) rather than the version of the string with those placeholders replaced with specific values.
 - `http_message_type` (Set of String) Specifies the HTTP message types which can be logged.
+- `id` (String) The ID of this resource.
 - `id_token_validator_message_type` (Set of String) Specifies the ID token validator message types that can be logged.
 - `include_add_attribute_names` (Boolean) Indicates whether log messages for add requests should include a list of the names of the attributes included in the entry to add.
 - `include_extended_search_request_details` (Boolean) Indicates whether log messages for search requests should include extended information from the request, including the requested size limit, time limit, alias dereferencing behavior, and types only behavior.

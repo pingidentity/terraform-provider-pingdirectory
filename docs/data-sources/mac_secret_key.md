@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_mac_secret_key" "myMacSecretKey" {
-  id                   = "MyMacSecretKey"
+  name                 = "MyMacSecretKey"
   server_instance_name = "MyServerInstance"
 }
 ```
@@ -47,11 +47,12 @@ data "pingdirectory_mac_secret_key" "myMacSecretKey" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `server_instance_name` (String) Name of the parent Server Instance
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `is_compromised` (Boolean) If the key is compromised, an administrator may set this flag to immediately trigger the creation of a new secret key. After the new key is generated, the value of this property will be reset to false.
 - `key_id` (String) The unique system-generated identifier for the Secret Key.
 - `key_length_bits` (Number) The length of the key in bits.

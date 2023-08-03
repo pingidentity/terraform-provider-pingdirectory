@@ -48,6 +48,7 @@ func (r *resultCriteriaDataSource) Configure(_ context.Context, req datasource.C
 
 type resultCriteriaDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
@@ -103,13 +104,9 @@ type resultCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *resultCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Result Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Result Criteria resource. Options are ['successful-bind', 'simple', 'aggregate', 'replication-assurance', 'third-party']",
 				Required:    false,
@@ -444,12 +441,15 @@ func (r *resultCriteriaDataSource) Schema(ctx context.Context, req datasource.Sc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SuccessfulBindResultCriteriaResponse object into the model struct
 func readSuccessfulBindResultCriteriaResponseDataSource(ctx context.Context, r *client.SuccessfulBindResultCriteriaResponse, state *resultCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("successful-bind")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.IncludeAnonymousBinds = internaltypes.BoolTypeOrNil(r.IncludeAnonymousBinds)
 	state.IncludedUserBaseDN = internaltypes.GetStringSet(r.IncludedUserBaseDN)
@@ -465,6 +465,7 @@ func readSuccessfulBindResultCriteriaResponseDataSource(ctx context.Context, r *
 func readSimpleResultCriteriaResponseDataSource(ctx context.Context, r *client.SimpleResultCriteriaResponse, state *resultCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.ResultCodeCriteria = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumresultCriteriaResultCodeCriteriaProp(r.ResultCodeCriteria), false)
@@ -515,6 +516,7 @@ func readSimpleResultCriteriaResponseDataSource(ctx context.Context, r *client.S
 func readAggregateResultCriteriaResponseDataSource(ctx context.Context, r *client.AggregateResultCriteriaResponse, state *resultCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedResultCriteria = internaltypes.GetStringSet(r.AllIncludedResultCriteria)
 	state.AnyIncludedResultCriteria = internaltypes.GetStringSet(r.AnyIncludedResultCriteria)
 	state.NotAllIncludedResultCriteria = internaltypes.GetStringSet(r.NotAllIncludedResultCriteria)
@@ -526,6 +528,7 @@ func readAggregateResultCriteriaResponseDataSource(ctx context.Context, r *clien
 func readReplicationAssuranceResultCriteriaResponseDataSource(ctx context.Context, r *client.ReplicationAssuranceResultCriteriaResponse, state *resultCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("replication-assurance")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LocalAssuranceLevel = internaltypes.GetStringSet(
 		client.StringSliceEnumresultCriteriaLocalAssuranceLevelProp(r.LocalAssuranceLevel))
 	state.RemoteAssuranceLevel = internaltypes.GetStringSet(
@@ -546,6 +549,7 @@ func readReplicationAssuranceResultCriteriaResponseDataSource(ctx context.Contex
 func readThirdPartyResultCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartyResultCriteriaResponse, state *resultCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -562,7 +566,7 @@ func (r *resultCriteriaDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	readResponse, httpResp, err := r.apiClient.ResultCriteriaApi.GetResultCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Result Criteria", err, httpResp)
 		return

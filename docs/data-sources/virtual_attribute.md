@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_virtual_attribute" "myVirtualAttribute" {
-  id = "MyVirtualAttribute"
+  name = "MyVirtualAttribute"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_virtual_attribute" "myVirtualAttribute" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -66,6 +66,7 @@ data "pingdirectory_virtual_attribute" "myVirtualAttribute" {
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Virtual Attribute.
 - `filter` (Set of String) Specifies the search filters to be applied against entries to determine if the virtual attribute is to be generated for those entries.
 - `group_dn` (Set of String) Specifies the DNs of the groups whose members can be eligible to use this virtual attribute.
+- `id` (String) The ID of this resource.
 - `include_milliseconds` (Boolean) Indicates whether the current time includes millisecond precision.
 - `included_group_filter` (String) A search filter that will be used to identify which groups should be included in the values of the virtual attribute. With no value defined (which is the default behavior), all groups that contain the target user will be included.
 - `join_attribute` (Set of String) An optional set of the names of the attributes to include with joined entries.

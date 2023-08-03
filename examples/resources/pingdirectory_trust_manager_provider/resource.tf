@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_trust_manager_provider" "myTrustManagerProvider" {
-  id      = "MyTrustManagerProvider"
+  name    = "MyTrustManagerProvider"
   type    = "blind"
   enabled = false
 }

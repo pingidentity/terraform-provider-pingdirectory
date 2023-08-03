@@ -83,6 +83,7 @@ func (r *defaultMonitoringEndpointResource) Configure(_ context.Context, req res
 
 type monitoringEndpointResourceModel struct {
 	Id                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
 	LastUpdated          types.String `tfsdk:"last_updated"`
 	Notifications        types.Set    `tfsdk:"notifications"`
 	RequiredActions      types.Set    `tfsdk:"required_actions"`
@@ -152,9 +153,9 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -186,6 +187,7 @@ func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *
 // Read a StatsdMonitoringEndpointResponse object into the model struct
 func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *monitoringEndpointResourceModel, expectedValues *monitoringEndpointResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Hostname = types.StringValue(r.Hostname)
 	state.ServerPort = types.Int64Value(r.ServerPort)
 	state.ConnectionType = types.StringValue(r.ConnectionType.String())
@@ -209,7 +211,7 @@ func createMonitoringEndpointOperations(plan monitoringEndpointResourceModel, st
 
 // Create a statsd monitoring-endpoint
 func (r *monitoringEndpointResource) CreateStatsdMonitoringEndpoint(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan monitoringEndpointResourceModel) (*monitoringEndpointResourceModel, error) {
-	addRequest := client.NewAddStatsdMonitoringEndpointRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddStatsdMonitoringEndpointRequest(plan.Name.ValueString(),
 		[]client.EnumstatsdMonitoringEndpointSchemaUrn{client.ENUMSTATSDMONITORINGENDPOINTSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0MONITORING_ENDPOINTSTATSD},
 		plan.Hostname.ValueString(),
 		plan.Enabled.ValueBool())
@@ -285,7 +287,7 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
 		return
@@ -302,7 +304,7 @@ func (r *defaultMonitoringEndpointResource) Create(ctx context.Context, req reso
 	readStatsdMonitoringEndpointResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createMonitoringEndpointOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -353,7 +355,7 @@ func readMonitoringEndpoint(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.MonitoringEndpointApi.GetMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitoring Endpoint", err, httpResp)
 		return
@@ -395,7 +397,7 @@ func updateMonitoringEndpoint(ctx context.Context, req resource.UpdateRequest, r
 	var state monitoringEndpointResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.MonitoringEndpointApi.UpdateMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createMonitoringEndpointOperations(plan, state)
@@ -448,7 +450,7 @@ func (r *monitoringEndpointResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.MonitoringEndpointApi.DeleteMonitoringEndpointExecute(r.apiClient.MonitoringEndpointApi.DeleteMonitoringEndpoint(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Monitoring Endpoint", err, httpResp)
 		return
@@ -464,6 +466,6 @@ func (r *defaultMonitoringEndpointResource) ImportState(ctx context.Context, req
 }
 
 func importMonitoringEndpoint(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

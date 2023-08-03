@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_change_subscription" "myChangeSubscription" {
-  id = "MyChangeSubscription"
+  name = "MyChangeSubscription"
 }

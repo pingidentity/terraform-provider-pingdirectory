@@ -71,7 +71,7 @@ func testAccJmxConnectionHandlerResource(resourceName string, resourceModel jmxC
 	return fmt.Sprintf(`
 resource "pingdirectory_connection_handler" "%[1]s" {
   type        = "jmx"
-  id          = "%[2]s"
+  name        = "%[2]s"
   listen_port = %[3]d
   enabled     = %[4]t
 }`, resourceName,

@@ -79,6 +79,7 @@ func (r *defaultLocationResource) Configure(_ context.Context, req resource.Conf
 
 type locationResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -106,9 +107,9 @@ func locationSchema(ctx context.Context, req resource.SchemaRequest, resp *resou
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -123,6 +124,7 @@ func addOptionalLocationFields(ctx context.Context, addRequest *client.AddLocati
 // Read a LocationResponse object into the model struct
 func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
 }
@@ -136,7 +138,7 @@ func createLocationOperations(plan locationResourceModel, state locationResource
 
 // Create a location location
 func (r *locationResource) CreateLocation(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan locationResourceModel) (*locationResourceModel, error) {
-	addRequest := client.NewAddLocationRequest(plan.Id.ValueString())
+	addRequest := client.NewAddLocationRequest(plan.Name.ValueString())
 	addOptionalLocationFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -205,7 +207,7 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	readResponse, httpResp, err := r.apiClient.LocationApi.GetLocation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
@@ -222,7 +224,7 @@ func (r *defaultLocationResource) Create(ctx context.Context, req resource.Creat
 	readLocationResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LocationApi.UpdateLocation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LocationApi.UpdateLocation(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLocationOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -273,7 +275,7 @@ func readLocation(ctx context.Context, req resource.ReadRequest, resp *resource.
 	}
 
 	readResponse, httpResp, err := apiClient.LocationApi.GetLocation(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Location", err, httpResp)
 		return
@@ -315,7 +317,7 @@ func updateLocation(ctx context.Context, req resource.UpdateRequest, resp *resou
 	var state locationResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LocationApi.UpdateLocation(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLocationOperations(plan, state)
@@ -368,7 +370,7 @@ func (r *locationResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	httpResp, err := r.apiClient.LocationApi.DeleteLocationExecute(r.apiClient.LocationApi.DeleteLocation(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Location", err, httpResp)
 		return
@@ -384,6 +386,6 @@ func (r *defaultLocationResource) ImportState(ctx context.Context, req resource.
 }
 
 func importLocation(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

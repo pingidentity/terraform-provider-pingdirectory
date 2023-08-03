@@ -48,6 +48,7 @@ func (r *notificationManagerDataSource) Configure(_ context.Context, req datasou
 
 type notificationManagerDataSourceModel struct {
 	Id                      types.String `tfsdk:"id"`
+	Name                    types.String `tfsdk:"name"`
 	ExtensionClass          types.String `tfsdk:"extension_class"`
 	ExtensionArgument       types.Set    `tfsdk:"extension_argument"`
 	Description             types.String `tfsdk:"description"`
@@ -59,13 +60,9 @@ type notificationManagerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *notificationManagerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Notification Manager.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"extension_class": schema.StringAttribute{
 				Description: "The fully-qualified name of the Java class providing the logic for the Third Party Notification Manager.",
 				Required:    false,
@@ -111,11 +108,14 @@ func (r *notificationManagerDataSource) Schema(ctx context.Context, req datasour
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ThirdPartyNotificationManagerResponse object into the model struct
 func readThirdPartyNotificationManagerResponseDataSource(ctx context.Context, r *client.ThirdPartyNotificationManagerResponse, state *notificationManagerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -136,7 +136,7 @@ func (r *notificationManagerDataSource) Read(ctx context.Context, req datasource
 	}
 
 	readResponse, httpResp, err := r.apiClient.NotificationManagerApi.GetNotificationManager(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Notification Manager", err, httpResp)
 		return

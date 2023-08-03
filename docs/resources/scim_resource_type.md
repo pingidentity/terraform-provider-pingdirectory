@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_scim_resource_type" "myScimResourceType" {
-  id       = "MyScimResourceType"
+  name     = "MyScimResourceType"
   type     = "ldap-pass-through"
   enabled  = false
   endpoint = "myendpoint"
@@ -51,7 +51,7 @@ resource "pingdirectory_scim_resource_type" "myScimResourceType" {
 
 - `enabled` (Boolean) Indicates whether the SCIM Resource Type is enabled.
 - `endpoint` (String) The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of SCIM Resource Type resource. Options are ['ldap-pass-through', 'ldap-mapping']
 
 ### Optional
@@ -71,6 +71,7 @@ resource "pingdirectory_scim_resource_type" "myScimResourceType" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -89,7 +90,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "scimResourceTypeId" should be the id of the Scim Resource Type to be imported
+# "scimResourceTypeId" should be the name of the Scim Resource Type to be imported
 terraform import pingdirectory_scim_resource_type.myScimResourceType scimResourceTypeId
 ```
 

@@ -54,6 +54,6 @@ data "pingdirectory_consent_definition_localizations" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Consent Definition Localization IDs found in the configuration
 

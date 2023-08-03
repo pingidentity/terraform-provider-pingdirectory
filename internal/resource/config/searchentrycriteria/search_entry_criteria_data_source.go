@@ -48,6 +48,7 @@ func (r *searchEntryCriteriaDataSource) Configure(_ context.Context, req datasou
 
 type searchEntryCriteriaDataSourceModel struct {
 	Id                                types.String `tfsdk:"id"`
+	Name                              types.String `tfsdk:"name"`
 	Type                              types.String `tfsdk:"type"`
 	ExtensionClass                    types.String `tfsdk:"extension_class"`
 	ExtensionArgument                 types.Set    `tfsdk:"extension_argument"`
@@ -75,13 +76,9 @@ type searchEntryCriteriaDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *searchEntryCriteriaDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Search Entry Criteria.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Search Entry Criteria resource. Options are ['simple', 'aggregate', 'third-party']",
 				Required:    false,
@@ -241,12 +238,15 @@ func (r *searchEntryCriteriaDataSource) Schema(ctx context.Context, req datasour
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SimpleSearchEntryCriteriaResponse object into the model struct
 func readSimpleSearchEntryCriteriaResponseDataSource(ctx context.Context, r *client.SimpleSearchEntryCriteriaResponse, state *searchEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("simple")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
 	state.AllIncludedEntryControl = internaltypes.GetStringSet(r.AllIncludedEntryControl)
 	state.AnyIncludedEntryControl = internaltypes.GetStringSet(r.AnyIncludedEntryControl)
@@ -269,6 +269,7 @@ func readSimpleSearchEntryCriteriaResponseDataSource(ctx context.Context, r *cli
 func readAggregateSearchEntryCriteriaResponseDataSource(ctx context.Context, r *client.AggregateSearchEntryCriteriaResponse, state *searchEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("aggregate")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AllIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.AllIncludedSearchEntryCriteria)
 	state.AnyIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.AnyIncludedSearchEntryCriteria)
 	state.NotAllIncludedSearchEntryCriteria = internaltypes.GetStringSet(r.NotAllIncludedSearchEntryCriteria)
@@ -280,6 +281,7 @@ func readAggregateSearchEntryCriteriaResponseDataSource(ctx context.Context, r *
 func readThirdPartySearchEntryCriteriaResponseDataSource(ctx context.Context, r *client.ThirdPartySearchEntryCriteriaResponse, state *searchEntryCriteriaDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -296,7 +298,7 @@ func (r *searchEntryCriteriaDataSource) Read(ctx context.Context, req datasource
 	}
 
 	readResponse, httpResp, err := r.apiClient.SearchEntryCriteriaApi.GetSearchEntryCriteria(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Search Entry Criteria", err, httpResp)
 		return

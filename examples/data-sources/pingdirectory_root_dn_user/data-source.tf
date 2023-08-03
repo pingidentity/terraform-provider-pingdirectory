@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_root_dn_user" "myRootDnUser" {
-  id = "MyRootDnUser"
+  name = "MyRootDnUser"
 }

@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_key_manager_provider" "myKeyManagerProvider" {
-  id             = "MyKeyManagerProvider"
+  name           = "MyKeyManagerProvider"
   type           = "file-based"
   enabled        = false
   key_store_file = "/tmp/key-store-file"
@@ -50,7 +50,7 @@ resource "pingdirectory_key_manager_provider" "myKeyManagerProvider" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the Key Manager Provider is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Key Manager Provider resource. Options are ['file-based', 'custom', 'pkcs11', 'third-party']
 
 ### Optional
@@ -73,6 +73,7 @@ resource "pingdirectory_key_manager_provider" "myKeyManagerProvider" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -91,7 +92,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "keyManagerProviderId" should be the id of the Key Manager Provider to be imported
+# "keyManagerProviderId" should be the name of the Key Manager Provider to be imported
 terraform import pingdirectory_key_manager_provider.myKeyManagerProvider keyManagerProviderId
 ```
 

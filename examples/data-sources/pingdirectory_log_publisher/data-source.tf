@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_log_publisher" "myLogPublisher" {
-  id = "MyLogPublisher"
+  name = "MyLogPublisher"
 }

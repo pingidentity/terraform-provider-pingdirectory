@@ -56,6 +56,6 @@ data "pingdirectory_scim_subattributes" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Scim Subattribute IDs found in the configuration
 

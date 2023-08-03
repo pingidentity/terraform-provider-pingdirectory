@@ -84,6 +84,7 @@ func (r *defaultCertificateMapperResource) Configure(_ context.Context, req reso
 
 type certificateMapperResourceModel struct {
 	Id                      types.String `tfsdk:"id"`
+	Name                    types.String `tfsdk:"name"`
 	LastUpdated             types.String `tfsdk:"last_updated"`
 	Notifications           types.Set    `tfsdk:"notifications"`
 	RequiredActions         types.Set    `tfsdk:"required_actions"`
@@ -205,9 +206,9 @@ func certificateMapperSchema(ctx context.Context, req resource.SchemaRequest, re
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -362,6 +363,7 @@ func populateCertificateMapperUnknownValues(ctx context.Context, model *certific
 func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client.SubjectEqualsDnCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-equals-dn")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.Notifications, state.RequiredActions = config.ReadMessages(ctx, r.Urnpingidentityschemasconfigurationmessages20, diagnostics)
@@ -372,6 +374,7 @@ func readSubjectEqualsDnCertificateMapperResponse(ctx context.Context, r *client
 func readSubjectDnToUserAttributeCertificateMapperResponse(ctx context.Context, r *client.SubjectDnToUserAttributeCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-dn-to-user-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SubjectAttribute = types.StringValue(r.SubjectAttribute)
 	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -384,6 +387,7 @@ func readSubjectDnToUserAttributeCertificateMapperResponse(ctx context.Context, 
 func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.GroovyScriptedCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -396,6 +400,7 @@ func readGroovyScriptedCertificateMapperResponse(ctx context.Context, r *client.
 func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Context, r *client.SubjectAttributeToUserAttributeCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("subject-attribute-to-user-attribute")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SubjectAttributeMapping = internaltypes.GetStringSet(r.SubjectAttributeMapping)
 	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -408,6 +413,7 @@ func readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx context.Co
 func readFingerprintCertificateMapperResponse(ctx context.Context, r *client.FingerprintCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("fingerprint")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.FingerprintAttribute = types.StringValue(r.FingerprintAttribute)
 	state.FingerprintAlgorithm = types.StringValue(r.FingerprintAlgorithm.String())
 	state.UserBaseDN = internaltypes.GetStringSet(r.UserBaseDN)
@@ -421,6 +427,7 @@ func readFingerprintCertificateMapperResponse(ctx context.Context, r *client.Fin
 func readThirdPartyCertificateMapperResponse(ctx context.Context, r *client.ThirdPartyCertificateMapperResponse, state *certificateMapperResourceModel, expectedValues *certificateMapperResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -448,7 +455,7 @@ func createCertificateMapperOperations(plan certificateMapperResourceModel, stat
 
 // Create a subject-equals-dn certificate-mapper
 func (r *certificateMapperResource) CreateSubjectEqualsDnCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddSubjectEqualsDnCertificateMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSubjectEqualsDnCertificateMapperRequest(plan.Name.ValueString(),
 		[]client.EnumsubjectEqualsDnCertificateMapperSchemaUrn{client.ENUMSUBJECTEQUALSDNCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_EQUALS_DN},
 		plan.Enabled.ValueBool())
 	addOptionalSubjectEqualsDnCertificateMapperFields(ctx, addRequest, plan)
@@ -482,7 +489,7 @@ func (r *certificateMapperResource) CreateSubjectEqualsDnCertificateMapper(ctx c
 
 // Create a subject-dn-to-user-attribute certificate-mapper
 func (r *certificateMapperResource) CreateSubjectDnToUserAttributeCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddSubjectDnToUserAttributeCertificateMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSubjectDnToUserAttributeCertificateMapperRequest(plan.Name.ValueString(),
 		[]client.EnumsubjectDnToUserAttributeCertificateMapperSchemaUrn{client.ENUMSUBJECTDNTOUSERATTRIBUTECERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_DN_TO_USER_ATTRIBUTE},
 		plan.Enabled.ValueBool())
 	addOptionalSubjectDnToUserAttributeCertificateMapperFields(ctx, addRequest, plan)
@@ -516,7 +523,7 @@ func (r *certificateMapperResource) CreateSubjectDnToUserAttributeCertificateMap
 
 // Create a groovy-scripted certificate-mapper
 func (r *certificateMapperResource) CreateGroovyScriptedCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedCertificateMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedCertificateMapperRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedCertificateMapperSchemaUrn{client.ENUMGROOVYSCRIPTEDCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -553,7 +560,7 @@ func (r *certificateMapperResource) CreateGroovyScriptedCertificateMapper(ctx co
 func (r *certificateMapperResource) CreateSubjectAttributeToUserAttributeCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
 	var SubjectAttributeMappingSlice []string
 	plan.SubjectAttributeMapping.ElementsAs(ctx, &SubjectAttributeMappingSlice, false)
-	addRequest := client.NewAddSubjectAttributeToUserAttributeCertificateMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSubjectAttributeToUserAttributeCertificateMapperRequest(plan.Name.ValueString(),
 		[]client.EnumsubjectAttributeToUserAttributeCertificateMapperSchemaUrn{client.ENUMSUBJECTATTRIBUTETOUSERATTRIBUTECERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERSUBJECT_ATTRIBUTE_TO_USER_ATTRIBUTE},
 		SubjectAttributeMappingSlice,
 		plan.Enabled.ValueBool())
@@ -593,7 +600,7 @@ func (r *certificateMapperResource) CreateFingerprintCertificateMapper(ctx conte
 		resp.Diagnostics.AddError("Failed to parse enum value for FingerprintAlgorithm", err.Error())
 		return nil, err
 	}
-	addRequest := client.NewAddFingerprintCertificateMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddFingerprintCertificateMapperRequest(plan.Name.ValueString(),
 		[]client.EnumfingerprintCertificateMapperSchemaUrn{client.ENUMFINGERPRINTCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERFINGERPRINT},
 		*fingerprintAlgorithm,
 		plan.Enabled.ValueBool())
@@ -628,7 +635,7 @@ func (r *certificateMapperResource) CreateFingerprintCertificateMapper(ctx conte
 
 // Create a third-party certificate-mapper
 func (r *certificateMapperResource) CreateThirdPartyCertificateMapper(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan certificateMapperResourceModel) (*certificateMapperResourceModel, error) {
-	addRequest := client.NewAddThirdPartyCertificateMapperRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyCertificateMapperRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyCertificateMapperSchemaUrn{client.ENUMTHIRDPARTYCERTIFICATEMAPPERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0CERTIFICATE_MAPPERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -735,7 +742,7 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 	}
 
 	readResponse, httpResp, err := r.apiClient.CertificateMapperApi.GetCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
 		return
@@ -769,7 +776,7 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.CertificateMapperApi.UpdateCertificateMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.CertificateMapperApi.UpdateCertificateMapper(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createCertificateMapperOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -837,7 +844,7 @@ func readCertificateMapper(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	readResponse, httpResp, err := apiClient.CertificateMapperApi.GetCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Certificate Mapper", err, httpResp)
 		return
@@ -896,7 +903,7 @@ func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, re
 	var state certificateMapperResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.CertificateMapperApi.UpdateCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createCertificateMapperOperations(plan, state)
@@ -966,7 +973,7 @@ func (r *certificateMapperResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	httpResp, err := r.apiClient.CertificateMapperApi.DeleteCertificateMapperExecute(r.apiClient.CertificateMapperApi.DeleteCertificateMapper(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Certificate Mapper", err, httpResp)
 		return
@@ -982,6 +989,6 @@ func (r *defaultCertificateMapperResource) ImportState(ctx context.Context, req 
 }
 
 func importCertificateMapper(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

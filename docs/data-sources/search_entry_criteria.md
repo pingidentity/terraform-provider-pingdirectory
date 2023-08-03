@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_search_entry_criteria" "mySearchEntryCriteria" {
-  id = "MySearchEntryCriteria"
+  name = "MySearchEntryCriteria"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_search_entry_criteria" "mySearchEntryCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -62,6 +62,7 @@ data "pingdirectory_search_entry_criteria" "mySearchEntryCriteria" {
 - `excluded_entry_base_dn` (Set of String) Specifies a base DN below which entries included in this Simple Search Entry Criteria may not exist.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Search Entry Criteria. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Search Entry Criteria.
+- `id` (String) The ID of this resource.
 - `included_entry_base_dn` (Set of String) Specifies a base DN below which entries included in this Simple Search Entry Criteria may exist.
 - `none_included_entry_control` (Set of String) Specifies the OID of a control that must not be present in search result entries included in this Simple Search Entry Criteria. If any control OIDs are provided, then the entry must not contain any of those controls.
 - `none_included_entry_filter` (Set of String) Specifies a search filter that must not match search result entries included in this Simple Search Entry Criteria. Note that this matching will be performed against the entry that is actually returned to the client and may not reflect the complete entry stored in the server. If any filters are provided, then the entry must not match any of those filters.

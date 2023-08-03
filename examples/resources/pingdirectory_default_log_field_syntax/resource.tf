@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_log_field_syntax" "myLogFieldSyntax" {
-  id               = "MyLogFieldSyntax"
+  name             = "MyLogFieldSyntax"
   type             = "json"
   default_behavior = "omit"
 }

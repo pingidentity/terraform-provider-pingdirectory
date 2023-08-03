@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_plugin" "myPlugin" {
-  id      = "MyPlugin"
+  name    = "MyPlugin"
   type    = "last-access-time"
   enabled = false
 }
@@ -49,7 +49,7 @@ resource "pingdirectory_default_plugin" "myPlugin" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the plug-in is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `resource_type` (String) The type of Plugin resource. Options are ['last-access-time', 'stats-collector', 'internal-search-rate', 'modifiable-password-policy-state', 'seven-bit-clean', 'clean-up-expired-pingfederate-persistent-access-grants', 'periodic-gc', 'ping-one-pass-through-authentication', 'changelog-password-encryption', 'processing-time-histogram', 'search-shutdown', 'periodic-stats-logger', 'purge-expired-data', 'change-subscription-notification', 'sub-operation-timing', 'third-party', 'encrypt-attribute-values', 'pass-through-authentication', 'dn-mapper', 'monitor-history', 'referral-on-update', 'simple-to-external-bind', 'custom', 'snmp-subagent', 'coalesce-modifications', 'password-policy-import', 'profiler', 'clean-up-inactive-pingfederate-persistent-sessions', 'composed-attribute', 'ldap-result-code-tracker', 'attribute-mapper', 'delay', 'clean-up-expired-pingfederate-persistent-sessions', 'groovy-scripted', 'last-mod', 'pluggable-pass-through-authentication', 'referential-integrity', 'unique-attribute']
 
 ### Optional
@@ -182,6 +182,7 @@ resource "pingdirectory_default_plugin" "myPlugin" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -200,7 +201,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "pluginId" should be the id of the Plugin to be imported
+# "pluginId" should be the name of the Plugin to be imported
 terraform import pingdirectory_plugin.myPlugin pluginId
 ```
 

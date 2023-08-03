@@ -48,6 +48,7 @@ func (r *restResourceTypeDataSource) Configure(_ context.Context, req datasource
 
 type restResourceTypeDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
+	Name                           types.String `tfsdk:"name"`
 	Type                           types.String `tfsdk:"type"`
 	PasswordAttributeCategory      types.String `tfsdk:"password_attribute_category"`
 	PasswordDisplayOrderIndex      types.Int64  `tfsdk:"password_display_order_index"`
@@ -75,13 +76,9 @@ type restResourceTypeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *restResourceTypeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Rest Resource Type.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of REST Resource Type resource. Options are ['user', 'generic', 'group']",
 				Required:    false,
@@ -226,12 +223,15 @@ func (r *restResourceTypeDataSource) Schema(ctx context.Context, req datasource.
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a UserRestResourceTypeResponse object into the model struct
 func readUserRestResourceTypeResponseDataSource(ctx context.Context, r *client.UserRestResourceTypeResponse, state *restResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("user")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.PasswordAttributeCategory = internaltypes.StringTypeOrNil(r.PasswordAttributeCategory, false)
 	state.PasswordDisplayOrderIndex = internaltypes.Int64TypeOrNil(r.PasswordDisplayOrderIndex)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -260,6 +260,7 @@ func readUserRestResourceTypeResponseDataSource(ctx context.Context, r *client.U
 func readGenericRestResourceTypeResponseDataSource(ctx context.Context, r *client.GenericRestResourceTypeResponse, state *restResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ResourceEndpoint = types.StringValue(r.ResourceEndpoint)
@@ -286,6 +287,7 @@ func readGenericRestResourceTypeResponseDataSource(ctx context.Context, r *clien
 func readGroupRestResourceTypeResponseDataSource(ctx context.Context, r *client.GroupRestResourceTypeResponse, state *restResourceTypeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("group")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.MembersColumnName = internaltypes.StringTypeOrNil(r.MembersColumnName, false)
 	state.NonmembersColumnName = internaltypes.StringTypeOrNil(r.NonmembersColumnName, false)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -319,7 +321,7 @@ func (r *restResourceTypeDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	readResponse, httpResp, err := r.apiClient.RestResourceTypeApi.GetRestResourceType(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Rest Resource Type", err, httpResp)
 		return

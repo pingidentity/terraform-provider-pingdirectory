@@ -43,7 +43,7 @@ resource "pingdirectory_scim_schema" "myScimSchema" {
 
 // LDAP mapping SCIM resource type is needed for the correlated data view resource
 resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
-  id          = "MyLdapMappingScimResourceType2"
+  name        = "MyLdapMappingScimResourceType2"
   type        = "ldap-mapping"
   core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
   enabled     = false
@@ -51,7 +51,7 @@ resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
 }
 
 resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
-  id                              = "MyCorrelatedLdapDataView"
+  name                            = "MyCorrelatedLdapDataView"
   scim_resource_type_name         = pingdirectory_scim_resource_type.myLdapMappingScimResourceType.id
   structural_ldap_objectclass     = "ldapObject"
   include_base_dn                 = "cn=com.example"
@@ -60,7 +60,7 @@ resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
 }
 
 resource "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttributePair" {
-  id                              = "MyLdapCorrelationAttributePair"
+  name                            = "MyLdapCorrelationAttributePair"
   correlated_ldap_data_view_name  = pingdirectory_correlated_ldap_data_view.myCorrelatedLdapDataView.id
   scim_resource_type_name         = pingdirectory_scim_resource_type.myLdapMappingScimResourceType.id
   primary_correlation_attribute   = "cn"
@@ -74,13 +74,14 @@ resource "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttri
 ### Required
 
 - `correlated_ldap_data_view_name` (String) Name of the parent Correlated LDAP Data View
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `primary_correlation_attribute` (String) The LDAP attribute from the base SCIM Resource Type whose value will be used to match objects in the Correlated LDAP Data View.
 - `scim_resource_type_name` (String) Name of the parent SCIM Resource Type
 - `secondary_correlation_attribute` (String) The LDAP attribute from the Correlated LDAP Data View whose value will be matched.
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

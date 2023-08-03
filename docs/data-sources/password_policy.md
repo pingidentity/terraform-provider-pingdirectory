@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_password_policy" "myPasswordPolicy" {
-  id = "MyPasswordPolicy"
+  name = "MyPasswordPolicy"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_password_policy" "myPasswordPolicy" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -67,6 +67,7 @@ data "pingdirectory_password_policy" "myPasswordPolicy" {
 - `force_change_on_add` (Boolean) Indicates whether users are forced to change their passwords upon first authenticating to the Directory Server after their account has been created.
 - `force_change_on_reset` (Boolean) Indicates whether users are forced to change their passwords if they are reset by an administrator. If a user's password is changed by any other user, that is considered an administrative password reset.
 - `grace_login_count` (Number) Specifies the number of grace logins that a user is allowed after the account has expired to allow that user to choose a new password.
+- `id` (String) The ID of this resource.
 - `idle_lockout_interval` (String) Specifies the maximum length of time that an account may remain idle (that is, the associated user does not authenticate to the server) before that user is locked out.
 - `ignore_duplicate_password_failures` (Boolean) Indicates whether to ignore subsequent authentication failures using the same password as an earlier failed authentication attempt (within the time frame defined by the lockout failure expiration interval). If this option is "true", then multiple failed attempts using the same password will be considered only a single failure. If this option is "false", then any failure will be tracked regardless of whether it used the same password as an earlier attempt.
 - `last_login_ip_address_attribute` (String) Specifies the name or OID of the attribute type that is used to hold the IP address of the client from which the user last authenticated.

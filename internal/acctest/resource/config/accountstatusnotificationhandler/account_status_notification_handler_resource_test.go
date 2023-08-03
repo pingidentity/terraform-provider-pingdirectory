@@ -89,7 +89,7 @@ func testAccSmtpAccountStatusNotificationHandlerResource(resourceName string, re
 	return fmt.Sprintf(`
 resource "pingdirectory_account_status_notification_handler" "%[1]s" {
   type                                  = "smtp"
-  id                                    = "%[2]s"
+  name                                  = "%[2]s"
   send_message_without_end_user_address = %[3]t
   recipient_address                     = %[4]s
   sender_address                        = "%[5]s"
@@ -99,7 +99,7 @@ resource "pingdirectory_account_status_notification_handler" "%[1]s" {
 }
 
 data "pingdirectory_account_status_notification_handler" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_account_status_notification_handler.%[1]s
   ]

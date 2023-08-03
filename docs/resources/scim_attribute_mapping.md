@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
-  id                           = "MyScimAttributeMapping"
+  name                         = "MyScimAttributeMapping"
   scim_resource_type_name      = "MyScimResourceType"
   scim_resource_type_attribute = "name"
   ldap_attribute               = "name"
@@ -49,8 +49,8 @@ resource "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
 
 ### Required
 
-- `id` (String) Name of this object.
 - `ldap_attribute` (String) The LDAP attribute to be mapped, or the path to a specific field of an LDAP attribute with the JSON object attribute syntax.
+- `name` (String) Name of this config object.
 - `scim_resource_type_attribute` (String) The attribute path of SCIM Resource Type attributes to be mapped.
 - `scim_resource_type_name` (String) Name of the parent SCIM Resource Type
 
@@ -64,6 +64,7 @@ resource "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

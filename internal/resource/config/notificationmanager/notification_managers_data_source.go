@@ -54,15 +54,9 @@ type notificationManagersDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *notificationManagersDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Notification Manager objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"filter": schema.StringAttribute{
 				Description: "SCIM filter used when searching the configuration.",
 				Optional:    true,
@@ -76,6 +70,8 @@ func (r *notificationManagersDataSource) Schema(ctx context.Context, req datasou
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

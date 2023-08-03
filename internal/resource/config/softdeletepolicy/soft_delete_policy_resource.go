@@ -82,6 +82,7 @@ func (r *defaultSoftDeletePolicyResource) Configure(_ context.Context, req resou
 
 type softDeletePolicyResourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Name                             types.String `tfsdk:"name"`
 	LastUpdated                      types.String `tfsdk:"last_updated"`
 	Notifications                    types.Set    `tfsdk:"notifications"`
 	RequiredActions                  types.Set    `tfsdk:"required_actions"`
@@ -145,9 +146,9 @@ func softDeletePolicySchema(ctx context.Context, req resource.SchemaRequest, res
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -177,6 +178,7 @@ func addOptionalSoftDeletePolicyFields(ctx context.Context, addRequest *client.A
 // Read a SoftDeletePolicyResponse object into the model struct
 func readSoftDeletePolicyResponse(ctx context.Context, r *client.SoftDeletePolicyResponse, state *softDeletePolicyResourceModel, expectedValues *softDeletePolicyResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AutoSoftDeleteConnectionCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteConnectionCriteria, internaltypes.IsEmptyString(expectedValues.AutoSoftDeleteConnectionCriteria))
 	state.AutoSoftDeleteRequestCriteria = internaltypes.StringTypeOrNil(r.AutoSoftDeleteRequestCriteria, internaltypes.IsEmptyString(expectedValues.AutoSoftDeleteRequestCriteria))
@@ -200,7 +202,7 @@ func createSoftDeletePolicyOperations(plan softDeletePolicyResourceModel, state 
 
 // Create a soft-delete-policy soft-delete-policy
 func (r *softDeletePolicyResource) CreateSoftDeletePolicy(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan softDeletePolicyResourceModel) (*softDeletePolicyResourceModel, error) {
-	addRequest := client.NewAddSoftDeletePolicyRequest(plan.Id.ValueString())
+	addRequest := client.NewAddSoftDeletePolicyRequest(plan.Name.ValueString())
 	addOptionalSoftDeletePolicyFields(ctx, addRequest, plan)
 	// Log request JSON
 	requestJson, err := addRequest.MarshalJSON()
@@ -269,7 +271,7 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 	}
 
 	readResponse, httpResp, err := r.apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
 		return
@@ -286,7 +288,7 @@ func (r *defaultSoftDeletePolicyResource) Create(ctx context.Context, req resour
 	readSoftDeletePolicyResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicy(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSoftDeletePolicyOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -337,7 +339,7 @@ func readSoftDeletePolicy(ctx context.Context, req resource.ReadRequest, resp *r
 	}
 
 	readResponse, httpResp, err := apiClient.SoftDeletePolicyApi.GetSoftDeletePolicy(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Soft Delete Policy", err, httpResp)
 		return
@@ -379,7 +381,7 @@ func updateSoftDeletePolicy(ctx context.Context, req resource.UpdateRequest, res
 	var state softDeletePolicyResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.SoftDeletePolicyApi.UpdateSoftDeletePolicy(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSoftDeletePolicyOperations(plan, state)
@@ -432,7 +434,7 @@ func (r *softDeletePolicyResource) Delete(ctx context.Context, req resource.Dele
 	}
 
 	httpResp, err := r.apiClient.SoftDeletePolicyApi.DeleteSoftDeletePolicyExecute(r.apiClient.SoftDeletePolicyApi.DeleteSoftDeletePolicy(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Soft Delete Policy", err, httpResp)
 		return
@@ -448,6 +450,6 @@ func (r *defaultSoftDeletePolicyResource) ImportState(ctx context.Context, req r
 }
 
 func importSoftDeletePolicy(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

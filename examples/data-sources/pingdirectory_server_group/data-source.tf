@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_server_group" "myServerGroup" {
-  id = "MyServerGroup"
+  name = "MyServerGroup"
 }

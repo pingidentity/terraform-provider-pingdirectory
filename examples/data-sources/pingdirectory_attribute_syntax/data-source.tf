@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_attribute_syntax" "myAttributeSyntax" {
-  id = "MyAttributeSyntax"
+  name = "MyAttributeSyntax"
 }

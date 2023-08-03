@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_topology_admin_user" "myTopologyAdminUser" {
-  id = "MyTopologyAdminUser"
+  name = "MyTopologyAdminUser"
 }

@@ -55,7 +55,7 @@ data "pingdirectory_replication_server" "myReplicationServer" {
 - `compression_criteria` (String) Specifies when the replication traffic should be compressed.
 - `gateway_priority` (Number) Specifies the gateway priority of the Replication Server in the current location.
 - `heartbeat_interval` (String) Specifies the heartbeat interval that the Directory Server will use when communicating with Replication Servers.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `je_property` (Set of String) Specifies the database and environment properties for the Berkeley DB Java Edition database for the replication changelog.
 - `listen_on_all_addresses` (Boolean) Indicates whether the Replication Server should listen on all addresses for this host. If set to FALSE, then the Replication Server will listen only to the address resolved from the hostname provided.
 - `missing_changes_alert_threshold_percent` (Number) Specifies the missing changes alert threshold as a percentage of the total pending changes. For instance, a value of 80 indicates that the replica is 80% of the way to losing changes. Supported in PingDirectory product version 9.3.0.0+.

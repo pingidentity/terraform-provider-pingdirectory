@@ -48,6 +48,7 @@ func (r *sensitiveAttributeDataSource) Configure(_ context.Context, req datasour
 
 type sensitiveAttributeDataSourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
+	Name                                         types.String `tfsdk:"name"`
 	Description                                  types.String `tfsdk:"description"`
 	AttributeType                                types.Set    `tfsdk:"attribute_type"`
 	IncludeDefaultSensitiveOperationalAttributes types.Bool   `tfsdk:"include_default_sensitive_operational_attributes"`
@@ -60,13 +61,9 @@ type sensitiveAttributeDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *sensitiveAttributeDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Sensitive Attribute.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Sensitive Attribute",
 				Required:    false,
@@ -118,11 +115,14 @@ func (r *sensitiveAttributeDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SensitiveAttributeResponse object into the model struct
 func readSensitiveAttributeResponseDataSource(ctx context.Context, r *client.SensitiveAttributeResponse, state *sensitiveAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.IncludeDefaultSensitiveOperationalAttributes = internaltypes.BoolTypeOrNil(r.IncludeDefaultSensitiveOperationalAttributes)
@@ -149,7 +149,7 @@ func (r *sensitiveAttributeDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.SensitiveAttributeApi.GetSensitiveAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sensitive Attribute", err, httpResp)
 		return

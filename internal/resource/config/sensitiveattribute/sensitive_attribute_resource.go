@@ -82,6 +82,7 @@ func (r *defaultSensitiveAttributeResource) Configure(_ context.Context, req res
 
 type sensitiveAttributeResourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
+	Name                                         types.String `tfsdk:"name"`
 	LastUpdated                                  types.String `tfsdk:"last_updated"`
 	Notifications                                types.Set    `tfsdk:"notifications"`
 	RequiredActions                              types.Set    `tfsdk:"required_actions"`
@@ -169,9 +170,9 @@ func sensitiveAttributeSchema(ctx context.Context, req resource.SchemaRequest, r
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -230,6 +231,7 @@ func addOptionalSensitiveAttributeFields(ctx context.Context, addRequest *client
 // Read a SensitiveAttributeResponse object into the model struct
 func readSensitiveAttributeResponse(ctx context.Context, r *client.SensitiveAttributeResponse, state *sensitiveAttributeResourceModel, expectedValues *sensitiveAttributeResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.AttributeType = internaltypes.GetStringSet(r.AttributeType)
 	state.IncludeDefaultSensitiveOperationalAttributes = internaltypes.BoolTypeOrNil(r.IncludeDefaultSensitiveOperationalAttributes)
@@ -264,7 +266,7 @@ func createSensitiveAttributeOperations(plan sensitiveAttributeResourceModel, st
 func (r *sensitiveAttributeResource) CreateSensitiveAttribute(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan sensitiveAttributeResourceModel) (*sensitiveAttributeResourceModel, error) {
 	var AttributeTypeSlice []string
 	plan.AttributeType.ElementsAs(ctx, &AttributeTypeSlice, false)
-	addRequest := client.NewAddSensitiveAttributeRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSensitiveAttributeRequest(plan.Name.ValueString(),
 		AttributeTypeSlice)
 	err := addOptionalSensitiveAttributeFields(ctx, addRequest, plan)
 	if err != nil {
@@ -338,7 +340,7 @@ func (r *defaultSensitiveAttributeResource) Create(ctx context.Context, req reso
 	}
 
 	readResponse, httpResp, err := r.apiClient.SensitiveAttributeApi.GetSensitiveAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sensitive Attribute", err, httpResp)
 		return
@@ -355,7 +357,7 @@ func (r *defaultSensitiveAttributeResource) Create(ctx context.Context, req reso
 	readSensitiveAttributeResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.SensitiveAttributeApi.UpdateSensitiveAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.SensitiveAttributeApi.UpdateSensitiveAttribute(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createSensitiveAttributeOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -406,7 +408,7 @@ func readSensitiveAttribute(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	readResponse, httpResp, err := apiClient.SensitiveAttributeApi.GetSensitiveAttribute(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Sensitive Attribute", err, httpResp)
 		return
@@ -448,7 +450,7 @@ func updateSensitiveAttribute(ctx context.Context, req resource.UpdateRequest, r
 	var state sensitiveAttributeResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.SensitiveAttributeApi.UpdateSensitiveAttribute(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createSensitiveAttributeOperations(plan, state)
@@ -501,7 +503,7 @@ func (r *sensitiveAttributeResource) Delete(ctx context.Context, req resource.De
 	}
 
 	httpResp, err := r.apiClient.SensitiveAttributeApi.DeleteSensitiveAttributeExecute(r.apiClient.SensitiveAttributeApi.DeleteSensitiveAttribute(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Sensitive Attribute", err, httpResp)
 		return
@@ -517,6 +519,6 @@ func (r *defaultSensitiveAttributeResource) ImportState(ctx context.Context, req
 }
 
 func importSensitiveAttribute(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

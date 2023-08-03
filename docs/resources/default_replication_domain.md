@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_replication_domain" "myReplicationDomain" {
-  id                            = "MyReplicationDomain"
+  name                          = "MyReplicationDomain"
   synchronization_provider_name = "Multimaster Synchronization"
   server_id                     = 1234
   base_dn                       = "dc=example,dc=com"
@@ -49,7 +49,7 @@ resource "pingdirectory_default_replication_domain" "myReplicationDomain" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `synchronization_provider_name` (String) Name of the parent Synchronization Provider
 
 ### Optional
@@ -65,6 +65,7 @@ resource "pingdirectory_default_replication_domain" "myReplicationDomain" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))

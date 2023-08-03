@@ -84,14 +84,14 @@ func testAccInterServerAuthenticationInfoResource(resourceName string, resourceM
 	return fmt.Sprintf(`
 resource "pingdirectory_default_inter_server_authentication_info" "%[1]s" {
   type                          = "certificate"
-  id                            = "%[2]s"
+  name                          = "%[2]s"
   server_instance_listener_name = "%[3]s"
   server_instance_name          = "%[4]s"
   purpose                       = %[5]s
 }
 
 data "pingdirectory_inter_server_authentication_info" "%[1]s" {
-  id                            = "%[2]s"
+  name                          = "%[2]s"
   server_instance_listener_name = "%[3]s"
   server_instance_name          = "%[4]s"
   depends_on = [

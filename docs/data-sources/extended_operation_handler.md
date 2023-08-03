@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_extended_operation_handler" "myExtendedOperationHandler" {
-  id = "MyExtendedOperationHandler"
+  name = "MyExtendedOperationHandler"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_extended_operation_handler" "myExtendedOperationHandler" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -63,6 +63,7 @@ data "pingdirectory_extended_operation_handler" "myExtendedOperationHandler" {
 - `enabled` (Boolean) Indicates whether the Extended Operation Handler is enabled (that is, whether the types of extended operations are allowed in the server).
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Extended Operation Handler. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Extended Operation Handler.
+- `id` (String) The ID of this resource.
 - `identity_mapper` (String) Specifies the name of the identity mapper that should be used in conjunction with the password modify extended operation.
 - `maximum_passwords_per_request` (Number) The maximum number of passwords that may be generated and returned to the client for a single request.
 - `maximum_validation_attempts_per_password` (Number) The maximum number of attempts that the server may use to generate a password that passes validation.

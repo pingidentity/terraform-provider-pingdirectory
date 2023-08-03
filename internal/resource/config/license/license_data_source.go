@@ -47,22 +47,15 @@ func (r *licenseDataSource) Configure(_ context.Context, req datasource.Configur
 }
 
 type licenseDataSourceModel struct {
-	// Id field required for acceptance testing framework
 	Id                          types.String `tfsdk:"id"`
 	DirectoryPlatformLicenseKey types.String `tfsdk:"directory_platform_license_key"`
 }
 
 // GetSchema defines the schema for the datasource.
 func (r *licenseDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a License.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"directory_platform_license_key": schema.StringAttribute{
 				Description: "License key enabling use of Directory Server, Directory Proxy Server, Data Sync Server, and Data Metrics Server products.",
 				Required:    false,
@@ -71,6 +64,8 @@ func (r *licenseDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a LicenseResponse object into the model struct

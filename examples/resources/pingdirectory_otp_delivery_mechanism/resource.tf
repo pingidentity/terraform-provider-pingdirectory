@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_otp_delivery_mechanism" "myOtpDeliveryMechanism" {
-  id             = "MyOtpDeliveryMechanism"
+  name           = "MyOtpDeliveryMechanism"
   type           = "email"
   sender_address = "sender@example.com"
   enabled        = true

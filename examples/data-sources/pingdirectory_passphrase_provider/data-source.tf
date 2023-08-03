@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_passphrase_provider" "myPassphraseProvider" {
-  id = "MyPassphraseProvider"
+  name = "MyPassphraseProvider"
 }

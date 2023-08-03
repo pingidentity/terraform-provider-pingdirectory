@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_plugin" "myPlugin" {
-  id      = "MyPlugin"
+  name    = "MyPlugin"
   type    = "last-access-time"
   enabled = false
 }

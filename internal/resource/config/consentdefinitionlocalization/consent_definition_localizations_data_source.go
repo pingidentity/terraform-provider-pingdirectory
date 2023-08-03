@@ -55,15 +55,9 @@ type consentDefinitionLocalizationsDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *consentDefinitionLocalizationsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Consent Definition Localization objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"consent_definition_name": schema.StringAttribute{
 				Description: "Name of the parent Consent Definition",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *consentDefinitionLocalizationsDataSource) Schema(ctx context.Context, r
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

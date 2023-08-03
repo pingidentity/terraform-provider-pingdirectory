@@ -88,14 +88,14 @@ func testAccDirectoryserverInstanceResource(resourceName, instanceName string, r
 	return fmt.Sprintf(`
 resource "pingdirectory_default_server_instance" "%[1]s" {
   type                 = "directory"
-  id                   = "%[2]s"
+  name                 = "%[2]s"
   server_instance_name = "%[2]s"
   jmx_port             = %[3]d
   start_tls_enabled    = %[4]t
 }
 
 data "pingdirectory_server_instance" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_default_server_instance.%[1]s
   ]

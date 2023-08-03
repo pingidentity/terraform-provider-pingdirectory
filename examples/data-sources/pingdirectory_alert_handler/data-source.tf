@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_alert_handler" "myAlertHandler" {
-  id = "MyAlertHandler"
+  name = "MyAlertHandler"
 }

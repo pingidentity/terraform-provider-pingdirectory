@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
-  id   = "MySearchReferenceCriteria"
+  name = "MySearchReferenceCriteria"
   type = "simple"
 }
 ```
@@ -47,7 +47,7 @@ resource "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Search Reference Criteria resource. Options are ['simple', 'aggregate', 'third-party']
 
 ### Optional
@@ -67,6 +67,7 @@ resource "pingdirectory_search_reference_criteria" "mySearchReferenceCriteria" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -85,7 +86,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "searchReferenceCriteriaId" should be the id of the Search Reference Criteria to be imported
+# "searchReferenceCriteriaId" should be the name of the Search Reference Criteria to be imported
 terraform import pingdirectory_search_reference_criteria.mySearchReferenceCriteria searchReferenceCriteriaId
 ```
 

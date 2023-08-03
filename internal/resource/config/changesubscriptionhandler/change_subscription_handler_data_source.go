@@ -48,6 +48,7 @@ func (r *changeSubscriptionHandlerDataSource) Configure(_ context.Context, req d
 
 type changeSubscriptionHandlerDataSourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	Type               types.String `tfsdk:"type"`
 	ExtensionClass     types.String `tfsdk:"extension_class"`
 	ExtensionArgument  types.Set    `tfsdk:"extension_argument"`
@@ -61,13 +62,9 @@ type changeSubscriptionHandlerDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *changeSubscriptionHandlerDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Change Subscription Handler.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Change Subscription Handler resource. Options are ['groovy-scripted', 'logging', 'third-party']",
 				Required:    false,
@@ -127,12 +124,15 @@ func (r *changeSubscriptionHandlerDataSource) Schema(ctx context.Context, req da
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a GroovyScriptedChangeSubscriptionHandlerResponse object into the model struct
 func readGroovyScriptedChangeSubscriptionHandlerResponseDataSource(ctx context.Context, r *client.GroovyScriptedChangeSubscriptionHandlerResponse, state *changeSubscriptionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -144,6 +144,7 @@ func readGroovyScriptedChangeSubscriptionHandlerResponseDataSource(ctx context.C
 func readLoggingChangeSubscriptionHandlerResponseDataSource(ctx context.Context, r *client.LoggingChangeSubscriptionHandlerResponse, state *changeSubscriptionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("logging")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -154,6 +155,7 @@ func readLoggingChangeSubscriptionHandlerResponseDataSource(ctx context.Context,
 func readThirdPartyChangeSubscriptionHandlerResponseDataSource(ctx context.Context, r *client.ThirdPartyChangeSubscriptionHandlerResponse, state *changeSubscriptionHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -172,7 +174,7 @@ func (r *changeSubscriptionHandlerDataSource) Read(ctx context.Context, req data
 	}
 
 	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionHandlerApi.GetChangeSubscriptionHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription Handler", err, httpResp)
 		return

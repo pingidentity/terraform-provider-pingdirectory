@@ -72,12 +72,12 @@ func testAccCustomSynchronizationProviderResource(resourceName string, resourceM
 	return fmt.Sprintf(`
 resource "pingdirectory_default_synchronization_provider" "%[1]s" {
   type    = "custom"
-  id      = "%[2]s"
+  name    = "%[2]s"
   enabled = %[3]t
 }
 
 data "pingdirectory_synchronization_provider" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_default_synchronization_provider.%[1]s
   ]

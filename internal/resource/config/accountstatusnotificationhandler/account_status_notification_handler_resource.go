@@ -86,6 +86,7 @@ func (r *defaultAccountStatusNotificationHandlerResource) Configure(_ context.Co
 
 type accountStatusNotificationHandlerResourceModel struct {
 	Id                                              types.String `tfsdk:"id"`
+	Name                                            types.String `tfsdk:"name"`
 	LastUpdated                                     types.String `tfsdk:"last_updated"`
 	Notifications                                   types.Set    `tfsdk:"notifications"`
 	RequiredActions                                 types.Set    `tfsdk:"required_actions"`
@@ -454,9 +455,9 @@ func accountStatusNotificationHandlerSchema(ctx context.Context, req resource.Sc
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -921,6 +922,7 @@ func populateAccountStatusNotificationHandlerUnknownValues(ctx context.Context, 
 func readSmtpAccountStatusNotificationHandlerResponse(ctx context.Context, r *client.SmtpAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerResourceModel, expectedValues *accountStatusNotificationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("smtp")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.EmailAddressAttributeType = internaltypes.GetStringSet(r.EmailAddressAttributeType)
 	state.EmailAddressJSONField = internaltypes.StringTypeOrNil(r.EmailAddressJSONField, internaltypes.IsEmptyString(expectedValues.EmailAddressJSONField))
 	state.EmailAddressJSONObjectFilter = internaltypes.StringTypeOrNil(r.EmailAddressJSONObjectFilter, internaltypes.IsEmptyString(expectedValues.EmailAddressJSONObjectFilter))
@@ -944,6 +946,7 @@ func readSmtpAccountStatusNotificationHandlerResponse(ctx context.Context, r *cl
 func readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx context.Context, r *client.GroovyScriptedAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerResourceModel, expectedValues *accountStatusNotificationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -961,6 +964,7 @@ func readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx context.Cont
 func readAdminAlertAccountStatusNotificationHandlerResponse(ctx context.Context, r *client.AdminAlertAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerResourceModel, expectedValues *accountStatusNotificationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("admin-alert")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccountStatusNotificationType = internaltypes.GetStringSet(
 		client.StringSliceEnumaccountStatusNotificationHandlerAccountStatusNotificationTypeProp(r.AccountStatusNotificationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -978,6 +982,7 @@ func readAdminAlertAccountStatusNotificationHandlerResponse(ctx context.Context,
 func readErrorLogAccountStatusNotificationHandlerResponse(ctx context.Context, r *client.ErrorLogAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerResourceModel, expectedValues *accountStatusNotificationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("error-log")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccountStatusNotificationType = internaltypes.GetStringSet(
 		client.StringSliceEnumaccountStatusNotificationHandlerAccountStatusNotificationTypeProp(r.AccountStatusNotificationType))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -995,6 +1000,7 @@ func readErrorLogAccountStatusNotificationHandlerResponse(ctx context.Context, r
 func readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx context.Context, r *client.MultiPartEmailAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerResourceModel, expectedValues *accountStatusNotificationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("multi-part-email")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.AccountTemporarilyFailureLockedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountTemporarilyFailureLockedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountTemporarilyFailureLockedMessageTemplate))
 	state.AccountPermanentlyFailureLockedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountPermanentlyFailureLockedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountPermanentlyFailureLockedMessageTemplate))
 	state.AccountIdleLockedMessageTemplate = internaltypes.StringTypeOrNil(r.AccountIdleLockedMessageTemplate, internaltypes.IsEmptyString(expectedValues.AccountIdleLockedMessageTemplate))
@@ -1029,6 +1035,7 @@ func readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx context.Cont
 func readThirdPartyAccountStatusNotificationHandlerResponse(ctx context.Context, r *client.ThirdPartyAccountStatusNotificationHandlerResponse, state *accountStatusNotificationHandlerResourceModel, expectedValues *accountStatusNotificationHandlerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -1093,7 +1100,7 @@ func (r *accountStatusNotificationHandlerResource) CreateSmtpAccountStatusNotifi
 	plan.MessageSubject.ElementsAs(ctx, &MessageSubjectSlice, false)
 	var MessageTemplateFileSlice []string
 	plan.MessageTemplateFile.ElementsAs(ctx, &MessageTemplateFileSlice, false)
-	addRequest := client.NewAddSmtpAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSmtpAccountStatusNotificationHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumsmtpAccountStatusNotificationHandlerSchemaUrn{client.ENUMSMTPACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERSMTP},
 		plan.SenderAddress.ValueString(),
 		MessageSubjectSlice,
@@ -1130,7 +1137,7 @@ func (r *accountStatusNotificationHandlerResource) CreateSmtpAccountStatusNotifi
 
 // Create a groovy-scripted account-status-notification-handler
 func (r *accountStatusNotificationHandlerResource) CreateGroovyScriptedAccountStatusNotificationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accountStatusNotificationHandlerResourceModel) (*accountStatusNotificationHandlerResourceModel, error) {
-	addRequest := client.NewAddGroovyScriptedAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddGroovyScriptedAccountStatusNotificationHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumgroovyScriptedAccountStatusNotificationHandlerSchemaUrn{client.ENUMGROOVYSCRIPTEDACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERGROOVY_SCRIPTED},
 		plan.ScriptClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1167,7 +1174,7 @@ func (r *accountStatusNotificationHandlerResource) CreateGroovyScriptedAccountSt
 func (r *accountStatusNotificationHandlerResource) CreateAdminAlertAccountStatusNotificationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accountStatusNotificationHandlerResourceModel) (*accountStatusNotificationHandlerResourceModel, error) {
 	var AccountStatusNotificationTypeSlice []client.EnumaccountStatusNotificationHandlerAccountStatusNotificationTypeProp
 	plan.AccountStatusNotificationType.ElementsAs(ctx, &AccountStatusNotificationTypeSlice, false)
-	addRequest := client.NewAddAdminAlertAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddAdminAlertAccountStatusNotificationHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumadminAlertAccountStatusNotificationHandlerSchemaUrn{client.ENUMADMINALERTACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERADMIN_ALERT},
 		AccountStatusNotificationTypeSlice,
 		plan.Enabled.ValueBool())
@@ -1204,7 +1211,7 @@ func (r *accountStatusNotificationHandlerResource) CreateAdminAlertAccountStatus
 func (r *accountStatusNotificationHandlerResource) CreateErrorLogAccountStatusNotificationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accountStatusNotificationHandlerResourceModel) (*accountStatusNotificationHandlerResourceModel, error) {
 	var AccountStatusNotificationTypeSlice []client.EnumaccountStatusNotificationHandlerAccountStatusNotificationTypeProp
 	plan.AccountStatusNotificationType.ElementsAs(ctx, &AccountStatusNotificationTypeSlice, false)
-	addRequest := client.NewAddErrorLogAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddErrorLogAccountStatusNotificationHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumerrorLogAccountStatusNotificationHandlerSchemaUrn{client.ENUMERRORLOGACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERERROR_LOG},
 		AccountStatusNotificationTypeSlice,
 		plan.Enabled.ValueBool())
@@ -1239,7 +1246,7 @@ func (r *accountStatusNotificationHandlerResource) CreateErrorLogAccountStatusNo
 
 // Create a multi-part-email account-status-notification-handler
 func (r *accountStatusNotificationHandlerResource) CreateMultiPartEmailAccountStatusNotificationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accountStatusNotificationHandlerResourceModel) (*accountStatusNotificationHandlerResourceModel, error) {
-	addRequest := client.NewAddMultiPartEmailAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddMultiPartEmailAccountStatusNotificationHandlerRequest(plan.Name.ValueString(),
 		[]client.EnummultiPartEmailAccountStatusNotificationHandlerSchemaUrn{client.ENUMMULTIPARTEMAILACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERMULTI_PART_EMAIL},
 		plan.Enabled.ValueBool())
 	addOptionalMultiPartEmailAccountStatusNotificationHandlerFields(ctx, addRequest, plan)
@@ -1273,7 +1280,7 @@ func (r *accountStatusNotificationHandlerResource) CreateMultiPartEmailAccountSt
 
 // Create a third-party account-status-notification-handler
 func (r *accountStatusNotificationHandlerResource) CreateThirdPartyAccountStatusNotificationHandler(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan accountStatusNotificationHandlerResourceModel) (*accountStatusNotificationHandlerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyAccountStatusNotificationHandlerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyAccountStatusNotificationHandlerRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyAccountStatusNotificationHandlerSchemaUrn{client.ENUMTHIRDPARTYACCOUNTSTATUSNOTIFICATIONHANDLERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0ACCOUNT_STATUS_NOTIFICATION_HANDLERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -1380,7 +1387,7 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 	}
 
 	readResponse, httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Account Status Notification Handler", err, httpResp)
 		return
@@ -1414,7 +1421,7 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createAccountStatusNotificationHandlerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -1482,7 +1489,7 @@ func readAccountStatusNotificationHandler(ctx context.Context, req resource.Read
 	}
 
 	readResponse, httpResp, err := apiClient.AccountStatusNotificationHandlerApi.GetAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Account Status Notification Handler", err, httpResp)
 		return
@@ -1541,7 +1548,7 @@ func updateAccountStatusNotificationHandler(ctx context.Context, req resource.Up
 	var state accountStatusNotificationHandlerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.AccountStatusNotificationHandlerApi.UpdateAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createAccountStatusNotificationHandlerOperations(plan, state)
@@ -1611,7 +1618,7 @@ func (r *accountStatusNotificationHandlerResource) Delete(ctx context.Context, r
 	}
 
 	httpResp, err := r.apiClient.AccountStatusNotificationHandlerApi.DeleteAccountStatusNotificationHandlerExecute(r.apiClient.AccountStatusNotificationHandlerApi.DeleteAccountStatusNotificationHandler(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Account Status Notification Handler", err, httpResp)
 		return
@@ -1627,6 +1634,6 @@ func (r *defaultAccountStatusNotificationHandlerResource) ImportState(ctx contex
 }
 
 func importAccountStatusNotificationHandler(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

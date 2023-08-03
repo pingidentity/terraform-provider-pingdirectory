@@ -93,7 +93,7 @@ func testAccPasswordStorageSchemeResource(resourceName string, resourceModel pas
 	return fmt.Sprintf(`
 resource "pingdirectory_password_storage_scheme" "%[1]s" {
   type                     = "argon2"
-  id                       = "%[2]s"
+  name                     = "%[2]s"
   iteration_count          = %[3]d
   parallelism_factor       = %[4]d
   memory_usage_kb          = %[5]d
@@ -103,7 +103,7 @@ resource "pingdirectory_password_storage_scheme" "%[1]s" {
 }
 
 data "pingdirectory_password_storage_scheme" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_password_storage_scheme.%[1]s
   ]

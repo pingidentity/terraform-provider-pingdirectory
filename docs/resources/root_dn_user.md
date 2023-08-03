@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_root_dn_user" "myRootDnUser" {
-  id                              = "MyRootDnUser"
+  name                            = "MyRootDnUser"
   inherit_default_root_privileges = true
   search_result_entry_limit       = 0
   time_limit_seconds              = 0
@@ -54,7 +54,7 @@ resource "pingdirectory_root_dn_user" "myRootDnUser" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -94,6 +94,7 @@ resource "pingdirectory_root_dn_user" "myRootDnUser" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -112,7 +113,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "rootDnUserId" should be the id of the Root Dn User to be imported
+# "rootDnUserId" should be the name of the Root Dn User to be imported
 terraform import pingdirectory_root_dn_user.myRootDnUser rootDnUserId
 ```
 

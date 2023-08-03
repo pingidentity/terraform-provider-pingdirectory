@@ -55,15 +55,9 @@ type customLoggedStatsListDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *customLoggedStatsListDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Lists Custom Logged Stats objects in the server configuration.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Placeholder name of this object required by Terraform.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"plugin_name": schema.StringAttribute{
 				Description: "Name of the parent Plugin",
 				Required:    true,
@@ -81,6 +75,8 @@ func (r *customLoggedStatsListDataSource) Schema(ctx context.Context, req dataso
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read resource information

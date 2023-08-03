@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_passphrase_provider" "myPassphraseProvider" {
-  id                   = "MyPassphraseProvider"
+  name                 = "MyPassphraseProvider"
   type                 = "environment-variable"
   environment_variable = "PASSPHRASE_ENV_VARIABLE"
   enabled              = true
@@ -50,7 +50,7 @@ resource "pingdirectory_passphrase_provider" "myPassphraseProvider" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether this Passphrase Provider is enabled for use in the server.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Passphrase Provider resource. Options are ['environment-variable', 'amazon-secrets-manager', 'obscured-value', 'azure-key-vault', 'file-based', 'conjur', 'vault', 'third-party']
 
 ### Optional
@@ -79,6 +79,7 @@ resource "pingdirectory_passphrase_provider" "myPassphraseProvider" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -97,7 +98,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "passphraseProviderId" should be the id of the Passphrase Provider to be imported
+# "passphraseProviderId" should be the name of the Passphrase Provider to be imported
 terraform import pingdirectory_passphrase_provider.myPassphraseProvider passphraseProviderId
 ```
 

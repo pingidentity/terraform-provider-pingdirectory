@@ -83,6 +83,7 @@ func (r *defaultScimAttributeMappingResource) Configure(_ context.Context, req r
 
 type scimAttributeMappingResourceModel struct {
 	Id                        types.String `tfsdk:"id"`
+	Name                      types.String `tfsdk:"name"`
 	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
 	RequiredActions           types.Set    `tfsdk:"required_actions"`
@@ -168,9 +169,9 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id", "scim_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"scim_resource_type_name"})
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -197,6 +198,7 @@ func addOptionalScimAttributeMappingFields(ctx context.Context, addRequest *clie
 // Read a ScimAttributeMappingResponse object into the model struct
 func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttributeMappingResponse, state *scimAttributeMappingResourceModel, expectedValues *scimAttributeMappingResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, internaltypes.IsEmptyString(expectedValues.CorrelatedLDAPDataView))
 	state.ScimResourceTypeAttribute = types.StringValue(r.ScimResourceTypeAttribute)
 	state.LdapAttribute = types.StringValue(r.LdapAttribute)
@@ -230,7 +232,7 @@ func createScimAttributeMappingOperations(plan scimAttributeMappingResourceModel
 
 // Create a scim-attribute-mapping scim-attribute-mapping
 func (r *scimAttributeMappingResource) CreateScimAttributeMapping(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan scimAttributeMappingResourceModel) (*scimAttributeMappingResourceModel, error) {
-	addRequest := client.NewAddScimAttributeMappingRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddScimAttributeMappingRequest(plan.Name.ValueString(),
 		plan.ScimResourceTypeAttribute.ValueString(),
 		plan.LdapAttribute.ValueString())
 	addOptionalScimAttributeMappingFields(ctx, addRequest, plan)
@@ -302,7 +304,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 	}
 
 	readResponse, httpResp, err := r.apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute Mapping", err, httpResp)
 		return
@@ -319,7 +321,7 @@ func (r *defaultScimAttributeMappingResource) Create(ctx context.Context, req re
 	readScimAttributeMappingResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
+	updateRequest := r.apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
 	ops := createScimAttributeMappingOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -371,7 +373,7 @@ func readScimAttributeMapping(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	readResponse, httpResp, err := apiClient.ScimAttributeMappingApi.GetScimAttributeMapping(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Scim Attribute Mapping", err, httpResp)
 		return
@@ -413,7 +415,7 @@ func updateScimAttributeMapping(ctx context.Context, req resource.UpdateRequest,
 	var state scimAttributeMappingResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.ScimAttributeMappingApi.UpdateScimAttributeMapping(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString(), plan.ScimResourceTypeName.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString(), plan.ScimResourceTypeName.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createScimAttributeMappingOperations(plan, state)
@@ -467,7 +469,7 @@ func (r *scimAttributeMappingResource) Delete(ctx context.Context, req resource.
 	}
 
 	httpResp, err := r.apiClient.ScimAttributeMappingApi.DeleteScimAttributeMappingExecute(r.apiClient.ScimAttributeMappingApi.DeleteScimAttributeMapping(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.ScimResourceTypeName.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.ScimResourceTypeName.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Scim Attribute Mapping", err, httpResp)
 		return
@@ -490,5 +492,5 @@ func importScimAttributeMapping(ctx context.Context, req resource.ImportStateReq
 	}
 	// Set the required attributes to read the resource
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("scim_resource_type_name"), split[0])...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), split[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), split[1])...)
 }

@@ -50,7 +50,7 @@ data "pingdirectory_crypto_manager" "myCryptoManager" {
 - `digest_algorithm` (String) Specifies the preferred message digest algorithm for the Directory Server.
 - `enable_rsa_key_exchange_cipher_suites` (Boolean) Indicates whether to enable support for TLS cipher suites that use the RSA key exchange algorithm. Cipher suites that rely on RSA key exchange are not recommended because they do not support forward secrecy, which means that if the private key is compromised, then any communication negotiated using that private key should also be considered compromised.
 - `enable_sha_1_cipher_suites` (Boolean) Indicates whether to enable support for TLS cipher suites that use the SHA-1 digest algorithm. The SHA-1 digest algorithm is no longer considered secure and is not recommended for use.
-- `id` (String) Name of this object.
+- `id` (String) The ID of this resource.
 - `key_wrapping_transformation` (String) The preferred key wrapping transformation for the Directory Server. This value must be the same for all server instances in a replication topology.
 - `mac_algorithm` (String) Specifies the preferred MAC algorithm for the Directory Server.
 - `mac_key_length` (Number) Specifies the key length in bits for the preferred MAC algorithm.

@@ -80,14 +80,14 @@ func testAccLdapPassThroughScimResourceTypeResource(resourceName string, resourc
 	return fmt.Sprintf(`
 resource "pingdirectory_scim_resource_type" "%[1]s" {
   type        = "ldap-pass-through"
-  id          = "%[2]s"
+  name        = "%[2]s"
   enabled     = %[3]t
   endpoint    = "%[4]s"
   description = "%[5]s"
 }
 
 data "pingdirectory_scim_resource_type" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_scim_resource_type.%[1]s
   ]

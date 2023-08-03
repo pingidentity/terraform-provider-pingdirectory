@@ -48,6 +48,7 @@ func (r *changeSubscriptionDataSource) Configure(_ context.Context, req datasour
 
 type changeSubscriptionDataSourceModel struct {
 	Id                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
 	Description        types.String `tfsdk:"description"`
 	ConnectionCriteria types.String `tfsdk:"connection_criteria"`
 	RequestCriteria    types.String `tfsdk:"request_criteria"`
@@ -57,13 +58,9 @@ type changeSubscriptionDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *changeSubscriptionDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Change Subscription.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Change Subscription",
 				Required:    false,
@@ -96,11 +93,14 @@ func (r *changeSubscriptionDataSource) Schema(ctx context.Context, req datasourc
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ChangeSubscriptionResponse object into the model struct
 func readChangeSubscriptionResponseDataSource(ctx context.Context, r *client.ChangeSubscriptionResponse, state *changeSubscriptionDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.ConnectionCriteria = internaltypes.StringTypeOrNil(r.ConnectionCriteria, false)
 	state.RequestCriteria = internaltypes.StringTypeOrNil(r.RequestCriteria, false)
@@ -119,7 +119,7 @@ func (r *changeSubscriptionDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	readResponse, httpResp, err := r.apiClient.ChangeSubscriptionApi.GetChangeSubscription(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Change Subscription", err, httpResp)
 		return

@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_group_implementation" "myGroupImplementation" {
-  id      = "MyGroupImplementation"
+  name    = "MyGroupImplementation"
   type    = "static"
   enabled = false
 }

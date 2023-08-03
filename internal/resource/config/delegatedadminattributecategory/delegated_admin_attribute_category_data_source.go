@@ -55,15 +55,9 @@ type delegatedAdminAttributeCategoryDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *delegatedAdminAttributeCategoryDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Attribute Category.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Delegated Admin Attribute Category",
 				Required:    false,
@@ -82,6 +76,8 @@ func (r *delegatedAdminAttributeCategoryDataSource) Schema(ctx context.Context, 
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a DelegatedAdminAttributeCategoryResponse object into the model struct

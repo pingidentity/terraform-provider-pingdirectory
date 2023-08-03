@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_scim_resource_type" "myScimResourceType" {
-  id = "MyScimResourceType"
+  name = "MyScimResourceType"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_scim_resource_type" "myScimResourceType" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -56,6 +56,7 @@ data "pingdirectory_scim_resource_type" "myScimResourceType" {
 - `description` (String) A description for this SCIM Resource Type
 - `enabled` (Boolean) Indicates whether the SCIM Resource Type is enabled.
 - `endpoint` (String) The HTTP addressable endpoint of this SCIM Resource Type relative to the '/scim/v2' base URL. Do not include a leading '/'.
+- `id` (String) The ID of this resource.
 - `include_base_dn` (String) Specifies the base DN of the branch of the LDAP directory that can be accessed by this SCIM Resource Type.
 - `include_filter` (Set of String) The set of LDAP filters that define the LDAP entries that should be included in this SCIM Resource Type.
 - `include_operational_attribute` (Set of String) Specifies the set of operational LDAP attributes to be provided by this SCIM Resource Type.

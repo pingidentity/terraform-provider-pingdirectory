@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
-  id       = "MyMonitoringEndpoint"
+  name     = "MyMonitoringEndpoint"
   hostname = "localhost"
   enabled  = false
 }
@@ -50,7 +50,7 @@ resource "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
 
 - `enabled` (Boolean) Indicates whether this Monitoring Endpoint is enabled for use in the Directory Server.
 - `hostname` (String) The name of the host where this StatsD Monitoring Endpoint should send metric data.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Optional
 
@@ -61,6 +61,7 @@ resource "pingdirectory_monitoring_endpoint" "myMonitoringEndpoint" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -79,7 +80,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "monitoringEndpointId" should be the id of the Monitoring Endpoint to be imported
+# "monitoringEndpointId" should be the name of the Monitoring Endpoint to be imported
 terraform import pingdirectory_monitoring_endpoint.myMonitoringEndpoint monitoringEndpointId
 ```
 

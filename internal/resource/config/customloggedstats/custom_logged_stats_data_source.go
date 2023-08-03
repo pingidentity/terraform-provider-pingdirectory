@@ -48,6 +48,7 @@ func (r *customLoggedStatsDataSource) Configure(_ context.Context, req datasourc
 
 type customLoggedStatsDataSourceModel struct {
 	Id                     types.String `tfsdk:"id"`
+	Name                   types.String `tfsdk:"name"`
 	PluginName             types.String `tfsdk:"plugin_name"`
 	Description            types.String `tfsdk:"description"`
 	Enabled                types.Bool   `tfsdk:"enabled"`
@@ -68,13 +69,9 @@ type customLoggedStatsDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *customLoggedStatsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Custom Logged Stats.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"plugin_name": schema.StringAttribute{
 				Description: "Name of the parent Plugin",
 				Required:    true,
@@ -174,11 +171,14 @@ func (r *customLoggedStatsDataSource) Schema(ctx context.Context, req datasource
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a CustomLoggedStatsResponse object into the model struct
 func readCustomLoggedStatsResponseDataSource(ctx context.Context, r *client.CustomLoggedStatsResponse, state *customLoggedStatsDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.MonitorObjectclass = types.StringValue(r.MonitorObjectclass)
@@ -208,7 +208,7 @@ func (r *customLoggedStatsDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	readResponse, httpResp, err := r.apiClient.CustomLoggedStatsApi.GetCustomLoggedStats(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString(), state.PluginName.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString(), state.PluginName.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Custom Logged Stats", err, httpResp)
 		return

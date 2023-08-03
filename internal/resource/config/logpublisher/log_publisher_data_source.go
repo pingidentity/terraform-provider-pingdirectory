@@ -49,6 +49,7 @@ func (r *logPublisherDataSource) Configure(_ context.Context, req datasource.Con
 
 type logPublisherDataSourceModel struct {
 	Id                                                  types.String `tfsdk:"id"`
+	Name                                                types.String `tfsdk:"name"`
 	Type                                                types.String `tfsdk:"type"`
 	ScriptClass                                         types.String `tfsdk:"script_class"`
 	Server                                              types.String `tfsdk:"server"`
@@ -167,13 +168,9 @@ type logPublisherDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *logPublisherDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Log Publisher.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Log Publisher resource. Options are ['syslog-json-audit', 'syslog-based-error', 'third-party-file-based-access', 'operation-timing-access', 'third-party-http-operation', 'admin-alert-access', 'file-based-trace', 'jdbc-based-error', 'jdbc-based-access', 'common-log-file-http-operation', 'console-json-error', 'syslog-text-error', 'syslog-based-access', 'file-based-json-audit', 'file-based-debug', 'file-based-error', 'third-party-error', 'syslog-text-access', 'detailed-http-operation', 'json-access', 'debug-access', 'syslog-json-http-operation', 'third-party-access', 'file-based-audit', 'json-error', 'groovy-scripted-file-based-access', 'groovy-scripted-file-based-error', 'syslog-json-access', 'groovy-scripted-access', 'third-party-file-based-error', 'console-json-audit', 'console-json-http-operation', 'console-json-access', 'file-based-access', 'groovy-scripted-error', 'file-based-json-http-operation', 'syslog-json-error', 'groovy-scripted-http-operation']",
 				Required:    false,
@@ -884,12 +881,15 @@ func (r *logPublisherDataSource) Schema(ctx context.Context, req datasource.Sche
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a SyslogJsonAuditLogPublisherResponse object into the model struct
 func readSyslogJsonAuditLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogJsonAuditLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -929,6 +929,7 @@ func readSyslogJsonAuditLogPublisherResponseDataSource(ctx context.Context, r *c
 func readSyslogBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogBasedErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -948,6 +949,7 @@ func readSyslogBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *
 func readThirdPartyFileBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *client.ThirdPartyFileBasedAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-file-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -993,6 +995,7 @@ func readThirdPartyFileBasedAccessLogPublisherResponseDataSource(ctx context.Con
 func readOperationTimingAccessLogPublisherResponseDataSource(ctx context.Context, r *client.OperationTimingAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("operation-timing-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1035,6 +1038,7 @@ func readOperationTimingAccessLogPublisherResponseDataSource(ctx context.Context
 func readThirdPartyHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.ThirdPartyHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -1047,6 +1051,7 @@ func readThirdPartyHttpOperationLogPublisherResponseDataSource(ctx context.Conte
 func readAdminAlertAccessLogPublisherResponseDataSource(ctx context.Context, r *client.AdminAlertAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("admin-alert-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
 	state.LogDisconnects = internaltypes.BoolTypeOrNil(r.LogDisconnects)
 	state.LogClientCertificates = internaltypes.BoolTypeOrNil(r.LogClientCertificates)
@@ -1099,6 +1104,7 @@ func readAdminAlertAccessLogPublisherResponseDataSource(ctx context.Context, r *
 func readFileBasedTraceLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedTraceLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-trace")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1143,6 +1149,7 @@ func readFileBasedTraceLogPublisherResponseDataSource(ctx context.Context, r *cl
 func readJdbcBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *client.JdbcBasedErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jdbc-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = types.StringValue(r.Server)
 	state.LogFieldMapping = types.StringValue(r.LogFieldMapping)
 	state.LogTableName = types.StringValue(r.LogTableName)
@@ -1160,6 +1167,7 @@ func readJdbcBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *cl
 func readJdbcBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *client.JdbcBasedAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("jdbc-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Server = types.StringValue(r.Server)
 	state.LogFieldMapping = types.StringValue(r.LogFieldMapping)
 	state.LogTableName = types.StringValue(r.LogTableName)
@@ -1191,6 +1199,7 @@ func readJdbcBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *c
 func readCommonLogFileHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.CommonLogFileHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("common-log-file-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1217,6 +1226,7 @@ func readCommonLogFileHttpOperationLogPublisherResponseDataSource(ctx context.Co
 func readConsoleJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *client.ConsoleJsonErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
@@ -1238,6 +1248,7 @@ func readConsoleJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *
 func readSyslogTextErrorLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogTextErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-text-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
@@ -1265,6 +1276,7 @@ func readSyslogTextErrorLogPublisherResponseDataSource(ctx context.Context, r *c
 func readSyslogBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogBasedAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.ServerHostName = types.StringValue(r.ServerHostName)
 	state.ServerPort = types.Int64Value(r.ServerPort)
@@ -1320,6 +1332,7 @@ func readSyslogBasedAccessLogPublisherResponseDataSource(ctx context.Context, r 
 func readFileBasedJsonAuditLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedJsonAuditLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-json-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1369,6 +1382,7 @@ func readFileBasedJsonAuditLogPublisherResponseDataSource(ctx context.Context, r
 func readFileBasedDebugLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedDebugLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-debug")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1404,6 +1418,7 @@ func readFileBasedDebugLogPublisherResponseDataSource(ctx context.Context, r *cl
 func readFileBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1440,6 +1455,7 @@ func readFileBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *cl
 func readThirdPartyErrorLogPublisherResponseDataSource(ctx context.Context, r *client.ThirdPartyErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -1455,6 +1471,7 @@ func readThirdPartyErrorLogPublisherResponseDataSource(ctx context.Context, r *c
 func readSyslogTextAccessLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogTextAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-text-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -1514,6 +1531,7 @@ func readSyslogTextAccessLogPublisherResponseDataSource(ctx context.Context, r *
 func readDetailedHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.DetailedHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("detailed-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1562,6 +1580,7 @@ func readDetailedHttpOperationLogPublisherResponseDataSource(ctx context.Context
 func readJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *client.JsonAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1628,6 +1647,7 @@ func readJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *client
 func readDebugAccessLogPublisherResponseDataSource(ctx context.Context, r *client.DebugAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("debug-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SuppressReplicationOperations = internaltypes.BoolTypeOrNil(r.SuppressReplicationOperations)
 	state.LogSecurityNegotiation = internaltypes.BoolTypeOrNil(r.LogSecurityNegotiation)
 	state.LogAssuranceCompleted = internaltypes.BoolTypeOrNil(r.LogAssuranceCompleted)
@@ -1675,6 +1695,7 @@ func readDebugAccessLogPublisherResponseDataSource(ctx context.Context, r *clien
 func readSyslogJsonHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogJsonHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -1713,6 +1734,7 @@ func readSyslogJsonHttpOperationLogPublisherResponseDataSource(ctx context.Conte
 func readThirdPartyAccessLogPublisherResponseDataSource(ctx context.Context, r *client.ThirdPartyAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -1742,6 +1764,7 @@ func readThirdPartyAccessLogPublisherResponseDataSource(ctx context.Context, r *
 func readFileBasedAuditLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedAuditLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SuppressInternalOperations = internaltypes.BoolTypeOrNil(r.SuppressInternalOperations)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -1792,6 +1815,7 @@ func readFileBasedAuditLogPublisherResponseDataSource(ctx context.Context, r *cl
 func readJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *client.JsonErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -1827,6 +1851,7 @@ func readJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *client.
 func readGroovyScriptedFileBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *client.GroovyScriptedFileBasedAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-file-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -1872,6 +1897,7 @@ func readGroovyScriptedFileBasedAccessLogPublisherResponseDataSource(ctx context
 func readGroovyScriptedFileBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *client.GroovyScriptedFileBasedErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-file-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
@@ -1903,6 +1929,7 @@ func readGroovyScriptedFileBasedErrorLogPublisherResponseDataSource(ctx context.
 func readSyslogJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogJsonAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
 	state.SyslogFacility = types.StringValue(r.SyslogFacility.String())
 	state.SyslogSeverity = types.StringValue(r.SyslogSeverity.String())
@@ -1958,6 +1985,7 @@ func readSyslogJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *
 func readGroovyScriptedAccessLogPublisherResponseDataSource(ctx context.Context, r *client.GroovyScriptedAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.LogConnects = internaltypes.BoolTypeOrNil(r.LogConnects)
@@ -1987,6 +2015,7 @@ func readGroovyScriptedAccessLogPublisherResponseDataSource(ctx context.Context,
 func readThirdPartyFileBasedErrorLogPublisherResponseDataSource(ctx context.Context, r *client.ThirdPartyFileBasedErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party-file-based-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -2018,6 +2047,7 @@ func readThirdPartyFileBasedErrorLogPublisherResponseDataSource(ctx context.Cont
 func readConsoleJsonAuditLogPublisherResponseDataSource(ctx context.Context, r *client.ConsoleJsonAuditLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-audit")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), false)
@@ -2053,6 +2083,7 @@ func readConsoleJsonAuditLogPublisherResponseDataSource(ctx context.Context, r *
 func readConsoleJsonHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.ConsoleJsonHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogPublisherOutputLocationProp(r.OutputLocation), false)
@@ -2087,6 +2118,7 @@ func readConsoleJsonHttpOperationLogPublisherResponseDataSource(ctx context.Cont
 func readConsoleJsonAccessLogPublisherResponseDataSource(ctx context.Context, r *client.ConsoleJsonAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("console-json-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.WriteMultiLineMessages = internaltypes.BoolTypeOrNil(r.WriteMultiLineMessages)
 	state.OutputLocation = internaltypes.StringTypeOrNil(
@@ -2138,6 +2170,7 @@ func readConsoleJsonAccessLogPublisherResponseDataSource(ctx context.Context, r 
 func readFileBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedAccessLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-access")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -2205,6 +2238,7 @@ func readFileBasedAccessLogPublisherResponseDataSource(ctx context.Context, r *c
 func readGroovyScriptedErrorLogPublisherResponseDataSource(ctx context.Context, r *client.GroovyScriptedErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.DefaultSeverity = internaltypes.GetStringSet(
@@ -2220,6 +2254,7 @@ func readGroovyScriptedErrorLogPublisherResponseDataSource(ctx context.Context, 
 func readFileBasedJsonHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.FileBasedJsonHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("file-based-json-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LogFile = types.StringValue(r.LogFile)
 	state.LogFilePermissions = types.StringValue(r.LogFilePermissions)
 	state.RotationPolicy = internaltypes.GetStringSet(r.RotationPolicy)
@@ -2268,6 +2303,7 @@ func readFileBasedJsonHttpOperationLogPublisherResponseDataSource(ctx context.Co
 func readSyslogJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *client.SyslogJsonErrorLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("syslog-json-error")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.DefaultSeverity = internaltypes.GetStringSet(
 		client.StringSliceEnumlogPublisherDefaultSeverityProp(r.DefaultSeverity))
 	state.SyslogExternalServer = internaltypes.GetStringSet(r.SyslogExternalServer)
@@ -2293,6 +2329,7 @@ func readSyslogJsonErrorLogPublisherResponseDataSource(ctx context.Context, r *c
 func readGroovyScriptedHttpOperationLogPublisherResponseDataSource(ctx context.Context, r *client.GroovyScriptedHttpOperationLogPublisherResponse, state *logPublisherDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("groovy-scripted-http-operation")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ScriptClass = types.StringValue(r.ScriptClass)
 	state.ScriptArgument = internaltypes.GetStringSet(r.ScriptArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -2312,7 +2349,7 @@ func (r *logPublisherDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogPublisherApi.GetLogPublisher(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Publisher", err, httpResp)
 		return

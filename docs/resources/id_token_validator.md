@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_id_token_validator" "myIdTokenValidator" {
-  id                     = "MyIdTokenValidator"
+  name                   = "MyIdTokenValidator"
   type                   = "ping-one"
   issuer_url             = "example.com"
   enabled                = false
@@ -53,9 +53,9 @@ resource "pingdirectory_id_token_validator" "myIdTokenValidator" {
 
 - `enabled` (Boolean) Indicates whether this ID Token Validator is enabled for use in the Directory Server.
 - `evaluation_order_index` (Number) When multiple ID Token Validators are defined for a single Directory Server, this property determines the order in which the ID Token Validators are consulted. Values of this property must be unique among all ID Token Validators defined within Directory Server but not necessarily contiguous. ID Token Validators with lower values will be evaluated first to determine if they are able to validate the ID token.
-- `id` (String) Name of this object.
 - `identity_mapper` (String) Specifies the name of the Identity Mapper that should be used to correlate an ID token subject value to a user entry. The claim name from which to obtain the subject (i.e. the currently logged-in user) may be configured using the subject-claim-name property.
 - `issuer_url` (String) Specifies a PingOne base issuer URL.
+- `name` (String) Name of this config object.
 - `type` (String) The type of ID Token Validator resource. Options are ['ping-one', 'openid-connect']
 
 ### Optional
@@ -72,6 +72,7 @@ resource "pingdirectory_id_token_validator" "myIdTokenValidator" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -90,7 +91,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "idTokenValidatorId" should be the id of the Id Token Validator to be imported
+# "idTokenValidatorId" should be the name of the Id Token Validator to be imported
 terraform import pingdirectory_id_token_validator.myIdTokenValidator idTokenValidatorId
 ```
 

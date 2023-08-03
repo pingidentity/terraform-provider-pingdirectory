@@ -48,6 +48,7 @@ func (r *monitorProviderDataSource) Configure(_ context.Context, req datasource.
 
 type monitorProviderDataSourceModel struct {
 	Id                                   types.String `tfsdk:"id"`
+	Name                                 types.String `tfsdk:"name"`
 	Type                                 types.String `tfsdk:"type"`
 	ExtensionClass                       types.String `tfsdk:"extension_class"`
 	ExtensionArgument                    types.Set    `tfsdk:"extension_argument"`
@@ -70,13 +71,9 @@ type monitorProviderDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *monitorProviderDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Monitor Provider.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']",
 				Required:    false,
@@ -190,12 +187,15 @@ func (r *monitorProviderDataSource) Schema(ctx context.Context, req datasource.S
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a MemoryUsageMonitorProviderResponse object into the model struct
 func readMemoryUsageMonitorProviderResponseDataSource(ctx context.Context, r *client.MemoryUsageMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("memory-usage")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -204,6 +204,7 @@ func readMemoryUsageMonitorProviderResponseDataSource(ctx context.Context, r *cl
 func readStackTraceMonitorProviderResponseDataSource(ctx context.Context, r *client.StackTraceMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("stack-trace")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -212,6 +213,7 @@ func readStackTraceMonitorProviderResponseDataSource(ctx context.Context, r *cli
 func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDataSource(ctx context.Context, r *client.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("encryption-settings-database-accessibility")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CheckFrequency = types.StringValue(r.CheckFrequency)
 	state.ProlongedOutageDuration = internaltypes.StringTypeOrNil(r.ProlongedOutageDuration, false)
 	state.ProlongedOutageBehavior = internaltypes.StringTypeOrNil(
@@ -224,6 +226,7 @@ func readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDataSourc
 func readCustomMonitorProviderResponseDataSource(ctx context.Context, r *client.CustomMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("custom")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -232,6 +235,7 @@ func readCustomMonitorProviderResponseDataSource(ctx context.Context, r *client.
 func readActiveOperationsMonitorProviderResponseDataSource(ctx context.Context, r *client.ActiveOperationsMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("active-operations")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -240,6 +244,7 @@ func readActiveOperationsMonitorProviderResponseDataSource(ctx context.Context, 
 func readSslContextMonitorProviderResponseDataSource(ctx context.Context, r *client.SslContextMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("ssl-context")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -248,6 +253,7 @@ func readSslContextMonitorProviderResponseDataSource(ctx context.Context, r *cli
 func readVersionMonitorProviderResponseDataSource(ctx context.Context, r *client.VersionMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("version")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -256,6 +262,7 @@ func readVersionMonitorProviderResponseDataSource(ctx context.Context, r *client
 func readHostSystemMonitorProviderResponseDataSource(ctx context.Context, r *client.HostSystemMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("host-system")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.DiskDevices = internaltypes.GetStringSet(r.DiskDevices)
 	state.NetworkDevices = internaltypes.GetStringSet(r.NetworkDevices)
@@ -267,6 +274,7 @@ func readHostSystemMonitorProviderResponseDataSource(ctx context.Context, r *cli
 func readGeneralMonitorProviderResponseDataSource(ctx context.Context, r *client.GeneralMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("general")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -275,6 +283,7 @@ func readGeneralMonitorProviderResponseDataSource(ctx context.Context, r *client
 func readDiskSpaceUsageMonitorProviderResponseDataSource(ctx context.Context, r *client.DiskSpaceUsageMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("disk-space-usage")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.LowSpaceWarningSizeThreshold = internaltypes.StringTypeOrNil(r.LowSpaceWarningSizeThreshold, false)
 	state.LowSpaceWarningPercentThreshold = internaltypes.Int64TypeOrNil(r.LowSpaceWarningPercentThreshold)
 	state.LowSpaceErrorSizeThreshold = internaltypes.StringTypeOrNil(r.LowSpaceErrorSizeThreshold, false)
@@ -290,6 +299,7 @@ func readDiskSpaceUsageMonitorProviderResponseDataSource(ctx context.Context, r 
 func readSystemInfoMonitorProviderResponseDataSource(ctx context.Context, r *client.SystemInfoMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("system-info")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -298,6 +308,7 @@ func readSystemInfoMonitorProviderResponseDataSource(ctx context.Context, r *cli
 func readClientConnectionMonitorProviderResponseDataSource(ctx context.Context, r *client.ClientConnectionMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("client-connection")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.Enabled = types.BoolValue(r.Enabled)
 }
@@ -306,6 +317,7 @@ func readClientConnectionMonitorProviderResponseDataSource(ctx context.Context, 
 func readThirdPartyMonitorProviderResponseDataSource(ctx context.Context, r *client.ThirdPartyMonitorProviderResponse, state *monitorProviderDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
@@ -323,7 +335,7 @@ func (r *monitorProviderDataSource) Read(ctx context.Context, req datasource.Rea
 	}
 
 	readResponse, httpResp, err := r.apiClient.MonitorProviderApi.GetMonitorProvider(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Monitor Provider", err, httpResp)
 		return

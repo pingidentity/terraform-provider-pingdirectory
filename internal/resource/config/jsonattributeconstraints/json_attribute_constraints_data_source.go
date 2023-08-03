@@ -56,15 +56,9 @@ type jsonAttributeConstraintsDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *jsonAttributeConstraintsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Json Attribute Constraints.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"description": schema.StringAttribute{
 				Description: "A description for this JSON Attribute Constraints",
 				Required:    false,
@@ -89,6 +83,8 @@ func (r *jsonAttributeConstraintsDataSource) Schema(ctx context.Context, req dat
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a JsonAttributeConstraintsResponse object into the model struct

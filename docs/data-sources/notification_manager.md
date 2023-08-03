@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_notification_manager" "myNotificationManager" {
-  id = "MyNotificationManager"
+  name = "MyNotificationManager"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_notification_manager" "myNotificationManager" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,6 +54,7 @@ data "pingdirectory_notification_manager" "myNotificationManager" {
 - `enabled` (Boolean) Indicates whether this Notification Manager is enabled within the server.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Notification Manager. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Notification Manager.
+- `id` (String) The ID of this resource.
 - `monitor_entries_enabled` (Boolean) Enables monitor entries for this Notification Manager.
 - `subscription_base_dn` (String) Specifies the DN of the entry below which subscription data is stored for this Notification Manager. This needs to be in the backend that has the data to be notified on, and must not be the same entry as the backend base DN. The subscription base DN entry does not need to exist as it will be created by the server.
 - `transaction_notification` (String) Specifies how the operations in an external transaction (e.g. a multi-update extended operation or an LDAP transaction) are notified for this Notification Manager.

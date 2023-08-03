@@ -60,15 +60,9 @@ type delegatedAdminResourceRightsDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *delegatedAdminResourceRightsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Resource Rights.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-			},
 			"delegated_admin_rights_name": schema.StringAttribute{
 				Description: "Name of the parent Delegated Admin Rights",
 				Required:    true,
@@ -118,6 +112,8 @@ func (r *delegatedAdminResourceRightsDataSource) Schema(ctx context.Context, req
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, false)
+	resp.Schema = schemaDef
 }
 
 // Read a DelegatedAdminResourceRightsResponse object into the model struct

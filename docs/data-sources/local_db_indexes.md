@@ -54,6 +54,6 @@ data "pingdirectory_local_db_indexes" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `ids` (Set of String) Local Db Index IDs found in the configuration
 

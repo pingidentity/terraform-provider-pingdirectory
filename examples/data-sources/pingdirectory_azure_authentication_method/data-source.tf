@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_azure_authentication_method" "myAzureAuthenticationMethod" {
-  id = "MyAzureAuthenticationMethod"
+  name = "MyAzureAuthenticationMethod"
 }

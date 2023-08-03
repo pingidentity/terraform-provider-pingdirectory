@@ -83,7 +83,7 @@ func testAccUserRestResourceTypeResource(resourceName string, resourceModel user
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[1]s" {
   type                        = "user"
-  id                          = "%[2]s"
+  name                        = "%[2]s"
   enabled                     = %[3]t
   resource_endpoint           = "%[4]s"
   structural_ldap_objectclass = "%[5]s"
@@ -91,7 +91,7 @@ resource "pingdirectory_rest_resource_type" "%[1]s" {
 }
 
 data "pingdirectory_rest_resource_type" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_rest_resource_type.%[1]s
   ]

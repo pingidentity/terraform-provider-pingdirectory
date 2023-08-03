@@ -57,6 +57,7 @@ func (r *logFieldSyntaxResource) Configure(_ context.Context, req resource.Confi
 
 type logFieldSyntaxResourceModel struct {
 	Id                         types.String `tfsdk:"id"`
+	Name                       types.String `tfsdk:"name"`
 	LastUpdated                types.String `tfsdk:"last_updated"`
 	Notifications              types.Set    `tfsdk:"notifications"`
 	RequiredActions            types.Set    `tfsdk:"required_actions"`
@@ -138,7 +139,7 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 			},
 		},
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -184,6 +185,7 @@ func populateLogFieldSyntaxUnknownValues(ctx context.Context, model *logFieldSyn
 func readJsonLogFieldSyntaxResponse(ctx context.Context, r *client.JsonLogFieldSyntaxResponse, state *logFieldSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("json")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IncludedSensitiveField = internaltypes.GetStringSet(r.IncludedSensitiveField)
 	state.ExcludedSensitiveField = internaltypes.GetStringSet(r.ExcludedSensitiveField)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
@@ -197,6 +199,7 @@ func readJsonLogFieldSyntaxResponse(ctx context.Context, r *client.JsonLogFieldS
 func readAttributeBasedLogFieldSyntaxResponse(ctx context.Context, r *client.AttributeBasedLogFieldSyntaxResponse, state *logFieldSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("attribute-based")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.IncludedSensitiveAttribute = internaltypes.GetStringSet(r.IncludedSensitiveAttribute)
 	state.ExcludedSensitiveAttribute = internaltypes.GetStringSet(r.ExcludedSensitiveAttribute)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
@@ -210,6 +213,7 @@ func readAttributeBasedLogFieldSyntaxResponse(ctx context.Context, r *client.Att
 func readGenericLogFieldSyntaxResponse(ctx context.Context, r *client.GenericLogFieldSyntaxResponse, state *logFieldSyntaxResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("generic")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)
 	state.DefaultBehavior = internaltypes.StringTypeOrNil(
 		client.StringPointerEnumlogFieldSyntaxDefaultBehaviorProp(r.DefaultBehavior), true)
@@ -243,7 +247,7 @@ func (r *logFieldSyntaxResource) Create(ctx context.Context, req resource.Create
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.GetLogFieldSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Syntax", err, httpResp)
 		return
@@ -268,7 +272,7 @@ func (r *logFieldSyntaxResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntax(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFieldSyntaxOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -319,7 +323,7 @@ func (r *logFieldSyntaxResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFieldSyntaxApi.GetLogFieldSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log Field Syntax", err, httpResp)
 		return
@@ -361,7 +365,7 @@ func (r *logFieldSyntaxResource) Update(ctx context.Context, req resource.Update
 	var state logFieldSyntaxResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := r.apiClient.LogFieldSyntaxApi.UpdateLogFieldSyntax(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLogFieldSyntaxOperations(plan, state)
@@ -413,6 +417,6 @@ func (r *logFieldSyntaxResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *logFieldSyntaxResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

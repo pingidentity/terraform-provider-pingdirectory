@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_default_matching_rule" "myMatchingRule" {
-  id      = "MyMatchingRule"
+  name    = "MyMatchingRule"
   type    = "ordering"
   enabled = true
 }
@@ -48,7 +48,7 @@ resource "pingdirectory_default_matching_rule" "myMatchingRule" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of Matching Rule resource. Options are ['ordering', 'approximate', 'equality', 'substring', 'generic']
 
 ### Optional
@@ -57,6 +57,7 @@ resource "pingdirectory_default_matching_rule" "myMatchingRule" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -75,7 +76,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "matchingRuleId" should be the id of the Matching Rule to be imported
+# "matchingRuleId" should be the name of the Matching Rule to be imported
 terraform import pingdirectory_default_matching_rule.myMatchingRule matchingRuleId
 ```
 

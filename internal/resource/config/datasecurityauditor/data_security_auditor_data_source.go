@@ -48,6 +48,7 @@ func (r *dataSecurityAuditorDataSource) Configure(_ context.Context, req datasou
 
 type dataSecurityAuditorDataSourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Name                                types.String `tfsdk:"name"`
 	Type                                types.String `tfsdk:"type"`
 	ExtensionClass                      types.String `tfsdk:"extension_class"`
 	ExtensionArgument                   types.Set    `tfsdk:"extension_argument"`
@@ -71,13 +72,9 @@ type dataSecurityAuditorDataSourceModel struct {
 
 // GetSchema defines the schema for the datasource.
 func (r *dataSecurityAuditorDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
+	schemaDef := schema.Schema{
 		Description: "Describes a Data Security Auditor.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Description: "Name of this object.",
-				Required:    true,
-			},
 			"type": schema.StringAttribute{
 				Description: "The type of Data Security Auditor resource. Options are ['expired-password', 'idle-account', 'disabled-account', 'weakly-encoded-password', 'privilege', 'account-usability-issues', 'locked-account', 'filter', 'account-validity-window', 'multiple-password', 'deprecated-password-storage-scheme', 'nonexistent-password-policy', 'access-control', 'third-party']",
 				Required:    false,
@@ -201,12 +198,15 @@ func (r *dataSecurityAuditorDataSource) Schema(ctx context.Context, req datasour
 			},
 		},
 	}
+	config.AddCommonDataSourceSchema(&schemaDef, true)
+	resp.Schema = schemaDef
 }
 
 // Read a ExpiredPasswordDataSecurityAuditorResponse object into the model struct
 func readExpiredPasswordDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.ExpiredPasswordDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("expired-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.PasswordEvaluationAge = internaltypes.StringTypeOrNil(r.PasswordEvaluationAge, false)
@@ -220,6 +220,7 @@ func readExpiredPasswordDataSecurityAuditorResponseDataSource(ctx context.Contex
 func readIdleAccountDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.IdleAccountDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("idle-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IdleAccountWarningInterval = types.StringValue(r.IdleAccountWarningInterval)
 	state.IdleAccountErrorInterval = internaltypes.StringTypeOrNil(r.IdleAccountErrorInterval, false)
@@ -236,6 +237,7 @@ func readIdleAccountDataSecurityAuditorResponseDataSource(ctx context.Context, r
 func readDisabledAccountDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.DisabledAccountDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("disabled-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -248,6 +250,7 @@ func readDisabledAccountDataSecurityAuditorResponseDataSource(ctx context.Contex
 func readWeaklyEncodedPasswordDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.WeaklyEncodedPasswordDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("weakly-encoded-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.WeakPasswordStorageScheme = internaltypes.GetStringSet(r.WeakPasswordStorageScheme)
 	state.WeakCryptEncoding = internaltypes.GetStringSet(
@@ -263,6 +266,7 @@ func readWeaklyEncodedPasswordDataSecurityAuditorResponseDataSource(ctx context.
 func readPrivilegeDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.PrivilegeDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("privilege")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludePrivilege = internaltypes.GetStringSet(
 		client.StringSliceEnumdataSecurityAuditorIncludePrivilegeProp(r.IncludePrivilege))
@@ -277,6 +281,7 @@ func readPrivilegeDataSecurityAuditorResponseDataSource(ctx context.Context, r *
 func readAccountUsabilityIssuesDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.AccountUsabilityIssuesDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("account-usability-issues")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -289,6 +294,7 @@ func readAccountUsabilityIssuesDataSecurityAuditorResponseDataSource(ctx context
 func readLockedAccountDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.LockedAccountDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("locked-account")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.MaximumIdleTime = internaltypes.StringTypeOrNil(r.MaximumIdleTime, false)
@@ -302,6 +308,7 @@ func readLockedAccountDataSecurityAuditorResponseDataSource(ctx context.Context,
 func readFilterDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.FilterDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("filter")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Filter = internaltypes.GetStringSet(r.Filter)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -315,6 +322,7 @@ func readFilterDataSecurityAuditorResponseDataSource(ctx context.Context, r *cli
 func readAccountValidityWindowDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.AccountValidityWindowDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("account-validity-window")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.AccountExpirationWarningInterval = internaltypes.StringTypeOrNil(r.AccountExpirationWarningInterval, false)
@@ -328,6 +336,7 @@ func readAccountValidityWindowDataSecurityAuditorResponseDataSource(ctx context.
 func readMultiplePasswordDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.MultiplePasswordDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("multiple-password")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -340,6 +349,7 @@ func readMultiplePasswordDataSecurityAuditorResponseDataSource(ctx context.Conte
 func readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("deprecated-password-storage-scheme")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.Enabled = types.BoolValue(r.Enabled)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
@@ -352,6 +362,7 @@ func readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponseDataSource(ct
 func readNonexistentPasswordPolicyDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.NonexistentPasswordPolicyDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("nonexistent-password-policy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -364,6 +375,7 @@ func readNonexistentPasswordPolicyDataSecurityAuditorResponseDataSource(ctx cont
 func readAccessControlDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.AccessControlDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("access-control")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ReportFile = types.StringValue(r.ReportFile)
 	state.IncludeAttribute = internaltypes.GetStringSet(r.IncludeAttribute)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -376,6 +388,7 @@ func readAccessControlDataSecurityAuditorResponseDataSource(ctx context.Context,
 func readThirdPartyDataSecurityAuditorResponseDataSource(ctx context.Context, r *client.ThirdPartyDataSecurityAuditorResponse, state *dataSecurityAuditorDataSourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -397,7 +410,7 @@ func (r *dataSecurityAuditorDataSource) Read(ctx context.Context, req datasource
 	}
 
 	readResponse, httpResp, err := r.apiClient.DataSecurityAuditorApi.GetDataSecurityAuditor(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Data Security Auditor", err, httpResp)
 		return

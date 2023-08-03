@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
-  id = "MyDelegatedAdminRights"
+  name = "MyDelegatedAdminRights"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -54,4 +54,5 @@ data "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 - `admin_user_dn` (String) Specifies the DN of an administrative user who has authority to manage resources. Either admin-user-dn or admin-group-dn must be specified, but not both.
 - `description` (String) A description for this Delegated Admin Rights
 - `enabled` (Boolean) Indicates whether the Delegated Admin Rights is enabled.
+- `id` (String) The ID of this resource.
 

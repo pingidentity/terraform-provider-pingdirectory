@@ -88,7 +88,7 @@ func testAccDelegatedAdminCorrelatedRestResourceResource(resourceName string, re
 	return fmt.Sprintf(`
 resource "pingdirectory_rest_resource_type" "%[3]s" {
   type                        = "user"
-  id                          = "%[3]s"
+  name                        = "%[3]s"
   enabled                     = true
   resource_endpoint           = "userRestResourceDelegatedAdminCorrelatedRestResourceTest"
   structural_ldap_objectclass = "inetOrgPerson"
@@ -96,7 +96,7 @@ resource "pingdirectory_rest_resource_type" "%[3]s" {
 }
 
 resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
-  id                                            = "%[2]s"
+  name                                          = "%[2]s"
   rest_resource_type_name                       = pingdirectory_rest_resource_type.%[3]s.id
   display_name                                  = "%[4]s"
   correlated_rest_resource                      = "%[5]s"
@@ -105,7 +105,7 @@ resource "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
 }
 
 data "pingdirectory_delegated_admin_correlated_rest_resource" "%[1]s" {
-  id                      = "%[2]s"
+  name                    = "%[2]s"
   rest_resource_type_name = "%[3]s"
   depends_on = [
     pingdirectory_delegated_admin_correlated_rest_resource.%[1]s

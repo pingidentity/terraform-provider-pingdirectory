@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_sasl_mechanism_handler" "mySaslMechanismHandler" {
-  id              = "MySaslMechanismHandler"
+  name            = "MySaslMechanismHandler"
   type            = "unboundid-ms-chap-v2"
   identity_mapper = "Exact Match"
   enabled         = false
@@ -50,7 +50,7 @@ resource "pingdirectory_sasl_mechanism_handler" "mySaslMechanismHandler" {
 ### Required
 
 - `enabled` (Boolean) Indicates whether the SASL mechanism handler is enabled for use.
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 - `type` (String) The type of SASL Mechanism Handler resource. Options are ['unboundid-ms-chap-v2', 'unboundid-totp', 'unboundid-yubikey-otp', 'external', 'digest-md5', 'plain', 'unboundid-delivered-otp', 'unboundid-external-auth', 'anonymous', 'cram-md5', 'oauth-bearer', 'unboundid-certificate-plus-password', 'gssapi', 'third-party']
 
 ### Optional
@@ -71,6 +71,7 @@ resource "pingdirectory_sasl_mechanism_handler" "mySaslMechanismHandler" {
 
 ### Read-Only
 
+- `id` (String) The ID of this resource.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
@@ -89,7 +90,7 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# "saslMechanismHandlerId" should be the id of the Sasl Mechanism Handler to be imported
+# "saslMechanismHandlerId" should be the name of the Sasl Mechanism Handler to be imported
 terraform import pingdirectory_sasl_mechanism_handler.mySaslMechanismHandler saslMechanismHandlerId
 ```
 

@@ -79,6 +79,7 @@ func (r *defaultDnMapResource) Configure(_ context.Context, req resource.Configu
 
 type dnMapResourceModel struct {
 	Id              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
@@ -116,9 +117,9 @@ func dnMapSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 	}
 	if isDefault {
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -133,6 +134,7 @@ func addOptionalDnMapFields(ctx context.Context, addRequest *client.AddDnMapRequ
 // Read a DnMapResponse object into the model struct
 func readDnMapResponse(ctx context.Context, r *client.DnMapResponse, state *dnMapResourceModel, expectedValues *dnMapResourceModel, diagnostics *diag.Diagnostics) {
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.FromDNPattern = types.StringValue(r.FromDNPattern)
 	state.ToDNPattern = types.StringValue(r.ToDNPattern)
@@ -150,7 +152,7 @@ func createDnMapOperations(plan dnMapResourceModel, state dnMapResourceModel) []
 
 // Create a dn-map dn-map
 func (r *dnMapResource) CreateDnMap(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan dnMapResourceModel) (*dnMapResourceModel, error) {
-	addRequest := client.NewAddDnMapRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddDnMapRequest(plan.Name.ValueString(),
 		plan.FromDNPattern.ValueString(),
 		plan.ToDNPattern.ValueString())
 	addOptionalDnMapFields(ctx, addRequest, plan)
@@ -221,7 +223,7 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	readResponse, httpResp, err := r.apiClient.DnMapApi.GetDnMap(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dn Map", err, httpResp)
 		return
@@ -238,7 +240,7 @@ func (r *defaultDnMapResource) Create(ctx context.Context, req resource.CreateRe
 	readDnMapResponse(ctx, readResponse, &state, &state, &resp.Diagnostics)
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.DnMapApi.UpdateDnMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.DnMapApi.UpdateDnMap(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createDnMapOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -289,7 +291,7 @@ func readDnMap(ctx context.Context, req resource.ReadRequest, resp *resource.Rea
 	}
 
 	readResponse, httpResp, err := apiClient.DnMapApi.GetDnMap(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Dn Map", err, httpResp)
 		return
@@ -331,7 +333,7 @@ func updateDnMap(ctx context.Context, req resource.UpdateRequest, resp *resource
 	var state dnMapResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.DnMapApi.UpdateDnMap(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createDnMapOperations(plan, state)
@@ -384,7 +386,7 @@ func (r *dnMapResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	httpResp, err := r.apiClient.DnMapApi.DeleteDnMapExecute(r.apiClient.DnMapApi.DeleteDnMap(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Dn Map", err, httpResp)
 		return
@@ -400,6 +402,6 @@ func (r *defaultDnMapResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 func importDnMap(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -85,7 +85,7 @@ func testAccPingOneIdTokenValidatorResource(resourceName string, resourceModel p
 	return fmt.Sprintf(`
 resource "pingdirectory_id_token_validator" "%[1]s" {
   type                   = "ping-one"
-  id                     = "%[2]s"
+  name                   = "%[2]s"
   issuer_url             = "%[3]s"
   enabled                = %[4]t
   identity_mapper        = "%[5]s"
@@ -93,7 +93,7 @@ resource "pingdirectory_id_token_validator" "%[1]s" {
 }
 
 data "pingdirectory_id_token_validator" "%[1]s" {
-  id = "%[2]s"
+  name = "%[2]s"
   depends_on = [
     pingdirectory_id_token_validator.%[1]s
   ]

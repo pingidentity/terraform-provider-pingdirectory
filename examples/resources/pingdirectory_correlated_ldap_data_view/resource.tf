@@ -29,7 +29,7 @@ resource "pingdirectory_scim_schema" "myScimSchema" {
 
 // LDAP mapping SCIM resource type is needed for the correlated data view resource
 resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
-  id          = "MyLdapMappingScimResourceType2"
+  name        = "MyLdapMappingScimResourceType2"
   type        = "ldap-mapping"
   core_schema = pingdirectory_scim_schema.myScimSchema.schema_urn
   enabled     = false
@@ -37,7 +37,7 @@ resource "pingdirectory_scim_resource_type" "myLdapMappingScimResourceType" {
 }
 
 resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
-  id                              = "MyCorrelatedLdapDataView"
+  name                            = "MyCorrelatedLdapDataView"
   scim_resource_type_name         = pingdirectory_scim_resource_type.myLdapMappingScimResourceType.id
   structural_ldap_objectclass     = "ldapObject"
   include_base_dn                 = "cn=com.example"

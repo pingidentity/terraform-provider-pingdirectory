@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_password_validator" "myPasswordValidator" {
-  id = "MyPasswordValidator"
+  name = "MyPasswordValidator"
 }

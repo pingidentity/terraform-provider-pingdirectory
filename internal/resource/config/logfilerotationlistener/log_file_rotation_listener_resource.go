@@ -85,6 +85,7 @@ func (r *defaultLogFileRotationListenerResource) Configure(_ context.Context, re
 
 type logFileRotationListenerResourceModel struct {
 	Id                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
 	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
@@ -167,9 +168,9 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 		}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef, []string{"id"})
+		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
 	}
-	config.AddCommonSchema(&schemaDef, true)
+	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
 }
 
@@ -254,6 +255,7 @@ func populateLogFileRotationListenerUnknownValues(ctx context.Context, model *lo
 func readSummarizeLogFileRotationListenerResponse(ctx context.Context, r *client.SummarizeLogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("summarize")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.OutputDirectory = internaltypes.StringTypeOrNil(r.OutputDirectory, internaltypes.IsEmptyString(expectedValues.OutputDirectory))
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)
@@ -265,6 +267,7 @@ func readSummarizeLogFileRotationListenerResponse(ctx context.Context, r *client
 func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.CopyLogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("copy")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.CopyToDirectory = types.StringValue(r.CopyToDirectory)
 	state.CompressOnCopy = internaltypes.BoolTypeOrNil(r.CompressOnCopy)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -277,6 +280,7 @@ func readCopyLogFileRotationListenerResponse(ctx context.Context, r *client.Copy
 func readThirdPartyLogFileRotationListenerResponse(ctx context.Context, r *client.ThirdPartyLogFileRotationListenerResponse, state *logFileRotationListenerResourceModel, expectedValues *logFileRotationListenerResourceModel, diagnostics *diag.Diagnostics) {
 	state.Type = types.StringValue("third-party")
 	state.Id = types.StringValue(r.Id)
+	state.Name = types.StringValue(r.Id)
 	state.ExtensionClass = types.StringValue(r.ExtensionClass)
 	state.ExtensionArgument = internaltypes.GetStringSet(r.ExtensionArgument)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
@@ -300,7 +304,7 @@ func createLogFileRotationListenerOperations(plan logFileRotationListenerResourc
 
 // Create a summarize log-file-rotation-listener
 func (r *logFileRotationListenerResource) CreateSummarizeLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
-	addRequest := client.NewAddSummarizeLogFileRotationListenerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddSummarizeLogFileRotationListenerRequest(plan.Name.ValueString(),
 		[]client.EnumsummarizeLogFileRotationListenerSchemaUrn{client.ENUMSUMMARIZELOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERSUMMARIZE},
 		plan.Enabled.ValueBool())
 	addOptionalSummarizeLogFileRotationListenerFields(ctx, addRequest, plan)
@@ -334,7 +338,7 @@ func (r *logFileRotationListenerResource) CreateSummarizeLogFileRotationListener
 
 // Create a copy log-file-rotation-listener
 func (r *logFileRotationListenerResource) CreateCopyLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
-	addRequest := client.NewAddCopyLogFileRotationListenerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddCopyLogFileRotationListenerRequest(plan.Name.ValueString(),
 		[]client.EnumcopyLogFileRotationListenerSchemaUrn{client.ENUMCOPYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERCOPY},
 		plan.CopyToDirectory.ValueString(),
 		plan.Enabled.ValueBool())
@@ -369,7 +373,7 @@ func (r *logFileRotationListenerResource) CreateCopyLogFileRotationListener(ctx 
 
 // Create a third-party log-file-rotation-listener
 func (r *logFileRotationListenerResource) CreateThirdPartyLogFileRotationListener(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse, plan logFileRotationListenerResourceModel) (*logFileRotationListenerResourceModel, error) {
-	addRequest := client.NewAddThirdPartyLogFileRotationListenerRequest(plan.Id.ValueString(),
+	addRequest := client.NewAddThirdPartyLogFileRotationListenerRequest(plan.Name.ValueString(),
 		[]client.EnumthirdPartyLogFileRotationListenerSchemaUrn{client.ENUMTHIRDPARTYLOGFILEROTATIONLISTENERSCHEMAURN_URNPINGIDENTITYSCHEMASCONFIGURATION2_0LOG_FILE_ROTATION_LISTENERTHIRD_PARTY},
 		plan.ExtensionClass.ValueString(),
 		plan.Enabled.ValueBool())
@@ -458,7 +462,7 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 	}
 
 	readResponse, httpResp, err := r.apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
 		return
@@ -483,7 +487,7 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 	}
 
 	// Determine what changes are needed to match the plan
-	updateRequest := r.apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Id.ValueString())
+	updateRequest := r.apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(config.ProviderBasicAuthContext(ctx, r.providerConfig), plan.Name.ValueString())
 	ops := createLogFileRotationListenerOperations(plan, state)
 	if len(ops) > 0 {
 		updateRequest = updateRequest.UpdateRequest(*client.NewUpdateRequest(ops))
@@ -542,7 +546,7 @@ func readLogFileRotationListener(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	readResponse, httpResp, err := apiClient.LogFileRotationListenerApi.GetLogFileRotationListener(
-		config.ProviderBasicAuthContext(ctx, providerConfig), state.Id.ValueString()).Execute()
+		config.ProviderBasicAuthContext(ctx, providerConfig), state.Name.ValueString()).Execute()
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while getting the Log File Rotation Listener", err, httpResp)
 		return
@@ -592,7 +596,7 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 	var state logFileRotationListenerResourceModel
 	req.State.Get(ctx, &state)
 	updateRequest := apiClient.LogFileRotationListenerApi.UpdateLogFileRotationListener(
-		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Id.ValueString())
+		config.ProviderBasicAuthContext(ctx, providerConfig), plan.Name.ValueString())
 
 	// Determine what update operations are necessary
 	ops := createLogFileRotationListenerOperations(plan, state)
@@ -653,7 +657,7 @@ func (r *logFileRotationListenerResource) Delete(ctx context.Context, req resour
 	}
 
 	httpResp, err := r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListenerExecute(r.apiClient.LogFileRotationListenerApi.DeleteLogFileRotationListener(
-		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Id.ValueString()))
+		config.ProviderBasicAuthContext(ctx, r.providerConfig), state.Name.ValueString()))
 	if err != nil {
 		config.ReportHttpError(ctx, &resp.Diagnostics, "An error occurred while deleting the Log File Rotation Listener", err, httpResp)
 		return
@@ -669,6 +673,6 @@ func (r *defaultLogFileRotationListenerResource) ImportState(ctx context.Context
 }
 
 func importLogFileRotationListener(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	// Retrieve import ID and save to id attribute
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// Retrieve import ID and save to name attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }

@@ -23,5 +23,5 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_soft_delete_policy" "mySoftDeletePolicy" {
-  id = "MySoftDeletePolicy"
+  name = "MySoftDeletePolicy"
 }

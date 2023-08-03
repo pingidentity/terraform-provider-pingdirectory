@@ -37,7 +37,7 @@ provider "pingdirectory" {
 }
 
 data "pingdirectory_password_generator" "myPasswordGenerator" {
-  id = "MyPasswordGenerator"
+  name = "MyPasswordGenerator"
 }
 ```
 
@@ -46,7 +46,7 @@ data "pingdirectory_password_generator" "myPasswordGenerator" {
 
 ### Required
 
-- `id` (String) Name of this object.
+- `name` (String) Name of this config object.
 
 ### Read-Only
 
@@ -56,6 +56,7 @@ data "pingdirectory_password_generator" "myPasswordGenerator" {
 - `enabled` (Boolean) Indicates whether the Password Generator is enabled for use.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Password Generator. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Password Generator.
+- `id` (String) The ID of this resource.
 - `minimum_password_characters` (Number) The minimum number of characters that generated passwords will be required to have.
 - `minimum_password_words` (Number) The minimum number of words that must be concatenated in the course of generating a password.
 - `password_character_set` (Set of String) Specifies one or more named character sets.

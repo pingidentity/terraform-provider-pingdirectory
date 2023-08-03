@@ -56,7 +56,7 @@ data "pingdirectory_inter_server_authentication_info_list" "list" {
 
 ### Read-Only
 
-- `id` (String) Placeholder name of this object required by Terraform.
+- `id` (String) The ID of this resource.
 - `objects` (Set of Object) Inter Server Authentication Info objects found in the configuration (see [below for nested schema](#nestedatt--objects))
 
 <a id="nestedatt--objects"></a>

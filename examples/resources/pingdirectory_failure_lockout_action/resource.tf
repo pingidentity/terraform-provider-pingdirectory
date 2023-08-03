@@ -23,7 +23,7 @@ provider "pingdirectory" {
 }
 
 resource "pingdirectory_failure_lockout_action" "myFailureLockoutAction" {
-  id    = "MyFailureLockoutAction"
+  name  = "MyFailureLockoutAction"
   type  = "delay-bind-response"
   delay = "1 s"
 }
