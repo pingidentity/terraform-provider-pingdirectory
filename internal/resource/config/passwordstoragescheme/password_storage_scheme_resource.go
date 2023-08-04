@@ -298,12 +298,12 @@ func passwordStorageSchemeSchema(ctx context.Context, req resource.SchemaRequest
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"salted-sha256", "argon2d", "crypt", "argon2i", "base64", "salted-md5", "aes", "argon2id", "vault", "third-party", "argon2", "third-party-enhanced", "pbkdf2", "rc4", "salted-sha384", "triple-des", "clear", "aes-256", "bcrypt", "blowfish", "sha1", "amazon-secrets-manager", "azure-key-vault", "conjur", "salted-sha1", "salted-sha512", "scrypt", "md5"}...),
-		}
-		schemaDef.Attributes["type"] = typeAttr
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

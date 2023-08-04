@@ -283,6 +283,10 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "external", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "anonymous", "cram-md5", "oauth-bearer", "unboundid-certificate-plus-password", "gssapi", "third-party"}...),
 		}
@@ -447,7 +451,7 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				boolplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

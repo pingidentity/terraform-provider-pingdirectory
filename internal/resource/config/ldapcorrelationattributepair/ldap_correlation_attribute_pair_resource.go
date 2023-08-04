@@ -143,8 +143,12 @@ func ldapCorrelationAttributePairSchema(ctx context.Context, req resource.Schema
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"correlated_ldap_data_view_name", "scim_resource_type_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "correlated_ldap_data_view_name", "scim_resource_type_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

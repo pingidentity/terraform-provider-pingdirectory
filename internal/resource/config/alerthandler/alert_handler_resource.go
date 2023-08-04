@@ -357,6 +357,10 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"output", "smtp", "jmx", "groovy-scripted", "custom", "snmp", "twilio", "error-log", "snmp-sub-agent", "exec", "third-party"}...),
 		}
@@ -378,7 +382,7 @@ func alertHandlerSchema(ctx context.Context, req resource.SchemaRequest, resp *r
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

@@ -485,12 +485,12 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
-		typeAttr.Validators = []validator.String{
-			stringvalidator.OneOf([]string{"character-set", "similarity-based", "attribute-value", "custom", "repeated-characters", "dictionary", "haystack", "utf-8", "groovy-scripted", "pwned-passwords", "disallowed-characters", "length-based", "regular-expression", "unique-characters", "third-party"}...),
-		}
-		schemaDef.Attributes["type"] = typeAttr
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

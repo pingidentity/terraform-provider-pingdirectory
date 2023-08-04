@@ -297,6 +297,10 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"cancel", "validate-totp-password", "replace-certificate", "get-connection-id", "multi-update", "notification-subscription", "password-modify", "custom", "collect-support-data", "export-reversible-passwords", "batched-transactions", "get-changelog-batch", "get-supported-otp-delivery-mechanisms", "single-use-tokens", "generate-password", "who-am-i", "start-tls", "deliver-password-reset-token", "password-policy-state", "get-password-quality-requirements", "deliver-otp", "third-party"}...),
 		}
@@ -330,7 +334,7 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 				int64planmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

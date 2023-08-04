@@ -651,6 +651,10 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"delegated-admin", "quickstart", "availability-state", "prometheus-monitoring", "velocity", "consent", "ldap-mapped-scim", "groovy-scripted", "file-server", "config", "scim2", "directory-rest-api", "third-party"}...),
 		}
@@ -830,7 +834,7 @@ func httpServletExtensionSchema(ctx context.Context, req resource.SchemaRequest,
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

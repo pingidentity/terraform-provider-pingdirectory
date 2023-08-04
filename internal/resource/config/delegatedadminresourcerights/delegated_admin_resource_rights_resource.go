@@ -182,8 +182,12 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 		},
 	}
 	if isDefault {
+		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"rest_resource_type", "delegated_admin_rights_name"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "rest_resource_type", "delegated_admin_rights_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

@@ -75,7 +75,6 @@ func TestAccGeneralPartyMonitorProvider(t *testing.T) {
 func testAccGeneralMonitorProviderResource(resourceName string, resourceModel generalMonitorProviderTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_monitor_provider" "%[1]s" {
-  type        = "general"
   name        = "%[2]s"
   description = "%[3]s"
   enabled     = %[4]t

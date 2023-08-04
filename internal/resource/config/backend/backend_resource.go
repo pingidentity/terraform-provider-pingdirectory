@@ -750,6 +750,10 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"}...),
 		}
@@ -1188,7 +1192,7 @@ func backendSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"backend_id"})
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "backend_id"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
@@ -1647,11 +1651,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 		// Every remaining property is supported
 		return
 	}
-	if internaltypes.IsDefined(model.MaintainConfigArchive) {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
 		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaintainConfigArchive) {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")

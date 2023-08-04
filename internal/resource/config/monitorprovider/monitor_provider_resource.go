@@ -197,6 +197,10 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 	}
 	if isDefault {
 		typeAttr := schemaDef.Attributes["type"].(schema.StringAttribute)
+		typeAttr.Optional = false
+		typeAttr.Required = false
+		typeAttr.Computed = true
+		typeAttr.PlanModifiers = []planmodifier.String{}
 		typeAttr.Validators = []validator.String{
 			stringvalidator.OneOf([]string{"memory-usage", "stack-trace", "encryption-settings-database-accessibility", "custom", "active-operations", "ssl-context", "version", "host-system", "general", "disk-space-usage", "system-info", "client-connection", "third-party"}...),
 		}
@@ -260,7 +264,7 @@ func monitorProviderSchema(ctx context.Context, req resource.SchemaRequest, resp
 				stringplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAllAttributesToOptionalAndComputed(&schemaDef)
+		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -792,6 +796,8 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state defaultMonitorProviderResourceModel
+	if readResponse.MemoryUsageMonitorProviderResponse != nil {
+	}
 	if plan.Type.ValueString() == "memory-usage" {
 		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
