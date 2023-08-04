@@ -181,10 +181,10 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state synchronizationProviderResourceModel
-	if plan.Type.ValueString() == "replication" {
+	if readResponse.ReplicationSynchronizationProviderResponse != nil {
 		readReplicationSynchronizationProviderResponse(ctx, readResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomSynchronizationProviderResponse != nil {
 		readCustomSynchronizationProviderResponse(ctx, readResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 	}
 
@@ -209,10 +209,10 @@ func (r *synchronizationProviderResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "replication" {
+		if updateResponse.ReplicationSynchronizationProviderResponse != nil {
 			readReplicationSynchronizationProviderResponse(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomSynchronizationProviderResponse != nil {
 			readCustomSynchronizationProviderResponse(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -298,10 +298,10 @@ func (r *synchronizationProviderResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "replication" {
+		if updateResponse.ReplicationSynchronizationProviderResponse != nil {
 			readReplicationSynchronizationProviderResponse(ctx, updateResponse.ReplicationSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomSynchronizationProviderResponse != nil {
 			readCustomSynchronizationProviderResponse(ctx, updateResponse.CustomSynchronizationProviderResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

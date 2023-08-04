@@ -797,44 +797,42 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 	// Read the existing configuration
 	var state defaultMonitorProviderResourceModel
 	if readResponse.MemoryUsageMonitorProviderResponse != nil {
-	}
-	if plan.Type.ValueString() == "memory-usage" {
 		readMemoryUsageMonitorProviderResponseDefault(ctx, readResponse.MemoryUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "stack-trace" {
+	if readResponse.StackTraceMonitorProviderResponse != nil {
 		readStackTraceMonitorProviderResponseDefault(ctx, readResponse.StackTraceMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+	if readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 		readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, readResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomMonitorProviderResponse != nil {
 		readCustomMonitorProviderResponseDefault(ctx, readResponse.CustomMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "active-operations" {
+	if readResponse.ActiveOperationsMonitorProviderResponse != nil {
 		readActiveOperationsMonitorProviderResponseDefault(ctx, readResponse.ActiveOperationsMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ssl-context" {
+	if readResponse.SslContextMonitorProviderResponse != nil {
 		readSslContextMonitorProviderResponseDefault(ctx, readResponse.SslContextMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "version" {
+	if readResponse.VersionMonitorProviderResponse != nil {
 		readVersionMonitorProviderResponseDefault(ctx, readResponse.VersionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "host-system" {
+	if readResponse.HostSystemMonitorProviderResponse != nil {
 		readHostSystemMonitorProviderResponseDefault(ctx, readResponse.HostSystemMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "general" {
+	if readResponse.GeneralMonitorProviderResponse != nil {
 		readGeneralMonitorProviderResponseDefault(ctx, readResponse.GeneralMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disk-space-usage" {
+	if readResponse.DiskSpaceUsageMonitorProviderResponse != nil {
 		readDiskSpaceUsageMonitorProviderResponseDefault(ctx, readResponse.DiskSpaceUsageMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "system-info" {
+	if readResponse.SystemInfoMonitorProviderResponse != nil {
 		readSystemInfoMonitorProviderResponseDefault(ctx, readResponse.SystemInfoMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "client-connection" {
+	if readResponse.ClientConnectionMonitorProviderResponse != nil {
 		readClientConnectionMonitorProviderResponseDefault(ctx, readResponse.ClientConnectionMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyMonitorProviderResponse != nil {
 		readThirdPartyMonitorProviderResponseDefault(ctx, readResponse.ThirdPartyMonitorProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -859,43 +857,43 @@ func (r *defaultMonitorProviderResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "memory-usage" {
+		if updateResponse.MemoryUsageMonitorProviderResponse != nil {
 			readMemoryUsageMonitorProviderResponseDefault(ctx, updateResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "stack-trace" {
+		if updateResponse.StackTraceMonitorProviderResponse != nil {
 			readStackTraceMonitorProviderResponseDefault(ctx, updateResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		if updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomMonitorProviderResponse != nil {
 			readCustomMonitorProviderResponseDefault(ctx, updateResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-operations" {
+		if updateResponse.ActiveOperationsMonitorProviderResponse != nil {
 			readActiveOperationsMonitorProviderResponseDefault(ctx, updateResponse.ActiveOperationsMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ssl-context" {
+		if updateResponse.SslContextMonitorProviderResponse != nil {
 			readSslContextMonitorProviderResponseDefault(ctx, updateResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "version" {
+		if updateResponse.VersionMonitorProviderResponse != nil {
 			readVersionMonitorProviderResponseDefault(ctx, updateResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "host-system" {
+		if updateResponse.HostSystemMonitorProviderResponse != nil {
 			readHostSystemMonitorProviderResponseDefault(ctx, updateResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "general" {
+		if updateResponse.GeneralMonitorProviderResponse != nil {
 			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disk-space-usage" {
+		if updateResponse.DiskSpaceUsageMonitorProviderResponse != nil {
 			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "system-info" {
+		if updateResponse.SystemInfoMonitorProviderResponse != nil {
 			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-connection" {
+		if updateResponse.ClientConnectionMonitorProviderResponse != nil {
 			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1043,10 +1041,10 @@ func (r *monitorProviderResource) Update(ctx context.Context, req resource.Updat
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		if updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponse(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponse(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1097,43 +1095,43 @@ func (r *defaultMonitorProviderResource) Update(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "memory-usage" {
+		if updateResponse.MemoryUsageMonitorProviderResponse != nil {
 			readMemoryUsageMonitorProviderResponseDefault(ctx, updateResponse.MemoryUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "stack-trace" {
+		if updateResponse.StackTraceMonitorProviderResponse != nil {
 			readStackTraceMonitorProviderResponseDefault(ctx, updateResponse.StackTraceMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "encryption-settings-database-accessibility" {
+		if updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse != nil {
 			readEncryptionSettingsDatabaseAccessibilityMonitorProviderResponseDefault(ctx, updateResponse.EncryptionSettingsDatabaseAccessibilityMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomMonitorProviderResponse != nil {
 			readCustomMonitorProviderResponseDefault(ctx, updateResponse.CustomMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-operations" {
+		if updateResponse.ActiveOperationsMonitorProviderResponse != nil {
 			readActiveOperationsMonitorProviderResponseDefault(ctx, updateResponse.ActiveOperationsMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ssl-context" {
+		if updateResponse.SslContextMonitorProviderResponse != nil {
 			readSslContextMonitorProviderResponseDefault(ctx, updateResponse.SslContextMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "version" {
+		if updateResponse.VersionMonitorProviderResponse != nil {
 			readVersionMonitorProviderResponseDefault(ctx, updateResponse.VersionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "host-system" {
+		if updateResponse.HostSystemMonitorProviderResponse != nil {
 			readHostSystemMonitorProviderResponseDefault(ctx, updateResponse.HostSystemMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "general" {
+		if updateResponse.GeneralMonitorProviderResponse != nil {
 			readGeneralMonitorProviderResponseDefault(ctx, updateResponse.GeneralMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disk-space-usage" {
+		if updateResponse.DiskSpaceUsageMonitorProviderResponse != nil {
 			readDiskSpaceUsageMonitorProviderResponseDefault(ctx, updateResponse.DiskSpaceUsageMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "system-info" {
+		if updateResponse.SystemInfoMonitorProviderResponse != nil {
 			readSystemInfoMonitorProviderResponseDefault(ctx, updateResponse.SystemInfoMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-connection" {
+		if updateResponse.ClientConnectionMonitorProviderResponse != nil {
 			readClientConnectionMonitorProviderResponseDefault(ctx, updateResponse.ClientConnectionMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyMonitorProviderResponse != nil {
 			readThirdPartyMonitorProviderResponseDefault(ctx, updateResponse.ThirdPartyMonitorProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

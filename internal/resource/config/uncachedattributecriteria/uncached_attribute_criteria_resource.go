@@ -587,16 +587,16 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state uncachedAttributeCriteriaResourceModel
-	if plan.Type.ValueString() == "default" {
+	if readResponse.DefaultUncachedAttributeCriteriaResponse != nil {
 		readDefaultUncachedAttributeCriteriaResponse(ctx, readResponse.DefaultUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
 		readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleUncachedAttributeCriteriaResponse != nil {
 		readSimpleUncachedAttributeCriteriaResponse(ctx, readResponse.SimpleUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 		readThirdPartyUncachedAttributeCriteriaResponse(ctx, readResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -621,16 +621,16 @@ func (r *defaultUncachedAttributeCriteriaResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedAttributeCriteriaResponse != nil {
 			readDefaultUncachedAttributeCriteriaResponse(ctx, updateResponse.DefaultUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
 			readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleUncachedAttributeCriteriaResponse != nil {
 			readSimpleUncachedAttributeCriteriaResponse(ctx, updateResponse.SimpleUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			readThirdPartyUncachedAttributeCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -738,16 +738,16 @@ func updateUncachedAttributeCriteria(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedAttributeCriteriaResponse != nil {
 			readDefaultUncachedAttributeCriteriaResponse(ctx, updateResponse.DefaultUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse != nil {
 			readGroovyScriptedUncachedAttributeCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleUncachedAttributeCriteriaResponse != nil {
 			readSimpleUncachedAttributeCriteriaResponse(ctx, updateResponse.SimpleUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedAttributeCriteriaResponse != nil {
 			readThirdPartyUncachedAttributeCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedAttributeCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

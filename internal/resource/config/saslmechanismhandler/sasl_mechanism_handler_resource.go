@@ -1337,46 +1337,46 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state defaultSaslMechanismHandlerResourceModel
-	if plan.Type.ValueString() == "unboundid-ms-chap-v2" {
+	if readResponse.UnboundidMsChapV2SaslMechanismHandlerResponse != nil {
 		readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidMsChapV2SaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unboundid-totp" {
+	if readResponse.UnboundidTotpSaslMechanismHandlerResponse != nil {
 		readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidTotpSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unboundid-yubikey-otp" {
+	if readResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse != nil {
 		readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "external" {
+	if readResponse.ExternalSaslMechanismHandlerResponse != nil {
 		readExternalSaslMechanismHandlerResponseDefault(ctx, readResponse.ExternalSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "digest-md5" {
+	if readResponse.DigestMd5SaslMechanismHandlerResponse != nil {
 		readDigestMd5SaslMechanismHandlerResponseDefault(ctx, readResponse.DigestMd5SaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "plain" {
+	if readResponse.PlainSaslMechanismHandlerResponse != nil {
 		readPlainSaslMechanismHandlerResponseDefault(ctx, readResponse.PlainSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unboundid-delivered-otp" {
+	if readResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse != nil {
 		readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unboundid-external-auth" {
+	if readResponse.UnboundidExternalAuthSaslMechanismHandlerResponse != nil {
 		readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidExternalAuthSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "anonymous" {
+	if readResponse.AnonymousSaslMechanismHandlerResponse != nil {
 		readAnonymousSaslMechanismHandlerResponseDefault(ctx, readResponse.AnonymousSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "cram-md5" {
+	if readResponse.CramMd5SaslMechanismHandlerResponse != nil {
 		readCramMd5SaslMechanismHandlerResponseDefault(ctx, readResponse.CramMd5SaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "oauth-bearer" {
+	if readResponse.OauthBearerSaslMechanismHandlerResponse != nil {
 		readOauthBearerSaslMechanismHandlerResponseDefault(ctx, readResponse.OauthBearerSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unboundid-certificate-plus-password" {
+	if readResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse != nil {
 		readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx, readResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "gssapi" {
+	if readResponse.GssapiSaslMechanismHandlerResponse != nil {
 		readGssapiSaslMechanismHandlerResponseDefault(ctx, readResponse.GssapiSaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 		readThirdPartySaslMechanismHandlerResponseDefault(ctx, readResponse.ThirdPartySaslMechanismHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1401,46 +1401,46 @@ func (r *defaultSaslMechanismHandlerResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "unboundid-ms-chap-v2" {
+		if updateResponse.UnboundidMsChapV2SaslMechanismHandlerResponse != nil {
 			readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidMsChapV2SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-totp" {
+		if updateResponse.UnboundidTotpSaslMechanismHandlerResponse != nil {
 			readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidTotpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-yubikey-otp" {
+		if updateResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse != nil {
 			readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "external" {
+		if updateResponse.ExternalSaslMechanismHandlerResponse != nil {
 			readExternalSaslMechanismHandlerResponseDefault(ctx, updateResponse.ExternalSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "digest-md5" {
+		if updateResponse.DigestMd5SaslMechanismHandlerResponse != nil {
 			readDigestMd5SaslMechanismHandlerResponseDefault(ctx, updateResponse.DigestMd5SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "plain" {
+		if updateResponse.PlainSaslMechanismHandlerResponse != nil {
 			readPlainSaslMechanismHandlerResponseDefault(ctx, updateResponse.PlainSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-delivered-otp" {
+		if updateResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse != nil {
 			readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-external-auth" {
+		if updateResponse.UnboundidExternalAuthSaslMechanismHandlerResponse != nil {
 			readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidExternalAuthSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "anonymous" {
+		if updateResponse.AnonymousSaslMechanismHandlerResponse != nil {
 			readAnonymousSaslMechanismHandlerResponseDefault(ctx, updateResponse.AnonymousSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "cram-md5" {
+		if updateResponse.CramMd5SaslMechanismHandlerResponse != nil {
 			readCramMd5SaslMechanismHandlerResponseDefault(ctx, updateResponse.CramMd5SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oauth-bearer" {
+		if updateResponse.OauthBearerSaslMechanismHandlerResponse != nil {
 			readOauthBearerSaslMechanismHandlerResponseDefault(ctx, updateResponse.OauthBearerSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-certificate-plus-password" {
+		if updateResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse != nil {
 			readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "gssapi" {
+		if updateResponse.GssapiSaslMechanismHandlerResponse != nil {
 			readGssapiSaslMechanismHandlerResponseDefault(ctx, updateResponse.GssapiSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 			readThirdPartySaslMechanismHandlerResponseDefault(ctx, updateResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1592,16 +1592,16 @@ func (r *saslMechanismHandlerResource) Update(ctx context.Context, req resource.
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "unboundid-ms-chap-v2" {
+		if updateResponse.UnboundidMsChapV2SaslMechanismHandlerResponse != nil {
 			readUnboundidMsChapV2SaslMechanismHandlerResponse(ctx, updateResponse.UnboundidMsChapV2SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-delivered-otp" {
+		if updateResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse != nil {
 			readUnboundidDeliveredOtpSaslMechanismHandlerResponse(ctx, updateResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oauth-bearer" {
+		if updateResponse.OauthBearerSaslMechanismHandlerResponse != nil {
 			readOauthBearerSaslMechanismHandlerResponse(ctx, updateResponse.OauthBearerSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 			readThirdPartySaslMechanismHandlerResponse(ctx, updateResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1652,46 +1652,46 @@ func (r *defaultSaslMechanismHandlerResource) Update(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "unboundid-ms-chap-v2" {
+		if updateResponse.UnboundidMsChapV2SaslMechanismHandlerResponse != nil {
 			readUnboundidMsChapV2SaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidMsChapV2SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-totp" {
+		if updateResponse.UnboundidTotpSaslMechanismHandlerResponse != nil {
 			readUnboundidTotpSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidTotpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-yubikey-otp" {
+		if updateResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse != nil {
 			readUnboundidYubikeyOtpSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidYubikeyOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "external" {
+		if updateResponse.ExternalSaslMechanismHandlerResponse != nil {
 			readExternalSaslMechanismHandlerResponseDefault(ctx, updateResponse.ExternalSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "digest-md5" {
+		if updateResponse.DigestMd5SaslMechanismHandlerResponse != nil {
 			readDigestMd5SaslMechanismHandlerResponseDefault(ctx, updateResponse.DigestMd5SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "plain" {
+		if updateResponse.PlainSaslMechanismHandlerResponse != nil {
 			readPlainSaslMechanismHandlerResponseDefault(ctx, updateResponse.PlainSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-delivered-otp" {
+		if updateResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse != nil {
 			readUnboundidDeliveredOtpSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidDeliveredOtpSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-external-auth" {
+		if updateResponse.UnboundidExternalAuthSaslMechanismHandlerResponse != nil {
 			readUnboundidExternalAuthSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidExternalAuthSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "anonymous" {
+		if updateResponse.AnonymousSaslMechanismHandlerResponse != nil {
 			readAnonymousSaslMechanismHandlerResponseDefault(ctx, updateResponse.AnonymousSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "cram-md5" {
+		if updateResponse.CramMd5SaslMechanismHandlerResponse != nil {
 			readCramMd5SaslMechanismHandlerResponseDefault(ctx, updateResponse.CramMd5SaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oauth-bearer" {
+		if updateResponse.OauthBearerSaslMechanismHandlerResponse != nil {
 			readOauthBearerSaslMechanismHandlerResponseDefault(ctx, updateResponse.OauthBearerSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unboundid-certificate-plus-password" {
+		if updateResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse != nil {
 			readUnboundidCertificatePlusPasswordSaslMechanismHandlerResponseDefault(ctx, updateResponse.UnboundidCertificatePlusPasswordSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "gssapi" {
+		if updateResponse.GssapiSaslMechanismHandlerResponse != nil {
 			readGssapiSaslMechanismHandlerResponseDefault(ctx, updateResponse.GssapiSaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySaslMechanismHandlerResponse != nil {
 			readThirdPartySaslMechanismHandlerResponseDefault(ctx, updateResponse.ThirdPartySaslMechanismHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -707,13 +707,13 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state otpDeliveryMechanismResourceModel
-	if plan.Type.ValueString() == "twilio" {
+	if readResponse.TwilioOtpDeliveryMechanismResponse != nil {
 		readTwilioOtpDeliveryMechanismResponse(ctx, readResponse.TwilioOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "email" {
+	if readResponse.EmailOtpDeliveryMechanismResponse != nil {
 		readEmailOtpDeliveryMechanismResponse(ctx, readResponse.EmailOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 		readThirdPartyOtpDeliveryMechanismResponse(ctx, readResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -738,13 +738,13 @@ func (r *defaultOtpDeliveryMechanismResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioOtpDeliveryMechanismResponse != nil {
 			readTwilioOtpDeliveryMechanismResponse(ctx, updateResponse.TwilioOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "email" {
+		if updateResponse.EmailOtpDeliveryMechanismResponse != nil {
 			readEmailOtpDeliveryMechanismResponse(ctx, updateResponse.EmailOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 			readThirdPartyOtpDeliveryMechanismResponse(ctx, updateResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -850,13 +850,13 @@ func updateOtpDeliveryMechanism(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioOtpDeliveryMechanismResponse != nil {
 			readTwilioOtpDeliveryMechanismResponse(ctx, updateResponse.TwilioOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "email" {
+		if updateResponse.EmailOtpDeliveryMechanismResponse != nil {
 			readEmailOtpDeliveryMechanismResponse(ctx, updateResponse.EmailOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyOtpDeliveryMechanismResponse != nil {
 			readThirdPartyOtpDeliveryMechanismResponse(ctx, updateResponse.ThirdPartyOtpDeliveryMechanismResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

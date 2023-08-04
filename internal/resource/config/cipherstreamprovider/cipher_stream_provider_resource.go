@@ -1432,31 +1432,31 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state cipherStreamProviderResourceModel
-	if plan.Type.ValueString() == "amazon-key-management-service" {
+	if readResponse.AmazonKeyManagementServiceCipherStreamProviderResponse != nil {
 		readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx, readResponse.AmazonKeyManagementServiceCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "amazon-secrets-manager" {
+	if readResponse.AmazonSecretsManagerCipherStreamProviderResponse != nil {
 		readAmazonSecretsManagerCipherStreamProviderResponse(ctx, readResponse.AmazonSecretsManagerCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "azure-key-vault" {
+	if readResponse.AzureKeyVaultCipherStreamProviderResponse != nil {
 		readAzureKeyVaultCipherStreamProviderResponse(ctx, readResponse.AzureKeyVaultCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedCipherStreamProviderResponse != nil {
 		readFileBasedCipherStreamProviderResponse(ctx, readResponse.FileBasedCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "wait-for-passphrase" {
+	if readResponse.WaitForPassphraseCipherStreamProviderResponse != nil {
 		readWaitForPassphraseCipherStreamProviderResponse(ctx, readResponse.WaitForPassphraseCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "conjur" {
+	if readResponse.ConjurCipherStreamProviderResponse != nil {
 		readConjurCipherStreamProviderResponse(ctx, readResponse.ConjurCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "pkcs11" {
+	if readResponse.Pkcs11CipherStreamProviderResponse != nil {
 		readPkcs11CipherStreamProviderResponse(ctx, readResponse.Pkcs11CipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "vault" {
+	if readResponse.VaultCipherStreamProviderResponse != nil {
 		readVaultCipherStreamProviderResponse(ctx, readResponse.VaultCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyCipherStreamProviderResponse != nil {
 		readThirdPartyCipherStreamProviderResponse(ctx, readResponse.ThirdPartyCipherStreamProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1481,31 +1481,31 @@ func (r *defaultCipherStreamProviderResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "amazon-key-management-service" {
+		if updateResponse.AmazonKeyManagementServiceCipherStreamProviderResponse != nil {
 			readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx, updateResponse.AmazonKeyManagementServiceCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerCipherStreamProviderResponse != nil {
 			readAmazonSecretsManagerCipherStreamProviderResponse(ctx, updateResponse.AmazonSecretsManagerCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultCipherStreamProviderResponse != nil {
 			readAzureKeyVaultCipherStreamProviderResponse(ctx, updateResponse.AzureKeyVaultCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedCipherStreamProviderResponse != nil {
 			readFileBasedCipherStreamProviderResponse(ctx, updateResponse.FileBasedCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "wait-for-passphrase" {
+		if updateResponse.WaitForPassphraseCipherStreamProviderResponse != nil {
 			readWaitForPassphraseCipherStreamProviderResponse(ctx, updateResponse.WaitForPassphraseCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurCipherStreamProviderResponse != nil {
 			readConjurCipherStreamProviderResponse(ctx, updateResponse.ConjurCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pkcs11" {
+		if updateResponse.Pkcs11CipherStreamProviderResponse != nil {
 			readPkcs11CipherStreamProviderResponse(ctx, updateResponse.Pkcs11CipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultCipherStreamProviderResponse != nil {
 			readVaultCipherStreamProviderResponse(ctx, updateResponse.VaultCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyCipherStreamProviderResponse != nil {
 			readThirdPartyCipherStreamProviderResponse(ctx, updateResponse.ThirdPartyCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1629,31 +1629,31 @@ func updateCipherStreamProvider(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "amazon-key-management-service" {
+		if updateResponse.AmazonKeyManagementServiceCipherStreamProviderResponse != nil {
 			readAmazonKeyManagementServiceCipherStreamProviderResponse(ctx, updateResponse.AmazonKeyManagementServiceCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerCipherStreamProviderResponse != nil {
 			readAmazonSecretsManagerCipherStreamProviderResponse(ctx, updateResponse.AmazonSecretsManagerCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultCipherStreamProviderResponse != nil {
 			readAzureKeyVaultCipherStreamProviderResponse(ctx, updateResponse.AzureKeyVaultCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedCipherStreamProviderResponse != nil {
 			readFileBasedCipherStreamProviderResponse(ctx, updateResponse.FileBasedCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "wait-for-passphrase" {
+		if updateResponse.WaitForPassphraseCipherStreamProviderResponse != nil {
 			readWaitForPassphraseCipherStreamProviderResponse(ctx, updateResponse.WaitForPassphraseCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurCipherStreamProviderResponse != nil {
 			readConjurCipherStreamProviderResponse(ctx, updateResponse.ConjurCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pkcs11" {
+		if updateResponse.Pkcs11CipherStreamProviderResponse != nil {
 			readPkcs11CipherStreamProviderResponse(ctx, updateResponse.Pkcs11CipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultCipherStreamProviderResponse != nil {
 			readVaultCipherStreamProviderResponse(ctx, updateResponse.VaultCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyCipherStreamProviderResponse != nil {
 			readThirdPartyCipherStreamProviderResponse(ctx, updateResponse.ThirdPartyCipherStreamProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

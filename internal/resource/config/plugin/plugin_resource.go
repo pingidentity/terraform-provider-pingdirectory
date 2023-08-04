@@ -6472,118 +6472,118 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 
 	// Read the existing configuration
 	var state defaultPluginResourceModel
-	if plan.ResourceType.ValueString() == "last-access-time" {
+	if readResponse.LastAccessTimePluginResponse != nil {
 		readLastAccessTimePluginResponseDefault(ctx, readResponse.LastAccessTimePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "stats-collector" {
+	if readResponse.StatsCollectorPluginResponse != nil {
 		readStatsCollectorPluginResponseDefault(ctx, readResponse.StatsCollectorPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "internal-search-rate" {
+	if readResponse.InternalSearchRatePluginResponse != nil {
 		readInternalSearchRatePluginResponseDefault(ctx, readResponse.InternalSearchRatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+	if readResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 		readModifiablePasswordPolicyStatePluginResponseDefault(ctx, readResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "seven-bit-clean" {
+	if readResponse.SevenBitCleanPluginResponse != nil {
 		readSevenBitCleanPluginResponseDefault(ctx, readResponse.SevenBitCleanPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+	if readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 		readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "periodic-gc" {
+	if readResponse.PeriodicGcPluginResponse != nil {
 		readPeriodicGcPluginResponseDefault(ctx, readResponse.PeriodicGcPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+	if readResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 		readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "changelog-password-encryption" {
+	if readResponse.ChangelogPasswordEncryptionPluginResponse != nil {
 		readChangelogPasswordEncryptionPluginResponseDefault(ctx, readResponse.ChangelogPasswordEncryptionPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "processing-time-histogram" {
+	if readResponse.ProcessingTimeHistogramPluginResponse != nil {
 		readProcessingTimeHistogramPluginResponseDefault(ctx, readResponse.ProcessingTimeHistogramPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "search-shutdown" {
+	if readResponse.SearchShutdownPluginResponse != nil {
 		readSearchShutdownPluginResponseDefault(ctx, readResponse.SearchShutdownPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+	if readResponse.PeriodicStatsLoggerPluginResponse != nil {
 		readPeriodicStatsLoggerPluginResponseDefault(ctx, readResponse.PeriodicStatsLoggerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "purge-expired-data" {
+	if readResponse.PurgeExpiredDataPluginResponse != nil {
 		readPurgeExpiredDataPluginResponseDefault(ctx, readResponse.PurgeExpiredDataPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "change-subscription-notification" {
+	if readResponse.ChangeSubscriptionNotificationPluginResponse != nil {
 		readChangeSubscriptionNotificationPluginResponseDefault(ctx, readResponse.ChangeSubscriptionNotificationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "sub-operation-timing" {
+	if readResponse.SubOperationTimingPluginResponse != nil {
 		readSubOperationTimingPluginResponseDefault(ctx, readResponse.SubOperationTimingPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPluginResponse != nil {
 		readThirdPartyPluginResponseDefault(ctx, readResponse.ThirdPartyPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
+	if readResponse.EncryptAttributeValuesPluginResponse != nil {
 		readEncryptAttributeValuesPluginResponseDefault(ctx, readResponse.EncryptAttributeValuesPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "pass-through-authentication" {
+	if readResponse.PassThroughAuthenticationPluginResponse != nil {
 		readPassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "dn-mapper" {
+	if readResponse.DnMapperPluginResponse != nil {
 		readDnMapperPluginResponseDefault(ctx, readResponse.DnMapperPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "monitor-history" {
+	if readResponse.MonitorHistoryPluginResponse != nil {
 		readMonitorHistoryPluginResponseDefault(ctx, readResponse.MonitorHistoryPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "referral-on-update" {
+	if readResponse.ReferralOnUpdatePluginResponse != nil {
 		readReferralOnUpdatePluginResponseDefault(ctx, readResponse.ReferralOnUpdatePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+	if readResponse.SimpleToExternalBindPluginResponse != nil {
 		readSimpleToExternalBindPluginResponseDefault(ctx, readResponse.SimpleToExternalBindPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "custom" {
+	if readResponse.CustomPluginResponse != nil {
 		readCustomPluginResponseDefault(ctx, readResponse.CustomPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "snmp-subagent" {
+	if readResponse.SnmpSubagentPluginResponse != nil {
 		readSnmpSubagentPluginResponseDefault(ctx, readResponse.SnmpSubagentPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "coalesce-modifications" {
+	if readResponse.CoalesceModificationsPluginResponse != nil {
 		readCoalesceModificationsPluginResponseDefault(ctx, readResponse.CoalesceModificationsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "password-policy-import" {
+	if readResponse.PasswordPolicyImportPluginResponse != nil {
 		readPasswordPolicyImportPluginResponseDefault(ctx, readResponse.PasswordPolicyImportPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "profiler" {
+	if readResponse.ProfilerPluginResponse != nil {
 		readProfilerPluginResponseDefault(ctx, readResponse.ProfilerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+	if readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 		readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "composed-attribute" {
+	if readResponse.ComposedAttributePluginResponse != nil {
 		readComposedAttributePluginResponseDefault(ctx, readResponse.ComposedAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
+	if readResponse.LdapResultCodeTrackerPluginResponse != nil {
 		readLdapResultCodeTrackerPluginResponseDefault(ctx, readResponse.LdapResultCodeTrackerPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "attribute-mapper" {
+	if readResponse.AttributeMapperPluginResponse != nil {
 		readAttributeMapperPluginResponseDefault(ctx, readResponse.AttributeMapperPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "delay" {
+	if readResponse.DelayPluginResponse != nil {
 		readDelayPluginResponseDefault(ctx, readResponse.DelayPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+	if readResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 		readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, readResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedPluginResponse != nil {
 		readGroovyScriptedPluginResponseDefault(ctx, readResponse.GroovyScriptedPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "last-mod" {
+	if readResponse.LastModPluginResponse != nil {
 		readLastModPluginResponseDefault(ctx, readResponse.LastModPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+	if readResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 		readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, readResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "referential-integrity" {
+	if readResponse.ReferentialIntegrityPluginResponse != nil {
 		readReferentialIntegrityPluginResponseDefault(ctx, readResponse.ReferentialIntegrityPluginResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.ResourceType.ValueString() == "unique-attribute" {
+	if readResponse.UniqueAttributePluginResponse != nil {
 		readUniqueAttributePluginResponseDefault(ctx, readResponse.UniqueAttributePluginResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -6608,118 +6608,118 @@ func (r *defaultPluginResource) Create(ctx context.Context, req resource.CreateR
 		}
 
 		// Read the response
-		if plan.ResourceType.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimePluginResponse != nil {
 			readLastAccessTimePluginResponseDefault(ctx, updateResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "stats-collector" {
+		if updateResponse.StatsCollectorPluginResponse != nil {
 			readStatsCollectorPluginResponseDefault(ctx, updateResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "internal-search-rate" {
+		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponseDefault(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+		if updateResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 			readModifiablePasswordPolicyStatePluginResponseDefault(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "seven-bit-clean" {
+		if updateResponse.SevenBitCleanPluginResponse != nil {
 			readSevenBitCleanPluginResponseDefault(ctx, updateResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-gc" {
+		if updateResponse.PeriodicGcPluginResponse != nil {
 			readPeriodicGcPluginResponseDefault(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+		if updateResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 			readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "changelog-password-encryption" {
+		if updateResponse.ChangelogPasswordEncryptionPluginResponse != nil {
 			readChangelogPasswordEncryptionPluginResponseDefault(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "processing-time-histogram" {
+		if updateResponse.ProcessingTimeHistogramPluginResponse != nil {
 			readProcessingTimeHistogramPluginResponseDefault(ctx, updateResponse.ProcessingTimeHistogramPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "search-shutdown" {
+		if updateResponse.SearchShutdownPluginResponse != nil {
 			readSearchShutdownPluginResponseDefault(ctx, updateResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+		if updateResponse.PeriodicStatsLoggerPluginResponse != nil {
 			readPeriodicStatsLoggerPluginResponseDefault(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "purge-expired-data" {
+		if updateResponse.PurgeExpiredDataPluginResponse != nil {
 			readPurgeExpiredDataPluginResponseDefault(ctx, updateResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "change-subscription-notification" {
+		if updateResponse.ChangeSubscriptionNotificationPluginResponse != nil {
 			readChangeSubscriptionNotificationPluginResponseDefault(ctx, updateResponse.ChangeSubscriptionNotificationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "sub-operation-timing" {
+		if updateResponse.SubOperationTimingPluginResponse != nil {
 			readSubOperationTimingPluginResponseDefault(ctx, updateResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPluginResponse != nil {
 			readThirdPartyPluginResponseDefault(ctx, updateResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
+		if updateResponse.EncryptAttributeValuesPluginResponse != nil {
 			readEncryptAttributeValuesPluginResponseDefault(ctx, updateResponse.EncryptAttributeValuesPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pass-through-authentication" {
+		if updateResponse.PassThroughAuthenticationPluginResponse != nil {
 			readPassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "dn-mapper" {
+		if updateResponse.DnMapperPluginResponse != nil {
 			readDnMapperPluginResponseDefault(ctx, updateResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "monitor-history" {
+		if updateResponse.MonitorHistoryPluginResponse != nil {
 			readMonitorHistoryPluginResponseDefault(ctx, updateResponse.MonitorHistoryPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referral-on-update" {
+		if updateResponse.ReferralOnUpdatePluginResponse != nil {
 			readReferralOnUpdatePluginResponseDefault(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+		if updateResponse.SimpleToExternalBindPluginResponse != nil {
 			readSimpleToExternalBindPluginResponseDefault(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "custom" {
+		if updateResponse.CustomPluginResponse != nil {
 			readCustomPluginResponseDefault(ctx, updateResponse.CustomPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "snmp-subagent" {
+		if updateResponse.SnmpSubagentPluginResponse != nil {
 			readSnmpSubagentPluginResponseDefault(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		if updateResponse.CoalesceModificationsPluginResponse != nil {
 			readCoalesceModificationsPluginResponseDefault(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "password-policy-import" {
+		if updateResponse.PasswordPolicyImportPluginResponse != nil {
 			readPasswordPolicyImportPluginResponseDefault(ctx, updateResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "profiler" {
+		if updateResponse.ProfilerPluginResponse != nil {
 			readProfilerPluginResponseDefault(ctx, updateResponse.ProfilerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "composed-attribute" {
+		if updateResponse.ComposedAttributePluginResponse != nil {
 			readComposedAttributePluginResponseDefault(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
+		if updateResponse.LdapResultCodeTrackerPluginResponse != nil {
 			readLdapResultCodeTrackerPluginResponseDefault(ctx, updateResponse.LdapResultCodeTrackerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "attribute-mapper" {
+		if updateResponse.AttributeMapperPluginResponse != nil {
 			readAttributeMapperPluginResponseDefault(ctx, updateResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "delay" {
+		if updateResponse.DelayPluginResponse != nil {
 			readDelayPluginResponseDefault(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPluginResponse != nil {
 			readGroovyScriptedPluginResponseDefault(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "last-mod" {
+		if updateResponse.LastModPluginResponse != nil {
 			readLastModPluginResponseDefault(ctx, updateResponse.LastModPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+		if updateResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 			readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referential-integrity" {
+		if updateResponse.ReferentialIntegrityPluginResponse != nil {
 			readReferentialIntegrityPluginResponseDefault(ctx, updateResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "unique-attribute" {
+		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -6943,82 +6943,82 @@ func (r *pluginResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.ResourceType.ValueString() == "internal-search-rate" {
+		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponse(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+		if updateResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 			readModifiablePasswordPolicyStatePluginResponse(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "seven-bit-clean" {
+		if updateResponse.SevenBitCleanPluginResponse != nil {
 			readSevenBitCleanPluginResponse(ctx, updateResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-gc" {
+		if updateResponse.PeriodicGcPluginResponse != nil {
 			readPeriodicGcPluginResponse(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+		if updateResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 			readPingOnePassThroughAuthenticationPluginResponse(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "search-shutdown" {
+		if updateResponse.SearchShutdownPluginResponse != nil {
 			readSearchShutdownPluginResponse(ctx, updateResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+		if updateResponse.PeriodicStatsLoggerPluginResponse != nil {
 			readPeriodicStatsLoggerPluginResponse(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "purge-expired-data" {
+		if updateResponse.PurgeExpiredDataPluginResponse != nil {
 			readPurgeExpiredDataPluginResponse(ctx, updateResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "sub-operation-timing" {
+		if updateResponse.SubOperationTimingPluginResponse != nil {
 			readSubOperationTimingPluginResponse(ctx, updateResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPluginResponse != nil {
 			readThirdPartyPluginResponse(ctx, updateResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pass-through-authentication" {
+		if updateResponse.PassThroughAuthenticationPluginResponse != nil {
 			readPassThroughAuthenticationPluginResponse(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "dn-mapper" {
+		if updateResponse.DnMapperPluginResponse != nil {
 			readDnMapperPluginResponse(ctx, updateResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referral-on-update" {
+		if updateResponse.ReferralOnUpdatePluginResponse != nil {
 			readReferralOnUpdatePluginResponse(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+		if updateResponse.SimpleToExternalBindPluginResponse != nil {
 			readSimpleToExternalBindPluginResponse(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "snmp-subagent" {
+		if updateResponse.SnmpSubagentPluginResponse != nil {
 			readSnmpSubagentPluginResponse(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		if updateResponse.CoalesceModificationsPluginResponse != nil {
 			readCoalesceModificationsPluginResponse(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponse(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "composed-attribute" {
+		if updateResponse.ComposedAttributePluginResponse != nil {
 			readComposedAttributePluginResponse(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "attribute-mapper" {
+		if updateResponse.AttributeMapperPluginResponse != nil {
 			readAttributeMapperPluginResponse(ctx, updateResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "delay" {
+		if updateResponse.DelayPluginResponse != nil {
 			readDelayPluginResponse(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentSessionsPluginResponse(ctx, updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPluginResponse != nil {
 			readGroovyScriptedPluginResponse(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+		if updateResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 			readPluggablePassThroughAuthenticationPluginResponse(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referential-integrity" {
+		if updateResponse.ReferentialIntegrityPluginResponse != nil {
 			readReferentialIntegrityPluginResponse(ctx, updateResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "unique-attribute" {
+		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponse(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -7070,118 +7070,118 @@ func (r *defaultPluginResource) Update(ctx context.Context, req resource.UpdateR
 		}
 
 		// Read the response
-		if plan.ResourceType.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimePluginResponse != nil {
 			readLastAccessTimePluginResponseDefault(ctx, updateResponse.LastAccessTimePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "stats-collector" {
+		if updateResponse.StatsCollectorPluginResponse != nil {
 			readStatsCollectorPluginResponseDefault(ctx, updateResponse.StatsCollectorPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "internal-search-rate" {
+		if updateResponse.InternalSearchRatePluginResponse != nil {
 			readInternalSearchRatePluginResponseDefault(ctx, updateResponse.InternalSearchRatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "modifiable-password-policy-state" {
+		if updateResponse.ModifiablePasswordPolicyStatePluginResponse != nil {
 			readModifiablePasswordPolicyStatePluginResponseDefault(ctx, updateResponse.ModifiablePasswordPolicyStatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "seven-bit-clean" {
+		if updateResponse.SevenBitCleanPluginResponse != nil {
 			readSevenBitCleanPluginResponseDefault(ctx, updateResponse.SevenBitCleanPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-access-grants" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentAccessGrantsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentAccessGrantsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-gc" {
+		if updateResponse.PeriodicGcPluginResponse != nil {
 			readPeriodicGcPluginResponseDefault(ctx, updateResponse.PeriodicGcPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ping-one-pass-through-authentication" {
+		if updateResponse.PingOnePassThroughAuthenticationPluginResponse != nil {
 			readPingOnePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PingOnePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "changelog-password-encryption" {
+		if updateResponse.ChangelogPasswordEncryptionPluginResponse != nil {
 			readChangelogPasswordEncryptionPluginResponseDefault(ctx, updateResponse.ChangelogPasswordEncryptionPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "processing-time-histogram" {
+		if updateResponse.ProcessingTimeHistogramPluginResponse != nil {
 			readProcessingTimeHistogramPluginResponseDefault(ctx, updateResponse.ProcessingTimeHistogramPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "search-shutdown" {
+		if updateResponse.SearchShutdownPluginResponse != nil {
 			readSearchShutdownPluginResponseDefault(ctx, updateResponse.SearchShutdownPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "periodic-stats-logger" {
+		if updateResponse.PeriodicStatsLoggerPluginResponse != nil {
 			readPeriodicStatsLoggerPluginResponseDefault(ctx, updateResponse.PeriodicStatsLoggerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "purge-expired-data" {
+		if updateResponse.PurgeExpiredDataPluginResponse != nil {
 			readPurgeExpiredDataPluginResponseDefault(ctx, updateResponse.PurgeExpiredDataPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "change-subscription-notification" {
+		if updateResponse.ChangeSubscriptionNotificationPluginResponse != nil {
 			readChangeSubscriptionNotificationPluginResponseDefault(ctx, updateResponse.ChangeSubscriptionNotificationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "sub-operation-timing" {
+		if updateResponse.SubOperationTimingPluginResponse != nil {
 			readSubOperationTimingPluginResponseDefault(ctx, updateResponse.SubOperationTimingPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPluginResponse != nil {
 			readThirdPartyPluginResponseDefault(ctx, updateResponse.ThirdPartyPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "encrypt-attribute-values" {
+		if updateResponse.EncryptAttributeValuesPluginResponse != nil {
 			readEncryptAttributeValuesPluginResponseDefault(ctx, updateResponse.EncryptAttributeValuesPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pass-through-authentication" {
+		if updateResponse.PassThroughAuthenticationPluginResponse != nil {
 			readPassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "dn-mapper" {
+		if updateResponse.DnMapperPluginResponse != nil {
 			readDnMapperPluginResponseDefault(ctx, updateResponse.DnMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "monitor-history" {
+		if updateResponse.MonitorHistoryPluginResponse != nil {
 			readMonitorHistoryPluginResponseDefault(ctx, updateResponse.MonitorHistoryPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referral-on-update" {
+		if updateResponse.ReferralOnUpdatePluginResponse != nil {
 			readReferralOnUpdatePluginResponseDefault(ctx, updateResponse.ReferralOnUpdatePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "simple-to-external-bind" {
+		if updateResponse.SimpleToExternalBindPluginResponse != nil {
 			readSimpleToExternalBindPluginResponseDefault(ctx, updateResponse.SimpleToExternalBindPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "custom" {
+		if updateResponse.CustomPluginResponse != nil {
 			readCustomPluginResponseDefault(ctx, updateResponse.CustomPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "snmp-subagent" {
+		if updateResponse.SnmpSubagentPluginResponse != nil {
 			readSnmpSubagentPluginResponseDefault(ctx, updateResponse.SnmpSubagentPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "coalesce-modifications" {
+		if updateResponse.CoalesceModificationsPluginResponse != nil {
 			readCoalesceModificationsPluginResponseDefault(ctx, updateResponse.CoalesceModificationsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "password-policy-import" {
+		if updateResponse.PasswordPolicyImportPluginResponse != nil {
 			readPasswordPolicyImportPluginResponseDefault(ctx, updateResponse.PasswordPolicyImportPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "profiler" {
+		if updateResponse.ProfilerPluginResponse != nil {
 			readProfilerPluginResponseDefault(ctx, updateResponse.ProfilerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-inactive-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpInactivePingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpInactivePingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "composed-attribute" {
+		if updateResponse.ComposedAttributePluginResponse != nil {
 			readComposedAttributePluginResponseDefault(ctx, updateResponse.ComposedAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "ldap-result-code-tracker" {
+		if updateResponse.LdapResultCodeTrackerPluginResponse != nil {
 			readLdapResultCodeTrackerPluginResponseDefault(ctx, updateResponse.LdapResultCodeTrackerPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "attribute-mapper" {
+		if updateResponse.AttributeMapperPluginResponse != nil {
 			readAttributeMapperPluginResponseDefault(ctx, updateResponse.AttributeMapperPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "delay" {
+		if updateResponse.DelayPluginResponse != nil {
 			readDelayPluginResponseDefault(ctx, updateResponse.DelayPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "clean-up-expired-pingfederate-persistent-sessions" {
+		if updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse != nil {
 			readCleanUpExpiredPingfederatePersistentSessionsPluginResponseDefault(ctx, updateResponse.CleanUpExpiredPingfederatePersistentSessionsPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPluginResponse != nil {
 			readGroovyScriptedPluginResponseDefault(ctx, updateResponse.GroovyScriptedPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "last-mod" {
+		if updateResponse.LastModPluginResponse != nil {
 			readLastModPluginResponseDefault(ctx, updateResponse.LastModPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "pluggable-pass-through-authentication" {
+		if updateResponse.PluggablePassThroughAuthenticationPluginResponse != nil {
 			readPluggablePassThroughAuthenticationPluginResponseDefault(ctx, updateResponse.PluggablePassThroughAuthenticationPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "referential-integrity" {
+		if updateResponse.ReferentialIntegrityPluginResponse != nil {
 			readReferentialIntegrityPluginResponseDefault(ctx, updateResponse.ReferentialIntegrityPluginResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.ResourceType.ValueString() == "unique-attribute" {
+		if updateResponse.UniqueAttributePluginResponse != nil {
 			readUniqueAttributePluginResponseDefault(ctx, updateResponse.UniqueAttributePluginResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

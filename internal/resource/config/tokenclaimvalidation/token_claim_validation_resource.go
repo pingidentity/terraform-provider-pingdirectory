@@ -481,13 +481,13 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state tokenClaimValidationResourceModel
-	if plan.Type.ValueString() == "string-array" {
+	if readResponse.StringArrayTokenClaimValidationResponse != nil {
 		readStringArrayTokenClaimValidationResponse(ctx, readResponse.StringArrayTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "boolean" {
+	if readResponse.BooleanTokenClaimValidationResponse != nil {
 		readBooleanTokenClaimValidationResponse(ctx, readResponse.BooleanTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "string" {
+	if readResponse.StringTokenClaimValidationResponse != nil {
 		readStringTokenClaimValidationResponse(ctx, readResponse.StringTokenClaimValidationResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -512,13 +512,13 @@ func (r *defaultTokenClaimValidationResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "string-array" {
+		if updateResponse.StringArrayTokenClaimValidationResponse != nil {
 			readStringArrayTokenClaimValidationResponse(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "boolean" {
+		if updateResponse.BooleanTokenClaimValidationResponse != nil {
 			readBooleanTokenClaimValidationResponse(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "string" {
+		if updateResponse.StringTokenClaimValidationResponse != nil {
 			readStringTokenClaimValidationResponse(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -624,13 +624,13 @@ func updateTokenClaimValidation(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "string-array" {
+		if updateResponse.StringArrayTokenClaimValidationResponse != nil {
 			readStringArrayTokenClaimValidationResponse(ctx, updateResponse.StringArrayTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "boolean" {
+		if updateResponse.BooleanTokenClaimValidationResponse != nil {
 			readBooleanTokenClaimValidationResponse(ctx, updateResponse.BooleanTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "string" {
+		if updateResponse.StringTokenClaimValidationResponse != nil {
 			readStringTokenClaimValidationResponse(ctx, updateResponse.StringTokenClaimValidationResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

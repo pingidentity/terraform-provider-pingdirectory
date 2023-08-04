@@ -681,16 +681,16 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state keyManagerProviderResourceModel
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedKeyManagerProviderResponse != nil {
 		readFileBasedKeyManagerProviderResponse(ctx, readResponse.FileBasedKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomKeyManagerProviderResponse != nil {
 		readCustomKeyManagerProviderResponse(ctx, readResponse.CustomKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "pkcs11" {
+	if readResponse.Pkcs11KeyManagerProviderResponse != nil {
 		readPkcs11KeyManagerProviderResponse(ctx, readResponse.Pkcs11KeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyKeyManagerProviderResponse != nil {
 		readThirdPartyKeyManagerProviderResponse(ctx, readResponse.ThirdPartyKeyManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -715,16 +715,16 @@ func (r *defaultKeyManagerProviderResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedKeyManagerProviderResponse != nil {
 			readFileBasedKeyManagerProviderResponse(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomKeyManagerProviderResponse != nil {
 			readCustomKeyManagerProviderResponse(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pkcs11" {
+		if updateResponse.Pkcs11KeyManagerProviderResponse != nil {
 			readPkcs11KeyManagerProviderResponse(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyKeyManagerProviderResponse != nil {
 			readThirdPartyKeyManagerProviderResponse(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -833,16 +833,16 @@ func updateKeyManagerProvider(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedKeyManagerProviderResponse != nil {
 			readFileBasedKeyManagerProviderResponse(ctx, updateResponse.FileBasedKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomKeyManagerProviderResponse != nil {
 			readCustomKeyManagerProviderResponse(ctx, updateResponse.CustomKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pkcs11" {
+		if updateResponse.Pkcs11KeyManagerProviderResponse != nil {
 			readPkcs11KeyManagerProviderResponse(ctx, updateResponse.Pkcs11KeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyKeyManagerProviderResponse != nil {
 			readThirdPartyKeyManagerProviderResponse(ctx, updateResponse.ThirdPartyKeyManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

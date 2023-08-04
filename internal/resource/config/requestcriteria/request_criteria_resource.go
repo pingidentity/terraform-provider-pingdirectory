@@ -1305,16 +1305,16 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state requestCriteriaResourceModel
-	if plan.Type.ValueString() == "root-dse" {
+	if readResponse.RootDseRequestCriteriaResponse != nil {
 		readRootDseRequestCriteriaResponse(ctx, readResponse.RootDseRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleRequestCriteriaResponse != nil {
 		readSimpleRequestCriteriaResponse(ctx, readResponse.SimpleRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateRequestCriteriaResponse != nil {
 		readAggregateRequestCriteriaResponse(ctx, readResponse.AggregateRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyRequestCriteriaResponse != nil {
 		readThirdPartyRequestCriteriaResponse(ctx, readResponse.ThirdPartyRequestCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1339,16 +1339,16 @@ func (r *defaultRequestCriteriaResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "root-dse" {
+		if updateResponse.RootDseRequestCriteriaResponse != nil {
 			readRootDseRequestCriteriaResponse(ctx, updateResponse.RootDseRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleRequestCriteriaResponse != nil {
 			readSimpleRequestCriteriaResponse(ctx, updateResponse.SimpleRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateRequestCriteriaResponse != nil {
 			readAggregateRequestCriteriaResponse(ctx, updateResponse.AggregateRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRequestCriteriaResponse != nil {
 			readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1456,16 +1456,16 @@ func updateRequestCriteria(ctx context.Context, req resource.UpdateRequest, resp
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "root-dse" {
+		if updateResponse.RootDseRequestCriteriaResponse != nil {
 			readRootDseRequestCriteriaResponse(ctx, updateResponse.RootDseRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleRequestCriteriaResponse != nil {
 			readSimpleRequestCriteriaResponse(ctx, updateResponse.SimpleRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateRequestCriteriaResponse != nil {
 			readAggregateRequestCriteriaResponse(ctx, updateResponse.AggregateRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRequestCriteriaResponse != nil {
 			readThirdPartyRequestCriteriaResponse(ctx, updateResponse.ThirdPartyRequestCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

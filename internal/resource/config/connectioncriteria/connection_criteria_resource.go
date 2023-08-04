@@ -1174,13 +1174,13 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state connectionCriteriaResourceModel
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleConnectionCriteriaResponse != nil {
 		readSimpleConnectionCriteriaResponse(ctx, readResponse.SimpleConnectionCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateConnectionCriteriaResponse != nil {
 		readAggregateConnectionCriteriaResponse(ctx, readResponse.AggregateConnectionCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyConnectionCriteriaResponse != nil {
 		readThirdPartyConnectionCriteriaResponse(ctx, readResponse.ThirdPartyConnectionCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1205,13 +1205,13 @@ func (r *defaultConnectionCriteriaResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleConnectionCriteriaResponse != nil {
 			readSimpleConnectionCriteriaResponse(ctx, updateResponse.SimpleConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateConnectionCriteriaResponse != nil {
 			readAggregateConnectionCriteriaResponse(ctx, updateResponse.AggregateConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyConnectionCriteriaResponse != nil {
 			readThirdPartyConnectionCriteriaResponse(ctx, updateResponse.ThirdPartyConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1316,13 +1316,13 @@ func updateConnectionCriteria(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleConnectionCriteriaResponse != nil {
 			readSimpleConnectionCriteriaResponse(ctx, updateResponse.SimpleConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateConnectionCriteriaResponse != nil {
 			readAggregateConnectionCriteriaResponse(ctx, updateResponse.AggregateConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyConnectionCriteriaResponse != nil {
 			readThirdPartyConnectionCriteriaResponse(ctx, updateResponse.ThirdPartyConnectionCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

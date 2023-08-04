@@ -745,10 +745,10 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state gaugeResourceModel
-	if plan.Type.ValueString() == "indicator" {
+	if readResponse.IndicatorGaugeResponse != nil {
 		readIndicatorGaugeResponse(ctx, readResponse.IndicatorGaugeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "numeric" {
+	if readResponse.NumericGaugeResponse != nil {
 		readNumericGaugeResponse(ctx, readResponse.NumericGaugeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -773,10 +773,10 @@ func (r *defaultGaugeResource) Create(ctx context.Context, req resource.CreateRe
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "indicator" {
+		if updateResponse.IndicatorGaugeResponse != nil {
 			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "numeric" {
+		if updateResponse.NumericGaugeResponse != nil {
 			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -878,10 +878,10 @@ func updateGauge(ctx context.Context, req resource.UpdateRequest, resp *resource
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "indicator" {
+		if updateResponse.IndicatorGaugeResponse != nil {
 			readIndicatorGaugeResponse(ctx, updateResponse.IndicatorGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "numeric" {
+		if updateResponse.NumericGaugeResponse != nil {
 			readNumericGaugeResponse(ctx, updateResponse.NumericGaugeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

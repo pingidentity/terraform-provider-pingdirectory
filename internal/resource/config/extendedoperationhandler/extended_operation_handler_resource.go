@@ -1446,70 +1446,70 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 
 	// Read the existing configuration
 	var state defaultExtendedOperationHandlerResourceModel
-	if plan.Type.ValueString() == "cancel" {
+	if readResponse.CancelExtendedOperationHandlerResponse != nil {
 		readCancelExtendedOperationHandlerResponseDefault(ctx, readResponse.CancelExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "validate-totp-password" {
+	if readResponse.ValidateTotpPasswordExtendedOperationHandlerResponse != nil {
 		readValidateTotpPasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "replace-certificate" {
+	if readResponse.ReplaceCertificateExtendedOperationHandlerResponse != nil {
 		readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx, readResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "get-connection-id" {
+	if readResponse.GetConnectionIdExtendedOperationHandlerResponse != nil {
 		readGetConnectionIdExtendedOperationHandlerResponseDefault(ctx, readResponse.GetConnectionIdExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "multi-update" {
+	if readResponse.MultiUpdateExtendedOperationHandlerResponse != nil {
 		readMultiUpdateExtendedOperationHandlerResponseDefault(ctx, readResponse.MultiUpdateExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "notification-subscription" {
+	if readResponse.NotificationSubscriptionExtendedOperationHandlerResponse != nil {
 		readNotificationSubscriptionExtendedOperationHandlerResponseDefault(ctx, readResponse.NotificationSubscriptionExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "password-modify" {
+	if readResponse.PasswordModifyExtendedOperationHandlerResponse != nil {
 		readPasswordModifyExtendedOperationHandlerResponseDefault(ctx, readResponse.PasswordModifyExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomExtendedOperationHandlerResponse != nil {
 		readCustomExtendedOperationHandlerResponseDefault(ctx, readResponse.CustomExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "collect-support-data" {
+	if readResponse.CollectSupportDataExtendedOperationHandlerResponse != nil {
 		readCollectSupportDataExtendedOperationHandlerResponseDefault(ctx, readResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "export-reversible-passwords" {
+	if readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 		readExportReversiblePasswordsExtendedOperationHandlerResponseDefault(ctx, readResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "batched-transactions" {
+	if readResponse.BatchedTransactionsExtendedOperationHandlerResponse != nil {
 		readBatchedTransactionsExtendedOperationHandlerResponseDefault(ctx, readResponse.BatchedTransactionsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "get-changelog-batch" {
+	if readResponse.GetChangelogBatchExtendedOperationHandlerResponse != nil {
 		readGetChangelogBatchExtendedOperationHandlerResponseDefault(ctx, readResponse.GetChangelogBatchExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "get-supported-otp-delivery-mechanisms" {
+	if readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 		readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "single-use-tokens" {
+	if readResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 		readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, readResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generate-password" {
+	if readResponse.GeneratePasswordExtendedOperationHandlerResponse != nil {
 		readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx, readResponse.GeneratePasswordExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "who-am-i" {
+	if readResponse.WhoAmIExtendedOperationHandlerResponse != nil {
 		readWhoAmIExtendedOperationHandlerResponseDefault(ctx, readResponse.WhoAmIExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "start-tls" {
+	if readResponse.StartTlsExtendedOperationHandlerResponse != nil {
 		readStartTlsExtendedOperationHandlerResponseDefault(ctx, readResponse.StartTlsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "deliver-password-reset-token" {
+	if readResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse != nil {
 		readDeliverPasswordResetTokenExtendedOperationHandlerResponseDefault(ctx, readResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "password-policy-state" {
+	if readResponse.PasswordPolicyStateExtendedOperationHandlerResponse != nil {
 		readPasswordPolicyStateExtendedOperationHandlerResponseDefault(ctx, readResponse.PasswordPolicyStateExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "get-password-quality-requirements" {
+	if readResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse != nil {
 		readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDefault(ctx, readResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "deliver-otp" {
+	if readResponse.DeliverOtpExtendedOperationHandlerResponse != nil {
 		readDeliverOtpExtendedOperationHandlerResponseDefault(ctx, readResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 		readThirdPartyExtendedOperationHandlerResponseDefault(ctx, readResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1534,70 +1534,70 @@ func (r *defaultExtendedOperationHandlerResource) Create(ctx context.Context, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "cancel" {
+		if updateResponse.CancelExtendedOperationHandlerResponse != nil {
 			readCancelExtendedOperationHandlerResponseDefault(ctx, updateResponse.CancelExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "validate-totp-password" {
+		if updateResponse.ValidateTotpPasswordExtendedOperationHandlerResponse != nil {
 			readValidateTotpPasswordExtendedOperationHandlerResponseDefault(ctx, updateResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replace-certificate" {
+		if updateResponse.ReplaceCertificateExtendedOperationHandlerResponse != nil {
 			readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx, updateResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-connection-id" {
+		if updateResponse.GetConnectionIdExtendedOperationHandlerResponse != nil {
 			readGetConnectionIdExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetConnectionIdExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multi-update" {
+		if updateResponse.MultiUpdateExtendedOperationHandlerResponse != nil {
 			readMultiUpdateExtendedOperationHandlerResponseDefault(ctx, updateResponse.MultiUpdateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "notification-subscription" {
+		if updateResponse.NotificationSubscriptionExtendedOperationHandlerResponse != nil {
 			readNotificationSubscriptionExtendedOperationHandlerResponseDefault(ctx, updateResponse.NotificationSubscriptionExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-modify" {
+		if updateResponse.PasswordModifyExtendedOperationHandlerResponse != nil {
 			readPasswordModifyExtendedOperationHandlerResponseDefault(ctx, updateResponse.PasswordModifyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomExtendedOperationHandlerResponse != nil {
 			readCustomExtendedOperationHandlerResponseDefault(ctx, updateResponse.CustomExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataExtendedOperationHandlerResponse != nil {
 			readCollectSupportDataExtendedOperationHandlerResponseDefault(ctx, updateResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "export-reversible-passwords" {
+		if updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 			readExportReversiblePasswordsExtendedOperationHandlerResponseDefault(ctx, updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "batched-transactions" {
+		if updateResponse.BatchedTransactionsExtendedOperationHandlerResponse != nil {
 			readBatchedTransactionsExtendedOperationHandlerResponseDefault(ctx, updateResponse.BatchedTransactionsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-changelog-batch" {
+		if updateResponse.GetChangelogBatchExtendedOperationHandlerResponse != nil {
 			readGetChangelogBatchExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetChangelogBatchExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-supported-otp-delivery-mechanisms" {
+		if updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 			readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "single-use-tokens" {
+		if updateResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 			readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, updateResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generate-password" {
+		if updateResponse.GeneratePasswordExtendedOperationHandlerResponse != nil {
 			readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx, updateResponse.GeneratePasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "who-am-i" {
+		if updateResponse.WhoAmIExtendedOperationHandlerResponse != nil {
 			readWhoAmIExtendedOperationHandlerResponseDefault(ctx, updateResponse.WhoAmIExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "start-tls" {
+		if updateResponse.StartTlsExtendedOperationHandlerResponse != nil {
 			readStartTlsExtendedOperationHandlerResponseDefault(ctx, updateResponse.StartTlsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deliver-password-reset-token" {
+		if updateResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse != nil {
 			readDeliverPasswordResetTokenExtendedOperationHandlerResponseDefault(ctx, updateResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-policy-state" {
+		if updateResponse.PasswordPolicyStateExtendedOperationHandlerResponse != nil {
 			readPasswordPolicyStateExtendedOperationHandlerResponseDefault(ctx, updateResponse.PasswordPolicyStateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-password-quality-requirements" {
+		if updateResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse != nil {
 			readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deliver-otp" {
+		if updateResponse.DeliverOtpExtendedOperationHandlerResponse != nil {
 			readDeliverOtpExtendedOperationHandlerResponseDefault(ctx, updateResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 			readThirdPartyExtendedOperationHandlerResponseDefault(ctx, updateResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1772,28 +1772,28 @@ func (r *extendedOperationHandlerResource) Update(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "validate-totp-password" {
+		if updateResponse.ValidateTotpPasswordExtendedOperationHandlerResponse != nil {
 			readValidateTotpPasswordExtendedOperationHandlerResponse(ctx, updateResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replace-certificate" {
+		if updateResponse.ReplaceCertificateExtendedOperationHandlerResponse != nil {
 			readReplaceCertificateExtendedOperationHandlerResponse(ctx, updateResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataExtendedOperationHandlerResponse != nil {
 			readCollectSupportDataExtendedOperationHandlerResponse(ctx, updateResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "export-reversible-passwords" {
+		if updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 			readExportReversiblePasswordsExtendedOperationHandlerResponse(ctx, updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "single-use-tokens" {
+		if updateResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 			readSingleUseTokensExtendedOperationHandlerResponse(ctx, updateResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deliver-password-reset-token" {
+		if updateResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse != nil {
 			readDeliverPasswordResetTokenExtendedOperationHandlerResponse(ctx, updateResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deliver-otp" {
+		if updateResponse.DeliverOtpExtendedOperationHandlerResponse != nil {
 			readDeliverOtpExtendedOperationHandlerResponse(ctx, updateResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 			readThirdPartyExtendedOperationHandlerResponse(ctx, updateResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1844,70 +1844,70 @@ func (r *defaultExtendedOperationHandlerResource) Update(ctx context.Context, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "cancel" {
+		if updateResponse.CancelExtendedOperationHandlerResponse != nil {
 			readCancelExtendedOperationHandlerResponseDefault(ctx, updateResponse.CancelExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "validate-totp-password" {
+		if updateResponse.ValidateTotpPasswordExtendedOperationHandlerResponse != nil {
 			readValidateTotpPasswordExtendedOperationHandlerResponseDefault(ctx, updateResponse.ValidateTotpPasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replace-certificate" {
+		if updateResponse.ReplaceCertificateExtendedOperationHandlerResponse != nil {
 			readReplaceCertificateExtendedOperationHandlerResponseDefault(ctx, updateResponse.ReplaceCertificateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-connection-id" {
+		if updateResponse.GetConnectionIdExtendedOperationHandlerResponse != nil {
 			readGetConnectionIdExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetConnectionIdExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multi-update" {
+		if updateResponse.MultiUpdateExtendedOperationHandlerResponse != nil {
 			readMultiUpdateExtendedOperationHandlerResponseDefault(ctx, updateResponse.MultiUpdateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "notification-subscription" {
+		if updateResponse.NotificationSubscriptionExtendedOperationHandlerResponse != nil {
 			readNotificationSubscriptionExtendedOperationHandlerResponseDefault(ctx, updateResponse.NotificationSubscriptionExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-modify" {
+		if updateResponse.PasswordModifyExtendedOperationHandlerResponse != nil {
 			readPasswordModifyExtendedOperationHandlerResponseDefault(ctx, updateResponse.PasswordModifyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomExtendedOperationHandlerResponse != nil {
 			readCustomExtendedOperationHandlerResponseDefault(ctx, updateResponse.CustomExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataExtendedOperationHandlerResponse != nil {
 			readCollectSupportDataExtendedOperationHandlerResponseDefault(ctx, updateResponse.CollectSupportDataExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "export-reversible-passwords" {
+		if updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse != nil {
 			readExportReversiblePasswordsExtendedOperationHandlerResponseDefault(ctx, updateResponse.ExportReversiblePasswordsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "batched-transactions" {
+		if updateResponse.BatchedTransactionsExtendedOperationHandlerResponse != nil {
 			readBatchedTransactionsExtendedOperationHandlerResponseDefault(ctx, updateResponse.BatchedTransactionsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-changelog-batch" {
+		if updateResponse.GetChangelogBatchExtendedOperationHandlerResponse != nil {
 			readGetChangelogBatchExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetChangelogBatchExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-supported-otp-delivery-mechanisms" {
+		if updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse != nil {
 			readGetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetSupportedOtpDeliveryMechanismsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "single-use-tokens" {
+		if updateResponse.SingleUseTokensExtendedOperationHandlerResponse != nil {
 			readSingleUseTokensExtendedOperationHandlerResponseDefault(ctx, updateResponse.SingleUseTokensExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generate-password" {
+		if updateResponse.GeneratePasswordExtendedOperationHandlerResponse != nil {
 			readGeneratePasswordExtendedOperationHandlerResponseDefault(ctx, updateResponse.GeneratePasswordExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "who-am-i" {
+		if updateResponse.WhoAmIExtendedOperationHandlerResponse != nil {
 			readWhoAmIExtendedOperationHandlerResponseDefault(ctx, updateResponse.WhoAmIExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "start-tls" {
+		if updateResponse.StartTlsExtendedOperationHandlerResponse != nil {
 			readStartTlsExtendedOperationHandlerResponseDefault(ctx, updateResponse.StartTlsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deliver-password-reset-token" {
+		if updateResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse != nil {
 			readDeliverPasswordResetTokenExtendedOperationHandlerResponseDefault(ctx, updateResponse.DeliverPasswordResetTokenExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-policy-state" {
+		if updateResponse.PasswordPolicyStateExtendedOperationHandlerResponse != nil {
 			readPasswordPolicyStateExtendedOperationHandlerResponseDefault(ctx, updateResponse.PasswordPolicyStateExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "get-password-quality-requirements" {
+		if updateResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse != nil {
 			readGetPasswordQualityRequirementsExtendedOperationHandlerResponseDefault(ctx, updateResponse.GetPasswordQualityRequirementsExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deliver-otp" {
+		if updateResponse.DeliverOtpExtendedOperationHandlerResponse != nil {
 			readDeliverOtpExtendedOperationHandlerResponseDefault(ctx, updateResponse.DeliverOtpExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyExtendedOperationHandlerResponse != nil {
 			readThirdPartyExtendedOperationHandlerResponseDefault(ctx, updateResponse.ThirdPartyExtendedOperationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

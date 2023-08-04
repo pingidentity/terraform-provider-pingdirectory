@@ -1401,22 +1401,22 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 
 	// Read the existing configuration
 	var state accountStatusNotificationHandlerResourceModel
-	if plan.Type.ValueString() == "smtp" {
+	if readResponse.SmtpAccountStatusNotificationHandlerResponse != nil {
 		readSmtpAccountStatusNotificationHandlerResponse(ctx, readResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedAccountStatusNotificationHandlerResponse != nil {
 		readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, readResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "admin-alert" {
+	if readResponse.AdminAlertAccountStatusNotificationHandlerResponse != nil {
 		readAdminAlertAccountStatusNotificationHandlerResponse(ctx, readResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "error-log" {
+	if readResponse.ErrorLogAccountStatusNotificationHandlerResponse != nil {
 		readErrorLogAccountStatusNotificationHandlerResponse(ctx, readResponse.ErrorLogAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "multi-part-email" {
+	if readResponse.MultiPartEmailAccountStatusNotificationHandlerResponse != nil {
 		readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, readResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 		readThirdPartyAccountStatusNotificationHandlerResponse(ctx, readResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1441,22 +1441,22 @@ func (r *defaultAccountStatusNotificationHandlerResource) Create(ctx context.Con
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAccountStatusNotificationHandlerResponse != nil {
 			readSmtpAccountStatusNotificationHandlerResponse(ctx, updateResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAccountStatusNotificationHandlerResponse != nil {
 			readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, updateResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "admin-alert" {
+		if updateResponse.AdminAlertAccountStatusNotificationHandlerResponse != nil {
 			readAdminAlertAccountStatusNotificationHandlerResponse(ctx, updateResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAccountStatusNotificationHandlerResponse != nil {
 			readErrorLogAccountStatusNotificationHandlerResponse(ctx, updateResponse.ErrorLogAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multi-part-email" {
+		if updateResponse.MultiPartEmailAccountStatusNotificationHandlerResponse != nil {
 			readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, updateResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 			readThirdPartyAccountStatusNotificationHandlerResponse(ctx, updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1570,22 +1570,22 @@ func updateAccountStatusNotificationHandler(ctx context.Context, req resource.Up
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAccountStatusNotificationHandlerResponse != nil {
 			readSmtpAccountStatusNotificationHandlerResponse(ctx, updateResponse.SmtpAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAccountStatusNotificationHandlerResponse != nil {
 			readGroovyScriptedAccountStatusNotificationHandlerResponse(ctx, updateResponse.GroovyScriptedAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "admin-alert" {
+		if updateResponse.AdminAlertAccountStatusNotificationHandlerResponse != nil {
 			readAdminAlertAccountStatusNotificationHandlerResponse(ctx, updateResponse.AdminAlertAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAccountStatusNotificationHandlerResponse != nil {
 			readErrorLogAccountStatusNotificationHandlerResponse(ctx, updateResponse.ErrorLogAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multi-part-email" {
+		if updateResponse.MultiPartEmailAccountStatusNotificationHandlerResponse != nil {
 			readMultiPartEmailAccountStatusNotificationHandlerResponse(ctx, updateResponse.MultiPartEmailAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse != nil {
 			readThirdPartyAccountStatusNotificationHandlerResponse(ctx, updateResponse.ThirdPartyAccountStatusNotificationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

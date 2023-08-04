@@ -3268,55 +3268,55 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 
 	// Read the existing configuration
 	var state externalServerResourceModel
-	if plan.Type.ValueString() == "smtp" {
+	if readResponse.SmtpExternalServerResponse != nil {
 		readSmtpExternalServerResponse(ctx, readResponse.SmtpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "nokia-ds" {
+	if readResponse.NokiaDsExternalServerResponse != nil {
 		readNokiaDsExternalServerResponse(ctx, readResponse.NokiaDsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ping-identity-ds" {
+	if readResponse.PingIdentityDsExternalServerResponse != nil {
 		readPingIdentityDsExternalServerResponse(ctx, readResponse.PingIdentityDsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "active-directory" {
+	if readResponse.ActiveDirectoryExternalServerResponse != nil {
 		readActiveDirectoryExternalServerResponse(ctx, readResponse.ActiveDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jdbc" {
+	if readResponse.JdbcExternalServerResponse != nil {
 		readJdbcExternalServerResponse(ctx, readResponse.JdbcExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog" {
+	if readResponse.SyslogExternalServerResponse != nil {
 		readSyslogExternalServerResponse(ctx, readResponse.SyslogExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ping-identity-proxy-server" {
+	if readResponse.PingIdentityProxyServerExternalServerResponse != nil {
 		readPingIdentityProxyServerExternalServerResponse(ctx, readResponse.PingIdentityProxyServerExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http-proxy" {
+	if readResponse.HttpProxyExternalServerResponse != nil {
 		readHttpProxyExternalServerResponse(ctx, readResponse.HttpProxyExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "nokia-proxy-server" {
+	if readResponse.NokiaProxyServerExternalServerResponse != nil {
 		readNokiaProxyServerExternalServerResponse(ctx, readResponse.NokiaProxyServerExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "opendj" {
+	if readResponse.OpendjExternalServerResponse != nil {
 		readOpendjExternalServerResponse(ctx, readResponse.OpendjExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapExternalServerResponse != nil {
 		readLdapExternalServerResponse(ctx, readResponse.LdapExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ping-one-http" {
+	if readResponse.PingOneHttpExternalServerResponse != nil {
 		readPingOneHttpExternalServerResponse(ctx, readResponse.PingOneHttpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http" {
+	if readResponse.HttpExternalServerResponse != nil {
 		readHttpExternalServerResponse(ctx, readResponse.HttpExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "oracle-unified-directory" {
+	if readResponse.OracleUnifiedDirectoryExternalServerResponse != nil {
 		readOracleUnifiedDirectoryExternalServerResponse(ctx, readResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "conjur" {
+	if readResponse.ConjurExternalServerResponse != nil {
 		readConjurExternalServerResponse(ctx, readResponse.ConjurExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "amazon-aws" {
+	if readResponse.AmazonAwsExternalServerResponse != nil {
 		readAmazonAwsExternalServerResponse(ctx, readResponse.AmazonAwsExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "vault" {
+	if readResponse.VaultExternalServerResponse != nil {
 		readVaultExternalServerResponse(ctx, readResponse.VaultExternalServerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -3341,55 +3341,55 @@ func (r *defaultExternalServerResource) Create(ctx context.Context, req resource
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpExternalServerResponse != nil {
 			readSmtpExternalServerResponse(ctx, updateResponse.SmtpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-ds" {
+		if updateResponse.NokiaDsExternalServerResponse != nil {
 			readNokiaDsExternalServerResponse(ctx, updateResponse.NokiaDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-ds" {
+		if updateResponse.PingIdentityDsExternalServerResponse != nil {
 			readPingIdentityDsExternalServerResponse(ctx, updateResponse.PingIdentityDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-directory" {
+		if updateResponse.ActiveDirectoryExternalServerResponse != nil {
 			readActiveDirectoryExternalServerResponse(ctx, updateResponse.ActiveDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc" {
+		if updateResponse.JdbcExternalServerResponse != nil {
 			readJdbcExternalServerResponse(ctx, updateResponse.JdbcExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog" {
+		if updateResponse.SyslogExternalServerResponse != nil {
 			readSyslogExternalServerResponse(ctx, updateResponse.SyslogExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-proxy-server" {
+		if updateResponse.PingIdentityProxyServerExternalServerResponse != nil {
 			readPingIdentityProxyServerExternalServerResponse(ctx, updateResponse.PingIdentityProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http-proxy" {
+		if updateResponse.HttpProxyExternalServerResponse != nil {
 			readHttpProxyExternalServerResponse(ctx, updateResponse.HttpProxyExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-proxy-server" {
+		if updateResponse.NokiaProxyServerExternalServerResponse != nil {
 			readNokiaProxyServerExternalServerResponse(ctx, updateResponse.NokiaProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "opendj" {
+		if updateResponse.OpendjExternalServerResponse != nil {
 			readOpendjExternalServerResponse(ctx, updateResponse.OpendjExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapExternalServerResponse != nil {
 			readLdapExternalServerResponse(ctx, updateResponse.LdapExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-one-http" {
+		if updateResponse.PingOneHttpExternalServerResponse != nil {
 			readPingOneHttpExternalServerResponse(ctx, updateResponse.PingOneHttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpExternalServerResponse != nil {
 			readHttpExternalServerResponse(ctx, updateResponse.HttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oracle-unified-directory" {
+		if updateResponse.OracleUnifiedDirectoryExternalServerResponse != nil {
 			readOracleUnifiedDirectoryExternalServerResponse(ctx, updateResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurExternalServerResponse != nil {
 			readConjurExternalServerResponse(ctx, updateResponse.ConjurExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-aws" {
+		if updateResponse.AmazonAwsExternalServerResponse != nil {
 			readAmazonAwsExternalServerResponse(ctx, updateResponse.AmazonAwsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultExternalServerResponse != nil {
 			readVaultExternalServerResponse(ctx, updateResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -3537,55 +3537,55 @@ func updateExternalServer(ctx context.Context, req resource.UpdateRequest, resp 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpExternalServerResponse != nil {
 			readSmtpExternalServerResponse(ctx, updateResponse.SmtpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-ds" {
+		if updateResponse.NokiaDsExternalServerResponse != nil {
 			readNokiaDsExternalServerResponse(ctx, updateResponse.NokiaDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-ds" {
+		if updateResponse.PingIdentityDsExternalServerResponse != nil {
 			readPingIdentityDsExternalServerResponse(ctx, updateResponse.PingIdentityDsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "active-directory" {
+		if updateResponse.ActiveDirectoryExternalServerResponse != nil {
 			readActiveDirectoryExternalServerResponse(ctx, updateResponse.ActiveDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc" {
+		if updateResponse.JdbcExternalServerResponse != nil {
 			readJdbcExternalServerResponse(ctx, updateResponse.JdbcExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog" {
+		if updateResponse.SyslogExternalServerResponse != nil {
 			readSyslogExternalServerResponse(ctx, updateResponse.SyslogExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-identity-proxy-server" {
+		if updateResponse.PingIdentityProxyServerExternalServerResponse != nil {
 			readPingIdentityProxyServerExternalServerResponse(ctx, updateResponse.PingIdentityProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http-proxy" {
+		if updateResponse.HttpProxyExternalServerResponse != nil {
 			readHttpProxyExternalServerResponse(ctx, updateResponse.HttpProxyExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nokia-proxy-server" {
+		if updateResponse.NokiaProxyServerExternalServerResponse != nil {
 			readNokiaProxyServerExternalServerResponse(ctx, updateResponse.NokiaProxyServerExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "opendj" {
+		if updateResponse.OpendjExternalServerResponse != nil {
 			readOpendjExternalServerResponse(ctx, updateResponse.OpendjExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapExternalServerResponse != nil {
 			readLdapExternalServerResponse(ctx, updateResponse.LdapExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ping-one-http" {
+		if updateResponse.PingOneHttpExternalServerResponse != nil {
 			readPingOneHttpExternalServerResponse(ctx, updateResponse.PingOneHttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpExternalServerResponse != nil {
 			readHttpExternalServerResponse(ctx, updateResponse.HttpExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "oracle-unified-directory" {
+		if updateResponse.OracleUnifiedDirectoryExternalServerResponse != nil {
 			readOracleUnifiedDirectoryExternalServerResponse(ctx, updateResponse.OracleUnifiedDirectoryExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurExternalServerResponse != nil {
 			readConjurExternalServerResponse(ctx, updateResponse.ConjurExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-aws" {
+		if updateResponse.AmazonAwsExternalServerResponse != nil {
 			readAmazonAwsExternalServerResponse(ctx, updateResponse.AmazonAwsExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultExternalServerResponse != nil {
 			readVaultExternalServerResponse(ctx, updateResponse.VaultExternalServerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

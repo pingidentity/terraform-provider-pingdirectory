@@ -574,16 +574,16 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state trustManagerProviderResourceModel
-	if plan.Type.ValueString() == "blind" {
+	if readResponse.BlindTrustManagerProviderResponse != nil {
 		readBlindTrustManagerProviderResponse(ctx, readResponse.BlindTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedTrustManagerProviderResponse != nil {
 		readFileBasedTrustManagerProviderResponse(ctx, readResponse.FileBasedTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jvm-default" {
+	if readResponse.JvmDefaultTrustManagerProviderResponse != nil {
 		readJvmDefaultTrustManagerProviderResponse(ctx, readResponse.JvmDefaultTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyTrustManagerProviderResponse != nil {
 		readThirdPartyTrustManagerProviderResponse(ctx, readResponse.ThirdPartyTrustManagerProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -608,16 +608,16 @@ func (r *defaultTrustManagerProviderResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "blind" {
+		if updateResponse.BlindTrustManagerProviderResponse != nil {
 			readBlindTrustManagerProviderResponse(ctx, updateResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedTrustManagerProviderResponse != nil {
 			readFileBasedTrustManagerProviderResponse(ctx, updateResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jvm-default" {
+		if updateResponse.JvmDefaultTrustManagerProviderResponse != nil {
 			readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyTrustManagerProviderResponse != nil {
 			readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -726,16 +726,16 @@ func updateTrustManagerProvider(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "blind" {
+		if updateResponse.BlindTrustManagerProviderResponse != nil {
 			readBlindTrustManagerProviderResponse(ctx, updateResponse.BlindTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedTrustManagerProviderResponse != nil {
 			readFileBasedTrustManagerProviderResponse(ctx, updateResponse.FileBasedTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jvm-default" {
+		if updateResponse.JvmDefaultTrustManagerProviderResponse != nil {
 			readJvmDefaultTrustManagerProviderResponse(ctx, updateResponse.JvmDefaultTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyTrustManagerProviderResponse != nil {
 			readThirdPartyTrustManagerProviderResponse(ctx, updateResponse.ThirdPartyTrustManagerProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

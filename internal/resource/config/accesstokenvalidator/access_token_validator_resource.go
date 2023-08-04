@@ -961,16 +961,16 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state accessTokenValidatorResourceModel
-	if plan.Type.ValueString() == "ping-federate" {
+	if readResponse.PingFederateAccessTokenValidatorResponse != nil {
 		readPingFederateAccessTokenValidatorResponse(ctx, readResponse.PingFederateAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jwt" {
+	if readResponse.JwtAccessTokenValidatorResponse != nil {
 		readJwtAccessTokenValidatorResponse(ctx, readResponse.JwtAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "mock" {
+	if readResponse.MockAccessTokenValidatorResponse != nil {
 		readMockAccessTokenValidatorResponse(ctx, readResponse.MockAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyAccessTokenValidatorResponse != nil {
 		readThirdPartyAccessTokenValidatorResponse(ctx, readResponse.ThirdPartyAccessTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -995,16 +995,16 @@ func (r *defaultAccessTokenValidatorResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-federate" {
+		if updateResponse.PingFederateAccessTokenValidatorResponse != nil {
 			readPingFederateAccessTokenValidatorResponse(ctx, updateResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jwt" {
+		if updateResponse.JwtAccessTokenValidatorResponse != nil {
 			readJwtAccessTokenValidatorResponse(ctx, updateResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "mock" {
+		if updateResponse.MockAccessTokenValidatorResponse != nil {
 			readMockAccessTokenValidatorResponse(ctx, updateResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAccessTokenValidatorResponse != nil {
 			readThirdPartyAccessTokenValidatorResponse(ctx, updateResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1113,16 +1113,16 @@ func updateAccessTokenValidator(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-federate" {
+		if updateResponse.PingFederateAccessTokenValidatorResponse != nil {
 			readPingFederateAccessTokenValidatorResponse(ctx, updateResponse.PingFederateAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jwt" {
+		if updateResponse.JwtAccessTokenValidatorResponse != nil {
 			readJwtAccessTokenValidatorResponse(ctx, updateResponse.JwtAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "mock" {
+		if updateResponse.MockAccessTokenValidatorResponse != nil {
 			readMockAccessTokenValidatorResponse(ctx, updateResponse.MockAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAccessTokenValidatorResponse != nil {
 			readThirdPartyAccessTokenValidatorResponse(ctx, updateResponse.ThirdPartyAccessTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

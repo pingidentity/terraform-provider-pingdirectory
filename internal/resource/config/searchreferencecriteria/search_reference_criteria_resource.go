@@ -625,13 +625,13 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state searchReferenceCriteriaResourceModel
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleSearchReferenceCriteriaResponse != nil {
 		readSimpleSearchReferenceCriteriaResponse(ctx, readResponse.SimpleSearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateSearchReferenceCriteriaResponse != nil {
 		readAggregateSearchReferenceCriteriaResponse(ctx, readResponse.AggregateSearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 		readThirdPartySearchReferenceCriteriaResponse(ctx, readResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -656,13 +656,13 @@ func (r *defaultSearchReferenceCriteriaResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleSearchReferenceCriteriaResponse != nil {
 			readSimpleSearchReferenceCriteriaResponse(ctx, updateResponse.SimpleSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateSearchReferenceCriteriaResponse != nil {
 			readAggregateSearchReferenceCriteriaResponse(ctx, updateResponse.AggregateSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 			readThirdPartySearchReferenceCriteriaResponse(ctx, updateResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -767,13 +767,13 @@ func updateSearchReferenceCriteria(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleSearchReferenceCriteriaResponse != nil {
 			readSimpleSearchReferenceCriteriaResponse(ctx, updateResponse.SimpleSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateSearchReferenceCriteriaResponse != nil {
 			readAggregateSearchReferenceCriteriaResponse(ctx, updateResponse.AggregateSearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartySearchReferenceCriteriaResponse != nil {
 			readThirdPartySearchReferenceCriteriaResponse(ctx, updateResponse.ThirdPartySearchReferenceCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

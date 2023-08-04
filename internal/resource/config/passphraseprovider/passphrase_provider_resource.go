@@ -1016,28 +1016,28 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state passphraseProviderResourceModel
-	if plan.Type.ValueString() == "environment-variable" {
+	if readResponse.EnvironmentVariablePassphraseProviderResponse != nil {
 		readEnvironmentVariablePassphraseProviderResponse(ctx, readResponse.EnvironmentVariablePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "amazon-secrets-manager" {
+	if readResponse.AmazonSecretsManagerPassphraseProviderResponse != nil {
 		readAmazonSecretsManagerPassphraseProviderResponse(ctx, readResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "obscured-value" {
+	if readResponse.ObscuredValuePassphraseProviderResponse != nil {
 		readObscuredValuePassphraseProviderResponse(ctx, readResponse.ObscuredValuePassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "azure-key-vault" {
+	if readResponse.AzureKeyVaultPassphraseProviderResponse != nil {
 		readAzureKeyVaultPassphraseProviderResponse(ctx, readResponse.AzureKeyVaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based" {
+	if readResponse.FileBasedPassphraseProviderResponse != nil {
 		readFileBasedPassphraseProviderResponse(ctx, readResponse.FileBasedPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "conjur" {
+	if readResponse.ConjurPassphraseProviderResponse != nil {
 		readConjurPassphraseProviderResponse(ctx, readResponse.ConjurPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "vault" {
+	if readResponse.VaultPassphraseProviderResponse != nil {
 		readVaultPassphraseProviderResponse(ctx, readResponse.VaultPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPassphraseProviderResponse != nil {
 		readThirdPartyPassphraseProviderResponse(ctx, readResponse.ThirdPartyPassphraseProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1062,28 +1062,28 @@ func (r *defaultPassphraseProviderResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "environment-variable" {
+		if updateResponse.EnvironmentVariablePassphraseProviderResponse != nil {
 			readEnvironmentVariablePassphraseProviderResponse(ctx, updateResponse.EnvironmentVariablePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerPassphraseProviderResponse != nil {
 			readAmazonSecretsManagerPassphraseProviderResponse(ctx, updateResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "obscured-value" {
+		if updateResponse.ObscuredValuePassphraseProviderResponse != nil {
 			readObscuredValuePassphraseProviderResponse(ctx, updateResponse.ObscuredValuePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultPassphraseProviderResponse != nil {
 			readAzureKeyVaultPassphraseProviderResponse(ctx, updateResponse.AzureKeyVaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedPassphraseProviderResponse != nil {
 			readFileBasedPassphraseProviderResponse(ctx, updateResponse.FileBasedPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurPassphraseProviderResponse != nil {
 			readConjurPassphraseProviderResponse(ctx, updateResponse.ConjurPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultPassphraseProviderResponse != nil {
 			readVaultPassphraseProviderResponse(ctx, updateResponse.VaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassphraseProviderResponse != nil {
 			readThirdPartyPassphraseProviderResponse(ctx, updateResponse.ThirdPartyPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1204,28 +1204,28 @@ func updatePassphraseProvider(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "environment-variable" {
+		if updateResponse.EnvironmentVariablePassphraseProviderResponse != nil {
 			readEnvironmentVariablePassphraseProviderResponse(ctx, updateResponse.EnvironmentVariablePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "amazon-secrets-manager" {
+		if updateResponse.AmazonSecretsManagerPassphraseProviderResponse != nil {
 			readAmazonSecretsManagerPassphraseProviderResponse(ctx, updateResponse.AmazonSecretsManagerPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "obscured-value" {
+		if updateResponse.ObscuredValuePassphraseProviderResponse != nil {
 			readObscuredValuePassphraseProviderResponse(ctx, updateResponse.ObscuredValuePassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "azure-key-vault" {
+		if updateResponse.AzureKeyVaultPassphraseProviderResponse != nil {
 			readAzureKeyVaultPassphraseProviderResponse(ctx, updateResponse.AzureKeyVaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based" {
+		if updateResponse.FileBasedPassphraseProviderResponse != nil {
 			readFileBasedPassphraseProviderResponse(ctx, updateResponse.FileBasedPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "conjur" {
+		if updateResponse.ConjurPassphraseProviderResponse != nil {
 			readConjurPassphraseProviderResponse(ctx, updateResponse.ConjurPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "vault" {
+		if updateResponse.VaultPassphraseProviderResponse != nil {
 			readVaultPassphraseProviderResponse(ctx, updateResponse.VaultPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassphraseProviderResponse != nil {
 			readThirdPartyPassphraseProviderResponse(ctx, updateResponse.ThirdPartyPassphraseProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

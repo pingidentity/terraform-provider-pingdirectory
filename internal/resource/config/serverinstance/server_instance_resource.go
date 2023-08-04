@@ -631,19 +631,19 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 
 	// Read the existing configuration
 	var state serverInstanceResourceModel
-	if plan.Type.ValueString() == "proxy" {
+	if readResponse.ProxyServerInstanceResponse != nil {
 		readProxyServerInstanceResponse(ctx, readResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "metrics-engine" {
+	if readResponse.MetricsEngineServerInstanceResponse != nil {
 		readMetricsEngineServerInstanceResponse(ctx, readResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "authorize" {
+	if readResponse.AuthorizeServerInstanceResponse != nil {
 		readAuthorizeServerInstanceResponse(ctx, readResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "directory" {
+	if readResponse.DirectoryServerInstanceResponse != nil {
 		readDirectoryServerInstanceResponse(ctx, readResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "sync" {
+	if readResponse.SyncServerInstanceResponse != nil {
 		readSyncServerInstanceResponse(ctx, readResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
 	}
 
@@ -668,19 +668,19 @@ func (r *serverInstanceResource) Create(ctx context.Context, req resource.Create
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "proxy" {
+		if updateResponse.ProxyServerInstanceResponse != nil {
 			readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "metrics-engine" {
+		if updateResponse.MetricsEngineServerInstanceResponse != nil {
 			readMetricsEngineServerInstanceResponse(ctx, updateResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "authorize" {
+		if updateResponse.AuthorizeServerInstanceResponse != nil {
 			readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "directory" {
+		if updateResponse.DirectoryServerInstanceResponse != nil {
 			readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "sync" {
+		if updateResponse.SyncServerInstanceResponse != nil {
 			readSyncServerInstanceResponse(ctx, updateResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -775,19 +775,19 @@ func (r *serverInstanceResource) Update(ctx context.Context, req resource.Update
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "proxy" {
+		if updateResponse.ProxyServerInstanceResponse != nil {
 			readProxyServerInstanceResponse(ctx, updateResponse.ProxyServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "metrics-engine" {
+		if updateResponse.MetricsEngineServerInstanceResponse != nil {
 			readMetricsEngineServerInstanceResponse(ctx, updateResponse.MetricsEngineServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "authorize" {
+		if updateResponse.AuthorizeServerInstanceResponse != nil {
 			readAuthorizeServerInstanceResponse(ctx, updateResponse.AuthorizeServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "directory" {
+		if updateResponse.DirectoryServerInstanceResponse != nil {
 			readDirectoryServerInstanceResponse(ctx, updateResponse.DirectoryServerInstanceResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "sync" {
+		if updateResponse.SyncServerInstanceResponse != nil {
 			readSyncServerInstanceResponse(ctx, updateResponse.SyncServerInstanceResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

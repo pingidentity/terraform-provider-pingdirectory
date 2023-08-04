@@ -248,10 +248,10 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state serverInstanceListenerResourceModel
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapServerInstanceListenerResponse != nil {
 		readLdapServerInstanceListenerResponse(ctx, readResponse.LdapServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http" {
+	if readResponse.HttpServerInstanceListenerResponse != nil {
 		readHttpServerInstanceListenerResponse(ctx, readResponse.HttpServerInstanceListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -276,10 +276,10 @@ func (r *serverInstanceListenerResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapServerInstanceListenerResponse != nil {
 			readLdapServerInstanceListenerResponse(ctx, updateResponse.LdapServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpServerInstanceListenerResponse != nil {
 			readHttpServerInstanceListenerResponse(ctx, updateResponse.HttpServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -366,10 +366,10 @@ func (r *serverInstanceListenerResource) Update(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapServerInstanceListenerResponse != nil {
 			readLdapServerInstanceListenerResponse(ctx, updateResponse.LdapServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpServerInstanceListenerResponse != nil {
 			readHttpServerInstanceListenerResponse(ctx, updateResponse.HttpServerInstanceListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

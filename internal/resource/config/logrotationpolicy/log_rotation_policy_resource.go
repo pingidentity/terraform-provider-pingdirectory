@@ -489,16 +489,16 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state logRotationPolicyResourceModel
-	if plan.Type.ValueString() == "time-limit" {
+	if readResponse.TimeLimitLogRotationPolicyResponse != nil {
 		readTimeLimitLogRotationPolicyResponse(ctx, readResponse.TimeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "fixed-time" {
+	if readResponse.FixedTimeLogRotationPolicyResponse != nil {
 		readFixedTimeLogRotationPolicyResponse(ctx, readResponse.FixedTimeLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "never-rotate" {
+	if readResponse.NeverRotateLogRotationPolicyResponse != nil {
 		readNeverRotateLogRotationPolicyResponse(ctx, readResponse.NeverRotateLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "size-limit" {
+	if readResponse.SizeLimitLogRotationPolicyResponse != nil {
 		readSizeLimitLogRotationPolicyResponse(ctx, readResponse.SizeLimitLogRotationPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -523,16 +523,16 @@ func (r *defaultLogRotationPolicyResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRotationPolicyResponse != nil {
 			readTimeLimitLogRotationPolicyResponse(ctx, updateResponse.TimeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fixed-time" {
+		if updateResponse.FixedTimeLogRotationPolicyResponse != nil {
 			readFixedTimeLogRotationPolicyResponse(ctx, updateResponse.FixedTimeLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-rotate" {
+		if updateResponse.NeverRotateLogRotationPolicyResponse != nil {
 			readNeverRotateLogRotationPolicyResponse(ctx, updateResponse.NeverRotateLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRotationPolicyResponse != nil {
 			readSizeLimitLogRotationPolicyResponse(ctx, updateResponse.SizeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -640,16 +640,16 @@ func updateLogRotationPolicy(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRotationPolicyResponse != nil {
 			readTimeLimitLogRotationPolicyResponse(ctx, updateResponse.TimeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fixed-time" {
+		if updateResponse.FixedTimeLogRotationPolicyResponse != nil {
 			readFixedTimeLogRotationPolicyResponse(ctx, updateResponse.FixedTimeLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-rotate" {
+		if updateResponse.NeverRotateLogRotationPolicyResponse != nil {
 			readNeverRotateLogRotationPolicyResponse(ctx, updateResponse.NeverRotateLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRotationPolicyResponse != nil {
 			readSizeLimitLogRotationPolicyResponse(ctx, updateResponse.SizeLimitLogRotationPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

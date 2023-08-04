@@ -435,49 +435,49 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 
 	// Read the existing configuration
 	var state attributeSyntaxResourceModel
-	if plan.Type.ValueString() == "attribute-type-description" {
+	if readResponse.AttributeTypeDescriptionAttributeSyntaxResponse != nil {
 		readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, readResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "directory-string" {
+	if readResponse.DirectoryStringAttributeSyntaxResponse != nil {
 		readDirectoryStringAttributeSyntaxResponse(ctx, readResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "telephone-number" {
+	if readResponse.TelephoneNumberAttributeSyntaxResponse != nil {
 		readTelephoneNumberAttributeSyntaxResponse(ctx, readResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "distinguished-name" {
+	if readResponse.DistinguishedNameAttributeSyntaxResponse != nil {
 		readDistinguishedNameAttributeSyntaxResponse(ctx, readResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generalized-time" {
+	if readResponse.GeneralizedTimeAttributeSyntaxResponse != nil {
 		readGeneralizedTimeAttributeSyntaxResponse(ctx, readResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "integer" {
+	if readResponse.IntegerAttributeSyntaxResponse != nil {
 		readIntegerAttributeSyntaxResponse(ctx, readResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "uuid" {
+	if readResponse.UuidAttributeSyntaxResponse != nil {
 		readUuidAttributeSyntaxResponse(ctx, readResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericAttributeSyntaxResponse != nil {
 		readGenericAttributeSyntaxResponse(ctx, readResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-object" {
+	if readResponse.JsonObjectAttributeSyntaxResponse != nil {
 		readJsonObjectAttributeSyntaxResponse(ctx, readResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "user-password" {
+	if readResponse.UserPasswordAttributeSyntaxResponse != nil {
 		readUserPasswordAttributeSyntaxResponse(ctx, readResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "boolean" {
+	if readResponse.BooleanAttributeSyntaxResponse != nil {
 		readBooleanAttributeSyntaxResponse(ctx, readResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "hex-string" {
+	if readResponse.HexStringAttributeSyntaxResponse != nil {
 		readHexStringAttributeSyntaxResponse(ctx, readResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "bit-string" {
+	if readResponse.BitStringAttributeSyntaxResponse != nil {
 		readBitStringAttributeSyntaxResponse(ctx, readResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap-url" {
+	if readResponse.LdapUrlAttributeSyntaxResponse != nil {
 		readLdapUrlAttributeSyntaxResponse(ctx, readResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "name-and-optional-uid" {
+	if readResponse.NameAndOptionalUidAttributeSyntaxResponse != nil {
 		readNameAndOptionalUidAttributeSyntaxResponse(ctx, readResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 	}
 
@@ -502,49 +502,49 @@ func (r *attributeSyntaxResource) Create(ctx context.Context, req resource.Creat
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "attribute-type-description" {
+		if updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse != nil {
 			readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "directory-string" {
+		if updateResponse.DirectoryStringAttributeSyntaxResponse != nil {
 			readDirectoryStringAttributeSyntaxResponse(ctx, updateResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "telephone-number" {
+		if updateResponse.TelephoneNumberAttributeSyntaxResponse != nil {
 			readTelephoneNumberAttributeSyntaxResponse(ctx, updateResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "distinguished-name" {
+		if updateResponse.DistinguishedNameAttributeSyntaxResponse != nil {
 			readDistinguishedNameAttributeSyntaxResponse(ctx, updateResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generalized-time" {
+		if updateResponse.GeneralizedTimeAttributeSyntaxResponse != nil {
 			readGeneralizedTimeAttributeSyntaxResponse(ctx, updateResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "integer" {
+		if updateResponse.IntegerAttributeSyntaxResponse != nil {
 			readIntegerAttributeSyntaxResponse(ctx, updateResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "uuid" {
+		if updateResponse.UuidAttributeSyntaxResponse != nil {
 			readUuidAttributeSyntaxResponse(ctx, updateResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericAttributeSyntaxResponse != nil {
 			readGenericAttributeSyntaxResponse(ctx, updateResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-object" {
+		if updateResponse.JsonObjectAttributeSyntaxResponse != nil {
 			readJsonObjectAttributeSyntaxResponse(ctx, updateResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-password" {
+		if updateResponse.UserPasswordAttributeSyntaxResponse != nil {
 			readUserPasswordAttributeSyntaxResponse(ctx, updateResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "boolean" {
+		if updateResponse.BooleanAttributeSyntaxResponse != nil {
 			readBooleanAttributeSyntaxResponse(ctx, updateResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "hex-string" {
+		if updateResponse.HexStringAttributeSyntaxResponse != nil {
 			readHexStringAttributeSyntaxResponse(ctx, updateResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "bit-string" {
+		if updateResponse.BitStringAttributeSyntaxResponse != nil {
 			readBitStringAttributeSyntaxResponse(ctx, updateResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-url" {
+		if updateResponse.LdapUrlAttributeSyntaxResponse != nil {
 			readLdapUrlAttributeSyntaxResponse(ctx, updateResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "name-and-optional-uid" {
+		if updateResponse.NameAndOptionalUidAttributeSyntaxResponse != nil {
 			readNameAndOptionalUidAttributeSyntaxResponse(ctx, updateResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -669,49 +669,49 @@ func (r *attributeSyntaxResource) Update(ctx context.Context, req resource.Updat
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "attribute-type-description" {
+		if updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse != nil {
 			readAttributeTypeDescriptionAttributeSyntaxResponse(ctx, updateResponse.AttributeTypeDescriptionAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "directory-string" {
+		if updateResponse.DirectoryStringAttributeSyntaxResponse != nil {
 			readDirectoryStringAttributeSyntaxResponse(ctx, updateResponse.DirectoryStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "telephone-number" {
+		if updateResponse.TelephoneNumberAttributeSyntaxResponse != nil {
 			readTelephoneNumberAttributeSyntaxResponse(ctx, updateResponse.TelephoneNumberAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "distinguished-name" {
+		if updateResponse.DistinguishedNameAttributeSyntaxResponse != nil {
 			readDistinguishedNameAttributeSyntaxResponse(ctx, updateResponse.DistinguishedNameAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generalized-time" {
+		if updateResponse.GeneralizedTimeAttributeSyntaxResponse != nil {
 			readGeneralizedTimeAttributeSyntaxResponse(ctx, updateResponse.GeneralizedTimeAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "integer" {
+		if updateResponse.IntegerAttributeSyntaxResponse != nil {
 			readIntegerAttributeSyntaxResponse(ctx, updateResponse.IntegerAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "uuid" {
+		if updateResponse.UuidAttributeSyntaxResponse != nil {
 			readUuidAttributeSyntaxResponse(ctx, updateResponse.UuidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericAttributeSyntaxResponse != nil {
 			readGenericAttributeSyntaxResponse(ctx, updateResponse.GenericAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-object" {
+		if updateResponse.JsonObjectAttributeSyntaxResponse != nil {
 			readJsonObjectAttributeSyntaxResponse(ctx, updateResponse.JsonObjectAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-password" {
+		if updateResponse.UserPasswordAttributeSyntaxResponse != nil {
 			readUserPasswordAttributeSyntaxResponse(ctx, updateResponse.UserPasswordAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "boolean" {
+		if updateResponse.BooleanAttributeSyntaxResponse != nil {
 			readBooleanAttributeSyntaxResponse(ctx, updateResponse.BooleanAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "hex-string" {
+		if updateResponse.HexStringAttributeSyntaxResponse != nil {
 			readHexStringAttributeSyntaxResponse(ctx, updateResponse.HexStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "bit-string" {
+		if updateResponse.BitStringAttributeSyntaxResponse != nil {
 			readBitStringAttributeSyntaxResponse(ctx, updateResponse.BitStringAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-url" {
+		if updateResponse.LdapUrlAttributeSyntaxResponse != nil {
 			readLdapUrlAttributeSyntaxResponse(ctx, updateResponse.LdapUrlAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "name-and-optional-uid" {
+		if updateResponse.NameAndOptionalUidAttributeSyntaxResponse != nil {
 			readNameAndOptionalUidAttributeSyntaxResponse(ctx, updateResponse.NameAndOptionalUidAttributeSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -9132,118 +9132,118 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state logPublisherResourceModel
-	if plan.Type.ValueString() == "syslog-json-audit" {
+	if readResponse.SyslogJsonAuditLogPublisherResponse != nil {
 		readSyslogJsonAuditLogPublisherResponse(ctx, readResponse.SyslogJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-based-error" {
+	if readResponse.SyslogBasedErrorLogPublisherResponse != nil {
 		readSyslogBasedErrorLogPublisherResponse(ctx, readResponse.SyslogBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-file-based-access" {
+	if readResponse.ThirdPartyFileBasedAccessLogPublisherResponse != nil {
 		readThirdPartyFileBasedAccessLogPublisherResponse(ctx, readResponse.ThirdPartyFileBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "operation-timing-access" {
+	if readResponse.OperationTimingAccessLogPublisherResponse != nil {
 		readOperationTimingAccessLogPublisherResponse(ctx, readResponse.OperationTimingAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-http-operation" {
+	if readResponse.ThirdPartyHttpOperationLogPublisherResponse != nil {
 		readThirdPartyHttpOperationLogPublisherResponse(ctx, readResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "admin-alert-access" {
+	if readResponse.AdminAlertAccessLogPublisherResponse != nil {
 		readAdminAlertAccessLogPublisherResponse(ctx, readResponse.AdminAlertAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-trace" {
+	if readResponse.FileBasedTraceLogPublisherResponse != nil {
 		readFileBasedTraceLogPublisherResponse(ctx, readResponse.FileBasedTraceLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jdbc-based-error" {
+	if readResponse.JdbcBasedErrorLogPublisherResponse != nil {
 		readJdbcBasedErrorLogPublisherResponse(ctx, readResponse.JdbcBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jdbc-based-access" {
+	if readResponse.JdbcBasedAccessLogPublisherResponse != nil {
 		readJdbcBasedAccessLogPublisherResponse(ctx, readResponse.JdbcBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "common-log-file-http-operation" {
+	if readResponse.CommonLogFileHttpOperationLogPublisherResponse != nil {
 		readCommonLogFileHttpOperationLogPublisherResponse(ctx, readResponse.CommonLogFileHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-error" {
+	if readResponse.ConsoleJsonErrorLogPublisherResponse != nil {
 		readConsoleJsonErrorLogPublisherResponse(ctx, readResponse.ConsoleJsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-text-error" {
+	if readResponse.SyslogTextErrorLogPublisherResponse != nil {
 		readSyslogTextErrorLogPublisherResponse(ctx, readResponse.SyslogTextErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-based-access" {
+	if readResponse.SyslogBasedAccessLogPublisherResponse != nil {
 		readSyslogBasedAccessLogPublisherResponse(ctx, readResponse.SyslogBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-json-audit" {
+	if readResponse.FileBasedJsonAuditLogPublisherResponse != nil {
 		readFileBasedJsonAuditLogPublisherResponse(ctx, readResponse.FileBasedJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-debug" {
+	if readResponse.FileBasedDebugLogPublisherResponse != nil {
 		readFileBasedDebugLogPublisherResponse(ctx, readResponse.FileBasedDebugLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-error" {
+	if readResponse.FileBasedErrorLogPublisherResponse != nil {
 		readFileBasedErrorLogPublisherResponse(ctx, readResponse.FileBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-error" {
+	if readResponse.ThirdPartyErrorLogPublisherResponse != nil {
 		readThirdPartyErrorLogPublisherResponse(ctx, readResponse.ThirdPartyErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-text-access" {
+	if readResponse.SyslogTextAccessLogPublisherResponse != nil {
 		readSyslogTextAccessLogPublisherResponse(ctx, readResponse.SyslogTextAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "detailed-http-operation" {
+	if readResponse.DetailedHttpOperationLogPublisherResponse != nil {
 		readDetailedHttpOperationLogPublisherResponse(ctx, readResponse.DetailedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-access" {
+	if readResponse.JsonAccessLogPublisherResponse != nil {
 		readJsonAccessLogPublisherResponse(ctx, readResponse.JsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "debug-access" {
+	if readResponse.DebugAccessLogPublisherResponse != nil {
 		readDebugAccessLogPublisherResponse(ctx, readResponse.DebugAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-json-http-operation" {
+	if readResponse.SyslogJsonHttpOperationLogPublisherResponse != nil {
 		readSyslogJsonHttpOperationLogPublisherResponse(ctx, readResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-access" {
+	if readResponse.ThirdPartyAccessLogPublisherResponse != nil {
 		readThirdPartyAccessLogPublisherResponse(ctx, readResponse.ThirdPartyAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-audit" {
+	if readResponse.FileBasedAuditLogPublisherResponse != nil {
 		readFileBasedAuditLogPublisherResponse(ctx, readResponse.FileBasedAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-error" {
+	if readResponse.JsonErrorLogPublisherResponse != nil {
 		readJsonErrorLogPublisherResponse(ctx, readResponse.JsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-file-based-access" {
+	if readResponse.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 		readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx, readResponse.GroovyScriptedFileBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-file-based-error" {
+	if readResponse.GroovyScriptedFileBasedErrorLogPublisherResponse != nil {
 		readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx, readResponse.GroovyScriptedFileBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-json-access" {
+	if readResponse.SyslogJsonAccessLogPublisherResponse != nil {
 		readSyslogJsonAccessLogPublisherResponse(ctx, readResponse.SyslogJsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-access" {
+	if readResponse.GroovyScriptedAccessLogPublisherResponse != nil {
 		readGroovyScriptedAccessLogPublisherResponse(ctx, readResponse.GroovyScriptedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party-file-based-error" {
+	if readResponse.ThirdPartyFileBasedErrorLogPublisherResponse != nil {
 		readThirdPartyFileBasedErrorLogPublisherResponse(ctx, readResponse.ThirdPartyFileBasedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-audit" {
+	if readResponse.ConsoleJsonAuditLogPublisherResponse != nil {
 		readConsoleJsonAuditLogPublisherResponse(ctx, readResponse.ConsoleJsonAuditLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-http-operation" {
+	if readResponse.ConsoleJsonHttpOperationLogPublisherResponse != nil {
 		readConsoleJsonHttpOperationLogPublisherResponse(ctx, readResponse.ConsoleJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "console-json-access" {
+	if readResponse.ConsoleJsonAccessLogPublisherResponse != nil {
 		readConsoleJsonAccessLogPublisherResponse(ctx, readResponse.ConsoleJsonAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-access" {
+	if readResponse.FileBasedAccessLogPublisherResponse != nil {
 		readFileBasedAccessLogPublisherResponse(ctx, readResponse.FileBasedAccessLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-error" {
+	if readResponse.GroovyScriptedErrorLogPublisherResponse != nil {
 		readGroovyScriptedErrorLogPublisherResponse(ctx, readResponse.GroovyScriptedErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-based-json-http-operation" {
+	if readResponse.FileBasedJsonHttpOperationLogPublisherResponse != nil {
 		readFileBasedJsonHttpOperationLogPublisherResponse(ctx, readResponse.FileBasedJsonHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "syslog-json-error" {
+	if readResponse.SyslogJsonErrorLogPublisherResponse != nil {
 		readSyslogJsonErrorLogPublisherResponse(ctx, readResponse.SyslogJsonErrorLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted-http-operation" {
+	if readResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 		readGroovyScriptedHttpOperationLogPublisherResponse(ctx, readResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -9268,118 +9268,118 @@ func (r *defaultLogPublisherResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "syslog-json-audit" {
+		if updateResponse.SyslogJsonAuditLogPublisherResponse != nil {
 			readSyslogJsonAuditLogPublisherResponse(ctx, updateResponse.SyslogJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-error" {
+		if updateResponse.SyslogBasedErrorLogPublisherResponse != nil {
 			readSyslogBasedErrorLogPublisherResponse(ctx, updateResponse.SyslogBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-access" {
+		if updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse != nil {
 			readThirdPartyFileBasedAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "operation-timing-access" {
+		if updateResponse.OperationTimingAccessLogPublisherResponse != nil {
 			readOperationTimingAccessLogPublisherResponse(ctx, updateResponse.OperationTimingAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-http-operation" {
+		if updateResponse.ThirdPartyHttpOperationLogPublisherResponse != nil {
 			readThirdPartyHttpOperationLogPublisherResponse(ctx, updateResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "admin-alert-access" {
+		if updateResponse.AdminAlertAccessLogPublisherResponse != nil {
 			readAdminAlertAccessLogPublisherResponse(ctx, updateResponse.AdminAlertAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-trace" {
+		if updateResponse.FileBasedTraceLogPublisherResponse != nil {
 			readFileBasedTraceLogPublisherResponse(ctx, updateResponse.FileBasedTraceLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-error" {
+		if updateResponse.JdbcBasedErrorLogPublisherResponse != nil {
 			readJdbcBasedErrorLogPublisherResponse(ctx, updateResponse.JdbcBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-access" {
+		if updateResponse.JdbcBasedAccessLogPublisherResponse != nil {
 			readJdbcBasedAccessLogPublisherResponse(ctx, updateResponse.JdbcBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "common-log-file-http-operation" {
+		if updateResponse.CommonLogFileHttpOperationLogPublisherResponse != nil {
 			readCommonLogFileHttpOperationLogPublisherResponse(ctx, updateResponse.CommonLogFileHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-error" {
+		if updateResponse.ConsoleJsonErrorLogPublisherResponse != nil {
 			readConsoleJsonErrorLogPublisherResponse(ctx, updateResponse.ConsoleJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-error" {
+		if updateResponse.SyslogTextErrorLogPublisherResponse != nil {
 			readSyslogTextErrorLogPublisherResponse(ctx, updateResponse.SyslogTextErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-access" {
+		if updateResponse.SyslogBasedAccessLogPublisherResponse != nil {
 			readSyslogBasedAccessLogPublisherResponse(ctx, updateResponse.SyslogBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-audit" {
+		if updateResponse.FileBasedJsonAuditLogPublisherResponse != nil {
 			readFileBasedJsonAuditLogPublisherResponse(ctx, updateResponse.FileBasedJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-debug" {
+		if updateResponse.FileBasedDebugLogPublisherResponse != nil {
 			readFileBasedDebugLogPublisherResponse(ctx, updateResponse.FileBasedDebugLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-error" {
+		if updateResponse.FileBasedErrorLogPublisherResponse != nil {
 			readFileBasedErrorLogPublisherResponse(ctx, updateResponse.FileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-error" {
+		if updateResponse.ThirdPartyErrorLogPublisherResponse != nil {
 			readThirdPartyErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-access" {
+		if updateResponse.SyslogTextAccessLogPublisherResponse != nil {
 			readSyslogTextAccessLogPublisherResponse(ctx, updateResponse.SyslogTextAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "detailed-http-operation" {
+		if updateResponse.DetailedHttpOperationLogPublisherResponse != nil {
 			readDetailedHttpOperationLogPublisherResponse(ctx, updateResponse.DetailedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-access" {
+		if updateResponse.JsonAccessLogPublisherResponse != nil {
 			readJsonAccessLogPublisherResponse(ctx, updateResponse.JsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "debug-access" {
+		if updateResponse.DebugAccessLogPublisherResponse != nil {
 			readDebugAccessLogPublisherResponse(ctx, updateResponse.DebugAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-http-operation" {
+		if updateResponse.SyslogJsonHttpOperationLogPublisherResponse != nil {
 			readSyslogJsonHttpOperationLogPublisherResponse(ctx, updateResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-access" {
+		if updateResponse.ThirdPartyAccessLogPublisherResponse != nil {
 			readThirdPartyAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-audit" {
+		if updateResponse.FileBasedAuditLogPublisherResponse != nil {
 			readFileBasedAuditLogPublisherResponse(ctx, updateResponse.FileBasedAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-error" {
+		if updateResponse.JsonErrorLogPublisherResponse != nil {
 			readJsonErrorLogPublisherResponse(ctx, updateResponse.JsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-access" {
+		if updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-error" {
+		if updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-access" {
+		if updateResponse.SyslogJsonAccessLogPublisherResponse != nil {
 			readSyslogJsonAccessLogPublisherResponse(ctx, updateResponse.SyslogJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-access" {
+		if updateResponse.GroovyScriptedAccessLogPublisherResponse != nil {
 			readGroovyScriptedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-error" {
+		if updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse != nil {
 			readThirdPartyFileBasedErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-audit" {
+		if updateResponse.ConsoleJsonAuditLogPublisherResponse != nil {
 			readConsoleJsonAuditLogPublisherResponse(ctx, updateResponse.ConsoleJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-http-operation" {
+		if updateResponse.ConsoleJsonHttpOperationLogPublisherResponse != nil {
 			readConsoleJsonHttpOperationLogPublisherResponse(ctx, updateResponse.ConsoleJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-access" {
+		if updateResponse.ConsoleJsonAccessLogPublisherResponse != nil {
 			readConsoleJsonAccessLogPublisherResponse(ctx, updateResponse.ConsoleJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-access" {
+		if updateResponse.FileBasedAccessLogPublisherResponse != nil {
 			readFileBasedAccessLogPublisherResponse(ctx, updateResponse.FileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-error" {
+		if updateResponse.GroovyScriptedErrorLogPublisherResponse != nil {
 			readGroovyScriptedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-http-operation" {
+		if updateResponse.FileBasedJsonHttpOperationLogPublisherResponse != nil {
 			readFileBasedJsonHttpOperationLogPublisherResponse(ctx, updateResponse.FileBasedJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-error" {
+		if updateResponse.SyslogJsonErrorLogPublisherResponse != nil {
 			readSyslogJsonErrorLogPublisherResponse(ctx, updateResponse.SyslogJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-http-operation" {
+		if updateResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -9589,118 +9589,118 @@ func updateLogPublisher(ctx context.Context, req resource.UpdateRequest, resp *r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "syslog-json-audit" {
+		if updateResponse.SyslogJsonAuditLogPublisherResponse != nil {
 			readSyslogJsonAuditLogPublisherResponse(ctx, updateResponse.SyslogJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-error" {
+		if updateResponse.SyslogBasedErrorLogPublisherResponse != nil {
 			readSyslogBasedErrorLogPublisherResponse(ctx, updateResponse.SyslogBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-access" {
+		if updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse != nil {
 			readThirdPartyFileBasedAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "operation-timing-access" {
+		if updateResponse.OperationTimingAccessLogPublisherResponse != nil {
 			readOperationTimingAccessLogPublisherResponse(ctx, updateResponse.OperationTimingAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-http-operation" {
+		if updateResponse.ThirdPartyHttpOperationLogPublisherResponse != nil {
 			readThirdPartyHttpOperationLogPublisherResponse(ctx, updateResponse.ThirdPartyHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "admin-alert-access" {
+		if updateResponse.AdminAlertAccessLogPublisherResponse != nil {
 			readAdminAlertAccessLogPublisherResponse(ctx, updateResponse.AdminAlertAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-trace" {
+		if updateResponse.FileBasedTraceLogPublisherResponse != nil {
 			readFileBasedTraceLogPublisherResponse(ctx, updateResponse.FileBasedTraceLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-error" {
+		if updateResponse.JdbcBasedErrorLogPublisherResponse != nil {
 			readJdbcBasedErrorLogPublisherResponse(ctx, updateResponse.JdbcBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jdbc-based-access" {
+		if updateResponse.JdbcBasedAccessLogPublisherResponse != nil {
 			readJdbcBasedAccessLogPublisherResponse(ctx, updateResponse.JdbcBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "common-log-file-http-operation" {
+		if updateResponse.CommonLogFileHttpOperationLogPublisherResponse != nil {
 			readCommonLogFileHttpOperationLogPublisherResponse(ctx, updateResponse.CommonLogFileHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-error" {
+		if updateResponse.ConsoleJsonErrorLogPublisherResponse != nil {
 			readConsoleJsonErrorLogPublisherResponse(ctx, updateResponse.ConsoleJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-error" {
+		if updateResponse.SyslogTextErrorLogPublisherResponse != nil {
 			readSyslogTextErrorLogPublisherResponse(ctx, updateResponse.SyslogTextErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-based-access" {
+		if updateResponse.SyslogBasedAccessLogPublisherResponse != nil {
 			readSyslogBasedAccessLogPublisherResponse(ctx, updateResponse.SyslogBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-audit" {
+		if updateResponse.FileBasedJsonAuditLogPublisherResponse != nil {
 			readFileBasedJsonAuditLogPublisherResponse(ctx, updateResponse.FileBasedJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-debug" {
+		if updateResponse.FileBasedDebugLogPublisherResponse != nil {
 			readFileBasedDebugLogPublisherResponse(ctx, updateResponse.FileBasedDebugLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-error" {
+		if updateResponse.FileBasedErrorLogPublisherResponse != nil {
 			readFileBasedErrorLogPublisherResponse(ctx, updateResponse.FileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-error" {
+		if updateResponse.ThirdPartyErrorLogPublisherResponse != nil {
 			readThirdPartyErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-text-access" {
+		if updateResponse.SyslogTextAccessLogPublisherResponse != nil {
 			readSyslogTextAccessLogPublisherResponse(ctx, updateResponse.SyslogTextAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "detailed-http-operation" {
+		if updateResponse.DetailedHttpOperationLogPublisherResponse != nil {
 			readDetailedHttpOperationLogPublisherResponse(ctx, updateResponse.DetailedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-access" {
+		if updateResponse.JsonAccessLogPublisherResponse != nil {
 			readJsonAccessLogPublisherResponse(ctx, updateResponse.JsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "debug-access" {
+		if updateResponse.DebugAccessLogPublisherResponse != nil {
 			readDebugAccessLogPublisherResponse(ctx, updateResponse.DebugAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-http-operation" {
+		if updateResponse.SyslogJsonHttpOperationLogPublisherResponse != nil {
 			readSyslogJsonHttpOperationLogPublisherResponse(ctx, updateResponse.SyslogJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-access" {
+		if updateResponse.ThirdPartyAccessLogPublisherResponse != nil {
 			readThirdPartyAccessLogPublisherResponse(ctx, updateResponse.ThirdPartyAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-audit" {
+		if updateResponse.FileBasedAuditLogPublisherResponse != nil {
 			readFileBasedAuditLogPublisherResponse(ctx, updateResponse.FileBasedAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-error" {
+		if updateResponse.JsonErrorLogPublisherResponse != nil {
 			readJsonErrorLogPublisherResponse(ctx, updateResponse.JsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-access" {
+		if updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-file-based-error" {
+		if updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse != nil {
 			readGroovyScriptedFileBasedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-access" {
+		if updateResponse.SyslogJsonAccessLogPublisherResponse != nil {
 			readSyslogJsonAccessLogPublisherResponse(ctx, updateResponse.SyslogJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-access" {
+		if updateResponse.GroovyScriptedAccessLogPublisherResponse != nil {
 			readGroovyScriptedAccessLogPublisherResponse(ctx, updateResponse.GroovyScriptedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party-file-based-error" {
+		if updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse != nil {
 			readThirdPartyFileBasedErrorLogPublisherResponse(ctx, updateResponse.ThirdPartyFileBasedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-audit" {
+		if updateResponse.ConsoleJsonAuditLogPublisherResponse != nil {
 			readConsoleJsonAuditLogPublisherResponse(ctx, updateResponse.ConsoleJsonAuditLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-http-operation" {
+		if updateResponse.ConsoleJsonHttpOperationLogPublisherResponse != nil {
 			readConsoleJsonHttpOperationLogPublisherResponse(ctx, updateResponse.ConsoleJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "console-json-access" {
+		if updateResponse.ConsoleJsonAccessLogPublisherResponse != nil {
 			readConsoleJsonAccessLogPublisherResponse(ctx, updateResponse.ConsoleJsonAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-access" {
+		if updateResponse.FileBasedAccessLogPublisherResponse != nil {
 			readFileBasedAccessLogPublisherResponse(ctx, updateResponse.FileBasedAccessLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-error" {
+		if updateResponse.GroovyScriptedErrorLogPublisherResponse != nil {
 			readGroovyScriptedErrorLogPublisherResponse(ctx, updateResponse.GroovyScriptedErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-based-json-http-operation" {
+		if updateResponse.FileBasedJsonHttpOperationLogPublisherResponse != nil {
 			readFileBasedJsonHttpOperationLogPublisherResponse(ctx, updateResponse.FileBasedJsonHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "syslog-json-error" {
+		if updateResponse.SyslogJsonErrorLogPublisherResponse != nil {
 			readSyslogJsonErrorLogPublisherResponse(ctx, updateResponse.SyslogJsonErrorLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted-http-operation" {
+		if updateResponse.GroovyScriptedHttpOperationLogPublisherResponse != nil {
 			readGroovyScriptedHttpOperationLogPublisherResponse(ctx, updateResponse.GroovyScriptedHttpOperationLogPublisherResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

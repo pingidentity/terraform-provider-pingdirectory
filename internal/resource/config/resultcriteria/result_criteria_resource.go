@@ -1715,19 +1715,19 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 
 	// Read the existing configuration
 	var state resultCriteriaResourceModel
-	if plan.Type.ValueString() == "successful-bind" {
+	if readResponse.SuccessfulBindResultCriteriaResponse != nil {
 		readSuccessfulBindResultCriteriaResponse(ctx, readResponse.SuccessfulBindResultCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "simple" {
+	if readResponse.SimpleResultCriteriaResponse != nil {
 		readSimpleResultCriteriaResponse(ctx, readResponse.SimpleResultCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateResultCriteriaResponse != nil {
 		readAggregateResultCriteriaResponse(ctx, readResponse.AggregateResultCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "replication-assurance" {
+	if readResponse.ReplicationAssuranceResultCriteriaResponse != nil {
 		readReplicationAssuranceResultCriteriaResponse(ctx, readResponse.ReplicationAssuranceResultCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyResultCriteriaResponse != nil {
 		readThirdPartyResultCriteriaResponse(ctx, readResponse.ThirdPartyResultCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1752,19 +1752,19 @@ func (r *defaultResultCriteriaResource) Create(ctx context.Context, req resource
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "successful-bind" {
+		if updateResponse.SuccessfulBindResultCriteriaResponse != nil {
 			readSuccessfulBindResultCriteriaResponse(ctx, updateResponse.SuccessfulBindResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleResultCriteriaResponse != nil {
 			readSimpleResultCriteriaResponse(ctx, updateResponse.SimpleResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateResultCriteriaResponse != nil {
 			readAggregateResultCriteriaResponse(ctx, updateResponse.AggregateResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replication-assurance" {
+		if updateResponse.ReplicationAssuranceResultCriteriaResponse != nil {
 			readReplicationAssuranceResultCriteriaResponse(ctx, updateResponse.ReplicationAssuranceResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyResultCriteriaResponse != nil {
 			readThirdPartyResultCriteriaResponse(ctx, updateResponse.ThirdPartyResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1875,19 +1875,19 @@ func updateResultCriteria(ctx context.Context, req resource.UpdateRequest, resp 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "successful-bind" {
+		if updateResponse.SuccessfulBindResultCriteriaResponse != nil {
 			readSuccessfulBindResultCriteriaResponse(ctx, updateResponse.SuccessfulBindResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "simple" {
+		if updateResponse.SimpleResultCriteriaResponse != nil {
 			readSimpleResultCriteriaResponse(ctx, updateResponse.SimpleResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateResultCriteriaResponse != nil {
 			readAggregateResultCriteriaResponse(ctx, updateResponse.AggregateResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replication-assurance" {
+		if updateResponse.ReplicationAssuranceResultCriteriaResponse != nil {
 			readReplicationAssuranceResultCriteriaResponse(ctx, updateResponse.ReplicationAssuranceResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyResultCriteriaResponse != nil {
 			readThirdPartyResultCriteriaResponse(ctx, updateResponse.ThirdPartyResultCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -695,13 +695,13 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state delegatedAdminAttributeResourceModel
-	if plan.Type.ValueString() == "certificate" {
+	if readResponse.CertificateDelegatedAdminAttributeResponse != nil {
 		readCertificateDelegatedAdminAttributeResponse(ctx, readResponse.CertificateDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "photo" {
+	if readResponse.PhotoDelegatedAdminAttributeResponse != nil {
 		readPhotoDelegatedAdminAttributeResponse(ctx, readResponse.PhotoDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericDelegatedAdminAttributeResponse != nil {
 		readGenericDelegatedAdminAttributeResponse(ctx, readResponse.GenericDelegatedAdminAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -726,13 +726,13 @@ func (r *defaultDelegatedAdminAttributeResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateDelegatedAdminAttributeResponse != nil {
 			readCertificateDelegatedAdminAttributeResponse(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "photo" {
+		if updateResponse.PhotoDelegatedAdminAttributeResponse != nil {
 			readPhotoDelegatedAdminAttributeResponse(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericDelegatedAdminAttributeResponse != nil {
 			readGenericDelegatedAdminAttributeResponse(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -838,13 +838,13 @@ func updateDelegatedAdminAttribute(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateDelegatedAdminAttributeResponse != nil {
 			readCertificateDelegatedAdminAttributeResponse(ctx, updateResponse.CertificateDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "photo" {
+		if updateResponse.PhotoDelegatedAdminAttributeResponse != nil {
 			readPhotoDelegatedAdminAttributeResponse(ctx, updateResponse.PhotoDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericDelegatedAdminAttributeResponse != nil {
 			readGenericDelegatedAdminAttributeResponse(ctx, updateResponse.GenericDelegatedAdminAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

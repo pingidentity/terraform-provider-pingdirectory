@@ -2082,49 +2082,49 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state passwordValidatorResourceModel
-	if plan.Type.ValueString() == "character-set" {
+	if readResponse.CharacterSetPasswordValidatorResponse != nil {
 		readCharacterSetPasswordValidatorResponse(ctx, readResponse.CharacterSetPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "similarity-based" {
+	if readResponse.SimilarityBasedPasswordValidatorResponse != nil {
 		readSimilarityBasedPasswordValidatorResponse(ctx, readResponse.SimilarityBasedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "attribute-value" {
+	if readResponse.AttributeValuePasswordValidatorResponse != nil {
 		readAttributeValuePasswordValidatorResponse(ctx, readResponse.AttributeValuePasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomPasswordValidatorResponse != nil {
 		readCustomPasswordValidatorResponse(ctx, readResponse.CustomPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "repeated-characters" {
+	if readResponse.RepeatedCharactersPasswordValidatorResponse != nil {
 		readRepeatedCharactersPasswordValidatorResponse(ctx, readResponse.RepeatedCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "dictionary" {
+	if readResponse.DictionaryPasswordValidatorResponse != nil {
 		readDictionaryPasswordValidatorResponse(ctx, readResponse.DictionaryPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "haystack" {
+	if readResponse.HaystackPasswordValidatorResponse != nil {
 		readHaystackPasswordValidatorResponse(ctx, readResponse.HaystackPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "utf-8" {
+	if readResponse.Utf8PasswordValidatorResponse != nil {
 		readUtf8PasswordValidatorResponse(ctx, readResponse.Utf8PasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedPasswordValidatorResponse != nil {
 		readGroovyScriptedPasswordValidatorResponse(ctx, readResponse.GroovyScriptedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "pwned-passwords" {
+	if readResponse.PwnedPasswordsPasswordValidatorResponse != nil {
 		readPwnedPasswordsPasswordValidatorResponse(ctx, readResponse.PwnedPasswordsPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disallowed-characters" {
+	if readResponse.DisallowedCharactersPasswordValidatorResponse != nil {
 		readDisallowedCharactersPasswordValidatorResponse(ctx, readResponse.DisallowedCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "length-based" {
+	if readResponse.LengthBasedPasswordValidatorResponse != nil {
 		readLengthBasedPasswordValidatorResponse(ctx, readResponse.LengthBasedPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "regular-expression" {
+	if readResponse.RegularExpressionPasswordValidatorResponse != nil {
 		readRegularExpressionPasswordValidatorResponse(ctx, readResponse.RegularExpressionPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "unique-characters" {
+	if readResponse.UniqueCharactersPasswordValidatorResponse != nil {
 		readUniqueCharactersPasswordValidatorResponse(ctx, readResponse.UniqueCharactersPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPasswordValidatorResponse != nil {
 		readThirdPartyPasswordValidatorResponse(ctx, readResponse.ThirdPartyPasswordValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2149,49 +2149,49 @@ func (r *defaultPasswordValidatorResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "character-set" {
+		if updateResponse.CharacterSetPasswordValidatorResponse != nil {
 			readCharacterSetPasswordValidatorResponse(ctx, updateResponse.CharacterSetPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "similarity-based" {
+		if updateResponse.SimilarityBasedPasswordValidatorResponse != nil {
 			readSimilarityBasedPasswordValidatorResponse(ctx, updateResponse.SimilarityBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "attribute-value" {
+		if updateResponse.AttributeValuePasswordValidatorResponse != nil {
 			readAttributeValuePasswordValidatorResponse(ctx, updateResponse.AttributeValuePasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomPasswordValidatorResponse != nil {
 			readCustomPasswordValidatorResponse(ctx, updateResponse.CustomPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "repeated-characters" {
+		if updateResponse.RepeatedCharactersPasswordValidatorResponse != nil {
 			readRepeatedCharactersPasswordValidatorResponse(ctx, updateResponse.RepeatedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dictionary" {
+		if updateResponse.DictionaryPasswordValidatorResponse != nil {
 			readDictionaryPasswordValidatorResponse(ctx, updateResponse.DictionaryPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "haystack" {
+		if updateResponse.HaystackPasswordValidatorResponse != nil {
 			readHaystackPasswordValidatorResponse(ctx, updateResponse.HaystackPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "utf-8" {
+		if updateResponse.Utf8PasswordValidatorResponse != nil {
 			readUtf8PasswordValidatorResponse(ctx, updateResponse.Utf8PasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPasswordValidatorResponse != nil {
 			readGroovyScriptedPasswordValidatorResponse(ctx, updateResponse.GroovyScriptedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pwned-passwords" {
+		if updateResponse.PwnedPasswordsPasswordValidatorResponse != nil {
 			readPwnedPasswordsPasswordValidatorResponse(ctx, updateResponse.PwnedPasswordsPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disallowed-characters" {
+		if updateResponse.DisallowedCharactersPasswordValidatorResponse != nil {
 			readDisallowedCharactersPasswordValidatorResponse(ctx, updateResponse.DisallowedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "length-based" {
+		if updateResponse.LengthBasedPasswordValidatorResponse != nil {
 			readLengthBasedPasswordValidatorResponse(ctx, updateResponse.LengthBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "regular-expression" {
+		if updateResponse.RegularExpressionPasswordValidatorResponse != nil {
 			readRegularExpressionPasswordValidatorResponse(ctx, updateResponse.RegularExpressionPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unique-characters" {
+		if updateResponse.UniqueCharactersPasswordValidatorResponse != nil {
 			readUniqueCharactersPasswordValidatorResponse(ctx, updateResponse.UniqueCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordValidatorResponse != nil {
 			readThirdPartyPasswordValidatorResponse(ctx, updateResponse.ThirdPartyPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2332,49 +2332,49 @@ func updatePasswordValidator(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "character-set" {
+		if updateResponse.CharacterSetPasswordValidatorResponse != nil {
 			readCharacterSetPasswordValidatorResponse(ctx, updateResponse.CharacterSetPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "similarity-based" {
+		if updateResponse.SimilarityBasedPasswordValidatorResponse != nil {
 			readSimilarityBasedPasswordValidatorResponse(ctx, updateResponse.SimilarityBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "attribute-value" {
+		if updateResponse.AttributeValuePasswordValidatorResponse != nil {
 			readAttributeValuePasswordValidatorResponse(ctx, updateResponse.AttributeValuePasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomPasswordValidatorResponse != nil {
 			readCustomPasswordValidatorResponse(ctx, updateResponse.CustomPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "repeated-characters" {
+		if updateResponse.RepeatedCharactersPasswordValidatorResponse != nil {
 			readRepeatedCharactersPasswordValidatorResponse(ctx, updateResponse.RepeatedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dictionary" {
+		if updateResponse.DictionaryPasswordValidatorResponse != nil {
 			readDictionaryPasswordValidatorResponse(ctx, updateResponse.DictionaryPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "haystack" {
+		if updateResponse.HaystackPasswordValidatorResponse != nil {
 			readHaystackPasswordValidatorResponse(ctx, updateResponse.HaystackPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "utf-8" {
+		if updateResponse.Utf8PasswordValidatorResponse != nil {
 			readUtf8PasswordValidatorResponse(ctx, updateResponse.Utf8PasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPasswordValidatorResponse != nil {
 			readGroovyScriptedPasswordValidatorResponse(ctx, updateResponse.GroovyScriptedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "pwned-passwords" {
+		if updateResponse.PwnedPasswordsPasswordValidatorResponse != nil {
 			readPwnedPasswordsPasswordValidatorResponse(ctx, updateResponse.PwnedPasswordsPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disallowed-characters" {
+		if updateResponse.DisallowedCharactersPasswordValidatorResponse != nil {
 			readDisallowedCharactersPasswordValidatorResponse(ctx, updateResponse.DisallowedCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "length-based" {
+		if updateResponse.LengthBasedPasswordValidatorResponse != nil {
 			readLengthBasedPasswordValidatorResponse(ctx, updateResponse.LengthBasedPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "regular-expression" {
+		if updateResponse.RegularExpressionPasswordValidatorResponse != nil {
 			readRegularExpressionPasswordValidatorResponse(ctx, updateResponse.RegularExpressionPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "unique-characters" {
+		if updateResponse.UniqueCharactersPasswordValidatorResponse != nil {
 			readUniqueCharactersPasswordValidatorResponse(ctx, updateResponse.UniqueCharactersPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordValidatorResponse != nil {
 			readThirdPartyPasswordValidatorResponse(ctx, updateResponse.ThirdPartyPasswordValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

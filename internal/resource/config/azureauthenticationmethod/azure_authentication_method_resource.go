@@ -465,13 +465,13 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state azureAuthenticationMethodResourceModel
-	if plan.Type.ValueString() == "default" {
+	if readResponse.DefaultAzureAuthenticationMethodResponse != nil {
 		readDefaultAzureAuthenticationMethodResponse(ctx, readResponse.DefaultAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "client-secret" {
+	if readResponse.ClientSecretAzureAuthenticationMethodResponse != nil {
 		readClientSecretAzureAuthenticationMethodResponse(ctx, readResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "username-password" {
+	if readResponse.UsernamePasswordAzureAuthenticationMethodResponse != nil {
 		readUsernamePasswordAzureAuthenticationMethodResponse(ctx, readResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -496,13 +496,13 @@ func (r *defaultAzureAuthenticationMethodResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultAzureAuthenticationMethodResponse != nil {
 			readDefaultAzureAuthenticationMethodResponse(ctx, updateResponse.DefaultAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-secret" {
+		if updateResponse.ClientSecretAzureAuthenticationMethodResponse != nil {
 			readClientSecretAzureAuthenticationMethodResponse(ctx, updateResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "username-password" {
+		if updateResponse.UsernamePasswordAzureAuthenticationMethodResponse != nil {
 			readUsernamePasswordAzureAuthenticationMethodResponse(ctx, updateResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -608,13 +608,13 @@ func updateAzureAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultAzureAuthenticationMethodResponse != nil {
 			readDefaultAzureAuthenticationMethodResponse(ctx, updateResponse.DefaultAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "client-secret" {
+		if updateResponse.ClientSecretAzureAuthenticationMethodResponse != nil {
 			readClientSecretAzureAuthenticationMethodResponse(ctx, updateResponse.ClientSecretAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "username-password" {
+		if updateResponse.UsernamePasswordAzureAuthenticationMethodResponse != nil {
 			readUsernamePasswordAzureAuthenticationMethodResponse(ctx, updateResponse.UsernamePasswordAzureAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

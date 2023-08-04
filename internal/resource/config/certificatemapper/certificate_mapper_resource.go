@@ -756,22 +756,22 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state certificateMapperResourceModel
-	if plan.Type.ValueString() == "subject-equals-dn" {
+	if readResponse.SubjectEqualsDnCertificateMapperResponse != nil {
 		readSubjectEqualsDnCertificateMapperResponse(ctx, readResponse.SubjectEqualsDnCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
+	if readResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
 		readSubjectDnToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedCertificateMapperResponse != nil {
 		readGroovyScriptedCertificateMapperResponse(ctx, readResponse.GroovyScriptedCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
+	if readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
 		readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, readResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "fingerprint" {
+	if readResponse.FingerprintCertificateMapperResponse != nil {
 		readFingerprintCertificateMapperResponse(ctx, readResponse.FingerprintCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyCertificateMapperResponse != nil {
 		readThirdPartyCertificateMapperResponse(ctx, readResponse.ThirdPartyCertificateMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -796,22 +796,22 @@ func (r *defaultCertificateMapperResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "subject-equals-dn" {
+		if updateResponse.SubjectEqualsDnCertificateMapperResponse != nil {
 			readSubjectEqualsDnCertificateMapperResponse(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
+		if updateResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
 			readSubjectDnToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedCertificateMapperResponse != nil {
 			readGroovyScriptedCertificateMapperResponse(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
+		if updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
 			readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fingerprint" {
+		if updateResponse.FingerprintCertificateMapperResponse != nil {
 			readFingerprintCertificateMapperResponse(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyCertificateMapperResponse != nil {
 			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -925,22 +925,22 @@ func updateCertificateMapper(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "subject-equals-dn" {
+		if updateResponse.SubjectEqualsDnCertificateMapperResponse != nil {
 			readSubjectEqualsDnCertificateMapperResponse(ctx, updateResponse.SubjectEqualsDnCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-dn-to-user-attribute" {
+		if updateResponse.SubjectDnToUserAttributeCertificateMapperResponse != nil {
 			readSubjectDnToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectDnToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedCertificateMapperResponse != nil {
 			readGroovyScriptedCertificateMapperResponse(ctx, updateResponse.GroovyScriptedCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subject-attribute-to-user-attribute" {
+		if updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse != nil {
 			readSubjectAttributeToUserAttributeCertificateMapperResponse(ctx, updateResponse.SubjectAttributeToUserAttributeCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "fingerprint" {
+		if updateResponse.FingerprintCertificateMapperResponse != nil {
 			readFingerprintCertificateMapperResponse(ctx, updateResponse.FingerprintCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyCertificateMapperResponse != nil {
 			readThirdPartyCertificateMapperResponse(ctx, updateResponse.ThirdPartyCertificateMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

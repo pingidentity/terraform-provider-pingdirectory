@@ -489,13 +489,13 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state vaultAuthenticationMethodResourceModel
-	if plan.Type.ValueString() == "static-token" {
+	if readResponse.StaticTokenVaultAuthenticationMethodResponse != nil {
 		readStaticTokenVaultAuthenticationMethodResponse(ctx, readResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "app-role" {
+	if readResponse.AppRoleVaultAuthenticationMethodResponse != nil {
 		readAppRoleVaultAuthenticationMethodResponse(ctx, readResponse.AppRoleVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "user-pass" {
+	if readResponse.UserPassVaultAuthenticationMethodResponse != nil {
 		readUserPassVaultAuthenticationMethodResponse(ctx, readResponse.UserPassVaultAuthenticationMethodResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -520,13 +520,13 @@ func (r *defaultVaultAuthenticationMethodResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "static-token" {
+		if updateResponse.StaticTokenVaultAuthenticationMethodResponse != nil {
 			readStaticTokenVaultAuthenticationMethodResponse(ctx, updateResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "app-role" {
+		if updateResponse.AppRoleVaultAuthenticationMethodResponse != nil {
 			readAppRoleVaultAuthenticationMethodResponse(ctx, updateResponse.AppRoleVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-pass" {
+		if updateResponse.UserPassVaultAuthenticationMethodResponse != nil {
 			readUserPassVaultAuthenticationMethodResponse(ctx, updateResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -632,13 +632,13 @@ func updateVaultAuthenticationMethod(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "static-token" {
+		if updateResponse.StaticTokenVaultAuthenticationMethodResponse != nil {
 			readStaticTokenVaultAuthenticationMethodResponse(ctx, updateResponse.StaticTokenVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "app-role" {
+		if updateResponse.AppRoleVaultAuthenticationMethodResponse != nil {
 			readAppRoleVaultAuthenticationMethodResponse(ctx, updateResponse.AppRoleVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-pass" {
+		if updateResponse.UserPassVaultAuthenticationMethodResponse != nil {
 			readUserPassVaultAuthenticationMethodResponse(ctx, updateResponse.UserPassVaultAuthenticationMethodResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

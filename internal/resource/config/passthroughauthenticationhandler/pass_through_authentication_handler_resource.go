@@ -1057,16 +1057,16 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 
 	// Read the existing configuration
 	var state passThroughAuthenticationHandlerResourceModel
-	if plan.Type.ValueString() == "ping-one" {
+	if readResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
 		readPingOnePassThroughAuthenticationHandlerResponse(ctx, readResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 		readLdapPassThroughAuthenticationHandlerResponse(ctx, readResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
 		readAggregatePassThroughAuthenticationHandlerResponse(ctx, readResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 		readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, readResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1091,16 +1091,16 @@ func (r *defaultPassThroughAuthenticationHandlerResource) Create(ctx context.Con
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
 			readPingOnePassThroughAuthenticationHandlerResponse(ctx, updateResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 			readLdapPassThroughAuthenticationHandlerResponse(ctx, updateResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
 			readAggregatePassThroughAuthenticationHandlerResponse(ctx, updateResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 			readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1209,16 +1209,16 @@ func updatePassThroughAuthenticationHandler(ctx context.Context, req resource.Up
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOnePassThroughAuthenticationHandlerResponse != nil {
 			readPingOnePassThroughAuthenticationHandlerResponse(ctx, updateResponse.PingOnePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapPassThroughAuthenticationHandlerResponse != nil {
 			readLdapPassThroughAuthenticationHandlerResponse(ctx, updateResponse.LdapPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregatePassThroughAuthenticationHandlerResponse != nil {
 			readAggregatePassThroughAuthenticationHandlerResponse(ctx, updateResponse.AggregatePassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse != nil {
 			readThirdPartyPassThroughAuthenticationHandlerResponse(ctx, updateResponse.ThirdPartyPassThroughAuthenticationHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

@@ -261,13 +261,13 @@ func (r *logFieldSyntaxResource) Create(ctx context.Context, req resource.Create
 
 	// Read the existing configuration
 	var state logFieldSyntaxResourceModel
-	if plan.Type.ValueString() == "json" {
+	if readResponse.JsonLogFieldSyntaxResponse != nil {
 		readJsonLogFieldSyntaxResponse(ctx, readResponse.JsonLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "attribute-based" {
+	if readResponse.AttributeBasedLogFieldSyntaxResponse != nil {
 		readAttributeBasedLogFieldSyntaxResponse(ctx, readResponse.AttributeBasedLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericLogFieldSyntaxResponse != nil {
 		readGenericLogFieldSyntaxResponse(ctx, readResponse.GenericLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 	}
 
@@ -292,13 +292,13 @@ func (r *logFieldSyntaxResource) Create(ctx context.Context, req resource.Create
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "json" {
+		if updateResponse.JsonLogFieldSyntaxResponse != nil {
 			readJsonLogFieldSyntaxResponse(ctx, updateResponse.JsonLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "attribute-based" {
+		if updateResponse.AttributeBasedLogFieldSyntaxResponse != nil {
 			readAttributeBasedLogFieldSyntaxResponse(ctx, updateResponse.AttributeBasedLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericLogFieldSyntaxResponse != nil {
 			readGenericLogFieldSyntaxResponse(ctx, updateResponse.GenericLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -387,13 +387,13 @@ func (r *logFieldSyntaxResource) Update(ctx context.Context, req resource.Update
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "json" {
+		if updateResponse.JsonLogFieldSyntaxResponse != nil {
 			readJsonLogFieldSyntaxResponse(ctx, updateResponse.JsonLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "attribute-based" {
+		if updateResponse.AttributeBasedLogFieldSyntaxResponse != nil {
 			readAttributeBasedLogFieldSyntaxResponse(ctx, updateResponse.AttributeBasedLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericLogFieldSyntaxResponse != nil {
 			readGenericLogFieldSyntaxResponse(ctx, updateResponse.GenericLogFieldSyntaxResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

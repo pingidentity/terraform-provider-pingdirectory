@@ -629,19 +629,19 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 
 	// Read the existing configuration
 	var state uncachedEntryCriteriaResourceModel
-	if plan.Type.ValueString() == "default" {
+	if readResponse.DefaultUncachedEntryCriteriaResponse != nil {
 		readDefaultUncachedEntryCriteriaResponse(ctx, readResponse.DefaultUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "last-access-time" {
+	if readResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
 		readLastAccessTimeUncachedEntryCriteriaResponse(ctx, readResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "filter-based" {
+	if readResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
 		readFilterBasedUncachedEntryCriteriaResponse(ctx, readResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
 		readGroovyScriptedUncachedEntryCriteriaResponse(ctx, readResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 		readThirdPartyUncachedEntryCriteriaResponse(ctx, readResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -666,19 +666,19 @@ func (r *defaultUncachedEntryCriteriaResource) Create(ctx context.Context, req r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedEntryCriteriaResponse != nil {
 			readDefaultUncachedEntryCriteriaResponse(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
 			readLastAccessTimeUncachedEntryCriteriaResponse(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter-based" {
+		if updateResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
 			readFilterBasedUncachedEntryCriteriaResponse(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
 			readGroovyScriptedUncachedEntryCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 			readThirdPartyUncachedEntryCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -789,19 +789,19 @@ func updateUncachedEntryCriteria(ctx context.Context, req resource.UpdateRequest
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "default" {
+		if updateResponse.DefaultUncachedEntryCriteriaResponse != nil {
 			readDefaultUncachedEntryCriteriaResponse(ctx, updateResponse.DefaultUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "last-access-time" {
+		if updateResponse.LastAccessTimeUncachedEntryCriteriaResponse != nil {
 			readLastAccessTimeUncachedEntryCriteriaResponse(ctx, updateResponse.LastAccessTimeUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter-based" {
+		if updateResponse.FilterBasedUncachedEntryCriteriaResponse != nil {
 			readFilterBasedUncachedEntryCriteriaResponse(ctx, updateResponse.FilterBasedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedUncachedEntryCriteriaResponse != nil {
 			readGroovyScriptedUncachedEntryCriteriaResponse(ctx, updateResponse.GroovyScriptedUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyUncachedEntryCriteriaResponse != nil {
 			readThirdPartyUncachedEntryCriteriaResponse(ctx, updateResponse.ThirdPartyUncachedEntryCriteriaResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

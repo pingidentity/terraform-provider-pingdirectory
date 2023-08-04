@@ -257,10 +257,10 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 
 	// Read the existing configuration
 	var state interServerAuthenticationInfoResourceModel
-	if plan.Type.ValueString() == "password" {
+	if readResponse.PasswordInterServerAuthenticationInfoResponse != nil {
 		readPasswordInterServerAuthenticationInfoResponse(ctx, readResponse.PasswordInterServerAuthenticationInfoResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "certificate" {
+	if readResponse.CertificateInterServerAuthenticationInfoResponse != nil {
 		readCertificateInterServerAuthenticationInfoResponse(ctx, readResponse.CertificateInterServerAuthenticationInfoResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -285,10 +285,10 @@ func (r *interServerAuthenticationInfoResource) Create(ctx context.Context, req 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "password" {
+		if updateResponse.PasswordInterServerAuthenticationInfoResponse != nil {
 			readPasswordInterServerAuthenticationInfoResponse(ctx, updateResponse.PasswordInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateInterServerAuthenticationInfoResponse != nil {
 			readCertificateInterServerAuthenticationInfoResponse(ctx, updateResponse.CertificateInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -375,10 +375,10 @@ func (r *interServerAuthenticationInfoResource) Update(ctx context.Context, req 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "password" {
+		if updateResponse.PasswordInterServerAuthenticationInfoResponse != nil {
 			readPasswordInterServerAuthenticationInfoResponse(ctx, updateResponse.PasswordInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "certificate" {
+		if updateResponse.CertificateInterServerAuthenticationInfoResponse != nil {
 			readCertificateInterServerAuthenticationInfoResponse(ctx, updateResponse.CertificateInterServerAuthenticationInfoResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

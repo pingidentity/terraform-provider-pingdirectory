@@ -725,10 +725,10 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state logFieldBehaviorResourceModel
-	if plan.Type.ValueString() == "text-access" {
+	if readResponse.TextAccessLogFieldBehaviorResponse != nil {
 		readTextAccessLogFieldBehaviorResponse(ctx, readResponse.TextAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "json-formatted-access" {
+	if readResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 		readJsonFormattedAccessLogFieldBehaviorResponse(ctx, readResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -753,10 +753,10 @@ func (r *defaultLogFieldBehaviorResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "text-access" {
+		if updateResponse.TextAccessLogFieldBehaviorResponse != nil {
 			readTextAccessLogFieldBehaviorResponse(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-formatted-access" {
+		if updateResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -858,10 +858,10 @@ func updateLogFieldBehavior(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "text-access" {
+		if updateResponse.TextAccessLogFieldBehaviorResponse != nil {
 			readTextAccessLogFieldBehaviorResponse(ctx, updateResponse.TextAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "json-formatted-access" {
+		if updateResponse.JsonFormattedAccessLogFieldBehaviorResponse != nil {
 			readJsonFormattedAccessLogFieldBehaviorResponse(ctx, updateResponse.JsonFormattedAccessLogFieldBehaviorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

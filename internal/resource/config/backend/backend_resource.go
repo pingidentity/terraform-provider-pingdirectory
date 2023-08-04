@@ -2792,46 +2792,46 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 
 	// Read the existing configuration
 	var state defaultBackendResourceModel
-	if plan.Type.ValueString() == "schema" {
+	if readResponse.SchemaBackendResponse != nil {
 		readSchemaBackendResponseDefault(ctx, readResponse.SchemaBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "backup" {
+	if readResponse.BackupBackendResponse != nil {
 		readBackupBackendResponseDefault(ctx, readResponse.BackupBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "encryption-settings" {
+	if readResponse.EncryptionSettingsBackendResponse != nil {
 		readEncryptionSettingsBackendResponseDefault(ctx, readResponse.EncryptionSettingsBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldif" {
+	if readResponse.LdifBackendResponse != nil {
 		readLdifBackendResponseDefault(ctx, readResponse.LdifBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "trust-store" {
+	if readResponse.TrustStoreBackendResponse != nil {
 		readTrustStoreBackendResponseDefault(ctx, readResponse.TrustStoreBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomBackendResponse != nil {
 		readCustomBackendResponseDefault(ctx, readResponse.CustomBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "changelog" {
+	if readResponse.ChangelogBackendResponse != nil {
 		readChangelogBackendResponseDefault(ctx, readResponse.ChangelogBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "monitor" {
+	if readResponse.MonitorBackendResponse != nil {
 		readMonitorBackendResponseDefault(ctx, readResponse.MonitorBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "local-db" {
+	if readResponse.LocalDbBackendResponse != nil {
 		readLocalDbBackendResponseDefault(ctx, readResponse.LocalDbBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "config-file-handler" {
+	if readResponse.ConfigFileHandlerBackendResponse != nil {
 		readConfigFileHandlerBackendResponseDefault(ctx, readResponse.ConfigFileHandlerBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "task" {
+	if readResponse.TaskBackendResponse != nil {
 		readTaskBackendResponseDefault(ctx, readResponse.TaskBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "alert" {
+	if readResponse.AlertBackendResponse != nil {
 		readAlertBackendResponseDefault(ctx, readResponse.AlertBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "alarm" {
+	if readResponse.AlarmBackendResponse != nil {
 		readAlarmBackendResponseDefault(ctx, readResponse.AlarmBackendResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "metrics" {
+	if readResponse.MetricsBackendResponse != nil {
 		readMetricsBackendResponseDefault(ctx, readResponse.MetricsBackendResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2856,46 +2856,46 @@ func (r *defaultBackendResource) Create(ctx context.Context, req resource.Create
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "schema" {
+		if updateResponse.SchemaBackendResponse != nil {
 			readSchemaBackendResponseDefault(ctx, updateResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "backup" {
+		if updateResponse.BackupBackendResponse != nil {
 			readBackupBackendResponseDefault(ctx, updateResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "encryption-settings" {
+		if updateResponse.EncryptionSettingsBackendResponse != nil {
 			readEncryptionSettingsBackendResponseDefault(ctx, updateResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif" {
+		if updateResponse.LdifBackendResponse != nil {
 			readLdifBackendResponseDefault(ctx, updateResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "trust-store" {
+		if updateResponse.TrustStoreBackendResponse != nil {
 			readTrustStoreBackendResponseDefault(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomBackendResponse != nil {
 			readCustomBackendResponseDefault(ctx, updateResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "changelog" {
+		if updateResponse.ChangelogBackendResponse != nil {
 			readChangelogBackendResponseDefault(ctx, updateResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "monitor" {
+		if updateResponse.MonitorBackendResponse != nil {
 			readMonitorBackendResponseDefault(ctx, updateResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "local-db" {
+		if updateResponse.LocalDbBackendResponse != nil {
 			readLocalDbBackendResponseDefault(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "config-file-handler" {
+		if updateResponse.ConfigFileHandlerBackendResponse != nil {
 			readConfigFileHandlerBackendResponseDefault(ctx, updateResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "task" {
+		if updateResponse.TaskBackendResponse != nil {
 			readTaskBackendResponseDefault(ctx, updateResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "alert" {
+		if updateResponse.AlertBackendResponse != nil {
 			readAlertBackendResponseDefault(ctx, updateResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "alarm" {
+		if updateResponse.AlarmBackendResponse != nil {
 			readAlarmBackendResponseDefault(ctx, updateResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "metrics" {
+		if updateResponse.MetricsBackendResponse != nil {
 			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -3047,7 +3047,7 @@ func (r *backendResource) Update(ctx context.Context, req resource.UpdateRequest
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "local-db" {
+		if updateResponse.LocalDbBackendResponse != nil {
 			readLocalDbBackendResponse(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -3098,46 +3098,46 @@ func (r *defaultBackendResource) Update(ctx context.Context, req resource.Update
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "schema" {
+		if updateResponse.SchemaBackendResponse != nil {
 			readSchemaBackendResponseDefault(ctx, updateResponse.SchemaBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "backup" {
+		if updateResponse.BackupBackendResponse != nil {
 			readBackupBackendResponseDefault(ctx, updateResponse.BackupBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "encryption-settings" {
+		if updateResponse.EncryptionSettingsBackendResponse != nil {
 			readEncryptionSettingsBackendResponseDefault(ctx, updateResponse.EncryptionSettingsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif" {
+		if updateResponse.LdifBackendResponse != nil {
 			readLdifBackendResponseDefault(ctx, updateResponse.LdifBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "trust-store" {
+		if updateResponse.TrustStoreBackendResponse != nil {
 			readTrustStoreBackendResponseDefault(ctx, updateResponse.TrustStoreBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomBackendResponse != nil {
 			readCustomBackendResponseDefault(ctx, updateResponse.CustomBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "changelog" {
+		if updateResponse.ChangelogBackendResponse != nil {
 			readChangelogBackendResponseDefault(ctx, updateResponse.ChangelogBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "monitor" {
+		if updateResponse.MonitorBackendResponse != nil {
 			readMonitorBackendResponseDefault(ctx, updateResponse.MonitorBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "local-db" {
+		if updateResponse.LocalDbBackendResponse != nil {
 			readLocalDbBackendResponseDefault(ctx, updateResponse.LocalDbBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "config-file-handler" {
+		if updateResponse.ConfigFileHandlerBackendResponse != nil {
 			readConfigFileHandlerBackendResponseDefault(ctx, updateResponse.ConfigFileHandlerBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "task" {
+		if updateResponse.TaskBackendResponse != nil {
 			readTaskBackendResponseDefault(ctx, updateResponse.TaskBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "alert" {
+		if updateResponse.AlertBackendResponse != nil {
 			readAlertBackendResponseDefault(ctx, updateResponse.AlertBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "alarm" {
+		if updateResponse.AlarmBackendResponse != nil {
 			readAlarmBackendResponseDefault(ctx, updateResponse.AlarmBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "metrics" {
+		if updateResponse.MetricsBackendResponse != nil {
 			readMetricsBackendResponseDefault(ctx, updateResponse.MetricsBackendResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

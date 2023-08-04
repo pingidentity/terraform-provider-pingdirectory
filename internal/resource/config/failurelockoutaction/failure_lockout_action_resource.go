@@ -429,13 +429,13 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state failureLockoutActionResourceModel
-	if plan.Type.ValueString() == "delay-bind-response" {
+	if readResponse.DelayBindResponseFailureLockoutActionResponse != nil {
 		readDelayBindResponseFailureLockoutActionResponse(ctx, readResponse.DelayBindResponseFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "no-operation" {
+	if readResponse.NoOperationFailureLockoutActionResponse != nil {
 		readNoOperationFailureLockoutActionResponse(ctx, readResponse.NoOperationFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "lock-account" {
+	if readResponse.LockAccountFailureLockoutActionResponse != nil {
 		readLockAccountFailureLockoutActionResponse(ctx, readResponse.LockAccountFailureLockoutActionResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -460,13 +460,13 @@ func (r *defaultFailureLockoutActionResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "delay-bind-response" {
+		if updateResponse.DelayBindResponseFailureLockoutActionResponse != nil {
 			readDelayBindResponseFailureLockoutActionResponse(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "no-operation" {
+		if updateResponse.NoOperationFailureLockoutActionResponse != nil {
 			readNoOperationFailureLockoutActionResponse(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "lock-account" {
+		if updateResponse.LockAccountFailureLockoutActionResponse != nil {
 			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -571,13 +571,13 @@ func updateFailureLockoutAction(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "delay-bind-response" {
+		if updateResponse.DelayBindResponseFailureLockoutActionResponse != nil {
 			readDelayBindResponseFailureLockoutActionResponse(ctx, updateResponse.DelayBindResponseFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "no-operation" {
+		if updateResponse.NoOperationFailureLockoutActionResponse != nil {
 			readNoOperationFailureLockoutActionResponse(ctx, updateResponse.NoOperationFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "lock-account" {
+		if updateResponse.LockAccountFailureLockoutActionResponse != nil {
 			readLockAccountFailureLockoutActionResponse(ctx, updateResponse.LockAccountFailureLockoutActionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

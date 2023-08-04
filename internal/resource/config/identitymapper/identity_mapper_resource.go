@@ -743,19 +743,19 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 
 	// Read the existing configuration
 	var state identityMapperResourceModel
-	if plan.Type.ValueString() == "exact-match" {
+	if readResponse.ExactMatchIdentityMapperResponse != nil {
 		readExactMatchIdentityMapperResponse(ctx, readResponse.ExactMatchIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedIdentityMapperResponse != nil {
 		readGroovyScriptedIdentityMapperResponse(ctx, readResponse.GroovyScriptedIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "regular-expression" {
+	if readResponse.RegularExpressionIdentityMapperResponse != nil {
 		readRegularExpressionIdentityMapperResponse(ctx, readResponse.RegularExpressionIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "aggregate" {
+	if readResponse.AggregateIdentityMapperResponse != nil {
 		readAggregateIdentityMapperResponse(ctx, readResponse.AggregateIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyIdentityMapperResponse != nil {
 		readThirdPartyIdentityMapperResponse(ctx, readResponse.ThirdPartyIdentityMapperResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -780,19 +780,19 @@ func (r *defaultIdentityMapperResource) Create(ctx context.Context, req resource
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "exact-match" {
+		if updateResponse.ExactMatchIdentityMapperResponse != nil {
 			readExactMatchIdentityMapperResponse(ctx, updateResponse.ExactMatchIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedIdentityMapperResponse != nil {
 			readGroovyScriptedIdentityMapperResponse(ctx, updateResponse.GroovyScriptedIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "regular-expression" {
+		if updateResponse.RegularExpressionIdentityMapperResponse != nil {
 			readRegularExpressionIdentityMapperResponse(ctx, updateResponse.RegularExpressionIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateIdentityMapperResponse != nil {
 			readAggregateIdentityMapperResponse(ctx, updateResponse.AggregateIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyIdentityMapperResponse != nil {
 			readThirdPartyIdentityMapperResponse(ctx, updateResponse.ThirdPartyIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -903,19 +903,19 @@ func updateIdentityMapper(ctx context.Context, req resource.UpdateRequest, resp 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "exact-match" {
+		if updateResponse.ExactMatchIdentityMapperResponse != nil {
 			readExactMatchIdentityMapperResponse(ctx, updateResponse.ExactMatchIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedIdentityMapperResponse != nil {
 			readGroovyScriptedIdentityMapperResponse(ctx, updateResponse.GroovyScriptedIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "regular-expression" {
+		if updateResponse.RegularExpressionIdentityMapperResponse != nil {
 			readRegularExpressionIdentityMapperResponse(ctx, updateResponse.RegularExpressionIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "aggregate" {
+		if updateResponse.AggregateIdentityMapperResponse != nil {
 			readAggregateIdentityMapperResponse(ctx, updateResponse.AggregateIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyIdentityMapperResponse != nil {
 			readThirdPartyIdentityMapperResponse(ctx, updateResponse.ThirdPartyIdentityMapperResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

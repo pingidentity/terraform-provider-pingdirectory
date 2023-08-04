@@ -627,16 +627,16 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state passwordGeneratorResourceModel
-	if plan.Type.ValueString() == "random" {
+	if readResponse.RandomPasswordGeneratorResponse != nil {
 		readRandomPasswordGeneratorResponse(ctx, readResponse.RandomPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedPasswordGeneratorResponse != nil {
 		readGroovyScriptedPasswordGeneratorResponse(ctx, readResponse.GroovyScriptedPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "passphrase" {
+	if readResponse.PassphrasePasswordGeneratorResponse != nil {
 		readPassphrasePasswordGeneratorResponse(ctx, readResponse.PassphrasePasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyPasswordGeneratorResponse != nil {
 		readThirdPartyPasswordGeneratorResponse(ctx, readResponse.ThirdPartyPasswordGeneratorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -661,16 +661,16 @@ func (r *defaultPasswordGeneratorResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "random" {
+		if updateResponse.RandomPasswordGeneratorResponse != nil {
 			readRandomPasswordGeneratorResponse(ctx, updateResponse.RandomPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPasswordGeneratorResponse != nil {
 			readGroovyScriptedPasswordGeneratorResponse(ctx, updateResponse.GroovyScriptedPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "passphrase" {
+		if updateResponse.PassphrasePasswordGeneratorResponse != nil {
 			readPassphrasePasswordGeneratorResponse(ctx, updateResponse.PassphrasePasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordGeneratorResponse != nil {
 			readThirdPartyPasswordGeneratorResponse(ctx, updateResponse.ThirdPartyPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -778,16 +778,16 @@ func updatePasswordGenerator(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "random" {
+		if updateResponse.RandomPasswordGeneratorResponse != nil {
 			readRandomPasswordGeneratorResponse(ctx, updateResponse.RandomPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedPasswordGeneratorResponse != nil {
 			readGroovyScriptedPasswordGeneratorResponse(ctx, updateResponse.GroovyScriptedPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "passphrase" {
+		if updateResponse.PassphrasePasswordGeneratorResponse != nil {
 			readPassphrasePasswordGeneratorResponse(ctx, updateResponse.PassphrasePasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyPasswordGeneratorResponse != nil {
 			readThirdPartyPasswordGeneratorResponse(ctx, updateResponse.ThirdPartyPasswordGeneratorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

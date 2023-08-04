@@ -397,10 +397,10 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state oauthTokenHandlerResourceModel
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
 		readGroovyScriptedOauthTokenHandlerResponse(ctx, readResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 		readThirdPartyOauthTokenHandlerResponse(ctx, readResponse.ThirdPartyOauthTokenHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -425,10 +425,10 @@ func (r *defaultOauthTokenHandlerResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
 			readGroovyScriptedOauthTokenHandlerResponse(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -530,10 +530,10 @@ func updateOauthTokenHandler(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedOauthTokenHandlerResponse != nil {
 			readGroovyScriptedOauthTokenHandlerResponse(ctx, updateResponse.GroovyScriptedOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyOauthTokenHandlerResponse != nil {
 			readThirdPartyOauthTokenHandlerResponse(ctx, updateResponse.ThirdPartyOauthTokenHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

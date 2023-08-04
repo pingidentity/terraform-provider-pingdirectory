@@ -169,13 +169,13 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state groupImplementationResourceModel
-	if plan.Type.ValueString() == "static" {
+	if readResponse.StaticGroupImplementationResponse != nil {
 		readStaticGroupImplementationResponse(ctx, readResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "virtual-static" {
+	if readResponse.VirtualStaticGroupImplementationResponse != nil {
 		readVirtualStaticGroupImplementationResponse(ctx, readResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "dynamic" {
+	if readResponse.DynamicGroupImplementationResponse != nil {
 		readDynamicGroupImplementationResponse(ctx, readResponse.DynamicGroupImplementationResponse, &state, &resp.Diagnostics)
 	}
 
@@ -200,13 +200,13 @@ func (r *groupImplementationResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "static" {
+		if updateResponse.StaticGroupImplementationResponse != nil {
 			readStaticGroupImplementationResponse(ctx, updateResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "virtual-static" {
+		if updateResponse.VirtualStaticGroupImplementationResponse != nil {
 			readVirtualStaticGroupImplementationResponse(ctx, updateResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dynamic" {
+		if updateResponse.DynamicGroupImplementationResponse != nil {
 			readDynamicGroupImplementationResponse(ctx, updateResponse.DynamicGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -295,13 +295,13 @@ func (r *groupImplementationResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "static" {
+		if updateResponse.StaticGroupImplementationResponse != nil {
 			readStaticGroupImplementationResponse(ctx, updateResponse.StaticGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "virtual-static" {
+		if updateResponse.VirtualStaticGroupImplementationResponse != nil {
 			readVirtualStaticGroupImplementationResponse(ctx, updateResponse.VirtualStaticGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dynamic" {
+		if updateResponse.DynamicGroupImplementationResponse != nil {
 			readDynamicGroupImplementationResponse(ctx, updateResponse.DynamicGroupImplementationResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

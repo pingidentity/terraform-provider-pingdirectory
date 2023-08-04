@@ -837,13 +837,13 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state restResourceTypeResourceModel
-	if plan.Type.ValueString() == "user" {
+	if readResponse.UserRestResourceTypeResponse != nil {
 		readUserRestResourceTypeResponse(ctx, readResponse.UserRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericRestResourceTypeResponse != nil {
 		readGenericRestResourceTypeResponse(ctx, readResponse.GenericRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "group" {
+	if readResponse.GroupRestResourceTypeResponse != nil {
 		readGroupRestResourceTypeResponse(ctx, readResponse.GroupRestResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -868,13 +868,13 @@ func (r *defaultRestResourceTypeResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "user" {
+		if updateResponse.UserRestResourceTypeResponse != nil {
 			readUserRestResourceTypeResponse(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericRestResourceTypeResponse != nil {
 			readGenericRestResourceTypeResponse(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "group" {
+		if updateResponse.GroupRestResourceTypeResponse != nil {
 			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -979,13 +979,13 @@ func updateRestResourceType(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "user" {
+		if updateResponse.UserRestResourceTypeResponse != nil {
 			readUserRestResourceTypeResponse(ctx, updateResponse.UserRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericRestResourceTypeResponse != nil {
 			readGenericRestResourceTypeResponse(ctx, updateResponse.GenericRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "group" {
+		if updateResponse.GroupRestResourceTypeResponse != nil {
 			readGroupRestResourceTypeResponse(ctx, updateResponse.GroupRestResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

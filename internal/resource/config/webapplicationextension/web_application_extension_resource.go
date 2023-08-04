@@ -633,10 +633,10 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state defaultWebApplicationExtensionResourceModel
-	if plan.Type.ValueString() == "console" {
+	if readResponse.ConsoleWebApplicationExtensionResponse != nil {
 		readConsoleWebApplicationExtensionResponseDefault(ctx, readResponse.ConsoleWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericWebApplicationExtensionResponse != nil {
 		readGenericWebApplicationExtensionResponseDefault(ctx, readResponse.GenericWebApplicationExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -661,10 +661,10 @@ func (r *defaultWebApplicationExtensionResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "console" {
+		if updateResponse.ConsoleWebApplicationExtensionResponse != nil {
 			readConsoleWebApplicationExtensionResponseDefault(ctx, updateResponse.ConsoleWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericWebApplicationExtensionResponse != nil {
 			readGenericWebApplicationExtensionResponseDefault(ctx, updateResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -780,7 +780,7 @@ func (r *webApplicationExtensionResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericWebApplicationExtensionResponse != nil {
 			readGenericWebApplicationExtensionResponse(ctx, updateResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -831,10 +831,10 @@ func (r *defaultWebApplicationExtensionResource) Update(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "console" {
+		if updateResponse.ConsoleWebApplicationExtensionResponse != nil {
 			readConsoleWebApplicationExtensionResponseDefault(ctx, updateResponse.ConsoleWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericWebApplicationExtensionResponse != nil {
 			readGenericWebApplicationExtensionResponseDefault(ctx, updateResponse.GenericWebApplicationExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

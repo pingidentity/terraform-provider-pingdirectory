@@ -592,10 +592,10 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state scimResourceTypeResourceModel
-	if plan.Type.ValueString() == "ldap-pass-through" {
+	if readResponse.LdapPassThroughScimResourceTypeResponse != nil {
 		readLdapPassThroughScimResourceTypeResponse(ctx, readResponse.LdapPassThroughScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap-mapping" {
+	if readResponse.LdapMappingScimResourceTypeResponse != nil {
 		readLdapMappingScimResourceTypeResponse(ctx, readResponse.LdapMappingScimResourceTypeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -620,10 +620,10 @@ func (r *defaultScimResourceTypeResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap-pass-through" {
+		if updateResponse.LdapPassThroughScimResourceTypeResponse != nil {
 			readLdapPassThroughScimResourceTypeResponse(ctx, updateResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapping" {
+		if updateResponse.LdapMappingScimResourceTypeResponse != nil {
 			readLdapMappingScimResourceTypeResponse(ctx, updateResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -725,10 +725,10 @@ func updateScimResourceType(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ldap-pass-through" {
+		if updateResponse.LdapPassThroughScimResourceTypeResponse != nil {
 			readLdapPassThroughScimResourceTypeResponse(ctx, updateResponse.LdapPassThroughScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapping" {
+		if updateResponse.LdapMappingScimResourceTypeResponse != nil {
 			readLdapMappingScimResourceTypeResponse(ctx, updateResponse.LdapMappingScimResourceTypeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

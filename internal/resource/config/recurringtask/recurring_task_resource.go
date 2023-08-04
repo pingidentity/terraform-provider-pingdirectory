@@ -2767,40 +2767,40 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 
 	// Read the existing configuration
 	var state recurringTaskResourceModel
-	if plan.Type.ValueString() == "generate-server-profile" {
+	if readResponse.GenerateServerProfileRecurringTaskResponse != nil {
 		readGenerateServerProfileRecurringTaskResponse(ctx, readResponse.GenerateServerProfileRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "leave-lockdown-mode" {
+	if readResponse.LeaveLockdownModeRecurringTaskResponse != nil {
 		readLeaveLockdownModeRecurringTaskResponse(ctx, readResponse.LeaveLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "backup" {
+	if readResponse.BackupRecurringTaskResponse != nil {
 		readBackupRecurringTaskResponse(ctx, readResponse.BackupRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "delay" {
+	if readResponse.DelayRecurringTaskResponse != nil {
 		readDelayRecurringTaskResponse(ctx, readResponse.DelayRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "statically-defined" {
+	if readResponse.StaticallyDefinedRecurringTaskResponse != nil {
 		readStaticallyDefinedRecurringTaskResponse(ctx, readResponse.StaticallyDefinedRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "collect-support-data" {
+	if readResponse.CollectSupportDataRecurringTaskResponse != nil {
 		readCollectSupportDataRecurringTaskResponse(ctx, readResponse.CollectSupportDataRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldif-export" {
+	if readResponse.LdifExportRecurringTaskResponse != nil {
 		readLdifExportRecurringTaskResponse(ctx, readResponse.LdifExportRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "enter-lockdown-mode" {
+	if readResponse.EnterLockdownModeRecurringTaskResponse != nil {
 		readEnterLockdownModeRecurringTaskResponse(ctx, readResponse.EnterLockdownModeRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "audit-data-security" {
+	if readResponse.AuditDataSecurityRecurringTaskResponse != nil {
 		readAuditDataSecurityRecurringTaskResponse(ctx, readResponse.AuditDataSecurityRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "exec" {
+	if readResponse.ExecRecurringTaskResponse != nil {
 		readExecRecurringTaskResponse(ctx, readResponse.ExecRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-retention" {
+	if readResponse.FileRetentionRecurringTaskResponse != nil {
 		readFileRetentionRecurringTaskResponse(ctx, readResponse.FileRetentionRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyRecurringTaskResponse != nil {
 		readThirdPartyRecurringTaskResponse(ctx, readResponse.ThirdPartyRecurringTaskResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2825,40 +2825,40 @@ func (r *defaultRecurringTaskResource) Create(ctx context.Context, req resource.
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "generate-server-profile" {
+		if updateResponse.GenerateServerProfileRecurringTaskResponse != nil {
 			readGenerateServerProfileRecurringTaskResponse(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "leave-lockdown-mode" {
+		if updateResponse.LeaveLockdownModeRecurringTaskResponse != nil {
 			readLeaveLockdownModeRecurringTaskResponse(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "backup" {
+		if updateResponse.BackupRecurringTaskResponse != nil {
 			readBackupRecurringTaskResponse(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "delay" {
+		if updateResponse.DelayRecurringTaskResponse != nil {
 			readDelayRecurringTaskResponse(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "statically-defined" {
+		if updateResponse.StaticallyDefinedRecurringTaskResponse != nil {
 			readStaticallyDefinedRecurringTaskResponse(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataRecurringTaskResponse != nil {
 			readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif-export" {
+		if updateResponse.LdifExportRecurringTaskResponse != nil {
 			readLdifExportRecurringTaskResponse(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "enter-lockdown-mode" {
+		if updateResponse.EnterLockdownModeRecurringTaskResponse != nil {
 			readEnterLockdownModeRecurringTaskResponse(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "audit-data-security" {
+		if updateResponse.AuditDataSecurityRecurringTaskResponse != nil {
 			readAuditDataSecurityRecurringTaskResponse(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecRecurringTaskResponse != nil {
 			readExecRecurringTaskResponse(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-retention" {
+		if updateResponse.FileRetentionRecurringTaskResponse != nil {
 			readFileRetentionRecurringTaskResponse(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRecurringTaskResponse != nil {
 			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2990,40 +2990,40 @@ func updateRecurringTask(ctx context.Context, req resource.UpdateRequest, resp *
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "generate-server-profile" {
+		if updateResponse.GenerateServerProfileRecurringTaskResponse != nil {
 			readGenerateServerProfileRecurringTaskResponse(ctx, updateResponse.GenerateServerProfileRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "leave-lockdown-mode" {
+		if updateResponse.LeaveLockdownModeRecurringTaskResponse != nil {
 			readLeaveLockdownModeRecurringTaskResponse(ctx, updateResponse.LeaveLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "backup" {
+		if updateResponse.BackupRecurringTaskResponse != nil {
 			readBackupRecurringTaskResponse(ctx, updateResponse.BackupRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "delay" {
+		if updateResponse.DelayRecurringTaskResponse != nil {
 			readDelayRecurringTaskResponse(ctx, updateResponse.DelayRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "statically-defined" {
+		if updateResponse.StaticallyDefinedRecurringTaskResponse != nil {
 			readStaticallyDefinedRecurringTaskResponse(ctx, updateResponse.StaticallyDefinedRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "collect-support-data" {
+		if updateResponse.CollectSupportDataRecurringTaskResponse != nil {
 			readCollectSupportDataRecurringTaskResponse(ctx, updateResponse.CollectSupportDataRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif-export" {
+		if updateResponse.LdifExportRecurringTaskResponse != nil {
 			readLdifExportRecurringTaskResponse(ctx, updateResponse.LdifExportRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "enter-lockdown-mode" {
+		if updateResponse.EnterLockdownModeRecurringTaskResponse != nil {
 			readEnterLockdownModeRecurringTaskResponse(ctx, updateResponse.EnterLockdownModeRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "audit-data-security" {
+		if updateResponse.AuditDataSecurityRecurringTaskResponse != nil {
 			readAuditDataSecurityRecurringTaskResponse(ctx, updateResponse.AuditDataSecurityRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecRecurringTaskResponse != nil {
 			readExecRecurringTaskResponse(ctx, updateResponse.ExecRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-retention" {
+		if updateResponse.FileRetentionRecurringTaskResponse != nil {
 			readFileRetentionRecurringTaskResponse(ctx, updateResponse.FileRetentionRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyRecurringTaskResponse != nil {
 			readThirdPartyRecurringTaskResponse(ctx, updateResponse.ThirdPartyRecurringTaskResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

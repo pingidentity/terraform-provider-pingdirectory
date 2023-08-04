@@ -1407,16 +1407,16 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 
 	// Read the existing configuration
 	var state connectionHandlerResourceModel
-	if plan.Type.ValueString() == "jmx" {
+	if readResponse.JmxConnectionHandlerResponse != nil {
 		readJmxConnectionHandlerResponse(ctx, readResponse.JmxConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap" {
+	if readResponse.LdapConnectionHandlerResponse != nil {
 		readLdapConnectionHandlerResponse(ctx, readResponse.LdapConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldif" {
+	if readResponse.LdifConnectionHandlerResponse != nil {
 		readLdifConnectionHandlerResponse(ctx, readResponse.LdifConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "http" {
+	if readResponse.HttpConnectionHandlerResponse != nil {
 		readHttpConnectionHandlerResponse(ctx, readResponse.HttpConnectionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1441,16 +1441,16 @@ func (r *defaultConnectionHandlerResource) Create(ctx context.Context, req resou
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxConnectionHandlerResponse != nil {
 			readJmxConnectionHandlerResponse(ctx, updateResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapConnectionHandlerResponse != nil {
 			readLdapConnectionHandlerResponse(ctx, updateResponse.LdapConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif" {
+		if updateResponse.LdifConnectionHandlerResponse != nil {
 			readLdifConnectionHandlerResponse(ctx, updateResponse.LdifConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpConnectionHandlerResponse != nil {
 			readHttpConnectionHandlerResponse(ctx, updateResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1558,16 +1558,16 @@ func updateConnectionHandler(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxConnectionHandlerResponse != nil {
 			readJmxConnectionHandlerResponse(ctx, updateResponse.JmxConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap" {
+		if updateResponse.LdapConnectionHandlerResponse != nil {
 			readLdapConnectionHandlerResponse(ctx, updateResponse.LdapConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldif" {
+		if updateResponse.LdifConnectionHandlerResponse != nil {
 			readLdifConnectionHandlerResponse(ctx, updateResponse.LdifConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "http" {
+		if updateResponse.HttpConnectionHandlerResponse != nil {
 			readHttpConnectionHandlerResponse(ctx, updateResponse.HttpConnectionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

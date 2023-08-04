@@ -540,10 +540,10 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state idTokenValidatorResourceModel
-	if plan.Type.ValueString() == "ping-one" {
+	if readResponse.PingOneIdTokenValidatorResponse != nil {
 		readPingOneIdTokenValidatorResponse(ctx, readResponse.PingOneIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "openid-connect" {
+	if readResponse.OpenidConnectIdTokenValidatorResponse != nil {
 		readOpenidConnectIdTokenValidatorResponse(ctx, readResponse.OpenidConnectIdTokenValidatorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -568,10 +568,10 @@ func (r *defaultIdTokenValidatorResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOneIdTokenValidatorResponse != nil {
 			readPingOneIdTokenValidatorResponse(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "openid-connect" {
+		if updateResponse.OpenidConnectIdTokenValidatorResponse != nil {
 			readOpenidConnectIdTokenValidatorResponse(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -673,10 +673,10 @@ func updateIdTokenValidator(ctx context.Context, req resource.UpdateRequest, res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ping-one" {
+		if updateResponse.PingOneIdTokenValidatorResponse != nil {
 			readPingOneIdTokenValidatorResponse(ctx, updateResponse.PingOneIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "openid-connect" {
+		if updateResponse.OpenidConnectIdTokenValidatorResponse != nil {
 			readOpenidConnectIdTokenValidatorResponse(ctx, updateResponse.OpenidConnectIdTokenValidatorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

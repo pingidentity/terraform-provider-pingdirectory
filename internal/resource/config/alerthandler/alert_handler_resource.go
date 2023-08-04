@@ -2000,37 +2000,37 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 
 	// Read the existing configuration
 	var state defaultAlertHandlerResourceModel
-	if plan.Type.ValueString() == "output" {
+	if readResponse.OutputAlertHandlerResponse != nil {
 		readOutputAlertHandlerResponseDefault(ctx, readResponse.OutputAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "smtp" {
+	if readResponse.SmtpAlertHandlerResponse != nil {
 		readSmtpAlertHandlerResponseDefault(ctx, readResponse.SmtpAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "jmx" {
+	if readResponse.JmxAlertHandlerResponse != nil {
 		readJmxAlertHandlerResponseDefault(ctx, readResponse.JmxAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedAlertHandlerResponse != nil {
 		readGroovyScriptedAlertHandlerResponseDefault(ctx, readResponse.GroovyScriptedAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomAlertHandlerResponse != nil {
 		readCustomAlertHandlerResponseDefault(ctx, readResponse.CustomAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "snmp" {
+	if readResponse.SnmpAlertHandlerResponse != nil {
 		readSnmpAlertHandlerResponseDefault(ctx, readResponse.SnmpAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "twilio" {
+	if readResponse.TwilioAlertHandlerResponse != nil {
 		readTwilioAlertHandlerResponseDefault(ctx, readResponse.TwilioAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "error-log" {
+	if readResponse.ErrorLogAlertHandlerResponse != nil {
 		readErrorLogAlertHandlerResponseDefault(ctx, readResponse.ErrorLogAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "snmp-sub-agent" {
+	if readResponse.SnmpSubAgentAlertHandlerResponse != nil {
 		readSnmpSubAgentAlertHandlerResponseDefault(ctx, readResponse.SnmpSubAgentAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "exec" {
+	if readResponse.ExecAlertHandlerResponse != nil {
 		readExecAlertHandlerResponseDefault(ctx, readResponse.ExecAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyAlertHandlerResponse != nil {
 		readThirdPartyAlertHandlerResponseDefault(ctx, readResponse.ThirdPartyAlertHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2055,37 +2055,37 @@ func (r *defaultAlertHandlerResource) Create(ctx context.Context, req resource.C
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "output" {
+		if updateResponse.OutputAlertHandlerResponse != nil {
 			readOutputAlertHandlerResponseDefault(ctx, updateResponse.OutputAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAlertHandlerResponse != nil {
 			readSmtpAlertHandlerResponseDefault(ctx, updateResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxAlertHandlerResponse != nil {
 			readJmxAlertHandlerResponseDefault(ctx, updateResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAlertHandlerResponse != nil {
 			readGroovyScriptedAlertHandlerResponseDefault(ctx, updateResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomAlertHandlerResponse != nil {
 			readCustomAlertHandlerResponseDefault(ctx, updateResponse.CustomAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp" {
+		if updateResponse.SnmpAlertHandlerResponse != nil {
 			readSnmpAlertHandlerResponseDefault(ctx, updateResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioAlertHandlerResponse != nil {
 			readTwilioAlertHandlerResponseDefault(ctx, updateResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAlertHandlerResponse != nil {
 			readErrorLogAlertHandlerResponseDefault(ctx, updateResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp-sub-agent" {
+		if updateResponse.SnmpSubAgentAlertHandlerResponse != nil {
 			readSnmpSubAgentAlertHandlerResponseDefault(ctx, updateResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecAlertHandlerResponse != nil {
 			readExecAlertHandlerResponseDefault(ctx, updateResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAlertHandlerResponse != nil {
 			readThirdPartyAlertHandlerResponseDefault(ctx, updateResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2228,31 +2228,31 @@ func (r *alertHandlerResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAlertHandlerResponse != nil {
 			readSmtpAlertHandlerResponse(ctx, updateResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxAlertHandlerResponse != nil {
 			readJmxAlertHandlerResponse(ctx, updateResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAlertHandlerResponse != nil {
 			readGroovyScriptedAlertHandlerResponse(ctx, updateResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp" {
+		if updateResponse.SnmpAlertHandlerResponse != nil {
 			readSnmpAlertHandlerResponse(ctx, updateResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioAlertHandlerResponse != nil {
 			readTwilioAlertHandlerResponse(ctx, updateResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAlertHandlerResponse != nil {
 			readErrorLogAlertHandlerResponse(ctx, updateResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp-sub-agent" {
+		if updateResponse.SnmpSubAgentAlertHandlerResponse != nil {
 			readSnmpSubAgentAlertHandlerResponse(ctx, updateResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecAlertHandlerResponse != nil {
 			readExecAlertHandlerResponse(ctx, updateResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAlertHandlerResponse != nil {
 			readThirdPartyAlertHandlerResponse(ctx, updateResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2304,37 +2304,37 @@ func (r *defaultAlertHandlerResource) Update(ctx context.Context, req resource.U
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "output" {
+		if updateResponse.OutputAlertHandlerResponse != nil {
 			readOutputAlertHandlerResponseDefault(ctx, updateResponse.OutputAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "smtp" {
+		if updateResponse.SmtpAlertHandlerResponse != nil {
 			readSmtpAlertHandlerResponseDefault(ctx, updateResponse.SmtpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "jmx" {
+		if updateResponse.JmxAlertHandlerResponse != nil {
 			readJmxAlertHandlerResponseDefault(ctx, updateResponse.JmxAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedAlertHandlerResponse != nil {
 			readGroovyScriptedAlertHandlerResponseDefault(ctx, updateResponse.GroovyScriptedAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomAlertHandlerResponse != nil {
 			readCustomAlertHandlerResponseDefault(ctx, updateResponse.CustomAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp" {
+		if updateResponse.SnmpAlertHandlerResponse != nil {
 			readSnmpAlertHandlerResponseDefault(ctx, updateResponse.SnmpAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "twilio" {
+		if updateResponse.TwilioAlertHandlerResponse != nil {
 			readTwilioAlertHandlerResponseDefault(ctx, updateResponse.TwilioAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error-log" {
+		if updateResponse.ErrorLogAlertHandlerResponse != nil {
 			readErrorLogAlertHandlerResponseDefault(ctx, updateResponse.ErrorLogAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "snmp-sub-agent" {
+		if updateResponse.SnmpSubAgentAlertHandlerResponse != nil {
 			readSnmpSubAgentAlertHandlerResponseDefault(ctx, updateResponse.SnmpSubAgentAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "exec" {
+		if updateResponse.ExecAlertHandlerResponse != nil {
 			readExecAlertHandlerResponseDefault(ctx, updateResponse.ExecAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyAlertHandlerResponse != nil {
 			readThirdPartyAlertHandlerResponseDefault(ctx, updateResponse.ThirdPartyAlertHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

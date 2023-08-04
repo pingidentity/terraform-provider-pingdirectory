@@ -1786,46 +1786,46 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 
 	// Read the existing configuration
 	var state dataSecurityAuditorResourceModel
-	if plan.Type.ValueString() == "expired-password" {
+	if readResponse.ExpiredPasswordDataSecurityAuditorResponse != nil {
 		readExpiredPasswordDataSecurityAuditorResponse(ctx, readResponse.ExpiredPasswordDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "idle-account" {
+	if readResponse.IdleAccountDataSecurityAuditorResponse != nil {
 		readIdleAccountDataSecurityAuditorResponse(ctx, readResponse.IdleAccountDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "disabled-account" {
+	if readResponse.DisabledAccountDataSecurityAuditorResponse != nil {
 		readDisabledAccountDataSecurityAuditorResponse(ctx, readResponse.DisabledAccountDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "weakly-encoded-password" {
+	if readResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse != nil {
 		readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx, readResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "privilege" {
+	if readResponse.PrivilegeDataSecurityAuditorResponse != nil {
 		readPrivilegeDataSecurityAuditorResponse(ctx, readResponse.PrivilegeDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "account-usability-issues" {
+	if readResponse.AccountUsabilityIssuesDataSecurityAuditorResponse != nil {
 		readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx, readResponse.AccountUsabilityIssuesDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "locked-account" {
+	if readResponse.LockedAccountDataSecurityAuditorResponse != nil {
 		readLockedAccountDataSecurityAuditorResponse(ctx, readResponse.LockedAccountDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "filter" {
+	if readResponse.FilterDataSecurityAuditorResponse != nil {
 		readFilterDataSecurityAuditorResponse(ctx, readResponse.FilterDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "account-validity-window" {
+	if readResponse.AccountValidityWindowDataSecurityAuditorResponse != nil {
 		readAccountValidityWindowDataSecurityAuditorResponse(ctx, readResponse.AccountValidityWindowDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "multiple-password" {
+	if readResponse.MultiplePasswordDataSecurityAuditorResponse != nil {
 		readMultiplePasswordDataSecurityAuditorResponse(ctx, readResponse.MultiplePasswordDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "deprecated-password-storage-scheme" {
+	if readResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse != nil {
 		readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx, readResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "nonexistent-password-policy" {
+	if readResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse != nil {
 		readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx, readResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "access-control" {
+	if readResponse.AccessControlDataSecurityAuditorResponse != nil {
 		readAccessControlDataSecurityAuditorResponse(ctx, readResponse.AccessControlDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 		readThirdPartyDataSecurityAuditorResponse(ctx, readResponse.ThirdPartyDataSecurityAuditorResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1850,46 +1850,46 @@ func (r *defaultDataSecurityAuditorResource) Create(ctx context.Context, req res
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "expired-password" {
+		if updateResponse.ExpiredPasswordDataSecurityAuditorResponse != nil {
 			readExpiredPasswordDataSecurityAuditorResponse(ctx, updateResponse.ExpiredPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "idle-account" {
+		if updateResponse.IdleAccountDataSecurityAuditorResponse != nil {
 			readIdleAccountDataSecurityAuditorResponse(ctx, updateResponse.IdleAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disabled-account" {
+		if updateResponse.DisabledAccountDataSecurityAuditorResponse != nil {
 			readDisabledAccountDataSecurityAuditorResponse(ctx, updateResponse.DisabledAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "weakly-encoded-password" {
+		if updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse != nil {
 			readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx, updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "privilege" {
+		if updateResponse.PrivilegeDataSecurityAuditorResponse != nil {
 			readPrivilegeDataSecurityAuditorResponse(ctx, updateResponse.PrivilegeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-usability-issues" {
+		if updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse != nil {
 			readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx, updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "locked-account" {
+		if updateResponse.LockedAccountDataSecurityAuditorResponse != nil {
 			readLockedAccountDataSecurityAuditorResponse(ctx, updateResponse.LockedAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter" {
+		if updateResponse.FilterDataSecurityAuditorResponse != nil {
 			readFilterDataSecurityAuditorResponse(ctx, updateResponse.FilterDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-validity-window" {
+		if updateResponse.AccountValidityWindowDataSecurityAuditorResponse != nil {
 			readAccountValidityWindowDataSecurityAuditorResponse(ctx, updateResponse.AccountValidityWindowDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multiple-password" {
+		if updateResponse.MultiplePasswordDataSecurityAuditorResponse != nil {
 			readMultiplePasswordDataSecurityAuditorResponse(ctx, updateResponse.MultiplePasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deprecated-password-storage-scheme" {
+		if updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse != nil {
 			readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx, updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nonexistent-password-policy" {
+		if updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse != nil {
 			readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx, updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "access-control" {
+		if updateResponse.AccessControlDataSecurityAuditorResponse != nil {
 			readAccessControlDataSecurityAuditorResponse(ctx, updateResponse.AccessControlDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 			readThirdPartyDataSecurityAuditorResponse(ctx, updateResponse.ThirdPartyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2027,46 +2027,46 @@ func updateDataSecurityAuditor(ctx context.Context, req resource.UpdateRequest, 
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "expired-password" {
+		if updateResponse.ExpiredPasswordDataSecurityAuditorResponse != nil {
 			readExpiredPasswordDataSecurityAuditorResponse(ctx, updateResponse.ExpiredPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "idle-account" {
+		if updateResponse.IdleAccountDataSecurityAuditorResponse != nil {
 			readIdleAccountDataSecurityAuditorResponse(ctx, updateResponse.IdleAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "disabled-account" {
+		if updateResponse.DisabledAccountDataSecurityAuditorResponse != nil {
 			readDisabledAccountDataSecurityAuditorResponse(ctx, updateResponse.DisabledAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "weakly-encoded-password" {
+		if updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse != nil {
 			readWeaklyEncodedPasswordDataSecurityAuditorResponse(ctx, updateResponse.WeaklyEncodedPasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "privilege" {
+		if updateResponse.PrivilegeDataSecurityAuditorResponse != nil {
 			readPrivilegeDataSecurityAuditorResponse(ctx, updateResponse.PrivilegeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-usability-issues" {
+		if updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse != nil {
 			readAccountUsabilityIssuesDataSecurityAuditorResponse(ctx, updateResponse.AccountUsabilityIssuesDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "locked-account" {
+		if updateResponse.LockedAccountDataSecurityAuditorResponse != nil {
 			readLockedAccountDataSecurityAuditorResponse(ctx, updateResponse.LockedAccountDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "filter" {
+		if updateResponse.FilterDataSecurityAuditorResponse != nil {
 			readFilterDataSecurityAuditorResponse(ctx, updateResponse.FilterDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "account-validity-window" {
+		if updateResponse.AccountValidityWindowDataSecurityAuditorResponse != nil {
 			readAccountValidityWindowDataSecurityAuditorResponse(ctx, updateResponse.AccountValidityWindowDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "multiple-password" {
+		if updateResponse.MultiplePasswordDataSecurityAuditorResponse != nil {
 			readMultiplePasswordDataSecurityAuditorResponse(ctx, updateResponse.MultiplePasswordDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "deprecated-password-storage-scheme" {
+		if updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse != nil {
 			readDeprecatedPasswordStorageSchemeDataSecurityAuditorResponse(ctx, updateResponse.DeprecatedPasswordStorageSchemeDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "nonexistent-password-policy" {
+		if updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse != nil {
 			readNonexistentPasswordPolicyDataSecurityAuditorResponse(ctx, updateResponse.NonexistentPasswordPolicyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "access-control" {
+		if updateResponse.AccessControlDataSecurityAuditorResponse != nil {
 			readAccessControlDataSecurityAuditorResponse(ctx, updateResponse.AccessControlDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyDataSecurityAuditorResponse != nil {
 			readThirdPartyDataSecurityAuditorResponse(ctx, updateResponse.ThirdPartyDataSecurityAuditorResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

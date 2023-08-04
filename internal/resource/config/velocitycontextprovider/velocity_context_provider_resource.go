@@ -603,13 +603,13 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state velocityContextProviderResourceModel
-	if plan.Type.ValueString() == "velocity-tools" {
+	if readResponse.VelocityToolsVelocityContextProviderResponse != nil {
 		readVelocityToolsVelocityContextProviderResponse(ctx, readResponse.VelocityToolsVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomVelocityContextProviderResponse != nil {
 		readCustomVelocityContextProviderResponse(ctx, readResponse.CustomVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyVelocityContextProviderResponse != nil {
 		readThirdPartyVelocityContextProviderResponse(ctx, readResponse.ThirdPartyVelocityContextProviderResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -634,13 +634,13 @@ func (r *defaultVelocityContextProviderResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "velocity-tools" {
+		if updateResponse.VelocityToolsVelocityContextProviderResponse != nil {
 			readVelocityToolsVelocityContextProviderResponse(ctx, updateResponse.VelocityToolsVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomVelocityContextProviderResponse != nil {
 			readCustomVelocityContextProviderResponse(ctx, updateResponse.CustomVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVelocityContextProviderResponse != nil {
 			readThirdPartyVelocityContextProviderResponse(ctx, updateResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -746,13 +746,13 @@ func updateVelocityContextProvider(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "velocity-tools" {
+		if updateResponse.VelocityToolsVelocityContextProviderResponse != nil {
 			readVelocityToolsVelocityContextProviderResponse(ctx, updateResponse.VelocityToolsVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomVelocityContextProviderResponse != nil {
 			readCustomVelocityContextProviderResponse(ctx, updateResponse.CustomVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVelocityContextProviderResponse != nil {
 			readThirdPartyVelocityContextProviderResponse(ctx, updateResponse.ThirdPartyVelocityContextProviderResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

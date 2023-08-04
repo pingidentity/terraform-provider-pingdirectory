@@ -3239,73 +3239,73 @@ func (r *defaultVirtualAttributeResource) Create(ctx context.Context, req resour
 
 	// Read the existing configuration
 	var state defaultVirtualAttributeResourceModel
-	if plan.Type.ValueString() == "mirror" {
+	if readResponse.MirrorVirtualAttributeResponse != nil {
 		readMirrorVirtualAttributeResponseDefault(ctx, readResponse.MirrorVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "entry-checksum" {
+	if readResponse.EntryChecksumVirtualAttributeResponse != nil {
 		readEntryChecksumVirtualAttributeResponseDefault(ctx, readResponse.EntryChecksumVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "member-of-server-group" {
+	if readResponse.MemberOfServerGroupVirtualAttributeResponse != nil {
 		readMemberOfServerGroupVirtualAttributeResponseDefault(ctx, readResponse.MemberOfServerGroupVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "constructed" {
+	if readResponse.ConstructedVirtualAttributeResponse != nil {
 		readConstructedVirtualAttributeResponseDefault(ctx, readResponse.ConstructedVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "is-member-of" {
+	if readResponse.IsMemberOfVirtualAttributeResponse != nil {
 		readIsMemberOfVirtualAttributeResponseDefault(ctx, readResponse.IsMemberOfVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "custom" {
+	if readResponse.CustomVirtualAttributeResponse != nil {
 		readCustomVirtualAttributeResponseDefault(ctx, readResponse.CustomVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "num-subordinates" {
+	if readResponse.NumSubordinatesVirtualAttributeResponse != nil {
 		readNumSubordinatesVirtualAttributeResponseDefault(ctx, readResponse.NumSubordinatesVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "reverse-dn-join" {
+	if readResponse.ReverseDnJoinVirtualAttributeResponse != nil {
 		readReverseDnJoinVirtualAttributeResponseDefault(ctx, readResponse.ReverseDnJoinVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "identify-references" {
+	if readResponse.IdentifyReferencesVirtualAttributeResponse != nil {
 		readIdentifyReferencesVirtualAttributeResponseDefault(ctx, readResponse.IdentifyReferencesVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "user-defined" {
+	if readResponse.UserDefinedVirtualAttributeResponse != nil {
 		readUserDefinedVirtualAttributeResponseDefault(ctx, readResponse.UserDefinedVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "current-time" {
+	if readResponse.CurrentTimeVirtualAttributeResponse != nil {
 		readCurrentTimeVirtualAttributeResponseDefault(ctx, readResponse.CurrentTimeVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "short-unique-id" {
+	if readResponse.ShortUniqueIdVirtualAttributeResponse != nil {
 		readShortUniqueIdVirtualAttributeResponseDefault(ctx, readResponse.ShortUniqueIdVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "entry-dn" {
+	if readResponse.EntryDnVirtualAttributeResponse != nil {
 		readEntryDnVirtualAttributeResponseDefault(ctx, readResponse.EntryDnVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "has-subordinates" {
+	if readResponse.HasSubordinatesVirtualAttributeResponse != nil {
 		readHasSubordinatesVirtualAttributeResponseDefault(ctx, readResponse.HasSubordinatesVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "equality-join" {
+	if readResponse.EqualityJoinVirtualAttributeResponse != nil {
 		readEqualityJoinVirtualAttributeResponseDefault(ctx, readResponse.EqualityJoinVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedVirtualAttributeResponse != nil {
 		readGroovyScriptedVirtualAttributeResponseDefault(ctx, readResponse.GroovyScriptedVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "instance-name" {
+	if readResponse.InstanceNameVirtualAttributeResponse != nil {
 		readInstanceNameVirtualAttributeResponseDefault(ctx, readResponse.InstanceNameVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "replication-state-detail" {
+	if readResponse.ReplicationStateDetailVirtualAttributeResponse != nil {
 		readReplicationStateDetailVirtualAttributeResponseDefault(ctx, readResponse.ReplicationStateDetailVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "member" {
+	if readResponse.MemberVirtualAttributeResponse != nil {
 		readMemberVirtualAttributeResponseDefault(ctx, readResponse.MemberVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "password-policy-state-json" {
+	if readResponse.PasswordPolicyStateJsonVirtualAttributeResponse != nil {
 		readPasswordPolicyStateJsonVirtualAttributeResponseDefault(ctx, readResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "subschema-subentry" {
+	if readResponse.SubschemaSubentryVirtualAttributeResponse != nil {
 		readSubschemaSubentryVirtualAttributeResponseDefault(ctx, readResponse.SubschemaSubentryVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "dn-join" {
+	if readResponse.DnJoinVirtualAttributeResponse != nil {
 		readDnJoinVirtualAttributeResponseDefault(ctx, readResponse.DnJoinVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyVirtualAttributeResponse != nil {
 		readThirdPartyVirtualAttributeResponseDefault(ctx, readResponse.ThirdPartyVirtualAttributeResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -3330,73 +3330,73 @@ func (r *defaultVirtualAttributeResource) Create(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "mirror" {
+		if updateResponse.MirrorVirtualAttributeResponse != nil {
 			readMirrorVirtualAttributeResponseDefault(ctx, updateResponse.MirrorVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "entry-checksum" {
+		if updateResponse.EntryChecksumVirtualAttributeResponse != nil {
 			readEntryChecksumVirtualAttributeResponseDefault(ctx, updateResponse.EntryChecksumVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "member-of-server-group" {
+		if updateResponse.MemberOfServerGroupVirtualAttributeResponse != nil {
 			readMemberOfServerGroupVirtualAttributeResponseDefault(ctx, updateResponse.MemberOfServerGroupVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "constructed" {
+		if updateResponse.ConstructedVirtualAttributeResponse != nil {
 			readConstructedVirtualAttributeResponseDefault(ctx, updateResponse.ConstructedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "is-member-of" {
+		if updateResponse.IsMemberOfVirtualAttributeResponse != nil {
 			readIsMemberOfVirtualAttributeResponseDefault(ctx, updateResponse.IsMemberOfVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomVirtualAttributeResponse != nil {
 			readCustomVirtualAttributeResponseDefault(ctx, updateResponse.CustomVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "num-subordinates" {
+		if updateResponse.NumSubordinatesVirtualAttributeResponse != nil {
 			readNumSubordinatesVirtualAttributeResponseDefault(ctx, updateResponse.NumSubordinatesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "reverse-dn-join" {
+		if updateResponse.ReverseDnJoinVirtualAttributeResponse != nil {
 			readReverseDnJoinVirtualAttributeResponseDefault(ctx, updateResponse.ReverseDnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "identify-references" {
+		if updateResponse.IdentifyReferencesVirtualAttributeResponse != nil {
 			readIdentifyReferencesVirtualAttributeResponseDefault(ctx, updateResponse.IdentifyReferencesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-defined" {
+		if updateResponse.UserDefinedVirtualAttributeResponse != nil {
 			readUserDefinedVirtualAttributeResponseDefault(ctx, updateResponse.UserDefinedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "current-time" {
+		if updateResponse.CurrentTimeVirtualAttributeResponse != nil {
 			readCurrentTimeVirtualAttributeResponseDefault(ctx, updateResponse.CurrentTimeVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "short-unique-id" {
+		if updateResponse.ShortUniqueIdVirtualAttributeResponse != nil {
 			readShortUniqueIdVirtualAttributeResponseDefault(ctx, updateResponse.ShortUniqueIdVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "entry-dn" {
+		if updateResponse.EntryDnVirtualAttributeResponse != nil {
 			readEntryDnVirtualAttributeResponseDefault(ctx, updateResponse.EntryDnVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "has-subordinates" {
+		if updateResponse.HasSubordinatesVirtualAttributeResponse != nil {
 			readHasSubordinatesVirtualAttributeResponseDefault(ctx, updateResponse.HasSubordinatesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "equality-join" {
+		if updateResponse.EqualityJoinVirtualAttributeResponse != nil {
 			readEqualityJoinVirtualAttributeResponseDefault(ctx, updateResponse.EqualityJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedVirtualAttributeResponse != nil {
 			readGroovyScriptedVirtualAttributeResponseDefault(ctx, updateResponse.GroovyScriptedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "instance-name" {
+		if updateResponse.InstanceNameVirtualAttributeResponse != nil {
 			readInstanceNameVirtualAttributeResponseDefault(ctx, updateResponse.InstanceNameVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replication-state-detail" {
+		if updateResponse.ReplicationStateDetailVirtualAttributeResponse != nil {
 			readReplicationStateDetailVirtualAttributeResponseDefault(ctx, updateResponse.ReplicationStateDetailVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "member" {
+		if updateResponse.MemberVirtualAttributeResponse != nil {
 			readMemberVirtualAttributeResponseDefault(ctx, updateResponse.MemberVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-policy-state-json" {
+		if updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse != nil {
 			readPasswordPolicyStateJsonVirtualAttributeResponseDefault(ctx, updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subschema-subentry" {
+		if updateResponse.SubschemaSubentryVirtualAttributeResponse != nil {
 			readSubschemaSubentryVirtualAttributeResponseDefault(ctx, updateResponse.SubschemaSubentryVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dn-join" {
+		if updateResponse.DnJoinVirtualAttributeResponse != nil {
 			readDnJoinVirtualAttributeResponseDefault(ctx, updateResponse.DnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVirtualAttributeResponse != nil {
 			readThirdPartyVirtualAttributeResponseDefault(ctx, updateResponse.ThirdPartyVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -3574,43 +3574,43 @@ func (r *virtualAttributeResource) Update(ctx context.Context, req resource.Upda
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "mirror" {
+		if updateResponse.MirrorVirtualAttributeResponse != nil {
 			readMirrorVirtualAttributeResponse(ctx, updateResponse.MirrorVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "constructed" {
+		if updateResponse.ConstructedVirtualAttributeResponse != nil {
 			readConstructedVirtualAttributeResponse(ctx, updateResponse.ConstructedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "is-member-of" {
+		if updateResponse.IsMemberOfVirtualAttributeResponse != nil {
 			readIsMemberOfVirtualAttributeResponse(ctx, updateResponse.IsMemberOfVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "reverse-dn-join" {
+		if updateResponse.ReverseDnJoinVirtualAttributeResponse != nil {
 			readReverseDnJoinVirtualAttributeResponse(ctx, updateResponse.ReverseDnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "identify-references" {
+		if updateResponse.IdentifyReferencesVirtualAttributeResponse != nil {
 			readIdentifyReferencesVirtualAttributeResponse(ctx, updateResponse.IdentifyReferencesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-defined" {
+		if updateResponse.UserDefinedVirtualAttributeResponse != nil {
 			readUserDefinedVirtualAttributeResponse(ctx, updateResponse.UserDefinedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "entry-dn" {
+		if updateResponse.EntryDnVirtualAttributeResponse != nil {
 			readEntryDnVirtualAttributeResponse(ctx, updateResponse.EntryDnVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "equality-join" {
+		if updateResponse.EqualityJoinVirtualAttributeResponse != nil {
 			readEqualityJoinVirtualAttributeResponse(ctx, updateResponse.EqualityJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedVirtualAttributeResponse != nil {
 			readGroovyScriptedVirtualAttributeResponse(ctx, updateResponse.GroovyScriptedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "member" {
+		if updateResponse.MemberVirtualAttributeResponse != nil {
 			readMemberVirtualAttributeResponse(ctx, updateResponse.MemberVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-policy-state-json" {
+		if updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse != nil {
 			readPasswordPolicyStateJsonVirtualAttributeResponse(ctx, updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dn-join" {
+		if updateResponse.DnJoinVirtualAttributeResponse != nil {
 			readDnJoinVirtualAttributeResponse(ctx, updateResponse.DnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVirtualAttributeResponse != nil {
 			readThirdPartyVirtualAttributeResponse(ctx, updateResponse.ThirdPartyVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -3661,73 +3661,73 @@ func (r *defaultVirtualAttributeResource) Update(ctx context.Context, req resour
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "mirror" {
+		if updateResponse.MirrorVirtualAttributeResponse != nil {
 			readMirrorVirtualAttributeResponseDefault(ctx, updateResponse.MirrorVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "entry-checksum" {
+		if updateResponse.EntryChecksumVirtualAttributeResponse != nil {
 			readEntryChecksumVirtualAttributeResponseDefault(ctx, updateResponse.EntryChecksumVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "member-of-server-group" {
+		if updateResponse.MemberOfServerGroupVirtualAttributeResponse != nil {
 			readMemberOfServerGroupVirtualAttributeResponseDefault(ctx, updateResponse.MemberOfServerGroupVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "constructed" {
+		if updateResponse.ConstructedVirtualAttributeResponse != nil {
 			readConstructedVirtualAttributeResponseDefault(ctx, updateResponse.ConstructedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "is-member-of" {
+		if updateResponse.IsMemberOfVirtualAttributeResponse != nil {
 			readIsMemberOfVirtualAttributeResponseDefault(ctx, updateResponse.IsMemberOfVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "custom" {
+		if updateResponse.CustomVirtualAttributeResponse != nil {
 			readCustomVirtualAttributeResponseDefault(ctx, updateResponse.CustomVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "num-subordinates" {
+		if updateResponse.NumSubordinatesVirtualAttributeResponse != nil {
 			readNumSubordinatesVirtualAttributeResponseDefault(ctx, updateResponse.NumSubordinatesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "reverse-dn-join" {
+		if updateResponse.ReverseDnJoinVirtualAttributeResponse != nil {
 			readReverseDnJoinVirtualAttributeResponseDefault(ctx, updateResponse.ReverseDnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "identify-references" {
+		if updateResponse.IdentifyReferencesVirtualAttributeResponse != nil {
 			readIdentifyReferencesVirtualAttributeResponseDefault(ctx, updateResponse.IdentifyReferencesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "user-defined" {
+		if updateResponse.UserDefinedVirtualAttributeResponse != nil {
 			readUserDefinedVirtualAttributeResponseDefault(ctx, updateResponse.UserDefinedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "current-time" {
+		if updateResponse.CurrentTimeVirtualAttributeResponse != nil {
 			readCurrentTimeVirtualAttributeResponseDefault(ctx, updateResponse.CurrentTimeVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "short-unique-id" {
+		if updateResponse.ShortUniqueIdVirtualAttributeResponse != nil {
 			readShortUniqueIdVirtualAttributeResponseDefault(ctx, updateResponse.ShortUniqueIdVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "entry-dn" {
+		if updateResponse.EntryDnVirtualAttributeResponse != nil {
 			readEntryDnVirtualAttributeResponseDefault(ctx, updateResponse.EntryDnVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "has-subordinates" {
+		if updateResponse.HasSubordinatesVirtualAttributeResponse != nil {
 			readHasSubordinatesVirtualAttributeResponseDefault(ctx, updateResponse.HasSubordinatesVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "equality-join" {
+		if updateResponse.EqualityJoinVirtualAttributeResponse != nil {
 			readEqualityJoinVirtualAttributeResponseDefault(ctx, updateResponse.EqualityJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedVirtualAttributeResponse != nil {
 			readGroovyScriptedVirtualAttributeResponseDefault(ctx, updateResponse.GroovyScriptedVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "instance-name" {
+		if updateResponse.InstanceNameVirtualAttributeResponse != nil {
 			readInstanceNameVirtualAttributeResponseDefault(ctx, updateResponse.InstanceNameVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "replication-state-detail" {
+		if updateResponse.ReplicationStateDetailVirtualAttributeResponse != nil {
 			readReplicationStateDetailVirtualAttributeResponseDefault(ctx, updateResponse.ReplicationStateDetailVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "member" {
+		if updateResponse.MemberVirtualAttributeResponse != nil {
 			readMemberVirtualAttributeResponseDefault(ctx, updateResponse.MemberVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "password-policy-state-json" {
+		if updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse != nil {
 			readPasswordPolicyStateJsonVirtualAttributeResponseDefault(ctx, updateResponse.PasswordPolicyStateJsonVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "subschema-subentry" {
+		if updateResponse.SubschemaSubentryVirtualAttributeResponse != nil {
 			readSubschemaSubentryVirtualAttributeResponseDefault(ctx, updateResponse.SubschemaSubentryVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "dn-join" {
+		if updateResponse.DnJoinVirtualAttributeResponse != nil {
 			readDnJoinVirtualAttributeResponseDefault(ctx, updateResponse.DnJoinVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyVirtualAttributeResponse != nil {
 			readThirdPartyVirtualAttributeResponseDefault(ctx, updateResponse.ThirdPartyVirtualAttributeResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

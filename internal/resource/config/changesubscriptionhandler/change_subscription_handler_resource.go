@@ -514,13 +514,13 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 
 	// Read the existing configuration
 	var state changeSubscriptionHandlerResourceModel
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
 		readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, readResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "logging" {
+	if readResponse.LoggingChangeSubscriptionHandlerResponse != nil {
 		readLoggingChangeSubscriptionHandlerResponse(ctx, readResponse.LoggingChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 		readThirdPartyChangeSubscriptionHandlerResponse(ctx, readResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -545,13 +545,13 @@ func (r *defaultChangeSubscriptionHandlerResource) Create(ctx context.Context, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
 			readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "logging" {
+		if updateResponse.LoggingChangeSubscriptionHandlerResponse != nil {
 			readLoggingChangeSubscriptionHandlerResponse(ctx, updateResponse.LoggingChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			readThirdPartyChangeSubscriptionHandlerResponse(ctx, updateResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -656,13 +656,13 @@ func updateChangeSubscriptionHandler(ctx context.Context, req resource.UpdateReq
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse != nil {
 			readGroovyScriptedChangeSubscriptionHandlerResponse(ctx, updateResponse.GroovyScriptedChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "logging" {
+		if updateResponse.LoggingChangeSubscriptionHandlerResponse != nil {
 			readLoggingChangeSubscriptionHandlerResponse(ctx, updateResponse.LoggingChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyChangeSubscriptionHandlerResponse != nil {
 			readThirdPartyChangeSubscriptionHandlerResponse(ctx, updateResponse.ThirdPartyChangeSubscriptionHandlerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

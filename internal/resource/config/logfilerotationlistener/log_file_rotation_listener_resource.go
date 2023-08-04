@@ -476,13 +476,13 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 
 	// Read the existing configuration
 	var state logFileRotationListenerResourceModel
-	if plan.Type.ValueString() == "summarize" {
+	if readResponse.SummarizeLogFileRotationListenerResponse != nil {
 		readSummarizeLogFileRotationListenerResponse(ctx, readResponse.SummarizeLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "copy" {
+	if readResponse.CopyLogFileRotationListenerResponse != nil {
 		readCopyLogFileRotationListenerResponse(ctx, readResponse.CopyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 		readThirdPartyLogFileRotationListenerResponse(ctx, readResponse.ThirdPartyLogFileRotationListenerResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -507,13 +507,13 @@ func (r *defaultLogFileRotationListenerResource) Create(ctx context.Context, req
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "summarize" {
+		if updateResponse.SummarizeLogFileRotationListenerResponse != nil {
 			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "copy" {
+		if updateResponse.CopyLogFileRotationListenerResponse != nil {
 			readCopyLogFileRotationListenerResponse(ctx, updateResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -618,13 +618,13 @@ func updateLogFileRotationListener(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "summarize" {
+		if updateResponse.SummarizeLogFileRotationListenerResponse != nil {
 			readSummarizeLogFileRotationListenerResponse(ctx, updateResponse.SummarizeLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "copy" {
+		if updateResponse.CopyLogFileRotationListenerResponse != nil {
 			readCopyLogFileRotationListenerResponse(ctx, updateResponse.CopyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyLogFileRotationListenerResponse != nil {
 			readThirdPartyLogFileRotationListenerResponse(ctx, updateResponse.ThirdPartyLogFileRotationListenerResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

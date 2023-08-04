@@ -174,19 +174,19 @@ func (r *matchingRuleResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Read the existing configuration
 	var state matchingRuleResourceModel
-	if plan.Type.ValueString() == "ordering" {
+	if readResponse.OrderingMatchingRuleResponse != nil {
 		readOrderingMatchingRuleResponse(ctx, readResponse.OrderingMatchingRuleResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "approximate" {
+	if readResponse.ApproximateMatchingRuleResponse != nil {
 		readApproximateMatchingRuleResponse(ctx, readResponse.ApproximateMatchingRuleResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "equality" {
+	if readResponse.EqualityMatchingRuleResponse != nil {
 		readEqualityMatchingRuleResponse(ctx, readResponse.EqualityMatchingRuleResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "substring" {
+	if readResponse.SubstringMatchingRuleResponse != nil {
 		readSubstringMatchingRuleResponse(ctx, readResponse.SubstringMatchingRuleResponse, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "generic" {
+	if readResponse.GenericMatchingRuleResponse != nil {
 		readGenericMatchingRuleResponse(ctx, readResponse.GenericMatchingRuleResponse, &state, &resp.Diagnostics)
 	}
 
@@ -211,19 +211,19 @@ func (r *matchingRuleResource) Create(ctx context.Context, req resource.CreateRe
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ordering" {
+		if updateResponse.OrderingMatchingRuleResponse != nil {
 			readOrderingMatchingRuleResponse(ctx, updateResponse.OrderingMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "approximate" {
+		if updateResponse.ApproximateMatchingRuleResponse != nil {
 			readApproximateMatchingRuleResponse(ctx, updateResponse.ApproximateMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "equality" {
+		if updateResponse.EqualityMatchingRuleResponse != nil {
 			readEqualityMatchingRuleResponse(ctx, updateResponse.EqualityMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "substring" {
+		if updateResponse.SubstringMatchingRuleResponse != nil {
 			readSubstringMatchingRuleResponse(ctx, updateResponse.SubstringMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericMatchingRuleResponse != nil {
 			readGenericMatchingRuleResponse(ctx, updateResponse.GenericMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -318,19 +318,19 @@ func (r *matchingRuleResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "ordering" {
+		if updateResponse.OrderingMatchingRuleResponse != nil {
 			readOrderingMatchingRuleResponse(ctx, updateResponse.OrderingMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "approximate" {
+		if updateResponse.ApproximateMatchingRuleResponse != nil {
 			readApproximateMatchingRuleResponse(ctx, updateResponse.ApproximateMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "equality" {
+		if updateResponse.EqualityMatchingRuleResponse != nil {
 			readEqualityMatchingRuleResponse(ctx, updateResponse.EqualityMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "substring" {
+		if updateResponse.SubstringMatchingRuleResponse != nil {
 			readSubstringMatchingRuleResponse(ctx, updateResponse.SubstringMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "generic" {
+		if updateResponse.GenericMatchingRuleResponse != nil {
 			readGenericMatchingRuleResponse(ctx, updateResponse.GenericMatchingRuleResponse, &state, &resp.Diagnostics)
 		}
 		// Update computed values

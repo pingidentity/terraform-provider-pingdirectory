@@ -1134,10 +1134,10 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 
 	// Read the existing configuration
 	var state logFieldMappingResourceModel
-	if plan.Type.ValueString() == "access" {
+	if readResponse.AccessLogFieldMappingResponse != nil {
 		readAccessLogFieldMappingResponse(ctx, readResponse.AccessLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "error" {
+	if readResponse.ErrorLogFieldMappingResponse != nil {
 		readErrorLogFieldMappingResponse(ctx, readResponse.ErrorLogFieldMappingResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -1162,10 +1162,10 @@ func (r *defaultLogFieldMappingResource) Create(ctx context.Context, req resourc
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "access" {
+		if updateResponse.AccessLogFieldMappingResponse != nil {
 			readAccessLogFieldMappingResponse(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error" {
+		if updateResponse.ErrorLogFieldMappingResponse != nil {
 			readErrorLogFieldMappingResponse(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -1267,10 +1267,10 @@ func updateLogFieldMapping(ctx context.Context, req resource.UpdateRequest, resp
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "access" {
+		if updateResponse.AccessLogFieldMappingResponse != nil {
 			readAccessLogFieldMappingResponse(ctx, updateResponse.AccessLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "error" {
+		if updateResponse.ErrorLogFieldMappingResponse != nil {
 			readErrorLogFieldMappingResponse(ctx, updateResponse.ErrorLogFieldMappingResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

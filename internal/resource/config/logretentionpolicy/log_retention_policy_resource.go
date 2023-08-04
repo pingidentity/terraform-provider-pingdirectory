@@ -540,19 +540,19 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 
 	// Read the existing configuration
 	var state logRetentionPolicyResourceModel
-	if plan.Type.ValueString() == "time-limit" {
+	if readResponse.TimeLimitLogRetentionPolicyResponse != nil {
 		readTimeLimitLogRetentionPolicyResponse(ctx, readResponse.TimeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "never-delete" {
+	if readResponse.NeverDeleteLogRetentionPolicyResponse != nil {
 		readNeverDeleteLogRetentionPolicyResponse(ctx, readResponse.NeverDeleteLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-count" {
+	if readResponse.FileCountLogRetentionPolicyResponse != nil {
 		readFileCountLogRetentionPolicyResponse(ctx, readResponse.FileCountLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "free-disk-space" {
+	if readResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
 		readFreeDiskSpaceLogRetentionPolicyResponse(ctx, readResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "size-limit" {
+	if readResponse.SizeLimitLogRetentionPolicyResponse != nil {
 		readSizeLimitLogRetentionPolicyResponse(ctx, readResponse.SizeLimitLogRetentionPolicyResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -577,19 +577,19 @@ func (r *defaultLogRetentionPolicyResource) Create(ctx context.Context, req reso
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRetentionPolicyResponse != nil {
 			readTimeLimitLogRetentionPolicyResponse(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-delete" {
+		if updateResponse.NeverDeleteLogRetentionPolicyResponse != nil {
 			readNeverDeleteLogRetentionPolicyResponse(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-count" {
+		if updateResponse.FileCountLogRetentionPolicyResponse != nil {
 			readFileCountLogRetentionPolicyResponse(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "free-disk-space" {
+		if updateResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
 			readFreeDiskSpaceLogRetentionPolicyResponse(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRetentionPolicyResponse != nil {
 			readSizeLimitLogRetentionPolicyResponse(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -700,19 +700,19 @@ func updateLogRetentionPolicy(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "time-limit" {
+		if updateResponse.TimeLimitLogRetentionPolicyResponse != nil {
 			readTimeLimitLogRetentionPolicyResponse(ctx, updateResponse.TimeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "never-delete" {
+		if updateResponse.NeverDeleteLogRetentionPolicyResponse != nil {
 			readNeverDeleteLogRetentionPolicyResponse(ctx, updateResponse.NeverDeleteLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-count" {
+		if updateResponse.FileCountLogRetentionPolicyResponse != nil {
 			readFileCountLogRetentionPolicyResponse(ctx, updateResponse.FileCountLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "free-disk-space" {
+		if updateResponse.FreeDiskSpaceLogRetentionPolicyResponse != nil {
 			readFreeDiskSpaceLogRetentionPolicyResponse(ctx, updateResponse.FreeDiskSpaceLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "size-limit" {
+		if updateResponse.SizeLimitLogRetentionPolicyResponse != nil {
 			readSizeLimitLogRetentionPolicyResponse(ctx, updateResponse.SizeLimitLogRetentionPolicyResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values

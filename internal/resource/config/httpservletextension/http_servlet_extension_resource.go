@@ -2534,43 +2534,43 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 
 	// Read the existing configuration
 	var state defaultHttpServletExtensionResourceModel
-	if plan.Type.ValueString() == "delegated-admin" {
+	if readResponse.DelegatedAdminHttpServletExtensionResponse != nil {
 		readDelegatedAdminHttpServletExtensionResponseDefault(ctx, readResponse.DelegatedAdminHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "quickstart" {
+	if readResponse.QuickstartHttpServletExtensionResponse != nil {
 		readQuickstartHttpServletExtensionResponseDefault(ctx, readResponse.QuickstartHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "availability-state" {
+	if readResponse.AvailabilityStateHttpServletExtensionResponse != nil {
 		readAvailabilityStateHttpServletExtensionResponseDefault(ctx, readResponse.AvailabilityStateHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "prometheus-monitoring" {
+	if readResponse.PrometheusMonitoringHttpServletExtensionResponse != nil {
 		readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx, readResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "velocity" {
+	if readResponse.VelocityHttpServletExtensionResponse != nil {
 		readVelocityHttpServletExtensionResponseDefault(ctx, readResponse.VelocityHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "consent" {
+	if readResponse.ConsentHttpServletExtensionResponse != nil {
 		readConsentHttpServletExtensionResponseDefault(ctx, readResponse.ConsentHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "ldap-mapped-scim" {
+	if readResponse.LdapMappedScimHttpServletExtensionResponse != nil {
 		readLdapMappedScimHttpServletExtensionResponseDefault(ctx, readResponse.LdapMappedScimHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "groovy-scripted" {
+	if readResponse.GroovyScriptedHttpServletExtensionResponse != nil {
 		readGroovyScriptedHttpServletExtensionResponseDefault(ctx, readResponse.GroovyScriptedHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "file-server" {
+	if readResponse.FileServerHttpServletExtensionResponse != nil {
 		readFileServerHttpServletExtensionResponseDefault(ctx, readResponse.FileServerHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "config" {
+	if readResponse.ConfigHttpServletExtensionResponse != nil {
 		readConfigHttpServletExtensionResponseDefault(ctx, readResponse.ConfigHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "scim2" {
+	if readResponse.Scim2HttpServletExtensionResponse != nil {
 		readScim2HttpServletExtensionResponseDefault(ctx, readResponse.Scim2HttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "directory-rest-api" {
+	if readResponse.DirectoryRestApiHttpServletExtensionResponse != nil {
 		readDirectoryRestApiHttpServletExtensionResponseDefault(ctx, readResponse.DirectoryRestApiHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
-	if plan.Type.ValueString() == "third-party" {
+	if readResponse.ThirdPartyHttpServletExtensionResponse != nil {
 		readThirdPartyHttpServletExtensionResponseDefault(ctx, readResponse.ThirdPartyHttpServletExtensionResponse, &state, &state, &resp.Diagnostics)
 	}
 
@@ -2595,43 +2595,43 @@ func (r *defaultHttpServletExtensionResource) Create(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "delegated-admin" {
+		if updateResponse.DelegatedAdminHttpServletExtensionResponse != nil {
 			readDelegatedAdminHttpServletExtensionResponseDefault(ctx, updateResponse.DelegatedAdminHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "quickstart" {
+		if updateResponse.QuickstartHttpServletExtensionResponse != nil {
 			readQuickstartHttpServletExtensionResponseDefault(ctx, updateResponse.QuickstartHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "availability-state" {
+		if updateResponse.AvailabilityStateHttpServletExtensionResponse != nil {
 			readAvailabilityStateHttpServletExtensionResponseDefault(ctx, updateResponse.AvailabilityStateHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "prometheus-monitoring" {
+		if updateResponse.PrometheusMonitoringHttpServletExtensionResponse != nil {
 			readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx, updateResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "velocity" {
+		if updateResponse.VelocityHttpServletExtensionResponse != nil {
 			readVelocityHttpServletExtensionResponseDefault(ctx, updateResponse.VelocityHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "consent" {
+		if updateResponse.ConsentHttpServletExtensionResponse != nil {
 			readConsentHttpServletExtensionResponseDefault(ctx, updateResponse.ConsentHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapped-scim" {
+		if updateResponse.LdapMappedScimHttpServletExtensionResponse != nil {
 			readLdapMappedScimHttpServletExtensionResponseDefault(ctx, updateResponse.LdapMappedScimHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedHttpServletExtensionResponse != nil {
 			readGroovyScriptedHttpServletExtensionResponseDefault(ctx, updateResponse.GroovyScriptedHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-server" {
+		if updateResponse.FileServerHttpServletExtensionResponse != nil {
 			readFileServerHttpServletExtensionResponseDefault(ctx, updateResponse.FileServerHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "config" {
+		if updateResponse.ConfigHttpServletExtensionResponse != nil {
 			readConfigHttpServletExtensionResponseDefault(ctx, updateResponse.ConfigHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "scim2" {
+		if updateResponse.Scim2HttpServletExtensionResponse != nil {
 			readScim2HttpServletExtensionResponseDefault(ctx, updateResponse.Scim2HttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "directory-rest-api" {
+		if updateResponse.DirectoryRestApiHttpServletExtensionResponse != nil {
 			readDirectoryRestApiHttpServletExtensionResponseDefault(ctx, updateResponse.DirectoryRestApiHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyHttpServletExtensionResponse != nil {
 			readThirdPartyHttpServletExtensionResponseDefault(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2779,25 +2779,25 @@ func (r *httpServletExtensionResource) Update(ctx context.Context, req resource.
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "quickstart" {
+		if updateResponse.QuickstartHttpServletExtensionResponse != nil {
 			readQuickstartHttpServletExtensionResponse(ctx, updateResponse.QuickstartHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "availability-state" {
+		if updateResponse.AvailabilityStateHttpServletExtensionResponse != nil {
 			readAvailabilityStateHttpServletExtensionResponse(ctx, updateResponse.AvailabilityStateHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "prometheus-monitoring" {
+		if updateResponse.PrometheusMonitoringHttpServletExtensionResponse != nil {
 			readPrometheusMonitoringHttpServletExtensionResponse(ctx, updateResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapped-scim" {
+		if updateResponse.LdapMappedScimHttpServletExtensionResponse != nil {
 			readLdapMappedScimHttpServletExtensionResponse(ctx, updateResponse.LdapMappedScimHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedHttpServletExtensionResponse != nil {
 			readGroovyScriptedHttpServletExtensionResponse(ctx, updateResponse.GroovyScriptedHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-server" {
+		if updateResponse.FileServerHttpServletExtensionResponse != nil {
 			readFileServerHttpServletExtensionResponse(ctx, updateResponse.FileServerHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyHttpServletExtensionResponse != nil {
 			readThirdPartyHttpServletExtensionResponse(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
@@ -2848,43 +2848,43 @@ func (r *defaultHttpServletExtensionResource) Update(ctx context.Context, req re
 		}
 
 		// Read the response
-		if plan.Type.ValueString() == "delegated-admin" {
+		if updateResponse.DelegatedAdminHttpServletExtensionResponse != nil {
 			readDelegatedAdminHttpServletExtensionResponseDefault(ctx, updateResponse.DelegatedAdminHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "quickstart" {
+		if updateResponse.QuickstartHttpServletExtensionResponse != nil {
 			readQuickstartHttpServletExtensionResponseDefault(ctx, updateResponse.QuickstartHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "availability-state" {
+		if updateResponse.AvailabilityStateHttpServletExtensionResponse != nil {
 			readAvailabilityStateHttpServletExtensionResponseDefault(ctx, updateResponse.AvailabilityStateHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "prometheus-monitoring" {
+		if updateResponse.PrometheusMonitoringHttpServletExtensionResponse != nil {
 			readPrometheusMonitoringHttpServletExtensionResponseDefault(ctx, updateResponse.PrometheusMonitoringHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "velocity" {
+		if updateResponse.VelocityHttpServletExtensionResponse != nil {
 			readVelocityHttpServletExtensionResponseDefault(ctx, updateResponse.VelocityHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "consent" {
+		if updateResponse.ConsentHttpServletExtensionResponse != nil {
 			readConsentHttpServletExtensionResponseDefault(ctx, updateResponse.ConsentHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "ldap-mapped-scim" {
+		if updateResponse.LdapMappedScimHttpServletExtensionResponse != nil {
 			readLdapMappedScimHttpServletExtensionResponseDefault(ctx, updateResponse.LdapMappedScimHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "groovy-scripted" {
+		if updateResponse.GroovyScriptedHttpServletExtensionResponse != nil {
 			readGroovyScriptedHttpServletExtensionResponseDefault(ctx, updateResponse.GroovyScriptedHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "file-server" {
+		if updateResponse.FileServerHttpServletExtensionResponse != nil {
 			readFileServerHttpServletExtensionResponseDefault(ctx, updateResponse.FileServerHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "config" {
+		if updateResponse.ConfigHttpServletExtensionResponse != nil {
 			readConfigHttpServletExtensionResponseDefault(ctx, updateResponse.ConfigHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "scim2" {
+		if updateResponse.Scim2HttpServletExtensionResponse != nil {
 			readScim2HttpServletExtensionResponseDefault(ctx, updateResponse.Scim2HttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "directory-rest-api" {
+		if updateResponse.DirectoryRestApiHttpServletExtensionResponse != nil {
 			readDirectoryRestApiHttpServletExtensionResponseDefault(ctx, updateResponse.DirectoryRestApiHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
-		if plan.Type.ValueString() == "third-party" {
+		if updateResponse.ThirdPartyHttpServletExtensionResponse != nil {
 			readThirdPartyHttpServletExtensionResponseDefault(ctx, updateResponse.ThirdPartyHttpServletExtensionResponse, &state, &plan, &resp.Diagnostics)
 		}
 		// Update computed values
