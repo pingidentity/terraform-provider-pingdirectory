@@ -31,6 +31,7 @@ Manages a Recurring Task Chain.
 - `scheduled_time_of_day` (Set of String) The time of day at which instances of the Recurring Task Chain should be eligible to start running. Values should be in the format HH:MM (where HH is a two-digit representation of the hour of the day, between 00 and 23, inclusive), and MM is a two-digit representation of the minute of the hour (between 00 and 59, inclusive). Alternately, the value can be in the form *:MM, which indicates that the task should be eligible to start at the specified minute of every hour. At least one value must be provided, but multiple values may be given to indicate multiple start times within the same day.
 - `server_offline_at_start_time_behavior` (String) Specifies the behavior that the server should exhibit if it is offline when the start time arrives for the tasks in this Recurring Task Chain.
 - `time_zone` (String) The time zone that will be used to interpret the scheduled-time-of-day values. If no value is provided, then the JVM's default time zone will be used.
+- `type` (String) The type of Recurring Task Chain resource. Options are ['recurring-task-chain']
 
 ### Read-Only
 

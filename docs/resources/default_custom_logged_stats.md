@@ -36,6 +36,7 @@ Manages a Custom Logged Stats.
 - `regex_pattern` (String) An optional regular expression pattern, that when used in conjunction with regex-replacement, can alter the value of the attribute being monitored.
 - `regex_replacement` (String) An optional regular expression replacement value, that when used in conjunction with regex-pattern, can alter the value of the attribute being monitored.
 - `statistic_type` (Set of String) Specifies the type of statistic to include in the output for each monitored attribute.
+- `type` (String) The type of Custom Logged Stats resource. Options are ['custom-logged-stats']
 
 ### Read-Only
 

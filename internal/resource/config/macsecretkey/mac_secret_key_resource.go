@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -62,6 +65,7 @@ type macSecretKeyResourceModel struct {
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
+	Type               types.String `tfsdk:"type"`
 	ServerInstanceName types.String `tfsdk:"server_instance_name"`
 	MacAlgorithmName   types.String `tfsdk:"mac_algorithm_name"`
 	KeyID              types.String `tfsdk:"key_id"`
@@ -75,6 +79,15 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 	schemaDef := schema.Schema{
 		Description: "Manages a Mac Secret Key.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Mac Secret Key resource. Options are ['mac-secret-key']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("mac-secret-key"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"mac-secret-key"}...),
+				},
+			},
 			"server_instance_name": schema.StringAttribute{
 				Description: "Name of the parent Server Instance",
 				Required:    true,
@@ -131,6 +144,7 @@ func (r *macSecretKeyResource) Schema(ctx context.Context, req resource.SchemaRe
 
 // Read a MacSecretKeyResponse object into the model struct
 func readMacSecretKeyResponse(ctx context.Context, r *client.MacSecretKeyResponse, state *macSecretKeyResourceModel, expectedValues *macSecretKeyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("mac-secret-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.MacAlgorithmName = internaltypes.StringTypeOrNil(r.MacAlgorithmName, true)

@@ -48,6 +48,7 @@ func (r *alarmManagerDataSource) Configure(_ context.Context, req datasource.Con
 
 type alarmManagerDataSourceModel struct {
 	Id                     types.String `tfsdk:"id"`
+	Type                   types.String `tfsdk:"type"`
 	DefaultGaugeAlertLevel types.String `tfsdk:"default_gauge_alert_level"`
 	GeneratedAlertTypes    types.Set    `tfsdk:"generated_alert_types"`
 	SuppressedAlarm        types.Set    `tfsdk:"suppressed_alarm"`
@@ -58,6 +59,12 @@ func (r *alarmManagerDataSource) Schema(ctx context.Context, req datasource.Sche
 	schemaDef := schema.Schema{
 		Description: "Describes a Alarm Manager.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Alarm Manager resource. Options are ['alarm-manager']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"default_gauge_alert_level": schema.StringAttribute{
 				Description: "Specifies the level at which alerts are sent for alarms raised by the Alarm Manager.",
 				Required:    false,
@@ -86,6 +93,7 @@ func (r *alarmManagerDataSource) Schema(ctx context.Context, req datasource.Sche
 
 // Read a AlarmManagerResponse object into the model struct
 func readAlarmManagerResponseDataSource(ctx context.Context, r *client.AlarmManagerResponse, state *alarmManagerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("alarm-manager")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DefaultGaugeAlertLevel = types.StringValue(r.DefaultGaugeAlertLevel.String())

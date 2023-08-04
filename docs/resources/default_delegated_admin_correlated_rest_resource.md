@@ -25,6 +25,7 @@ Manages a Delegated Admin Correlated Rest Resource.
 - `display_name` (String) A human readable display name for this Delegated Admin Correlated REST Resource.
 - `primary_rest_resource_correlation_attribute` (String) The LDAP attribute from the parent REST Resource Type whose value will be used to match objects in the Delegated Admin Correlated REST Resource. This attribute must be writeable when use-secondary-value-for-linking is enabled.
 - `secondary_rest_resource_correlation_attribute` (String) The LDAP attribute from the Delegated Admin Correlated REST Resource whose value will be matched with the primary-rest-resource-correlation-attribute. This attribute must be writeable when use-secondary-value-for-linking is disabled.
+- `type` (String) The type of Delegated Admin Correlated REST Resource resource. Options are ['delegated-admin-correlated-rest-resource']
 - `use_secondary_value_for_linking` (Boolean) Indicates whether links should be created using the secondary correlation attribute value.
 
 ### Read-Only

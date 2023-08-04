@@ -22,6 +22,7 @@ Manages a Delegated Admin Attribute Category.
 
 - `description` (String) A description for this Delegated Admin Attribute Category
 - `display_order_index` (Number) Delegated Admin Attribute Categories are ordered for display based on this index from least to greatest.
+- `type` (String) The type of Delegated Admin Attribute Category resource. Options are ['delegated-admin-attribute-category']
 
 ### Read-Only
 

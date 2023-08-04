@@ -48,6 +48,7 @@ func (r *scimSchemaDataSource) Configure(_ context.Context, req datasource.Confi
 
 type scimSchemaDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
+	Type        types.String `tfsdk:"type"`
 	Description types.String `tfsdk:"description"`
 	SchemaURN   types.String `tfsdk:"schema_urn"`
 	DisplayName types.String `tfsdk:"display_name"`
@@ -58,6 +59,12 @@ func (r *scimSchemaDataSource) Schema(ctx context.Context, req datasource.Schema
 	schemaDef := schema.Schema{
 		Description: "Describes a Scim Schema.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of SCIM Schema resource. Options are ['scim-schema']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this SCIM Schema",
 				Required:    false,
@@ -82,6 +89,7 @@ func (r *scimSchemaDataSource) Schema(ctx context.Context, req datasource.Schema
 
 // Read a ScimSchemaResponse object into the model struct
 func readScimSchemaResponseDataSource(ctx context.Context, r *client.ScimSchemaResponse, state *scimSchemaDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("scim-schema")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.SchemaURN = types.StringValue(r.SchemaURN)

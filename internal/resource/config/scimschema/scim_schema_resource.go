@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -84,6 +87,7 @@ type scimSchemaResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Description     types.String `tfsdk:"description"`
 	SchemaURN       types.String `tfsdk:"schema_urn"`
 	DisplayName     types.String `tfsdk:"display_name"`
@@ -102,6 +106,15 @@ func scimSchemaSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	schemaDef := schema.Schema{
 		Description: "Manages a Scim Schema.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of SCIM Schema resource. Options are ['scim-schema']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("scim-schema"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"scim-schema"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this SCIM Schema",
 				Optional:    true,
@@ -141,6 +154,7 @@ func addOptionalScimSchemaFields(ctx context.Context, addRequest *client.AddScim
 
 // Read a ScimSchemaResponse object into the model struct
 func readScimSchemaResponse(ctx context.Context, r *client.ScimSchemaResponse, state *scimSchemaResourceModel, expectedValues *scimSchemaResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("scim-schema")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.SchemaURN = types.StringValue(r.SchemaURN)

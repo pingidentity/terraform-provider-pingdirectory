@@ -53,6 +53,7 @@ resource "pingdirectory_delegated_admin_attribute_category" "myDelegatedAdminAtt
 ### Optional
 
 - `description` (String) A description for this Delegated Admin Attribute Category
+- `type` (String) The type of Delegated Admin Attribute Category resource. Options are ['delegated-admin-attribute-category']
 
 ### Read-Only
 

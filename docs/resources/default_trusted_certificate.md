@@ -21,6 +21,7 @@ Manages a Trusted Certificate.
 ### Optional
 
 - `certificate` (String) The PEM-encoded X.509v3 certificate.
+- `type` (String) The type of Trusted Certificate resource. Options are ['trusted-certificate']
 
 ### Read-Only
 

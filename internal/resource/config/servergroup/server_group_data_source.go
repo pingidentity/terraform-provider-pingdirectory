@@ -49,6 +49,7 @@ func (r *serverGroupDataSource) Configure(_ context.Context, req datasource.Conf
 type serverGroupDataSourceModel struct {
 	Id     types.String `tfsdk:"id"`
 	Name   types.String `tfsdk:"name"`
+	Type   types.String `tfsdk:"type"`
 	Member types.Set    `tfsdk:"member"`
 }
 
@@ -57,6 +58,12 @@ func (r *serverGroupDataSource) Schema(ctx context.Context, req datasource.Schem
 	schemaDef := schema.Schema{
 		Description: "Describes a Server Group.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Server Group resource. Options are ['server-group']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"member": schema.SetAttribute{
 				Description: "A server instance that is a member of this group.",
 				Required:    false,
@@ -72,6 +79,7 @@ func (r *serverGroupDataSource) Schema(ctx context.Context, req datasource.Schem
 
 // Read a ServerGroupResponse object into the model struct
 func readServerGroupResponseDataSource(ctx context.Context, r *client.ServerGroupResponse, state *serverGroupDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("server-group")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Member = internaltypes.GetStringSet(r.Member)

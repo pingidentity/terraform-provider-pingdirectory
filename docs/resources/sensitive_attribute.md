@@ -59,6 +59,7 @@ resource "pingdirectory_sensitive_attribute" "mySensitiveAttribute" {
 - `allow_in_returned_entries` (String) Indicates whether sensitive attributes should be included in entries returned to the client. This includes not only search result entries, but also other forms including in the values of controls like the pre-read, post-read, get authorization entry, and LDAP join response controls.
 - `description` (String) A description for this Sensitive Attribute
 - `include_default_sensitive_operational_attributes` (Boolean) Indicates whether to automatically include any server-generated operational attributes that may contain sensitive data.
+- `type` (String) The type of Sensitive Attribute resource. Options are ['sensitive-attribute']
 
 ### Read-Only
 

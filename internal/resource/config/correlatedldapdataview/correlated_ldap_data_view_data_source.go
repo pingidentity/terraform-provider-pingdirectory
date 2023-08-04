@@ -49,6 +49,7 @@ func (r *correlatedLdapDataViewDataSource) Configure(_ context.Context, req data
 type correlatedLdapDataViewDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
 	Name                          types.String `tfsdk:"name"`
+	Type                          types.String `tfsdk:"type"`
 	ScimResourceTypeName          types.String `tfsdk:"scim_resource_type_name"`
 	StructuralLDAPObjectclass     types.String `tfsdk:"structural_ldap_objectclass"`
 	AuxiliaryLDAPObjectclass      types.Set    `tfsdk:"auxiliary_ldap_objectclass"`
@@ -65,6 +66,12 @@ func (r *correlatedLdapDataViewDataSource) Schema(ctx context.Context, req datas
 	schemaDef := schema.Schema{
 		Description: "Describes a Correlated Ldap Data View.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Correlated LDAP Data View resource. Options are ['correlated-ldap-data-view']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"scim_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Resource Type",
 				Required:    true,
@@ -128,6 +135,7 @@ func (r *correlatedLdapDataViewDataSource) Schema(ctx context.Context, req datas
 
 // Read a CorrelatedLdapDataViewResponse object into the model struct
 func readCorrelatedLdapDataViewResponseDataSource(ctx context.Context, r *client.CorrelatedLdapDataViewResponse, state *correlatedLdapDataViewDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("correlated-ldap-data-view")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.StructuralLDAPObjectclass = types.StringValue(r.StructuralLDAPObjectclass)

@@ -49,6 +49,7 @@ func (r *rootDnUserDataSource) Configure(_ context.Context, req datasource.Confi
 type rootDnUserDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
 	Name                           types.String `tfsdk:"name"`
+	Type                           types.String `tfsdk:"type"`
 	AlternateBindDN                types.Set    `tfsdk:"alternate_bind_dn"`
 	Description                    types.String `tfsdk:"description"`
 	Password                       types.String `tfsdk:"password"`
@@ -89,6 +90,12 @@ func (r *rootDnUserDataSource) Schema(ctx context.Context, req datasource.Schema
 	schemaDef := schema.Schema{
 		Description: "Describes a Root Dn User.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Root DN User resource. Options are ['root-dn-user']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"alternate_bind_dn": schema.SetAttribute{
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Required:    false,
@@ -314,6 +321,7 @@ func (r *rootDnUserDataSource) Schema(ctx context.Context, req datasource.Schema
 
 // Read a RootDnUserResponse object into the model struct
 func readRootDnUserResponseDataSource(ctx context.Context, r *client.RootDnUserResponse, state *rootDnUserDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("root-dn-user")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)

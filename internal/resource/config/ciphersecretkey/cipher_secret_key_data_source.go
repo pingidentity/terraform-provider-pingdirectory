@@ -49,6 +49,7 @@ func (r *cipherSecretKeyDataSource) Configure(_ context.Context, req datasource.
 type cipherSecretKeyDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
 	Name                           types.String `tfsdk:"name"`
+	Type                           types.String `tfsdk:"type"`
 	ServerInstanceName             types.String `tfsdk:"server_instance_name"`
 	CipherTransformationName       types.String `tfsdk:"cipher_transformation_name"`
 	InitializationVectorLengthBits types.Int64  `tfsdk:"initialization_vector_length_bits"`
@@ -63,6 +64,12 @@ func (r *cipherSecretKeyDataSource) Schema(ctx context.Context, req datasource.S
 	schemaDef := schema.Schema{
 		Description: "Describes a Cipher Secret Key.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Cipher Secret Key resource. Options are ['cipher-secret-key']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"server_instance_name": schema.StringAttribute{
 				Description: "Name of the parent Server Instance",
 				Required:    true,
@@ -112,6 +119,7 @@ func (r *cipherSecretKeyDataSource) Schema(ctx context.Context, req datasource.S
 
 // Read a CipherSecretKeyResponse object into the model struct
 func readCipherSecretKeyResponseDataSource(ctx context.Context, r *client.CipherSecretKeyResponse, state *cipherSecretKeyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("cipher-secret-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.CipherTransformationName = internaltypes.StringTypeOrNil(r.CipherTransformationName, false)

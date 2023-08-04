@@ -49,6 +49,7 @@ func (r *monitoringEndpointDataSource) Configure(_ context.Context, req datasour
 type monitoringEndpointDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
 	Name                 types.String `tfsdk:"name"`
+	Type                 types.String `tfsdk:"type"`
 	Hostname             types.String `tfsdk:"hostname"`
 	ServerPort           types.Int64  `tfsdk:"server_port"`
 	ConnectionType       types.String `tfsdk:"connection_type"`
@@ -62,6 +63,12 @@ func (r *monitoringEndpointDataSource) Schema(ctx context.Context, req datasourc
 	schemaDef := schema.Schema{
 		Description: "Describes a Monitoring Endpoint.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Monitoring Endpoint resource. Options are ['statsd']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"hostname": schema.StringAttribute{
 				Description: "The name of the host where this StatsD Monitoring Endpoint should send metric data.",
 				Required:    false,
@@ -107,6 +114,7 @@ func (r *monitoringEndpointDataSource) Schema(ctx context.Context, req datasourc
 
 // Read a StatsdMonitoringEndpointResponse object into the model struct
 func readStatsdMonitoringEndpointResponseDataSource(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *monitoringEndpointDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("statsd")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Hostname = types.StringValue(r.Hostname)

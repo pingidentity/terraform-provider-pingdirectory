@@ -55,6 +55,7 @@ resource "pingdirectory_key_pair" "myKeyPair" {
 - `private_key` (String, Sensitive) The base64-encoded private key that is encrypted using the preferred encryption settings definition.
 - `self_signed_certificate_validity` (String) The validity period for a self-signed certificate. If not specified, the self-signed certificate will be valid for approximately 20 years. This is not used when importing an existing key-pair. The system will not automatically rotate expired certificates. It is up to the administrator to do that when that happens.
 - `subject_dn` (String) The DN that should be used as the subject for the self-signed certificate and certificate signing request. This is not used when importing an existing key-pair.
+- `type` (String) The type of Key Pair resource. Options are ['key-pair']
 
 ### Read-Only
 

@@ -49,6 +49,7 @@ func (r *localDbCompositeIndexDataSource) Configure(_ context.Context, req datas
 type localDbCompositeIndexDataSourceModel struct {
 	Id                     types.String `tfsdk:"id"`
 	Name                   types.String `tfsdk:"name"`
+	Type                   types.String `tfsdk:"type"`
 	BackendName            types.String `tfsdk:"backend_name"`
 	Description            types.String `tfsdk:"description"`
 	IndexFilterPattern     types.String `tfsdk:"index_filter_pattern"`
@@ -64,6 +65,12 @@ func (r *localDbCompositeIndexDataSource) Schema(ctx context.Context, req dataso
 	schemaDef := schema.Schema{
 		Description: "Describes a Local Db Composite Index.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Local DB Composite Index resource. Options are ['local-db-composite-index']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -118,6 +125,7 @@ func (r *localDbCompositeIndexDataSource) Schema(ctx context.Context, req dataso
 
 // Read a LocalDbCompositeIndexResponse object into the model struct
 func readLocalDbCompositeIndexResponseDataSource(ctx context.Context, r *client.LocalDbCompositeIndexResponse, state *localDbCompositeIndexDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("local-db-composite-index")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

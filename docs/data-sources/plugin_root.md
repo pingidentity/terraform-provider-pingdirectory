@@ -96,4 +96,5 @@ data "pingdirectory_plugin_root" "myPluginRoot" {
 - `plugin_order_shutdown` (String) Specifies the order in which shutdown plug-ins are to be loaded and invoked.
 - `plugin_order_startup` (String) Specifies the order in which startup plug-ins are to be loaded and invoked.
 - `plugin_order_subordinate_modify_dn` (String) Specifies the order in which subordinate modify DN plug-ins are to be loaded and invoked.
+- `type` (String) The type of Plugin Root resource. Options are ['plugin-root']
 

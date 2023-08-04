@@ -49,6 +49,7 @@ func (r *locationDataSource) Configure(_ context.Context, req datasource.Configu
 type locationDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
+	Type        types.String `tfsdk:"type"`
 	Description types.String `tfsdk:"description"`
 }
 
@@ -57,6 +58,12 @@ func (r *locationDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 	schemaDef := schema.Schema{
 		Description: "Describes a Location.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Location resource. Options are ['location']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Location",
 				Required:    false,
@@ -71,6 +78,7 @@ func (r *locationDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 
 // Read a LocationResponse object into the model struct
 func readLocationResponseDataSource(ctx context.Context, r *client.LocationResponse, state *locationDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("location")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

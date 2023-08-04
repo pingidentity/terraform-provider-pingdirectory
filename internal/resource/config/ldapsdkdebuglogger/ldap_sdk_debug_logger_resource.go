@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -60,6 +63,7 @@ type ldapSdkDebugLoggerResourceModel struct {
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
+	Type                           types.String `tfsdk:"type"`
 	Description                    types.String `tfsdk:"description"`
 	Enabled                        types.Bool   `tfsdk:"enabled"`
 	LogFile                        types.String `tfsdk:"log_file"`
@@ -89,6 +93,15 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 	schemaDef := schema.Schema{
 		Description: "Manages a Ldap Sdk Debug Logger.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of LDAP SDK Debug Logger resource. Options are ['ldap-sdk-debug-logger']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("ldap-sdk-debug-logger"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"ldap-sdk-debug-logger"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this LDAP SDK Debug Logger",
 				Optional:    true,
@@ -277,6 +290,7 @@ func (r *ldapSdkDebugLoggerResource) Schema(ctx context.Context, req resource.Sc
 
 // Read a LdapSdkDebugLoggerResponse object into the model struct
 func readLdapSdkDebugLoggerResponse(ctx context.Context, r *client.LdapSdkDebugLoggerResponse, state *ldapSdkDebugLoggerResourceModel, expectedValues *ldapSdkDebugLoggerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ldap-sdk-debug-logger")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.Description = internaltypes.StringTypeOrNil(r.Description, true)

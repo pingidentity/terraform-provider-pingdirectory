@@ -58,4 +58,5 @@ data "pingdirectory_mac_secret_key" "myMacSecretKey" {
 - `key_length_bits` (Number) The length of the key in bits.
 - `mac_algorithm_name` (String) The algorithm name used to generate this MAC key, e.g. HmacMD5, HmacSHA1, HMacSHA256, etc.
 - `symmetric_key` (Set of String) The symmetric key that is used for both encryption of plain text and decryption of cipher text. This stores the secret key for each server instance encrypted with that server's inter-server certificate.
+- `type` (String) The type of Mac Secret Key resource. Options are ['mac-secret-key']
 

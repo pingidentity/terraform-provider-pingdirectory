@@ -58,4 +58,5 @@ data "pingdirectory_http_servlet_cross_origin_policy" "myHttpServletCrossOriginP
 - `cors_preflight_max_age` (String) The maximum amount of time that a preflight request can be cached by a client.
 - `description` (String) A description for this HTTP Servlet Cross Origin Policy
 - `id` (String) The ID of this resource.
+- `type` (String) The type of HTTP Servlet Cross Origin Policy resource. Options are ['http-servlet-cross-origin-policy']
 

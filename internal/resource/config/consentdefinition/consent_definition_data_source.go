@@ -48,6 +48,7 @@ func (r *consentDefinitionDataSource) Configure(_ context.Context, req datasourc
 
 type consentDefinitionDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
+	Type        types.String `tfsdk:"type"`
 	UniqueID    types.String `tfsdk:"unique_id"`
 	DisplayName types.String `tfsdk:"display_name"`
 	Parameter   types.Set    `tfsdk:"parameter"`
@@ -59,6 +60,12 @@ func (r *consentDefinitionDataSource) Schema(ctx context.Context, req datasource
 	schemaDef := schema.Schema{
 		Description: "Describes a Consent Definition.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Consent Definition resource. Options are ['consent-definition']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"unique_id": schema.StringAttribute{
 				Description: "A version-independent unique identifier for this Consent Definition.",
 				Required:    true,
@@ -90,6 +97,7 @@ func (r *consentDefinitionDataSource) Schema(ctx context.Context, req datasource
 
 // Read a ConsentDefinitionResponse object into the model struct
 func readConsentDefinitionResponseDataSource(ctx context.Context, r *client.ConsentDefinitionResponse, state *consentDefinitionDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent-definition")
 	state.Id = types.StringValue(r.Id)
 	state.UniqueID = types.StringValue(r.UniqueID)
 	state.DisplayName = internaltypes.StringTypeOrNil(r.DisplayName, false)

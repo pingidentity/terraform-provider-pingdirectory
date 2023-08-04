@@ -31,6 +31,7 @@ Manages a Entry Cache.
 - `min_cache_entry_attribute` (Set of String) Specifies the names of the attribute types for which the min-cache-entry-value-count property should apply. If no attribute types are specified, then all user attributes will be examined.
 - `min_cache_entry_value_count` (Number) Specifies the minimum number of attribute values (optionally across a specified subset of attributes as defined in the min-cache-entry-attributes property) for entries that should be held in the cache. Entries with fewer than this number of attribute values will be excluded from the cache.
 - `only_cache_frequently_accessed` (Boolean) Specifies that the cache should only store entries which are accessed much more frequently than the average entry. The cache will observe attempts to place entries in the cache and compare an entry's accesses to the average entry's.
+- `type` (String) The type of Entry Cache resource. Options are ['fifo']
 
 ### Read-Only
 

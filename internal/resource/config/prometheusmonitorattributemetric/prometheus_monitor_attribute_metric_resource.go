@@ -5,13 +5,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type prometheusMonitorAttributeMetricResourceModel struct {
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	Type                     types.String `tfsdk:"type"`
 	HttpServletExtensionName types.String `tfsdk:"http_servlet_extension_name"`
 	MetricName               types.String `tfsdk:"metric_name"`
 	MonitorAttributeName     types.String `tfsdk:"monitor_attribute_name"`
@@ -110,6 +114,15 @@ func prometheusMonitorAttributeMetricSchema(ctx context.Context, req resource.Sc
 	schemaDef := schema.Schema{
 		Description: "Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory product version 9.2.0.0+.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("prometheus-monitor-attribute-metric"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"prometheus-monitor-attribute-metric"}...),
+				},
+			},
 			"http_servlet_extension_name": schema.StringAttribute{
 				Description: "Name of the parent HTTP Servlet Extension",
 				Required:    true,
@@ -196,6 +209,7 @@ func addOptionalPrometheusMonitorAttributeMetricFields(ctx context.Context, addR
 
 // Read a PrometheusMonitorAttributeMetricResponse object into the model struct
 func readPrometheusMonitorAttributeMetricResponse(ctx context.Context, r *client.PrometheusMonitorAttributeMetricResponse, state *prometheusMonitorAttributeMetricResourceModel, expectedValues *prometheusMonitorAttributeMetricResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("prometheus-monitor-attribute-metric")
 	state.Id = types.StringValue(r.Id)
 	state.MetricName = types.StringValue(r.MetricName)
 	state.MonitorAttributeName = types.StringValue(r.MonitorAttributeName)

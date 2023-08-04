@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -60,6 +63,7 @@ type consentServiceResourceModel struct {
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
 	RequiredActions             types.Set    `tfsdk:"required_actions"`
+	Type                        types.String `tfsdk:"type"`
 	Enabled                     types.Bool   `tfsdk:"enabled"`
 	BaseDN                      types.String `tfsdk:"base_dn"`
 	BindDN                      types.String `tfsdk:"bind_dn"`
@@ -76,6 +80,15 @@ func (r *consentServiceResource) Schema(ctx context.Context, req resource.Schema
 	schemaDef := schema.Schema{
 		Description: "Manages a Consent Service.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Consent Service resource. Options are ['consent-service']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("consent-service"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"consent-service"}...),
+				},
+			},
 			"enabled": schema.BoolAttribute{
 				Description: "Indicates whether the Consent Service is enabled.",
 				Optional:    true,
@@ -158,6 +171,7 @@ func (r *consentServiceResource) Schema(ctx context.Context, req resource.Schema
 
 // Read a ConsentServiceResponse object into the model struct
 func readConsentServiceResponse(ctx context.Context, r *client.ConsentServiceResponse, state *consentServiceResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("consent-service")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.Enabled = types.BoolValue(r.Enabled)

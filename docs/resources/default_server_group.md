@@ -21,6 +21,7 @@ Manages a Server Group.
 ### Optional
 
 - `member` (Set of String) A server instance that is a member of this group.
+- `type` (String) The type of Server Group resource. Options are ['server-group']
 
 ### Read-Only
 

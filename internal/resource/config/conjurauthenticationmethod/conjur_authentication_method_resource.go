@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type conjurAuthenticationMethodResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Username        types.String `tfsdk:"username"`
 	Password        types.String `tfsdk:"password"`
 	ApiKey          types.String `tfsdk:"api_key"`
@@ -102,6 +106,15 @@ func conjurAuthenticationMethodSchema(ctx context.Context, req resource.SchemaRe
 	schemaDef := schema.Schema{
 		Description: "Manages a Conjur Authentication Method.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Conjur Authentication Method resource. Options are ['api-key']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("api-key"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"api-key"}...),
+				},
+			},
 			"username": schema.StringAttribute{
 				Description: "The username for the user to authenticate.",
 				Required:    true,
@@ -158,6 +171,7 @@ func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model 
 
 // Read a ApiKeyConjurAuthenticationMethodResponse object into the model struct
 func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client.ApiKeyConjurAuthenticationMethodResponse, state *conjurAuthenticationMethodResourceModel, expectedValues *conjurAuthenticationMethodResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("api-key")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Username = types.StringValue(r.Username)

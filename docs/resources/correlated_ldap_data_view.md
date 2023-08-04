@@ -78,6 +78,7 @@ resource "pingdirectory_correlated_ldap_data_view" "myCorrelatedLdapDataView" {
 - `create_dn_pattern` (String) Specifies the template to use for the DN when creating new entries.
 - `include_filter` (Set of String) The set of LDAP filters that define the LDAP entries that should be included in this Correlated LDAP Data View.
 - `include_operational_attribute` (Set of String) Specifies the set of operational LDAP attributes to be provided by this Correlated LDAP Data View.
+- `type` (String) The type of Correlated LDAP Data View resource. Options are ['correlated-ldap-data-view']
 
 ### Read-Only
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type topologyAdminUserResourceModel struct {
 	LastUpdated                    types.String `tfsdk:"last_updated"`
 	Notifications                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                types.Set    `tfsdk:"required_actions"`
+	Type                           types.String `tfsdk:"type"`
 	AlternateBindDN                types.Set    `tfsdk:"alternate_bind_dn"`
 	Description                    types.String `tfsdk:"description"`
 	Password                       types.String `tfsdk:"password"`
@@ -136,6 +140,15 @@ func topologyAdminUserSchema(ctx context.Context, req resource.SchemaRequest, re
 	schemaDef := schema.Schema{
 		Description: "Manages a Topology Admin User.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Topology Admin User resource. Options are ['topology-admin-user']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("topology-admin-user"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"topology-admin-user"}...),
+				},
+			},
 			"alternate_bind_dn": schema.SetAttribute{
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Optional:    true,
@@ -577,6 +590,7 @@ func populateTopologyAdminUserUnknownValues(ctx context.Context, model *topology
 
 // Read a TopologyAdminUserResponse object into the model struct
 func readTopologyAdminUserResponse(ctx context.Context, r *client.TopologyAdminUserResponse, state *topologyAdminUserResourceModel, expectedValues *topologyAdminUserResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("topology-admin-user")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)

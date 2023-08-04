@@ -49,5 +49,6 @@ data "pingdirectory_root_dse_backend" "myRootDseBackend" {
 - `id` (String) The ID of this resource.
 - `show_all_attributes` (Boolean) Indicates whether all attributes in the root DSE are to be treated like user attributes (and therefore returned to clients by default) regardless of the Directory Server schema configuration.
 - `subordinate_base_dn` (Set of String) Specifies the set of base DNs used for singleLevel, wholeSubtree, and subordinateSubtree searches based at the root DSE.
+- `type` (String) The type of Root DSE Backend resource. Options are ['root-dse-backend']
 - `use_legacy_vendor_version` (Boolean) Indicates whether the server's root DSE should reflect current or legacy values for the vendorName and vendorVersion attributes.
 

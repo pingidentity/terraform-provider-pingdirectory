@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -57,6 +60,7 @@ type rootDnResourceModel struct {
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	Type                     types.String `tfsdk:"type"`
 	DefaultRootPrivilegeName types.Set    `tfsdk:"default_root_privilege_name"`
 }
 
@@ -65,6 +69,15 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	schemaDef := schema.Schema{
 		Description: "Manages a Root Dn.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Root DN resource. Options are ['root-dn']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("root-dn"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"root-dn"}...),
+				},
+			},
 			"default_root_privilege_name": schema.SetAttribute{
 				Description: "Specifies the names of the privileges that root users will be granted by default.",
 				Optional:    true,
@@ -82,6 +95,7 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 
 // Read a RootDnResponse object into the model struct
 func readRootDnResponse(ctx context.Context, r *client.RootDnResponse, state *rootDnResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("root-dn")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DefaultRootPrivilegeName = internaltypes.GetStringSet(

@@ -52,4 +52,5 @@ data "pingdirectory_trusted_certificate" "myTrustedCertificate" {
 
 - `certificate` (String) The PEM-encoded X.509v3 certificate.
 - `id` (String) The ID of this resource.
+- `type` (String) The type of Trusted Certificate resource. Options are ['trusted-certificate']
 

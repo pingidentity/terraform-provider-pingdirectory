@@ -49,6 +49,7 @@ func (r *constructedAttributeDataSource) Configure(_ context.Context, req dataso
 type constructedAttributeDataSourceModel struct {
 	Id            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`
+	Type          types.String `tfsdk:"type"`
 	Description   types.String `tfsdk:"description"`
 	AttributeType types.String `tfsdk:"attribute_type"`
 	ValuePattern  types.Set    `tfsdk:"value_pattern"`
@@ -59,6 +60,12 @@ func (r *constructedAttributeDataSource) Schema(ctx context.Context, req datasou
 	schemaDef := schema.Schema{
 		Description: "Describes a Constructed Attribute.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Constructed Attribute resource. Options are ['constructed-attribute']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Constructed Attribute",
 				Required:    false,
@@ -86,6 +93,7 @@ func (r *constructedAttributeDataSource) Schema(ctx context.Context, req datasou
 
 // Read a ConstructedAttributeResponse object into the model struct
 func readConstructedAttributeResponseDataSource(ctx context.Context, r *client.ConstructedAttributeResponse, state *constructedAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("constructed-attribute")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

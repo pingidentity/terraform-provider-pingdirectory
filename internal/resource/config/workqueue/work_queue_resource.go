@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,7 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -59,6 +62,7 @@ type workQueueResourceModel struct {
 	LastUpdated                              types.String `tfsdk:"last_updated"`
 	Notifications                            types.Set    `tfsdk:"notifications"`
 	RequiredActions                          types.Set    `tfsdk:"required_actions"`
+	Type                                     types.String `tfsdk:"type"`
 	NumWorkerThreads                         types.Int64  `tfsdk:"num_worker_threads"`
 	NumWriteWorkerThreads                    types.Int64  `tfsdk:"num_write_worker_threads"`
 	NumAdministrativeSessionWorkerThreads    types.Int64  `tfsdk:"num_administrative_session_worker_threads"`
@@ -78,6 +82,15 @@ func (r *workQueueResource) Schema(ctx context.Context, req resource.SchemaReque
 	schemaDef := schema.Schema{
 		Description: "Manages a Work Queue.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Work Queue resource. Options are ['high-throughput']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("high-throughput"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"high-throughput"}...),
+				},
+			},
 			"num_worker_threads": schema.Int64Attribute{
 				Description: "Specifies the total number of worker threads that should be used within the server in order to process requested operations. The worker threads will be split evenly across all of the configured queues.",
 				Optional:    true,
@@ -182,6 +195,7 @@ func (r *workQueueResource) Schema(ctx context.Context, req resource.SchemaReque
 
 // Read a HighThroughputWorkQueueResponse object into the model struct
 func readHighThroughputWorkQueueResponse(ctx context.Context, r *client.HighThroughputWorkQueueResponse, state *workQueueResourceModel, expectedValues *workQueueResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("high-throughput")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.NumWorkerThreads = internaltypes.Int64TypeOrNil(r.NumWorkerThreads)

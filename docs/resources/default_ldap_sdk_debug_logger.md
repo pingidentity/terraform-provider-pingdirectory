@@ -68,6 +68,7 @@ resource "pingdirectory_default_ldap_sdk_debug_logger" "myLdapSdkDebugLogger" {
 - `sign_log` (Boolean) Indicates whether the log should be cryptographically signed so that the log content cannot be altered in an undetectable manner.
 - `time_interval` (String) Specifies the interval at which to check whether the log files need to be rotated.
 - `timestamp_precision` (String) Specifies the smallest time unit to be included in timestamps.
+- `type` (String) The type of LDAP SDK Debug Logger resource. Options are ['ldap-sdk-debug-logger']
 
 ### Read-Only
 

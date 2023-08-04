@@ -49,6 +49,7 @@ func (r *replicationAssurancePolicyDataSource) Configure(_ context.Context, req 
 type replicationAssurancePolicyDataSourceModel struct {
 	Id                   types.String `tfsdk:"id"`
 	Name                 types.String `tfsdk:"name"`
+	Type                 types.String `tfsdk:"type"`
 	Description          types.String `tfsdk:"description"`
 	Enabled              types.Bool   `tfsdk:"enabled"`
 	EvaluationOrderIndex types.Int64  `tfsdk:"evaluation_order_index"`
@@ -64,6 +65,12 @@ func (r *replicationAssurancePolicyDataSource) Schema(ctx context.Context, req d
 	schemaDef := schema.Schema{
 		Description: "Describes a Replication Assurance Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Replication Assurance Policy resource. Options are ['replication-assurance-policy']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "Description of the Replication Assurance Policy.",
 				Required:    false,
@@ -120,6 +127,7 @@ func (r *replicationAssurancePolicyDataSource) Schema(ctx context.Context, req d
 
 // Read a ReplicationAssurancePolicyResponse object into the model struct
 func readReplicationAssurancePolicyResponseDataSource(ctx context.Context, r *client.ReplicationAssurancePolicyResponse, state *replicationAssurancePolicyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-assurance-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

@@ -50,6 +50,7 @@ resource "pingdirectory_default_access_control_handler" "myAccessControlHandler"
 - `allowed_bind_control_oid` (Set of String) Specifies the OIDs of any additional controls (not covered by the allowed-bind-control property) that should be permitted in bind requests.
 - `enabled` (Boolean) Indicates whether this Access Control Handler is enabled. If set to FALSE, then no access control is enforced, and any client (including unauthenticated or anonymous clients) could be allowed to perform any operation if not subject to other restrictions, such as those enforced by the privilege subsystem.
 - `global_aci` (Set of String) Defines global access control rules.
+- `type` (String) The type of Access Control Handler resource. Options are ['dsee-compat']
 
 ### Read-Only
 

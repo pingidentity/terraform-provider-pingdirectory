@@ -52,4 +52,5 @@ data "pingdirectory_location" "myLocation" {
 
 - `description` (String) A description for this Location
 - `id` (String) The ID of this resource.
+- `type` (String) The type of Location resource. Options are ['location']
 

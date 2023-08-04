@@ -61,6 +61,7 @@ resource "pingdirectory_prometheus_monitor_attribute_metric" "myPrometheusMonito
 - `filter` (String) A filter that may be used to restrict the set of monitor entries for which the metric should be generated.
 - `label_name_value_pair` (Set of String) A set of name-value pairs for labels that should be included in the published metric for the target attribute.
 - `metric_description` (String) A human-readable description that should be published as part of the metric definition.
+- `type` (String) The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']
 
 ### Read-Only
 

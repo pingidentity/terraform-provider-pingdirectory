@@ -49,6 +49,7 @@ func (r *trustedCertificateDataSource) Configure(_ context.Context, req datasour
 type trustedCertificateDataSourceModel struct {
 	Id          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
+	Type        types.String `tfsdk:"type"`
 	Certificate types.String `tfsdk:"certificate"`
 }
 
@@ -57,6 +58,12 @@ func (r *trustedCertificateDataSource) Schema(ctx context.Context, req datasourc
 	schemaDef := schema.Schema{
 		Description: "Describes a Trusted Certificate.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Trusted Certificate resource. Options are ['trusted-certificate']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"certificate": schema.StringAttribute{
 				Description: "The PEM-encoded X.509v3 certificate.",
 				Required:    false,
@@ -71,6 +78,7 @@ func (r *trustedCertificateDataSource) Schema(ctx context.Context, req datasourc
 
 // Read a TrustedCertificateResponse object into the model struct
 func readTrustedCertificateResponseDataSource(ctx context.Context, r *client.TrustedCertificateResponse, state *trustedCertificateDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("trusted-certificate")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Certificate = types.StringValue(r.Certificate)

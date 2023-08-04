@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -84,6 +87,7 @@ type delegatedAdminAttributeCategoryResourceModel struct {
 	LastUpdated       types.String `tfsdk:"last_updated"`
 	Notifications     types.Set    `tfsdk:"notifications"`
 	RequiredActions   types.Set    `tfsdk:"required_actions"`
+	Type              types.String `tfsdk:"type"`
 	Description       types.String `tfsdk:"description"`
 	DisplayName       types.String `tfsdk:"display_name"`
 	DisplayOrderIndex types.Int64  `tfsdk:"display_order_index"`
@@ -102,6 +106,15 @@ func delegatedAdminAttributeCategorySchema(ctx context.Context, req resource.Sch
 	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Attribute Category.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Attribute Category resource. Options are ['delegated-admin-attribute-category']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("delegated-admin-attribute-category"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"delegated-admin-attribute-category"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Delegated Admin Attribute Category",
 				Optional:    true,
@@ -137,6 +150,7 @@ func addOptionalDelegatedAdminAttributeCategoryFields(ctx context.Context, addRe
 
 // Read a DelegatedAdminAttributeCategoryResponse object into the model struct
 func readDelegatedAdminAttributeCategoryResponse(ctx context.Context, r *client.DelegatedAdminAttributeCategoryResponse, state *delegatedAdminAttributeCategoryResourceModel, expectedValues *delegatedAdminAttributeCategoryResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-attribute-category")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.DisplayName = types.StringValue(r.DisplayName)

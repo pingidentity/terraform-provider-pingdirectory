@@ -28,6 +28,7 @@ Manages a Sensitive Attribute.
 - `attribute_type` (Set of String) The name(s) or OID(s) of the attribute types for attributes whose values may be considered sensitive.
 - `description` (String) A description for this Sensitive Attribute
 - `include_default_sensitive_operational_attributes` (Boolean) Indicates whether to automatically include any server-generated operational attributes that may contain sensitive data.
+- `type` (String) The type of Sensitive Attribute resource. Options are ['sensitive-attribute']
 
 ### Read-Only
 

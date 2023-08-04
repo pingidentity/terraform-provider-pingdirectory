@@ -48,6 +48,7 @@ func (r *replicationServerDataSource) Configure(_ context.Context, req datasourc
 
 type replicationServerDataSourceModel struct {
 	Id                                  types.String `tfsdk:"id"`
+	Type                                types.String `tfsdk:"type"`
 	SynchronizationProviderName         types.String `tfsdk:"synchronization_provider_name"`
 	ReplicationServerID                 types.Int64  `tfsdk:"replication_server_id"`
 	ReplicationDBDirectory              types.String `tfsdk:"replication_db_directory"`
@@ -69,6 +70,12 @@ func (r *replicationServerDataSource) Schema(ctx context.Context, req datasource
 	schemaDef := schema.Schema{
 		Description: "Describes a Replication Server.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Replication Server resource. Options are ['replication-server']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"synchronization_provider_name": schema.StringAttribute{
 				Description: "Name of the parent Synchronization Provider",
 				Required:    true,
@@ -159,6 +166,7 @@ func (r *replicationServerDataSource) Schema(ctx context.Context, req datasource
 
 // Read a ReplicationServerResponse object into the model struct
 func readReplicationServerResponseDataSource(ctx context.Context, r *client.ReplicationServerResponse, state *replicationServerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-server")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.ReplicationServerID = types.Int64Value(r.ReplicationServerID)

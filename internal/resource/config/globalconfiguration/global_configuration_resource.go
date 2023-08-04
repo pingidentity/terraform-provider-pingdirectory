@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -61,6 +64,7 @@ type globalConfigurationResourceModel struct {
 	LastUpdated                                                    types.String `tfsdk:"last_updated"`
 	Notifications                                                  types.Set    `tfsdk:"notifications"`
 	RequiredActions                                                types.Set    `tfsdk:"required_actions"`
+	Type                                                           types.String `tfsdk:"type"`
 	InstanceName                                                   types.String `tfsdk:"instance_name"`
 	Location                                                       types.String `tfsdk:"location"`
 	ConfigurationServerGroup                                       types.String `tfsdk:"configuration_server_group"`
@@ -157,6 +161,15 @@ func (r *globalConfigurationResource) Schema(ctx context.Context, req resource.S
 	schemaDef := schema.Schema{
 		Description: "Manages a Global Configuration.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Global Configuration resource. Options are ['global-configuration']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("global-configuration"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"global-configuration"}...),
+				},
+			},
 			"instance_name": schema.StringAttribute{
 				Description: "Specifies a name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
 				Optional:    true,
@@ -912,6 +925,7 @@ func (r *globalConfigurationResource) ModifyPlan(ctx context.Context, req resour
 
 // Read a GlobalConfigurationResponse object into the model struct
 func readGlobalConfigurationResponse(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationResourceModel, expectedValues *globalConfigurationResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("global-configuration")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)

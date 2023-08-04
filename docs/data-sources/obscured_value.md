@@ -53,4 +53,5 @@ data "pingdirectory_obscured_value" "myObscuredValue" {
 - `description` (String) A description for this Obscured Value
 - `id` (String) The ID of this resource.
 - `obscured_value` (String, Sensitive) The value to be stored in an obscured form.
+- `type` (String) The type of Obscured Value resource. Options are ['obscured-value']
 

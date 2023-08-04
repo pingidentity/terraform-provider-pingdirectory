@@ -59,4 +59,5 @@ data "pingdirectory_local_db_vlv_index" "myLocalDbVlvIndex" {
 - `max_block_size` (Number) Specifies the number of entry IDs to store in a single sorted set before it must be split.
 - `scope` (String) Specifies the LDAP scope of the query that is being indexed.
 - `sort_order` (String) Specifies the names of the attributes that are used to sort the entries for the query being indexed.
+- `type` (String) The type of Local DB VLV Index resource. Options are ['local-db-vlv-index']
 

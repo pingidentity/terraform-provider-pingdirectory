@@ -48,6 +48,7 @@ func (r *cryptoManagerDataSource) Configure(_ context.Context, req datasource.Co
 
 type cryptoManagerDataSourceModel struct {
 	Id                               types.String `tfsdk:"id"`
+	Type                             types.String `tfsdk:"type"`
 	DigestAlgorithm                  types.String `tfsdk:"digest_algorithm"`
 	MacAlgorithm                     types.String `tfsdk:"mac_algorithm"`
 	MacKeyLength                     types.Int64  `tfsdk:"mac_key_length"`
@@ -69,6 +70,12 @@ func (r *cryptoManagerDataSource) Schema(ctx context.Context, req datasource.Sch
 	schemaDef := schema.Schema{
 		Description: "Describes a Crypto Manager.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Crypto Manager resource. Options are ['crypto-manager']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"digest_algorithm": schema.StringAttribute{
 				Description: "Specifies the preferred message digest algorithm for the Directory Server.",
 				Required:    false,
@@ -165,6 +172,7 @@ func (r *cryptoManagerDataSource) Schema(ctx context.Context, req datasource.Sch
 
 // Read a CryptoManagerResponse object into the model struct
 func readCryptoManagerResponseDataSource(ctx context.Context, r *client.CryptoManagerResponse, state *cryptoManagerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("crypto-manager")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DigestAlgorithm = internaltypes.StringTypeOrNil(r.DigestAlgorithm, false)

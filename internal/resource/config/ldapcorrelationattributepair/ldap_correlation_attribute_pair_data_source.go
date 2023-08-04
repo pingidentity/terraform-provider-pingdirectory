@@ -49,6 +49,7 @@ func (r *ldapCorrelationAttributePairDataSource) Configure(_ context.Context, re
 type ldapCorrelationAttributePairDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
 	Name                          types.String `tfsdk:"name"`
+	Type                          types.String `tfsdk:"type"`
 	CorrelatedLdapDataViewName    types.String `tfsdk:"correlated_ldap_data_view_name"`
 	ScimResourceTypeName          types.String `tfsdk:"scim_resource_type_name"`
 	PrimaryCorrelationAttribute   types.String `tfsdk:"primary_correlation_attribute"`
@@ -60,6 +61,12 @@ func (r *ldapCorrelationAttributePairDataSource) Schema(ctx context.Context, req
 	schemaDef := schema.Schema{
 		Description: "Describes a Ldap Correlation Attribute Pair.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of LDAP Correlation Attribute Pair resource. Options are ['ldap-correlation-attribute-pair']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"correlated_ldap_data_view_name": schema.StringAttribute{
 				Description: "Name of the parent Correlated LDAP Data View",
 				Required:    true,
@@ -88,6 +95,7 @@ func (r *ldapCorrelationAttributePairDataSource) Schema(ctx context.Context, req
 
 // Read a LdapCorrelationAttributePairResponse object into the model struct
 func readLdapCorrelationAttributePairResponseDataSource(ctx context.Context, r *client.LdapCorrelationAttributePairResponse, state *ldapCorrelationAttributePairDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("ldap-correlation-attribute-pair")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.PrimaryCorrelationAttribute = types.StringValue(r.PrimaryCorrelationAttribute)

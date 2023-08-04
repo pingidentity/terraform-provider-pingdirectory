@@ -22,6 +22,7 @@ Manages a Obscured Value.
 
 - `description` (String) A description for this Obscured Value
 - `obscured_value` (String, Sensitive) The value to be stored in an obscured form.
+- `type` (String) The type of Obscured Value resource. Options are ['obscured-value']
 
 ### Read-Only
 

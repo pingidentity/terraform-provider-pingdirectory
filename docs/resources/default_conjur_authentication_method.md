@@ -23,6 +23,7 @@ Manages a Conjur Authentication Method.
 - `api_key` (String, Sensitive) The API key for the user to authenticate.
 - `description` (String) A description for this Conjur Authentication Method
 - `password` (String, Sensitive) The password for the user to authenticate. This will be used to obtain an API key for the target user.
+- `type` (String) The type of Conjur Authentication Method resource. Options are ['api-key']
 - `username` (String) The username for the user to authenticate.
 
 ### Read-Only

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type scimAttributeResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	ResourceType    types.String `tfsdk:"resource_type"`
 	ScimSchemaName  types.String `tfsdk:"scim_schema_name"`
 	Description     types.String `tfsdk:"description"`
 	Name            types.String `tfsdk:"name"`
@@ -113,6 +117,15 @@ func scimAttributeSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	schemaDef := schema.Schema{
 		Description: "Manages a Scim Attribute.",
 		Attributes: map[string]schema.Attribute{
+			"resource_type": schema.StringAttribute{
+				Description: "The type of SCIM Attribute resource. Options are ['scim-attribute']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("scim-attribute"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"scim-attribute"}...),
+				},
+			},
 			"scim_schema_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Schema",
 				Required:    true,
@@ -261,6 +274,7 @@ func addOptionalScimAttributeFields(ctx context.Context, addRequest *client.AddS
 
 // Read a ScimAttributeResponse object into the model struct
 func readScimAttributeResponse(ctx context.Context, r *client.ScimAttributeResponse, state *scimAttributeResourceModel, expectedValues *scimAttributeResourceModel, diagnostics *diag.Diagnostics) {
+	state.ResourceType = types.StringValue("scim-attribute")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Name = types.StringValue(r.Name)

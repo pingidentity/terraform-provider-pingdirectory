@@ -49,6 +49,7 @@ func (r *topologyAdminUserDataSource) Configure(_ context.Context, req datasourc
 type topologyAdminUserDataSourceModel struct {
 	Id                             types.String `tfsdk:"id"`
 	Name                           types.String `tfsdk:"name"`
+	Type                           types.String `tfsdk:"type"`
 	AlternateBindDN                types.Set    `tfsdk:"alternate_bind_dn"`
 	Description                    types.String `tfsdk:"description"`
 	Password                       types.String `tfsdk:"password"`
@@ -89,6 +90,12 @@ func (r *topologyAdminUserDataSource) Schema(ctx context.Context, req datasource
 	schemaDef := schema.Schema{
 		Description: "Describes a Topology Admin User.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Topology Admin User resource. Options are ['topology-admin-user']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"alternate_bind_dn": schema.SetAttribute{
 				Description: "Specifies one or more alternate DNs that can be used to bind to the server as this User.",
 				Required:    false,
@@ -314,6 +321,7 @@ func (r *topologyAdminUserDataSource) Schema(ctx context.Context, req datasource
 
 // Read a TopologyAdminUserResponse object into the model struct
 func readTopologyAdminUserResponseDataSource(ctx context.Context, r *client.TopologyAdminUserResponse, state *topologyAdminUserDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("topology-admin-user")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.AlternateBindDN = internaltypes.GetStringSet(r.AlternateBindDN)

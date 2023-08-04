@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type obscuredValueResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Description     types.String `tfsdk:"description"`
 	ObscuredValue   types.String `tfsdk:"obscured_value"`
 }
@@ -100,6 +104,15 @@ func obscuredValueSchema(ctx context.Context, req resource.SchemaRequest, resp *
 	schemaDef := schema.Schema{
 		Description: "Manages a Obscured Value.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Obscured Value resource. Options are ['obscured-value']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("obscured-value"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"obscured-value"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Obscured Value",
 				Optional:    true,
@@ -136,6 +149,7 @@ func populateObscuredValueUnknownValues(ctx context.Context, model *obscuredValu
 
 // Read a ObscuredValueResponse object into the model struct
 func readObscuredValueResponse(ctx context.Context, r *client.ObscuredValueResponse, state *obscuredValueResourceModel, expectedValues *obscuredValueResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("obscured-value")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

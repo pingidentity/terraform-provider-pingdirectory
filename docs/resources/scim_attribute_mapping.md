@@ -60,6 +60,7 @@ resource "pingdirectory_scim_attribute_mapping" "myScimAttributeMapping" {
 - `correlated_ldap_data_view` (String) The Correlated LDAP Data View that persists the mapped SCIM Resource Type attribute(s).
 - `readable` (Boolean) Specifies whether the mapping is used to map from LDAP attribute to SCIM Resource Type attribute in a read operation.
 - `searchable` (Boolean) Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a search filter.
+- `type` (String) The type of SCIM Attribute Mapping resource. Options are ['scim-attribute-mapping']
 - `writable` (Boolean) Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a write operation.
 
 ### Read-Only

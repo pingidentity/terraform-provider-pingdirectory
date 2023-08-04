@@ -48,6 +48,7 @@ func (r *jsonFieldConstraintsDataSource) Configure(_ context.Context, req dataso
 
 type jsonFieldConstraintsDataSourceModel struct {
 	Id                            types.String `tfsdk:"id"`
+	Type                          types.String `tfsdk:"type"`
 	JsonAttributeConstraintsName  types.String `tfsdk:"json_attribute_constraints_name"`
 	Description                   types.String `tfsdk:"description"`
 	JsonField                     types.String `tfsdk:"json_field"`
@@ -76,6 +77,12 @@ func (r *jsonFieldConstraintsDataSource) Schema(ctx context.Context, req datasou
 	schemaDef := schema.Schema{
 		Description: "Describes a Json Field Constraints.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of JSON Field Constraints resource. Options are ['json-field-constraints']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"json_attribute_constraints_name": schema.StringAttribute{
 				Description: "Name of the parent JSON Attribute Constraints",
 				Required:    true,
@@ -208,6 +215,7 @@ func (r *jsonFieldConstraintsDataSource) Schema(ctx context.Context, req datasou
 
 // Read a JsonFieldConstraintsResponse object into the model struct
 func readJsonFieldConstraintsResponseDataSource(ctx context.Context, r *client.JsonFieldConstraintsResponse, state *jsonFieldConstraintsDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("json-field-constraints")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)
 	state.JsonField = types.StringValue(r.JsonField)

@@ -61,6 +61,7 @@ resource "pingdirectory_velocity_template_loader" "myVelocityTemplateLoader" {
 - `mime_type` (String) Specifies a the value that will be used in the response's Content-Type header that indicates the type of content to return.
 - `template_directory` (String) Specifies the directory in which to search for the template files.
 - `template_suffix` (String) Specifies the suffix to append to the requested resource name when searching for the template file with which to form a response.
+- `type` (String) The type of Velocity Template Loader resource. Options are ['velocity-template-loader']
 
 ### Read-Only
 

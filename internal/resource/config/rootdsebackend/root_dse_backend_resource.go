@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -58,6 +61,7 @@ type rootDseBackendResourceModel struct {
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
+	Type                          types.String `tfsdk:"type"`
 	SubordinateBaseDN             types.Set    `tfsdk:"subordinate_base_dn"`
 	AdditionalSupportedControlOID types.Set    `tfsdk:"additional_supported_control_oid"`
 	ShowAllAttributes             types.Bool   `tfsdk:"show_all_attributes"`
@@ -69,6 +73,15 @@ func (r *rootDseBackendResource) Schema(ctx context.Context, req resource.Schema
 	schemaDef := schema.Schema{
 		Description: "Manages a Root Dse Backend.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Root DSE Backend resource. Options are ['root-dse-backend']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("root-dse-backend"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"root-dse-backend"}...),
+				},
+			},
 			"subordinate_base_dn": schema.SetAttribute{
 				Description: "Specifies the set of base DNs used for singleLevel, wholeSubtree, and subordinateSubtree searches based at the root DSE.",
 				Optional:    true,
@@ -111,6 +124,7 @@ func (r *rootDseBackendResource) Schema(ctx context.Context, req resource.Schema
 
 // Read a RootDseBackendResponse object into the model struct
 func readRootDseBackendResponse(ctx context.Context, r *client.RootDseBackendResponse, state *rootDseBackendResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("root-dse-backend")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.SubordinateBaseDN = internaltypes.GetStringSet(r.SubordinateBaseDN)

@@ -57,4 +57,5 @@ data "pingdirectory_ldap_correlation_attribute_pair" "myLdapCorrelationAttribute
 - `id` (String) The ID of this resource.
 - `primary_correlation_attribute` (String) The LDAP attribute from the base SCIM Resource Type whose value will be used to match objects in the Correlated LDAP Data View.
 - `secondary_correlation_attribute` (String) The LDAP attribute from the Correlated LDAP Data View whose value will be matched.
+- `type` (String) The type of LDAP Correlation Attribute Pair resource. Options are ['ldap-correlation-attribute-pair']
 

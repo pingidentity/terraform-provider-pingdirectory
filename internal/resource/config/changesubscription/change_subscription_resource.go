@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type changeSubscriptionResourceModel struct {
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	Notifications      types.Set    `tfsdk:"notifications"`
 	RequiredActions    types.Set    `tfsdk:"required_actions"`
+	Type               types.String `tfsdk:"type"`
 	Description        types.String `tfsdk:"description"`
 	ConnectionCriteria types.String `tfsdk:"connection_criteria"`
 	RequestCriteria    types.String `tfsdk:"request_criteria"`
@@ -103,6 +107,15 @@ func changeSubscriptionSchema(ctx context.Context, req resource.SchemaRequest, r
 	schemaDef := schema.Schema{
 		Description: "Manages a Change Subscription.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Change Subscription resource. Options are ['change-subscription']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("change-subscription"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"change-subscription"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Change Subscription",
 				Optional:    true,
@@ -159,6 +172,7 @@ func addOptionalChangeSubscriptionFields(ctx context.Context, addRequest *client
 
 // Read a ChangeSubscriptionResponse object into the model struct
 func readChangeSubscriptionResponse(ctx context.Context, r *client.ChangeSubscriptionResponse, state *changeSubscriptionResourceModel, expectedValues *changeSubscriptionResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("change-subscription")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

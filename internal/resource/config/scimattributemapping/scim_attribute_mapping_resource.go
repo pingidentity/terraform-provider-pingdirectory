@@ -5,13 +5,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type scimAttributeMappingResourceModel struct {
 	LastUpdated               types.String `tfsdk:"last_updated"`
 	Notifications             types.Set    `tfsdk:"notifications"`
 	RequiredActions           types.Set    `tfsdk:"required_actions"`
+	Type                      types.String `tfsdk:"type"`
 	ScimResourceTypeName      types.String `tfsdk:"scim_resource_type_name"`
 	CorrelatedLDAPDataView    types.String `tfsdk:"correlated_ldap_data_view"`
 	ScimResourceTypeAttribute types.String `tfsdk:"scim_resource_type_attribute"`
@@ -110,6 +114,15 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 	schemaDef := schema.Schema{
 		Description: "Manages a Scim Attribute Mapping.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of SCIM Attribute Mapping resource. Options are ['scim-attribute-mapping']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("scim-attribute-mapping"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"scim-attribute-mapping"}...),
+				},
+			},
 			"scim_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent SCIM Resource Type",
 				Required:    true,
@@ -197,6 +210,7 @@ func addOptionalScimAttributeMappingFields(ctx context.Context, addRequest *clie
 
 // Read a ScimAttributeMappingResponse object into the model struct
 func readScimAttributeMappingResponse(ctx context.Context, r *client.ScimAttributeMappingResponse, state *scimAttributeMappingResourceModel, expectedValues *scimAttributeMappingResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("scim-attribute-mapping")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.CorrelatedLDAPDataView = internaltypes.StringTypeOrNil(r.CorrelatedLDAPDataView, internaltypes.IsEmptyString(expectedValues.CorrelatedLDAPDataView))

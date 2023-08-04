@@ -55,6 +55,7 @@ resource "pingdirectory_constructed_attribute" "myConstructedAttribute" {
 ### Optional
 
 - `description` (String) A description for this Constructed Attribute
+- `type` (String) The type of Constructed Attribute resource. Options are ['constructed-attribute']
 
 ### Read-Only
 

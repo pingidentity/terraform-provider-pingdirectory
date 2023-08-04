@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,7 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type httpServletCrossOriginPolicyResourceModel struct {
 	LastUpdated          types.String `tfsdk:"last_updated"`
 	Notifications        types.Set    `tfsdk:"notifications"`
 	RequiredActions      types.Set    `tfsdk:"required_actions"`
+	Type                 types.String `tfsdk:"type"`
 	Description          types.String `tfsdk:"description"`
 	CorsAllowedMethods   types.Set    `tfsdk:"cors_allowed_methods"`
 	CorsAllowedOrigins   types.Set    `tfsdk:"cors_allowed_origins"`
@@ -109,6 +113,15 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 	schemaDef := schema.Schema{
 		Description: "Manages a Http Servlet Cross Origin Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of HTTP Servlet Cross Origin Policy resource. Options are ['http-servlet-cross-origin-policy']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("http-servlet-cross-origin-policy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"http-servlet-cross-origin-policy"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this HTTP Servlet Cross Origin Policy",
 				Optional:    true,
@@ -212,6 +225,7 @@ func addOptionalHttpServletCrossOriginPolicyFields(ctx context.Context, addReque
 
 // Read a HttpServletCrossOriginPolicyResponse object into the model struct
 func readHttpServletCrossOriginPolicyResponse(ctx context.Context, r *client.HttpServletCrossOriginPolicyResponse, state *httpServletCrossOriginPolicyResourceModel, expectedValues *httpServletCrossOriginPolicyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("http-servlet-cross-origin-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

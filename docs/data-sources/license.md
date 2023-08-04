@@ -47,4 +47,5 @@ data "pingdirectory_license" "myLicense" {
 
 - `directory_platform_license_key` (String) License key enabling use of Directory Server, Directory Proxy Server, Data Sync Server, and Data Metrics Server products.
 - `id` (String) The ID of this resource.
+- `type` (String) The type of License resource. Options are ['license']
 

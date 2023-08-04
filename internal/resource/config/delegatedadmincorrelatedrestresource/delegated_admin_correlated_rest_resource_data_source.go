@@ -49,6 +49,7 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Configure(_ context.Con
 type delegatedAdminCorrelatedRestResourceDataSourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
 	Name                                      types.String `tfsdk:"name"`
+	Type                                      types.String `tfsdk:"type"`
 	RestResourceTypeName                      types.String `tfsdk:"rest_resource_type_name"`
 	DisplayName                               types.String `tfsdk:"display_name"`
 	CorrelatedRESTResource                    types.String `tfsdk:"correlated_rest_resource"`
@@ -62,6 +63,12 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Schema(ctx context.Cont
 	schemaDef := schema.Schema{
 		Description: "Describes a Delegated Admin Correlated Rest Resource.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Correlated REST Resource resource. Options are ['delegated-admin-correlated-rest-resource']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"rest_resource_type_name": schema.StringAttribute{
 				Description: "Name of the parent REST Resource Type",
 				Required:    true,
@@ -104,6 +111,7 @@ func (r *delegatedAdminCorrelatedRestResourceDataSource) Schema(ctx context.Cont
 
 // Read a DelegatedAdminCorrelatedRestResourceResponse object into the model struct
 func readDelegatedAdminCorrelatedRestResourceResponseDataSource(ctx context.Context, r *client.DelegatedAdminCorrelatedRestResourceResponse, state *delegatedAdminCorrelatedRestResourceDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-correlated-rest-resource")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.DisplayName = types.StringValue(r.DisplayName)

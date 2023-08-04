@@ -50,6 +50,10 @@ resource "pingdirectory_trusted_certificate" "myTrustedCertificate" {
 - `certificate` (String) The PEM-encoded X.509v3 certificate.
 - `name` (String) Name of this config object.
 
+### Optional
+
+- `type` (String) The type of Trusted Certificate resource. Options are ['trusted-certificate']
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.

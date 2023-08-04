@@ -59,4 +59,5 @@ data "pingdirectory_prometheus_monitor_attribute_metric" "myPrometheusMonitorAtt
 - `metric_type` (String) The metric type that should be used for the value of the specified monitor attribute.
 - `monitor_attribute_name` (String) The name of the monitor attribute that contains the numeric value to be published.
 - `monitor_object_class_name` (String) The name of the object class for monitor entries that contain the monitor attribute.
+- `type` (String) The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']
 

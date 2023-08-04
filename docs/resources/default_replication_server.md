@@ -66,6 +66,7 @@ resource "pingdirectory_default_replication_server" "myReplicationServer" {
 - `replication_server_id` (Number) Specifies a unique identifier for the Replication Server.
 - `restricted_domain` (Set of String) Specifies the base DN of domains that are only replicated between server instances that belong to the same replication set.
 - `target_database_size` (String) The replication changelog database is allowed to grow up to this size even if changes are older than the configured replication-purge-delay.
+- `type` (String) The type of Replication Server resource. Options are ['replication-server']
 
 ### Read-Only
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type entryCacheResourceModel struct {
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
 	RequiredActions             types.Set    `tfsdk:"required_actions"`
+	Type                        types.String `tfsdk:"type"`
 	MaxMemoryPercent            types.Int64  `tfsdk:"max_memory_percent"`
 	MaxEntries                  types.Int64  `tfsdk:"max_entries"`
 	OnlyCacheFrequentlyAccessed types.Bool   `tfsdk:"only_cache_frequently_accessed"`
@@ -113,6 +117,15 @@ func entryCacheSchema(ctx context.Context, req resource.SchemaRequest, resp *res
 	schemaDef := schema.Schema{
 		Description: "Manages a Entry Cache.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Entry Cache resource. Options are ['fifo']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("fifo"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"fifo"}...),
+				},
+			},
 			"max_memory_percent": schema.Int64Attribute{
 				Description: "Specifies the maximum amount of memory, as a percentage of the total maximum JVM heap size, that this cache should occupy when full. If the amount of memory the cache is using is greater than this amount, then an attempt to put a new entry in the cache will be ignored and will cause the oldest entry to be purged.",
 				Optional:    true,
@@ -242,6 +255,7 @@ func addOptionalFifoEntryCacheFields(ctx context.Context, addRequest *client.Add
 
 // Read a FifoEntryCacheResponse object into the model struct
 func readFifoEntryCacheResponse(ctx context.Context, r *client.FifoEntryCacheResponse, state *entryCacheResourceModel, expectedValues *entryCacheResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("fifo")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.MaxMemoryPercent = internaltypes.Int64TypeOrNil(r.MaxMemoryPercent)

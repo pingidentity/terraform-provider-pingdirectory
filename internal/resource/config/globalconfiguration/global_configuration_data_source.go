@@ -48,6 +48,7 @@ func (r *globalConfigurationDataSource) Configure(_ context.Context, req datasou
 
 type globalConfigurationDataSourceModel struct {
 	Id                                                             types.String `tfsdk:"id"`
+	Type                                                           types.String `tfsdk:"type"`
 	InstanceName                                                   types.String `tfsdk:"instance_name"`
 	Location                                                       types.String `tfsdk:"location"`
 	ConfigurationServerGroup                                       types.String `tfsdk:"configuration_server_group"`
@@ -144,6 +145,12 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 	schemaDef := schema.Schema{
 		Description: "Describes a Global Configuration.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Global Configuration resource. Options are ['global-configuration']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"instance_name": schema.StringAttribute{
 				Description: "Specifies a name that may be used to uniquely identify this Directory Server instance among other instances in the environment.",
 				Required:    false,
@@ -694,6 +701,7 @@ func (r *globalConfigurationDataSource) Schema(ctx context.Context, req datasour
 
 // Read a GlobalConfigurationResponse object into the model struct
 func readGlobalConfigurationResponseDataSource(ctx context.Context, r *client.GlobalConfigurationResponse, state *globalConfigurationDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("global-configuration")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.InstanceName = types.StringValue(r.InstanceName)

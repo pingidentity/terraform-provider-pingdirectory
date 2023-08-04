@@ -49,6 +49,7 @@ func (r *replicationDomainDataSource) Configure(_ context.Context, req datasourc
 type replicationDomainDataSourceModel struct {
 	Id                                        types.String `tfsdk:"id"`
 	Name                                      types.String `tfsdk:"name"`
+	Type                                      types.String `tfsdk:"type"`
 	SynchronizationProviderName               types.String `tfsdk:"synchronization_provider_name"`
 	ServerID                                  types.Int64  `tfsdk:"server_id"`
 	BaseDN                                    types.String `tfsdk:"base_dn"`
@@ -65,6 +66,12 @@ func (r *replicationDomainDataSource) Schema(ctx context.Context, req datasource
 	schemaDef := schema.Schema{
 		Description: "Describes a Replication Domain.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Replication Domain resource. Options are ['replication-domain']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"synchronization_provider_name": schema.StringAttribute{
 				Description: "Name of the parent Synchronization Provider",
 				Required:    true,
@@ -125,6 +132,7 @@ func (r *replicationDomainDataSource) Schema(ctx context.Context, req datasource
 
 // Read a ReplicationDomainResponse object into the model struct
 func readReplicationDomainResponseDataSource(ctx context.Context, r *client.ReplicationDomainResponse, state *replicationDomainDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-domain")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.ServerID = types.Int64Value(r.ServerID)

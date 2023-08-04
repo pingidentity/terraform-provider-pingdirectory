@@ -48,6 +48,7 @@ func (r *licenseDataSource) Configure(_ context.Context, req datasource.Configur
 
 type licenseDataSourceModel struct {
 	Id                          types.String `tfsdk:"id"`
+	Type                        types.String `tfsdk:"type"`
 	DirectoryPlatformLicenseKey types.String `tfsdk:"directory_platform_license_key"`
 }
 
@@ -56,6 +57,12 @@ func (r *licenseDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 	schemaDef := schema.Schema{
 		Description: "Describes a License.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of License resource. Options are ['license']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"directory_platform_license_key": schema.StringAttribute{
 				Description: "License key enabling use of Directory Server, Directory Proxy Server, Data Sync Server, and Data Metrics Server products.",
 				Required:    false,
@@ -70,6 +77,7 @@ func (r *licenseDataSource) Schema(ctx context.Context, req datasource.SchemaReq
 
 // Read a LicenseResponse object into the model struct
 func readLicenseResponseDataSource(ctx context.Context, r *client.LicenseResponse, state *licenseDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("license")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DirectoryPlatformLicenseKey = internaltypes.StringTypeOrNil(r.DirectoryPlatformLicenseKey, false)

@@ -48,6 +48,7 @@ func (r *accessControlHandlerDataSource) Configure(_ context.Context, req dataso
 
 type accessControlHandlerDataSourceModel struct {
 	Id                    types.String `tfsdk:"id"`
+	Type                  types.String `tfsdk:"type"`
 	GlobalACI             types.Set    `tfsdk:"global_aci"`
 	AllowedBindControl    types.Set    `tfsdk:"allowed_bind_control"`
 	AllowedBindControlOID types.Set    `tfsdk:"allowed_bind_control_oid"`
@@ -59,6 +60,12 @@ func (r *accessControlHandlerDataSource) Schema(ctx context.Context, req datasou
 	schemaDef := schema.Schema{
 		Description: "Describes a Access Control Handler.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Access Control Handler resource. Options are ['dsee-compat']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"global_aci": schema.SetAttribute{
 				Description: "Defines global access control rules.",
 				Required:    false,
@@ -94,6 +101,7 @@ func (r *accessControlHandlerDataSource) Schema(ctx context.Context, req datasou
 
 // Read a DseeCompatAccessControlHandlerResponse object into the model struct
 func readDseeCompatAccessControlHandlerResponseDataSource(ctx context.Context, r *client.DseeCompatAccessControlHandlerResponse, state *accessControlHandlerDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("dsee-compat")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.GlobalACI = internaltypes.GetStringSet(r.GlobalACI)

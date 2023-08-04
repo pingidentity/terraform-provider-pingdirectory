@@ -55,6 +55,7 @@ resource "pingdirectory_change_subscription" "myChangeSubscription" {
 - `expiration_time` (String) Specifies a timestamp that provides an expiration time for this change subscription. If an expiration time is provided, then the change subscription will not be active after that time has passed.
 - `request_criteria` (String) Specifies a set of request criteria that must match the request associated with an operation in order for that operation to be processed by a change subscription handler.
 - `result_criteria` (String) Specifies a set of result criteria that must match the result associated with an operation in order for that operation to be processed by a change subscription handler.
+- `type` (String) The type of Change Subscription resource. Options are ['change-subscription']
 
 ### Read-Only
 

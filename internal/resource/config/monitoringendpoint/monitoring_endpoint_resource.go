@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -11,7 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -87,6 +90,7 @@ type monitoringEndpointResourceModel struct {
 	LastUpdated          types.String `tfsdk:"last_updated"`
 	Notifications        types.Set    `tfsdk:"notifications"`
 	RequiredActions      types.Set    `tfsdk:"required_actions"`
+	Type                 types.String `tfsdk:"type"`
 	Hostname             types.String `tfsdk:"hostname"`
 	ServerPort           types.Int64  `tfsdk:"server_port"`
 	ConnectionType       types.String `tfsdk:"connection_type"`
@@ -108,6 +112,15 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 	schemaDef := schema.Schema{
 		Description: "Manages a Monitoring Endpoint.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Monitoring Endpoint resource. Options are ['statsd']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("statsd"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"statsd"}...),
+				},
+			},
 			"hostname": schema.StringAttribute{
 				Description: "The name of the host where this StatsD Monitoring Endpoint should send metric data.",
 				Required:    true,
@@ -186,6 +199,7 @@ func addOptionalStatsdMonitoringEndpointFields(ctx context.Context, addRequest *
 
 // Read a StatsdMonitoringEndpointResponse object into the model struct
 func readStatsdMonitoringEndpointResponse(ctx context.Context, r *client.StatsdMonitoringEndpointResponse, state *monitoringEndpointResourceModel, expectedValues *monitoringEndpointResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("statsd")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Hostname = types.StringValue(r.Hostname)

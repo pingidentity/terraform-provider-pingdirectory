@@ -60,6 +60,7 @@ resource "pingdirectory_notification_manager" "myNotificationManager" {
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Notification Manager. Each configuration property should be given in the form 'name=value'.
 - `monitor_entries_enabled` (Boolean) Enables monitor entries for this Notification Manager.
 - `transaction_notification` (String) Specifies how the operations in an external transaction (e.g. a multi-update extended operation or an LDAP transaction) are notified for this Notification Manager.
+- `type` (String) The type of Notification Manager resource. Options are ['third-party']
 
 ### Read-Only
 

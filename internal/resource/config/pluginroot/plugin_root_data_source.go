@@ -48,6 +48,7 @@ func (r *pluginRootDataSource) Configure(_ context.Context, req datasource.Confi
 
 type pluginRootDataSourceModel struct {
 	Id                                     types.String `tfsdk:"id"`
+	Type                                   types.String `tfsdk:"type"`
 	PluginOrderStartup                     types.String `tfsdk:"plugin_order_startup"`
 	PluginOrderShutdown                    types.String `tfsdk:"plugin_order_shutdown"`
 	PluginOrderPostConnect                 types.String `tfsdk:"plugin_order_post_connect"`
@@ -105,6 +106,12 @@ func (r *pluginRootDataSource) Schema(ctx context.Context, req datasource.Schema
 	schemaDef := schema.Schema{
 		Description: "Describes a Plugin Root.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Plugin Root resource. Options are ['plugin-root']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"plugin_order_startup": schema.StringAttribute{
 				Description: "Specifies the order in which startup plug-ins are to be loaded and invoked.",
 				Required:    false,
@@ -413,6 +420,7 @@ func (r *pluginRootDataSource) Schema(ctx context.Context, req datasource.Schema
 
 // Read a PluginRootResponse object into the model struct
 func readPluginRootResponseDataSource(ctx context.Context, r *client.PluginRootResponse, state *pluginRootDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("plugin-root")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.PluginOrderStartup = internaltypes.StringTypeOrNil(r.PluginOrderStartup, false)

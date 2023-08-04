@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -83,6 +86,7 @@ type locationResourceModel struct {
 	LastUpdated     types.String `tfsdk:"last_updated"`
 	Notifications   types.Set    `tfsdk:"notifications"`
 	RequiredActions types.Set    `tfsdk:"required_actions"`
+	Type            types.String `tfsdk:"type"`
 	Description     types.String `tfsdk:"description"`
 }
 
@@ -99,6 +103,15 @@ func locationSchema(ctx context.Context, req resource.SchemaRequest, resp *resou
 	schemaDef := schema.Schema{
 		Description: "Manages a Location.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Location resource. Options are ['location']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("location"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"location"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Location",
 				Optional:    true,
@@ -123,6 +136,7 @@ func addOptionalLocationFields(ctx context.Context, addRequest *client.AddLocati
 
 // Read a LocationResponse object into the model struct
 func readLocationResponse(ctx context.Context, r *client.LocationResponse, state *locationResourceModel, expectedValues *locationResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("location")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

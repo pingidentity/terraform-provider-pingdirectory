@@ -25,6 +25,7 @@ Manages a Soft Delete Policy.
 - `description` (String) A description for this Soft Delete Policy
 - `soft_delete_retain_number_of_entries` (Number) Specifies the number of soft deleted entries to retain before the oldest entries are purged.
 - `soft_delete_retention_time` (String) Specifies the maximum length of time that soft delete entries are retained before they are eligible to purged automatically.
+- `type` (String) The type of Soft Delete Policy resource. Options are ['soft-delete-policy']
 
 ### Read-Only
 

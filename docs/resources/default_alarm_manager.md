@@ -50,6 +50,7 @@ resource "pingdirectory_default_alarm_manager" "myAlarmManager" {
 - `default_gauge_alert_level` (String) Specifies the level at which alerts are sent for alarms raised by the Alarm Manager.
 - `generated_alert_types` (Set of String) Indicates what kind of alert types should be generated.
 - `suppressed_alarm` (Set of String) Specifies the names of the alarm alert types that should be suppressed. If the condition that triggers an alarm in this list occurs, then the alarm will not be raised and no alerts will be generated. Only a subset of alarms can be suppressed in this way. Alarms triggered by a gauge can be disabled by disabling the gauge.
+- `type` (String) The type of Alarm Manager resource. Options are ['alarm-manager']
 
 ### Read-Only
 

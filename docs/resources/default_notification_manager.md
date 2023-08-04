@@ -27,6 +27,7 @@ Manages a Notification Manager.
 - `monitor_entries_enabled` (Boolean) Enables monitor entries for this Notification Manager.
 - `subscription_base_dn` (String) Specifies the DN of the entry below which subscription data is stored for this Notification Manager. This needs to be in the backend that has the data to be notified on, and must not be the same entry as the backend base DN. The subscription base DN entry does not need to exist as it will be created by the server.
 - `transaction_notification` (String) Specifies how the operations in an external transaction (e.g. a multi-update extended operation or an LDAP transaction) are notified for this Notification Manager.
+- `type` (String) The type of Notification Manager resource. Options are ['third-party']
 
 ### Read-Only
 

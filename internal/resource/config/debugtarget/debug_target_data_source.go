@@ -48,6 +48,7 @@ func (r *debugTargetDataSource) Configure(_ context.Context, req datasource.Conf
 
 type debugTargetDataSourceModel struct {
 	Id                       types.String `tfsdk:"id"`
+	Type                     types.String `tfsdk:"type"`
 	LogPublisherName         types.String `tfsdk:"log_publisher_name"`
 	DebugScope               types.String `tfsdk:"debug_scope"`
 	DebugLevel               types.String `tfsdk:"debug_level"`
@@ -64,6 +65,12 @@ func (r *debugTargetDataSource) Schema(ctx context.Context, req datasource.Schem
 	schemaDef := schema.Schema{
 		Description: "Describes a Debug Target.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Debug Target resource. Options are ['debug-target']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"log_publisher_name": schema.StringAttribute{
 				Description: "Name of the parent Log Publisher",
 				Required:    true,
@@ -123,6 +130,7 @@ func (r *debugTargetDataSource) Schema(ctx context.Context, req datasource.Schem
 
 // Read a DebugTargetResponse object into the model struct
 func readDebugTargetResponseDataSource(ctx context.Context, r *client.DebugTargetResponse, state *debugTargetDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("debug-target")
 	state.Id = types.StringValue(r.Id)
 	state.DebugScope = types.StringValue(r.DebugScope)
 	state.DebugLevel = types.StringValue(r.DebugLevel.String())

@@ -49,6 +49,7 @@ func (r *sensitiveAttributeDataSource) Configure(_ context.Context, req datasour
 type sensitiveAttributeDataSourceModel struct {
 	Id                                           types.String `tfsdk:"id"`
 	Name                                         types.String `tfsdk:"name"`
+	Type                                         types.String `tfsdk:"type"`
 	Description                                  types.String `tfsdk:"description"`
 	AttributeType                                types.Set    `tfsdk:"attribute_type"`
 	IncludeDefaultSensitiveOperationalAttributes types.Bool   `tfsdk:"include_default_sensitive_operational_attributes"`
@@ -64,6 +65,12 @@ func (r *sensitiveAttributeDataSource) Schema(ctx context.Context, req datasourc
 	schemaDef := schema.Schema{
 		Description: "Describes a Sensitive Attribute.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Sensitive Attribute resource. Options are ['sensitive-attribute']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Sensitive Attribute",
 				Required:    false,
@@ -121,6 +128,7 @@ func (r *sensitiveAttributeDataSource) Schema(ctx context.Context, req datasourc
 
 // Read a SensitiveAttributeResponse object into the model struct
 func readSensitiveAttributeResponseDataSource(ctx context.Context, r *client.SensitiveAttributeResponse, state *sensitiveAttributeDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("sensitive-attribute")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -57,6 +60,7 @@ type pluginRootResourceModel struct {
 	LastUpdated                            types.String `tfsdk:"last_updated"`
 	Notifications                          types.Set    `tfsdk:"notifications"`
 	RequiredActions                        types.Set    `tfsdk:"required_actions"`
+	Type                                   types.String `tfsdk:"type"`
 	PluginOrderStartup                     types.String `tfsdk:"plugin_order_startup"`
 	PluginOrderShutdown                    types.String `tfsdk:"plugin_order_shutdown"`
 	PluginOrderPostConnect                 types.String `tfsdk:"plugin_order_post_connect"`
@@ -114,6 +118,15 @@ func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequ
 	schemaDef := schema.Schema{
 		Description: "Manages a Plugin Root.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Plugin Root resource. Options are ['plugin-root']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("plugin-root"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"plugin-root"}...),
+				},
+			},
 			"plugin_order_startup": schema.StringAttribute{
 				Description: "Specifies the order in which startup plug-ins are to be loaded and invoked.",
 				Optional:    true,
@@ -522,6 +535,7 @@ func (r *pluginRootResource) Schema(ctx context.Context, req resource.SchemaRequ
 
 // Read a PluginRootResponse object into the model struct
 func readPluginRootResponse(ctx context.Context, r *client.PluginRootResponse, state *pluginRootResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("plugin-root")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.PluginOrderStartup = internaltypes.StringTypeOrNil(r.PluginOrderStartup, true)

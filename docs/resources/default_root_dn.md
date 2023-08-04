@@ -47,6 +47,7 @@ resource "pingdirectory_default_root_dn" "myRootDn" {
 ### Optional
 
 - `default_root_privilege_name` (Set of String) Specifies the names of the privileges that root users will be granted by default.
+- `type` (String) The type of Root DN resource. Options are ['root-dn']
 
 ### Read-Only
 

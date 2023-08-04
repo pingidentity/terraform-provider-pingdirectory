@@ -59,6 +59,7 @@ resource "pingdirectory_default_consent_service" "myConsentService" {
 - `privileged_consent_scope` (String) The name of a scope that must be present in an access token accepted by the Consent Service if the client is to be considered privileged.
 - `search_size_limit` (Number) The maximum number of consent resources that may be returned from a search request.
 - `service_account_dn` (Set of String) The set of account DNs that the Consent Service will consider to be privileged.
+- `type` (String) The type of Consent Service resource. Options are ['consent-service']
 - `unprivileged_consent_scope` (String) The name of a scope that must be present in an access token accepted by the Consent Service for unprivileged clients.
 
 ### Read-Only

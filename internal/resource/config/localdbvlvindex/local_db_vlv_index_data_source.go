@@ -48,6 +48,7 @@ func (r *localDbVlvIndexDataSource) Configure(_ context.Context, req datasource.
 
 type localDbVlvIndexDataSourceModel struct {
 	Id           types.String `tfsdk:"id"`
+	Type         types.String `tfsdk:"type"`
 	BackendName  types.String `tfsdk:"backend_name"`
 	BaseDN       types.String `tfsdk:"base_dn"`
 	Scope        types.String `tfsdk:"scope"`
@@ -63,6 +64,12 @@ func (r *localDbVlvIndexDataSource) Schema(ctx context.Context, req datasource.S
 	schemaDef := schema.Schema{
 		Description: "Describes a Local Db Vlv Index.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Local DB VLV Index resource. Options are ['local-db-vlv-index']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"backend_name": schema.StringAttribute{
 				Description: "Name of the parent Backend",
 				Required:    true,
@@ -115,6 +122,7 @@ func (r *localDbVlvIndexDataSource) Schema(ctx context.Context, req datasource.S
 
 // Read a LocalDbVlvIndexResponse object into the model struct
 func readLocalDbVlvIndexResponseDataSource(ctx context.Context, r *client.LocalDbVlvIndexResponse, state *localDbVlvIndexDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("local-db-vlv-index")
 	state.Id = types.StringValue(r.Id)
 	state.BaseDN = types.StringValue(r.BaseDN)
 	state.Scope = types.StringValue(r.Scope.String())

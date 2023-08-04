@@ -49,6 +49,7 @@ func (r *entryCacheDataSource) Configure(_ context.Context, req datasource.Confi
 type entryCacheDataSourceModel struct {
 	Id                          types.String `tfsdk:"id"`
 	Name                        types.String `tfsdk:"name"`
+	Type                        types.String `tfsdk:"type"`
 	MaxMemoryPercent            types.Int64  `tfsdk:"max_memory_percent"`
 	MaxEntries                  types.Int64  `tfsdk:"max_entries"`
 	OnlyCacheFrequentlyAccessed types.Bool   `tfsdk:"only_cache_frequently_accessed"`
@@ -67,6 +68,12 @@ func (r *entryCacheDataSource) Schema(ctx context.Context, req datasource.Schema
 	schemaDef := schema.Schema{
 		Description: "Describes a Entry Cache.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Entry Cache resource. Options are ['fifo']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"max_memory_percent": schema.Int64Attribute{
 				Description: "Specifies the maximum amount of memory, as a percentage of the total maximum JVM heap size, that this cache should occupy when full. If the amount of memory the cache is using is greater than this amount, then an attempt to put a new entry in the cache will be ignored and will cause the oldest entry to be purged.",
 				Required:    false,
@@ -144,6 +151,7 @@ func (r *entryCacheDataSource) Schema(ctx context.Context, req datasource.Schema
 
 // Read a FifoEntryCacheResponse object into the model struct
 func readFifoEntryCacheResponseDataSource(ctx context.Context, r *client.FifoEntryCacheResponse, state *entryCacheDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("fifo")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.MaxMemoryPercent = internaltypes.Int64TypeOrNil(r.MaxMemoryPercent)

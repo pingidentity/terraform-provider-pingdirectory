@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -89,6 +92,7 @@ type customLoggedStatsResourceModel struct {
 	LastUpdated            types.String `tfsdk:"last_updated"`
 	Notifications          types.Set    `tfsdk:"notifications"`
 	RequiredActions        types.Set    `tfsdk:"required_actions"`
+	Type                   types.String `tfsdk:"type"`
 	PluginName             types.String `tfsdk:"plugin_name"`
 	Description            types.String `tfsdk:"description"`
 	Enabled                types.Bool   `tfsdk:"enabled"`
@@ -120,6 +124,15 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 	schemaDef := schema.Schema{
 		Description: "Manages a Custom Logged Stats.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Custom Logged Stats resource. Options are ['custom-logged-stats']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("custom-logged-stats"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"custom-logged-stats"}...),
+				},
+			},
 			"plugin_name": schema.StringAttribute{
 				Description: "Name of the parent Plugin",
 				Required:    true,
@@ -279,6 +292,7 @@ func addOptionalCustomLoggedStatsFields(ctx context.Context, addRequest *client.
 
 // Read a CustomLoggedStatsResponse object into the model struct
 func readCustomLoggedStatsResponse(ctx context.Context, r *client.CustomLoggedStatsResponse, state *customLoggedStatsResourceModel, expectedValues *customLoggedStatsResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("custom-logged-stats")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

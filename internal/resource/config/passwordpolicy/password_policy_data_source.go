@@ -49,6 +49,7 @@ func (r *passwordPolicyDataSource) Configure(_ context.Context, req datasource.C
 type passwordPolicyDataSourceModel struct {
 	Id                                                        types.String `tfsdk:"id"`
 	Name                                                      types.String `tfsdk:"name"`
+	Type                                                      types.String `tfsdk:"type"`
 	Description                                               types.String `tfsdk:"description"`
 	RequireSecureAuthentication                               types.Bool   `tfsdk:"require_secure_authentication"`
 	RequireSecurePasswordChanges                              types.Bool   `tfsdk:"require_secure_password_changes"`
@@ -106,6 +107,12 @@ func (r *passwordPolicyDataSource) Schema(ctx context.Context, req datasource.Sc
 	schemaDef := schema.Schema{
 		Description: "Describes a Password Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Password Policy resource. Options are ['password-policy']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Policy",
 				Required:    false,
@@ -422,6 +429,7 @@ func (r *passwordPolicyDataSource) Schema(ctx context.Context, req datasource.Sc
 
 // Read a PasswordPolicyResponse object into the model struct
 func readPasswordPolicyResponseDataSource(ctx context.Context, r *client.PasswordPolicyResponse, state *passwordPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("password-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

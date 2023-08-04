@@ -55,6 +55,7 @@ resource "pingdirectory_json_attribute_constraints" "myJsonAttributeConstraints"
 - `allow_unnamed_fields` (Boolean) Indicates whether JSON objects stored as values of attributes with the associated attribute-type will be permitted to include fields for which there is no subordinate json-field-constraints definition. If unnamed fields are allowed, then no constraints will be imposed on the values of those fields. However, if unnamed fields are not allowed, then the server will reject any attempt to store a JSON object with a field for which there is no corresponding json-fields-constraints definition.
 - `description` (String) A description for this JSON Attribute Constraints
 - `enabled` (Boolean) Indicates whether this JSON Attribute Constraints is enabled.
+- `type` (String) The type of JSON Attribute Constraints resource. Options are ['json-attribute-constraints']
 
 ### Read-Only
 

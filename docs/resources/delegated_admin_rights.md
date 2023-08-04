@@ -56,6 +56,7 @@ resource "pingdirectory_delegated_admin_rights" "myDelegatedAdminRights" {
 - `admin_group_dn` (String) Specifies the DN of a group of administrative users who have authority to manage resources. Either admin-user-dn or admin-group-dn must be specified, but not both.
 - `admin_user_dn` (String) Specifies the DN of an administrative user who has authority to manage resources. Either admin-user-dn or admin-group-dn must be specified, but not both.
 - `description` (String) A description for this Delegated Admin Rights
+- `type` (String) The type of Delegated Admin Rights resource. Options are ['delegated-admin-rights']
 
 ### Read-Only
 

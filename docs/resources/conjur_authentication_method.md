@@ -56,6 +56,7 @@ resource "pingdirectory_conjur_authentication_method" "myConjurAuthenticationMet
 - `api_key` (String, Sensitive) The API key for the user to authenticate.
 - `description` (String) A description for this Conjur Authentication Method
 - `password` (String, Sensitive) The password for the user to authenticate. This will be used to obtain an API key for the target user.
+- `type` (String) The type of Conjur Authentication Method resource. Options are ['api-key']
 
 ### Read-Only
 

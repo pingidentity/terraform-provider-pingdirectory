@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -57,6 +60,7 @@ type licenseResourceModel struct {
 	LastUpdated                 types.String `tfsdk:"last_updated"`
 	Notifications               types.Set    `tfsdk:"notifications"`
 	RequiredActions             types.Set    `tfsdk:"required_actions"`
+	Type                        types.String `tfsdk:"type"`
 	DirectoryPlatformLicenseKey types.String `tfsdk:"directory_platform_license_key"`
 }
 
@@ -65,6 +69,15 @@ func (r *licenseResource) Schema(ctx context.Context, req resource.SchemaRequest
 	schemaDef := schema.Schema{
 		Description: "Manages a License.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of License resource. Options are ['license']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("license"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"license"}...),
+				},
+			},
 			"directory_platform_license_key": schema.StringAttribute{
 				Description: "License key enabling use of Directory Server, Directory Proxy Server, Data Sync Server, and Data Metrics Server products.",
 				Optional:    true,
@@ -81,6 +94,7 @@ func (r *licenseResource) Schema(ctx context.Context, req resource.SchemaRequest
 
 // Read a LicenseResponse object into the model struct
 func readLicenseResponse(ctx context.Context, r *client.LicenseResponse, state *licenseResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("license")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.DirectoryPlatformLicenseKey = internaltypes.StringTypeOrNil(r.DirectoryPlatformLicenseKey, true)

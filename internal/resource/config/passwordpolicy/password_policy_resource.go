@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type passwordPolicyResourceModel struct {
 	LastUpdated                                               types.String `tfsdk:"last_updated"`
 	Notifications                                             types.Set    `tfsdk:"notifications"`
 	RequiredActions                                           types.Set    `tfsdk:"required_actions"`
+	Type                                                      types.String `tfsdk:"type"`
 	Description                                               types.String `tfsdk:"description"`
 	RequireSecureAuthentication                               types.Bool   `tfsdk:"require_secure_authentication"`
 	RequireSecurePasswordChanges                              types.Bool   `tfsdk:"require_secure_password_changes"`
@@ -153,6 +157,15 @@ func passwordPolicySchema(ctx context.Context, req resource.SchemaRequest, resp 
 	schemaDef := schema.Schema{
 		Description: "Manages a Password Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Password Policy resource. Options are ['password-policy']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("password-policy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"password-policy"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "A description for this Password Policy",
 				Optional:    true,
@@ -768,6 +781,7 @@ func addOptionalPasswordPolicyFields(ctx context.Context, addRequest *client.Add
 
 // Read a PasswordPolicyResponse object into the model struct
 func readPasswordPolicyResponse(ctx context.Context, r *client.PasswordPolicyResponse, state *passwordPolicyResourceModel, expectedValues *passwordPolicyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("password-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

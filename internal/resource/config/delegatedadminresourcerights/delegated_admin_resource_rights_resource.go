@@ -5,13 +5,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -86,6 +89,7 @@ type delegatedAdminResourceRightsResourceModel struct {
 	LastUpdated              types.String `tfsdk:"last_updated"`
 	Notifications            types.Set    `tfsdk:"notifications"`
 	RequiredActions          types.Set    `tfsdk:"required_actions"`
+	Type                     types.String `tfsdk:"type"`
 	DelegatedAdminRightsName types.String `tfsdk:"delegated_admin_rights_name"`
 	Description              types.String `tfsdk:"description"`
 	Enabled                  types.Bool   `tfsdk:"enabled"`
@@ -109,6 +113,15 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 	schemaDef := schema.Schema{
 		Description: "Manages a Delegated Admin Resource Rights.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Delegated Admin Resource Rights resource. Options are ['delegated-admin-resource-rights']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("delegated-admin-resource-rights"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"delegated-admin-resource-rights"}...),
+				},
+			},
 			"delegated_admin_rights_name": schema.StringAttribute{
 				Description: "Name of the parent Delegated Admin Rights",
 				Required:    true,
@@ -218,6 +231,7 @@ func addOptionalDelegatedAdminResourceRightsFields(ctx context.Context, addReque
 
 // Read a DelegatedAdminResourceRightsResponse object into the model struct
 func readDelegatedAdminResourceRightsResponse(ctx context.Context, r *client.DelegatedAdminResourceRightsResponse, state *delegatedAdminResourceRightsResourceModel, expectedValues *delegatedAdminResourceRightsResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("delegated-admin-resource-rights")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.Enabled = types.BoolValue(r.Enabled)

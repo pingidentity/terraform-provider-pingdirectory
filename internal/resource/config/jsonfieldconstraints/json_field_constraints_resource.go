@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -88,6 +91,7 @@ type jsonFieldConstraintsResourceModel struct {
 	LastUpdated                   types.String `tfsdk:"last_updated"`
 	Notifications                 types.Set    `tfsdk:"notifications"`
 	RequiredActions               types.Set    `tfsdk:"required_actions"`
+	Type                          types.String `tfsdk:"type"`
 	JsonAttributeConstraintsName  types.String `tfsdk:"json_attribute_constraints_name"`
 	Description                   types.String `tfsdk:"description"`
 	JsonField                     types.String `tfsdk:"json_field"`
@@ -124,6 +128,15 @@ func jsonFieldConstraintsSchema(ctx context.Context, req resource.SchemaRequest,
 	schemaDef := schema.Schema{
 		Description: "Manages a Json Field Constraints.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of JSON Field Constraints resource. Options are ['json-field-constraints']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("json-field-constraints"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"json-field-constraints"}...),
+				},
+			},
 			"json_attribute_constraints_name": schema.StringAttribute{
 				Description: "Name of the parent JSON Attribute Constraints",
 				Required:    true,
@@ -348,6 +361,7 @@ func addOptionalJsonFieldConstraintsFields(ctx context.Context, addRequest *clie
 
 // Read a JsonFieldConstraintsResponse object into the model struct
 func readJsonFieldConstraintsResponse(ctx context.Context, r *client.JsonFieldConstraintsResponse, state *jsonFieldConstraintsResourceModel, expectedValues *jsonFieldConstraintsResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("json-field-constraints")
 	state.Id = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))
 	state.JsonField = types.StringValue(r.JsonField)

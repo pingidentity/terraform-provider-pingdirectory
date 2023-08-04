@@ -48,6 +48,7 @@ func (r *clientConnectionPolicyDataSource) Configure(_ context.Context, req data
 
 type clientConnectionPolicyDataSourceModel struct {
 	Id                                                       types.String `tfsdk:"id"`
+	Type                                                     types.String `tfsdk:"type"`
 	PolicyID                                                 types.String `tfsdk:"policy_id"`
 	Description                                              types.String `tfsdk:"description"`
 	Enabled                                                  types.Bool   `tfsdk:"enabled"`
@@ -96,6 +97,12 @@ func (r *clientConnectionPolicyDataSource) Schema(ctx context.Context, req datas
 	schemaDef := schema.Schema{
 		Description: "Describes a Client Connection Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Client Connection Policy resource. Options are ['client-connection-policy']",
+				Required:    false,
+				Optional:    false,
+				Computed:    true,
+			},
 			"policy_id": schema.StringAttribute{
 				Description: "Specifies a name which uniquely identifies this Client Connection Policy in the server.",
 				Required:    true,
@@ -363,6 +370,7 @@ func (r *clientConnectionPolicyDataSource) Schema(ctx context.Context, req datas
 
 // Read a ClientConnectionPolicyResponse object into the model struct
 func readClientConnectionPolicyResponseDataSource(ctx context.Context, r *client.ClientConnectionPolicyResponse, state *clientConnectionPolicyDataSourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("client-connection-policy")
 	state.Id = types.StringValue(r.Id)
 	state.PolicyID = types.StringValue(r.PolicyID)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, false)

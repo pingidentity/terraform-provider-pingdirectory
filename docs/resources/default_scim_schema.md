@@ -22,6 +22,7 @@ Manages a Scim Schema.
 
 - `description` (String) A description for this SCIM Schema
 - `display_name` (String) The human readable name for this SCIM Schema.
+- `type` (String) The type of SCIM Schema resource. Options are ['scim-schema']
 
 ### Read-Only
 

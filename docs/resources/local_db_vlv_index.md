@@ -62,6 +62,7 @@ resource "pingdirectory_local_db_vlv_index" "myLocalDbVlvIndex" {
 
 - `cache_mode` (String) Specifies the cache mode that should be used when accessing the records in the database for this index.
 - `max_block_size` (Number) Specifies the number of entry IDs to store in a single sorted set before it must be split.
+- `type` (String) The type of Local DB VLV Index resource. Options are ['local-db-vlv-index']
 
 ### Read-Only
 

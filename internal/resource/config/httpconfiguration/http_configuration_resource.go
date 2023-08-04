@@ -4,12 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -58,6 +61,7 @@ type httpConfigurationResourceModel struct {
 	LastUpdated                           types.String `tfsdk:"last_updated"`
 	Notifications                         types.Set    `tfsdk:"notifications"`
 	RequiredActions                       types.Set    `tfsdk:"required_actions"`
+	Type                                  types.String `tfsdk:"type"`
 	IncludeStackTracesInErrorPages        types.Bool   `tfsdk:"include_stack_traces_in_error_pages"`
 	IncludeServletInformationInErrorPages types.Bool   `tfsdk:"include_servlet_information_in_error_pages"`
 }
@@ -67,6 +71,15 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 	schemaDef := schema.Schema{
 		Description: "Manages a Http Configuration.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of HTTP Configuration resource. Options are ['http-configuration']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("http-configuration"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"http-configuration"}...),
+				},
+			},
 			"include_stack_traces_in_error_pages": schema.BoolAttribute{
 				Description: "Indicates whether exceptions thrown by servlet or web application extensions will be included in the resulting error page response. Stack traces can be helpful in diagnosing application errors, but in production they may reveal information that might be useful to a malicious attacker.",
 				Optional:    true,
@@ -109,6 +122,7 @@ func (r *httpConfigurationResource) ModifyPlan(ctx context.Context, req resource
 
 // Read a HttpConfigurationResponse object into the model struct
 func readHttpConfigurationResponse(ctx context.Context, r *client.HttpConfigurationResponse, state *httpConfigurationResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("http-configuration")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.IncludeStackTracesInErrorPages = internaltypes.BoolTypeOrNil(r.IncludeStackTracesInErrorPages)

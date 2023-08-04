@@ -4,13 +4,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -86,6 +89,7 @@ type replicationAssurancePolicyResourceModel struct {
 	LastUpdated          types.String `tfsdk:"last_updated"`
 	Notifications        types.Set    `tfsdk:"notifications"`
 	RequiredActions      types.Set    `tfsdk:"required_actions"`
+	Type                 types.String `tfsdk:"type"`
 	Description          types.String `tfsdk:"description"`
 	Enabled              types.Bool   `tfsdk:"enabled"`
 	EvaluationOrderIndex types.Int64  `tfsdk:"evaluation_order_index"`
@@ -109,6 +113,15 @@ func replicationAssurancePolicySchema(ctx context.Context, req resource.SchemaRe
 	schemaDef := schema.Schema{
 		Description: "Manages a Replication Assurance Policy.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Replication Assurance Policy resource. Options are ['replication-assurance-policy']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("replication-assurance-policy"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"replication-assurance-policy"}...),
+				},
+			},
 			"description": schema.StringAttribute{
 				Description: "Description of the Replication Assurance Policy.",
 				Optional:    true,
@@ -201,6 +214,7 @@ func addOptionalReplicationAssurancePolicyFields(ctx context.Context, addRequest
 
 // Read a ReplicationAssurancePolicyResponse object into the model struct
 func readReplicationAssurancePolicyResponse(ctx context.Context, r *client.ReplicationAssurancePolicyResponse, state *replicationAssurancePolicyResourceModel, expectedValues *replicationAssurancePolicyResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-assurance-policy")
 	state.Id = types.StringValue(r.Id)
 	state.Name = types.StringValue(r.Id)
 	state.Description = internaltypes.StringTypeOrNil(r.Description, internaltypes.IsEmptyString(expectedValues.Description))

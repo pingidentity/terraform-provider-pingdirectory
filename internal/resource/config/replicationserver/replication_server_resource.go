@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -12,7 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
@@ -61,6 +64,7 @@ type replicationServerResourceModel struct {
 	LastUpdated                         types.String `tfsdk:"last_updated"`
 	Notifications                       types.Set    `tfsdk:"notifications"`
 	RequiredActions                     types.Set    `tfsdk:"required_actions"`
+	Type                                types.String `tfsdk:"type"`
 	SynchronizationProviderName         types.String `tfsdk:"synchronization_provider_name"`
 	ReplicationServerID                 types.Int64  `tfsdk:"replication_server_id"`
 	ReplicationDBDirectory              types.String `tfsdk:"replication_db_directory"`
@@ -82,6 +86,15 @@ func (r *replicationServerResource) Schema(ctx context.Context, req resource.Sch
 	schemaDef := schema.Schema{
 		Description: "Manages a Replication Server.",
 		Attributes: map[string]schema.Attribute{
+			"type": schema.StringAttribute{
+				Description: "The type of Replication Server resource. Options are ['replication-server']",
+				Optional:    true,
+				Computed:    true,
+				Default:     stringdefault.StaticString("replication-server"),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"replication-server"}...),
+				},
+			},
 			"synchronization_provider_name": schema.StringAttribute{
 				Description: "Name of the parent Synchronization Provider",
 				Required:    true,
@@ -222,6 +235,7 @@ func (r *replicationServerResource) ModifyPlan(ctx context.Context, req resource
 
 // Read a ReplicationServerResponse object into the model struct
 func readReplicationServerResponse(ctx context.Context, r *client.ReplicationServerResponse, state *replicationServerResourceModel, expectedValues *replicationServerResourceModel, diagnostics *diag.Diagnostics) {
+	state.Type = types.StringValue("replication-server")
 	// Placeholder id value required by test framework
 	state.Id = types.StringValue("id")
 	state.ReplicationServerID = types.Int64Value(r.ReplicationServerID)
