@@ -1,4 +1,17 @@
-# v0.10.0 (Unreleased)
+# v0.11.0 (Unreleased)
+
+# v0.10.0 August 4, 2023
+
+### FEATURES
+* Add a corresponding data source for each resource (#267)
+* Add data sources for listing existing config objects (#268)
+
+### ENHANCEMENTS
+* Make the `id` attribute read-only across all resources and data sources. Use the `name` attribute instead for resources that previously depended on the `id` attribute being set by the user (#269)
+
+### DEPENDENCIES
+* Bump `github.com/hashicorp/terraform-plugin-framework` from `1.3.2` to `1.3.3` (#265)
+* Bump `github.com/hashicorp/terraform-plugin-testing` from `1.3.0` to `1.4.0` (#266)
 
 # v0.9.0 July 14, 2023
 
