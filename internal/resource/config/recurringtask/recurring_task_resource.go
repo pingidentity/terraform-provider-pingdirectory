@@ -743,6 +743,7 @@ func recurringTaskSchema(ctx context.Context, req resource.SchemaRequest, resp *
 		typeAttr.Required = false
 		typeAttr.Computed = true
 		typeAttr.PlanModifiers = []planmodifier.String{}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
@@ -799,11 +800,10 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"file-retention"},
-			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("retain_file_count"),
-				path.MatchRoot("retain_aggregate_file_size"),
-				path.MatchRoot("retain_file_age"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -816,10 +816,11 @@ func configValidatorsRecurringTask() []resource.ConfigValidator {
 		),
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"ldif-export"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("backend_id"),
-				path.MatchRoot("exclude_backend_id"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_aggregate_file_size"),
+				path.MatchRoot("retain_file_age"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

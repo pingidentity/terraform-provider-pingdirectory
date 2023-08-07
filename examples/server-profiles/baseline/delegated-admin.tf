@@ -157,7 +157,6 @@ resource "pingdirectory_delegated_admin_resource_rights" "groupsRights" {
 #          Consult the PingDirectory and PingData Security Guide for more information about configuring Trust Manager Providers.
 #
 resource "pingdirectory_default_trust_manager_provider" "blindTrustManagerProvider" {
-  type    = "blind"
   name    = "Blind Trust"
   enabled = true
 }
@@ -193,7 +192,6 @@ resource "pingdirectory_access_token_validator" "pfAccessTokenValidator" {
 # Complete the configuration of the Delegated Admin API.
 #
 resource "pingdirectory_default_virtual_attribute" "delegatedAdminPrivilegeVirtualAttribute" {
-  type    = "custom"
   name    = "Delegated Admin Privilege"
   enabled = true
 }
@@ -210,7 +208,6 @@ resource "pingdirectory_http_servlet_cross_origin_policy" "daCrossOriginPolicy" 
 }
 
 resource "pingdirectory_default_http_servlet_extension" "daServletExtension" {
-  type                = "delegated-admin"
   name                = "Delegated Admin"
   access_token_scope  = "urn:pingidentity:directory-delegated-admin"
   response_header     = ["Cache-Control: no-cache, no-store, must-revalidate", "Expires: 0", "Pragma: no-cache"]

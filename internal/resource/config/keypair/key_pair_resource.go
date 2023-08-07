@@ -166,6 +166,7 @@ func keyPairSchema(ctx context.Context, req resource.SchemaRequest, resp *resour
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}

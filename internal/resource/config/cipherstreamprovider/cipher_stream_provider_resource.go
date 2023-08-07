@@ -380,6 +380,7 @@ func cipherStreamProviderSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Required = false
 		typeAttr.Computed = true
 		typeAttr.PlanModifiers = []planmodifier.String{}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
@@ -430,18 +431,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-key-management-service"},
-			configvalidators.Implies(
-				path.MatchRoot("aws_access_key_id"),
-				path.MatchRoot("aws_secret_access_key"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-secrets-manager"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("secret_version_id"),
 				path.MatchRoot("secret_version_stage"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

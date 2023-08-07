@@ -1541,22 +1541,6 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("search_filter_pattern"),
-				path.MatchRoot("bind_dn_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1568,7 +1552,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1583,8 +1567,24 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("dn_map"),
 				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("dn_map"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

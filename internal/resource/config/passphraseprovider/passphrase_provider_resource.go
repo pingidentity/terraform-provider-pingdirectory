@@ -248,6 +248,7 @@ func passphraseProviderSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Required = false
 		typeAttr.Computed = true
 		typeAttr.PlanModifiers = []planmodifier.String{}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}

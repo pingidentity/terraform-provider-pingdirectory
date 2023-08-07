@@ -519,6 +519,7 @@ func externalServerSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.Required = false
 		typeAttr.Computed = true
 		typeAttr.PlanModifiers = []planmodifier.String{}
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}
@@ -561,18 +562,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-aws"},
-			configvalidators.Implies(
-				path.MatchRoot("aws_access_key_id"),
-				path.MatchRoot("aws_secret_access_key"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"smtp", "opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "jdbc", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("password"),
 				path.MatchRoot("passphrase_provider"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-aws"},
+			configvalidators.Implies(
+				path.MatchRoot("aws_access_key_id"),
+				path.MatchRoot("aws_secret_access_key"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

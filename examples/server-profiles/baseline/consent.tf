@@ -14,7 +14,6 @@ resource "pingdirectory_consent_definition_localization" "emailConsentDefinition
 }
 
 resource "pingdirectory_default_http_servlet_extension" "defaultDirectoryRestApiExtension" {
-  type               = "directory-rest-api"
   name               = "Directory REST API"
   access_token_scope = "ds"
 }
@@ -58,7 +57,6 @@ resource "pingdirectory_default_consent_service" "defaultConsentService" {
 }
 
 resource "pingdirectory_default_http_servlet_extension" "defaultConsentServletExtension" {
-  type            = "consent"
   name            = "Consent"
   identity_mapper = pingdirectory_identity_mapper.userIdIdentityMapper.id
   # The above attribute must be changed to allow destroying the user-id-identity-mapper object.

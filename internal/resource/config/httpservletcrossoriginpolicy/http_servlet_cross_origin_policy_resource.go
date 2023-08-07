@@ -185,6 +185,7 @@ func httpServletCrossOriginPolicySchema(ctx context.Context, req resource.Schema
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
 	}

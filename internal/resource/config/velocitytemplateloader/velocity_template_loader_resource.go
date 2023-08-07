@@ -177,6 +177,7 @@ func velocityTemplateLoaderSchema(ctx context.Context, req resource.SchemaReques
 		typeAttr.Optional = false
 		typeAttr.Required = false
 		typeAttr.Computed = true
+		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
 		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "http_servlet_extension_name"})
 	}
