@@ -46,7 +46,6 @@ resource "pingdirectory_default_license" "myLicense" {
 ### Optional
 
 - `directory_platform_license_key` (String) License key enabling use of Directory Server, Directory Proxy Server, Data Sync Server, and Data Metrics Server products.
-- `type` (String) The type of License resource. Options are ['license']
 
 ### Read-Only
 
@@ -54,6 +53,7 @@ resource "pingdirectory_default_license" "myLicense" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of License resource. Options are ['license']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

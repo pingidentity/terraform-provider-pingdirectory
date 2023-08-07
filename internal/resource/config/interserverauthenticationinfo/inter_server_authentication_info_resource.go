@@ -80,10 +80,9 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Inter Server Authentication Info resource. Options are ['password', 'certificate']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"password", "certificate"}...),
 				},
@@ -212,14 +211,14 @@ func readCertificateInterServerAuthenticationInfoResponse(ctx context.Context, r
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *interServerAuthenticationInfoResourceModel) setStateValuesNotReturnedByAPI(expectedValues *interServerAuthenticationInfoResourceModel) {
+	if !expectedValues.Password.IsUnknown() {
+		state.Password = expectedValues.Password
+	}
 	if !expectedValues.ServerInstanceListenerName.IsUnknown() {
 		state.ServerInstanceListenerName = expectedValues.ServerInstanceListenerName
 	}
 	if !expectedValues.ServerInstanceName.IsUnknown() {
 		state.ServerInstanceName = expectedValues.ServerInstanceName
-	}
-	if !expectedValues.Password.IsUnknown() {
-		state.Password = expectedValues.Password
 	}
 }
 

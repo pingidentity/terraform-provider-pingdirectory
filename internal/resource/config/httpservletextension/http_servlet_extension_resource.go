@@ -900,7 +900,7 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("access_token_validator"),
 			path.MatchRoot("type"),
-			[]string{"delegated-admin", "file-server", "consent", "scim2", "directory-rest-api"},
+			[]string{"delegated-admin", "consent", "file-server", "scim2", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("label_name_value_pair"),
@@ -935,7 +935,7 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("require_authentication"),
 			path.MatchRoot("type"),
-			[]string{"file-server", "velocity"},
+			[]string{"velocity", "file-server"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("enable_directory_indexing"),
@@ -1010,12 +1010,12 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("debug_enabled"),
 			path.MatchRoot("type"),
-			[]string{"scim2", "ldap-mapped-scim"},
+			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("base_context_path"),
 			path.MatchRoot("type"),
-			[]string{"availability-state", "prometheus-monitoring", "file-server", "velocity", "scim2", "ldap-mapped-scim"},
+			[]string{"availability-state", "prometheus-monitoring", "velocity", "ldap-mapped-scim", "file-server", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("document_root_directory"),
@@ -1030,7 +1030,7 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("basic_auth_enabled"),
 			path.MatchRoot("type"),
-			[]string{"delegated-admin", "consent", "directory-rest-api", "ldap-mapped-scim"},
+			[]string{"delegated-admin", "consent", "ldap-mapped-scim", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("index_file"),
@@ -1060,12 +1060,12 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("mime_types_file"),
 			path.MatchRoot("type"),
-			[]string{"file-server", "velocity"},
+			[]string{"velocity", "file-server"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_stack_trace"),
 			path.MatchRoot("type"),
-			[]string{"scim2", "ldap-mapped-scim"},
+			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_instance_name_label"),
@@ -1080,7 +1080,7 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("debug_type"),
 			path.MatchRoot("type"),
-			[]string{"scim2", "ldap-mapped-scim"},
+			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("always_include_monitor_entry_name_label"),
@@ -1095,12 +1095,12 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
-			[]string{"delegated-admin", "file-server", "velocity", "consent", "config", "directory-rest-api", "ldap-mapped-scim"},
+			[]string{"delegated-admin", "velocity", "consent", "ldap-mapped-scim", "file-server", "config", "directory-rest-api"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("default_mime_type"),
 			path.MatchRoot("type"),
-			[]string{"file-server", "velocity"},
+			[]string{"velocity", "file-server"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("exclude_ldap_objectclass"),
@@ -1110,7 +1110,7 @@ func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("debug_level"),
 			path.MatchRoot("type"),
-			[]string{"scim2", "ldap-mapped-scim"},
+			[]string{"ldap-mapped-scim", "scim2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_ldap_objectclass"),

@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -73,9 +72,9 @@ func (r *httpConfigurationResource) Schema(ctx context.Context, req resource.Sch
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of HTTP Configuration resource. Options are ['http-configuration']",
-				Optional:    true,
+				Optional:    false,
+				Required:    false,
 				Computed:    true,
-				Default:     stringdefault.StaticString("http-configuration"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"http-configuration"}...),
 				},

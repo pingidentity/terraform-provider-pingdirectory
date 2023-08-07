@@ -568,7 +568,7 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_attribute"),
 			path.MatchRoot("type"),
-			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("multiple_virtual_attribute_evaluation_order_index"),
@@ -603,7 +603,7 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_scope"),
 			path.MatchRoot("type"),
-			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("attribute_type"),
@@ -613,7 +613,7 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_base_dn_type"),
 			path.MatchRoot("type"),
-			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("source_entry_dn_attribute"),
@@ -633,12 +633,12 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_size_limit"),
 			path.MatchRoot("type"),
-			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_custom_base_dn"),
 			path.MatchRoot("type"),
-			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("conflict_behavior"),
@@ -648,7 +648,7 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("join_filter"),
 			path.MatchRoot("type"),
-			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+			[]string{"reverse-dn-join", "equality-join", "dn-join"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("client_connection_policy"),

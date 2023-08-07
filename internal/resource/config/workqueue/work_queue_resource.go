@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -84,9 +83,9 @@ func (r *workQueueResource) Schema(ctx context.Context, req resource.SchemaReque
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Work Queue resource. Options are ['high-throughput']",
-				Optional:    true,
+				Optional:    false,
+				Required:    false,
 				Computed:    true,
-				Default:     stringdefault.StaticString("high-throughput"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"high-throughput"}...),
 				},

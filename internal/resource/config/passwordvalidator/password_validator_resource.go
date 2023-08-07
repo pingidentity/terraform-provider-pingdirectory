@@ -677,7 +677,7 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("case_sensitive_validation"),
 			path.MatchRoot("type"),
-			[]string{"dictionary", "unique-characters", "repeated-characters"},
+			[]string{"repeated-characters", "dictionary", "unique-characters"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("disallowed_trailing_characters"),

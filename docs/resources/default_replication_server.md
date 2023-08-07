@@ -66,7 +66,6 @@ resource "pingdirectory_default_replication_server" "myReplicationServer" {
 - `replication_server_id` (Number) Specifies a unique identifier for the Replication Server.
 - `restricted_domain` (Set of String) Specifies the base DN of domains that are only replicated between server instances that belong to the same replication set.
 - `target_database_size` (String) The replication changelog database is allowed to grow up to this size even if changes are older than the configured replication-purge-delay.
-- `type` (String) The type of Replication Server resource. Options are ['replication-server']
 
 ### Read-Only
 
@@ -74,6 +73,7 @@ resource "pingdirectory_default_replication_server" "myReplicationServer" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Replication Server resource. Options are ['replication-server']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

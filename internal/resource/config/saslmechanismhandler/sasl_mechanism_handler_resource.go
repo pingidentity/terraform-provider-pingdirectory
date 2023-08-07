@@ -539,7 +539,7 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("identity_mapper"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-ms-chap-v2", "unboundid-yubikey-otp", "unboundid-totp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
+			[]string{"unboundid-ms-chap-v2", "unboundid-totp", "unboundid-yubikey-otp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("otp_validity_duration"),
@@ -680,7 +680,7 @@ func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Contex
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("require_static_password"),
 			path.MatchRoot("type"),
-			[]string{"unboundid-yubikey-otp", "unboundid-totp"},
+			[]string{"unboundid-totp", "unboundid-yubikey-otp"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("shared_secret_attribute_type"),

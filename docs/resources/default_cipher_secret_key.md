@@ -59,7 +59,6 @@ resource "pingdirectory_default_cipher_secret_key" "myCipherSecretKey" {
 - `key_id` (String) The unique system-generated identifier for the Secret Key.
 - `key_length_bits` (Number) The length of the key in bits.
 - `symmetric_key` (Set of String) The symmetric key that is used for both encryption of plain text and decryption of cipher text. This stores the secret key for each server instance encrypted with that server's inter-server certificate.
-- `type` (String) The type of Cipher Secret Key resource. Options are ['cipher-secret-key']
 
 ### Read-Only
 
@@ -67,6 +66,7 @@ resource "pingdirectory_default_cipher_secret_key" "myCipherSecretKey" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Cipher Secret Key resource. Options are ['cipher-secret-key']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -1220,11 +1220,11 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 	}
 	var model defaultBackendResourceModel
 	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MaintainConfigArchive) {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
 	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
 		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaintainConfigArchive) {
+		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
@@ -1292,7 +1292,7 @@ func configValidatorsBackend() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("writability_mode"),
 			path.MatchRoot("type"),
-			[]string{"schema", "config-file-handler", "backup", "task", "alert", "ldif", "trust-store", "custom", "alarm", "local-db", "metrics"},
+			[]string{"schema", "backup", "ldif", "trust-store", "custom", "local-db", "config-file-handler", "task", "alert", "alarm", "metrics"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("return_unavailable_for_untrusted_index"),
@@ -1583,7 +1583,7 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldif_file"),
 			path.MatchRoot("type"),
-			[]string{"alert", "ldif", "alarm"},
+			[]string{"ldif", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("maximum_final_task_log_messages_to_retain"),
@@ -1623,7 +1623,7 @@ func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("backup_file_permissions"),
 			path.MatchRoot("type"),
-			[]string{"schema", "config-file-handler", "task", "encryption-settings", "alert", "ldif", "trust-store", "custom", "alarm"},
+			[]string{"schema", "encryption-settings", "ldif", "trust-store", "custom", "config-file-handler", "task", "alert", "alarm"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("changelog_include_key_attribute"),

@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -71,9 +70,9 @@ func (r *rootDnResource) Schema(ctx context.Context, req resource.SchemaRequest,
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Root DN resource. Options are ['root-dn']",
-				Optional:    true,
+				Optional:    false,
+				Required:    false,
 				Computed:    true,
-				Default:     stringdefault.StaticString("root-dn"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"root-dn"}...),
 				},

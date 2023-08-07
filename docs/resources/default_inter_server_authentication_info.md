@@ -52,7 +52,6 @@ resource "pingdirectory_default_inter_server_authentication_info" "myInterServer
 - `name` (String) Name of this config object.
 - `server_instance_listener_name` (String) Name of the parent Server Instance Listener
 - `server_instance_name` (String) Name of the parent Server Instance
-- `type` (String) The type of Inter Server Authentication Info resource. Options are ['password', 'certificate']
 
 ### Optional
 
@@ -68,6 +67,7 @@ resource "pingdirectory_default_inter_server_authentication_info" "myInterServer
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Inter Server Authentication Info resource. Options are ['password', 'certificate']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

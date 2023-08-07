@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -75,9 +74,9 @@ func (r *rootDseBackendResource) Schema(ctx context.Context, req resource.Schema
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Root DSE Backend resource. Options are ['root-dse-backend']",
-				Optional:    true,
+				Optional:    false,
+				Required:    false,
 				Computed:    true,
-				Default:     stringdefault.StaticString("root-dse-backend"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"root-dse-backend"}...),
 				},

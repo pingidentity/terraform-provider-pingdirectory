@@ -1541,6 +1541,22 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
+			[]string{"pass-through-authentication"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
+			configvalidators.Implies(
+				path.MatchRoot("datetime_json_field"),
+				path.MatchRoot("purge_behavior"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
 			[]string{"changelog-password-encryption"},
 			resourcevalidator.ExactlyOneOf(
 				path.MatchRoot("changelog_password_encryption_key"),
@@ -1552,7 +1568,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("search_filter_pattern"),
+				path.MatchRoot("bind_dn_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherValidator(
@@ -1567,24 +1583,8 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"pass-through-authentication"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("search_filter_pattern"),
-				path.MatchRoot("bind_dn_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"pass-through-authentication"},
-			resourcevalidator.Conflicting(
 				path.MatchRoot("dn_map"),
-				path.MatchRoot("bind_dn_pattern"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
-			configvalidators.Implies(
-				path.MatchRoot("datetime_json_field"),
-				path.MatchRoot("purge_behavior"),
+				path.MatchRoot("search_filter_pattern"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -1630,27 +1630,27 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("polling_interval"),
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("enable_control_mapping"),
 			path.MatchRoot("resource_type"),
-			[]string{"attribute-mapper", "dn-mapper"},
+			[]string{"dn-mapper", "attribute-mapper"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connection_criteria"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "delay", "ping-one-pass-through-authentication", "simple-to-external-bind", "pluggable-pass-through-authentication"},
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "simple-to-external-bind", "delay", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("request_criteria"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "last-access-time", "delay", "groovy-scripted", "ping-one-pass-through-authentication", "simple-to-external-bind", "coalesce-modifications", "pluggable-pass-through-authentication", "sub-operation-timing", "third-party"},
+			[]string{"last-access-time", "ping-one-pass-through-authentication", "sub-operation-timing", "third-party", "pass-through-authentication", "simple-to-external-bind", "coalesce-modifications", "delay", "groovy-scripted", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("included_local_entry_base_dn"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("value_pattern"),
@@ -1690,7 +1690,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("plugin_type"),
 			path.MatchRoot("resource_type"),
-			[]string{"encrypt-attribute-values", "pass-through-authentication", "internal-search-rate", "seven-bit-clean", "periodic-gc", "dn-mapper", "referral-on-update", "custom", "changelog-password-encryption", "composed-attribute", "processing-time-histogram", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "change-subscription-notification", "last-mod", "referential-integrity", "unique-attribute", "sub-operation-timing", "third-party"},
+			[]string{"internal-search-rate", "seven-bit-clean", "periodic-gc", "changelog-password-encryption", "processing-time-histogram", "change-subscription-notification", "sub-operation-timing", "third-party", "encrypt-attribute-values", "pass-through-authentication", "dn-mapper", "referral-on-update", "custom", "composed-attribute", "ldap-result-code-tracker", "attribute-mapper", "delay", "groovy-scripted", "last-mod", "referential-integrity", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("search_filter_pattern"),
@@ -1710,7 +1710,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("base_dn"),
 			path.MatchRoot("resource_type"),
-			[]string{"search-shutdown", "internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "referral-on-update", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute", "clean-up-inactive-pingfederate-persistent-sessions"},
+			[]string{"internal-search-rate", "modifiable-password-policy-state", "seven-bit-clean", "clean-up-expired-pingfederate-persistent-access-grants", "search-shutdown", "purge-expired-data", "referral-on-update", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions", "referential-integrity", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("purge_behavior"),
@@ -1725,7 +1725,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("num_delete_threads"),
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("referral_base_url"),
@@ -1770,7 +1770,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("allow_lax_pass_through_authentication_passwords"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_attribute"),
@@ -1840,7 +1840,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("peer_server_priority_index"),
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("environment_id"),
@@ -1870,7 +1870,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("try_local_bind"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("num_worker_threads"),
@@ -1900,7 +1900,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("filter"),
 			path.MatchRoot("resource_type"),
-			[]string{"search-shutdown", "modifiable-password-policy-state", "purge-expired-data", "unique-attribute"},
+			[]string{"modifiable-password-policy-state", "search-shutdown", "purge-expired-data", "unique-attribute"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("oauth_client_secret"),
@@ -2010,7 +2010,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("attribute_type"),
 			path.MatchRoot("resource_type"),
-			[]string{"encrypt-attribute-values", "seven-bit-clean", "referential-integrity", "composed-attribute"},
+			[]string{"seven-bit-clean", "encrypt-attribute-values", "composed-attribute", "referential-integrity"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("filter_prefix"),
@@ -2030,7 +2030,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("update_local_password"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("custom_datetime_format"),
@@ -2125,7 +2125,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_updates_per_second"),
 			path.MatchRoot("resource_type"),
-			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-expired-pingfederate-persistent-sessions", "clean-up-inactive-pingfederate-persistent-sessions"},
+			[]string{"clean-up-expired-pingfederate-persistent-access-grants", "purge-expired-data", "clean-up-inactive-pingfederate-persistent-sessions", "clean-up-expired-pingfederate-persistent-sessions"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("ldap_changelog_info"),
@@ -2160,7 +2160,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("override_local_password"),
 			path.MatchRoot("resource_type"),
-			[]string{"pass-through-authentication", "ping-one-pass-through-authentication", "pluggable-pass-through-authentication"},
+			[]string{"ping-one-pass-through-authentication", "pass-through-authentication", "pluggable-pass-through-authentication"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("output_file"),
@@ -2195,7 +2195,7 @@ func configValidatorsPlugin() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("always_map_responses"),
 			path.MatchRoot("resource_type"),
-			[]string{"attribute-mapper", "dn-mapper"},
+			[]string{"dn-mapper", "attribute-mapper"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("log_file_permissions"),

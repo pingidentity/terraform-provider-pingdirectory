@@ -562,18 +562,18 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"smtp", "opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "jdbc", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("password"),
-				path.MatchRoot("passphrase_provider"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-aws"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("password"),
+				path.MatchRoot("passphrase_provider"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -584,7 +584,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_connections"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("smtp_security"),
@@ -594,22 +594,22 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("verify_credentials_method"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("bind_dn"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password"),
 			path.MatchRoot("type"),
-			[]string{"smtp", "opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "jdbc", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("abandon_on_timeout"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("basic_authentication_username"),
@@ -619,17 +619,17 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("trust_manager_provider"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "ping-one-http", "http", "oracle-unified-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_host_name"),
 			path.MatchRoot("type"),
-			[]string{"smtp", "opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "jdbc", "oracle-unified-directory", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server"},
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_connection_age"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("conjur_server_base_uri"),
@@ -649,7 +649,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("passphrase_provider"),
 			path.MatchRoot("type"),
-			[]string{"smtp", "opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "jdbc", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("base_url"),
@@ -659,7 +659,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("defunct_connection_result_code"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("validation_query"),
@@ -694,7 +694,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("authentication_method"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "amazon-aws", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory", "amazon-aws"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("jdbc_driver_url"),
@@ -704,7 +704,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("health_check_connect_timeout"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("use_administrative_operation_control"),
@@ -739,12 +739,12 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("server_port"),
 			path.MatchRoot("type"),
-			[]string{"smtp", "opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "jdbc", "oracle-unified-directory", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server"},
+			[]string{"smtp", "nokia-ds", "ping-identity-ds", "active-directory", "jdbc", "syslog", "ping-identity-proxy-server", "http-proxy", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("key_manager_provider"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "http", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "http", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("response_timeout"),
@@ -774,7 +774,7 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("min_expired_connection_disconnect_interval"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("jdbc_connection_properties"),
@@ -784,12 +784,12 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("initial_connections"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connect_timeout"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "ping-one-http", "http", "oracle-unified-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "syslog", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "ping-one-http", "http", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("vault_server_base_uri"),
@@ -814,17 +814,17 @@ func configValidatorsExternalServer() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("location"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_response_size"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("connection_security"),
 			path.MatchRoot("type"),
-			[]string{"opendj", "nokia-ds", "ping-identity-ds", "ldap", "active-directory", "oracle-unified-directory", "ping-identity-proxy-server", "nokia-proxy-server"},
+			[]string{"nokia-ds", "ping-identity-ds", "active-directory", "ping-identity-proxy-server", "nokia-proxy-server", "opendj", "ldap", "oracle-unified-directory"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("transport_mechanism"),
@@ -1965,14 +1965,14 @@ func populateExternalServerUnknownValues(ctx context.Context, model *externalSer
 	if model.JdbcConnectionProperties.ElementType(ctx) == nil {
 		model.JdbcConnectionProperties = types.SetNull(types.StringType)
 	}
-	if model.AwsSecretAccessKey.IsUnknown() {
-		model.AwsSecretAccessKey = types.StringNull()
-	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
 	}
 	if model.TrustStorePin.IsUnknown() {
 		model.TrustStorePin = types.StringNull()
+	}
+	if model.AwsSecretAccessKey.IsUnknown() {
+		model.AwsSecretAccessKey = types.StringNull()
 	}
 }
 
@@ -2466,14 +2466,14 @@ func readVaultExternalServerResponse(ctx context.Context, r *client.VaultExterna
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *externalServerResourceModel) setStateValuesNotReturnedByAPI(expectedValues *externalServerResourceModel) {
-	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
-		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
-	}
 	if !expectedValues.Password.IsUnknown() {
 		state.Password = expectedValues.Password
 	}
 	if !expectedValues.TrustStorePin.IsUnknown() {
 		state.TrustStorePin = expectedValues.TrustStorePin
+	}
+	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
+		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
 	}
 }
 

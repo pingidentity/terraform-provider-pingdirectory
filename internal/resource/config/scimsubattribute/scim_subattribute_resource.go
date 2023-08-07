@@ -298,11 +298,11 @@ func readScimSubattributeResponse(ctx context.Context, r *client.ScimSubattribut
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *scimSubattributeResourceModel) setStateValuesNotReturnedByAPI(expectedValues *scimSubattributeResourceModel) {
-	if !expectedValues.ScimSchemaName.IsUnknown() {
-		state.ScimSchemaName = expectedValues.ScimSchemaName
-	}
 	if !expectedValues.ScimAttributeName.IsUnknown() {
 		state.ScimAttributeName = expectedValues.ScimAttributeName
+	}
+	if !expectedValues.ScimSchemaName.IsUnknown() {
+		state.ScimSchemaName = expectedValues.ScimSchemaName
 	}
 }
 

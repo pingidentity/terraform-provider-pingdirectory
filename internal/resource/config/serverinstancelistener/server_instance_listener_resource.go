@@ -81,10 +81,9 @@ func (r *serverInstanceListenerResource) Schema(ctx context.Context, req resourc
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Server Instance Listener resource. Options are ['ldap', 'http']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"ldap", "http"}...),
 				},

@@ -47,7 +47,6 @@ resource "pingdirectory_default_root_dn" "myRootDn" {
 ### Optional
 
 - `default_root_privilege_name` (Set of String) Specifies the names of the privileges that root users will be granted by default.
-- `type` (String) The type of Root DN resource. Options are ['root-dn']
 
 ### Read-Only
 
@@ -55,6 +54,7 @@ resource "pingdirectory_default_root_dn" "myRootDn" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Root DN resource. Options are ['root-dn']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

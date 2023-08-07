@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -83,9 +82,9 @@ func (r *replicationDomainResource) Schema(ctx context.Context, req resource.Sch
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Replication Domain resource. Options are ['replication-domain']",
-				Optional:    true,
+				Optional:    false,
+				Required:    false,
 				Computed:    true,
-				Default:     stringdefault.StaticString("replication-domain"),
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"replication-domain"}...),
 				},

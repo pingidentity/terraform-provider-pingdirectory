@@ -172,11 +172,11 @@ func readLdapCorrelationAttributePairResponse(ctx context.Context, r *client.Lda
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *ldapCorrelationAttributePairResourceModel) setStateValuesNotReturnedByAPI(expectedValues *ldapCorrelationAttributePairResourceModel) {
-	if !expectedValues.ScimResourceTypeName.IsUnknown() {
-		state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
-	}
 	if !expectedValues.CorrelatedLdapDataViewName.IsUnknown() {
 		state.CorrelatedLdapDataViewName = expectedValues.CorrelatedLdapDataViewName
+	}
+	if !expectedValues.ScimResourceTypeName.IsUnknown() {
+		state.ScimResourceTypeName = expectedValues.ScimResourceTypeName
 	}
 }
 

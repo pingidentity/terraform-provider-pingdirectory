@@ -431,18 +431,18 @@ func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.ImpliesOtherValidator(
 			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager"},
-			resourcevalidator.Conflicting(
-				path.MatchRoot("secret_version_id"),
-				path.MatchRoot("secret_version_stage"),
-			),
-		),
-		configvalidators.ImpliesOtherValidator(
-			path.MatchRoot("type"),
 			[]string{"amazon-key-management-service"},
 			configvalidators.Implies(
 				path.MatchRoot("aws_access_key_id"),
 				path.MatchRoot("aws_secret_access_key"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("secret_version_id"),
+				path.MatchRoot("secret_version_stage"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
@@ -862,11 +862,11 @@ func populateCipherStreamProviderUnknownValues(ctx context.Context, model *ciphe
 	if model.ExtensionArgument.ElementType(ctx) == nil {
 		model.ExtensionArgument = types.SetNull(types.StringType)
 	}
-	if model.KeyStorePin.IsUnknown() {
-		model.KeyStorePin = types.StringNull()
-	}
 	if model.AwsSecretAccessKey.IsUnknown() {
 		model.AwsSecretAccessKey = types.StringNull()
+	}
+	if model.KeyStorePin.IsUnknown() {
+		model.KeyStorePin = types.StringNull()
 	}
 	if model.TrustStorePin.IsUnknown() {
 		model.TrustStorePin = types.StringNull()
@@ -1021,11 +1021,11 @@ func readThirdPartyCipherStreamProviderResponse(ctx context.Context, r *client.T
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *cipherStreamProviderResourceModel) setStateValuesNotReturnedByAPI(expectedValues *cipherStreamProviderResourceModel) {
-	if !expectedValues.KeyStorePin.IsUnknown() {
-		state.KeyStorePin = expectedValues.KeyStorePin
-	}
 	if !expectedValues.AwsSecretAccessKey.IsUnknown() {
 		state.AwsSecretAccessKey = expectedValues.AwsSecretAccessKey
+	}
+	if !expectedValues.KeyStorePin.IsUnknown() {
+		state.KeyStorePin = expectedValues.KeyStorePin
 	}
 	if !expectedValues.TrustStorePin.IsUnknown() {
 		state.TrustStorePin = expectedValues.TrustStorePin

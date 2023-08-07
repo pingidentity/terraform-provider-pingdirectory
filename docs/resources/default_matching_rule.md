@@ -48,7 +48,6 @@ resource "pingdirectory_default_matching_rule" "myMatchingRule" {
 ### Required
 
 - `name` (String) Name of this config object.
-- `type` (String) The type of Matching Rule resource. Options are ['ordering', 'approximate', 'equality', 'substring', 'generic']
 
 ### Optional
 
@@ -60,6 +59,7 @@ resource "pingdirectory_default_matching_rule" "myMatchingRule" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Matching Rule resource. Options are ['ordering', 'approximate', 'equality', 'substring', 'generic']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

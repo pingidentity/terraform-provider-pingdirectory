@@ -61,7 +61,6 @@ resource "pingdirectory_default_replication_domain" "myReplicationDomain" {
 - `restricted` (Boolean) When set to true, changes are only replicated with server instances that belong to the same replication set.
 - `server_id` (Number) Specifies a unique identifier for the Directory Server within the Replication Domain.
 - `sync_hist_purge_delay` (String) The time in seconds after which historical information used in replication conflict resolution is purged. The information is removed from entries when they are modified after the purge delay has elapsed.
-- `type` (String) The type of Replication Domain resource. Options are ['replication-domain']
 - `window_size` (Number) Specifies the maximum number of replication updates the Directory Server can have outstanding from the Replication Server.
 
 ### Read-Only
@@ -70,6 +69,7 @@ resource "pingdirectory_default_replication_domain" "myReplicationDomain" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Replication Domain resource. Options are ['replication-domain']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

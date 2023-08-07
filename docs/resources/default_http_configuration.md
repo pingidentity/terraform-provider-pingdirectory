@@ -48,7 +48,6 @@ resource "pingdirectory_default_http_configuration" "myHttpConfiguration" {
 
 - `include_servlet_information_in_error_pages` (Boolean) Indicates whether to expose servlet information in the error page response. Supported in PingDirectory product version 9.3.0.0+.
 - `include_stack_traces_in_error_pages` (Boolean) Indicates whether exceptions thrown by servlet or web application extensions will be included in the resulting error page response. Stack traces can be helpful in diagnosing application errors, but in production they may reveal information that might be useful to a malicious attacker.
-- `type` (String) The type of HTTP Configuration resource. Options are ['http-configuration']
 
 ### Read-Only
 
@@ -56,6 +55,7 @@ resource "pingdirectory_default_http_configuration" "myHttpConfiguration" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of HTTP Configuration resource. Options are ['http-configuration']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

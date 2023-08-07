@@ -73,10 +73,9 @@ func (r *groupImplementationResource) Schema(ctx context.Context, req resource.S
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Group Implementation resource. Options are ['static', 'virtual-static', 'dynamic']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"static", "virtual-static", "dynamic"}...),
 				},

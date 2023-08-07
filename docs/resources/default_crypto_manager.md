@@ -62,7 +62,6 @@ resource "pingdirectory_default_crypto_manager" "myCryptoManager" {
 - `ssl_cert_nickname` (String) Specifies the nickname (also called the alias) of the certificate that the Crypto Manager should use when performing SSL communication.
 - `ssl_cipher_suite` (Set of String) Specifies the names of the TLS cipher suites that are allowed for use in secure communication.
 - `ssl_protocol` (Set of String) Specifies the names of TLS protocols that are allowed for use in secure communication.
-- `type` (String) The type of Crypto Manager resource. Options are ['crypto-manager']
 
 ### Read-Only
 
@@ -70,6 +69,7 @@ resource "pingdirectory_default_crypto_manager" "myCryptoManager" {
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Crypto Manager resource. Options are ['crypto-manager']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

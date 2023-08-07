@@ -78,10 +78,9 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Log Field Syntax resource. Options are ['json', 'attribute-based', 'generic']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"json", "attribute-based", "generic"}...),
 				},

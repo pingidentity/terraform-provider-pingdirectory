@@ -355,12 +355,12 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("memory_usage_kb"),
 			path.MatchRoot("type"),
-			[]string{"argon2", "argon2id", "argon2d", "argon2i"},
+			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("default_field"),
 			path.MatchRoot("type"),
-			[]string{"amazon-secrets-manager", "vault"},
+			[]string{"vault", "amazon-secrets-manager"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("scrypt_block_size"),
@@ -375,7 +375,7 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("max_password_length"),
 			path.MatchRoot("type"),
-			[]string{"pbkdf2", "crypt", "scrypt"},
+			[]string{"crypt", "pbkdf2", "scrypt"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("vault_external_server"),
@@ -385,7 +385,7 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("iteration_count"),
 			path.MatchRoot("type"),
-			[]string{"argon2", "argon2id", "pbkdf2", "argon2d", "argon2i"},
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_encoding_mechanism"),
@@ -400,7 +400,7 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_argument"),
 			path.MatchRoot("type"),
-			[]string{"third-party-enhanced", "third-party"},
+			[]string{"third-party", "third-party-enhanced"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("azure_authentication_method"),
@@ -410,7 +410,7 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("parallelism_factor"),
 			path.MatchRoot("type"),
-			[]string{"argon2", "argon2id", "argon2d", "argon2i"},
+			[]string{"argon2d", "argon2i", "argon2id", "argon2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("conjur_external_server"),
@@ -420,7 +420,7 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("derived_key_length_bytes"),
 			path.MatchRoot("type"),
-			[]string{"argon2", "argon2id", "pbkdf2", "argon2d", "argon2i"},
+			[]string{"argon2d", "argon2i", "argon2id", "argon2", "pbkdf2"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("aws_external_server"),
@@ -455,12 +455,12 @@ func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("extension_class"),
 			path.MatchRoot("type"),
-			[]string{"third-party-enhanced", "third-party"},
+			[]string{"third-party", "third-party-enhanced"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("salt_length_bytes"),
 			path.MatchRoot("type"),
-			[]string{"salted-sha256", "argon2", "argon2id", "pbkdf2", "argon2d", "salted-sha384", "argon2i", "salted-md5", "salted-sha1", "salted-sha512"},
+			[]string{"salted-sha256", "argon2d", "argon2i", "salted-md5", "argon2id", "argon2", "pbkdf2", "salted-sha384", "salted-sha1", "salted-sha512"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("bcrypt_cost_factor"),

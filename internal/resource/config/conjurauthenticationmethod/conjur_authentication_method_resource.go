@@ -166,11 +166,11 @@ func addOptionalApiKeyConjurAuthenticationMethodFields(ctx context.Context, addR
 
 // Populate any unknown values or sets that have a nil ElementType, to avoid errors when setting the state
 func populateConjurAuthenticationMethodUnknownValues(ctx context.Context, model *conjurAuthenticationMethodResourceModel) {
-	if model.ApiKey.IsUnknown() {
-		model.ApiKey = types.StringNull()
-	}
 	if model.Password.IsUnknown() {
 		model.Password = types.StringNull()
+	}
+	if model.ApiKey.IsUnknown() {
+		model.ApiKey = types.StringNull()
 	}
 }
 
@@ -188,11 +188,11 @@ func readApiKeyConjurAuthenticationMethodResponse(ctx context.Context, r *client
 // Set any properties that aren't returned by the API in the state, based on some expected value (usually the plan value)
 // This will include any parent endpoint names and any obscured (sensitive) attributes
 func (state *conjurAuthenticationMethodResourceModel) setStateValuesNotReturnedByAPI(expectedValues *conjurAuthenticationMethodResourceModel) {
-	if !expectedValues.ApiKey.IsUnknown() {
-		state.ApiKey = expectedValues.ApiKey
-	}
 	if !expectedValues.Password.IsUnknown() {
 		state.Password = expectedValues.Password
+	}
+	if !expectedValues.ApiKey.IsUnknown() {
+		state.ApiKey = expectedValues.ApiKey
 	}
 }
 

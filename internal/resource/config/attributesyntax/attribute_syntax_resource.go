@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -81,10 +80,9 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Attribute Syntax resource. Options are ['attribute-type-description', 'directory-string', 'telephone-number', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'generic', 'json-object', 'user-password', 'boolean', 'hex-string', 'bit-string', 'ldap-url', 'name-and-optional-uid']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"attribute-type-description", "directory-string", "telephone-number", "distinguished-name", "generalized-time", "integer", "uuid", "generic", "json-object", "user-password", "boolean", "hex-string", "bit-string", "ldap-url", "name-and-optional-uid"}...),
 				},
@@ -172,17 +170,17 @@ func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resourc
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("exclude_attribute_from_compaction"),
 			path.MatchRoot("type"),
-			[]string{"user-password", "boolean", "bit-string", "distinguished-name", "generalized-time", "integer", "uuid", "name-and-optional-uid"},
+			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("enable_compaction"),
 			path.MatchRoot("type"),
-			[]string{"user-password", "boolean", "bit-string", "distinguished-name", "generalized-time", "integer", "uuid", "name-and-optional-uid"},
+			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("include_attribute_in_compaction"),
 			path.MatchRoot("type"),
-			[]string{"user-password", "boolean", "bit-string", "distinguished-name", "generalized-time", "integer", "uuid", "name-and-optional-uid"},
+			[]string{"distinguished-name", "generalized-time", "integer", "uuid", "user-password", "boolean", "bit-string", "name-and-optional-uid"},
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("strip_syntax_min_upper_bound"),

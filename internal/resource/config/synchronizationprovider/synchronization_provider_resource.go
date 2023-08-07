@@ -76,10 +76,9 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 		Attributes: map[string]schema.Attribute{
 			"type": schema.StringAttribute{
 				Description: "The type of Synchronization Provider resource. Options are ['replication', 'custom']",
-				Required:    true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:    false,
+				Required:    false,
+				Computed:    true,
 				Validators: []validator.String{
 					stringvalidator.OneOf([]string{"replication", "custom"}...),
 				},
