@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -487,6 +488,14 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("id_token_validator"),
+				path.MatchRoot("access_token_validator"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("id_token_validator"),
 			path.MatchRoot("type"),

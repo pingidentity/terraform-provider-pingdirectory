@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -883,6 +884,14 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsHttpServletExtension() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("exclude_ldap_objectclass"),
+				path.MatchRoot("include_ldap_objectclass"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("id_token_validator"),
 			path.MatchRoot("type"),

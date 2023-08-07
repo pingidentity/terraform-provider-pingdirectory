@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -394,6 +395,14 @@ func modifyPlanPassThroughAuthenticationHandler(ctx context.Context, req resourc
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsPassThroughAuthenticationHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("oauth_client_secret_passphrase_provider"),
+				path.MatchRoot("oauth_client_secret"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("additional_user_mapping_scim_filter"),
 			path.MatchRoot("type"),

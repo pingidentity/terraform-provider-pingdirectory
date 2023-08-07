@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -467,6 +468,14 @@ func requestCriteriaSchema(ctx context.Context, req resource.SchemaRequest, resp
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsRequestCriteria() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"simple"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("excluded_application_name"),
+				path.MatchRoot("included_application_name"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("not_all_included_target_entry_group_dn"),
 			path.MatchRoot("type"),

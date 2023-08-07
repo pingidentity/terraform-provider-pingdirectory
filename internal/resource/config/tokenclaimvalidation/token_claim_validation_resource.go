@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -177,6 +178,14 @@ func tokenClaimValidationSchema(ctx context.Context, req resource.SchemaRequest,
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsTokenClaimValidation() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"string-array"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("any_required_value"),
+				path.MatchRoot("all_required_value"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_required_value"),
 			path.MatchRoot("type"),

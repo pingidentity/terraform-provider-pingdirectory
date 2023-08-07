@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -521,6 +522,14 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsConnectionHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"http"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("http_servlet_extension"),
+				path.MatchRoot("web_application_extension"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("keep_stats"),
 			path.MatchRoot("type"),

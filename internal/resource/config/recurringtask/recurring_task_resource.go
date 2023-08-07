@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -779,6 +780,48 @@ func modifyPlanRecurringTask(ctx context.Context, req resource.ModifyPlanRequest
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsRecurringTask() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("included_backend_id"),
+				path.MatchRoot("excluded_backend_id"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"delay"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("duration_to_wait_for_work_queue_idle"),
+				path.MatchRoot("ldap_url_for_search_expected_to_return_entries"),
+				path.MatchRoot("sleep_duration"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"file-retention"},
+			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("retain_file_count"),
+				path.MatchRoot("retain_aggregate_file_size"),
+				path.MatchRoot("retain_file_age"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"backup", "ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("encryption_settings_definition_id"),
+				path.MatchRoot("encryption_passphrase_file"),
+			),
+		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ldif-export"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("backend_id"),
+				path.MatchRoot("exclude_backend_id"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("reason"),
 			path.MatchRoot("type"),

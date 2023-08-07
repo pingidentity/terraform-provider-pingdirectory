@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -324,6 +325,14 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("client_secret_passphrase_provider"),
+				path.MatchRoot("client_secret"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("client_secret_passphrase_provider"),
 			path.MatchRoot("type"),

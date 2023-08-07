@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -418,6 +419,14 @@ func modifyPlanAlertHandler(ctx context.Context, req resource.ModifyPlanRequest,
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsAlertHandler() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("twilio_auth_token_passphrase_provider"),
+				path.MatchRoot("twilio_auth_token"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("sender_address"),
 			path.MatchRoot("type"),

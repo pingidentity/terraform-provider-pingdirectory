@@ -312,6 +312,14 @@ func configValidatorsWebApplicationExtension() []resource.ConfigValidator {
 			path.MatchRoot("war_file"),
 			path.MatchRoot("document_root_directory"),
 		),
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"console"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("oidc_client_secret"),
+				path.MatchRoot("oidc_client_secret_passphrase_provider"),
+			),
+		),
 	}
 }
 

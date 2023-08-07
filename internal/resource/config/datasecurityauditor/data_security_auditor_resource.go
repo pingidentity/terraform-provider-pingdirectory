@@ -323,6 +323,14 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+			configvalidators.Implies(
+				path.MatchRoot("never_logged_in_account_error_interval"),
+				path.MatchRoot("never_logged_in_account_warning_interval"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_evaluation_age"),
 			path.MatchRoot("type"),

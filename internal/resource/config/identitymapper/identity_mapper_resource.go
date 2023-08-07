@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -232,6 +233,14 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsIdentityMapper() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+			resourcevalidator.ExactlyOneOf(
+				path.MatchRoot("any_included_identity_mapper"),
+				path.MatchRoot("all_included_identity_mapper"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("any_included_identity_mapper"),
 			path.MatchRoot("type"),

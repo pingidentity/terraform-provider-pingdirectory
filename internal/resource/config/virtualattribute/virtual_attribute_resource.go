@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -521,6 +522,14 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 // Add config validators that apply to both default_ and non-default_
 func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherValidator(
+			path.MatchRoot("type"),
+			[]string{"mirror"},
+			resourcevalidator.Conflicting(
+				path.MatchRoot("source_entry_dn_map"),
+				path.MatchRoot("source_entry_dn_attribute"),
+			),
+		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("require_explicit_request_by_name"),
 			path.MatchRoot("type"),
