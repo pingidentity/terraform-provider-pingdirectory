@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -228,34 +229,40 @@ func idTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest, res
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *idTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsIdTokenValidator() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_signing_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"openid-connect"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("signing_certificate"),
+			path.MatchRoot("type"),
+			[]string{"openid-connect"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jwks_endpoint_path"),
+			path.MatchRoot("type"),
+			[]string{"openid-connect"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("openid_connect_metadata_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"ping-one"},
+		),
+	}
 }
 
-func (r *defaultIdTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanIdTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r idTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsIdTokenValidator()
 }
 
-func modifyPlanIdTokenValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model idTokenValidatorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AllowedSigningAlgorithm) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'allowed_signing_algorithm' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_signing_algorithm', the 'type' attribute must be one of ['openid-connect']")
-	}
-	if internaltypes.IsDefined(model.SigningCertificate) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'signing_certificate' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'signing_certificate', the 'type' attribute must be one of ['openid-connect']")
-	}
-	if internaltypes.IsDefined(model.JwksEndpointPath) && model.Type.ValueString() != "openid-connect" {
-		resp.Diagnostics.AddError("Attribute 'jwks_endpoint_path' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jwks_endpoint_path', the 'type' attribute must be one of ['openid-connect']")
-	}
-	if internaltypes.IsDefined(model.OpenIDConnectMetadataCacheDuration) && model.Type.ValueString() != "ping-one" {
-		resp.Diagnostics.AddError("Attribute 'openid_connect_metadata_cache_duration' not supported by pingdirectory_id_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'openid_connect_metadata_cache_duration', the 'type' attribute must be one of ['ping-one']")
-	}
+// Add config validators
+func (r defaultIdTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsIdTokenValidator()
 }
 
 // Add optional fields to create request for ping-one id-token-validator

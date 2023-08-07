@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -319,100 +320,6 @@ func (r *defaultPasswordStorageSchemeResource) ModifyPlan(ctx context.Context, r
 }
 
 func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model passwordStorageSchemeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MemoryUsageKb) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'memory_usage_kb' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'memory_usage_kb', the 'type' attribute must be one of ['argon2', 'argon2id', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.DefaultField) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'default_field' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_field', the 'type' attribute must be one of ['amazon-secrets-manager', 'vault']")
-	}
-	if internaltypes.IsDefined(model.ScryptBlockSize) && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'scrypt_block_size' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scrypt_block_size', the 'type' attribute must be one of ['scrypt']")
-	}
-	if internaltypes.IsDefined(model.DigestAlgorithm) && model.Type.ValueString() != "pbkdf2" {
-		resp.Diagnostics.AddError("Attribute 'digest_algorithm' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'digest_algorithm', the 'type' attribute must be one of ['pbkdf2']")
-	}
-	if internaltypes.IsDefined(model.MaxPasswordLength) && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "crypt" && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'max_password_length' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_password_length', the 'type' attribute must be one of ['pbkdf2', 'crypt', 'scrypt']")
-	}
-	if internaltypes.IsDefined(model.VaultExternalServer) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_external_server', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.IterationCount) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'iteration_count', the 'type' attribute must be one of ['argon2', 'argon2id', 'pbkdf2', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.PasswordEncodingMechanism) && model.Type.ValueString() != "crypt" {
-		resp.Diagnostics.AddError("Attribute 'password_encoding_mechanism' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_encoding_mechanism', the 'type' attribute must be one of ['crypt']")
-	}
-	if internaltypes.IsDefined(model.KeyVaultURI) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'key_vault_uri' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_vault_uri', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party-enhanced" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party-enhanced', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.AzureAuthenticationMethod) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'azure_authentication_method' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'azure_authentication_method', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ParallelismFactor) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'parallelism_factor' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'parallelism_factor', the 'type' attribute must be one of ['argon2', 'argon2id', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.ConjurExternalServer) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_external_server', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.DerivedKeyLengthBytes) && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "argon2i" {
-		resp.Diagnostics.AddError("Attribute 'derived_key_length_bytes' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'derived_key_length_bytes', the 'type' attribute must be one of ['argon2', 'argon2id', 'pbkdf2', 'argon2d', 'argon2i']")
-	}
-	if internaltypes.IsDefined(model.AwsExternalServer) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'aws_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_external_server', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.ScryptParallelizationParameter) && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'scrypt_parallelization_parameter' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scrypt_parallelization_parameter', the 'type' attribute must be one of ['scrypt']")
-	}
-	if internaltypes.IsDefined(model.EncryptionSettingsDefinitionID) && model.Type.ValueString() != "aes-256" {
-		resp.Diagnostics.AddError("Attribute 'encryption_settings_definition_id' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_settings_definition_id', the 'type' attribute must be one of ['aes-256']")
-	}
-	if internaltypes.IsDefined(model.ScryptCpuMemoryCostFactorExponent) && model.Type.ValueString() != "scrypt" {
-		resp.Diagnostics.AddError("Attribute 'scrypt_cpu_memory_cost_factor_exponent' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scrypt_cpu_memory_cost_factor_exponent', the 'type' attribute must be one of ['scrypt']")
-	}
-	if internaltypes.IsDefined(model.NumDigestRounds) && model.Type.ValueString() != "crypt" {
-		resp.Diagnostics.AddError("Attribute 'num_digest_rounds' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_digest_rounds', the 'type' attribute must be one of ['crypt']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party-enhanced" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party-enhanced', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.SaltLengthBytes) && model.Type.ValueString() != "salted-sha256" && model.Type.ValueString() != "argon2" && model.Type.ValueString() != "argon2id" && model.Type.ValueString() != "pbkdf2" && model.Type.ValueString() != "argon2d" && model.Type.ValueString() != "salted-sha384" && model.Type.ValueString() != "argon2i" && model.Type.ValueString() != "salted-md5" && model.Type.ValueString() != "salted-sha1" && model.Type.ValueString() != "salted-sha512" {
-		resp.Diagnostics.AddError("Attribute 'salt_length_bytes' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'salt_length_bytes', the 'type' attribute must be one of ['salted-sha256', 'argon2', 'argon2id', 'pbkdf2', 'argon2d', 'salted-sha384', 'argon2i', 'salted-md5', 'salted-sha1', 'salted-sha512']")
-	}
-	if internaltypes.IsDefined(model.BcryptCostFactor) && model.Type.ValueString() != "bcrypt" {
-		resp.Diagnostics.AddError("Attribute 'bcrypt_cost_factor' not supported by pingdirectory_password_storage_scheme resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bcrypt_cost_factor', the 'type' attribute must be one of ['bcrypt']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -422,6 +329,8 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 		// Every remaining property is supported
 		return
 	}
+	var model passwordStorageSchemeResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "argon2id" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"argon2id\"")
@@ -437,6 +346,137 @@ func modifyPlanPasswordStorageScheme(ctx context.Context, req resource.ModifyPla
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPasswordStorageScheme() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("memory_usage_kb"),
+			path.MatchRoot("type"),
+			[]string{"argon2", "argon2id", "argon2d", "argon2i"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_field"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_block_size"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("digest_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"pbkdf2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_password_length"),
+			path.MatchRoot("type"),
+			[]string{"pbkdf2", "crypt", "scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_external_server"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("iteration_count"),
+			path.MatchRoot("type"),
+			[]string{"argon2", "argon2id", "pbkdf2", "argon2d", "argon2i"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_encoding_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"crypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party-enhanced", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("parallelism_factor"),
+			path.MatchRoot("type"),
+			[]string{"argon2", "argon2id", "argon2d", "argon2i"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("derived_key_length_bytes"),
+			path.MatchRoot("type"),
+			[]string{"argon2", "argon2id", "pbkdf2", "argon2d", "argon2i"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_parallelization_parameter"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_settings_definition_id"),
+			path.MatchRoot("type"),
+			[]string{"aes-256"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scrypt_cpu_memory_cost_factor_exponent"),
+			path.MatchRoot("type"),
+			[]string{"scrypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_digest_rounds"),
+			path.MatchRoot("type"),
+			[]string{"crypt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party-enhanced", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("salt_length_bytes"),
+			path.MatchRoot("type"),
+			[]string{"salted-sha256", "argon2", "argon2id", "pbkdf2", "argon2d", "salted-sha384", "argon2i", "salted-md5", "salted-sha1", "salted-sha512"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bcrypt_cost_factor"),
+			path.MatchRoot("type"),
+			[]string{"bcrypt"},
+		),
+	}
+}
+
+// Add config validators
+func (r passwordStorageSchemeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordStorageScheme()
+}
+
+// Add config validators
+func (r defaultPasswordStorageSchemeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordStorageScheme()
 }
 
 // Add optional fields to create request for argon2d password-storage-scheme

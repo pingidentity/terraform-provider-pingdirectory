@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -517,186 +518,230 @@ func connectionHandlerSchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *connectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsConnectionHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("keep_stats"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_multipart_mime_parameters"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_ldap_v2"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cipher_suite"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("web_application_extension"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_operation_log_publisher"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_accept_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("send_rejection_notice"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("poll_interval"),
+			path.MatchRoot("type"),
+			[]string{"ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("accept_backlog"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("denied_client"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_tcp_reuse_address"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_resources_idle_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlation_id_response_header"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listen_port"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_ssl"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("response_header"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_client"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_request_size"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_blocked_write_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("correlation_id_request_header"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("close_connections_when_unavailable"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("listen_address"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_cancel_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_servlet_extension"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("auto_authenticate_using_client_certificate"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_resources_connection_threshold"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_client_auth_policy"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_forwarded_headers"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_protocol"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_start_tls"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_tcp_keep_alive"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldif"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"jmx", "ldap", "http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_correlation_id_header"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("idle_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_request_header_size"),
+			path.MatchRoot("type"),
+			[]string{"http"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("failed_bind_response_delay"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("close_connections_on_explicit_gc"),
+			path.MatchRoot("type"),
+			[]string{"ldap"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_request_handlers"),
+			path.MatchRoot("type"),
+			[]string{"ldap", "http"},
+		),
+	}
 }
 
-func (r *defaultConnectionHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanConnectionHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r connectionHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsConnectionHandler()
 }
 
-func modifyPlanConnectionHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model connectionHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.KeepStats) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'keep_stats' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'keep_stats', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.EnableMultipartMIMEParameters) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'enable_multipart_mime_parameters' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'enable_multipart_mime_parameters', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.AllowLDAPV2) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'allow_ldap_v2' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_ldap_v2', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.SslCipherSuite) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'ssl_cipher_suite' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ssl_cipher_suite', the 'type' attribute must be one of ['ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.WebApplicationExtension) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'web_application_extension' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'web_application_extension', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.HttpOperationLogPublisher) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'http_operation_log_publisher' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_operation_log_publisher', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.NumAcceptHandlers) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'num_accept_handlers' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_accept_handlers', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.SendRejectionNotice) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'send_rejection_notice' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'send_rejection_notice', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.PollInterval) && model.Type.ValueString() != "ldif" {
-		resp.Diagnostics.AddError("Attribute 'poll_interval' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'poll_interval', the 'type' attribute must be one of ['ldif']")
-	}
-	if internaltypes.IsDefined(model.KeyManagerProvider) && model.Type.ValueString() != "jmx" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'key_manager_provider' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_manager_provider', the 'type' attribute must be one of ['jmx', 'ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.AcceptBacklog) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'accept_backlog' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'accept_backlog', the 'type' attribute must be one of ['ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.DeniedClient) && model.Type.ValueString() != "jmx" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "ldif" {
-		resp.Diagnostics.AddError("Attribute 'denied_client' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'denied_client', the 'type' attribute must be one of ['jmx', 'ldap', 'ldif']")
-	}
-	if internaltypes.IsDefined(model.TrustManagerProvider) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'trust_manager_provider' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_manager_provider', the 'type' attribute must be one of ['ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.AllowTCPReuseAddress) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'allow_tcp_reuse_address' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_tcp_reuse_address', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.LowResourcesIdleTimeLimit) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'low_resources_idle_time_limit' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_resources_idle_time_limit', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.CorrelationIDResponseHeader) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'correlation_id_response_header' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'correlation_id_response_header', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.ListenPort) && model.Type.ValueString() != "jmx" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'listen_port' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'listen_port', the 'type' attribute must be one of ['jmx', 'ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.UseSSL) && model.Type.ValueString() != "jmx" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'use_ssl' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_ssl', the 'type' attribute must be one of ['jmx', 'ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.ResponseHeader) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'response_header' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'response_header', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.AllowedClient) && model.Type.ValueString() != "jmx" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "ldif" {
-		resp.Diagnostics.AddError("Attribute 'allowed_client' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_client', the 'type' attribute must be one of ['jmx', 'ldap', 'ldif']")
-	}
-	if internaltypes.IsDefined(model.MaxRequestSize) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'max_request_size' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_request_size', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.MaxBlockedWriteTimeLimit) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'max_blocked_write_time_limit' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_blocked_write_time_limit', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.CorrelationIDRequestHeader) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'correlation_id_request_header' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'correlation_id_request_header', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.CloseConnectionsWhenUnavailable) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'close_connections_when_unavailable' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'close_connections_when_unavailable', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.ListenAddress) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'listen_address' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'listen_address', the 'type' attribute must be one of ['ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.MaxCancelHandlers) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'max_cancel_handlers' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_cancel_handlers', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.HttpServletExtension) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'http_servlet_extension' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_servlet_extension', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.AutoAuthenticateUsingClientCertificate) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'auto_authenticate_using_client_certificate' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'auto_authenticate_using_client_certificate', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.LowResourcesConnectionThreshold) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'low_resources_connection_threshold' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_resources_connection_threshold', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.SslClientAuthPolicy) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'ssl_client_auth_policy' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ssl_client_auth_policy', the 'type' attribute must be one of ['ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.UseForwardedHeaders) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'use_forwarded_headers' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_forwarded_headers', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.SslProtocol) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'ssl_protocol' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ssl_protocol', the 'type' attribute must be one of ['ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.AllowStartTLS) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'allow_start_tls' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_start_tls', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.UseTCPKeepAlive) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'use_tcp_keep_alive' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_tcp_keep_alive', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.LdifDirectory) && model.Type.ValueString() != "ldif" {
-		resp.Diagnostics.AddError("Attribute 'ldif_directory' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldif_directory', the 'type' attribute must be one of ['ldif']")
-	}
-	if internaltypes.IsDefined(model.SslCertNickname) && model.Type.ValueString() != "jmx" && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'ssl_cert_nickname' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ssl_cert_nickname', the 'type' attribute must be one of ['jmx', 'ldap', 'http']")
-	}
-	if internaltypes.IsDefined(model.UseCorrelationIDHeader) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'use_correlation_id_header' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_correlation_id_header', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.IdleTimeLimit) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'idle_time_limit' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'idle_time_limit', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.HttpRequestHeaderSize) && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'http_request_header_size' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_request_header_size', the 'type' attribute must be one of ['http']")
-	}
-	if internaltypes.IsDefined(model.FailedBindResponseDelay) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'failed_bind_response_delay' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'failed_bind_response_delay', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.CloseConnectionsOnExplicitGC) && model.Type.ValueString() != "ldap" {
-		resp.Diagnostics.AddError("Attribute 'close_connections_on_explicit_gc' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'close_connections_on_explicit_gc', the 'type' attribute must be one of ['ldap']")
-	}
-	if internaltypes.IsDefined(model.NumRequestHandlers) && model.Type.ValueString() != "ldap" && model.Type.ValueString() != "http" {
-		resp.Diagnostics.AddError("Attribute 'num_request_handlers' not supported by pingdirectory_connection_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_request_handlers', the 'type' attribute must be one of ['ldap', 'http']")
-	}
+// Add config validators
+func (r defaultConnectionHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsConnectionHandler()
 }
 
 // Add optional fields to create request for jmx connection-handler

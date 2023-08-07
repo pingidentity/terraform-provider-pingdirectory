@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -243,64 +244,6 @@ func (r *defaultKeyManagerProviderResource) ModifyPlan(ctx context.Context, req 
 }
 
 func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model keyManagerProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.PrivateKeyPinPassphraseProvider) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'private_key_pin_passphrase_provider', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.PrivateKeyPin) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'private_key_pin', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11ProviderClass) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_class' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_provider_class', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11KeyStoreType) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_key_store_type' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_key_store_type', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.KeyStoreFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'key_store_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11ProviderConfigurationFile) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_configuration_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_provider_configuration_file', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.KeyStoreType) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'key_store_type' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_type', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePinPassphraseProvider) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_passphrase_provider' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin_passphrase_provider', the 'type' attribute must be one of ['file-based', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePin) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin', the 'type' attribute must be one of ['file-based', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePinFile) && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin_file', the 'type' attribute must be one of ['file-based', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.PrivateKeyPinFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'private_key_pin_file' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'private_key_pin_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11MaxCacheDuration) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by pingdirectory_key_manager_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_max_cache_duration', the 'type' attribute must be one of ['pkcs11']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9201)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -310,9 +253,97 @@ func modifyPlanKeyManagerProvider(ctx context.Context, req resource.ModifyPlanRe
 		// Every remaining property is supported
 		return
 	}
+	var model keyManagerProviderResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.Pkcs11MaxCacheDuration) {
 		resp.Diagnostics.AddError("Attribute 'pkcs11_max_cache_duration' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsKeyManagerProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_class"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_configuration_file"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("private_key_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_max_cache_duration"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+	}
+}
+
+// Add config validators
+func (r keyManagerProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsKeyManagerProvider()
+}
+
+// Add config validators
+func (r defaultKeyManagerProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsKeyManagerProvider()
 }
 
 // Add optional fields to create request for file-based key-manager-provider

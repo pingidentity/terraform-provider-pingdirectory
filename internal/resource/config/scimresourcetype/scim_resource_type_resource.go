@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -234,30 +235,35 @@ func scimResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *scimResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsScimResourceType() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("optional_schema_extension"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("core_schema"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("required_schema_extension"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapping"},
+		),
+	}
 }
 
-func (r *defaultScimResourceTypeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanScimResourceType(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r scimResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsScimResourceType()
 }
 
-func modifyPlanScimResourceType(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model scimResourceTypeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.OptionalSchemaExtension) && model.Type.ValueString() != "ldap-mapping" {
-		resp.Diagnostics.AddError("Attribute 'optional_schema_extension' not supported by pingdirectory_scim_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'optional_schema_extension', the 'type' attribute must be one of ['ldap-mapping']")
-	}
-	if internaltypes.IsDefined(model.CoreSchema) && model.Type.ValueString() != "ldap-mapping" {
-		resp.Diagnostics.AddError("Attribute 'core_schema' not supported by pingdirectory_scim_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'core_schema', the 'type' attribute must be one of ['ldap-mapping']")
-	}
-	if internaltypes.IsDefined(model.RequiredSchemaExtension) && model.Type.ValueString() != "ldap-mapping" {
-		resp.Diagnostics.AddError("Attribute 'required_schema_extension' not supported by pingdirectory_scim_resource_type resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'required_schema_extension', the 'type' attribute must be one of ['ldap-mapping']")
-	}
+// Add config validators
+func (r defaultScimResourceTypeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsScimResourceType()
 }
 
 // Add optional fields to create request for ldap-pass-through scim-resource-type

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -113,13 +114,14 @@ func (r *synchronizationProviderResource) Schema(ctx context.Context, req resour
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *synchronizationProviderResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model synchronizationProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.NumUpdateReplayThreads) && model.Type.ValueString() != "replication" {
-		resp.Diagnostics.AddError("Attribute 'num_update_replay_threads' not supported by pingdirectory_synchronization_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_update_replay_threads', the 'type' attribute must be one of ['replication']")
+// Add config validators
+func (r synchronizationProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_update_replay_threads"),
+			path.MatchRoot("type"),
+			[]string{"replication"},
+		),
 	}
 }
 

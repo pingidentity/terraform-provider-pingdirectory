@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -154,30 +155,35 @@ func logRotationPolicySchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logRotationPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogRotationPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogRotationPolicy() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rotation_interval"),
+			path.MatchRoot("type"),
+			[]string{"time-limit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("file_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"size-limit"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_of_day"),
+			path.MatchRoot("type"),
+			[]string{"fixed-time"},
+		),
+	}
 }
 
-func (r *defaultLogRotationPolicyResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogRotationPolicy(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logRotationPolicyResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogRotationPolicy()
 }
 
-func modifyPlanLogRotationPolicy(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logRotationPolicyResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.RotationInterval) && model.Type.ValueString() != "time-limit" {
-		resp.Diagnostics.AddError("Attribute 'rotation_interval' not supported by pingdirectory_log_rotation_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'rotation_interval', the 'type' attribute must be one of ['time-limit']")
-	}
-	if internaltypes.IsDefined(model.FileSizeLimit) && model.Type.ValueString() != "size-limit" {
-		resp.Diagnostics.AddError("Attribute 'file_size_limit' not supported by pingdirectory_log_rotation_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'file_size_limit', the 'type' attribute must be one of ['size-limit']")
-	}
-	if internaltypes.IsDefined(model.TimeOfDay) && model.Type.ValueString() != "fixed-time" {
-		resp.Diagnostics.AddError("Attribute 'time_of_day' not supported by pingdirectory_log_rotation_policy resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'time_of_day', the 'type' attribute must be one of ['fixed-time']")
-	}
+// Add config validators
+func (r defaultLogRotationPolicyResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogRotationPolicy()
 }
 
 // Add optional fields to create request for time-limit log-rotation-policy

@@ -233,14 +233,24 @@ func customLoggedStatsSchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
-// Add config validators
-func (r customLoggedStatsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsCustomLoggedStats() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		configvalidators.Implies(
 			path.MatchRoot("regex_pattern"),
 			path.MatchRoot("regex_replacement"),
 		),
 	}
+}
+
+// Add config validators
+func (r customLoggedStatsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsCustomLoggedStats()
+}
+
+// Add config validators
+func (r defaultCustomLoggedStatsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsCustomLoggedStats()
 }
 
 // Add optional fields to create request for custom-logged-stats custom-logged-stats

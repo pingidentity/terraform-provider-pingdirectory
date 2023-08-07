@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -280,68 +281,6 @@ func (r *defaultMonitorProviderResource) ModifyPlan(ctx context.Context, req res
 }
 
 func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model defaultMonitorProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ProlongedOutageDuration) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
-		resp.Diagnostics.AddError("Attribute 'prolonged_outage_duration' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prolonged_outage_duration', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceWarningSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_warning_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_warning_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.SystemUtilizationMonitorLogDirectory) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'system_utilization_monitor_log_directory' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'system_utilization_monitor_log_directory', the 'type' attribute must be one of ['host-system']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceWarningPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_warning_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_warning_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.ProlongedOutageBehavior) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
-		resp.Diagnostics.AddError("Attribute 'prolonged_outage_behavior' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prolonged_outage_behavior', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
-	}
-	if internaltypes.IsDefined(model.OutOfSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'out_of_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'out_of_space_error_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.OutOfSpaceErrorPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'out_of_space_error_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'out_of_space_error_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.AlertFrequency) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'alert_frequency' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'alert_frequency', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.DiskDevices) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'disk_devices' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disk_devices', the 'type' attribute must be one of ['host-system']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceErrorSizeThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_error_size_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_error_size_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.CheckFrequency) && model.Type.ValueString() != "encryption-settings-database-accessibility" {
-		resp.Diagnostics.AddError("Attribute 'check_frequency' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'check_frequency', the 'type' attribute must be one of ['encryption-settings-database-accessibility']")
-	}
-	if internaltypes.IsDefined(model.LowSpaceErrorPercentThreshold) && model.Type.ValueString() != "disk-space-usage" {
-		resp.Diagnostics.AddError("Attribute 'low_space_error_percent_threshold' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'low_space_error_percent_threshold', the 'type' attribute must be one of ['disk-space-usage']")
-	}
-	if internaltypes.IsDefined(model.NetworkDevices) && model.Type.ValueString() != "host-system" {
-		resp.Diagnostics.AddError("Attribute 'network_devices' not supported by pingdirectory_monitor_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'network_devices', the 'type' attribute must be one of ['host-system']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -351,10 +290,105 @@ func modifyPlanMonitorProvider(ctx context.Context, req resource.ModifyPlanReque
 		// Every remaining property is supported
 		return
 	}
+	var model defaultMonitorProviderResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "encryption-settings-database-accessibility" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"encryption_settings_database_accessibility\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsMonitorProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prolonged_outage_duration"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prolonged_outage_behavior"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("check_frequency"),
+			path.MatchRoot("type"),
+			[]string{"encryption-settings-database-accessibility"},
+		),
+	}
+}
+
+// Add config validators
+func (r monitorProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsMonitorProvider()
+}
+
+// Add config validators
+func (r defaultMonitorProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_warning_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_utilization_monitor_log_directory"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_warning_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("out_of_space_error_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("out_of_space_error_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alert_frequency"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disk_devices"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_error_size_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("low_space_error_percent_threshold"),
+			path.MatchRoot("type"),
+			[]string{"disk-space-usage"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("network_devices"),
+			path.MatchRoot("type"),
+			[]string{"host-system"},
+		),
+	}
+	return append(configValidatorsMonitorProvider(), validators...)
 }
 
 // Add optional fields to create request for encryption-settings-database-accessibility monitor-provider

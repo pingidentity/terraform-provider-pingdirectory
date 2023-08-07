@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -517,186 +518,232 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *virtualAttributeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsVirtualAttribute() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_explicit_request_by_name"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "replication-state-detail", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_source_attribute"),
+			path.MatchRoot("type"),
+			[]string{"equality-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_match_all"),
+			path.MatchRoot("type"),
+			[]string{"equality-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("referenced_by_attribute"),
+			path.MatchRoot("type"),
+			[]string{"identify-references"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("direct_memberships_only"),
+			path.MatchRoot("type"),
+			[]string{"is-member-of"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("description"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bypass_access_control_for_searches"),
+			path.MatchRoot("type"),
+			[]string{"mirror"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_attribute"),
+			path.MatchRoot("type"),
+			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_virtual_attribute_evaluation_order_index"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_entry_dn_map"),
+			path.MatchRoot("type"),
+			[]string{"mirror"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_attribute"),
+			path.MatchRoot("type"),
+			[]string{"mirror"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("value_pattern"),
+			path.MatchRoot("type"),
+			[]string{"constructed"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_scope"),
+			path.MatchRoot("type"),
+			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_base_dn_type"),
+			path.MatchRoot("type"),
+			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("source_entry_dn_attribute"),
+			path.MatchRoot("type"),
+			[]string{"mirror"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("value"),
+			path.MatchRoot("type"),
+			[]string{"user-defined"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_dn_attribute"),
+			path.MatchRoot("type"),
+			[]string{"reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_custom_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conflict_behavior"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_filter"),
+			path.MatchRoot("type"),
+			[]string{"equality-join", "reverse-dn-join", "dn-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_connection_policy"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("join_target_attribute"),
+			path.MatchRoot("type"),
+			[]string{"equality-join"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_group_filter"),
+			path.MatchRoot("type"),
+			[]string{"is-member-of"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("group_dn"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "password-policy-state-json", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_retrieving_membership"),
+			path.MatchRoot("type"),
+			[]string{"member"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("rewrite_search_filters"),
+			path.MatchRoot("type"),
+			[]string{"is-member-of"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("reference_search_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"identify-references"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("multiple_virtual_attribute_merge_behavior"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_index_conflicts"),
+			path.MatchRoot("type"),
+			[]string{"mirror", "entry-checksum", "member-of-server-group", "constructed", "is-member-of", "custom", "num-subordinates", "reverse-dn-join", "identify-references", "user-defined", "current-time", "short-unique-id", "entry-dn", "has-subordinates", "equality-join", "groovy-scripted", "instance-name", "member", "subschema-subentry", "dn-join", "third-party"},
+		),
+	}
 }
 
-func (r *defaultVirtualAttributeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanVirtualAttribute(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r virtualAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsVirtualAttribute()
 }
 
-func modifyPlanVirtualAttribute(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultVirtualAttributeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.RequireExplicitRequestByName) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "replication-state-detail" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'require_explicit_request_by_name' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'require_explicit_request_by_name', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'replication-state-detail', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
+// Add config validators
+func (r defaultVirtualAttributeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_attribute"),
+			path.MatchRoot("type"),
+			[]string{"entry-checksum"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sequence_number_attribute"),
+			path.MatchRoot("type"),
+			[]string{"short-unique-id"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("return_utc_time"),
+			path.MatchRoot("type"),
+			[]string{"current-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_milliseconds"),
+			path.MatchRoot("type"),
+			[]string{"current-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_operational_attributes"),
+			path.MatchRoot("type"),
+			[]string{"entry-checksum"},
+		),
 	}
-	if internaltypes.IsDefined(model.JoinSourceAttribute) && model.Type.ValueString() != "equality-join" {
-		resp.Diagnostics.AddError("Attribute 'join_source_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_source_attribute', the 'type' attribute must be one of ['equality-join']")
-	}
-	if internaltypes.IsDefined(model.JoinMatchAll) && model.Type.ValueString() != "equality-join" {
-		resp.Diagnostics.AddError("Attribute 'join_match_all' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_match_all', the 'type' attribute must be one of ['equality-join']")
-	}
-	if internaltypes.IsDefined(model.ReferencedByAttribute) && model.Type.ValueString() != "identify-references" {
-		resp.Diagnostics.AddError("Attribute 'referenced_by_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'referenced_by_attribute', the 'type' attribute must be one of ['identify-references']")
-	}
-	if internaltypes.IsDefined(model.DirectMembershipsOnly) && model.Type.ValueString() != "is-member-of" {
-		resp.Diagnostics.AddError("Attribute 'direct_memberships_only' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'direct_memberships_only', the 'type' attribute must be one of ['is-member-of']")
-	}
-	if internaltypes.IsDefined(model.Description) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'description' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'description', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.ExcludedAttribute) && model.Type.ValueString() != "entry-checksum" {
-		resp.Diagnostics.AddError("Attribute 'excluded_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_attribute', the 'type' attribute must be one of ['entry-checksum']")
-	}
-	if internaltypes.IsDefined(model.SequenceNumberAttribute) && model.Type.ValueString() != "short-unique-id" {
-		resp.Diagnostics.AddError("Attribute 'sequence_number_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sequence_number_attribute', the 'type' attribute must be one of ['short-unique-id']")
-	}
-	if internaltypes.IsDefined(model.BypassAccessControlForSearches) && model.Type.ValueString() != "mirror" {
-		resp.Diagnostics.AddError("Attribute 'bypass_access_control_for_searches' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bypass_access_control_for_searches', the 'type' attribute must be one of ['mirror']")
-	}
-	if internaltypes.IsDefined(model.JoinAttribute) && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_attribute', the 'type' attribute must be one of ['equality-join', 'reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.MultipleVirtualAttributeEvaluationOrderIndex) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'multiple_virtual_attribute_evaluation_order_index' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'multiple_virtual_attribute_evaluation_order_index', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.SourceEntryDNMap) && model.Type.ValueString() != "mirror" {
-		resp.Diagnostics.AddError("Attribute 'source_entry_dn_map' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'source_entry_dn_map', the 'type' attribute must be one of ['mirror']")
-	}
-	if internaltypes.IsDefined(model.SourceAttribute) && model.Type.ValueString() != "mirror" {
-		resp.Diagnostics.AddError("Attribute 'source_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'source_attribute', the 'type' attribute must be one of ['mirror']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ValuePattern) && model.Type.ValueString() != "constructed" {
-		resp.Diagnostics.AddError("Attribute 'value_pattern' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'value_pattern', the 'type' attribute must be one of ['constructed']")
-	}
-	if internaltypes.IsDefined(model.JoinScope) && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_scope' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_scope', the 'type' attribute must be one of ['equality-join', 'reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.AttributeType) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'attribute_type' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'attribute_type', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.JoinBaseDNType) && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_base_dn_type' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_base_dn_type', the 'type' attribute must be one of ['equality-join', 'reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.ReturnUtcTime) && model.Type.ValueString() != "current-time" {
-		resp.Diagnostics.AddError("Attribute 'return_utc_time' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'return_utc_time', the 'type' attribute must be one of ['current-time']")
-	}
-	if internaltypes.IsDefined(model.SourceEntryDNAttribute) && model.Type.ValueString() != "mirror" {
-		resp.Diagnostics.AddError("Attribute 'source_entry_dn_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'source_entry_dn_attribute', the 'type' attribute must be one of ['mirror']")
-	}
-	if internaltypes.IsDefined(model.Value) && model.Type.ValueString() != "user-defined" {
-		resp.Diagnostics.AddError("Attribute 'value' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'value', the 'type' attribute must be one of ['user-defined']")
-	}
-	if internaltypes.IsDefined(model.JoinDNAttribute) && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_dn_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_dn_attribute', the 'type' attribute must be one of ['reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.JoinSizeLimit) && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_size_limit' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_size_limit', the 'type' attribute must be one of ['equality-join', 'reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.JoinCustomBaseDN) && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_custom_base_dn' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_custom_base_dn', the 'type' attribute must be one of ['equality-join', 'reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.ConflictBehavior) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'conflict_behavior' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conflict_behavior', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.JoinFilter) && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "dn-join" {
-		resp.Diagnostics.AddError("Attribute 'join_filter' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_filter', the 'type' attribute must be one of ['equality-join', 'reverse-dn-join', 'dn-join']")
-	}
-	if internaltypes.IsDefined(model.ClientConnectionPolicy) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'client_connection_policy' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'client_connection_policy', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.BaseDN) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'base_dn' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'base_dn', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.JoinTargetAttribute) && model.Type.ValueString() != "equality-join" {
-		resp.Diagnostics.AddError("Attribute 'join_target_attribute' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'join_target_attribute', the 'type' attribute must be one of ['equality-join']")
-	}
-	if internaltypes.IsDefined(model.Filter) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.IncludeMilliseconds) && model.Type.ValueString() != "current-time" {
-		resp.Diagnostics.AddError("Attribute 'include_milliseconds' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_milliseconds', the 'type' attribute must be one of ['current-time']")
-	}
-	if internaltypes.IsDefined(model.IncludedGroupFilter) && model.Type.ValueString() != "is-member-of" {
-		resp.Diagnostics.AddError("Attribute 'included_group_filter' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_group_filter', the 'type' attribute must be one of ['is-member-of']")
-	}
-	if internaltypes.IsDefined(model.GroupDN) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "password-policy-state-json" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'group_dn' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'group_dn', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.AllowRetrievingMembership) && model.Type.ValueString() != "member" {
-		resp.Diagnostics.AddError("Attribute 'allow_retrieving_membership' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_retrieving_membership', the 'type' attribute must be one of ['member']")
-	}
-	if internaltypes.IsDefined(model.RewriteSearchFilters) && model.Type.ValueString() != "is-member-of" {
-		resp.Diagnostics.AddError("Attribute 'rewrite_search_filters' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'rewrite_search_filters', the 'type' attribute must be one of ['is-member-of']")
-	}
-	if internaltypes.IsDefined(model.ExcludeOperationalAttributes) && model.Type.ValueString() != "entry-checksum" {
-		resp.Diagnostics.AddError("Attribute 'exclude_operational_attributes' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_operational_attributes', the 'type' attribute must be one of ['entry-checksum']")
-	}
-	if internaltypes.IsDefined(model.ReferenceSearchBaseDN) && model.Type.ValueString() != "identify-references" {
-		resp.Diagnostics.AddError("Attribute 'reference_search_base_dn' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'reference_search_base_dn', the 'type' attribute must be one of ['identify-references']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.MultipleVirtualAttributeMergeBehavior) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'multiple_virtual_attribute_merge_behavior' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'multiple_virtual_attribute_merge_behavior', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AllowIndexConflicts) && model.Type.ValueString() != "mirror" && model.Type.ValueString() != "entry-checksum" && model.Type.ValueString() != "member-of-server-group" && model.Type.ValueString() != "constructed" && model.Type.ValueString() != "is-member-of" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "num-subordinates" && model.Type.ValueString() != "reverse-dn-join" && model.Type.ValueString() != "identify-references" && model.Type.ValueString() != "user-defined" && model.Type.ValueString() != "current-time" && model.Type.ValueString() != "short-unique-id" && model.Type.ValueString() != "entry-dn" && model.Type.ValueString() != "has-subordinates" && model.Type.ValueString() != "equality-join" && model.Type.ValueString() != "groovy-scripted" && model.Type.ValueString() != "instance-name" && model.Type.ValueString() != "member" && model.Type.ValueString() != "subschema-subentry" && model.Type.ValueString() != "dn-join" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'allow_index_conflicts' not supported by pingdirectory_virtual_attribute resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_index_conflicts', the 'type' attribute must be one of ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'member', 'subschema-subentry', 'dn-join', 'third-party']")
-	}
+	return append(configValidatorsVirtualAttribute(), validators...)
 }
 
 // Add optional fields to create request for mirror virtual-attribute

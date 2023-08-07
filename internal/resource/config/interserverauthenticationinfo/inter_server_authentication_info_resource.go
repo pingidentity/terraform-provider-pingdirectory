@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -149,25 +150,29 @@ func (r *interServerAuthenticationInfoResource) Schema(ctx context.Context, req 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *interServerAuthenticationInfoResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model interServerAuthenticationInfoResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.BindDN) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'bind_dn' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bind_dn', the 'type' attribute must be one of ['password']")
-	}
-	if internaltypes.IsDefined(model.Password) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'password' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password', the 'type' attribute must be one of ['password']")
-	}
-	if internaltypes.IsDefined(model.AuthenticationType) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'authentication_type' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'authentication_type', the 'type' attribute must be one of ['password']")
-	}
-	if internaltypes.IsDefined(model.Username) && model.Type.ValueString() != "password" {
-		resp.Diagnostics.AddError("Attribute 'username' not supported by pingdirectory_inter_server_authentication_info resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'username', the 'type' attribute must be one of ['password']")
+// Add config validators
+func (r interServerAuthenticationInfoResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_dn"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authentication_type"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"password"},
+		),
 	}
 }
 

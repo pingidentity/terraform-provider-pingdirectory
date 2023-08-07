@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -850,288 +851,6 @@ func (r *defaultHttpServletExtensionResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model defaultHttpServletExtensionResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'id_token_validator' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id_token_validator', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.AccessTokenValidator) && model.Type.ValueString() != "delegated-admin" && model.Type.ValueString() != "file-server" && model.Type.ValueString() != "consent" && model.Type.ValueString() != "scim2" && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'access_token_validator' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_token_validator', the 'type' attribute must be one of ['delegated-admin', 'file-server', 'consent', 'scim2', 'directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.StaticContentDirectory) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'static_content_directory' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'static_content_directory', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.LabelNameValuePair) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'label_name_value_pair' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'label_name_value_pair', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.IncludeLDAPBaseDN) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'include_ldap_base_dn' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_ldap_base_dn', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.AdditionalResponseContents) && model.Type.ValueString() != "availability-state" {
-		resp.Diagnostics.AddError("Attribute 'additional_response_contents' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'additional_response_contents', the 'type' attribute must be one of ['availability-state']")
-	}
-	if internaltypes.IsDefined(model.MapAccessTokensToLocalUsers) && model.Type.ValueString() != "scim2" {
-		resp.Diagnostics.AddError("Attribute 'map_access_tokens_to_local_users' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'map_access_tokens_to_local_users', the 'type' attribute must be one of ['scim2']")
-	}
-	if internaltypes.IsDefined(model.ExposeSessionAttributes) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'expose_session_attributes' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'expose_session_attributes', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.RequireFileServletAccessPrivilege) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'require_file_servlet_access_privilege' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'require_file_servlet_access_privilege', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.DegradedStatusCode) && model.Type.ValueString() != "availability-state" {
-		resp.Diagnostics.AddError("Attribute 'degraded_status_code' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'degraded_status_code', the 'type' attribute must be one of ['availability-state']")
-	}
-	if internaltypes.IsDefined(model.AvailableStatusCode) && model.Type.ValueString() != "availability-state" {
-		resp.Diagnostics.AddError("Attribute 'available_status_code' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'available_status_code', the 'type' attribute must be one of ['availability-state']")
-	}
-	if internaltypes.IsDefined(model.RequireAuthentication) && model.Type.ValueString() != "file-server" && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'require_authentication' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'require_authentication', the 'type' attribute must be one of ['file-server', 'velocity']")
-	}
-	if internaltypes.IsDefined(model.EnableDirectoryIndexing) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'enable_directory_indexing' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'enable_directory_indexing', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.SwaggerEnabled) && model.Type.ValueString() != "scim2" {
-		resp.Diagnostics.AddError("Attribute 'swagger_enabled' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'swagger_enabled', the 'type' attribute must be one of ['scim2']")
-	}
-	if internaltypes.IsDefined(model.IncludeMonitorAttributeNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'include_monitor_attribute_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_monitor_attribute_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.BearerTokenAuthEnabled) && model.Type.ValueString() != "consent" {
-		resp.Diagnostics.AddError("Attribute 'bearer_token_auth_enabled' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bearer_token_auth_enabled', the 'type' attribute must be one of ['consent']")
-	}
-	if internaltypes.IsDefined(model.Audience) && model.Type.ValueString() != "delegated-admin" && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'audience' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'audience', the 'type' attribute must be one of ['delegated-admin', 'directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.ExposeRequestAttributes) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'expose_request_attributes' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'expose_request_attributes', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.BulkMaxPayloadSize) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'bulk_max_payload_size' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bulk_max_payload_size', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.AllowedAuthenticationType) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'allowed_authentication_type' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_authentication_type', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.StaticContextPath) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'static_context_path' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'static_context_path', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.ResourceMappingFile) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'resource_mapping_file' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'resource_mapping_file', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.RejectExpansionAttribute) && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'reject_expansion_attribute' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'reject_expansion_attribute', the 'type' attribute must be one of ['directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.BulkMaxConcurrentRequests) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'bulk_max_concurrent_requests' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bulk_max_concurrent_requests', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.IncludeLocationNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'include_location_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_location_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.IncludeResponseBody) && model.Type.ValueString() != "availability-state" {
-		resp.Diagnostics.AddError("Attribute 'include_response_body' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_response_body', the 'type' attribute must be one of ['availability-state']")
-	}
-	if internaltypes.IsDefined(model.Server) && model.Type.ValueString() != "quickstart" {
-		resp.Diagnostics.AddError("Attribute 'server' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server', the 'type' attribute must be one of ['quickstart']")
-	}
-	if internaltypes.IsDefined(model.TemporaryDirectory) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'temporary_directory' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'temporary_directory', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.AllowContextOverride) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'allow_context_override' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_context_override', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.TemporaryDirectoryPermissions) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'temporary_directory_permissions' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'temporary_directory_permissions', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.MaxResults) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'max_results' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_results', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.ExposeServerContext) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'expose_server_context' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'expose_server_context', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.DebugEnabled) && model.Type.ValueString() != "scim2" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'debug_enabled' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'debug_enabled', the 'type' attribute must be one of ['scim2', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.BaseContextPath) && model.Type.ValueString() != "availability-state" && model.Type.ValueString() != "prometheus-monitoring" && model.Type.ValueString() != "file-server" && model.Type.ValueString() != "velocity" && model.Type.ValueString() != "scim2" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'base_context_path' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'base_context_path', the 'type' attribute must be one of ['availability-state', 'prometheus-monitoring', 'file-server', 'velocity', 'scim2', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.DocumentRootDirectory) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'document_root_directory' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'document_root_directory', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.SchemasEndpointObjectclass) && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'schemas_endpoint_objectclass' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'schemas_endpoint_objectclass', the 'type' attribute must be one of ['directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.IncludeProductNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'include_product_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_product_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.BasicAuthEnabled) && model.Type.ValueString() != "delegated-admin" && model.Type.ValueString() != "consent" && model.Type.ValueString() != "directory-rest-api" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'basic_auth_enabled' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'basic_auth_enabled', the 'type' attribute must be one of ['delegated-admin', 'consent', 'directory-rest-api', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.IndexFile) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'index_file' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'index_file', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.IncludeMonitorObjectClassNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'include_monitor_object_class_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_monitor_object_class_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AccessTokenScope) && model.Type.ValueString() != "delegated-admin" && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'access_token_scope' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_token_scope', the 'type' attribute must be one of ['delegated-admin', 'directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.RequireGroup) && model.Type.ValueString() != "file-server" {
-		resp.Diagnostics.AddError("Attribute 'require_group' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'require_group', the 'type' attribute must be one of ['file-server']")
-	}
-	if internaltypes.IsDefined(model.MimeTypesFile) && model.Type.ValueString() != "file-server" && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'mime_types_file' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'mime_types_file', the 'type' attribute must be one of ['file-server', 'velocity']")
-	}
-	if internaltypes.IsDefined(model.IncludeStackTrace) && model.Type.ValueString() != "scim2" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'include_stack_trace' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_stack_trace', the 'type' attribute must be one of ['scim2', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.IncludeInstanceNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'include_instance_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_instance_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.AlwaysUsePermissiveModify) && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'always_use_permissive_modify' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'always_use_permissive_modify', the 'type' attribute must be one of ['directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.StaticCustomDirectory) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'static_custom_directory' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'static_custom_directory', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.OverrideStatusCode) && model.Type.ValueString() != "availability-state" {
-		resp.Diagnostics.AddError("Attribute 'override_status_code' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'override_status_code', the 'type' attribute must be one of ['availability-state']")
-	}
-	if internaltypes.IsDefined(model.DebugType) && model.Type.ValueString() != "scim2" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'debug_type' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'debug_type', the 'type' attribute must be one of ['scim2', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.AlwaysIncludeMonitorEntryNameLabel) && model.Type.ValueString() != "prometheus-monitoring" {
-		resp.Diagnostics.AddError("Attribute 'always_include_monitor_entry_name_label' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'always_include_monitor_entry_name_label', the 'type' attribute must be one of ['prometheus-monitoring']")
-	}
-	if internaltypes.IsDefined(model.EntityTagLDAPAttribute) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'entity_tag_ldap_attribute' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'entity_tag_ldap_attribute', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.CharacterEncoding) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'character_encoding' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'character_encoding', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.DefaultOperationalAttribute) && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'default_operational_attribute' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_operational_attribute', the 'type' attribute must be one of ['directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.AllowedControl) && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'allowed_control' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_control', the 'type' attribute must be one of ['directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.TemplateDirectory) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'template_directory' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'template_directory', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.IdentityMapper) && model.Type.ValueString() != "delegated-admin" && model.Type.ValueString() != "file-server" && model.Type.ValueString() != "velocity" && model.Type.ValueString() != "consent" && model.Type.ValueString() != "config" && model.Type.ValueString() != "directory-rest-api" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'identity_mapper' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'identity_mapper', the 'type' attribute must be one of ['delegated-admin', 'file-server', 'velocity', 'consent', 'config', 'directory-rest-api', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.DefaultMIMEType) && model.Type.ValueString() != "file-server" && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'default_mime_type' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_mime_type', the 'type' attribute must be one of ['file-server', 'velocity']")
-	}
-	if internaltypes.IsDefined(model.StaticResponseHeader) && model.Type.ValueString() != "velocity" {
-		resp.Diagnostics.AddError("Attribute 'static_response_header' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'static_response_header', the 'type' attribute must be one of ['velocity']")
-	}
-	if internaltypes.IsDefined(model.ExcludeLDAPObjectclass) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'exclude_ldap_objectclass' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_ldap_objectclass', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.DebugLevel) && model.Type.ValueString() != "scim2" && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'debug_level' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'debug_level', the 'type' attribute must be one of ['scim2', 'ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.IncludeLDAPObjectclass) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'include_ldap_objectclass' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_ldap_objectclass', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.ExcludeLDAPBaseDN) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'exclude_ldap_base_dn' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_ldap_base_dn', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.BulkMaxOperations) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'bulk_max_operations' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bulk_max_operations', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
-	if internaltypes.IsDefined(model.MaxPageSize) && model.Type.ValueString() != "directory-rest-api" {
-		resp.Diagnostics.AddError("Attribute 'max_page_size' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_page_size', the 'type' attribute must be one of ['directory-rest-api']")
-	}
-	if internaltypes.IsDefined(model.UnavailableStatusCode) && model.Type.ValueString() != "availability-state" {
-		resp.Diagnostics.AddError("Attribute 'unavailable_status_code' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'unavailable_status_code', the 'type' attribute must be one of ['availability-state']")
-	}
-	if internaltypes.IsDefined(model.OAuthTokenHandler) && model.Type.ValueString() != "ldap-mapped-scim" {
-		resp.Diagnostics.AddError("Attribute 'oauth_token_handler' not supported by pingdirectory_http_servlet_extension resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'oauth_token_handler', the 'type' attribute must be one of ['ldap-mapped-scim']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -1141,6 +860,8 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 		// Every remaining property is supported
 		return
 	}
+	var model defaultHttpServletExtensionResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.AlwaysUsePermissiveModify) {
 		resp.Diagnostics.AddError("Attribute 'always_use_permissive_modify' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -1157,6 +878,374 @@ func modifyPlanHttpServletExtension(ctx context.Context, req resource.ModifyPlan
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"prometheus_monitoring\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsHttpServletExtension() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"delegated-admin", "file-server", "consent", "scim2", "directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("label_name_value_pair"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_ldap_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("additional_response_contents"),
+			path.MatchRoot("type"),
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_file_servlet_access_privilege"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("degraded_status_code"),
+			path.MatchRoot("type"),
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("available_status_code"),
+			path.MatchRoot("type"),
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_authentication"),
+			path.MatchRoot("type"),
+			[]string{"file-server", "velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_directory_indexing"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_attribute_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bulk_max_payload_size"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_authentication_type"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("resource_mapping_file"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bulk_max_concurrent_requests"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_location_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_response_body"),
+			path.MatchRoot("type"),
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server"),
+			path.MatchRoot("type"),
+			[]string{"quickstart"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("temporary_directory"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("temporary_directory_permissions"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_results"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_enabled"),
+			path.MatchRoot("type"),
+			[]string{"scim2", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_context_path"),
+			path.MatchRoot("type"),
+			[]string{"availability-state", "prometheus-monitoring", "file-server", "velocity", "scim2", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("document_root_directory"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_product_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("basic_auth_enabled"),
+			path.MatchRoot("type"),
+			[]string{"delegated-admin", "consent", "directory-rest-api", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_file"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_monitor_object_class_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_group"),
+			path.MatchRoot("type"),
+			[]string{"file-server"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mime_types_file"),
+			path.MatchRoot("type"),
+			[]string{"file-server", "velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_stack_trace"),
+			path.MatchRoot("type"),
+			[]string{"scim2", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_instance_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("override_status_code"),
+			path.MatchRoot("type"),
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_type"),
+			path.MatchRoot("type"),
+			[]string{"scim2", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_include_monitor_entry_name_label"),
+			path.MatchRoot("type"),
+			[]string{"prometheus-monitoring"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("entity_tag_ldap_attribute"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"delegated-admin", "file-server", "velocity", "consent", "config", "directory-rest-api", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_mime_type"),
+			path.MatchRoot("type"),
+			[]string{"file-server", "velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_ldap_objectclass"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("debug_level"),
+			path.MatchRoot("type"),
+			[]string{"scim2", "ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_ldap_objectclass"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_ldap_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bulk_max_operations"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("unavailable_status_code"),
+			path.MatchRoot("type"),
+			[]string{"availability-state"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("oauth_token_handler"),
+			path.MatchRoot("type"),
+			[]string{"ldap-mapped-scim"},
+		),
+	}
+}
+
+// Add config validators
+func (r httpServletExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsHttpServletExtension()
+}
+
+// Add config validators
+func (r defaultHttpServletExtensionResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("static_content_directory"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("map_access_tokens_to_local_users"),
+			path.MatchRoot("type"),
+			[]string{"scim2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expose_session_attributes"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("swagger_enabled"),
+			path.MatchRoot("type"),
+			[]string{"scim2"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bearer_token_auth_enabled"),
+			path.MatchRoot("type"),
+			[]string{"consent"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("audience"),
+			path.MatchRoot("type"),
+			[]string{"delegated-admin", "directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expose_request_attributes"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("static_context_path"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("reject_expansion_attribute"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_context_override"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("expose_server_context"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("schemas_endpoint_objectclass"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_scope"),
+			path.MatchRoot("type"),
+			[]string{"delegated-admin", "directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("always_use_permissive_modify"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("static_custom_directory"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("character_encoding"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_operational_attribute"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_control"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("template_directory"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("static_response_header"),
+			path.MatchRoot("type"),
+			[]string{"velocity"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_page_size"),
+			path.MatchRoot("type"),
+			[]string{"directory-rest-api"},
+		),
+	}
+	return append(configValidatorsHttpServletExtension(), validators...)
 }
 
 // Add optional fields to create request for quickstart http-servlet-extension

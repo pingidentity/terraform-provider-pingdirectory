@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -395,160 +396,6 @@ func (r *defaultCipherStreamProviderResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model cipherStreamProviderResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.SecretFieldName) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_field_name' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_field_name', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.VaultEncryptionMetadataFile) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_encryption_metadata_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_encryption_metadata_file', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePin) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePinEnvironmentVariable) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_environment_variable' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin_environment_variable', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.SecretVersionID) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_version_id' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_version_id', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.AwsRegionName) && model.Type.ValueString() != "amazon-key-management-service" {
-		resp.Diagnostics.AddError("Attribute 'aws_region_name' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_region_name', the 'type' attribute must be one of ['amazon-key-management-service']")
-	}
-	if internaltypes.IsDefined(model.WaitForPasswordFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'wait_for_password_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'wait_for_password_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.PasswordFile) && model.Type.ValueString() != "file-based" {
-		resp.Diagnostics.AddError("Attribute 'password_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_file', the 'type' attribute must be one of ['file-based']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11ProviderConfigurationFile) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_configuration_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_provider_configuration_file', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.VaultExternalServer) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_external_server' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_external_server', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.KmsEncryptionKeyArn) && model.Type.ValueString() != "amazon-key-management-service" {
-		resp.Diagnostics.AddError("Attribute 'kms_encryption_key_arn' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'kms_encryption_key_arn', the 'type' attribute must be one of ['amazon-key-management-service']")
-	}
-	if internaltypes.IsDefined(model.IterationCount) && model.Type.ValueString() != "amazon-key-management-service" && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "pkcs11" && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'iteration_count', the 'type' attribute must be one of ['amazon-key-management-service', 'amazon-secrets-manager', 'azure-key-vault', 'file-based', 'conjur', 'pkcs11', 'vault']")
-	}
-	if internaltypes.IsDefined(model.KeyVaultURI) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'key_vault_uri' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_vault_uri', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreType) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_type' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_type', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePin) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreFile) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_file', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.AzureAuthenticationMethod) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'azure_authentication_method' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'azure_authentication_method', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.SecretVersionStage) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_version_stage' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_version_stage', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.ConjurExternalServer) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_external_server' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_external_server', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11ProviderClass) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_provider_class' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_provider_class', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.AwsExternalServer) && model.Type.ValueString() != "amazon-key-management-service" && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'aws_external_server' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_external_server', the 'type' attribute must be one of ['amazon-key-management-service', 'amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.EncryptionMetadataFile) && model.Type.ValueString() != "amazon-secrets-manager" && model.Type.ValueString() != "azure-key-vault" && model.Type.ValueString() != "file-based" && model.Type.ValueString() != "conjur" && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'encryption_metadata_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_metadata_file', the 'type' attribute must be one of ['amazon-secrets-manager', 'azure-key-vault', 'file-based', 'conjur', 'pkcs11']")
-	}
-	if internaltypes.IsDefined(model.Pkcs11KeyStoreType) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'pkcs11_key_store_type' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'pkcs11_key_store_type', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.VaultSecretFieldName) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_secret_field_name' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_secret_field_name', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.VaultSecretPath) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_secret_path' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_secret_path', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.SecretName) && model.Type.ValueString() != "azure-key-vault" {
-		resp.Diagnostics.AddError("Attribute 'secret_name' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_name', the 'type' attribute must be one of ['azure-key-vault']")
-	}
-	if internaltypes.IsDefined(model.VaultServerBaseURI) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_server_base_uri' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_server_base_uri', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.SecretID) && model.Type.ValueString() != "amazon-secrets-manager" {
-		resp.Diagnostics.AddError("Attribute 'secret_id' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'secret_id', the 'type' attribute must be one of ['amazon-secrets-manager']")
-	}
-	if internaltypes.IsDefined(model.AwsAccessKeyID) && model.Type.ValueString() != "amazon-key-management-service" {
-		resp.Diagnostics.AddError("Attribute 'aws_access_key_id' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_access_key_id', the 'type' attribute must be one of ['amazon-key-management-service']")
-	}
-	if internaltypes.IsDefined(model.AwsSecretAccessKey) && model.Type.ValueString() != "amazon-key-management-service" {
-		resp.Diagnostics.AddError("Attribute 'aws_secret_access_key' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'aws_secret_access_key', the 'type' attribute must be one of ['amazon-key-management-service']")
-	}
-	if internaltypes.IsDefined(model.VaultAuthenticationMethod) && model.Type.ValueString() != "vault" {
-		resp.Diagnostics.AddError("Attribute 'vault_authentication_method' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'vault_authentication_method', the 'type' attribute must be one of ['vault']")
-	}
-	if internaltypes.IsDefined(model.EncryptedPassphraseFile) && model.Type.ValueString() != "amazon-key-management-service" {
-		resp.Diagnostics.AddError("Attribute 'encrypted_passphrase_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encrypted_passphrase_file', the 'type' attribute must be one of ['amazon-key-management-service']")
-	}
-	if internaltypes.IsDefined(model.SslCertNickname) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'ssl_cert_nickname' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ssl_cert_nickname', the 'type' attribute must be one of ['pkcs11']")
-	}
-	if internaltypes.IsDefined(model.ConjurSecretRelativePath) && model.Type.ValueString() != "conjur" {
-		resp.Diagnostics.AddError("Attribute 'conjur_secret_relative_path' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'conjur_secret_relative_path', the 'type' attribute must be one of ['conjur']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KeyStorePinFile) && model.Type.ValueString() != "pkcs11" {
-		resp.Diagnostics.AddError("Attribute 'key_store_pin_file' not supported by pingdirectory_cipher_stream_provider resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_store_pin_file', the 'type' attribute must be one of ['pkcs11']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -558,6 +405,8 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 		// Every remaining property is supported
 		return
 	}
+	var model cipherStreamProviderResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.IterationCount) {
 		resp.Diagnostics.AddError("Attribute 'iteration_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -573,6 +422,212 @@ func modifyPlanCipherStreamProvider(ctx context.Context, req resource.ModifyPlan
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsCipherStreamProvider() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_encryption_metadata_file"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_environment_variable"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_version_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_region_name"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("wait_for_password_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_file"),
+			path.MatchRoot("type"),
+			[]string{"file-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_configuration_file"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_external_server"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("kms_encryption_key_arn"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("iteration_count"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service", "amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "pkcs11", "vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_vault_uri"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("azure_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_version_stage"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_external_server"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_provider_class"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_external_server"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service", "amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_metadata_file"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager", "azure-key-vault", "file-based", "conjur", "pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("pkcs11_key_store_type"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_field_name"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_secret_path"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_name"),
+			path.MatchRoot("type"),
+			[]string{"azure-key-vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_server_base_uri"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("secret_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-secrets-manager"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_access_key_id"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("aws_secret_access_key"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("vault_authentication_method"),
+			path.MatchRoot("type"),
+			[]string{"vault"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encrypted_passphrase_file"),
+			path.MatchRoot("type"),
+			[]string{"amazon-key-management-service"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ssl_cert_nickname"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("conjur_secret_relative_path"),
+			path.MatchRoot("type"),
+			[]string{"conjur"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"pkcs11"},
+		),
+	}
+}
+
+// Add config validators
+func (r cipherStreamProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsCipherStreamProvider()
+}
+
+// Add config validators
+func (r defaultCipherStreamProviderResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsCipherStreamProvider()
 }
 
 // Add optional fields to create request for amazon-key-management-service cipher-stream-provider

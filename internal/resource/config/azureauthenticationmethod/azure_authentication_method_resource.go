@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -160,30 +161,35 @@ func azureAuthenticationMethodSchema(ctx context.Context, req resource.SchemaReq
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *azureAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanAzureAuthenticationMethod(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsAzureAuthenticationMethod() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password"),
+			path.MatchRoot("type"),
+			[]string{"username-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_secret"),
+			path.MatchRoot("type"),
+			[]string{"client-secret"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("username"),
+			path.MatchRoot("type"),
+			[]string{"username-password"},
+		),
+	}
 }
 
-func (r *defaultAzureAuthenticationMethodResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanAzureAuthenticationMethod(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r azureAuthenticationMethodResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAzureAuthenticationMethod()
 }
 
-func modifyPlanAzureAuthenticationMethod(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model azureAuthenticationMethodResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Password) && model.Type.ValueString() != "username-password" {
-		resp.Diagnostics.AddError("Attribute 'password' not supported by pingdirectory_azure_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password', the 'type' attribute must be one of ['username-password']")
-	}
-	if internaltypes.IsDefined(model.ClientSecret) && model.Type.ValueString() != "client-secret" {
-		resp.Diagnostics.AddError("Attribute 'client_secret' not supported by pingdirectory_azure_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'client_secret', the 'type' attribute must be one of ['client-secret']")
-	}
-	if internaltypes.IsDefined(model.Username) && model.Type.ValueString() != "username-password" {
-		resp.Diagnostics.AddError("Attribute 'username' not supported by pingdirectory_azure_authentication_method resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'username', the 'type' attribute must be one of ['username-password']")
-	}
+// Add config validators
+func (r defaultAzureAuthenticationMethodResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAzureAuthenticationMethod()
 }
 
 // Add optional fields to create request for default azure-authentication-method

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -198,46 +199,55 @@ func uncachedAttributeCriteriaSchema(ctx context.Context, req resource.SchemaReq
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *uncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedAttributeCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsUncachedAttributeCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_value_count"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("min_total_value_size"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+	}
 }
 
-func (r *defaultUncachedAttributeCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedAttributeCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r uncachedAttributeCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedAttributeCriteria()
 }
 
-func modifyPlanUncachedAttributeCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model uncachedAttributeCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MinValueCount) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'min_value_count' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_value_count', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.MinTotalValueSize) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'min_total_value_size' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'min_total_value_size', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AttributeType) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'attribute_type' not supported by pingdirectory_uncached_attribute_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'attribute_type', the 'type' attribute must be one of ['simple']")
-	}
+// Add config validators
+func (r defaultUncachedAttributeCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedAttributeCriteria()
 }
 
 // Add optional fields to create request for default uncached-attribute-criteria

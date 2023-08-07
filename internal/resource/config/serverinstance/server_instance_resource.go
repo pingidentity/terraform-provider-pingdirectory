@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -298,101 +299,124 @@ func (r *serverInstanceResource) Schema(ctx context.Context, req resource.Schema
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *serverInstanceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model serverInstanceResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.JmxPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'jmx_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jmx_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.StartTLSEnabled) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'start_tls_enabled' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'start_tls_enabled', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ReplicationSetName) && model.Type.ValueString() != "directory" {
-		resp.Diagnostics.AddError("Attribute 'replication_set_name' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'replication_set_name', the 'type' attribute must be one of ['directory']")
-	}
-	if internaltypes.IsDefined(model.MemberOfServerGroup) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'member_of_server_group' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'member_of_server_group', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.HttpsPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'https_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'https_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.PreferredSecurity) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'preferred_security' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'preferred_security', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ReplicationPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'replication_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'replication_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.LoadBalancingAlgorithmName) && model.Type.ValueString() != "directory" {
-		resp.Diagnostics.AddError("Attribute 'load_balancing_algorithm_name' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'load_balancing_algorithm_name', the 'type' attribute must be one of ['directory']")
-	}
-	if internaltypes.IsDefined(model.ServerRoot) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_root' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_root', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ReplicationDomainServerID) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'replication_domain_server_id' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'replication_domain_server_id', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ServerInstanceType) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_instance_type' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_instance_type', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.LdapsPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'ldaps_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldaps_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.BaseDN) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'base_dn' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'base_dn', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ClusterName) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'cluster_name' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'cluster_name', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.Hostname) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'hostname' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'hostname', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.HttpPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'http_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ServerInstanceLocation) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_instance_location' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_instance_location', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ReplicationServerID) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'replication_server_id' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'replication_server_id', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ServerVersion) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_version' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_version', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.LdapPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'ldap_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldap_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.ServerInstanceName) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'server_instance_name' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_instance_name', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.JmxsPort) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'jmxs_port' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jmxs_port', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
-	}
-	if internaltypes.IsDefined(model.InterServerCertificate) && model.Type.ValueString() != "proxy" && model.Type.ValueString() != "authorize" && model.Type.ValueString() != "directory" && model.Type.ValueString() != "sync" {
-		resp.Diagnostics.AddError("Attribute 'inter_server_certificate' not supported by pingdirectory_server_instance resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'inter_server_certificate', the 'type' attribute must be one of ['proxy', 'authorize', 'directory', 'sync']")
+// Add config validators
+func (r serverInstanceResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jmx_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("start_tls_enabled"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_set_name"),
+			path.MatchRoot("type"),
+			[]string{"directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("member_of_server_group"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("https_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("preferred_security"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("load_balancing_algorithm_name"),
+			path.MatchRoot("type"),
+			[]string{"directory"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_root"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_domain_server_id"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_instance_type"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldaps_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("cluster_name"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hostname"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_instance_location"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replication_server_id"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_version"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldap_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_instance_name"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jmxs_port"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("inter_server_certificate"),
+			path.MatchRoot("type"),
+			[]string{"proxy", "authorize", "directory", "sync"},
+		),
 	}
 }
 

@@ -9,37 +9,42 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.ConfigValidator = &ImpliesValidator{}
+var _ resource.ConfigValidator = &ImpliesOtherAttributeOneOfStringValidator{}
 
-// Create an ImpliesValidator indicating that the condition path being configured implies the implied path is configured
-func Implies(condition, implied path.Expression) resource.ConfigValidator {
-	return ImpliesValidator{
-		Condition: condition,
-		Implied:   implied,
+// Create an ImpliesOtherAttributeOneOfString indicating that if the condition attribute is set,
+// then the implied attribute, if set, must have one of the allowed string values
+func ImpliesOtherAttributeOneOfString(condition, implied path.Expression, impliedAllowedValues []string) resource.ConfigValidator {
+	return ImpliesOtherAttributeOneOfStringValidator{
+		Condition:            condition,
+		Implied:              implied,
+		ImpliedAllowedValues: impliedAllowedValues,
 	}
 }
 
-// ImpliesValidator is the underlying struct implementing Implies.
-type ImpliesValidator struct {
-	Condition path.Expression
-	Implied   path.Expression
+// ImpliesOtherAttributeOneOfString is the underlying struct implementing the config validator.
+type ImpliesOtherAttributeOneOfStringValidator struct {
+	Condition            path.Expression
+	Implied              path.Expression
+	ImpliedAllowedValues []string
 }
 
-func (v ImpliesValidator) Description(ctx context.Context) string {
+func (v ImpliesOtherAttributeOneOfStringValidator) Description(ctx context.Context) string {
 	return v.MarkdownDescription(ctx)
 }
 
-func (v ImpliesValidator) MarkdownDescription(_ context.Context) string {
-	return fmt.Sprintf("If the \"%s\" attribute is configured, then the \"%s\" attribute must be configured", v.Condition, v.Implied)
+func (v ImpliesOtherAttributeOneOfStringValidator) MarkdownDescription(_ context.Context) string {
+	return fmt.Sprintf("If the \"%s\" attribute is configured, then the \"%s\" attribute must have one of the following values if it is configured: %v",
+		v.Condition, v.Implied, v.ImpliedAllowedValues)
 }
 
-func (v ImpliesValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+func (v ImpliesOtherAttributeOneOfStringValidator) ValidateResource(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	resp.Diagnostics = v.Validate(ctx, req.Config)
 }
 
-func (v ImpliesValidator) Validate(ctx context.Context, config tfsdk.Config) diag.Diagnostics {
+func (v ImpliesOtherAttributeOneOfStringValidator) Validate(ctx context.Context, config tfsdk.Config) diag.Diagnostics {
 	var diags diag.Diagnostics
 	var conditionValue, impliedValue attr.Value
 
@@ -112,16 +117,35 @@ func (v ImpliesValidator) Validate(ctx context.Context, config tfsdk.Config) dia
 			continue
 		}
 
-		// Value is known and not null, it is configured, so this validator passes
+		// Value is known and not null, so we need to check if it is one of the allowed values
+		impliedValueString, ok := impliedValue.(types.String)
+		if !ok {
+			diags.Append(diag.NewErrorDiagnostic(
+				fmt.Sprintf("\"%s\" attribute has non-string value", v.Implied),
+				v.Description(ctx),
+			))
+			return diags
+		}
+
+		allowedValueFound := false
+		for _, allowedValue := range v.ImpliedAllowedValues {
+			if allowedValue == impliedValueString.ValueString() {
+				// Valid string value found, continue
+				allowedValueFound = true
+				break
+			}
+		}
+		if allowedValueFound {
+			continue
+		}
+
+		// If we reach here, then the value is not allowed
+		diags.Append(diag.NewErrorDiagnostic(
+			fmt.Sprintf("\"%s\" attribute is configured but \"%s\" attribute does not have an allowed value", v.Condition, v.Implied),
+			v.Description(ctx),
+		))
 		return diags
 	}
-
-	// If we got here, then the condition value is configured and the implied value is not, so
-	// this validator should fail
-	diags.Append(diag.NewErrorDiagnostic(
-		"Missing Implied Attribute Configuration",
-		v.Description(ctx),
-	))
 
 	return diags
 }

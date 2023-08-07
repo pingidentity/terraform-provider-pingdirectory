@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -340,98 +341,122 @@ func extendedOperationHandlerSchema(ctx context.Context, req resource.SchemaRequ
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *extendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanExtendedOperationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsExtendedOperationHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("adjacent_intervals_to_check"),
+			path.MatchRoot("type"),
+			[]string{"validate-totp-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_generator"),
+			path.MatchRoot("type"),
+			[]string{"single-use-tokens", "deliver-password-reset-token", "deliver-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_single_use_token_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"single-use-tokens"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"password-modify", "deliver-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_totp_reuse"),
+			path.MatchRoot("type"),
+			[]string{"validate-totp-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_otp_delivery_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"single-use-tokens", "deliver-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"replace-certificate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"replace-certificate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_interval_duration"),
+			path.MatchRoot("type"),
+			[]string{"validate-totp-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_remotely_provided_certificates"),
+			path.MatchRoot("type"),
+			[]string{"replace-certificate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_reset_token_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"deliver-password-reset-token"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_operation"),
+			path.MatchRoot("type"),
+			[]string{"replace-certificate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_token_delivery_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"deliver-password-reset-token"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("shared_secret_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"validate-totp-password"},
+		),
+	}
 }
 
-func (r *defaultExtendedOperationHandlerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanExtendedOperationHandler(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r extendedOperationHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsExtendedOperationHandler()
 }
 
-func modifyPlanExtendedOperationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultExtendedOperationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.DefaultPasswordPolicy) && model.Type.ValueString() != "generate-password" {
-		resp.Diagnostics.AddError("Attribute 'default_password_policy' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_password_policy', the 'type' attribute must be one of ['generate-password']")
+// Add config validators
+func (r defaultExtendedOperationHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_password_policy"),
+			path.MatchRoot("type"),
+			[]string{"generate-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_password_generator"),
+			path.MatchRoot("type"),
+			[]string{"generate-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_validation_attempts_per_password"),
+			path.MatchRoot("type"),
+			[]string{"generate-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_passwords_per_request"),
+			path.MatchRoot("type"),
+			[]string{"generate-password"},
+		),
 	}
-	if internaltypes.IsDefined(model.DefaultPasswordGenerator) && model.Type.ValueString() != "generate-password" {
-		resp.Diagnostics.AddError("Attribute 'default_password_generator' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_password_generator', the 'type' attribute must be one of ['generate-password']")
-	}
-	if internaltypes.IsDefined(model.AdjacentIntervalsToCheck) && model.Type.ValueString() != "validate-totp-password" {
-		resp.Diagnostics.AddError("Attribute 'adjacent_intervals_to_check' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'adjacent_intervals_to_check', the 'type' attribute must be one of ['validate-totp-password']")
-	}
-	if internaltypes.IsDefined(model.PasswordGenerator) && model.Type.ValueString() != "single-use-tokens" && model.Type.ValueString() != "deliver-password-reset-token" && model.Type.ValueString() != "deliver-otp" {
-		resp.Diagnostics.AddError("Attribute 'password_generator' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_generator', the 'type' attribute must be one of ['single-use-tokens', 'deliver-password-reset-token', 'deliver-otp']")
-	}
-	if internaltypes.IsDefined(model.MaximumValidationAttemptsPerPassword) && model.Type.ValueString() != "generate-password" {
-		resp.Diagnostics.AddError("Attribute 'maximum_validation_attempts_per_password' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_validation_attempts_per_password', the 'type' attribute must be one of ['generate-password']")
-	}
-	if internaltypes.IsDefined(model.MaximumPasswordsPerRequest) && model.Type.ValueString() != "generate-password" {
-		resp.Diagnostics.AddError("Attribute 'maximum_passwords_per_request' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_passwords_per_request', the 'type' attribute must be one of ['generate-password']")
-	}
-	if internaltypes.IsDefined(model.DefaultSingleUseTokenValidityDuration) && model.Type.ValueString() != "single-use-tokens" {
-		resp.Diagnostics.AddError("Attribute 'default_single_use_token_validity_duration' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_single_use_token_validity_duration', the 'type' attribute must be one of ['single-use-tokens']")
-	}
-	if internaltypes.IsDefined(model.IdentityMapper) && model.Type.ValueString() != "password-modify" && model.Type.ValueString() != "deliver-otp" {
-		resp.Diagnostics.AddError("Attribute 'identity_mapper' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'identity_mapper', the 'type' attribute must be one of ['password-modify', 'deliver-otp']")
-	}
-	if internaltypes.IsDefined(model.PreventTOTPReuse) && model.Type.ValueString() != "validate-totp-password" {
-		resp.Diagnostics.AddError("Attribute 'prevent_totp_reuse' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prevent_totp_reuse', the 'type' attribute must be one of ['validate-totp-password']")
-	}
-	if internaltypes.IsDefined(model.DefaultOTPDeliveryMechanism) && model.Type.ValueString() != "single-use-tokens" && model.Type.ValueString() != "deliver-otp" {
-		resp.Diagnostics.AddError("Attribute 'default_otp_delivery_mechanism' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_otp_delivery_mechanism', the 'type' attribute must be one of ['single-use-tokens', 'deliver-otp']")
-	}
-	if internaltypes.IsDefined(model.ConnectionCriteria) && model.Type.ValueString() != "replace-certificate" {
-		resp.Diagnostics.AddError("Attribute 'connection_criteria' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'connection_criteria', the 'type' attribute must be one of ['replace-certificate']")
-	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.Type.ValueString() != "replace-certificate" {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'type' attribute must be one of ['replace-certificate']")
-	}
-	if internaltypes.IsDefined(model.TimeIntervalDuration) && model.Type.ValueString() != "validate-totp-password" {
-		resp.Diagnostics.AddError("Attribute 'time_interval_duration' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'time_interval_duration', the 'type' attribute must be one of ['validate-totp-password']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AllowRemotelyProvidedCertificates) && model.Type.ValueString() != "replace-certificate" {
-		resp.Diagnostics.AddError("Attribute 'allow_remotely_provided_certificates' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_remotely_provided_certificates', the 'type' attribute must be one of ['replace-certificate']")
-	}
-	if internaltypes.IsDefined(model.PasswordResetTokenValidityDuration) && model.Type.ValueString() != "deliver-password-reset-token" {
-		resp.Diagnostics.AddError("Attribute 'password_reset_token_validity_duration' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_reset_token_validity_duration', the 'type' attribute must be one of ['deliver-password-reset-token']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AllowedOperation) && model.Type.ValueString() != "replace-certificate" {
-		resp.Diagnostics.AddError("Attribute 'allowed_operation' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_operation', the 'type' attribute must be one of ['replace-certificate']")
-	}
-	if internaltypes.IsDefined(model.DefaultTokenDeliveryMechanism) && model.Type.ValueString() != "deliver-password-reset-token" {
-		resp.Diagnostics.AddError("Attribute 'default_token_delivery_mechanism' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_token_delivery_mechanism', the 'type' attribute must be one of ['deliver-password-reset-token']")
-	}
-	if internaltypes.IsDefined(model.SharedSecretAttributeType) && model.Type.ValueString() != "validate-totp-password" {
-		resp.Diagnostics.AddError("Attribute 'shared_secret_attribute_type' not supported by pingdirectory_extended_operation_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'shared_secret_attribute_type', the 'type' attribute must be one of ['validate-totp-password']")
-	}
+	return append(configValidatorsExtendedOperationHandler(), validators...)
 }
 
 // Add optional fields to create request for validate-totp-password extended-operation-handler

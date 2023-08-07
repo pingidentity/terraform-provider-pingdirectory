@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -160,33 +161,39 @@ func (r *attributeSyntaxResource) Schema(ctx context.Context, req resource.Schem
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *attributeSyntaxResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model attributeSyntaxResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.StrictFormat) && model.Type.ValueString() != "telephone-number" && model.Type.ValueString() != "ldap-url" {
-		resp.Diagnostics.AddError("Attribute 'strict_format' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'strict_format', the 'type' attribute must be one of ['telephone-number', 'ldap-url']")
-	}
-	if internaltypes.IsDefined(model.ExcludeAttributeFromCompaction) && model.Type.ValueString() != "user-password" && model.Type.ValueString() != "boolean" && model.Type.ValueString() != "bit-string" && model.Type.ValueString() != "distinguished-name" && model.Type.ValueString() != "generalized-time" && model.Type.ValueString() != "integer" && model.Type.ValueString() != "uuid" && model.Type.ValueString() != "name-and-optional-uid" {
-		resp.Diagnostics.AddError("Attribute 'exclude_attribute_from_compaction' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'exclude_attribute_from_compaction', the 'type' attribute must be one of ['user-password', 'boolean', 'bit-string', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'name-and-optional-uid']")
-	}
-	if internaltypes.IsDefined(model.EnableCompaction) && model.Type.ValueString() != "user-password" && model.Type.ValueString() != "boolean" && model.Type.ValueString() != "bit-string" && model.Type.ValueString() != "distinguished-name" && model.Type.ValueString() != "generalized-time" && model.Type.ValueString() != "integer" && model.Type.ValueString() != "uuid" && model.Type.ValueString() != "name-and-optional-uid" {
-		resp.Diagnostics.AddError("Attribute 'enable_compaction' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'enable_compaction', the 'type' attribute must be one of ['user-password', 'boolean', 'bit-string', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'name-and-optional-uid']")
-	}
-	if internaltypes.IsDefined(model.IncludeAttributeInCompaction) && model.Type.ValueString() != "user-password" && model.Type.ValueString() != "boolean" && model.Type.ValueString() != "bit-string" && model.Type.ValueString() != "distinguished-name" && model.Type.ValueString() != "generalized-time" && model.Type.ValueString() != "integer" && model.Type.ValueString() != "uuid" && model.Type.ValueString() != "name-and-optional-uid" {
-		resp.Diagnostics.AddError("Attribute 'include_attribute_in_compaction' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_attribute_in_compaction', the 'type' attribute must be one of ['user-password', 'boolean', 'bit-string', 'distinguished-name', 'generalized-time', 'integer', 'uuid', 'name-and-optional-uid']")
-	}
-	if internaltypes.IsDefined(model.StripSyntaxMinUpperBound) && model.Type.ValueString() != "attribute-type-description" {
-		resp.Diagnostics.AddError("Attribute 'strip_syntax_min_upper_bound' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'strip_syntax_min_upper_bound', the 'type' attribute must be one of ['attribute-type-description']")
-	}
-	if internaltypes.IsDefined(model.AllowZeroLengthValues) && model.Type.ValueString() != "directory-string" {
-		resp.Diagnostics.AddError("Attribute 'allow_zero_length_values' not supported by pingdirectory_attribute_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_zero_length_values', the 'type' attribute must be one of ['directory-string']")
+// Add config validators
+func (r attributeSyntaxResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("strict_format"),
+			path.MatchRoot("type"),
+			[]string{"telephone-number", "ldap-url"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("exclude_attribute_from_compaction"),
+			path.MatchRoot("type"),
+			[]string{"user-password", "boolean", "bit-string", "distinguished-name", "generalized-time", "integer", "uuid", "name-and-optional-uid"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_compaction"),
+			path.MatchRoot("type"),
+			[]string{"user-password", "boolean", "bit-string", "distinguished-name", "generalized-time", "integer", "uuid", "name-and-optional-uid"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_attribute_in_compaction"),
+			path.MatchRoot("type"),
+			[]string{"user-password", "boolean", "bit-string", "distinguished-name", "generalized-time", "integer", "uuid", "name-and-optional-uid"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("strip_syntax_min_upper_bound"),
+			path.MatchRoot("type"),
+			[]string{"attribute-type-description"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_zero_length_values"),
+			path.MatchRoot("type"),
+			[]string{"directory-string"},
+		),
 	}
 }
 

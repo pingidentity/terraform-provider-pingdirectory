@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -1208,440 +1209,6 @@ func (r *defaultBackendResource) ModifyPlan(ctx context.Context, req resource.Mo
 }
 
 func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultBackendResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.DbDirectoryPermissions) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_directory_permissions' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_directory_permissions', the 'type' attribute must be one of ['changelog', 'local-db']")
-	}
-	if internaltypes.IsDefined(model.Id2childrenIndexEntryLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'id2children_index_entry_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id2children_index_entry_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.CompositeIndexEntryLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'composite_index_entry_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'composite_index_entry_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.ChangelogMaximumAge) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_maximum_age' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_maximum_age', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ChangelogEntryExcludeBaseDN) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_entry_exclude_base_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_entry_exclude_base_dn', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ProcessFiltersWithUndefinedAttributeTypes) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'process_filters_with_undefined_attribute_types' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'process_filters_with_undefined_attribute_types', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.PrimeMethod) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'prime_method' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prime_method', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.PrimeAllIndexes) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'prime_all_indexes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prime_all_indexes', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.MirroredSubtreeSearchTimeout) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'mirrored_subtree_search_timeout' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'mirrored_subtree_search_timeout', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.SingleWriterLockBehavior) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'single_writer_lock_behavior' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'single_writer_lock_behavior', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.PrimeThreadCount) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'prime_thread_count' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prime_thread_count', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.MaxAlarms) && model.Type.ValueString() != "alarm" {
-		resp.Diagnostics.AddError("Attribute 'max_alarms' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_alarms', the 'type' attribute must be one of ['alarm']")
-	}
-	if internaltypes.IsDefined(model.CompactCommonParentDN) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'compact_common_parent_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'compact_common_parent_dn', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.Id2entryCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'id2entry_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id2entry_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.IndexEntryLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'index_entry_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'index_entry_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.WritabilityMode) && model.Type.ValueString() != "schema" && model.Type.ValueString() != "config-file-handler" && model.Type.ValueString() != "backup" && model.Type.ValueString() != "task" && model.Type.ValueString() != "alert" && model.Type.ValueString() != "ldif" && model.Type.ValueString() != "trust-store" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "alarm" && model.Type.ValueString() != "local-db" && model.Type.ValueString() != "metrics" {
-		resp.Diagnostics.AddError("Attribute 'writability_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'writability_mode', the 'type' attribute must be one of ['schema', 'config-file-handler', 'backup', 'task', 'alert', 'ldif', 'trust-store', 'custom', 'alarm', 'local-db', 'metrics']")
-	}
-	if internaltypes.IsDefined(model.IncludeVirtualAttributes) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'include_virtual_attributes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_virtual_attributes', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ReturnUnavailableForUntrustedIndex) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'return_unavailable_for_untrusted_index' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'return_unavailable_for_untrusted_index', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.BaseDN) && model.Type.ValueString() != "schema" && model.Type.ValueString() != "backup" && model.Type.ValueString() != "encryption-settings" && model.Type.ValueString() != "ldif" && model.Type.ValueString() != "trust-store" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "monitor" && model.Type.ValueString() != "local-db" && model.Type.ValueString() != "config-file-handler" && model.Type.ValueString() != "task" && model.Type.ValueString() != "alert" && model.Type.ValueString() != "alarm" {
-		resp.Diagnostics.AddError("Attribute 'base_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'base_dn', the 'type' attribute must be one of ['schema', 'backup', 'encryption-settings', 'ldif', 'trust-store', 'custom', 'changelog', 'monitor', 'local-db', 'config-file-handler', 'task', 'alert', 'alarm']")
-	}
-	if internaltypes.IsDefined(model.DbCleanerMinUtilization) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_cleaner_min_utilization' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_cleaner_min_utilization', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePinPassphraseProvider) && model.Type.ValueString() != "trust-store" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin_passphrase_provider' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin_passphrase_provider', the 'type' attribute must be one of ['trust-store']")
-	}
-	if internaltypes.IsDefined(model.ImportThreadCount) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'import_thread_count' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'import_thread_count', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.ExportThreadCount) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'export_thread_count' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'export_thread_count', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.MaximumInitialTaskLogMessagesToRetain) && model.Type.ValueString() != "task" {
-		resp.Diagnostics.AddError("Attribute 'maximum_initial_task_log_messages_to_retain' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_initial_task_log_messages_to_retain', the 'type' attribute must be one of ['task']")
-	}
-	if internaltypes.IsDefined(model.CompressEntries) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'compress_entries' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'compress_entries', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.AlarmRetentionTime) && model.Type.ValueString() != "alarm" {
-		resp.Diagnostics.AddError("Attribute 'alarm_retention_time' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'alarm_retention_time', the 'type' attribute must be one of ['alarm']")
-	}
-	if internaltypes.IsDefined(model.OfflineProcessDatabaseOpenTimeout) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'offline_process_database_open_timeout' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'offline_process_database_open_timeout', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePinFile) && model.Type.ValueString() != "trust-store" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin_file' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin_file', the 'type' attribute must be one of ['trust-store']")
-	}
-	if internaltypes.IsDefined(model.ReadOnlySchemaFile) && model.Type.ValueString() != "schema" {
-		resp.Diagnostics.AddError("Attribute 'read_only_schema_file' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'read_only_schema_file', the 'type' attribute must be one of ['schema']")
-	}
-	if internaltypes.IsDefined(model.DeadlockRetryLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'deadlock_retry_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'deadlock_retry_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.TrustStorePin) && model.Type.ValueString() != "trust-store" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_pin' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_pin', the 'type' attribute must be one of ['trust-store']")
-	}
-	if internaltypes.IsDefined(model.SoftDeleteEntryIncludedOperation) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'soft_delete_entry_included_operation' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'soft_delete_entry_included_operation', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.PrimeTimeLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'prime_time_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prime_time_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.NotificationSenderAddress) && model.Type.ValueString() != "task" {
-		resp.Diagnostics.AddError("Attribute 'notification_sender_address' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'notification_sender_address', the 'type' attribute must be one of ['task']")
-	}
-	if internaltypes.IsDefined(model.ChangelogExcludeAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_exclude_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_exclude_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ExternalTxnDefaultBackendLockBehavior) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'external_txn_default_backend_lock_behavior' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'external_txn_default_backend_lock_behavior', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.SystemIndexToPrime) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'system_index_to_prime' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'system_index_to_prime', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.LdifFile) && model.Type.ValueString() != "alert" && model.Type.ValueString() != "ldif" && model.Type.ValueString() != "alarm" {
-		resp.Diagnostics.AddError("Attribute 'ldif_file' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'ldif_file', the 'type' attribute must be one of ['alert', 'ldif', 'alarm']")
-	}
-	if internaltypes.IsDefined(model.MaximumFinalTaskLogMessagesToRetain) && model.Type.ValueString() != "task" {
-		resp.Diagnostics.AddError("Attribute 'maximum_final_task_log_messages_to_retain' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_final_task_log_messages_to_retain', the 'type' attribute must be one of ['task']")
-	}
-	if internaltypes.IsDefined(model.Dn2uriCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'dn2uri_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'dn2uri_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.DbImportCachePercent) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_import_cache_percent' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_import_cache_percent', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.IsPrivateBackend) && model.Type.ValueString() != "ldif" && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'is_private_backend' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'is_private_backend', the 'type' attribute must be one of ['ldif', 'local-db']")
-	}
-	if internaltypes.IsDefined(model.TaskBackingFile) && model.Type.ValueString() != "task" {
-		resp.Diagnostics.AddError("Attribute 'task_backing_file' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_backing_file', the 'type' attribute must be one of ['task']")
-	}
-	if internaltypes.IsDefined(model.WriteLastmodAttributes) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'write_lastmod_attributes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'write_lastmod_attributes', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.SchemaEntryDN) && model.Type.ValueString() != "schema" {
-		resp.Diagnostics.AddError("Attribute 'schema_entry_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'schema_entry_dn', the 'type' attribute must be one of ['schema']")
-	}
-	if internaltypes.IsDefined(model.BackupDirectory) && model.Type.ValueString() != "backup" {
-		resp.Diagnostics.AddError("Attribute 'backup_directory' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'backup_directory', the 'type' attribute must be one of ['backup']")
-	}
-	if internaltypes.IsDefined(model.UseReversibleForm) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'use_reversible_form' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'use_reversible_form', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.DbNumCleanerThreads) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_num_cleaner_threads' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_num_cleaner_threads', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.SampleFlushInterval) && model.Type.ValueString() != "metrics" {
-		resp.Diagnostics.AddError("Attribute 'sample_flush_interval' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sample_flush_interval', the 'type' attribute must be one of ['metrics']")
-	}
-	if internaltypes.IsDefined(model.BackupFilePermissions) && model.Type.ValueString() != "schema" && model.Type.ValueString() != "config-file-handler" && model.Type.ValueString() != "task" && model.Type.ValueString() != "encryption-settings" && model.Type.ValueString() != "alert" && model.Type.ValueString() != "ldif" && model.Type.ValueString() != "trust-store" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "alarm" {
-		resp.Diagnostics.AddError("Attribute 'backup_file_permissions' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'backup_file_permissions', the 'type' attribute must be one of ['schema', 'config-file-handler', 'task', 'encryption-settings', 'alert', 'ldif', 'trust-store', 'custom', 'alarm']")
-	}
-	if internaltypes.IsDefined(model.ChangelogIncludeKeyAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_include_key_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_include_key_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.Id2subtreeCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'id2subtree_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id2subtree_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.InsignificantConfigArchiveAttribute) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'insignificant_config_archive_attribute', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.ChangelogDeletedEntryIncludeAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_deleted_entry_include_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_deleted_entry_include_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.DisabledAlertType) && model.Type.ValueString() != "alert" {
-		resp.Diagnostics.AddError("Attribute 'disabled_alert_type' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'disabled_alert_type', the 'type' attribute must be one of ['alert']")
-	}
-	if internaltypes.IsDefined(model.DbLogFileMax) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_log_file_max' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_log_file_max', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.MirroredSubtreeEntryUpdateTimeout) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'mirrored_subtree_entry_update_timeout' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'mirrored_subtree_entry_update_timeout', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.HashEntries) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'hash_entries' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'hash_entries', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.DefaultCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'default_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'default_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.ChangelogIncludeAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_include_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_include_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.UncachedAttributeCriteria) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'uncached_attribute_criteria' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'uncached_attribute_criteria', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.DbCheckpointerWakeupInterval) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_checkpointer_wakeup_interval' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_checkpointer_wakeup_interval', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.DbUseThreadLocalHandles) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_use_thread_local_handles' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_use_thread_local_handles', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.ChangelogEntryIncludeFilter) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_entry_include_filter' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_entry_include_filter', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreFile) && model.Type.ValueString() != "trust-store" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_file' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_file', the 'type' attribute must be one of ['trust-store']")
-	}
-	if internaltypes.IsDefined(model.IndexIncludeAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'index_include_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'index_include_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.MaintainConfigArchive) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maintain_config_archive', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.ReportExcludedChangelogAttributes) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'report_excluded_changelog_attributes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'report_excluded_changelog_attributes', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ChangelogPurgeBatchSize) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_purge_batch_size' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_purge_batch_size', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.StorageDir) && model.Type.ValueString() != "metrics" {
-		resp.Diagnostics.AddError("Attribute 'storage_dir' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'storage_dir', the 'type' attribute must be one of ['metrics']")
-	}
-	if internaltypes.IsDefined(model.ShowAllAttributes) && model.Type.ValueString() != "schema" {
-		resp.Diagnostics.AddError("Attribute 'show_all_attributes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'show_all_attributes', the 'type' attribute must be one of ['schema']")
-	}
-	if internaltypes.IsDefined(model.DbDirectory) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_directory' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_directory', the 'type' attribute must be one of ['changelog', 'local-db']")
-	}
-	if internaltypes.IsDefined(model.JeProperty) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'je_property' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'je_property', the 'type' attribute must be one of ['changelog', 'local-db']")
-	}
-	if internaltypes.IsDefined(model.UncachedId2entryCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'uncached_id2entry_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'uncached_id2entry_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.ChangelogWriteBatchSize) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_write_batch_size' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_write_batch_size', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ChangelogEntryExcludeFilter) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_entry_exclude_filter' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_entry_exclude_filter', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.DbLoggingLevel) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_logging_level' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_logging_level', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.SubtreeDeleteSizeLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'subtree_delete_size_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'subtree_delete_size_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.MirroredSubtreePeerPollingInterval) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'mirrored_subtree_peer_polling_interval' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'mirrored_subtree_peer_polling_interval', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.ChangelogDeletedEntryExcludeAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_deleted_entry_exclude_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_deleted_entry_exclude_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.SetDegradedAlertWhenDisabled) && model.Type.ValueString() != "schema" && model.Type.ValueString() != "backup" && model.Type.ValueString() != "encryption-settings" && model.Type.ValueString() != "ldif" && model.Type.ValueString() != "trust-store" && model.Type.ValueString() != "custom" && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "monitor" && model.Type.ValueString() != "local-db" && model.Type.ValueString() != "config-file-handler" && model.Type.ValueString() != "task" && model.Type.ValueString() != "alert" && model.Type.ValueString() != "alarm" {
-		resp.Diagnostics.AddError("Attribute 'set_degraded_alert_when_disabled' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'set_degraded_alert_when_disabled', the 'type' attribute must be one of ['schema', 'backup', 'encryption-settings', 'ldif', 'trust-store', 'custom', 'changelog', 'monitor', 'local-db', 'config-file-handler', 'task', 'alert', 'alarm']")
-	}
-	if internaltypes.IsDefined(model.DbCachePercent) && model.Type.ValueString() != "changelog" && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_cache_percent' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_cache_percent', the 'type' attribute must be one of ['changelog', 'local-db']")
-	}
-	if internaltypes.IsDefined(model.MaxAlerts) && model.Type.ValueString() != "alert" {
-		resp.Diagnostics.AddError("Attribute 'max_alerts' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_alerts', the 'type' attribute must be one of ['alert']")
-	}
-	if internaltypes.IsDefined(model.DbEvictorCriticalPercentage) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_evictor_critical_percentage' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_evictor_critical_percentage', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.TargetDatabaseSize) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'target_database_size' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'target_database_size', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ChangelogWriteQueueCapacity) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_write_queue_capacity' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_write_queue_capacity', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.TaskRetentionTime) && model.Type.ValueString() != "task" {
-		resp.Diagnostics.AddError("Attribute 'task_retention_time' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'task_retention_time', the 'type' attribute must be one of ['task']")
-	}
-	if internaltypes.IsDefined(model.IndexExcludeAttribute) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'index_exclude_attribute' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'index_exclude_attribute', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.AlertRetentionTime) && model.Type.ValueString() != "alert" {
-		resp.Diagnostics.AddError("Attribute 'alert_retention_time' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'alert_retention_time', the 'type' attribute must be one of ['alert']")
-	}
-	if internaltypes.IsDefined(model.SystemIndexToPrimeInternalNodesOnly) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'system_index_to_prime_internal_nodes_only' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'system_index_to_prime_internal_nodes_only', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.TrustStoreType) && model.Type.ValueString() != "trust-store" {
-		resp.Diagnostics.AddError("Attribute 'trust_store_type' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_store_type', the 'type' attribute must be one of ['trust-store']")
-	}
-	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'insignificant_config_archive_base_dn', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) && model.Type.ValueString() != "config-file-handler" {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'max_config_archive_count', the 'type' attribute must be one of ['config-file-handler']")
-	}
-	if internaltypes.IsDefined(model.RetentionPolicy) && model.Type.ValueString() != "metrics" {
-		resp.Diagnostics.AddError("Attribute 'retention_policy' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retention_policy', the 'type' attribute must be one of ['metrics']")
-	}
-	if internaltypes.IsDefined(model.DbTxnWriteNoSync) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_txn_write_no_sync' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_txn_write_no_sync', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.UncachedEntryCriteria) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'uncached_entry_criteria' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'uncached_entry_criteria', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.MetricsDir) && model.Type.ValueString() != "metrics" {
-		resp.Diagnostics.AddError("Attribute 'metrics_dir' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'metrics_dir', the 'type' attribute must be one of ['metrics']")
-	}
-	if internaltypes.IsDefined(model.NumRecentChanges) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'num_recent_changes' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'num_recent_changes', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.BackgroundPrime) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'background_prime' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'background_prime', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.DbBackgroundSyncInterval) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'db_background_sync_interval' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'db_background_sync_interval', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.Id2subtreeIndexEntryLimit) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'id2subtree_index_entry_limit' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id2subtree_index_entry_limit', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.ChangelogEntryIncludeBaseDN) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_entry_include_base_dn' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_entry_include_base_dn', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ApplyAccessControlsToChangelogEntryContents) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'apply_access_controls_to_changelog_entry_contents' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'apply_access_controls_to_changelog_entry_contents', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ChangelogMaxBeforeAfterValues) && model.Type.ValueString() != "changelog" {
-		resp.Diagnostics.AddError("Attribute 'changelog_max_before_after_values' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'changelog_max_before_after_values', the 'type' attribute must be one of ['changelog']")
-	}
-	if internaltypes.IsDefined(model.ImportTempDirectory) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'import_temp_directory' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'import_temp_directory', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.Dn2idCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'dn2id_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'dn2id_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.Id2childrenCacheMode) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'id2children_cache_mode' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id2children_cache_mode', the 'type' attribute must be one of ['local-db']")
-	}
-	if internaltypes.IsDefined(model.SetDegradedAlertForUntrustedIndex) && model.Type.ValueString() != "local-db" {
-		resp.Diagnostics.AddError("Attribute 'set_degraded_alert_for_untrusted_index' not supported by pingdirectory_backend resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'set_degraded_alert_for_untrusted_index', the 'type' attribute must be one of ['local-db']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -1651,15 +1218,575 @@ func modifyPlanBackend(ctx context.Context, req resource.ModifyPlanRequest, resp
 		// Every remaining property is supported
 		return
 	}
-	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
-		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
-	}
+	var model defaultBackendResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.MaintainConfigArchive) {
 		resp.Diagnostics.AddError("Attribute 'maintain_config_archive' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
+	}
+	if internaltypes.IsDefined(model.MaxConfigArchiveCount) {
+		resp.Diagnostics.AddError("Attribute 'max_config_archive_count' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
 	if internaltypes.IsDefined(model.InsignificantConfigArchiveBaseDN) {
 		resp.Diagnostics.AddError("Attribute 'insignificant_config_archive_base_dn' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsBackend() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_directory_permissions"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2children_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("composite_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("process_filters_with_undefined_attribute_types"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_method"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_all_indexes"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("single_writer_lock_behavior"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compact_common_parent_dn"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2entry_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("writability_mode"),
+			path.MatchRoot("type"),
+			[]string{"schema", "config-file-handler", "backup", "task", "alert", "ldif", "trust-store", "custom", "alarm", "local-db", "metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("return_unavailable_for_untrusted_index"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("base_dn"),
+			path.MatchRoot("type"),
+			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_cleaner_min_utilization"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("import_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("export_thread_count"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compress_entries"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("offline_process_database_open_timeout"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("deadlock_retry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prime_time_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("external_txn_default_backend_lock_behavior"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_index_to_prime"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn2uri_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_import_cache_percent"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("is_private_backend"),
+			path.MatchRoot("type"),
+			[]string{"ldif", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_num_cleaner_threads"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2subtree_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_log_file_max"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("hash_entries"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("default_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("uncached_attribute_criteria"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_checkpointer_wakeup_interval"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_use_thread_local_handles"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_directory"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("je_property"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("uncached_id2entry_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_logging_level"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("subtree_delete_size_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("set_degraded_alert_when_disabled"),
+			path.MatchRoot("type"),
+			[]string{"schema", "backup", "encryption-settings", "ldif", "trust-store", "custom", "changelog", "monitor", "local-db", "config-file-handler", "task", "alert", "alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_cache_percent"),
+			path.MatchRoot("type"),
+			[]string{"changelog", "local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_evictor_critical_percentage"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("system_index_to_prime_internal_nodes_only"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_txn_write_no_sync"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("uncached_entry_criteria"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("num_recent_changes"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("background_prime"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("db_background_sync_interval"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2subtree_index_entry_limit"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("import_temp_directory"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dn2id_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id2children_cache_mode"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("set_degraded_alert_for_untrusted_index"),
+			path.MatchRoot("type"),
+			[]string{"local-db"},
+		),
+	}
+}
+
+// Add config validators
+func (r backendResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsBackend()
+}
+
+// Add config validators
+func (r defaultBackendResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_maximum_age"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_exclude_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_search_timeout"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_alarms"),
+			path.MatchRoot("type"),
+			[]string{"alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_virtual_attributes"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_initial_task_log_messages_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alarm_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin_file"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("read_only_schema_file"),
+			path.MatchRoot("type"),
+			[]string{"schema"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_pin"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("soft_delete_entry_included_operation"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("notification_sender_address"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("ldif_file"),
+			path.MatchRoot("type"),
+			[]string{"alert", "ldif", "alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_final_task_log_messages_to_retain"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_backing_file"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("write_lastmod_attributes"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("schema_entry_dn"),
+			path.MatchRoot("type"),
+			[]string{"schema"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backup_directory"),
+			path.MatchRoot("type"),
+			[]string{"backup"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("use_reversible_form"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sample_flush_interval"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("backup_file_permissions"),
+			path.MatchRoot("type"),
+			[]string{"schema", "config-file-handler", "task", "encryption-settings", "alert", "ldif", "trust-store", "custom", "alarm"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_include_key_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("insignificant_config_archive_attribute"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_deleted_entry_include_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("disabled_alert_type"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_entry_update_timeout"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_include_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_include_filter"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_file"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_include_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maintain_config_archive"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("report_excluded_changelog_attributes"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_purge_batch_size"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("storage_dir"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("show_all_attributes"),
+			path.MatchRoot("type"),
+			[]string{"schema"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_write_batch_size"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_exclude_filter"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("mirrored_subtree_peer_polling_interval"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_deleted_entry_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_alerts"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("target_database_size"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_write_queue_capacity"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("task_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"task"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("index_exclude_attribute"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alert_retention_time"),
+			path.MatchRoot("type"),
+			[]string{"alert"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_store_type"),
+			path.MatchRoot("type"),
+			[]string{"trust-store"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("insignificant_config_archive_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("max_config_archive_count"),
+			path.MatchRoot("type"),
+			[]string{"config-file-handler"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retention_policy"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("metrics_dir"),
+			path.MatchRoot("type"),
+			[]string{"metrics"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_entry_include_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("apply_access_controls_to_changelog_entry_contents"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("changelog_max_before_after_values"),
+			path.MatchRoot("type"),
+			[]string{"changelog"},
+		),
+	}
+	return append(configValidatorsBackend(), validators...)
 }
 
 // Add optional fields to create request for local-db backend

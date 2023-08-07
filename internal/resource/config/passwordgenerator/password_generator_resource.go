@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -218,58 +219,70 @@ func passwordGeneratorSchema(ctx context.Context, req resource.SchemaRequest, re
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *passwordGeneratorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordGenerator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsPasswordGenerator() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("dictionary_file"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_format"),
+			path.MatchRoot("type"),
+			[]string{"random"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_password_characters"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minimum_password_words"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_character_set"),
+			path.MatchRoot("type"),
+			[]string{"random"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("capitalize_words"),
+			path.MatchRoot("type"),
+			[]string{"passphrase"},
+		),
+	}
 }
 
-func (r *defaultPasswordGeneratorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanPasswordGenerator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r passwordGeneratorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordGenerator()
 }
 
-func modifyPlanPasswordGenerator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model passwordGeneratorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.DictionaryFile) && model.Type.ValueString() != "passphrase" {
-		resp.Diagnostics.AddError("Attribute 'dictionary_file' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'dictionary_file', the 'type' attribute must be one of ['passphrase']")
-	}
-	if internaltypes.IsDefined(model.PasswordFormat) && model.Type.ValueString() != "random" {
-		resp.Diagnostics.AddError("Attribute 'password_format' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_format', the 'type' attribute must be one of ['random']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.MinimumPasswordCharacters) && model.Type.ValueString() != "passphrase" {
-		resp.Diagnostics.AddError("Attribute 'minimum_password_characters' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minimum_password_characters', the 'type' attribute must be one of ['passphrase']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.MinimumPasswordWords) && model.Type.ValueString() != "passphrase" {
-		resp.Diagnostics.AddError("Attribute 'minimum_password_words' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minimum_password_words', the 'type' attribute must be one of ['passphrase']")
-	}
-	if internaltypes.IsDefined(model.PasswordCharacterSet) && model.Type.ValueString() != "random" {
-		resp.Diagnostics.AddError("Attribute 'password_character_set' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_character_set', the 'type' attribute must be one of ['random']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.CapitalizeWords) && model.Type.ValueString() != "passphrase" {
-		resp.Diagnostics.AddError("Attribute 'capitalize_words' not supported by pingdirectory_password_generator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'capitalize_words', the 'type' attribute must be one of ['passphrase']")
-	}
+// Add config validators
+func (r defaultPasswordGeneratorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsPasswordGenerator()
 }
 
 // Add optional fields to create request for random password-generator

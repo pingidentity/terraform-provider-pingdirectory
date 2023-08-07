@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -189,46 +190,55 @@ func uncachedEntryCriteriaSchema(ctx context.Context, req resource.SchemaRequest
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *uncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsUncachedEntryCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"filter-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_time_threshold"),
+			path.MatchRoot("type"),
+			[]string{"last-access-time"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter_identifies_uncached_entries"),
+			path.MatchRoot("type"),
+			[]string{"filter-based"},
+		),
+	}
 }
 
-func (r *defaultUncachedEntryCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanUncachedEntryCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r uncachedEntryCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedEntryCriteria()
 }
 
-func modifyPlanUncachedEntryCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model uncachedEntryCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.Filter) && model.Type.ValueString() != "filter-based" {
-		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter', the 'type' attribute must be one of ['filter-based']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AccessTimeThreshold) && model.Type.ValueString() != "last-access-time" {
-		resp.Diagnostics.AddError("Attribute 'access_time_threshold' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_time_threshold', the 'type' attribute must be one of ['last-access-time']")
-	}
-	if internaltypes.IsDefined(model.FilterIdentifiesUncachedEntries) && model.Type.ValueString() != "filter-based" {
-		resp.Diagnostics.AddError("Attribute 'filter_identifies_uncached_entries' not supported by pingdirectory_uncached_entry_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter_identifies_uncached_entries', the 'type' attribute must be one of ['filter-based']")
-	}
+// Add config validators
+func (r defaultUncachedEntryCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsUncachedEntryCriteria()
 }
 
 // Add optional fields to create request for default uncached-entry-criteria

@@ -146,14 +146,24 @@ func delegatedAdminRightsSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Add config validators
-func (r delegatedAdminRightsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsDelegatedAdminRights() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.ExactlyOneOf(
 			path.MatchRoot("admin_group_dn"),
 			path.MatchRoot("admin_user_dn"),
 		),
 	}
+}
+
+// Add config validators
+func (r delegatedAdminRightsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDelegatedAdminRights()
+}
+
+// Add config validators
+func (r defaultDelegatedAdminRightsResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDelegatedAdminRights()
 }
 
 // Add optional fields to create request for delegated-admin-rights delegated-admin-rights

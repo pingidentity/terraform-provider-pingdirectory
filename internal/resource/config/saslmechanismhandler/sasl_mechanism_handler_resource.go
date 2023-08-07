@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -467,152 +468,6 @@ func (r *defaultSaslMechanismHandlerResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model defaultSaslMechanismHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.IdTokenValidator) && model.Type.ValueString() != "oauth-bearer" {
-		resp.Diagnostics.AddError("Attribute 'id_token_validator' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'id_token_validator', the 'type' attribute must be one of ['oauth-bearer']")
-	}
-	if internaltypes.IsDefined(model.AccessTokenValidator) && model.Type.ValueString() != "oauth-bearer" {
-		resp.Diagnostics.AddError("Attribute 'access_token_validator' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_token_validator', the 'type' attribute must be one of ['oauth-bearer']")
-	}
-	if internaltypes.IsDefined(model.Keytab) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'keytab' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'keytab', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.CertificateMapper) && model.Type.ValueString() != "external" && model.Type.ValueString() != "unboundid-certificate-plus-password" {
-		resp.Diagnostics.AddError("Attribute 'certificate_mapper' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'certificate_mapper', the 'type' attribute must be one of ['external', 'unboundid-certificate-plus-password']")
-	}
-	if internaltypes.IsDefined(model.KeyManagerProvider) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'key_manager_provider' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'key_manager_provider', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.AllRequiredScope) && model.Type.ValueString() != "oauth-bearer" {
-		resp.Diagnostics.AddError("Attribute 'all_required_scope' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_required_scope', the 'type' attribute must be one of ['oauth-bearer']")
-	}
-	if internaltypes.IsDefined(model.KerberosServicePrincipal) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'kerberos_service_principal' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'kerberos_service_principal', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.CertificateValidationPolicy) && model.Type.ValueString() != "external" {
-		resp.Diagnostics.AddError("Attribute 'certificate_validation_policy' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'certificate_validation_policy', the 'type' attribute must be one of ['external']")
-	}
-	if internaltypes.IsDefined(model.AllowNullServerFqdn) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'allow_null_server_fqdn' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allow_null_server_fqdn', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.TrustManagerProvider) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'trust_manager_provider' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'trust_manager_provider', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.TimeIntervalDuration) && model.Type.ValueString() != "unboundid-totp" {
-		resp.Diagnostics.AddError("Attribute 'time_interval_duration' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'time_interval_duration', the 'type' attribute must be one of ['unboundid-totp']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.YubikeyValidationServerBaseURL) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'yubikey_validation_server_base_url' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'yubikey_validation_server_base_url', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.ServerFqdn) && model.Type.ValueString() != "digest-md5" && model.Type.ValueString() != "oauth-bearer" && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'server_fqdn' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'server_fqdn', the 'type' attribute must be one of ['digest-md5', 'oauth-bearer', 'gssapi']")
-	}
-	if internaltypes.IsDefined(model.RequireBothAccessTokenAndIDToken) && model.Type.ValueString() != "oauth-bearer" {
-		resp.Diagnostics.AddError("Attribute 'require_both_access_token_and_id_token' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'require_both_access_token_and_id_token', the 'type' attribute must be one of ['oauth-bearer']")
-	}
-	if internaltypes.IsDefined(model.AllowedQualityOfProtection) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'allowed_quality_of_protection' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_quality_of_protection', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.AdjacentIntervalsToCheck) && model.Type.ValueString() != "unboundid-totp" {
-		resp.Diagnostics.AddError("Attribute 'adjacent_intervals_to_check' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'adjacent_intervals_to_check', the 'type' attribute must be one of ['unboundid-totp']")
-	}
-	if internaltypes.IsDefined(model.AlternateAuthorizationIdentityMapper) && model.Type.ValueString() != "oauth-bearer" && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'alternate_authorization_identity_mapper' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'alternate_authorization_identity_mapper', the 'type' attribute must be one of ['oauth-bearer', 'gssapi']")
-	}
-	if internaltypes.IsDefined(model.YubikeyAPIKeyPassphraseProvider) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'yubikey_api_key_passphrase_provider' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'yubikey_api_key_passphrase_provider', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.ValidateAccessTokenWhenIDTokenIsAlsoProvided) && model.Type.ValueString() != "oauth-bearer" {
-		resp.Diagnostics.AddError("Attribute 'validate_access_token_when_id_token_is_also_provided' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'validate_access_token_when_id_token_is_also_provided', the 'type' attribute must be one of ['oauth-bearer']")
-	}
-	if internaltypes.IsDefined(model.YubikeyClientID) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'yubikey_client_id' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'yubikey_client_id', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.IdentityMapper) && model.Type.ValueString() != "unboundid-ms-chap-v2" && model.Type.ValueString() != "unboundid-yubikey-otp" && model.Type.ValueString() != "unboundid-totp" && model.Type.ValueString() != "digest-md5" && model.Type.ValueString() != "plain" && model.Type.ValueString() != "unboundid-delivered-otp" && model.Type.ValueString() != "unboundid-external-auth" && model.Type.ValueString() != "cram-md5" && model.Type.ValueString() != "gssapi" && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'identity_mapper' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'identity_mapper', the 'type' attribute must be one of ['unboundid-ms-chap-v2', 'unboundid-yubikey-otp', 'unboundid-totp', 'digest-md5', 'plain', 'unboundid-delivered-otp', 'unboundid-external-auth', 'cram-md5', 'gssapi', 'third-party']")
-	}
-	if internaltypes.IsDefined(model.PreventTOTPReuse) && model.Type.ValueString() != "unboundid-totp" {
-		resp.Diagnostics.AddError("Attribute 'prevent_totp_reuse' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'prevent_totp_reuse', the 'type' attribute must be one of ['unboundid-totp']")
-	}
-	if internaltypes.IsDefined(model.JaasConfigFile) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'jaas_config_file' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jaas_config_file', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.CertificateAttribute) && model.Type.ValueString() != "external" {
-		resp.Diagnostics.AddError("Attribute 'certificate_attribute' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'certificate_attribute', the 'type' attribute must be one of ['external']")
-	}
-	if internaltypes.IsDefined(model.OtpValidityDuration) && model.Type.ValueString() != "unboundid-delivered-otp" {
-		resp.Diagnostics.AddError("Attribute 'otp_validity_duration' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'otp_validity_duration', the 'type' attribute must be one of ['unboundid-delivered-otp']")
-	}
-	if internaltypes.IsDefined(model.YubikeyAPIKey) && model.Type.ValueString() != "unboundid-yubikey-otp" {
-		resp.Diagnostics.AddError("Attribute 'yubikey_api_key' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'yubikey_api_key', the 'type' attribute must be one of ['unboundid-yubikey-otp']")
-	}
-	if internaltypes.IsDefined(model.GssapiRole) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'gssapi_role' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'gssapi_role', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.EnableDebug) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'enable_debug' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'enable_debug', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.Realm) && model.Type.ValueString() != "digest-md5" && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'realm' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'realm', the 'type' attribute must be one of ['digest-md5', 'gssapi']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.KdcAddress) && model.Type.ValueString() != "gssapi" {
-		resp.Diagnostics.AddError("Attribute 'kdc_address' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'kdc_address', the 'type' attribute must be one of ['gssapi']")
-	}
-	if internaltypes.IsDefined(model.RequireStaticPassword) && model.Type.ValueString() != "unboundid-yubikey-otp" && model.Type.ValueString() != "unboundid-totp" {
-		resp.Diagnostics.AddError("Attribute 'require_static_password' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'require_static_password', the 'type' attribute must be one of ['unboundid-yubikey-otp', 'unboundid-totp']")
-	}
-	if internaltypes.IsDefined(model.SharedSecretAttributeType) && model.Type.ValueString() != "unboundid-totp" {
-		resp.Diagnostics.AddError("Attribute 'shared_secret_attribute_type' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'shared_secret_attribute_type', the 'type' attribute must be one of ['unboundid-totp']")
-	}
-	if internaltypes.IsDefined(model.AnyRequiredScope) && model.Type.ValueString() != "oauth-bearer" {
-		resp.Diagnostics.AddError("Attribute 'any_required_scope' not supported by pingdirectory_sasl_mechanism_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_required_scope', the 'type' attribute must be one of ['oauth-bearer']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -622,9 +477,209 @@ func modifyPlanSaslMechanismHandler(ctx context.Context, req resource.ModifyPlan
 		// Every remaining property is supported
 		return
 	}
+	var model defaultSaslMechanismHandlerResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("id_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_validator"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_required_scope"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("server_fqdn"),
+			path.MatchRoot("type"),
+			[]string{"digest-md5", "oauth-bearer", "gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_both_access_token_and_id_token"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("alternate_authorization_identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer", "gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("validate_access_token_when_id_token_is_also_provided"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-ms-chap-v2", "unboundid-yubikey-otp", "unboundid-totp", "digest-md5", "plain", "unboundid-delivered-otp", "unboundid-external-auth", "cram-md5", "gssapi", "third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("otp_validity_duration"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-delivered-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_required_scope"),
+			path.MatchRoot("type"),
+			[]string{"oauth-bearer"},
+		),
+	}
+}
+
+// Add config validators
+func (r saslMechanismHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsSaslMechanismHandler()
+}
+
+// Add config validators
+func (r defaultSaslMechanismHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	validators := []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("keytab"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("certificate_mapper"),
+			path.MatchRoot("type"),
+			[]string{"external", "unboundid-certificate-plus-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("key_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("kerberos_service_principal"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("certificate_validation_policy"),
+			path.MatchRoot("type"),
+			[]string{"external"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allow_null_server_fqdn"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("trust_manager_provider"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("time_interval_duration"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("yubikey_validation_server_base_url"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_quality_of_protection"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("adjacent_intervals_to_check"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("yubikey_api_key_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("yubikey_client_id"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("prevent_totp_reuse"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jaas_config_file"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("certificate_attribute"),
+			path.MatchRoot("type"),
+			[]string{"external"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("yubikey_api_key"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("gssapi_role"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("enable_debug"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("realm"),
+			path.MatchRoot("type"),
+			[]string{"digest-md5", "gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("kdc_address"),
+			path.MatchRoot("type"),
+			[]string{"gssapi"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("require_static_password"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-yubikey-otp", "unboundid-totp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("shared_secret_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"unboundid-totp"},
+		),
+	}
+	return append(configValidatorsSaslMechanismHandler(), validators...)
 }
 
 // Add optional fields to create request for unboundid-ms-chap-v2 sasl-mechanism-handler

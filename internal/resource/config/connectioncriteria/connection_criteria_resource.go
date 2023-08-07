@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -437,142 +438,175 @@ func connectionCriteriaSchema(ctx context.Context, req resource.SchemaRequest, r
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *connectionCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanConnectionCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsConnectionCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_connection_handler"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authentication_security_level"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_connection_handler"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_protocol"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("user_auth_type"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_client_address"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_protocol"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_connection_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_user_sasl_mechanism"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_client_address"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_user_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("communication_security_level"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+	}
 }
 
-func (r *defaultConnectionCriteriaResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanConnectionCriteria(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r connectionCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsConnectionCriteria()
 }
 
-func modifyPlanConnectionCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model connectionCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.NoneIncludedConnectionCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'none_included_connection_criteria' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_connection_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.ExcludedConnectionHandler) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_connection_handler' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_connection_handler', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedUserFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_user_filter' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_user_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_user_group_dn' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedUserPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_user_privilege' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_user_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AuthenticationSecurityLevel) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'authentication_security_level' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'authentication_security_level', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedConnectionHandler) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_connection_handler' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_connection_handler', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedProtocol) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_protocol' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_protocol', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedUserPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_user_privilege' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_user_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedUserFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_user_filter' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_user_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.IncludedUserBaseDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_user_base_dn' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_user_base_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedUserPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_user_privilege' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_user_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedConnectionCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_connection_criteria' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_connection_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.IncludedUserSASLMechanism) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_user_sasl_mechanism' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_user_sasl_mechanism', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.UserAuthType) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'user_auth_type' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'user_auth_type', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedClientAddress) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_client_address' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_client_address', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_user_group_dn' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedConnectionCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'any_included_connection_criteria' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_connection_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.ExcludedProtocol) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_protocol' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_protocol', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedConnectionCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'all_included_connection_criteria' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_connection_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.ExcludedUserSASLMechanism) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_user_sasl_mechanism' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_user_sasl_mechanism', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedClientAddress) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_client_address' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_client_address', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedUserPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_user_privilege' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_user_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedUserFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_user_filter' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_user_filter', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_user_group_dn' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.CommunicationSecurityLevel) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'communication_security_level' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'communication_security_level', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedUserBaseDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_user_base_dn' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_user_base_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_user_group_dn' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedUserFilter) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_user_filter' not supported by pingdirectory_connection_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_user_filter', the 'type' attribute must be one of ['simple']")
-	}
+// Add config validators
+func (r defaultConnectionCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsConnectionCriteria()
 }
 
 // Add optional fields to create request for simple connection-criteria

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -174,38 +175,45 @@ func logFileRotationListenerSchema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsLogFileRotationListener() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("output_directory"),
+			path.MatchRoot("type"),
+			[]string{"summarize"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("compress_on_copy"),
+			path.MatchRoot("type"),
+			[]string{"copy"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("copy_to_directory"),
+			path.MatchRoot("type"),
+			[]string{"copy"},
+		),
+	}
 }
 
-func (r *defaultLogFileRotationListenerResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanLogFileRotationListener(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r logFileRotationListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogFileRotationListener()
 }
 
-func modifyPlanLogFileRotationListener(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model logFileRotationListenerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.OutputDirectory) && model.Type.ValueString() != "summarize" {
-		resp.Diagnostics.AddError("Attribute 'output_directory' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'output_directory', the 'type' attribute must be one of ['summarize']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.CompressOnCopy) && model.Type.ValueString() != "copy" {
-		resp.Diagnostics.AddError("Attribute 'compress_on_copy' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'compress_on_copy', the 'type' attribute must be one of ['copy']")
-	}
-	if internaltypes.IsDefined(model.CopyToDirectory) && model.Type.ValueString() != "copy" {
-		resp.Diagnostics.AddError("Attribute 'copy_to_directory' not supported by pingdirectory_log_file_rotation_listener resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'copy_to_directory', the 'type' attribute must be one of ['copy']")
-	}
+// Add config validators
+func (r defaultLogFileRotationListenerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsLogFileRotationListener()
 }
 
 // Add optional fields to create request for summarize log-file-rotation-listener

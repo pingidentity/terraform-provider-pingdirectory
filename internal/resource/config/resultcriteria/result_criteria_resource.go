@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -606,204 +607,6 @@ func (r *defaultResultCriteriaResource) ModifyPlan(ctx context.Context, req reso
 }
 
 func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model resultCriteriaResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.SearchEntryReturnedCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'search_entry_returned_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_entry_returned_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedAuthzUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_authz_user_group_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_authz_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AssuranceBehaviorAlteredByControl) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'assurance_behavior_altered_by_control' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'assurance_behavior_altered_by_control', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.SearchReferenceReturnedCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'search_reference_returned_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_reference_returned_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ReferralReturned) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'referral_returned' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'referral_returned', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedUserGroupDN) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'excluded_user_group_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_user_group_dn', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedResultCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'all_included_result_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_result_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.AssuranceSatisfied) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'assurance_satisfied' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'assurance_satisfied', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.RequestCriteria) && model.Type.ValueString() != "successful-bind" && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'request_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'request_criteria', the 'type' attribute must be one of ['successful-bind', 'simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedUserFilter) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'included_user_filter' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_user_filter', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedAuthzUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_authz_user_group_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_authz_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedAuthzUserBaseDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'excluded_authz_user_base_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_authz_user_base_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.UsedPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'used_privilege' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'used_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedUserGroupDN) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'included_user_group_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_user_group_dn', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.ResultCodeValue) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'result_code_value' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'result_code_value', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedAuthzUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_authz_user_group_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_authz_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.UsedAnyPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'used_any_privilege' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'used_any_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ProcessingTimeValue) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'processing_time_value' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'processing_time_value', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.IncludedAuthzUserBaseDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'included_authz_user_base_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_authz_user_base_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.QueueTimeCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'queue_time_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'queue_time_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExcludedUserBaseDN) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'excluded_user_base_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_user_base_dn', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedResponseControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'all_included_response_control' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_response_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedResponseControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_response_control' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_response_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.MissingAnyPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'missing_any_privilege' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'missing_any_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedAuthzUserGroupDN) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_authz_user_group_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_authz_user_group_dn', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedResultCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'none_included_result_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_result_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.IncludeAnonymousBinds) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'include_anonymous_binds' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_anonymous_binds', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.ResultCodeCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'result_code_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'result_code_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NoneIncludedResponseControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'none_included_response_control' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'none_included_response_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ProcessingTimeCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'processing_time_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'processing_time_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedResponseControl) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'any_included_response_control' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_response_control', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.NotAllIncludedResultCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'not_all_included_result_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'not_all_included_result_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.SearchIndexedCriteria) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'search_indexed_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_indexed_criteria', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AnyIncludedResultCriteria) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'any_included_result_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_result_criteria', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.UsedAlternateAuthzid) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'used_alternate_authzid' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'used_alternate_authzid', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.IncludedUserBaseDN) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'included_user_base_dn' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_user_base_dn', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.AssuranceTimeoutCriteria) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'assurance_timeout_criteria' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'assurance_timeout_criteria', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.MissingPrivilege) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'missing_privilege' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'missing_privilege', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.LocalAssuranceLevel) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'local_assurance_level' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'local_assurance_level', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.ExcludedUserFilter) && model.Type.ValueString() != "successful-bind" {
-		resp.Diagnostics.AddError("Attribute 'excluded_user_filter' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_user_filter', the 'type' attribute must be one of ['successful-bind']")
-	}
-	if internaltypes.IsDefined(model.ResponseDelayedByAssurance) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'response_delayed_by_assurance' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'response_delayed_by_assurance', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.QueueTimeValue) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'queue_time_value' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'queue_time_value', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.RemoteAssuranceLevel) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'remote_assurance_level' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'remote_assurance_level', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.RetiredPasswordUsedForBind) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'retired_password_used_for_bind' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'retired_password_used_for_bind', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.AssuranceTimeoutValue) && model.Type.ValueString() != "replication-assurance" {
-		resp.Diagnostics.AddError("Attribute 'assurance_timeout_value' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'assurance_timeout_value', the 'type' attribute must be one of ['replication-assurance']")
-	}
-	if internaltypes.IsDefined(model.SearchEntryReturnedCount) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'search_entry_returned_count' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_entry_returned_count', the 'type' attribute must be one of ['simple']")
-	}
-	if internaltypes.IsDefined(model.SearchReferenceReturnedCount) && model.Type.ValueString() != "simple" {
-		resp.Diagnostics.AddError("Attribute 'search_reference_returned_count' not supported by pingdirectory_result_criteria resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'search_reference_returned_count', the 'type' attribute must be one of ['simple']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -813,10 +616,273 @@ func modifyPlanResultCriteria(ctx context.Context, req resource.ModifyPlanReques
 		// Every remaining property is supported
 		return
 	}
+	var model resultCriteriaResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "successful-bind" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9300,
 			providerConfig.ProductVersion, resourceName+" with type \"successful_bind\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsResultCriteria() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_entry_returned_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_behavior_altered_by_control"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_reference_returned_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("referral_returned"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_satisfied"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("request_criteria"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind", "simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_authz_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("used_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("result_code_value"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("used_any_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("processing_time_value"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_authz_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("queue_time_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("missing_any_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_authz_user_group_dn"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_anonymous_binds"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("result_code_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("none_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("processing_time_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_response_control"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("not_all_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_indexed_criteria"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_result_criteria"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("used_alternate_authzid"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_user_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_timeout_criteria"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("missing_privilege"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("local_assurance_level"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_user_filter"),
+			path.MatchRoot("type"),
+			[]string{"successful-bind"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("response_delayed_by_assurance"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("queue_time_value"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("remote_assurance_level"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("retired_password_used_for_bind"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("assurance_timeout_value"),
+			path.MatchRoot("type"),
+			[]string{"replication-assurance"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_entry_returned_count"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("search_reference_returned_count"),
+			path.MatchRoot("type"),
+			[]string{"simple"},
+		),
+	}
+}
+
+// Add config validators
+func (r resultCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsResultCriteria()
+}
+
+// Add config validators
+func (r defaultResultCriteriaResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsResultCriteria()
 }
 
 // Add optional fields to create request for successful-bind result-criteria

@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -471,136 +472,6 @@ func (r *defaultAccountStatusNotificationHandlerResource) ModifyPlan(ctx context
 }
 
 func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model accountStatusNotificationHandlerResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.SenderAddress) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'sender_address' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sender_address', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.AccountUnlockedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_unlocked_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_unlocked_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.MustChangePasswordMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'must_change_password_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'must_change_password_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.BindPasswordFailedValidationMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'bind_password_failed_validation_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'bind_password_failed_validation_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.EmailAddressJSONField) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'email_address_json_field' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'email_address_json_field', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.EmailAddressAttributeType) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'email_address_attribute_type' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'email_address_attribute_type', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.AccountStatusNotificationType) && model.Type.ValueString() != "admin-alert" && model.Type.ValueString() != "error-log" {
-		resp.Diagnostics.AddError("Attribute 'account_status_notification_type' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_status_notification_type', the 'type' attribute must be one of ['admin-alert', 'error-log']")
-	}
-	if internaltypes.IsDefined(model.AccountDeletedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_deleted_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.MessageTemplateFile) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'message_template_file' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_template_file', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.AccountExpiredMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_expired_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_expired_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.PasswordExpiringMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'password_expiring_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_expiring_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountIdleLockedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_idle_locked_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_idle_locked_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountNotYetActiveMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_not_yet_active_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_not_yet_active_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AccountTemporarilyFailureLockedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_temporarily_failure_locked_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_temporarily_failure_locked_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountPermanentlyFailureLockedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_permanently_failure_locked_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_permanently_failure_locked_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.PasswordExpiredMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'password_expired_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_expired_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.PasswordResetMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'password_reset_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_reset_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountResetLockedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_reset_locked_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_reset_locked_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountEnabledMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_enabled_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_enabled_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.RecipientAddress) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'recipient_address' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'recipient_address', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.EmailAddressJSONObjectFilter) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'email_address_json_object_filter' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'email_address_json_object_filter', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.MessageSubject) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'message_subject' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_subject', the 'type' attribute must be one of ['smtp']")
-	}
-	if internaltypes.IsDefined(model.PasswordChangedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'password_changed_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_changed_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountAuthenticatedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_authenticated_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_authenticated_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountCreatedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_created_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_created_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountDisabledMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_disabled_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_disabled_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.AccountUpdatedMessageTemplate) && model.Type.ValueString() != "multi-part-email" {
-		resp.Diagnostics.AddError("Attribute 'account_updated_message_template' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_updated_message_template', the 'type' attribute must be one of ['multi-part-email']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.SendMessageWithoutEndUserAddress) && model.Type.ValueString() != "smtp" {
-		resp.Diagnostics.AddError("Attribute 'send_message_without_end_user_address' not supported by pingdirectory_account_status_notification_handler resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'send_message_without_end_user_address', the 'type' attribute must be one of ['smtp']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9300)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -610,6 +481,8 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 		// Every remaining property is supported
 		return
 	}
+	var model accountStatusNotificationHandlerResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.AccountAuthenticationNotificationResultCriteria) {
 		resp.Diagnostics.AddError("Attribute 'account_authentication_notification_result_criteria' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
@@ -622,6 +495,182 @@ func modifyPlanAccountStatusNotificationHandler(ctx context.Context, req resourc
 	if internaltypes.IsNonEmptyString(model.AccountDeletedMessageTemplate) {
 		resp.Diagnostics.AddError("Attribute 'account_deleted_message_template' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsAccountStatusNotificationHandler() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_unlocked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("must_change_password_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("bind_password_failed_validation_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_json_field"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_status_notification_type"),
+			path.MatchRoot("type"),
+			[]string{"admin-alert", "error-log"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_deleted_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_template_file"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_expired_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_expiring_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_idle_locked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_not_yet_active_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_temporarily_failure_locked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_permanently_failure_locked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_expired_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_reset_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_reset_locked_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_enabled_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("recipient_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_changed_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_authenticated_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_created_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_disabled_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_updated_message_template"),
+			path.MatchRoot("type"),
+			[]string{"multi-part-email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("send_message_without_end_user_address"),
+			path.MatchRoot("type"),
+			[]string{"smtp"},
+		),
+	}
+}
+
+// Add config validators
+func (r accountStatusNotificationHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAccountStatusNotificationHandler()
+}
+
+// Add config validators
+func (r defaultAccountStatusNotificationHandlerResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAccountStatusNotificationHandler()
 }
 
 // Add optional fields to create request for smtp account-status-notification-handler

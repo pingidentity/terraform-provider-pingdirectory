@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -278,60 +279,6 @@ func (r *defaultDataSecurityAuditorResource) ModifyPlan(ctx context.Context, req
 }
 
 func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration, resourceName string) {
-	var model dataSecurityAuditorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.PasswordEvaluationAge) && model.Type.ValueString() != "expired-password" {
-		resp.Diagnostics.AddError("Attribute 'password_evaluation_age' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'password_evaluation_age', the 'type' attribute must be one of ['expired-password']")
-	}
-	if internaltypes.IsDefined(model.IncludePrivilege) && model.Type.ValueString() != "privilege" {
-		resp.Diagnostics.AddError("Attribute 'include_privilege' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_privilege', the 'type' attribute must be one of ['privilege']")
-	}
-	if internaltypes.IsDefined(model.MaximumIdleTime) && model.Type.ValueString() != "locked-account" {
-		resp.Diagnostics.AddError("Attribute 'maximum_idle_time' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'maximum_idle_time', the 'type' attribute must be one of ['locked-account']")
-	}
-	if internaltypes.IsDefined(model.IdleAccountWarningInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'idle_account_warning_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'idle_account_warning_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.AccountExpirationWarningInterval) && model.Type.ValueString() != "account-validity-window" {
-		resp.Diagnostics.AddError("Attribute 'account_expiration_warning_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'account_expiration_warning_interval', the 'type' attribute must be one of ['account-validity-window']")
-	}
-	if internaltypes.IsDefined(model.Filter) && model.Type.ValueString() != "filter" {
-		resp.Diagnostics.AddError("Attribute 'filter' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'filter', the 'type' attribute must be one of ['filter']")
-	}
-	if internaltypes.IsDefined(model.IdleAccountErrorInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'idle_account_error_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'idle_account_error_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.WeakPasswordStorageScheme) && model.Type.ValueString() != "weakly-encoded-password" {
-		resp.Diagnostics.AddError("Attribute 'weak_password_storage_scheme' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'weak_password_storage_scheme', the 'type' attribute must be one of ['weakly-encoded-password']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.NeverLoggedInAccountWarningInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'never_logged_in_account_warning_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'never_logged_in_account_warning_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.NeverLoggedInAccountErrorInterval) && model.Type.ValueString() != "idle-account" {
-		resp.Diagnostics.AddError("Attribute 'never_logged_in_account_error_interval' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'never_logged_in_account_error_interval', the 'type' attribute must be one of ['idle-account']")
-	}
-	if internaltypes.IsDefined(model.WeakCryptEncoding) && model.Type.ValueString() != "weakly-encoded-password" {
-		resp.Diagnostics.AddError("Attribute 'weak_crypt_encoding' not supported by pingdirectory_data_security_auditor resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'weak_crypt_encoding', the 'type' attribute must be one of ['weakly-encoded-password']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -341,6 +288,8 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 		// Every remaining property is supported
 		return
 	}
+	var model dataSecurityAuditorResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsDefined(model.Type) && model.Type.ValueString() == "filter" {
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"filter\"")
@@ -369,6 +318,87 @@ func modifyPlanDataSecurityAuditor(ctx context.Context, req resource.ModifyPlanR
 		version.CheckResourceSupported(&resp.Diagnostics, version.PingDirectory9200,
 			providerConfig.ProductVersion, resourceName+" with type \"third_party\"")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsDataSecurityAuditor() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("password_evaluation_age"),
+			path.MatchRoot("type"),
+			[]string{"expired-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_privilege"),
+			path.MatchRoot("type"),
+			[]string{"privilege"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("maximum_idle_time"),
+			path.MatchRoot("type"),
+			[]string{"locked-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("idle_account_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("account_expiration_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"account-validity-window"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("filter"),
+			path.MatchRoot("type"),
+			[]string{"filter"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("idle_account_error_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("weak_password_storage_scheme"),
+			path.MatchRoot("type"),
+			[]string{"weakly-encoded-password"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("never_logged_in_account_warning_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("never_logged_in_account_error_interval"),
+			path.MatchRoot("type"),
+			[]string{"idle-account"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("weak_crypt_encoding"),
+			path.MatchRoot("type"),
+			[]string{"weakly-encoded-password"},
+		),
+	}
+}
+
+// Add config validators
+func (r dataSecurityAuditorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDataSecurityAuditor()
+}
+
+// Add config validators
+func (r defaultDataSecurityAuditorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsDataSecurityAuditor()
 }
 
 // Add optional fields to create request for expired-password data-security-auditor

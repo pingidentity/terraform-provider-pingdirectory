@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -228,62 +229,75 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *identityMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsIdentityMapper() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("any_included_identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("replace_pattern"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_filter"),
+			path.MatchRoot("type"),
+			[]string{"exact-match", "regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_base_dn"),
+			path.MatchRoot("type"),
+			[]string{"exact-match", "regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_attribute"),
+			path.MatchRoot("type"),
+			[]string{"exact-match", "regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("match_pattern"),
+			path.MatchRoot("type"),
+			[]string{"regular-expression"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_argument"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("script_class"),
+			path.MatchRoot("type"),
+			[]string{"groovy-scripted"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("all_included_identity_mapper"),
+			path.MatchRoot("type"),
+			[]string{"aggregate"},
+		),
+	}
 }
 
-func (r *defaultIdentityMapperResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanIdentityMapper(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r identityMapperResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsIdentityMapper()
 }
 
-func modifyPlanIdentityMapper(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model identityMapperResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.AnyIncludedIdentityMapper) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'any_included_identity_mapper' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'any_included_identity_mapper', the 'type' attribute must be one of ['aggregate']")
-	}
-	if internaltypes.IsDefined(model.ReplacePattern) && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'replace_pattern' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'replace_pattern', the 'type' attribute must be one of ['regular-expression']")
-	}
-	if internaltypes.IsDefined(model.MatchFilter) && model.Type.ValueString() != "exact-match" && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'match_filter' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_filter', the 'type' attribute must be one of ['exact-match', 'regular-expression']")
-	}
-	if internaltypes.IsDefined(model.MatchBaseDN) && model.Type.ValueString() != "exact-match" && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'match_base_dn' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_base_dn', the 'type' attribute must be one of ['exact-match', 'regular-expression']")
-	}
-	if internaltypes.IsDefined(model.MatchAttribute) && model.Type.ValueString() != "exact-match" && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'match_attribute' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_attribute', the 'type' attribute must be one of ['exact-match', 'regular-expression']")
-	}
-	if internaltypes.IsDefined(model.MatchPattern) && model.Type.ValueString() != "regular-expression" {
-		resp.Diagnostics.AddError("Attribute 'match_pattern' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'match_pattern', the 'type' attribute must be one of ['regular-expression']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptArgument) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_argument' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_argument', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ScriptClass) && model.Type.ValueString() != "groovy-scripted" {
-		resp.Diagnostics.AddError("Attribute 'script_class' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'script_class', the 'type' attribute must be one of ['groovy-scripted']")
-	}
-	if internaltypes.IsDefined(model.AllIncludedIdentityMapper) && model.Type.ValueString() != "aggregate" {
-		resp.Diagnostics.AddError("Attribute 'all_included_identity_mapper' not supported by pingdirectory_identity_mapper resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'all_included_identity_mapper', the 'type' attribute must be one of ['aggregate']")
-	}
+// Add config validators
+func (r defaultIdentityMapperResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsIdentityMapper()
 }
 
 // Add optional fields to create request for exact-match identity-mapper

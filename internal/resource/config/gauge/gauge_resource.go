@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -294,34 +295,40 @@ func gaugeSchema(ctx context.Context, req resource.SchemaRequest, resp *resource
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *gaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsGauge() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("minor_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("critical_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("major_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("warning_exit_value"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+	}
 }
 
-func (r *defaultGaugeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanGauge(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r gaugeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsGauge()
 }
 
-func modifyPlanGauge(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model gaugeResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.MinorExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'minor_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'minor_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.CriticalExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'critical_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'critical_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.MajorExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'major_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'major_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.WarningExitValue) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'warning_exit_value' not supported by pingdirectory_gauge resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'warning_exit_value', the 'type' attribute must be one of ['numeric']")
-	}
+// Add config validators
+func (r defaultGaugeResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsGauge()
 }
 
 // Add optional fields to create request for indicator gauge

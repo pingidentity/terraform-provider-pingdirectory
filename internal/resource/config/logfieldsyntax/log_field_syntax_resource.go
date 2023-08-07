@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -143,25 +144,29 @@ func (r *logFieldSyntaxResource) Schema(ctx context.Context, req resource.Schema
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *logFieldSyntaxResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	var model logFieldSyntaxResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ExcludedSensitiveAttribute) && model.Type.ValueString() != "attribute-based" {
-		resp.Diagnostics.AddError("Attribute 'excluded_sensitive_attribute' not supported by pingdirectory_log_field_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_sensitive_attribute', the 'type' attribute must be one of ['attribute-based']")
-	}
-	if internaltypes.IsDefined(model.ExcludedSensitiveField) && model.Type.ValueString() != "json" {
-		resp.Diagnostics.AddError("Attribute 'excluded_sensitive_field' not supported by pingdirectory_log_field_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'excluded_sensitive_field', the 'type' attribute must be one of ['json']")
-	}
-	if internaltypes.IsDefined(model.IncludedSensitiveAttribute) && model.Type.ValueString() != "attribute-based" {
-		resp.Diagnostics.AddError("Attribute 'included_sensitive_attribute' not supported by pingdirectory_log_field_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_sensitive_attribute', the 'type' attribute must be one of ['attribute-based']")
-	}
-	if internaltypes.IsDefined(model.IncludedSensitiveField) && model.Type.ValueString() != "json" {
-		resp.Diagnostics.AddError("Attribute 'included_sensitive_field' not supported by pingdirectory_log_field_syntax resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'included_sensitive_field', the 'type' attribute must be one of ['json']")
+// Add config validators
+func (r logFieldSyntaxResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_sensitive_attribute"),
+			path.MatchRoot("type"),
+			[]string{"attribute-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("excluded_sensitive_field"),
+			path.MatchRoot("type"),
+			[]string{"json"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_sensitive_attribute"),
+			path.MatchRoot("type"),
+			[]string{"attribute-based"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("included_sensitive_field"),
+			path.MatchRoot("type"),
+			[]string{"json"},
+		),
 	}
 }
 

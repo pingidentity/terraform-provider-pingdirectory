@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -320,90 +321,110 @@ func accessTokenValidatorSchema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *accessTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsAccessTokenValidator() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_secret_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("access_token_manager_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_content_encryption_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_signing_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("signing_certificate"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("scope_claim_name"),
+			path.MatchRoot("type"),
+			[]string{"jwt", "mock"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("encryption_key_pair"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("endpoint_cache_refresh"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("jwks_endpoint_path"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("include_aud_parameter"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_secret"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("authorization_server"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate", "jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("clock_skew_grace_period"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("allowed_key_encryption_algorithm"),
+			path.MatchRoot("type"),
+			[]string{"jwt"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_id"),
+			path.MatchRoot("type"),
+			[]string{"ping-federate"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("client_id_claim_name"),
+			path.MatchRoot("type"),
+			[]string{"jwt", "mock"},
+		),
+	}
 }
 
-func (r *defaultAccessTokenValidatorResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanAccessTokenValidator(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r accessTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAccessTokenValidator()
 }
 
-func modifyPlanAccessTokenValidator(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model accessTokenValidatorResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.ClientSecretPassphraseProvider) && model.Type.ValueString() != "ping-federate" {
-		resp.Diagnostics.AddError("Attribute 'client_secret_passphrase_provider' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'client_secret_passphrase_provider', the 'type' attribute must be one of ['ping-federate']")
-	}
-	if internaltypes.IsDefined(model.AccessTokenManagerID) && model.Type.ValueString() != "ping-federate" {
-		resp.Diagnostics.AddError("Attribute 'access_token_manager_id' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'access_token_manager_id', the 'type' attribute must be one of ['ping-federate']")
-	}
-	if internaltypes.IsDefined(model.AllowedContentEncryptionAlgorithm) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'allowed_content_encryption_algorithm' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_content_encryption_algorithm', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.AllowedSigningAlgorithm) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'allowed_signing_algorithm' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_signing_algorithm', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.SigningCertificate) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'signing_certificate' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'signing_certificate', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.ScopeClaimName) && model.Type.ValueString() != "jwt" && model.Type.ValueString() != "mock" {
-		resp.Diagnostics.AddError("Attribute 'scope_claim_name' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'scope_claim_name', the 'type' attribute must be one of ['jwt', 'mock']")
-	}
-	if internaltypes.IsDefined(model.EncryptionKeyPair) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'encryption_key_pair' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'encryption_key_pair', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.EndpointCacheRefresh) && model.Type.ValueString() != "ping-federate" {
-		resp.Diagnostics.AddError("Attribute 'endpoint_cache_refresh' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'endpoint_cache_refresh', the 'type' attribute must be one of ['ping-federate']")
-	}
-	if internaltypes.IsDefined(model.JwksEndpointPath) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'jwks_endpoint_path' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'jwks_endpoint_path', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.IncludeAudParameter) && model.Type.ValueString() != "ping-federate" {
-		resp.Diagnostics.AddError("Attribute 'include_aud_parameter' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'include_aud_parameter', the 'type' attribute must be one of ['ping-federate']")
-	}
-	if internaltypes.IsDefined(model.ClientSecret) && model.Type.ValueString() != "ping-federate" {
-		resp.Diagnostics.AddError("Attribute 'client_secret' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'client_secret', the 'type' attribute must be one of ['ping-federate']")
-	}
-	if internaltypes.IsDefined(model.AuthorizationServer) && model.Type.ValueString() != "ping-federate" && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'authorization_server' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'authorization_server', the 'type' attribute must be one of ['ping-federate', 'jwt']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.ClockSkewGracePeriod) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'clock_skew_grace_period' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'clock_skew_grace_period', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.AllowedKeyEncryptionAlgorithm) && model.Type.ValueString() != "jwt" {
-		resp.Diagnostics.AddError("Attribute 'allowed_key_encryption_algorithm' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'allowed_key_encryption_algorithm', the 'type' attribute must be one of ['jwt']")
-	}
-	if internaltypes.IsDefined(model.ClientID) && model.Type.ValueString() != "ping-federate" {
-		resp.Diagnostics.AddError("Attribute 'client_id' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'client_id', the 'type' attribute must be one of ['ping-federate']")
-	}
-	if internaltypes.IsDefined(model.ClientIDClaimName) && model.Type.ValueString() != "jwt" && model.Type.ValueString() != "mock" {
-		resp.Diagnostics.AddError("Attribute 'client_id_claim_name' not supported by pingdirectory_access_token_validator resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'client_id_claim_name', the 'type' attribute must be one of ['jwt', 'mock']")
-	}
+// Add config validators
+func (r defaultAccessTokenValidatorResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsAccessTokenValidator()
 }
 
 // Add optional fields to create request for ping-federate access-token-validator

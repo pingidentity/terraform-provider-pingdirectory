@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -262,76 +263,6 @@ func (r *defaultOtpDeliveryMechanismResource) ModifyPlan(ctx context.Context, re
 }
 
 func modifyPlanOtpDeliveryMechanism(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model otpDeliveryMechanismResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.TwilioAuthTokenPassphraseProvider) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'twilio_auth_token_passphrase_provider' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'twilio_auth_token_passphrase_provider', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.SenderAddress) && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'sender_address' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sender_address', the 'type' attribute must be one of ['email']")
-	}
-	if internaltypes.IsDefined(model.MessageTextBeforeOTP) && model.Type.ValueString() != "twilio" && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'message_text_before_otp' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_text_before_otp', the 'type' attribute must be one of ['twilio', 'email']")
-	}
-	if internaltypes.IsDefined(model.EmailAddressJSONField) && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'email_address_json_field' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'email_address_json_field', the 'type' attribute must be one of ['email']")
-	}
-	if internaltypes.IsDefined(model.EmailAddressAttributeType) && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'email_address_attribute_type' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'email_address_attribute_type', the 'type' attribute must be one of ['email']")
-	}
-	if internaltypes.IsDefined(model.TwilioAccountSID) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'twilio_account_sid' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'twilio_account_sid', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.HttpProxyExternalServer) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'http_proxy_external_server', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.TwilioAuthToken) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'twilio_auth_token' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'twilio_auth_token', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.EmailAddressJSONObjectFilter) && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'email_address_json_object_filter' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'email_address_json_object_filter', the 'type' attribute must be one of ['email']")
-	}
-	if internaltypes.IsDefined(model.MessageSubject) && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'message_subject' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_subject', the 'type' attribute must be one of ['email']")
-	}
-	if internaltypes.IsDefined(model.PhoneNumberJSONField) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'phone_number_json_field' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'phone_number_json_field', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.MessageTextAfterOTP) && model.Type.ValueString() != "twilio" && model.Type.ValueString() != "email" {
-		resp.Diagnostics.AddError("Attribute 'message_text_after_otp' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'message_text_after_otp', the 'type' attribute must be one of ['twilio', 'email']")
-	}
-	if internaltypes.IsDefined(model.SenderPhoneNumber) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'sender_phone_number' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'sender_phone_number', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.ExtensionArgument) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_argument' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_argument', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.PhoneNumberAttributeType) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'phone_number_attribute_type' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'phone_number_attribute_type', the 'type' attribute must be one of ['twilio']")
-	}
-	if internaltypes.IsDefined(model.ExtensionClass) && model.Type.ValueString() != "third-party" {
-		resp.Diagnostics.AddError("Attribute 'extension_class' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'extension_class', the 'type' attribute must be one of ['third-party']")
-	}
-	if internaltypes.IsDefined(model.PhoneNumberJSONObjectFilter) && model.Type.ValueString() != "twilio" {
-		resp.Diagnostics.AddError("Attribute 'phone_number_json_object_filter' not supported by pingdirectory_otp_delivery_mechanism resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'phone_number_json_object_filter', the 'type' attribute must be one of ['twilio']")
-	}
 	compare, err := version.Compare(providerConfig.ProductVersion, version.PingDirectory9200)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to compare PingDirectory versions", err.Error())
@@ -341,9 +272,112 @@ func modifyPlanOtpDeliveryMechanism(ctx context.Context, req resource.ModifyPlan
 		// Every remaining property is supported
 		return
 	}
+	var model otpDeliveryMechanismResourceModel
+	req.Plan.Get(ctx, &model)
 	if internaltypes.IsNonEmptyString(model.HttpProxyExternalServer) {
 		resp.Diagnostics.AddError("Attribute 'http_proxy_external_server' not supported by PingDirectory version "+providerConfig.ProductVersion, "")
 	}
+}
+
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsOtpDeliveryMechanism() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token_passphrase_provider"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_address"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_text_before_otp"),
+			path.MatchRoot("type"),
+			[]string{"twilio", "email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_json_field"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_account_sid"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("http_proxy_external_server"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("twilio_auth_token"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("email_address_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_subject"),
+			path.MatchRoot("type"),
+			[]string{"email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_json_field"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("message_text_after_otp"),
+			path.MatchRoot("type"),
+			[]string{"twilio", "email"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("sender_phone_number"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_argument"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_attribute_type"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("extension_class"),
+			path.MatchRoot("type"),
+			[]string{"third-party"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("phone_number_json_object_filter"),
+			path.MatchRoot("type"),
+			[]string{"twilio"},
+		),
+	}
+}
+
+// Add config validators
+func (r otpDeliveryMechanismResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsOtpDeliveryMechanism()
+}
+
+// Add config validators
+func (r defaultOtpDeliveryMechanismResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsOtpDeliveryMechanism()
 }
 
 // Add optional fields to create request for twilio otp-delivery-mechanism

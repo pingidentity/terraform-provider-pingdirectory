@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	client "github.com/pingidentity/pingdirectory-go-client/v9300/configurationapi"
+	"github.com/pingidentity/terraform-provider-pingdirectory/internal/configvalidators"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/operations"
 	"github.com/pingidentity/terraform-provider-pingdirectory/internal/resource/config"
 	internaltypes "github.com/pingidentity/terraform-provider-pingdirectory/internal/types"
@@ -209,38 +210,45 @@ func gaugeDataSourceSchema(ctx context.Context, req resource.SchemaRequest, resp
 	resp.Schema = schemaDef
 }
 
-// Validate that any restrictions are met in the plan
-func (r *gaugeDataSourceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanGaugeDataSource(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators that apply to both default_ and non-default_
+func configValidatorsGaugeDataSource() []resource.ConfigValidator {
+	return []resource.ConfigValidator{
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("data_orientation"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("divide_value_by"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("statistic_type"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("divide_value_by_attribute"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+		configvalidators.ImpliesOtherAttributeOneOfString(
+			path.MatchRoot("divide_value_by_counter_attribute"),
+			path.MatchRoot("type"),
+			[]string{"numeric"},
+		),
+	}
 }
 
-func (r *defaultGaugeDataSourceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	modifyPlanGaugeDataSource(ctx, req, resp, r.apiClient, r.providerConfig)
+// Add config validators
+func (r gaugeDataSourceResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsGaugeDataSource()
 }
 
-func modifyPlanGaugeDataSource(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, apiClient *client.APIClient, providerConfig internaltypes.ProviderConfiguration) {
-	var model gaugeDataSourceResourceModel
-	req.Plan.Get(ctx, &model)
-	if internaltypes.IsDefined(model.DataOrientation) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'data_orientation' not supported by pingdirectory_gauge_data_source resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'data_orientation', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.DivideValueBy) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'divide_value_by' not supported by pingdirectory_gauge_data_source resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'divide_value_by', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.StatisticType) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'statistic_type' not supported by pingdirectory_gauge_data_source resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'statistic_type', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.DivideValueByAttribute) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'divide_value_by_attribute' not supported by pingdirectory_gauge_data_source resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'divide_value_by_attribute', the 'type' attribute must be one of ['numeric']")
-	}
-	if internaltypes.IsDefined(model.DivideValueByCounterAttribute) && model.Type.ValueString() != "numeric" {
-		resp.Diagnostics.AddError("Attribute 'divide_value_by_counter_attribute' not supported by pingdirectory_gauge_data_source resources with 'type' '"+model.Type.ValueString()+"'",
-			"When using attribute 'divide_value_by_counter_attribute', the 'type' attribute must be one of ['numeric']")
-	}
+// Add config validators
+func (r defaultGaugeDataSourceResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
+	return configValidatorsGaugeDataSource()
 }
 
 // Add optional fields to create request for indicator gauge-data-source
