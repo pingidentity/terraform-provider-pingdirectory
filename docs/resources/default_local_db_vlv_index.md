@@ -27,7 +27,6 @@ Manages a Local Db Vlv Index.
 - `max_block_size` (Number) Specifies the number of entry IDs to store in a single sorted set before it must be split.
 - `scope` (String) Specifies the LDAP scope of the query that is being indexed.
 - `sort_order` (String) Specifies the names of the attributes that are used to sort the entries for the query being indexed.
-- `type` (String) The type of Local DB VLV Index resource. Options are ['local-db-vlv-index']
 
 ### Read-Only
 
@@ -35,6 +34,7 @@ Manages a Local Db Vlv Index.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Local DB VLV Index resource. Options are ['local-db-vlv-index']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

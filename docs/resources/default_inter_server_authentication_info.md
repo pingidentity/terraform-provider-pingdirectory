@@ -40,7 +40,6 @@ resource "pingdirectory_default_inter_server_authentication_info" "myInterServer
   name                          = "certificate-auth-mirrored-config"
   server_instance_listener_name = "ldap-listener-mirrored-config"
   server_instance_name          = "instance-name"
-  type                          = "certificate"
   purpose                       = ["mirrored-config"]
 }
 ```

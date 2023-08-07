@@ -41,7 +41,6 @@ Manages a Rest Resource Type.
 - `search_base_dn` (String) Specifies the base DN of the branch of the LDAP directory where resources of this type are located.
 - `search_filter_pattern` (String) Specifies the LDAP filter that should be used when searching for resources matching provided search text. All attribute types in the filter pattern referencing the search text must have a Delegated Admin Attribute definition.
 - `structural_ldap_objectclass` (String) Specifies the LDAP structural object class that should be exposed by this REST Resource Type.
-- `type` (String) The type of REST Resource Type resource. Options are ['user', 'generic', 'group']
 - `update_constructed_attribute` (Set of String) Specifies an attribute whose values are to be constructed when a resource is updated. The constructed values replace any existing values of the attribute.
 
 ### Read-Only
@@ -50,6 +49,7 @@ Manages a Rest Resource Type.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of REST Resource Type resource. Options are ['user', 'generic', 'group']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

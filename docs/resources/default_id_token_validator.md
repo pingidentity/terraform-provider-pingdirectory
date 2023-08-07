@@ -33,7 +33,6 @@ Manages a Id Token Validator.
 - `openid_connect_provider` (String) Specifies HTTPS connection settings for the PingOne OpenID Connect provider.
 - `signing_certificate` (Set of String) Specifies the locally stored certificates that may be used to validate the signature of an incoming ID token. This property may be specified if a JWKS endpoint should not be used to retrieve public signing keys.
 - `subject_claim_name` (String) The name of the token claim that contains the subject; i.e., the authenticated user.
-- `type` (String) The type of ID Token Validator resource. Options are ['ping-one', 'openid-connect']
 
 ### Read-Only
 
@@ -41,6 +40,7 @@ Manages a Id Token Validator.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of ID Token Validator resource. Options are ['ping-one', 'openid-connect']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

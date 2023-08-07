@@ -32,7 +32,6 @@ Manages a Delegated Admin Attribute.
 - `multi_valued` (Boolean) Indicates whether this Delegated Admin Attribute may have multiple values.
 - `mutability` (String) Specifies the circumstances under which the values of the attribute can be written.
 - `reference_resource_type` (String) For LDAP attributes with DN syntax, specifies what kind of resource is referenced.
-- `type` (String) The type of Delegated Admin Attribute resource. Options are ['certificate', 'photo', 'generic']
 
 ### Read-Only
 
@@ -40,6 +39,7 @@ Manages a Delegated Admin Attribute.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Delegated Admin Attribute resource. Options are ['certificate', 'photo', 'generic']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

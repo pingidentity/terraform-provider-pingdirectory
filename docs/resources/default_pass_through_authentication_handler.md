@@ -46,7 +46,6 @@ Manages a Pass Through Authentication Handler.
 - `server` (Set of String) Specifies the LDAP external server(s) to which authentication attempts should be forwarded.
 - `server_access_mode` (String) Specifies the manner in which external servers should be used for pass-through authentication attempts if multiple servers are defined.
 - `subordinate_pass_through_authentication_handler` (Set of String) The set of subordinate pass-through authentication handlers that may be used to perform the authentication processing. Handlers will be invoked in order until one is found for which the bind operation matches the associated criteria and either succeeds or fails in a manner that should not be ignored.
-- `type` (String) The type of Pass Through Authentication Handler resource. Options are ['ping-one', 'ldap', 'aggregate', 'third-party']
 - `use_location` (Boolean) Indicates whether to take server locations into account when prioritizing the servers to use for pass-through authentication attempts.
 - `use_password_policy_control` (Boolean) Indicates whether to include the password policy request control (as defined in draft-behera-ldap-password-policy-10) in bind requests sent to the external server.
 - `user_mapping_local_attribute` (Set of String) The names of the attributes in the local user entry whose values must match the values of the corresponding fields in the PingOne service.
@@ -58,6 +57,7 @@ Manages a Pass Through Authentication Handler.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Pass Through Authentication Handler resource. Options are ['ping-one', 'ldap', 'aggregate', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

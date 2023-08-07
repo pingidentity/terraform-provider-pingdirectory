@@ -37,7 +37,6 @@ Manages a Monitor Provider.
 - `prolonged_outage_behavior` (String) The behavior that the server should exhibit after a prolonged period of time when the encryption settings database remains unreadable.
 - `prolonged_outage_duration` (String) The minimum length of time that an outage should persist before it is considered a prolonged outage. If an outage lasts at least as long as this duration, then the server will take the action indicated by the prolonged-outage-behavior property.
 - `system_utilization_monitor_log_directory` (String) Specifies a relative or absolute path to the directory on the local filesystem containing the log files used by the system utilization monitor. The path must exist, and it must be a writable directory by the server process.
-- `type` (String) The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']
 
 ### Read-Only
 
@@ -45,6 +44,7 @@ Manages a Monitor Provider.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Monitor Provider resource. Options are ['memory-usage', 'stack-trace', 'encryption-settings-database-accessibility', 'custom', 'active-operations', 'ssl-context', 'version', 'host-system', 'general', 'disk-space-usage', 'system-info', 'client-connection', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

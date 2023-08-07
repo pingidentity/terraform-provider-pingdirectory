@@ -39,7 +39,6 @@ Manages a Json Field Constraints.
 - `minimum_value_length` (Number) Specifies the smallest number of characters that may be present in string values of the target field. If configured, then the server will reject any attempt to store a JSON object with a value for the target field that is shorter than that minimum value length.
 - `prime_index` (Boolean) Indicates whether backends that support database priming should load the contents of the associated JSON index into memory whenever the backend is opened.
 - `tokenize_values` (Boolean) Indicates whether the backend should attempt to assign a compact token for each distinct value for the target field in an attempt to reduce the encoded size of the field in JSON objects. These tokens would be assigned prior to using any from the token set used for automatic compaction of some JSON string values.
-- `type` (String) The type of JSON Field Constraints resource. Options are ['json-field-constraints']
 - `value_type` (String) The data type that will be required for values of the target field.
 
 ### Read-Only
@@ -48,6 +47,7 @@ Manages a Json Field Constraints.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of JSON Field Constraints resource. Options are ['json-field-constraints']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -27,7 +27,6 @@ Manages a Scim Attribute Mapping.
 - `readable` (Boolean) Specifies whether the mapping is used to map from LDAP attribute to SCIM Resource Type attribute in a read operation.
 - `scim_resource_type_attribute` (String) The attribute path of SCIM Resource Type attributes to be mapped.
 - `searchable` (Boolean) Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a search filter.
-- `type` (String) The type of SCIM Attribute Mapping resource. Options are ['scim-attribute-mapping']
 - `writable` (Boolean) Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a write operation.
 
 ### Read-Only
@@ -36,6 +35,7 @@ Manages a Scim Attribute Mapping.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of SCIM Attribute Mapping resource. Options are ['scim-attribute-mapping']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

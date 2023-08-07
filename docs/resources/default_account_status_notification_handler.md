@@ -59,7 +59,6 @@ Manages a Account Status Notification Handler.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Account Status Notification Handler.
 - `send_message_without_end_user_address` (Boolean) Indicates whether an email notification message should be generated and sent to the set of notification recipients even if the user entry does not contain any values for any of the email address attributes (that is, in cases when it is not possible to notify the end user).
 - `sender_address` (String) Specifies the email address from which the message is sent. Note that this does not necessarily have to be a legitimate email address.
-- `type` (String) The type of Account Status Notification Handler resource. Options are ['smtp', 'groovy-scripted', 'admin-alert', 'error-log', 'multi-part-email', 'third-party']
 
 ### Read-Only
 
@@ -67,6 +66,7 @@ Manages a Account Status Notification Handler.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Account Status Notification Handler resource. Options are ['smtp', 'groovy-scripted', 'admin-alert', 'error-log', 'multi-part-email', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

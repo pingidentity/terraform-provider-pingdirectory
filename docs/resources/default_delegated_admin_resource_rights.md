@@ -27,7 +27,6 @@ Manages a Delegated Admin Resource Rights.
 - `enabled` (Boolean) Indicates whether these Delegated Admin Resource Rights are enabled.
 - `resource_subtree` (Set of String) Specifies subtrees within the search base whose entries can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-subtrees.
 - `resources_in_group` (Set of String) Specifies groups whose members can be managed by the administrator(s). The admin-scope must be set to resources-in-specific-groups.
-- `type` (String) The type of Delegated Admin Resource Rights resource. Options are ['delegated-admin-resource-rights']
 
 ### Read-Only
 
@@ -35,6 +34,7 @@ Manages a Delegated Admin Resource Rights.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Delegated Admin Resource Rights resource. Options are ['delegated-admin-resource-rights']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

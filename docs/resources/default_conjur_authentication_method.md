@@ -23,7 +23,6 @@ Manages a Conjur Authentication Method.
 - `api_key` (String, Sensitive) The API key for the user to authenticate.
 - `description` (String) A description for this Conjur Authentication Method
 - `password` (String, Sensitive) The password for the user to authenticate. This will be used to obtain an API key for the target user.
-- `type` (String) The type of Conjur Authentication Method resource. Options are ['api-key']
 - `username` (String) The username for the user to authenticate.
 
 ### Read-Only
@@ -32,6 +31,7 @@ Manages a Conjur Authentication Method.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Conjur Authentication Method resource. Options are ['api-key']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

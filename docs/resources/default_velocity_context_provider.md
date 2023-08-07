@@ -32,7 +32,6 @@ Manages a Velocity Context Provider.
 - `request_tool` (Set of String) The fully-qualified name of a Velocity Tool class that will be initialized for each request. May optionally include a path to a properties file used to configure this tool separated from the class name by a semi-colon (;). The path may absolute or relative to the server root.
 - `response_header` (Set of String) Specifies HTTP header fields and values added to response headers for template page requests to which this Velocity Context Provider contributes content.
 - `session_tool` (Set of String) The fully-qualified name of a Velocity Tool class that will be initialized for each session. May optionally include a path to a properties file used to configure this tool separated from the class name by a semi-colon (;). The path may absolute or relative to the server root.
-- `type` (String) The type of Velocity Context Provider resource. Options are ['velocity-tools', 'custom', 'third-party']
 
 ### Read-Only
 
@@ -40,6 +39,7 @@ Manages a Velocity Context Provider.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Velocity Context Provider resource. Options are ['velocity-tools', 'custom', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -25,7 +25,6 @@ Manages a Result Code Map.
 - `bind_missing_user_result_code` (Number) Specifies the result code that should be returned if a bind attempt fails because the target user entry does not exist in the server.
 - `description` (String) A description for this Result Code Map
 - `server_error_result_code` (Number) Specifies the result code that should be returned if a generic error occurs within the server.
-- `type` (String) The type of Result Code Map resource. Options are ['result-code-map']
 
 ### Read-Only
 
@@ -33,6 +32,7 @@ Manages a Result Code Map.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Result Code Map resource. Options are ['result-code-map']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

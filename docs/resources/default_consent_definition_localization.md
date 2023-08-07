@@ -24,7 +24,6 @@ Manages a Consent Definition Localization.
 - `data_text` (String) Localized text describing the data to be shared.
 - `purpose_text` (String) Localized text describing how the data is to be used.
 - `title_text` (String) Localized text that may be used to provide a title or summary for a consent request or a granted consent.
-- `type` (String) The type of Consent Definition Localization resource. Options are ['consent-definition-localization']
 - `version` (String) The version of this Consent Definition Localization, using the format MAJOR.MINOR.
 
 ### Read-Only
@@ -33,6 +32,7 @@ Manages a Consent Definition Localization.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Consent Definition Localization resource. Options are ['consent-definition-localization']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

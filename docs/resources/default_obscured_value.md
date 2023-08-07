@@ -22,7 +22,6 @@ Manages a Obscured Value.
 
 - `description` (String) A description for this Obscured Value
 - `obscured_value` (String, Sensitive) The value to be stored in an obscured form.
-- `type` (String) The type of Obscured Value resource. Options are ['obscured-value']
 
 ### Read-Only
 
@@ -30,6 +29,7 @@ Manages a Obscured Value.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Obscured Value resource. Options are ['obscured-value']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

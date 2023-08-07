@@ -23,7 +23,6 @@ Manages a Vault Authentication Method.
 - `description` (String) A description for this Vault Authentication Method
 - `login_mechanism_name` (String) The name used when enabling the desired AppRole authentication mechanism in the Vault server.
 - `password` (String, Sensitive) The password for the user to authenticate.
-- `type` (String) The type of Vault Authentication Method resource. Options are ['static-token', 'app-role', 'user-pass']
 - `username` (String) The username for the user to authenticate.
 - `vault_access_token` (String, Sensitive) The static token used to authenticate to the Vault server.
 - `vault_role_id` (String) The role ID for the AppRole to authenticate.
@@ -35,6 +34,7 @@ Manages a Vault Authentication Method.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Vault Authentication Method resource. Options are ['static-token', 'app-role', 'user-pass']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

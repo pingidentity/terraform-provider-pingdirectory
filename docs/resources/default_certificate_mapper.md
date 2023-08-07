@@ -30,7 +30,6 @@ Manages a Certificate Mapper.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Certificate Mapper.
 - `subject_attribute` (String) Specifies the name or OID of the attribute whose value should exactly match the certificate subject DN.
 - `subject_attribute_mapping` (Set of String) Specifies a mapping between certificate attributes and user attributes.
-- `type` (String) The type of Certificate Mapper resource. Options are ['subject-equals-dn', 'subject-dn-to-user-attribute', 'groovy-scripted', 'subject-attribute-to-user-attribute', 'fingerprint', 'third-party']
 - `user_base_dn` (Set of String) Specifies the base DNs that should be used when performing searches to map the client certificate to a user entry.
 
 ### Read-Only
@@ -39,6 +38,7 @@ Manages a Certificate Mapper.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Certificate Mapper resource. Options are ['subject-equals-dn', 'subject-dn-to-user-attribute', 'groovy-scripted', 'subject-attribute-to-user-attribute', 'fingerprint', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

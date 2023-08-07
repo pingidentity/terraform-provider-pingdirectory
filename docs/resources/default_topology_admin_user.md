@@ -51,7 +51,6 @@ Manages a Topology Admin User.
 - `require_secure_connections` (Boolean) Indicates whether this User must be required to communicate with the server over a secure connection. When set to "true", the User will only be allowed to communicate with the server over a secure connection (i.e., using TLS or the StartTLS extended operation).
 - `search_result_entry_limit` (Number) Specifies the maximum number of entries that the server may return to the user in response to any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-size-limit LDAP attribute.
 - `time_limit_seconds` (Number) Specifies the maximum length of time (in seconds) that the server may spend processing any single search request. A value of 0 indicates no limit should be enforced. This is stored in the ds-rlim-time-limit LDAP attribute.
-- `type` (String) The type of Topology Admin User resource. Options are ['topology-admin-user']
 - `user_id` (String) Specifies the user's user ID. This is stored in the uid LDAP attribute.
 - `work_telephone_number` (Set of String) Specifies the user's work telephone number. This is stored in the telephoneNumber LDAP attribute.
 
@@ -61,6 +60,7 @@ Manages a Topology Admin User.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Topology Admin User resource. Options are ['topology-admin-user']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

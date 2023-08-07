@@ -23,7 +23,6 @@ Manages a Json Attribute Constraints.
 - `allow_unnamed_fields` (Boolean) Indicates whether JSON objects stored as values of attributes with the associated attribute-type will be permitted to include fields for which there is no subordinate json-field-constraints definition. If unnamed fields are allowed, then no constraints will be imposed on the values of those fields. However, if unnamed fields are not allowed, then the server will reject any attempt to store a JSON object with a field for which there is no corresponding json-fields-constraints definition.
 - `description` (String) A description for this JSON Attribute Constraints
 - `enabled` (Boolean) Indicates whether this JSON Attribute Constraints is enabled.
-- `type` (String) The type of JSON Attribute Constraints resource. Options are ['json-attribute-constraints']
 
 ### Read-Only
 
@@ -31,6 +30,7 @@ Manages a Json Attribute Constraints.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of JSON Attribute Constraints resource. Options are ['json-attribute-constraints']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

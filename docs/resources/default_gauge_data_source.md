@@ -33,7 +33,6 @@ Manages a Gauge Data Source.
 - `resource_attribute` (String) Specifies the attribute whose value is used to identify the specific resource being monitored (e.g. device name).
 - `resource_type` (String) A string indicating the type of resource being monitored.
 - `statistic_type` (String) Specifies the type of statistic to include in the output for the monitored attribute.
-- `type` (String) The type of Gauge Data Source resource. Options are ['indicator', 'numeric']
 
 ### Read-Only
 
@@ -41,6 +40,7 @@ Manages a Gauge Data Source.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Gauge Data Source resource. Options are ['indicator', 'numeric']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

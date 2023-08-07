@@ -28,7 +28,6 @@ Manages a Scim Attribute.
 - `mutability` (String) Specifies the circumstances under which the values of the attribute can be written.
 - `reference_type` (Set of String) Specifies the SCIM resource types that may be referenced. This property is only applicable for attributes that are of type 'reference'. Valid values are: A SCIM resource type (e.g., 'User' or 'Group'), 'external' - indicating the resource is an external resource (e.g., such as a photo), or 'uri' - indicating that the reference is to a service endpoint or an identifier (such as a schema urn).
 - `required` (Boolean) Specifies whether this attribute is required.
-- `resource_type` (String) The type of SCIM Attribute resource. Options are ['scim-attribute']
 - `returned` (String) Specifies the circumstances under which the values of the attribute are returned in response to a request.
 - `type` (String) Specifies the data type for this attribute.
 
@@ -38,6 +37,7 @@ Manages a Scim Attribute.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `resource_type` (String) The type of SCIM Attribute resource. Options are ['scim-attribute']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

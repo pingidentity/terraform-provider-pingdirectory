@@ -24,7 +24,6 @@ Manages a Ldap Correlation Attribute Pair.
 
 - `primary_correlation_attribute` (String) The LDAP attribute from the base SCIM Resource Type whose value will be used to match objects in the Correlated LDAP Data View.
 - `secondary_correlation_attribute` (String) The LDAP attribute from the Correlated LDAP Data View whose value will be matched.
-- `type` (String) The type of LDAP Correlation Attribute Pair resource. Options are ['ldap-correlation-attribute-pair']
 
 ### Read-Only
 
@@ -32,6 +31,7 @@ Manages a Ldap Correlation Attribute Pair.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of LDAP Correlation Attribute Pair resource. Options are ['ldap-correlation-attribute-pair']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

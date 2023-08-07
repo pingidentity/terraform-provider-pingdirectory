@@ -61,7 +61,6 @@ Manages a Virtual Attribute.
 - `source_attribute` (String) Specifies the source attribute containing the values to use for this virtual attribute.
 - `source_entry_dn_attribute` (String) Specifies the attribute containing the DN of another entry from which to obtain the source attribute providing the values for this virtual attribute.
 - `source_entry_dn_map` (String) Specifies a DN map that will be used to identify the entry from which to obtain the source attribute providing the values for this virtual attribute.
-- `type` (String) The type of Virtual Attribute resource. Options are ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'replication-state-detail', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']
 - `value` (Set of String) Specifies the values to be included in the virtual attribute.
 - `value_pattern` (Set of String) Specifies a pattern for constructing the virtual attribute value using fixed text and attribute values from the entry.
 
@@ -71,6 +70,7 @@ Manages a Virtual Attribute.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Virtual Attribute resource. Options are ['mirror', 'entry-checksum', 'member-of-server-group', 'constructed', 'is-member-of', 'custom', 'num-subordinates', 'reverse-dn-join', 'identify-references', 'user-defined', 'current-time', 'short-unique-id', 'entry-dn', 'has-subordinates', 'equality-join', 'groovy-scripted', 'instance-name', 'replication-state-detail', 'member', 'password-policy-state-json', 'subschema-subentry', 'dn-join', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

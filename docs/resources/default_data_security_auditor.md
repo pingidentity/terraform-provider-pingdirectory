@@ -36,7 +36,6 @@ Manages a Data Security Auditor.
 - `never_logged_in_account_warning_interval` (String) The length of time to use as the warning interval for accounts that do not appear to have authenticated. If this is not specified, then the idle account warning interval will be used.
 - `password_evaluation_age` (String) If set, the auditor will report all users with passwords older than the specified value even if password expiration is not enabled.
 - `report_file` (String) Specifies the name of the detailed report file.
-- `type` (String) The type of Data Security Auditor resource. Options are ['expired-password', 'idle-account', 'disabled-account', 'weakly-encoded-password', 'privilege', 'account-usability-issues', 'locked-account', 'filter', 'account-validity-window', 'multiple-password', 'deprecated-password-storage-scheme', 'nonexistent-password-policy', 'access-control', 'third-party']
 - `weak_crypt_encoding` (Set of String) Reporting on users with passwords encoded using the Crypt Password Storage scheme may be further limited by selecting one or more encoding mechanisms that are considered weak.
 - `weak_password_storage_scheme` (Set of String) The password storage schemes that are considered weak. Users with any of the specified password storage schemes will be included in the report.
 
@@ -46,6 +45,7 @@ Manages a Data Security Auditor.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Data Security Auditor resource. Options are ['expired-password', 'idle-account', 'disabled-account', 'weakly-encoded-password', 'privilege', 'account-usability-issues', 'locked-account', 'filter', 'account-validity-window', 'multiple-password', 'deprecated-password-storage-scheme', 'nonexistent-password-policy', 'access-control', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

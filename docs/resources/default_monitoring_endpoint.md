@@ -26,7 +26,6 @@ Manages a Monitoring Endpoint.
 - `hostname` (String) The name of the host where this StatsD Monitoring Endpoint should send metric data.
 - `server_port` (Number) Specifies the port number of the endpoint where metric data should be sent.
 - `trust_manager_provider` (String) The trust manager provider to use if SSL over TCP is to be used for connection-level security.
-- `type` (String) The type of Monitoring Endpoint resource. Options are ['statsd']
 
 ### Read-Only
 
@@ -34,6 +33,7 @@ Manages a Monitoring Endpoint.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Monitoring Endpoint resource. Options are ['statsd']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -28,7 +28,6 @@ Manages a Replication Assurance Policy.
 - `remote_level` (String) Specifies the assurance level used to replicate to remote servers. A remote server is defined as one with a different value for the location setting in the global configuration.
 - `request_criteria` (String) Specifies a request criteria used to indicate which operations from clients matching this criteria use this policy. If both a connection criteria and a request criteria are specified for a policy, then both must match an operation for the policy to be assigned.
 - `timeout` (String) Specifies the maximum length of time to wait for the replication assurance requirements to be met before timing out and replying to the client.
-- `type` (String) The type of Replication Assurance Policy resource. Options are ['replication-assurance-policy']
 
 ### Read-Only
 
@@ -36,6 +35,7 @@ Manages a Replication Assurance Policy.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Replication Assurance Policy resource. Options are ['replication-assurance-policy']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -43,7 +43,6 @@ Manages a Access Token Validator.
 - `scope_claim_name` (String) The name of the token claim that contains the scopes granted by the token.
 - `signing_certificate` (Set of String) Specifies the locally stored certificates that may be used to validate the signature of an incoming JWT access token. If this property is specified, the JWT Access Token Validator will not use a JWKS endpoint to retrieve public keys.
 - `subject_claim_name` (String) The name of the token claim that contains the subject, i.e. the logged-in user in an access token. This property goes hand-in-hand with the identity-mapper property and tells the Identity Mapper which field to use to look up the user entry on the server.
-- `type` (String) The type of Access Token Validator resource. Options are ['ping-federate', 'jwt', 'mock', 'third-party']
 
 ### Read-Only
 
@@ -51,6 +50,7 @@ Manages a Access Token Validator.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Access Token Validator resource. Options are ['ping-federate', 'jwt', 'mock', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

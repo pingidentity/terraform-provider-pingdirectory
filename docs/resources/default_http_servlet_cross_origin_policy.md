@@ -27,7 +27,6 @@ Manages a Http Servlet Cross Origin Policy.
 - `cors_exposed_headers` (Set of String) A list of HTTP headers other than the simple response headers that browsers are allowed to access.
 - `cors_preflight_max_age` (String) The maximum amount of time that a preflight request can be cached by a client.
 - `description` (String) A description for this HTTP Servlet Cross Origin Policy
-- `type` (String) The type of HTTP Servlet Cross Origin Policy resource. Options are ['http-servlet-cross-origin-policy']
 
 ### Read-Only
 
@@ -35,6 +34,7 @@ Manages a Http Servlet Cross Origin Policy.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of HTTP Servlet Cross Origin Policy resource. Options are ['http-servlet-cross-origin-policy']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

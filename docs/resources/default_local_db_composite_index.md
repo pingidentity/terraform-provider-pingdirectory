@@ -28,7 +28,6 @@ Manages a Local Db Composite Index.
 - `index_filter_pattern` (String) A filter pattern that identifies which entries to include in the index.
 - `prime_index` (Boolean) Indicates whether the server should load the contents of this index into memory when the backend is being opened.
 - `prime_internal_nodes_only` (Boolean) Indicates whether to only prime the internal nodes of the index database, rather than priming both internal and leaf nodes.
-- `type` (String) The type of Local DB Composite Index resource. Options are ['local-db-composite-index']
 
 ### Read-Only
 
@@ -36,6 +35,7 @@ Manages a Local Db Composite Index.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Local DB Composite Index resource. Options are ['local-db-composite-index']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

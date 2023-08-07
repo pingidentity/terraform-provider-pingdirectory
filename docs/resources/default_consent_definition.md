@@ -23,7 +23,6 @@ Manages a Consent Definition.
 - `description` (String) A description for this Consent Definition
 - `display_name` (String) A human-readable display name for this Consent Definition.
 - `parameter` (Set of String) Optional parameters for this Consent Definition.
-- `type` (String) The type of Consent Definition resource. Options are ['consent-definition']
 
 ### Read-Only
 
@@ -31,6 +30,7 @@ Manages a Consent Definition.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Consent Definition resource. Options are ['consent-definition']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

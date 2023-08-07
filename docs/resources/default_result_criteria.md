@@ -67,7 +67,6 @@ Manages a Result Criteria.
 - `search_indexed_criteria` (String) Indicates whether a search operation should be matched by this Simple Result Criteria based on whether it is considered indexed by the server. This will be ignored for all operations other than search.
 - `search_reference_returned_count` (Number) Specifies the target number of references returned for use when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search, and it will be ignored for search operations if the "search-reference-criteria" property has a value of "any".
 - `search_reference_returned_criteria` (String) Indicates whether the number of references returned should be considered when determining whether a search operation should be included in this Simple Result Criteria. This will be ignored for all operations other than search.
-- `type` (String) The type of Result Criteria resource. Options are ['successful-bind', 'simple', 'aggregate', 'replication-assurance', 'third-party']
 - `used_alternate_authzid` (String) Indicates whether operation results in which the associated operation used an authorization identity that is different from the authentication identity (e.g., as the result of using a proxied authorization control) should be included in this Simple Result Criteria. If no value is provided, then whether an operation used an alternate authorization identity will not be considered when determining whether it matches this Simple Result Criteria.
 - `used_any_privilege` (String) Indicates whether operations in which one or more privileges were used should be included in this Simple Result Criteria. If no value is provided, then whether an operation used any privileges will not be considered when determining whether it matches this Simple Result Criteria.
 - `used_privilege` (Set of String) Specifies the name of a privilege that must have been used during the processing for operations included in this Simple Result Criteria. If any privilege names are provided, then the associated operation must have used at least one of those privileges. If no privilege names were provided, then the set of privileges used will not be considered when determining whether an operation should be included in this Simple Result Criteria.
@@ -78,6 +77,7 @@ Manages a Result Criteria.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Result Criteria resource. Options are ['successful-bind', 'simple', 'aggregate', 'replication-assurance', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -28,7 +28,6 @@ Manages a Sensitive Attribute.
 - `attribute_type` (Set of String) The name(s) or OID(s) of the attribute types for attributes whose values may be considered sensitive.
 - `description` (String) A description for this Sensitive Attribute
 - `include_default_sensitive_operational_attributes` (Boolean) Indicates whether to automatically include any server-generated operational attributes that may contain sensitive data.
-- `type` (String) The type of Sensitive Attribute resource. Options are ['sensitive-attribute']
 
 ### Read-Only
 
@@ -36,6 +35,7 @@ Manages a Sensitive Attribute.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Sensitive Attribute resource. Options are ['sensitive-attribute']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

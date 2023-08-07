@@ -33,7 +33,6 @@ Manages a Identity Mapper.
 - `replace_pattern` (String) Specifies the replacement pattern that should be used for substrings in the ID string that match the provided regular expression pattern.
 - `script_argument` (Set of String) The set of arguments used to customize the behavior for the Scripted Identity Mapper. Each configuration property should be given in the form 'name=value'.
 - `script_class` (String) The fully-qualified name of the Groovy class providing the logic for the Groovy Scripted Identity Mapper.
-- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']
 
 ### Read-Only
 
@@ -41,6 +40,7 @@ Manages a Identity Mapper.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Identity Mapper resource. Options are ['exact-match', 'groovy-scripted', 'regular-expression', 'aggregate', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

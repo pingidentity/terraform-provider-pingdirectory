@@ -27,7 +27,6 @@ Manages a Log File Rotation Listener.
 - `extension_argument` (Set of String) The set of arguments used to customize the behavior for the Third Party Log File Rotation Listener. Each configuration property should be given in the form 'name=value'.
 - `extension_class` (String) The fully-qualified name of the Java class providing the logic for the Third Party Log File Rotation Listener.
 - `output_directory` (String) The path to the directory in which the summarize-access-log output should be written. If no value is provided, the output file will be written into the same directory as the rotated log file.
-- `type` (String) The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']
 
 ### Read-Only
 
@@ -35,6 +34,7 @@ Manages a Log File Rotation Listener.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Log File Rotation Listener resource. Options are ['summarize', 'copy', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

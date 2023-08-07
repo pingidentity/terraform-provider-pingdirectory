@@ -24,7 +24,6 @@ Manages a Delegated Admin Rights.
 - `admin_user_dn` (String) Specifies the DN of an administrative user who has authority to manage resources. Either admin-user-dn or admin-group-dn must be specified, but not both.
 - `description` (String) A description for this Delegated Admin Rights
 - `enabled` (Boolean) Indicates whether the Delegated Admin Rights is enabled.
-- `type` (String) The type of Delegated Admin Rights resource. Options are ['delegated-admin-rights']
 
 ### Read-Only
 
@@ -32,6 +31,7 @@ Manages a Delegated Admin Rights.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Delegated Admin Rights resource. Options are ['delegated-admin-rights']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -25,7 +25,6 @@ Manages a Log Retention Policy.
 - `free_disk_space` (String) Specifies the minimum amount of free disk space that should be available on the file system on which the archived log files are stored.
 - `number_of_files` (Number) Specifies the number of archived log files to retain before the oldest ones are cleaned.
 - `retain_duration` (String) Specifies the desired minimum length of time that each log file should be retained.
-- `type` (String) The type of Log Retention Policy resource. Options are ['time-limit', 'never-delete', 'file-count', 'free-disk-space', 'size-limit']
 
 ### Read-Only
 
@@ -33,6 +32,7 @@ Manages a Log Retention Policy.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Log Retention Policy resource. Options are ['time-limit', 'never-delete', 'file-count', 'free-disk-space', 'size-limit']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

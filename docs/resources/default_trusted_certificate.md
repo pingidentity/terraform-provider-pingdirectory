@@ -21,7 +21,6 @@ Manages a Trusted Certificate.
 ### Optional
 
 - `certificate` (String) The PEM-encoded X.509v3 certificate.
-- `type` (String) The type of Trusted Certificate resource. Options are ['trusted-certificate']
 
 ### Read-Only
 
@@ -29,6 +28,7 @@ Manages a Trusted Certificate.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Trusted Certificate resource. Options are ['trusted-certificate']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

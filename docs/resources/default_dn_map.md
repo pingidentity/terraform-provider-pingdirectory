@@ -23,7 +23,6 @@ Manages a Dn Map.
 - `description` (String) A description for this DN Map
 - `from_dn_pattern` (String) Specifies the DN pattern to match when determining whether this map applies to a specific source DN. If the provided bind DN matches this pattern, then the to-dn-pattern will be used to perform the mapping. If the provided bind DN does not match this pattern, then no mapping will be performed.
 - `to_dn_pattern` (String) Specifies a pattern for constructing the DN value using fixed text, DN components matching wild-card values in from-dn-pattern, and attribute values from the source entry.
-- `type` (String) The type of DN Map resource. Options are ['dn-map']
 
 ### Read-Only
 
@@ -31,6 +30,7 @@ Manages a Dn Map.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of DN Map resource. Options are ['dn-map']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

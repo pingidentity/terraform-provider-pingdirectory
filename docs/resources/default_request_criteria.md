@@ -54,7 +54,6 @@ Manages a Request Criteria.
 - `operation_origin` (Set of String) Specifies the origin for operations to be included in this Simple Request Criteria. If no values are provided, then the operation origin will not be taken into consideration when determining whether an operation matches this Simple Request Criteria.
 - `operation_type` (Set of String) The types of operations that may be matched by this Root DSE Request Criteria.
 - `target_bind_type` (Set of String) Specifies the authentication type for bind requests included in this Simple Request Criteria. This will only be taken into account for bind operations and will be ignored for any other type of operation. If no values are provided, then the authentication type will not be considered when determining whether the request should be included in this Simple Request Criteria.
-- `type` (String) The type of Request Criteria resource. Options are ['root-dse', 'simple', 'aggregate', 'third-party']
 - `using_administrative_session_worker_thread` (String) Indicates whether operations being processed using a dedicated administrative session worker thread should be included in this Simple Request Criteria.
 
 ### Read-Only
@@ -63,6 +62,7 @@ Manages a Request Criteria.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Request Criteria resource. Options are ['root-dse', 'simple', 'aggregate', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

@@ -27,7 +27,6 @@ Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory produc
 - `metric_type` (String) The metric type that should be used for the value of the specified monitor attribute.
 - `monitor_attribute_name` (String) The name of the monitor attribute that contains the numeric value to be published.
 - `monitor_object_class_name` (String) The name of the object class for monitor entries that contain the monitor attribute.
-- `type` (String) The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']
 
 ### Read-Only
 
@@ -35,6 +34,7 @@ Manages a Prometheus Monitor Attribute Metric. Supported in PingDirectory produc
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Prometheus Monitor Attribute Metric resource. Options are ['prometheus-monitor-attribute-metric']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

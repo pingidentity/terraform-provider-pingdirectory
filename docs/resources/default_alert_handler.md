@@ -48,7 +48,6 @@ Manages a Alert Handler.
 - `twilio_account_sid` (String) The unique identifier assigned to the Twilio account that will be used.
 - `twilio_auth_token` (String, Sensitive) The auth token for the Twilio account that will be used.
 - `twilio_auth_token_passphrase_provider` (String) The passphrase provider that may be used to obtain the auth token for the Twilio account that will be used.
-- `type` (String) The type of Alert Handler resource. Options are ['output', 'smtp', 'jmx', 'groovy-scripted', 'custom', 'snmp', 'twilio', 'error-log', 'snmp-sub-agent', 'exec', 'third-party']
 
 ### Read-Only
 
@@ -56,6 +55,7 @@ Manages a Alert Handler.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Alert Handler resource. Options are ['output', 'smtp', 'jmx', 'groovy-scripted', 'custom', 'snmp', 'twilio', 'error-log', 'snmp-sub-agent', 'exec', 'third-party']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

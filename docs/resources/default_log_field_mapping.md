@@ -75,7 +75,6 @@ Manages a Log Field Mapping.
 - `log_field_target_protocol` (String) The protocol used when forwarding the request to a backend server.
 - `log_field_timestamp` (String) The time that the operation was processed.
 - `log_field_unindexed` (String) Indicates whether the requested search operation was unindexed.
-- `type` (String) The type of Log Field Mapping resource. Options are ['access', 'error']
 
 ### Read-Only
 
@@ -83,6 +82,7 @@ Manages a Log Field Mapping.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Log Field Mapping resource. Options are ['access', 'error']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`

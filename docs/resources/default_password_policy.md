@@ -70,7 +70,6 @@ Manages a Password Policy.
 - `return_password_expiration_controls` (String) Indicates whether the server should return the password expiring and password expired response controls (as described in draft-vchu-ldap-pwd-policy).
 - `skip_validation_for_administrators` (Boolean) Indicates whether passwords set by administrators are allowed to bypass the password validation process that is required for user password changes.
 - `state_update_failure_policy` (String) Specifies how the server deals with the inability to update password policy state information during an authentication attempt.
-- `type` (String) The type of Password Policy resource. Options are ['password-policy']
 
 ### Read-Only
 
@@ -78,6 +77,7 @@ Manages a Password Policy.
 - `last_updated` (String) Timestamp of the last Terraform update of this resource.
 - `notifications` (Set of String) Notifications returned by the PingDirectory Configuration API.
 - `required_actions` (Set of Object) Required actions returned by the PingDirectory Configuration API. (see [below for nested schema](#nestedatt--required_actions))
+- `type` (String) The type of Password Policy resource. Options are ['password-policy']
 
 <a id="nestedatt--required_actions"></a>
 ### Nested Schema for `required_actions`
