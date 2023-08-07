@@ -24,7 +24,6 @@ provider "pingdirectory" {
 
 resource "pingdirectory_default_attribute_syntax" "myAttributeSyntax" {
   name                    = "MyAttributeSyntax"
-  type                    = "attribute-type-description"
   enabled                 = false
   require_binary_transfer = true
 }

@@ -70,7 +70,6 @@ func TestAccServerInstanceListener(t *testing.T) {
 func testAccServerInstanceListenerResource(resourceName string, resourceModel serverInstanceListenerTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_server_instance_listener" "%[1]s" {
-  type                 = "ldap"
   name                 = "%[2]s"
   server_instance_name = "%[3]s"
 }

@@ -83,7 +83,6 @@ func TestAccInterServerAuthenticationInfo(t *testing.T) {
 func testAccInterServerAuthenticationInfoResource(resourceName string, resourceModel interServerAuthenticationInfoTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_inter_server_authentication_info" "%[1]s" {
-  type                          = "certificate"
   name                          = "%[2]s"
   server_instance_listener_name = "%[3]s"
   server_instance_name          = "%[4]s"

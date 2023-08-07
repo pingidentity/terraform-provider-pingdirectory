@@ -153,7 +153,6 @@ func TestAccDefaultLogPublisher(t *testing.T) {
 func testAccDefaultLogPublisherResource(resourceName string, resourceModel defaultLogPublisherTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_log_publisher" "%[1]s" {
-  type    = "file-based-audit"
   name    = "%[2]s"
   enabled = "%[3]t"
 }`, resourceName, resourceModel.id,

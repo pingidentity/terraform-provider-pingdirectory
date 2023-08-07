@@ -72,7 +72,6 @@ func TestAccGenericLogFieldSyntax(t *testing.T) {
 func testAccGenericLogFieldSyntaxResource(resourceName string, resourceModel genericLogFieldSyntaxTestModel) string {
 	return fmt.Sprintf(`
 resource "pingdirectory_default_log_field_syntax" "%[1]s" {
-  type             = "generic"
   name             = "%[2]s"
   default_behavior = "%[3]s"
 }
