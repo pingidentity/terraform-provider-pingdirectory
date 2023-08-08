@@ -453,7 +453,7 @@ func saslMechanismHandlerSchema(ctx context.Context, req resource.SchemaRequest,
 				boolplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -492,8 +492,8 @@ func configValidatorsSaslMechanismHandler() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"oauth-bearer"},
 			resourcevalidator.AtLeastOneOf(
-				path.MatchRoot("id_token_validator"),
 				path.MatchRoot("access_token_validator"),
+				path.MatchRoot("id_token_validator"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

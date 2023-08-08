@@ -157,6 +157,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 				Description: "Specifies the scope of these Delegated Admin Resource Rights.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("resources-in-specific-subtrees"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -188,7 +189,7 @@ func delegatedAdminResourceRightsSchema(ctx context.Context, req resource.Schema
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "rest_resource_type", "delegated_admin_rights_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "rest_resource_type", "delegated_admin_rights_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef

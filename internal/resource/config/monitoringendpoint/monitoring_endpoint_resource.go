@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -129,6 +130,7 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "Specifies the port number of the endpoint where metric data should be sent.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(8125),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -137,6 +139,7 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 				Description: "Specifies the protocol and security that this StatsD Monitoring Endpoint should use to connect to the configured endpoint.",
 				Optional:    true,
 				Computed:    true,
+				Default:     stringdefault.StaticString("unencrypted-udp"),
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -171,7 +174,7 @@ func monitoringEndpointSchema(ctx context.Context, req resource.SchemaRequest, r
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

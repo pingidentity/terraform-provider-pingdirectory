@@ -225,7 +225,7 @@ func identityMapperSchema(ctx context.Context, req resource.SchemaRequest, resp 
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -238,8 +238,8 @@ func configValidatorsIdentityMapper() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"aggregate"},
 			resourcevalidator.ExactlyOneOf(
-				path.MatchRoot("any_included_identity_mapper"),
 				path.MatchRoot("all_included_identity_mapper"),
+				path.MatchRoot("any_included_identity_mapper"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

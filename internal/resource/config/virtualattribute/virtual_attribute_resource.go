@@ -513,7 +513,7 @@ func virtualAttributeSchema(ctx context.Context, req resource.SchemaRequest, res
 				setplanmodifier.UseStateForUnknown(),
 			},
 		}
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -526,8 +526,8 @@ func configValidatorsVirtualAttribute() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"mirror"},
 			resourcevalidator.Conflicting(
-				path.MatchRoot("source_entry_dn_map"),
 				path.MatchRoot("source_entry_dn_attribute"),
+				path.MatchRoot("source_entry_dn_map"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

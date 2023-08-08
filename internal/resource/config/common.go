@@ -91,11 +91,7 @@ func AddCommonDataSourceSchema(s *datasourceschema.Schema, addNameAttribute bool
 	}
 }
 
-func SetAllAttributesToOptionalAndComputed(s *schema.Schema) {
-	SetAttributesToOptionalAndComputed(s, []string{})
-}
-
-func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []string) {
+func SetAttributesToOptionalAndComputedAndRemoveDefaults(s *schema.Schema, exemptAttributes []string) {
 	for key, attribute := range s.Attributes {
 		// If more attribute types are used by this provider, this method will need to be updated
 		if !internaltypes.StringSliceContains(exemptAttributes, key) {
@@ -105,6 +101,7 @@ func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []str
 				stringAttr.Required = false
 				stringAttr.Optional = true
 				stringAttr.Computed = true
+				stringAttr.Default = nil
 				stringAttr.PlanModifiers = append(stringAttr.PlanModifiers, stringplanmodifier.UseStateForUnknown())
 				s.Attributes[key] = stringAttr
 				continue
@@ -115,6 +112,7 @@ func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []str
 				setAttr.Required = false
 				setAttr.Optional = true
 				setAttr.Computed = true
+				setAttr.Default = nil
 				setAttr.PlanModifiers = append(setAttr.PlanModifiers, setplanmodifier.UseStateForUnknown())
 				s.Attributes[key] = setAttr
 				continue
@@ -125,6 +123,7 @@ func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []str
 				boolAttr.Required = false
 				boolAttr.Optional = true
 				boolAttr.Computed = true
+				boolAttr.Default = nil
 				boolAttr.PlanModifiers = append(boolAttr.PlanModifiers, boolplanmodifier.UseStateForUnknown())
 				s.Attributes[key] = boolAttr
 				continue
@@ -135,6 +134,7 @@ func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []str
 				intAttr.Required = false
 				intAttr.Optional = true
 				intAttr.Computed = true
+				intAttr.Default = nil
 				intAttr.PlanModifiers = append(intAttr.PlanModifiers, int64planmodifier.UseStateForUnknown())
 				s.Attributes[key] = intAttr
 				continue
@@ -145,6 +145,7 @@ func SetAttributesToOptionalAndComputed(s *schema.Schema, exemptAttributes []str
 				floatAttr.Required = false
 				floatAttr.Optional = true
 				floatAttr.Computed = true
+				floatAttr.Default = nil
 				floatAttr.PlanModifiers = append(floatAttr.PlanModifiers, float64planmodifier.UseStateForUnknown())
 				s.Attributes[key] = floatAttr
 				continue

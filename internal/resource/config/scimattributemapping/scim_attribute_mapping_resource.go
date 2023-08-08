@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -150,6 +151,7 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies whether the mapping is used to map from LDAP attribute to SCIM Resource Type attribute in a read operation.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(true),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -158,6 +160,7 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a write operation.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(true),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -166,6 +169,7 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies that the mapping is used to map from SCIM Resource Type attribute to LDAP attribute in a search filter.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -174,6 +178,7 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 				Description: "Specifies that the mapping is authoritative over other mappings for the same SCIM Resource Type attribute (for read operations).",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -187,7 +192,7 @@ func scimAttributeMappingSchema(ctx context.Context, req resource.SchemaRequest,
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "scim_resource_type_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "scim_resource_type_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef

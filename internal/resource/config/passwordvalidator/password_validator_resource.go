@@ -493,7 +493,7 @@ func passwordValidatorSchema(ctx context.Context, req resource.SchemaRequest, re
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -549,9 +549,9 @@ func configValidatorsPasswordValidator() []resource.ConfigValidator {
 			path.MatchRoot("type"),
 			[]string{"disallowed-characters"},
 			resourcevalidator.AtLeastOneOf(
+				path.MatchRoot("disallowed_characters"),
 				path.MatchRoot("disallowed_leading_characters"),
 				path.MatchRoot("disallowed_trailing_characters"),
-				path.MatchRoot("disallowed_characters"),
 			),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(

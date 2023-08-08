@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -251,6 +252,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The maximum number of resources that may be returned from a search request.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(100),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -259,6 +261,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 				Description: "The maximum number of resources that may be included in a report.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(100000),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -289,7 +292,7 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 		typeAttr.PlanModifiers = []planmodifier.String{}
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, true)
 	resp.Schema = schemaDef
@@ -299,8 +302,8 @@ func restResourceTypeSchema(ctx context.Context, req resource.SchemaRequest, res
 func configValidatorsRestResourceType() []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.Conflicting(
-			path.MatchRoot("parent_resource_type"),
 			path.MatchRoot("parent_dn"),
+			path.MatchRoot("parent_resource_type"),
 		),
 		configvalidators.ImpliesOtherAttributeOneOfString(
 			path.MatchRoot("password_attribute_category"),

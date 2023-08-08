@@ -10,7 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
@@ -156,6 +158,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "Specifies the property to indicate whether to include method arguments in debug messages.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -164,6 +167,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "Specifies the property to indicate whether to include the return value in debug messages.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(false),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -172,6 +176,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "Specifies the property to indicate whether to include the cause of exceptions in exception thrown and caught messages.",
 				Optional:    true,
 				Computed:    true,
+				Default:     booldefault.StaticBool(true),
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -180,6 +185,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 				Description: "Specifies the property to indicate the number of stack frames to include in the stack trace for method entry and exception thrown messages.",
 				Optional:    true,
 				Computed:    true,
+				Default:     int64default.StaticInt64(0),
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -197,7 +203,7 @@ func debugTargetSchema(ctx context.Context, req resource.SchemaRequest, resp *re
 		typeAttr.Computed = true
 		schemaDef.Attributes["type"] = typeAttr
 		// Add any default properties and set optional properties to computed where necessary
-		config.SetAttributesToOptionalAndComputed(&schemaDef, []string{"type", "debug_scope", "log_publisher_name"})
+		config.SetAttributesToOptionalAndComputedAndRemoveDefaults(&schemaDef, []string{"type", "debug_scope", "log_publisher_name"})
 	}
 	config.AddCommonResourceSchema(&schemaDef, false)
 	resp.Schema = schemaDef
